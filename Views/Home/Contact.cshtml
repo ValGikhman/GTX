@@ -1,19 +1,24 @@
 ﻿@{
-    ViewBag.Title = "Contact";
+    Html.RenderPartial("_PageTitle");
 }
-<main aria-labelledby="title">
-    <h2 id="title">@ViewBag.Title.</h2>
-    <h3>@ViewBag.Message</h3>
-
-    <address>
-        One Microsoft Way<br />
-        Redmond, WA 98052-6399<br />
-        <abbr title="Phone">P:</abbr>
-        425.555.0100
-    </address>
-
-    <address>
-        <strong>Support:</strong>   <a href="mailto:Support@example.com">Support@example.com</a><br />
-        <strong>Marketing:</strong> <a href="mailto:Marketing@example.com">Marketing@example.com</a>
-    </address>
-</main>
+<section class="container-fluid d-flex justify-content-center">
+    <div class="well row col-lg-8 m-5 p-3 shadow">
+        <div class="col-lg-6">
+            <img class="w-50 rounded-2 shadow" src="@Url.Content("~/img/gtx.jpg")">
+            <h3 class="card-title mt-3">Firfield Showroom</h3>
+            <p class="card-text">9516 PRINCETON GLENDALE RD, West Chester, OH 45011</p>
+            <p class="card-text">
+                (513) 912-4574<br />
+                Weekday 08:00 am to 18:00 pm<br />
+                Saturday: 10:00 am to 16:00 pm<br />
+                Sunday: Closed
+            </p>
+        </div>
+        <div class="col-lg-6">
+            <div class="mt-5">
+                @{Html.RenderPartial("_ContactForm");}
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Contact Section End -->

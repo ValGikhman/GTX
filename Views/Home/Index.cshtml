@@ -1,91 +1,62 @@
 ﻿@{
-    ViewBag.Title = "GTX Home Page";
+    @model GTX.Models.HomeModel
 }
-
+<main>
     <!-- Hero Section Begin -->
-    <section class="hero spad set-bg" data-setbg="../img/hero-bg.jpg">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-7">
-                    <div class="hero__text">
-                        <div class="hero__text__title">
-                            <span>BUY YOUR DREAM CAR</span>
-                            <h2>АИД БЕНЦ S</h2>
-                            <span class="car-model">Model 1967</span>
-                        </div>
-                        <div class="hero__text__price">
-                            <h2>$399<span>/Month</span></h2>
-                        </div>
-
-                        <a class="btn btn-primary" href="#" role="button"">
-                        <img src="../img/wheel.png" alt=""> Test Drive</a>
-                        <a href="#" class="btn btn-primary">Learn More</a>
-                    </div>
-                </div>
-                <div class="col-lg-5">
-                    <div class=" rounded hero__tab__form">
-                        <h2>Buy Your Dream Car</h2>
-                        <form>
-                            <div class="select-list">
-                                <div class="select-list-item">
-                                    <p>Select Year</p>
-                                    <select class="form-select shadow-sm bg-body rounded">
-                                        <option selected></option>
-                                        <option value="">2020</option>
-                                        <option value="">2019</option>
-                                        <option value="">2018</option>
-                                        <option value="">2017</option>
-                                        <option value="">2016</option>
-                                        <option value="">2015</option>
-                                    </select>
-                                </div>
-                                <div class="select-list-item">
-                                    <p>Select Year</p>
-                                    <select class="form-select shadow-sm rounded">
-                                        <option selected></option>
-                                        <option value="">Acura</option>
-                                        <option value="">Audi</option>
-                                        <option value="">Bentley</option>
-                                        <option value="">BMW</option>
-                                        <option value="">Bugatti</option>
-                                    </select>
-                                </div>
-                                <div class="select-list-item">
-                                    <p>Select Year</p>
-                                    <select class="form-select shadow-sm rounded">
-                                        <option selected></option>
-                                        <option value="">Q3</option>
-                                        <option value="">A4 </option>
-                                        <option value="">AVENTADOR</option>
-                                    </select>
-                                </div>
-                                <div class="select-list-item">
-                                    <p>Select Year</p>
-                                    <select class="form-select shadow-sm rounded">
-                                        <option selected></option>
-                                        <option value="">27</option>
-                                        <option value="">25</option>
-                                        <option value="">15</option>
-                                        <option value="">10</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="car-price">
-                                <p>Price Range:</p>
-                                <div class="price-range-wrap">
-                                    <div class="price-range"></div>
-                                    <div class="range-slider">
-                                        <div class="price-input">
-                                            <input type="text" id="amount">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <button type="submit" class="shadow btn btn-primary">Search</button>
-                        </form>
-                    </div>
+    <section class="hero spad set-bg" data-setbg="@Url.Content("~/img/index.jpg")">
+        <div class="col-lg-8 offset-lg-2">
+            <div class="position-relative">
+                <h3 class="text-white display-3 font-weight-bolder text-center px-2 mb-4">Used cars, trucks, and SUVs from Cincinnati Ohio</h3>
+                <div class="position-relative shadow">
+                    <span class="d-inline-block faIcon fa-regular fa-magnifying-glass position-absolute text-muted" style="top: 16px; left: 20px;">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input placeholder="Search by make, model" autocomplete="off" tabindex="-1" class="ps-5 pe-5 py-3 searchbox searchbox-hero form-control form-control-lg" value="" />
                 </div>
             </div>
         </div>
     </section>
     <!-- Hero Section End -->
+    <section>
+        <div class="container-fluid well">
+            <div class="mx-n1 mx-lg-0 my-3 row">
+                <div class="p-1 notranslate col-md-2 col-4">
+                    <a class="d-block cursor-pointer bg-white border rounded p-3 text-center" title="SUVs at Indy Auto Man used car dealership in Indianapolis, IN" href="/suvs">
+                        <img width="120" height="66" alt="SUVs" class="my-1 img-fluid" src="https://static.overfuel.com/images/icons/cartypes/suv.webp">
+                        <br>SUVs
+                    </a>
+                </div>
+                <div class="p-1 notranslate col-md-2 col-4">
+                    <a class="d-block cursor-pointer bg-white border rounded p-3 text-center" title="Sedans" href="/cars">
+                        <img width="120" height="66" alt="Sedans" class="my-1 img-fluid" src="https://static.overfuel.com/images/icons/cartypes/sedan.webp">
+                        <br>Cars
+                    </a>
+                </div>
+                <div class="p-1 notranslate col-md-2 col-4">
+                    <a class="d-block cursor-pointer bg-white border rounded p-3 text-center" title="Pickup trucks" href="/trucks">
+                        <img width="120" height="66" alt="Pickup trucks" class="my-1 img-fluid" src="https://static.overfuel.com/images/icons/cartypes/truck.webp">
+                        <br>Trucks
+                    </a>
+                </div>
+                <div class="p-1 notranslate col-md-2 col-4">
+                    <a class="d-block cursor-pointer bg-white border rounded p-3 text-center" title="Vans at Indy Auto Man used car dealership in Indianapolis, IN" href="/vans">
+                        <img width="120" height="66" alt="Vans" class="my-1 img-fluid" src="https://static.overfuel.com/images/icons/cartypes/van.webp"><br>Vans
+                    </a>
+                </div>
+                <div class="p-1 notranslate col-md-2 col-4">
+                    <a class="d-block cursor-pointer bg-white border rounded p-3 text-center" title="Cargo" href="/cargo-vans">
+                        <img width="120" height="66" alt="Cargo" class="my-1 img-fluid" src="https://static.overfuel.com/images/icons/cartypes/cargovan.webp">
+                        <br>Cargo Vans
+                    </a>
+                </div>
+                <div class="p-1 notranslate col-md-2 col-4">
+                    <a class="d-block cursor-pointer bg-white border rounded p-3 text-center" title="Hatchbacks" href="/hatchbacks">
+                        <img width="120" height="66" alt="Hatchbacks" class="my-1 img-fluid" src="https://static.overfuel.com/images/icons/cartypes/wagon.webp">
+                        <br>Hatchback
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+ </main>
