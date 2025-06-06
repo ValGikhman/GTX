@@ -1,12 +1,14 @@
-﻿using GTX.Models;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 
 namespace GTX.Controllers {
 
     public class HomeController : Controller {
+
+        private readonly IUserService _userService;
+
+        public HomeController(IUserService userService) {
+            _userService = userService;
+        }
 
         public ActionResult Index() {
             ViewBag.Message = "Home";
