@@ -13,6 +13,7 @@ namespace GTX
            
             DependencyResolver.SetResolver(new UnityDependencyResolver(container));
             container.RegisterType<IUserService, UserService>();
+            container.RegisterType<IContactService, ContactService>();
         }
     }
 }

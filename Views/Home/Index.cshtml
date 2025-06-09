@@ -1,62 +1,39 @@
 ﻿@{
     @model GTX.Models.HomeModel
 }
-<main>
-    <!-- Hero Section Begin -->
-    <section class="hero spad set-bg" data-setbg="@Url.Content("~/img/index.jpg")">
-        <div class="col-lg-8 offset-lg-2">
-            <div class="position-relative">
-                <h3 class="text-white display-3 font-weight-bolder text-center px-2 mb-4">Used cars, trucks, and SUVs from Cincinnati Ohio</h3>
-                <div class="position-relative shadow">
-                    <span class="d-inline-block faIcon fa-regular fa-magnifying-glass position-absolute text-muted" style="top: 16px; left: 20px;">
-                        <i class="bi bi-search"></i>
-                    </span>
-                    <input placeholder="Search by make, model" autocomplete="off" tabindex="-1" class="ps-5 pe-5 py-3 searchbox searchbox-hero form-control form-control-lg" value="" />
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- Hero Section End -->
-    <section>
-        <div class="container-fluid well">
-            <div class="mx-n1 mx-lg-0 my-3 row">
-                <div class="p-1 notranslate col-md-2 col-4">
-                    <a class="d-block cursor-pointer bg-white border rounded p-3 text-center" title="SUVs at Indy Auto Man used car dealership in Indianapolis, IN" href="/suvs">
-                        <img width="120" height="66" alt="SUVs" class="my-1 img-fluid" src="https://static.overfuel.com/images/icons/cartypes/suv.webp">
-                        <br>SUVs
-                    </a>
-                </div>
-                <div class="p-1 notranslate col-md-2 col-4">
-                    <a class="d-block cursor-pointer bg-white border rounded p-3 text-center" title="Sedans" href="/cars">
-                        <img width="120" height="66" alt="Sedans" class="my-1 img-fluid" src="https://static.overfuel.com/images/icons/cartypes/sedan.webp">
-                        <br>Cars
-                    </a>
-                </div>
-                <div class="p-1 notranslate col-md-2 col-4">
-                    <a class="d-block cursor-pointer bg-white border rounded p-3 text-center" title="Pickup trucks" href="/trucks">
-                        <img width="120" height="66" alt="Pickup trucks" class="my-1 img-fluid" src="https://static.overfuel.com/images/icons/cartypes/truck.webp">
-                        <br>Trucks
-                    </a>
-                </div>
-                <div class="p-1 notranslate col-md-2 col-4">
-                    <a class="d-block cursor-pointer bg-white border rounded p-3 text-center" title="Vans at Indy Auto Man used car dealership in Indianapolis, IN" href="/vans">
-                        <img width="120" height="66" alt="Vans" class="my-1 img-fluid" src="https://static.overfuel.com/images/icons/cartypes/van.webp"><br>Vans
-                    </a>
-                </div>
-                <div class="p-1 notranslate col-md-2 col-4">
-                    <a class="d-block cursor-pointer bg-white border rounded p-3 text-center" title="Cargo" href="/cargo-vans">
-                        <img width="120" height="66" alt="Cargo" class="my-1 img-fluid" src="https://static.overfuel.com/images/icons/cartypes/cargovan.webp">
-                        <br>Cargo Vans
-                    </a>
-                </div>
-                <div class="p-1 notranslate col-md-2 col-4">
-                    <a class="d-block cursor-pointer bg-white border rounded p-3 text-center" title="Hatchbacks" href="/hatchbacks">
-                        <img width="120" height="66" alt="Hatchbacks" class="my-1 img-fluid" src="https://static.overfuel.com/images/icons/cartypes/wagon.webp">
-                        <br>Hatchback
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
+<!-- Hero Section Begin -->
+<section class="hero spad set-bg" data-setbg="@Url.Content("~/img/hero/cin1.jpg")">
+</section>
 
- </main>
+<div class="well">
+    <marquee behavior="scroll" class="mt-2" scrollamount=10>
+        <h3>
+            Cincinnati Drives GTX. You Road Begins Here.
+            GTX Autogroup — Where Used Feels New.
+            Driven by Value. Backed by Trust.
+            Your Hometown Dealership with Big-Time Deals.
+        </h3>
+    </marquee>
+</div>
+
+<!-- Hero Section End -->
+
+<script>
+    $(function () {
+        const backgrounds = [
+            'url("../img/hero/cin1.jpg")',
+            'url("../img/hero/cin2.jpg")',
+            'url("../img/hero/cin3.jpg")',
+            'url("../img/hero/cin4.jpg")',
+            'url("../img/hero/cin5.jpg")',
+            'url("../img/hero/cin6.png")'
+        ];
+
+        let bgIndex = 0;
+        setInterval(() => {
+            console.info(backgrounds[bgIndex]);
+            $(".hero").css("background-image", backgrounds[bgIndex]);
+            bgIndex = (bgIndex + 1) % backgrounds.length;
+        }, 10000); // 10 seconds
+    })
+</script>

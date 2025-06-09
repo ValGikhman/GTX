@@ -1,110 +1,54 @@
-﻿@{
+﻿@model List<GTX.Models.Employer>
+@{
     Html.RenderPartial("_PageTitle");
 }
+<!-- Modal -->
+<div id="message" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id="header" class="modal-header shadow">
+                <h5 id="title" class="modal-title test-shadow">Contact</h5>
+            </div>
+            <div id="messageBody" class="modal-body well">
+            </div>
+        </div>
+    </div>
+</div>
+
 <section class="container-fluid d-flex justify-content-center">
     <div class="row col-lg-8 p-3">
-        <div class="card well shadow">
-            <div class="team__item">
-                <div class="team__item__pic">
-                    <img class="rounded-2 shadow" src="@Url.Content("~/img/staff/1.jpg")" alt="...">
-                </div>
-                <div class="team__item__text">
-                    <h5>Anna  Dovzhuk</h5>
-                    <div>Sales Specialist</div>
-                    <a href="mailto:annadovzhuk18@gmail.com" class="btn btn-primary shadow mt-2" target="_top">Contact</a>
-                </div>
-            </div>
-        </div>
-        <div class="card well shadow">
-            <div class="team__item__pic">
-                <img class="rounded shadow" src="@Url.Content("~/img/staff/2.jpg")" alt="...">
-            </div>
-            <div class="team__item__text">
-                <h5>Bill Driscoll</h5>
-                <div>Finance Manager</div>
-                <a href="mailto:billdriscoll4@yahoo.com" class="btn btn-primary shadow mt-2">Contact</a>
-            </div>
-        </div>
-        <div class="card well shadow">
-            <div class="team__item__pic">
-                <img class="rounded shadow" src="@Url.Content("~/img/staff/3.jpg")" alt="...">
-            </div>
-            <div class="team__item__text">
-                <h5>Jesus  Rodriguez</h5>
-                <div>Product Specialist </div>
-                <a href="mailto:machorodriguez36@gmail.com" class="btn btn-primary shadow mt-2">Contact</a>
-            </div>
-        </div>
-        <div class="card well shadow">
-            <div class="team__item__pic">
-                <img class="rounded shadow" src="@Url.Content("~/img/staff/4.jpg")" alt="...">
-            </div>
-            <div class="team__item__text">
-                <h5>John Richardson</h5>
-                <div>Service Manager </div>
-                <a href="mailto:gtxagroupservice@gmail.com" class="btn btn-primary shadow mt-2">Contact</a>
-            </div>
-        </div>
-        <div class="card well shadow">
-            <div class="team__item">
-                <div class="team__item__pic">
-                    <img class="rounded shadow" src="@Url.Content("~/img/staff/5.jpg")" alt="...">
-                </div>
-                <div class="team__item__text">
-                    <h5>Julia Cazacov</h5>
-                    <div>Delivery</div>
-                    <a href="mailto:juliagtxautogroup@gmail.com" class="btn btn-primary shadow mt-2">Contact</a>
+        @foreach (var employer in Model) {
+            <div class="card well shadow">
+                <div class="team__item">
+                    <div class="team__item__pic">
+                        <img class="rounded-2 shadow" src="@Url.Content($"~/img/staff/{employer.id}.jpg")" alt="...">
+                    </div>
+                    <div class="team__item__text">
+                        <h5>@employer.Name</h5>
+                        <div>@employer.Position</div>
+                        <a href="mailto:@employer.Email" class="btn btn-primary shadow mt-2" onClick="showEmail('@employer.Name', '@employer.Email')">Contact</a>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="card well shadow">
-            <div class="team__item__pic">
-                <img class="rounded shadow" src="@Url.Content("~/img/staff/9.jpg")" alt="...">
-            </div>
-            <div class="team__item__text">
-                <h5>Lena Kol</h5>
-                <div>Sales Specialist</div>
-                <a href="mailto:gtxagrouplena@gmail.com " class="btn btn-primary shadow mt-2">Contact</a>
-            </div>
-        </div>
-        <div class="card well shadow">
-            <div class="team__item__pic">
-                <img class="rounded shadow" src="@Url.Content("~/img/staff/6.jpg")" alt="...">
-            </div>
-            <div class="team__item__text">
-                <h5>Myron Tkachuk</h5>
-                <div>Sales Specialist</div>
-                <a href="mailto:gtxauto.myron.t@gmail.com" class="btn btn-primary shadow mt-2">Contact</a>
-            </div>
-        </div>
-        <div class="card well shadow">
-            <div class="team__item__pic">
-                <img class="rounded shadow" src="@Url.Content("~/img/staff/7.jpg")" alt="...">
-            </div>
-            <div class="team__item__text">
-                <h5>Paul Barysas</h5>
-                <div class="card-text">Sales Manager</div>
-                <a href="mailto:gtxbdc@gmail.com" class="btn btn-primary shadow mt-2">Contact</a>
-            </div>
-        </div>
+        }
     </div>
 </section>
 <script type="text/javascript">
     $(function () {
     })
-    function showEmail(id) {
-        var container = $(".container-designer");
-        container.block();
-        var jqxhr = $.get($.validator.format("{0}Category/EditCategory/", root), { id: id, type: $("#CategoryType").val() })
+
+    function showEmail(name, email) {
+        var name = "Contact: " + (name).innerText;
+        var jqxhr = $.get(`${root}Home/ContactForm/`)
             .done(function (result) {
-                $("#modalEditForm").html(result);
-                $(".modalEditForm").modal("show");
+                $("#SendTo").val(email);
+                $("#messageBody").html(result);
+                $("#title").html(name);
+                $("#message").modal("show");
             })
             .fail(function () {
             })
             .always(function () {
-                $('.glyphicon-cog').show();
-                container.unblock();
-            });
+            })
     }
 </script>

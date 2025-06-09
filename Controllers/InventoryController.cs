@@ -6,10 +6,11 @@ using System.Web.Mvc;
 
 namespace GTX.Controllers {
 
-    public class InventoryController : Controller {
+    public class InventoryController : BaseController {
 
-        public ActionResult Index() {
-            ViewBag.Message = "Inventory page.";
+        public ActionResult All() {
+            ViewBag.Message = "Inventory.";
+            ViewBag.Title = "Inventory";
 
             return View();
         }

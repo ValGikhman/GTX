@@ -5,32 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>GTX Autogroup</title>
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" />
+              
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/scripts/modernizr")
     @Scripts.Render("~/scripts/bootstrap")
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-
 </head>
+
+<script type="text/javascript">
+    var root = "@Url.Content("~/")";
+</script>
+
 <body>
-    @* Modal edit window *@
-    <div class="modal modalEditForm" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div id="modalEditForm" class="modal-body">
-                </div>
-            </div>
-        </div>
-    </div>
     <!-- Offcanvas Menu Begin -->
     <div class="offcanvas-menu-overlay"></div>
     <div class="offcanvas-menu-wrapper">
         <div class="offcanvas__logo">
             <a href="./">
-                <img src="@Url.Content("~/img/gtx-autogroup.png")" alt="www.gtxautogroup.com">
+                <img src="@Url.Content("~/img/gtx.png")" alt="www.gtxautogroup.com">
             </a>
         </div>
         <div id="mobile-menu-wrap"></div>
@@ -49,70 +44,117 @@
         </div>
     </div>
     <!-- Offcanvas Menu End -->
+
+    <!-- Offcanvas Search Begin-->
+    @{
+        Html.RenderPartial("_SearchForm");
+    }
+    <!-- Offcanvas Search End -->
+
     <!-- Header Section Begin -->
     <header class="header">
-        <div class="shadow header__top">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-7">
-                        <ul class="header__top__widget">
-                            <li><i class="fa fa-clock-o"></i> Week day: 08:00 am to 18:00 pm</li>
-                        </ul>
-                    </div>
-                    <div class="col-lg-5">
-                        <div class="header__top__right">
-                            <div class="header__top__phone">
-                                <i class="fa fa-phone"></i>
-                                <span>(513) 912-4574</span>
-                            </div>
-                            <div class="header__top__social">
-                                <a href="https://www.facebook.com/GTXAutoGroup"><i class="fa fa-facebook"></i></a>
-                                <a href="https://www.twitter.com/GTXAutoGroup"><i class="fa fa-twitter"></i></a>
-                                <a href="#"><i class="fa fa-google"></i></a>
-                                <a href="#"><i class="fa fa-instagram"></i></a>
-                            </div>
+        <div class="container-fluid header__top set-bg" data-setbg="@Url.Content("~/img/menu-bg.jpg")">
+            <div class="row">
+                <div class="col-lg-7">
+                    <ul class="header__top__widget">
+                        <li><i class="fa fa-clock-o"></i> Week day: 08:00 am to 18:00 pm</li>
+                    </ul>
+                </div>
+                <div class="col-lg-5">
+                    <div class="header__top__right">
+                        <div class="header__top__phone">
+                            <i class="fa fa-phone"></i>
+                            <span>(513) 912-4574</span>
+                        </div>
+                        <div class="header__top__social">
+                            <a href="https://www.facebook.com/GTXAutoGroup"><i class="fa fa-facebook"></i></a>
+                            <a href="https://www.twitter.com/GTXAutoGroup"><i class="fa fa-twitter"></i></a>
+                            <a href="#"><i class="fa fa-google"></i></a>
+                            <a href="#"><i class="fa fa-instagram"></i></a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="container-fluid" well>
-            <div class="well row">
-                <div class="col-lg-2">
-                    <div class="header__logo">
-                        <a href="./">
-                            <img src="@Url.Content("~/img/gtx-autogroup.png")" alt="www.gtxautogroup.com">
+        <div class="row m-0">
+            <div class="col-lg-1 mt-4">
+                <a href="./">
+                    <img width="198"src="@Url.Content("~/img/gtx.png")" alt="www.gtxautogroup.com">
+                </a>
+            </div>
+            <div class="col-lg-7">
+                <div class="fluid row">
+                    <div class="p-0 col-md-2 well shadow">
+                        <a class="d-block cursor-pointer bg-white border rounded p-3 text-center text-shadow-small" title="SUVs at GTX used car dealership" href="/suvs">
+                            <img width="120" height="66" alt="SUVs" class="my-1 img-fluid" src="https://static.overfuel.com/images/icons/cartypes/suv.webp">
+                            <h6>SUVs</h6>
                         </a>
                     </div>
-                </div>
-                <div class="col-lg-10">
-                    <div class="header__nav">
-                        <nav class="header__menu">
-                            <ul class="main-menu">
-                                <li class="text-shadow">
-                                    <a href="#">Buy</a>
-                                    <ul class="dropdown shadow rounded">
-                                        <li>@Html.ActionLink("All", "All", "Inventory")</li>
-                                        <li>@Html.ActionLink("Cars", "Cars", "Inventory")</li>
-                                        <li>@Html.ActionLink("Trucks", "Trucks", "Inventory")</li>
-                                        <li>@Html.ActionLink("Minivans", "Minivans", "Inventory")</li>
-                                        <li>@Html.ActionLink("SUVs", "SUVs", "Inventory")</li>
-                                        <li>@Html.ActionLink("Hybrids", "Hybrids", "Inventory")</li>
-                                        <li>@Html.ActionLink("Electrics", "Electrics", "Inventory")</li>
-                                        <li>@Html.ActionLink("Commercials", "Commercials", "Inventory")</li>
-                                    </ul>
-                                </li>
-                                <li class="text-shadow">@Html.ActionLink("Blog", "Blog", "Home")</li>
-                                <li class="text-shadow">
-                                    <a href="#">About us</a>
-                                    <ul class="dropdown shadow rounded">
-                                        <li>@Html.ActionLink("Contact us", "Contact", "Home")</li>
-                                        <li>@Html.ActionLink("Our stuff", "Staff", "Home")</li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </nav>
+                    <div class="p-0 col-md-2 well shadow">
+                        <a class="d-block cursor-pointer bg-white border rounded p-3 text-center text-shadow-small" title="Sedans at GTX used car dealership" href="/cars">
+                            <img width="120" height="66" alt="Sedans" class="my-1 img-fluid" src="https://static.overfuel.com/images/icons/cartypes/sedan.webp">
+                            <h6>Cars</h6>
+                        </a>
                     </div>
+                    <div class="p-0 col-md-2 well shadow">
+                        <a class="d-block cursor-pointer bg-white border rounded p-3 text-center text-shadow-small" title="Pickup trucks at GTX used car dealership" href="/trucks">
+                            <img width="120" height="66" alt="Pickup trucks" class="my-1 img-fluid" src="https://static.overfuel.com/images/icons/cartypes/truck.webp">
+                            <h6>Trucks</h6>
+                        </a>
+                    </div>
+                    <div class="p-0 col-md-2 well shadow">
+                        <a class="d-block cursor-pointer bg-white border rounded p-3 text-center text-shadow-small" title="Vans at  at GTX used car dealership" href="/vans">
+                            <img width="120" height="66" alt="Vans" class="my-1 img-fluid" src="https://static.overfuel.com/images/icons/cartypes/van.webp">
+                            <h6>Vans</h6>
+                        </a>
+                    </div>
+                    <div class="p-0 col-md-2 well shadow">
+                        <a class="d-block cursor-pointer bg-white border rounded p-3 text-center text-shadow-small" title="Cargo at GTX used car dealership" href="/cargo-vans">
+                            <img width="120" height="66" alt="Cargo" class="my-1 img-fluid" src="https://static.overfuel.com/images/icons/cartypes/cargovan.webp">
+                            <h6>Comercials</h6>
+                        </a>
+                    </div>
+                    <div class="p-0 col-md-2 well shadow">
+                        <a class="d-block cursor-pointer bg-white border rounded p-3 text-center text-shadow-small" title="Hatchbacks at GTX used car dealership" href="/hatchbacks">
+                            <img width="120" height="66" alt="Hatchbacks" class="my-1 img-fluid" src="https://static.overfuel.com/images/icons/cartypes/wagon.webp">
+                            <h6>Hatchback</h6>
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="header__nav">
+                    <nav class="header__menu">
+                        <ul class="main-menu">
+                            <li class="text-shadow">
+                                <a data-bs-toggle="offcanvas" href="#offcanvasTop" role="button" aria-controls="offcanvasTop">
+                                    <i class="bi bi-search"></i>
+                                </a>
+                            </li>
+                            <li class="text-shadow">
+                                <a href="#">Buy</a>
+                                <ul class="dropdown shadow rounded">
+                                    <li>@Html.ActionLink("All", "All", "Inventory")</li>
+                                    <li>@Html.ActionLink("Cars", "Cars", "Inventory")</li>
+                                    <li>@Html.ActionLink("Trucks", "Trucks", "Inventory")</li>
+                                    <li>@Html.ActionLink("Minivans", "Minivans", "Inventory")</li>
+                                    <li>@Html.ActionLink("SUVs", "SUVs", "Inventory")</li>
+                                    <li>@Html.ActionLink("Hybrids", "Hybrids", "Inventory")</li>
+                                    <li>@Html.ActionLink("Electrics", "Electrics", "Inventory")</li>
+                                    <li>@Html.ActionLink("Commercials", "Commercials", "Inventory")</li>
+                                </ul>
+                            </li>
+                            <li class="text-shadow">@Html.ActionLink("Blog", "Blog", "Home")</li>
+                            <li class="text-shadow">
+                                <a href="#">About us</a>
+                                <ul class="dropdown shadow rounded">
+                                    <li>@Html.ActionLink("Contact us", "Contact", "Home")</li>
+                                    <li>@Html.ActionLink("Our stuff", "Staff", "Home")</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </nav>
                 </div>
             </div>
             <div class="canvas__open">

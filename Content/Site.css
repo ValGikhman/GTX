@@ -196,6 +196,10 @@ a, u {
     text-shadow: 2px 2px 3px #8D8484;
 }
 
+.text-shadow-small {
+    text-shadow: 0.25px 0.25px 0.7px #8D8484;
+}
+
 
 @keyframes loader {
     0% {
@@ -462,9 +466,9 @@ a, u {
                 position: absolute;
                 left: 0;
                 bottom: 0;
-                height: 2px;
+                height: 3px;
                 width: 0%;
-                background: #db2d2e;
+                background: #353535;
                 content: "";
                 opacity: 0;
                 -webkit-transition: all, 0.5s;
@@ -508,16 +512,42 @@ a, u {
 
 .page-title {
     padding: 2rem 0.5rem;
-    background: url(../img/breadcrumb-bg.jpg) left top / cover no-repeat rgb(15, 15, 15);
     border-top: 3px solid #999;
+    border-bottom: 3px solid #999;
+    background: rgb(15, 15, 15);
+}
+
+.field-validation-error {
+    color: red;
+    font-size: small;
+    margin-top: -2px;
+    margin-left: 10px;
+}
+
+.modal-header {
+    background-color: #707070;
+}
+
+.modal-title {
+    margin-bottom: 0;
+    line-height: var(--bs-modal-title-line-height);
+    color: white;
+}
+
+.input-validation-error {
+    border: 1px solid red;
+    box-shadow: 0 0 5px 2px rgba(255, 0, 0, 0.6);
+    transition: box-shadow 0.3s ease-in-out;
 }
 
 /*---------------------
   Hero
 -----------------------*/
-
 .hero {
     padding: 200px 0;
+    background-size: cover;
+    background-position: center;
+    transition: background-image 1s ease-in-out;
 }
 
 .hero__text {

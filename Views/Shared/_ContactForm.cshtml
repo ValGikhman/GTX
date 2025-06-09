@@ -1,48 +1,47 @@
-﻿<script src="@Url.Content("~/Scripts/jquery/jquery.mask.js")" type="text/javascript"></script>
+﻿@model GTX.Models.ContactUs
 
-<form class="needs-validation" novalidate>
+<script src="@Url.Content("~/Scripts/jquery/jquery.mask.js")" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@3.2.12/dist/jquery.validate.unobtrusive.min.js"></script>
+
+@using (Html.BeginForm("SaveContact", "Home", FormMethod.Post, new { @id = "form-customer", @class = "form-customer", role = "form", enctype = "multipart/form-data" })) {
+    @Html.HiddenFor(model => model.SendTo)
     <div class="form-floating mb-2">
-        <input type="text" class="form-control" id="firstName" placeholder="First Name" required>
-        <label for="firstName">First Name</label>
+        @Html.TextBoxFor(model => model.FirstName, new { @class = "form-control shadow", placeholder = "First Name", required = "" })
+        @Html.LabelFor(model => model.FirstName)
+        @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-shadow-small" })
     </div>
 
     <div class="form-floating mb-2">
-        <input type="text" class="form-control" id="lastName" placeholder="Last Name" required>
-        <label for="lasttName">Last Name</label>
+        @Html.TextBoxFor(model => model.LastName, new { @class = "form-control shadow", placeholder = "Last Name", required = "" })
+        @Html.LabelFor(model => model.LastName)
+        @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-shadow-small" })
     </div>
 
     <div class="form-floating mb-2">
-        <input type="email" class="form-control" id="email" placeholder="Email Address" required pattern = @Extensions.RegexPattern.EMAIL>
-        <label for="firstName">Email Address</label>
+        @Html.TextBoxFor(model => model.Email, new { @class = "form-control shadow", placeholder = "Email", required = "" })
+        @Html.LabelFor(model => model.Email)
+        @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-shadow-small" })
     </div>
 
     <div class="form-floating mb-2">
-        <input type="tel" class="form-control" id="phone" placeholder="Phone" required data-mask="(000) 000-0000" data-mask-clearifnotmatch="true">
-        <label for="phone">Phone</label>
+        @Html.TextBoxFor(model => model.Phone, new { @class = "form-control shadow", placeholder = "Phone", required = "", type = "phone" })
+        @Html.LabelFor(model => model.Phone)
+        @Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-shadow-small" })
     </div>
 
     <div class="form-floating">
-        <textarea class="form-control" placeholder="Leave a comment here" id="comments" style="height: 100px" required></textarea>
-        <label for="comments">Comments</label>
-    </div>
+        @Html.TextAreaFor(model => model.Comment, new { @class = "form-control", @style = "height: 150px;", placeholder = "Leave a comment here", required = "" })
+        @Html.LabelFor(model => model.Comment)
+        @Html.ValidationMessageFor(model => model.Comment, "", new { @class = "text-shadow-small" })
+</div>
 
-    <input class="btn btn-primary shadow float-end mt-5" type="submit" value="Submit">
-</form>
+    <button id="btnClose" type="button" class="btn btn-secondary shadow float-end mt-5 mx-1" data-bs-dismiss="modal">Close</button>
+    <button type="submit" class="btn btn-primary shadow float-end mt-5">Send</button>
+}
 
 <script>
     (function () {
-        var forms = $(".needs-validation")
-        Array.prototype.slice.call(forms)
-            .forEach(function (form) {
-                form.addEventListener("submit", function (event) {
-                    if (!form.checkValidity()) {
-                        event.preventDefault()
-                        event.stopPropagation()
-                    }
-
-                    form.classList.add("was-validated")
-                }, false)
-            }
-        )
+        $("#Phone").mask("(000) 000-0000");
     })()
 </script>

@@ -1,0 +1,52 @@
+﻿
+@model Services.Contact
+<style type="text/css">
+    body {
+        background-color: #eee;
+        padding-top: 1px;
+        background-image: url("http://menuzrus.com/images/Web/body.jpg");
+        color: #333333;
+        font-family: "Arial";
+        font-size: 14px;
+        line-height: 1.42857;
+    }
+
+    .header {
+        background-color: rgb(26, 95, 214);
+        width: 550px;
+        padding: 15px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .email-body {
+        border-radius: 15px;
+        margin-bottom: 20px;
+        margin-top: 20px;
+        min-height: 430px;
+        width: 550px;
+        padding: 15px;
+        background-image: linear-gradient(to bottom, #e8e8e8 0px, #f5f5f5 100%);
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .shadow {
+        border-radius: 6px;
+        box-shadow: 0 4px 23px 5px rgba(0, 0, 0, 0.15), 0 7px 7px rgba(0, 0, 0, 0.15);
+    }
+</style>
+
+<div class="header shadow">
+    @*<img src="http://menuzrus.com/images/web/logo-small.png">*@
+</div>
+
+<div class="email-body shadow">
+    <p>
+        Dear @Model.FirstName @Model.LastName,
+        <br />
+        <br />
+        <br />
+        Got milk?
+    </p>
+</div>
