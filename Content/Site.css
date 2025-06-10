@@ -10,7 +10,9 @@ h2,
 h3,
 h4,
 h5,
-h6 {
+h6,
+h7, 
+h8 {
     margin: 0;
     color: #111111;
     font-weight: 400;
@@ -42,6 +44,13 @@ h6 {
     font-size: 16px;
 }
 
+h7 {
+    font-size: 14px;
+}
+
+h8 {
+    font-size: 12px;
+}
 p {
     font-size: 15px;
     font-family: "Lato", sans-serif;
@@ -315,9 +324,16 @@ a, u {
 /*---------------------
   Header
 -----------------------*/
+.header__search {
+    color: #ffffff;
+    padding: 10px;
+    background: #323232;
+}
 
 .header__top {
-    background: #323232;
+    color: #ffffff;
+    padding: 10px;
+    background: transparent;
 }
 
 .header__top__widget {
@@ -454,7 +470,7 @@ a, u {
 
         .header__menu ul li a {
             font-size: 15px;
-            color: #353535;
+            color: white;
             font-weight: 700;
             display: block;
             padding: 5px 0;
@@ -499,6 +515,7 @@ a, u {
     display: none;
 }
 
+/*Custom*/
 .well {
     min-height: 20px;
 /*    padding: 20px;*/
@@ -540,6 +557,15 @@ a, u {
     transition: box-shadow 0.3s ease-in-out;
 }
 
+.row {
+    margin-right: 0;
+}
+
+.body-content {
+    margin-top: 182px;
+}
+
+/*Custom*/
 /*---------------------
   Hero
 -----------------------*/
@@ -1210,7 +1236,7 @@ a, u {
                 color: #727171;
             }
 
-            .car__search form input::-ms-input-placeholder {
+            .car__search form input:-ms-input-placeholder {
                 color: #727171;
             }
 
@@ -1331,180 +1357,6 @@ a, u {
 .car__filter form .car__filter__btn {
     text-align: center;
 }
-
-/*---------------------
-  Footer
------------------------*/
-
-.footer {
-    padding-top: 10px;
-    padding-bottom: 1px;
-}
-
-.footer__contact {
-    padding-bottom: 60px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    margin-bottom: 65px;
-}
-
-.footer__contact__title h2 {
-    font-size: 40px;
-    color: #ffffff;
-    font-weight: 700;
-}
-
-.footer__contact__option {
-    text-align: right;
-}
-
-    .footer__contact__option .option__item {
-        font-size: 15px;
-        color: #ffffff;
-        background: #db2d2e;
-        display: inline-block;
-        font-weight: 700;
-        padding: 14px 18px 14px 24px;
-        margin-right: 16px;
-        border-radius: 2px;
-    }
-
-        .footer__contact__option .option__item:last-child {
-            margin-right: 0;
-        }
-
-        .footer__contact__option .option__item.email {
-            color: #323232;
-            background: #ffffff;
-        }
-
-            .footer__contact__option .option__item.email i {
-                color: #db2d2e;
-            }
-
-        .footer__contact__option .option__item i {
-            margin-right: 5px;
-        }
-
-.footer__about {
-    margin-bottom: 30px;
-}
-
-    .footer__about p {
-        color: #8d8d8d;
-        margin-bottom: 25px;
-    }
-
-.footer__logo {
-    margin-bottom: 20px;
-    width: 160px;
-}
-
-    .footer__logo a {
-        display: inline-block;
-    }
-
-.footer__social {
-    margin-bottom: 20px;
-}
-
-    .footer__social a {
-        display: inline-block;
-        height: 38px;
-        width: 38px;
-        font-size: 15px;
-        color: #ffffff;
-        line-height: 38px;
-        text-align: center;
-        border-radius: 50%;
-        margin-right: 6px;
-    }
-
-        .footer__social a:last-child {
-            margin-right: 0;
-        }
-
-        .footer__social a.facebook {
-            background: #324975;
-        }
-
-        .footer__social a.twitter {
-            background: #2C85AE;
-        }
-
-        .footer__social a.google {
-            background: #DC4438;
-        }
-
-        .footer__social a.skype {
-            background: #3EAFF0;
-        }
-
-.footer__copyright__text {
-    margin-bottom: 0 !important;
-}
-
-    .footer__copyright__text a {
-        font-weight: 700;
-        color: #db2d2e;
-    }
-
-    .footer__copyright__text i {
-        color: #cc1111;
-    }
-
-.footer__widget {
-    margin-bottom: 30px;
-}
-
-    .footer__widget h5 {
-        color: #ffffff;
-        font-weight: 700;
-        margin-bottom: 8px;
-    }
-
-    .footer__widget ul li {
-        list-style: none;
-    }
-
-        .footer__widget ul li a {
-            font-size: 15px;
-            color: #8d8d8d;
-            line-height: 36px;
-        }
-
-        .footer__widget ul li i {
-            margin-right: 2px;
-        }
-
-.footer__brand {
-    overflow: hidden;
-    margin-bottom: 30px;
-}
-
-    .footer__brand h5 {
-        color: #ffffff;
-        font-weight: 700;
-        margin-bottom: 8px;
-    }
-
-    .footer__brand ul {
-        width: 50%;
-        float: left;
-    }
-
-        .footer__brand ul li {
-            list-style: none;
-        }
-
-            .footer__brand ul li a {
-                font-size: 15px;
-                color: #8d8d8d;
-                line-height: 36px;
-            }
-
-            .footer__brand ul li i {
-                margin-right: 2px;
-            }
 
 /*---------------------
   Breadcrumb
@@ -2409,7 +2261,7 @@ a, u {
             color: #8d8d8d;
         }
 
-        .blog__sidebar__search input::-ms-input-placeholder {
+        .blog__sidebar__search input:-ms-input-placeholder {
             color: #8d8d8d;
         }
 
@@ -3039,7 +2891,7 @@ a, u {
         color: #727171;
     }
 
-    .contact__form form input::-ms-input-placeholder {
+    .contact__form form input:-ms-input-placeholder {
         color: #727171;
     }
 
@@ -3059,12 +2911,7 @@ a, u {
     margin-bottom: 34px;
     resize: none;
 }
-
-    .contact__form form textarea::-webkit-input-placeholder {
-        color: #727171;
-    }
-
-    .contact__form form textarea::-moz-placeholder {
+    .contact__form form textarea:-moz-placeholder {
         color: #727171;
     }
 
@@ -3072,7 +2919,7 @@ a, u {
         color: #727171;
     }
 
-    .contact__form form textarea::-ms-input-placeholder {
+    .contact__form form textarea:-ms-input-placeholder {
         color: #727171;
     }
 
@@ -3707,7 +3554,7 @@ a, u {
         .hero__tab__form form .select-list .select-list-item {
             max-width: 100%;
             float: none;
-            -webkit-box-flex: 100%;
+            -webkit-box-flex: 100;
             -ms-flex: 100%;
             flex: 100%;
             margin-right: 0;

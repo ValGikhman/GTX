@@ -5,8 +5,6 @@ using GTX.Common;
 
 namespace GTX.Models {
     public class InventoryModel {
-
-        [DisplayName("Inventory")]
-        public IEnumerable<Vehicle> Vehicles { get; set; }
+        public GTXInventory Inventory { get; set; }
     }
 }

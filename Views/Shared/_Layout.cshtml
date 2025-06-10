@@ -52,87 +52,14 @@
     <!-- Offcanvas Search End -->
 
     <!-- Header Section Begin -->
-    <header class="header">
-        <div class="container-fluid header__top set-bg" data-setbg="@Url.Content("~/img/menu-bg.jpg")">
+    <header class="header fixed-top">
+        <div class="container-fluid set-bg" data-setbg="@Url.Content("~/img/menu-bg.jpg")">
             <div class="row">
                 <div class="col-lg-7">
-                    <ul class="header__top__widget">
-                        <li><i class="fa fa-clock-o"></i> Week day: 08:00 am to 18:00 pm</li>
-                    </ul>
-                </div>
-                <div class="col-lg-5">
-                    <div class="header__top__right">
-                        <div class="header__top__phone">
-                            <i class="fa fa-phone"></i>
-                            <span>(513) 912-4574</span>
-                        </div>
-                        <div class="header__top__social">
-                            <a href="https://www.facebook.com/GTXAutoGroup"><i class="fa fa-facebook"></i></a>
-                            <a href="https://www.twitter.com/GTXAutoGroup"><i class="fa fa-twitter"></i></a>
-                            <a href="#"><i class="fa fa-google"></i></a>
-                            <a href="#"><i class="fa fa-instagram"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row m-0">
-            <div class="col-lg-1 mt-4">
-                <a href="./">
-                    <img width="198"src="@Url.Content("~/img/gtx.png")" alt="www.gtxautogroup.com">
-                </a>
-            </div>
-            <div class="col-lg-7">
-                <div class="fluid row">
-                    <div class="p-0 col-md-2 well shadow">
-                        <a class="d-block cursor-pointer bg-white border rounded p-3 text-center text-shadow-small" title="SUVs at GTX used car dealership" href="/suvs">
-                            <img width="120" height="66" alt="SUVs" class="my-1 img-fluid" src="https://static.overfuel.com/images/icons/cartypes/suv.webp">
-                            <h6>SUVs</h6>
-                        </a>
-                    </div>
-                    <div class="p-0 col-md-2 well shadow">
-                        <a class="d-block cursor-pointer bg-white border rounded p-3 text-center text-shadow-small" title="Sedans at GTX used car dealership" href="/cars">
-                            <img width="120" height="66" alt="Sedans" class="my-1 img-fluid" src="https://static.overfuel.com/images/icons/cartypes/sedan.webp">
-                            <h6>Cars</h6>
-                        </a>
-                    </div>
-                    <div class="p-0 col-md-2 well shadow">
-                        <a class="d-block cursor-pointer bg-white border rounded p-3 text-center text-shadow-small" title="Pickup trucks at GTX used car dealership" href="/trucks">
-                            <img width="120" height="66" alt="Pickup trucks" class="my-1 img-fluid" src="https://static.overfuel.com/images/icons/cartypes/truck.webp">
-                            <h6>Trucks</h6>
-                        </a>
-                    </div>
-                    <div class="p-0 col-md-2 well shadow">
-                        <a class="d-block cursor-pointer bg-white border rounded p-3 text-center text-shadow-small" title="Vans at  at GTX used car dealership" href="/vans">
-                            <img width="120" height="66" alt="Vans" class="my-1 img-fluid" src="https://static.overfuel.com/images/icons/cartypes/van.webp">
-                            <h6>Vans</h6>
-                        </a>
-                    </div>
-                    <div class="p-0 col-md-2 well shadow">
-                        <a class="d-block cursor-pointer bg-white border rounded p-3 text-center text-shadow-small" title="Cargo at GTX used car dealership" href="/cargo-vans">
-                            <img width="120" height="66" alt="Cargo" class="my-1 img-fluid" src="https://static.overfuel.com/images/icons/cartypes/cargovan.webp">
-                            <h6>Comercials</h6>
-                        </a>
-                    </div>
-                    <div class="p-0 col-md-2 well shadow">
-                        <a class="d-block cursor-pointer bg-white border rounded p-3 text-center text-shadow-small" title="Hatchbacks at GTX used car dealership" href="/hatchbacks">
-                            <img width="120" height="66" alt="Hatchbacks" class="my-1 img-fluid" src="https://static.overfuel.com/images/icons/cartypes/wagon.webp">
-                            <h6>Hatchback</h6>
-                        </a>
-                    </div>
-
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="header__nav">
-                    <nav class="header__menu">
+                    <nav class="header__top header__menu">
                         <ul class="main-menu">
-                            <li class="text-shadow">
-                                <a data-bs-toggle="offcanvas" href="#offcanvasTop" role="button" aria-controls="offcanvasTop">
-                                    <i class="bi bi-search"></i>
-                                </a>
-                            </li>
-                            <li class="text-shadow">
+                            <li>@Html.ActionLink("Home", "", "Home")</li>
+                            <li class="visually-hidden">
                                 <a href="#">Buy</a>
                                 <ul class="dropdown shadow rounded">
                                     <li>@Html.ActionLink("All", "All", "Inventory")</li>
@@ -145,18 +72,44 @@
                                     <li>@Html.ActionLink("Commercials", "Commercials", "Inventory")</li>
                                 </ul>
                             </li>
-                            <li class="text-shadow">@Html.ActionLink("Blog", "Blog", "Home")</li>
-                            <li class="text-shadow">
+                            <li>@Html.ActionLink("Blog", "Blog", "Home")</li>
+                            <li>
                                 <a href="#">About us</a>
                                 <ul class="dropdown shadow rounded">
                                     <li>@Html.ActionLink("Contact us", "Contact", "Home")</li>
-                                    <li>@Html.ActionLink("Our stuff", "Staff", "Home")</li>
+                                    <li>@Html.ActionLink("Our staff", "Staff", "Home")</li>
                                 </ul>
+                            </li>
+                            <li>
+                                <a data-bs-toggle="offcanvas" href="#offcanvasTop" role="button" aria-controls="offcanvasTop">
+                                    <i class="bi bi-search"></i>
+                                </a>
                             </li>
                         </ul>
                     </nav>
                 </div>
-            </div>
+                <div class="col-lg-5">
+                    <div class="header__top__right">
+                        <div class="header__top__phone">
+                            <i class="fa fa-clock-o"></i>
+                            <span>Week day: 08:00 am to 18:00 pm</span>
+                        </div>
+                        <div class="header__top__phone">
+                            <i class="fa fa-phone"></i>
+                            <span>(513) 912-4574</span>
+                        </div>
+                        <div class="header__top__social">
+                            <a href="https://www.facebook.com/GTXAutoGroup"><i class="fa fa-facebook"></i></a>
+                            <a href="https://www.twitter.com/GTXAutoGroup"><i class="fa fa-twitter"></i></a>
+                            <a href="#"><i class="fa fa-google"></i></a>
+                            <a href="#"><i class="fa fa-instagram"></i></a>
+                        </div>
+                    </div>
+                </div>
+                </div>
+        </div>
+        <div class="row">
+            @{ Html.RenderPartial("_CategoryFilter"); }
             <div class="canvas__open">
                 <span class="fa fa-bars"></span>
             </div>
@@ -167,14 +120,17 @@
         @RenderBody()
     </div>
     <!-- Footer Section Begin -->
-    <footer class="container-fluid set-bg" data-setbg="@Url.Content("~/img/layout-bg.jpg")">
-        <div class="col-lg-7">
-            <ul class="header__top__widget">
-                <li>
-                    <i class="fa fa-clock-o"></i>Copyright &copy; @DateTime.Now.Year
-                    All rights reserved | This is made with <i class="fa fa-heart" aria-hidden="true"></i> by <a href="https://www.gtxagroup.com" target="_blank">GTX</a>
-                </li>
-            </ul>
+    <footer class="set-bg fixed-bottom" data-setbg="@Url.Content("~/img/layout-bg.jpg")">
+        <div class="row">
+            <div class="col-lg-12 text-white text-center">
+                <a href="https://www.gtxagroup.com" target="_blank">
+                    <i class="fa fa-clock-o"></i>
+                    <h7>
+                        <span>Copyright &copy; @DateTime.Now.Year All rights reserved | made by</span>
+                        <span class="col-1">GTX</span>
+                    </h7>
+                </a>
+            </div>
         </div>
     </footer>
     <!-- Footer Section End -->

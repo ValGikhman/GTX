@@ -31,7 +31,7 @@ namespace GTX.Controllers {
         public ActionResult Staff() {
             ViewBag.Message = "Staff";
             ViewBag.Title = "Our staff";
-            IList<Employer> model = Utility.XMLHelpers.XmlStaffRepository.GetEmployers();
+            IList<Employer> model = Utility.XMLHelpers.XmlRepository.GetEmployers();
             return View(model);
         }
 
@@ -39,7 +39,7 @@ namespace GTX.Controllers {
             ViewBag.Message = "Contact";
             ViewBag.Title = "Contact us";
             ContactModel model = new ContactModel();
-            model.OpenHours = Utility.XMLHelpers.XmlStaffRepository.GetOpenHours();
+            model.OpenHours = Utility.XMLHelpers.XmlRepository.GetOpenHours();
             model.Contact = new ContactUs();
             return View(model);
         }

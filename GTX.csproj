@@ -198,6 +198,7 @@
     <Compile Include="Models\InventoryModel.cs" />
     <Compile Include="Models\HomeModel.cs" />
     <Compile Include="Models\GTXDataModel.cs" />
+    <Compile Include="Models\Vehicle.cs" />
     <Compile Include="Utility\XMLHelpers.cs" />
     <Compile Include="Utility\EmailHelper.cs" />
     <Compile Include="Utility\Utility.cs" />
@@ -205,6 +206,7 @@
   <ItemGroup>
     <Content Include="App_Data\GTX-Staff.xml" />
     <Content Include="App_Data\GTX-Open.xml" />
+    <Content Include="App_Data\Inventory\Current\GTX-Inventory.xml" />
     <Content Include="Content\bootstrap\bootstrap-datepicker.css" />
     <Content Include="Content\bootstrap\bootstrap-datepicker.min.css" />
     <Content Include="Content\bootstrap\bootstrap-datepicker.standalone.css" />
@@ -256,7 +258,6 @@
     <Content Include="img\blog\details\details-pic.jpg" />
     <Content Include="img\blog\details\next.jpg" />
     <Content Include="img\blog\details\pre.jpg" />
-    <Content Include="img\breadcrumb-bg.jpg" />
     <Content Include="img\cars\car-1.jpg" />
     <Content Include="img\cars\car-2.jpg" />
     <Content Include="img\cars\car-3.jpg" />
@@ -285,10 +286,10 @@
     <Content Include="img\feature\feature-4.png" />
     <Content Include="img\feature\feature-5.png" />
     <Content Include="img\feature\feature-6.png" />
+    <Content Include="img\icons\car.png" />
     <Content Include="img\layout-bg.jpg" />
     <Content Include="img\gtx.png" />
     <Content Include="img\hero-bg.jpg" />
-    <Content Include="img\index.jpg" />
     <Content Include="img\latest-blog\lb-1.jpg" />
     <Content Include="img\latest-blog\lb-2.jpg" />
     <Content Include="img\latest-blog\lb-3.jpg" />
@@ -484,6 +485,7 @@
     <Content Include="Views\Shared\_PageTitle.cshtml" />
     <Content Include="Views\Shared\_SearchForm.cshtml" />
     <Content Include="Views\Shared\Emails\_ContactTemplate.cshtml" />
+    <Content Include="Views\Shared\_CategoryFilter.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

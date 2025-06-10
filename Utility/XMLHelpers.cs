@@ -1,11 +1,15 @@
 ﻿using GTX.Models;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Hosting;
 using System.Xml.Linq;
+using System.Xml.Serialization;
 
 namespace Utility.XMLHelpers {
-   public static class XmlStaffRepository {
+   public static class XmlRepository {
         private static string xmlFilePath = HostingEnvironment.MapPath("~/App_Data/");
 
         public static IList<Employer> GetEmployers() {
@@ -35,6 +39,24 @@ namespace Utility.XMLHelpers {
                     Description = x.Element("description").Value
                 })
                 .ToList();
+        }
+
+        public async static Task<GTXInventory> GetInventory() {
+            string path = $"{xmlFilePath}\\Inventory\\Current\\GTX-Inventory.xml";
+            GTXInventory inventory = ReadXmlFile(path);
+            inventory.Vehicles = inventory.Vehicles.Where(m => m.RetailPrice > 0 && !string.IsNullOrEmpty(m.VIN)).ToArray();
+
+            return inventory;
+        }
+
+        public static GTXInventory ReadXmlFile(string filePath) {
+            XmlSerializer serializer = new XmlSerializer(typeof(GTXInventory));
+
+            using (StreamReader reader = new StreamReader(filePath)) {
+
+                GTXInventory inventory = (GTXInventory)serializer.Deserialize(reader);
+                return inventory;
+            }
         }
     }
 }
