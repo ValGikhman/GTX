@@ -12,7 +12,7 @@ namespace Utility.XMLHelpers {
    public static class XmlRepository {
         private static string xmlFilePath = HostingEnvironment.MapPath("~/App_Data/");
 
-        public static IList<Employer> GetEmployers() {
+        public async static Task<Employer[]> GetEmployers() {
             string path = $"{xmlFilePath}GTX-Staff.xml";
 
             XDocument doc = XDocument.Load(path);
@@ -24,10 +24,10 @@ namespace Utility.XMLHelpers {
                     Email = x.Element("email").Value
                 })
                 .OrderBy(m => m.id)
-                .ToList();
+                .ToArray();
         }
 
-        public static IList<OpenHours> GetOpenHours() {
+        public static OpenHours[] GetOpenHours() {
             string path = $"{xmlFilePath}GTX-Open.xml";
 
             XDocument doc = XDocument.Load(path);
@@ -38,22 +38,21 @@ namespace Utility.XMLHelpers {
                     To = x.Element("to").Value,
                     Description = x.Element("description").Value
                 })
-                .ToList();
+                .ToArray();
         }
 
-        public async static Task<GTXInventory> GetInventory() {
+        public async static Task<Vehicle[]> GetInventory() {
             string path = $"{xmlFilePath}\\Inventory\\Current\\GTX-Inventory.xml";
-            GTXInventory inventory = ReadXmlFile(path);
+            GTXInventory inventory = await ReadXmlFile(path);
             inventory.Vehicles = inventory.Vehicles.Where(m => m.RetailPrice > 0 && !string.IsNullOrEmpty(m.VIN)).ToArray();
 
-            return inventory;
+            return inventory.Vehicles;
         }
 
-        public static GTXInventory ReadXmlFile(string filePath) {
+        public async static Task<GTXInventory> ReadXmlFile(string filePath) {
             XmlSerializer serializer = new XmlSerializer(typeof(GTXInventory));
 
             using (StreamReader reader = new StreamReader(filePath)) {
-
                 GTXInventory inventory = (GTXInventory)serializer.Deserialize(reader);
                 return inventory;
             }

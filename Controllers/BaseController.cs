@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using GTX.Session;
+using Services;
+using System;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
-using Services;
+using System.Threading.Tasks;
 
 namespace GTX.Controllers {
 
@@ -20,12 +18,16 @@ namespace GTX.Controllers {
 
         public Boolean IsLoggedIn { set; get; }
 
+        public ISessionData SessionData { get; private set; }
+
         #endregion Properties
 
         #region Construtors
 
-        public BaseController() {
+        public BaseController(ISessionData sessionData) {
+            SessionData = sessionData;
             _LogService = new LogService();
+
         }
 
         #endregion Construtors
@@ -43,10 +45,6 @@ namespace GTX.Controllers {
 
             base.OnActionExecuting(filterContext);
 
-
-            //this.IsLoggedIn = (SessionData.user != null);
-            //SessionData.route = this.BuildRoute();
-
             try {
                 // Get the route
                 handler = this.HttpContext.Handler as MvcHandler;
@@ -57,19 +55,10 @@ namespace GTX.Controllers {
                     }
                 }
 
-                //if (user != null) {
-                //    this.LogAcvitity(filterContext);
-                //}
-
                 if (Request.Cookies["language"] != null) {
                     culture = Server.HtmlEncode(Request.Cookies["language"].Value);
                 }
 
-                //if (SessionData.customer != null) {
-                //    if (SessionData.GetSession<String>(Constants.SESSION_LANGUAGE) != null) {
-                //        culture = EnumHelper<CommonUnit.Languages>.GetDisplayValue((CommonUnit.Languages)Convert.ToInt32(SessionData.GetSession<String>(Constants.SESSION_LANGUAGE)));
-                //    }
-                //}
                 if (!String.IsNullOrEmpty(culture)) {
                     Thread.CurrentThread.CurrentUICulture = new CultureInfo(culture);
                 }

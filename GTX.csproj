@@ -194,11 +194,17 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\BaseModel.cs" />
     <Compile Include="Models\ContactModel.cs" />
-    <Compile Include="Models\InventoryModel.cs" />
+    <Compile Include="Models\Filters.cs" />
     <Compile Include="Models\HomeModel.cs" />
     <Compile Include="Models\GTXDataModel.cs" />
+    <Compile Include="Models\StaffModel.cs" />
     <Compile Include="Models\Vehicle.cs" />
+    <Compile Include="Session\HttpContextProvider.cs" />
+    <Compile Include="Session\IHttpContextProvider.cs" />
+    <Compile Include="Session\ISessionData.cs" />
+    <Compile Include="Session\SessionData.cs" />
     <Compile Include="Utility\XMLHelpers.cs" />
     <Compile Include="Utility\EmailHelper.cs" />
     <Compile Include="Utility\Utility.cs" />
@@ -489,7 +495,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
-    <Folder Include="Views\Base\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

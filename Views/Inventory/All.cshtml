@@ -1,10 +1,10 @@
 ﻿@{
-    @model GTX.Models.GTXInventory
+    @model GTX.Models.Vehicle[]
     Html.RenderPartial("_PageTitle");
 }
 
 <div class="row container-fluid centered">
-    @foreach (var vehicle in Model.Vehicles) {
+    @foreach (var vehicle in Model) {
     <div class="card well p-3 rounded-3">
         <div class="card-header shadow">
             <h5>
@@ -18,13 +18,21 @@
         </a>
         <div class="card-header well shadow">
             <h7>
-                <span class="pull-left">Miles: @vehicle.Mileage.ToString("N0")</span>
-                <span class="pull-right">Yours for: @vehicle.RetailPrice.ToString("C0")</span>
+                <div>
+                    <span class="pull-left">Yours for: @vehicle.RetailPrice.ToString("C0")</span>
+                    <span class="pull-right">Miles: @vehicle.Mileage.ToString("N0")</span>
+                </div>
+                <div>
+                    <a class="pull-left" href="https://www.carfax.com/VehicleHistory/p/Report.cfx?vin=@vehicle.VIN" target="_blank">
+                        <img width="100" src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report">
+                    </a>
+                    <button class="btn btn-secondary shadow pull-right">Details</button>
+                </div>
             </h7>
         </div>
-        <button class="btn btn-secondary shadow">Details</button>
     </div>
     }
 </div>
+
 
 

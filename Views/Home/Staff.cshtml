@@ -1,4 +1,4 @@
-﻿@model List<GTX.Models.Employer>
+﻿@model GTX.Models.StaffModel
 @{
     Html.RenderPartial("_PageTitle");
 }
@@ -17,7 +17,7 @@
 
 <section class="container-fluid d-flex justify-content-center">
     <div class="row col-lg-8 p-3">
-        @foreach (var employer in Model) {
+        @foreach (var employer in Model.Employers) {
             <div class="card well shadow">
                 <div class="team__item">
                     <div class="team__item__pic">
@@ -26,24 +26,28 @@
                     <div class="team__item__text">
                         <h5>@employer.Name</h5>
                         <div>@employer.Position</div>
-                        <button class="btn btn-secondary shadow mt-2" onClick="showEmail('@employer.Name', '@employer.Email')">Contact</button>
+                        <button class="btn btn-secondary shadow mt-2" 
+                                data-name="@employer.Name" 
+                                data-email="@employer.Email" 
+                                onClick="showEmail(this,  @employer.id)">Contact</button>
                     </div>
                 </div>
             </div>
         }
     </div>
 </section>
+
 <script type="text/javascript">
     $(function () {
     })
 
-    function showEmail(name, email) {
-        var name = "Contact: " + (name).innerText;
-        var jqxhr = $.get(`${root}Home/ContactForm/`)
+    function showEmail(obj, id) {
+        var name = `${$(obj).attr("data-name")}`;
+        var email = $(obj).attr("data-email");
+        $.get(`${root}Home/ContactForm`, {"id": id})
             .done(function (result) {
-                $("#SendTo").val(email);
                 $("#messageBody").html(result);
-                $("#title").html(name);
+                $("#title").html(`${name} at ${email}`);
                 $("#message").modal("show");
             })
             .fail(function () {

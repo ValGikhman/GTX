@@ -1,0 +1,29 @@
+﻿using GTX.Models;
+using System;
+
+namespace GTX {
+
+    public interface ISessionData {
+
+        #region Public Properties
+        Vehicle[] Vehicles { get; set; }
+
+        Employer[] Employers { get; set; }
+
+        Filters Filters { get; set; }
+
+        Vehicle CurrentVehicle { get; set; }
+
+        #endregion Public Properties
+
+        #region Public Methods
+
+        T GetSession<T>(String key);
+
+        T GetSession<T>(String key, T defaultValue);
+
+        void SetSession(String key, Object data);
+
+        #endregion Public Methods
+    }
+}

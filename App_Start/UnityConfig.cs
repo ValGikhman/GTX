@@ -1,3 +1,4 @@
+using GTX.Session;
 using System.Web.Mvc;
 using Unity;
 using Unity.Mvc5;
@@ -14,6 +15,8 @@ namespace GTX
             DependencyResolver.SetResolver(new UnityDependencyResolver(container));
             container.RegisterType<IUserService, UserService>();
             container.RegisterType<IContactService, ContactService>();
+            container.RegisterType<IHttpContextProvider, HttpContextProvider>();
+            container.RegisterType<ISessionData, SessionData>();
         }
     }
 }

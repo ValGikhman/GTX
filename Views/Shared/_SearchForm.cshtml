@@ -4,49 +4,148 @@
         <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body well">
-        <h6>
             <span class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="allMakes" checked>
                 <label class="form-check-label" for="allMakes">Select all makes(s)</label>
             </span>
-            <select multiple class="chosen-select" tabindex="8">
-                <option data-value="Honda">Honda</option>
-                <option data-value="Toyota">Toyota</option>
-                <option data-value="Ford">Ford</option>
-                <option data-value="Audi">Audi</option>
-                <option data-value="Volvo">Volvo</option>
-                <option data-value="Chevrolet">Chevrolet</option>
-                <option data-value="Dodge">Dodge</option>
-                <option data-value="Subaru">Subaru</option>
+            <select multiple class=".chosen-select shadow w-25 text-shadow-small" id="makes" tabindex="1">
             </select>
-        </h6>
-    </div>
+            <span class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="allModels" checked>
+                <label class="form-check-label" for="allModels">Select all model(s)</label>
+            </span>
+            <select multiple class=".chosen-select shadow w-25 text-shadow-small" id="models" tabindex="2">
+            </select>
+            <span class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="allEngines" checked>
+                <label class="form-check-label" for="allEngines">Select all Engine(s)</label>
+            </span>
+            <select multiple class=".chosen-select shadow w-25 text-shadow-small" id="engines" tabindex="3">
+            </select>
+            <span class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="allFuelTypes" checked>
+                <label class="form-check-label" for="allFuelTypes">Select all Fuel Type(s)</label>
+            </span>
+            <select multiple class=".chosen-select shadow w-25 text-shadow-small" id="fuelTypes" tabindex="4">
+            </select>
+            </div>
+        </div>
 </div>
 
 <script type="text/javascript">
     $(function () {
-        $(".chosen-select").chosen({
+        $("#makes").chosen({
             placeholder_text_multiple: "All make(s)...",
             no_results_text: "No makes for search criteria"
         });
-
-        $(".chosen-container").addClass("shadow w-25 text-shadow-small");
-        $(".search-field").css("margin", "5px")
-
-        $(".chosen-select").on("change", function () {
+        $("#makes").on("change", function () {
             const selected = $(this).val();
-            if (selected && selected.length > 0) {
-                $("#allMakes").prop("checked", false);
-            }
+            $("#allMakes").prop("checked", (selected && selected.length === 0));
         });
+
+        $("#models").chosen({
+            placeholder_text_multiple: "All model(s)...",
+            no_results_text: "No model for search criteria"
+        })
+        $("#models").on("change", function () {
+            const selected = $(this).val();
+            $("#allModels").prop("checked", (selected && selected.length === 0));
+        });
+
+        $("#engines").chosen({
+            placeholder_text_multiple: "All engines(s)...",
+            no_results_text: "No engine for search criteria"
+        })
+        $("#engines").on("change", function () {
+            const selected = $(this).val();
+            $("#allEngines").prop("checked", (selected && selected.length === 0));
+        });
+
+        $("#fuelTypes").chosen({
+            placeholder_text_multiple: "All engines(s)...",
+            no_results_text: "No engine for search criteria"
+        })
+        $("#fuelTypes").on("change", function () {
+            const selected = $(this).val();
+            $("#allFuelTypes").prop("checked", (selected && selected.length === 0));
+        });
+
+        getMakes();
+        getModels();
+        getEngines();
+        getFuelTypes();
 
         $("#allMakes").on("change", function () {
             if (this.checked) {
-                $(".chosen-select").chosen({ placeholder_text_multiple: "All make(s)..." }).val([]).trigger('chosen:updated');
+                $("#makes").chosen({ placeholder_text_multiple: "All make(s)..." }).val([]).trigger('chosen:updated');
             }
             else {
-                $(".chosen-select").chosen({ placeholder_text_multiple: "Click to select make(s)..." }).trigger('chosen:updated');;
+                $("#makes").chosen({ placeholder_text_multiple: "Click to select make(s)..." }).trigger('chosen:updated');;
+            }
+        });
+
+        $("#allModels").on("change", function () {
+            if (this.checked) {
+                $("#models").chosen({ placeholder_text_multiple: "All model(s)..." }).val([]).trigger('chosen:updated');
+            }
+            else {
+                $("#models").chosen({ placeholder_text_multiple: "Click to select model(s)..." }).trigger('chosen:updated');;
+            }
+        });
+
+        $("#allEngines").on("change", function () {
+            if (this.checked) {
+                $("#engines").chosen({ placeholder_text_multiple: "All engine(s)..." }).val([]).trigger('chosen:updated');
+            }
+            else {
+                $("#engines").chosen({ placeholder_text_multiple: "Click to select engine(s)..." }).trigger('chosen:updated');;
+            }
+        });
+
+        $("#allFuelTypes").on("change", function () {
+            if (this.checked) {
+                $("#fuelTypes").chosen({ placeholder_text_multiple: "All fuel type(s)..." }).val([]).trigger('chosen:updated');
+            }
+            else {
+                $("#fuelTypes").chosen({ placeholder_text_multiple: "Click to select fuel type(s)..." }).trigger('chosen:updated');;
             }
         });
     })
+
+    getMakes = function () {
+        $.get(`${root}Home/GetMakes`)
+            .done(function (result) {
+                result.forEach(function (opt) {
+                    $("#makes").append(new Option(opt));
+                    $("#makes").trigger("chosen:updated");
+                })
+            })
+    }
+
+    getModels = function () {
+        $.get(`${root}Home/GetModels`)
+            .done(function (result) {
+                result.forEach(function (opt) {
+                    $("#models").append(new Option(opt)).trigger("chosen:updated");
+                })
+            })
+    }
+
+    getEngines = function () {
+        $.get(`${root}Home/GetEngines`)
+            .done(function (result) {
+                result.forEach(function (opt) {
+                    $("#engines").append(new Option(opt)).trigger("chosen:updated");
+                })
+            })
+    }
+
+    getFuelTypes = function () {
+        $.get(`${root}Home/GetFuelTypes`)
+            .done(function (result) {
+                result.forEach(function (opt) {
+                    $("#fuelTypes").append(new Option(opt)).trigger("chosen:updated");
+                })
+            })
+    }
 </script>

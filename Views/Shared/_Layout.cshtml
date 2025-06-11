@@ -44,13 +44,9 @@
         </div>
     </div>
     <!-- Offcanvas Menu End -->
-
-    <!-- Offcanvas Search Begin-->
     @{
         Html.RenderPartial("_SearchForm");
     }
-    <!-- Offcanvas Search End -->
-
     <!-- Header Section Begin -->
     <header class="header fixed-top">
         <div class="container-fluid set-bg" data-setbg="@Url.Content("~/img/menu-bg.jpg")">
@@ -106,7 +102,7 @@
                         </div>
                     </div>
                 </div>
-                </div>
+            </div>
         </div>
         <div class="row">
             @{ Html.RenderPartial("_CategoryFilter"); }

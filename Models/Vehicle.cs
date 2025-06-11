@@ -14,8 +14,6 @@ namespace GTX.Models {
 
 	[XmlRoot(ElementName = "vehicle")]
 	public class Vehicle {
-		private string _date;
-
 		[XmlElement(ElementName = "Stock")]
 		public string Stock { get; set; }
 

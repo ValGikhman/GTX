@@ -1,17 +1,20 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace GTX.Models {
-    public class ContactModel { 
+    public class ContactModel: BaseModel { 
         public ContactUs Contact { get; set; }
-        public IList<OpenHours> OpenHours { get; set; }
+        public OpenHours[] OpenHours { get; set; }
     }
     public class ContactUs {
-        public string SendTo { get; set; }
+
+        public Vehicle Vehicle { get; set; }
+
+        public Employer Employer { get; set; }
 
         [DisplayName("First Name")]
         [Required(ErrorMessage = "Please enter your first name")]
+
         public string FirstName { get; set; }
 
         [Required(ErrorMessage = "Please enter your last name")]
