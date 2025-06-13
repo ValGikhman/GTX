@@ -1,6 +1,5 @@
 ﻿html,
 body {
-    height: 100%;
     font-family: "Lato", sans-serif;
     -webkit-font-smoothing: antialiased;
 }
@@ -209,6 +208,14 @@ a, u {
     text-shadow: 0.25px 0.25px 0.7px #8D8484;
 }
 
+.shadow-3d {
+    background-color: #6c757d; /* Bootstrap's gray (btn-secondary) */
+    color: #fff;
+    border: none;
+    box-shadow: 0 4px 0 #545b62, 0 6px 12px rgba(0, 0, 0, 0.2);
+    border-bottom: 4px solid #545b62;
+    transition: all 0.1s ease-in-out;
+}
 
 @keyframes loader {
     0% {
@@ -565,12 +572,15 @@ a, u {
     margin-top: 182px;
 }
 
+li.search-field {
+    padding: 0.2rem !important ;
+}
 /*Custom*/
 /*---------------------
   Hero
 -----------------------*/
 .hero {
-    padding: 200px 0;
+    padding: 270px 0;
     background-size: cover;
     background-position: center;
     transition: background-image 1s ease-in-out;

@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Web.Mvc;
 using System.Threading.Tasks;
 using System.Linq;
+using Newtonsoft.Json;
+using System.Web.Script.Serialization;
 
 namespace GTX.Controllers {
 
@@ -30,6 +32,10 @@ namespace GTX.Controllers {
             filters.Models = SessionData.Vehicles.Select(m => m.Model).Distinct().OrderBy(m => m).ToArray();
             filters.Engines = SessionData.Vehicles.Select(m => m.Engine).Distinct().OrderBy(m => m).ToArray();
             filters.FuelTypes = SessionData.Vehicles.Select(m => m.FuelType).Distinct().OrderBy(m => m).ToArray();
+            filters.MaxPrice = SessionData.Vehicles.Max(m => m.RetailPrice);
+            filters.MinPrice = SessionData.Vehicles.Min(m => m.RetailPrice);
+            filters.DriveTrains = SessionData.Vehicles.Select(m => m.DriveTrain).Distinct().OrderBy(m => m).ToArray();
+            filters.BodyTypes = SessionData.Vehicles.Select(m => m.Body).Distinct().OrderBy(m => m).ToArray();
 
             SessionData.SetSession(Constants.SESSION_FILTERS, filters);
 
@@ -78,58 +84,6 @@ namespace GTX.Controllers {
                 ContactUs model = new ContactUs();
                 model.Employer = SessionData.Employers.FirstOrDefault(m => m.id == id);
                 return RenderViewToString(this.ControllerContext, "_ContactForm", model);
-            }
-            catch (Exception ex) {
-                base.Log(ex);
-            }
-            finally {
-            }
-            return null;
-        }
-
-        [HttpGet]
-        public JsonResult GetMakes() {
-            try {
-                return Json(SessionData.Filters.Makes, JsonRequestBehavior.AllowGet); 
-            }
-            catch (Exception ex) {
-                base.Log(ex);
-            }
-            finally {
-            }
-            return null;
-        }
-
-        [HttpGet]
-        public JsonResult GetModels() {
-            try {
-                return Json(SessionData.Filters.Models, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex) {
-                base.Log(ex);
-            }
-            finally {
-            }
-            return null;
-        }
-
-        [HttpGet]
-        public JsonResult GetEngines() {
-            try {
-                return Json(SessionData.Filters.Engines, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex) {
-                base.Log(ex);
-            }
-            finally {
-            }
-            return null;
-        }
-
-        [HttpGet]
-        public JsonResult GetFuelTypes() {
-            try {
-                return Json(SessionData.Filters.FuelTypes, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex) {
                 base.Log(ex);

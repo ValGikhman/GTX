@@ -3,36 +3,35 @@
     Html.RenderPartial("_PageTitle");
 }
 
-<div class="row container-fluid centered">
+<ul id="inventory" class="d-flex flex-wrap gap-2 justify-content-center mt-2">
     @foreach (var vehicle in Model) {
-    <div class="card well p-3 rounded-3">
-        <div class="card-header shadow">
-            <h5>
-                @vehicle.Year
-                @vehicle.Make
-            </h5>
-            <h7>@vehicle.Model</h7>
-        </div>
-        <a class="btn btn-outline-light shadow">
-            <img class="rounded-bottom-3" width="480" height="200" src="https://cdn05.carsforsale.com/570bf417ac34166c212b83c915204f92/480x360/2012-acura-tl-sh-awd-w-tech-4dr-sedan-6a-w-technology-package.jpg">
-        </a>
-        <div class="card-header well shadow">
-            <h7>
-                <div>
-                    <span class="pull-left">Yours for: @vehicle.RetailPrice.ToString("C0")</span>
-                    <span class="pull-right">Miles: @vehicle.Mileage.ToString("N0")</span>
-                </div>
-                <div>
-                    <a class="pull-left" href="https://www.carfax.com/VehicleHistory/p/Report.cfx?vin=@vehicle.VIN" target="_blank">
-                        <img width="100" src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report">
-                    </a>
-                    <button class="btn btn-secondary shadow pull-right">Details</button>
-                </div>
-            </h7>
-        </div>
-    </div>
+        <li class="card well p-3 rounded-3">
+            <div class="card-header shadow">
+                <h5>
+                    @vehicle.Year
+                    @vehicle.Make
+                </h5>
+                <h7>@vehicle.Model</h7>
+            </div>
+            <a class="btn btn-outline-light shadow">
+                <img class="rounded-3" width="480" height="200" src="https://cdn05.carsforsale.com/570bf417ac34166c212b83c915204f92/480x360/2012-acura-tl-sh-awd-w-tech-4dr-sedan-6a-w-technology-package.jpg">
+            </a>
+            <div class="card-header well shadow">
+                <h7>
+                    <div class="d-flex flex-wrap justify-content-evenly">
+                        <span>Yours for: @vehicle.RetailPrice.ToString("C0")</span>
+                        <span>Miles: @vehicle.Mileage.ToString("N0")</span>
+                    </div>
+                    <div class="justify-content-evenly">
+                        <a href="https://www.carfax.com/VehicleHistory/p/Report.cfx?vin=@vehicle.VIN" target="_blank">
+                            <img width="100" src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report">
+                        </a>
+                        <button class="btn btn-secondary shadow pull-right">Details</button>
+                    </div>
+                </h7>
+            </div>
+        </li>
     }
-</div>
-
+</ul>
 
 
