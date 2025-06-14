@@ -21,23 +21,9 @@ namespace GTX.Controllers {
 
         }
 
-        public async Task<ActionResult> Index() {
+        public ActionResult Index() {
             ViewBag.Message = "Home";
             ViewBag.Title = "Home";
-
-            var vehicles = await Utility.XMLHelpers.XmlRepository.GetInventory();
-            SessionData.SetSession(Constants.SESSION_INVENTORY, vehicles.Where(m => m.RetailPrice > 0).OrderByDescending(m => m.PurchaseDate).ThenBy(m => m.Make).ToArray());
-            Filters filters = new Filters();
-            filters.Makes = SessionData.Vehicles.Select(m => m.Make).Distinct().OrderBy(m => m).ToArray();
-            filters.Models = SessionData.Vehicles.Select(m => m.Model).Distinct().OrderBy(m => m).ToArray();
-            filters.Engines = SessionData.Vehicles.Select(m => m.Engine).Distinct().OrderBy(m => m).ToArray();
-            filters.FuelTypes = SessionData.Vehicles.Select(m => m.FuelType).Distinct().OrderBy(m => m).ToArray();
-            filters.MaxPrice = SessionData.Vehicles.Max(m => m.RetailPrice);
-            filters.MinPrice = SessionData.Vehicles.Min(m => m.RetailPrice);
-            filters.DriveTrains = SessionData.Vehicles.Select(m => m.DriveTrain).Distinct().OrderBy(m => m).ToArray();
-            filters.BodyTypes = SessionData.Vehicles.Select(m => m.Body).Distinct().OrderBy(m => m).ToArray();
-
-            SessionData.SetSession(Constants.SESSION_FILTERS, filters);
 
             return View();
         }
@@ -46,7 +32,7 @@ namespace GTX.Controllers {
             ViewBag.Message = "Staff";
             ViewBag.Title = "Our staff";
 
-            StaffModel model = new StaffModel();
+            BaseModel model = new BaseModel();
             if (SessionData?.Employers == null) {
                 Employer[] employers = await Utility.XMLHelpers.XmlRepository.GetEmployers();
                 SessionData.SetSession(Constants.SESSION_EMPLOYERS, employers);
@@ -59,8 +45,10 @@ namespace GTX.Controllers {
         public ActionResult Contact() {
             ViewBag.Message = "Contact";
             ViewBag.Title = "Contact us";
+
             ContactModel model = new ContactModel();
             model.OpenHours = Utility.XMLHelpers.XmlRepository.GetOpenHours();
+
             model.Contact = new ContactUs();
             return View(model);
         }

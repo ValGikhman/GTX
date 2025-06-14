@@ -196,11 +196,8 @@
     </Compile>
     <Compile Include="Models\BaseModel.cs" />
     <Compile Include="Models\ContactModel.cs" />
-    <Compile Include="Models\Filters.cs" />
-    <Compile Include="Models\HomeModel.cs" />
-    <Compile Include="Models\GTXDataModel.cs" />
-    <Compile Include="Models\StaffModel.cs" />
-    <Compile Include="Models\Vehicle.cs" />
+    <Compile Include="Models\GTXClasses.cs" />
+    <Compile Include="Models\GTX.cs" />
     <Compile Include="Session\HttpContextProvider.cs" />
     <Compile Include="Session\IHttpContextProvider.cs" />
     <Compile Include="Session\ISessionData.cs" />
@@ -484,7 +481,7 @@
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Home\Blog.cshtml" />
-    <Content Include="Views\Inventory\All.cshtml" />
+    <Content Include="Views\Inventory\Index.cshtml" />
     <Content Include="Views\Home\Staff.cshtml" />
     <Content Include="Views\Home\Application.cshtml" />
     <Content Include="Views\Shared\_ContactForm.cshtml" />
@@ -492,6 +489,7 @@
     <Content Include="Views\Shared\_SearchForm.cshtml" />
     <Content Include="Views\Shared\Emails\_ContactTemplate.cshtml" />
     <Content Include="Views\Shared\_CategoryFilter.cshtml" />
+    <Content Include="Views\Shared\_FiltersForm.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

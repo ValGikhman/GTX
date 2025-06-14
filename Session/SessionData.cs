@@ -6,9 +6,9 @@ namespace GTX.Session {
 
         #region Private Fields
 
-        private Vehicle[] _inventory = null;
+        private Inventory _inventory = null;
         private Employer[] _employers = null;
-        private Vehicle _currentVehicle = null;
+        private Filters _currentFilter = null;
         private Filters _filters = null;
 
         private readonly HttpContextProvider _httpContext;
@@ -25,19 +25,19 @@ namespace GTX.Session {
         #endregion Public Constructors
 
         #region Public Properties
-        public Vehicle[] Vehicles {
+        public Inventory Inventory {
             get => GetSession(Constants.SESSION_INVENTORY, _inventory);
             set => SetSession(Constants.SESSION_INVENTORY, value);
+        }
+
+        public Filters CurrentFilter {
+            get => GetSession(Constants.SESSION_CURRENT_FILTER, _currentFilter);
+            set => SetSession(Constants.SESSION_CURRENT_FILTER, value);
         }
 
         public Employer[] Employers {
             get => GetSession(Constants.SESSION_EMPLOYERS, _employers);
             set => SetSession(Constants.SESSION_EMPLOYERS, value);
-        }
-
-        public Vehicle CurrentVehicle {
-            get => GetSession(Constants.SESSION_CURRENT_VEHICLE, _currentVehicle);
-            set => SetSession(Constants.SESSION_CURRENT_VEHICLE, value);
         }
 
         public Filters Filters {

@@ -522,6 +522,11 @@ a, u {
     display: none;
 }
 
+.chosen-choices {
+    background-color: #eee!important;
+    border: 2px solid #ccc!important;
+}
+
 /*Custom*/
 .well {
     min-height: 20px;
@@ -809,128 +814,6 @@ li.search-field {
                 border: none;
                 width: 180px;
             }
-
-/*---------------------
-  Choose Us
------------------------*/
-
-.chooseus {
-    background: #f7f7f7;
-    position: relative;
-    height: 530px;
-    padding-bottom: 85px;
-}
-
-    .chooseus .row {
-        position: relative;
-        z-index: 1;
-    }
-
-.chooseus__text {
-    position: relative;
-    z-index: 1;
-}
-
-    .chooseus__text .section-title {
-        margin-bottom: 10px;
-        text-align: left;
-    }
-
-        .chooseus__text .section-title h2 {
-            margin-top: 0;
-        }
-
-    .chooseus__text ul {
-        margin-bottom: 28px;
-    }
-
-        .chooseus__text ul li {
-            list-style: none;
-            font-size: 15px;
-            color: #727171;
-            line-height: 36px;
-        }
-
-            .chooseus__text ul li i {
-                color: #db2d2e;
-            }
-
-.chooseus__video {
-    height: 530px;
-    width: calc(100% - 46%);
-    position: absolute;
-    right: 0;
-    top: 0;
-}
-
-    .chooseus__video img {
-        height: 100%;
-        width: 100%;
-    }
-
-    .chooseus__video .play-btn {
-        height: 60px;
-        width: 60px;
-        background: #db2d2e;
-        border-radius: 50%;
-        font-size: 25px;
-        color: #ffffff;
-        line-height: 64px;
-        text-align: center;
-        display: inline-block;
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        -webkit-transform: translate(-30px, -30px);
-        -ms-transform: translate(-30px, -30px);
-        transform: translate(-30px, -30px);
-        z-index: 9;
-    }
-
-        .chooseus__video .play-btn i {
-            position: relative;
-            left: 3px;
-            top: -1px;
-        }
-
-/*---------------------
-  Cta
------------------------*/
-
-.cta {
-    padding-bottom: 70px;
-}
-
-.cta__item {
-    position: relative;
-    z-index: 1;
-    padding: 50px 34px 65px;
-    border-radius: 2px;
-    margin-bottom: 30px;
-}
-
-    .cta__item:before {
-        position: absolute;
-        left: 0;
-        top: 0;
-        height: 100%;
-        width: 100%;
-        background: rgba(0, 0, 0, 0.3);
-        content: "";
-        z-index: -1;
-        border-radius: 2px;
-    }
-
-    .cta__item h4 {
-        color: #ffffff;
-        font-weight: 700;
-        margin-bottom: 6px;
-    }
-
-    .cta__item p {
-        color: #ffffff;
-        margin-bottom: 0;
-    }
 
 /*---------------------
   Car

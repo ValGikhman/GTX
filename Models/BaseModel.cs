@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Web;
 
 namespace GTX.Models {
     public class BaseModel {
@@ -9,25 +6,31 @@ namespace GTX.Models {
 
         public BaseModel() {
 
+            Inventory = new Inventory();
+            CurrentFilter = new Filters();
+
             if (HttpContext.Current.Session[Constants.SESSION_INVENTORY] != null) {
-                Vehicles = (Vehicle[])HttpContext.Current.Session[Constants.SESSION_INVENTORY];
+                Inventory = (Inventory)HttpContext.Current.Session[Constants.SESSION_INVENTORY];
             }
 
             if (HttpContext.Current.Session[Constants.SESSION_EMPLOYERS] != null) {
                 Employers = (Employer[])HttpContext.Current.Session[Constants.SESSION_EMPLOYERS];
             }
 
-            if (HttpContext.Current.Session[Constants.SESSION_EMPLOYERS] != null) {
-                Makes = (string[])HttpContext.Current.Session[Constants.SESSION_MAKES];
+            if (HttpContext.Current.Session[Constants.SESSION_CURRENT_FILTER] != null) {
+                CurrentFilter = (Filters)HttpContext.Current.Session[Constants.SESSION_CURRENT_FILTER];
             }
         }
 
         #endregion Public Constructors
 
-        public Vehicle[] Vehicles { get; set; }
+        public Inventory Inventory { get; set; }
 
         public Employer[] Employers { get; set; }
 
-        public string[] Makes { get; set; }
+        public Filters CurrentFilter { get; set; }
+
+        public OpenHours[] OpenHours { get; set; }
+
     }
 }

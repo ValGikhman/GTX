@@ -12,49 +12,79 @@ namespace GTX.Controllers {
     public class InventoryController : BaseController {
 
         public InventoryController(ISessionData sessionData)
-            : base(sessionData) {}
+            : base(sessionData) {
+            if (Model == null) {
+                Model = new BaseModel();
+                Model.Inventory = new Inventory();
+            }
+        }
 
-        [HttpGet]
-        public async Task<ActionResult> All() {
-            ViewBag.Message = "Inventory";
+        public ActionResult Index(BaseModel model) {
+            ViewBag.Title = $"{Model.Inventory.Tilte} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
 
-            Vehicle[] model = await SetModel();
+            return View(Model);
+        }
 
-            ViewBag.Title = $"Inventory ({model.Length}) vehicles";
-            return View(model);
+        public ActionResult All() {
+            Model.Inventory.Vehicles = SessionData.Inventory.All;
+
+            Model.Inventory.Tilte = "All";
+            return RedirectToAction("Index", Model);
+        }
+
+        public ActionResult Suvs() {
+            Model.Inventory.Vehicles = SessionData.Inventory.Suvs;
+
+            Model.Inventory.Tilte = "SUV's";
+            return RedirectToAction("Index", Model);
+        }
+
+        public ActionResult Cars() {
+            Model.Inventory.Vehicles = SessionData.Inventory.Cars;
+
+            Model.Inventory.Tilte = "Cars";
+            return RedirectToAction("Index", Model);
+        }
+
+        public ActionResult Trucks() {
+            Model.Inventory.Vehicles = SessionData.Inventory.Trucks;
+
+            Model.Inventory.Tilte = "Trucks";
+            return RedirectToAction("Index", Model.Inventory.Trucks);
+        }
+
+        public ActionResult Vans() {
+            Model.Inventory.Vehicles = SessionData.Inventory.Vans;
+
+            Model.Inventory.Tilte = "Vans";
+            return RedirectToAction("Index", Model.Inventory.Vans);
+        }
+
+        public ActionResult Cargo() {
+            Model.Inventory.Vehicles = SessionData.Inventory.Cargo;
+
+            Model.Inventory.Tilte = "Cargo";
+            ViewBag.Title = $"Inventory ({Model.Inventory.Vehicles.Length}) vehicles";
+            return RedirectToAction("Index", Model.Inventory.Cargo);
+        }
+
+
+        [HttpPost]
+        public JsonResult ApplyFilter(Filters model) {
+            SessionData.Inventory.All = ApplyFilters(model);
+            SessionData.CurrentFilter = model;
+
+            ViewBag.Title = $"Inventory ({SessionData.Inventory.All.Length}) vehicles";
+
+            return Json(new { redirectUrl = Url.Action("All") });
         }
 
         [HttpPost]
-        public ActionResult ApplyFilter(Filters filters) {
-            SessionData.Vehicles = SessionData.Vehicles.Where(m => m.Make.ToUpper() == "Honda".ToUpper()).ToArray();
-            ViewBag.Title = $"Inventory ({SessionData.Vehicles.Length}) vehicles";
+        public JsonResult ResetFilter(Filters model) {
+            SessionData.Inventory.All = null;
+            ViewBag.Title = $"Inventory ({SessionData.Inventory.All.Length}) vehicles";
 
-            return RedirectToAction("All");
-        }
-
-        private async Task<Vehicle[]> SetModel() {
-            if (SessionData?.Vehicles == null) {
-                Vehicle[] model;
-                model = await Utility.XMLHelpers.XmlRepository.GetInventory();
-                model = model.Where(m => m.RetailPrice > 0).ToArray();
-                SessionData.SetSession(Constants.SESSION_INVENTORY, model);
-                return model;
-            }
-
-            return SessionData.Vehicles;
-        }
-
-        private async Task<string> DecodeVin(string vin) {
-            using (HttpClient client = new HttpClient()) {
-                string url = $"https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/{vin}?format=xml";
-                HttpResponseMessage response = await client.GetAsync(url);
-
-                if (!response.IsSuccessStatusCode)
-                    return "Error fetching VIN data.";
-
-                var data = await response.Content.ReadAsStringAsync();
-                return data;
-            }
+            return Json(new { redirectUrl = Url.Action("All") });
         }
 
         [HttpGet]
@@ -75,7 +105,7 @@ namespace GTX.Controllers {
             try {
                 if (!string.IsNullOrEmpty(makes)) {
                     string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    return Json(SessionData?.Vehicles?.Where(m => request.Contains(m.Make)).Select(m => m.Model).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
+                    return Json(SessionData?.Inventory.All?.Where(m => request.Contains(m.Make)).Select(m => m.Model).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
                 }
                 else {
                     return Json(SessionData?.Filters?.Models, JsonRequestBehavior.AllowGet);
@@ -94,7 +124,7 @@ namespace GTX.Controllers {
             try {
                 if (!string.IsNullOrEmpty(makes)) {
                     string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    return Json(SessionData?.Vehicles?.Where(m => request.Contains(m.Make)).Select(m => m.Engine).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
+                    return Json(SessionData?.Inventory.All?.Where(m => request.Contains(m.Make)).Select(m => m.Engine).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
                 }
                 else {
                     return Json(SessionData?.Filters?.Engines, JsonRequestBehavior.AllowGet);
@@ -113,7 +143,7 @@ namespace GTX.Controllers {
             try {
                 if (!string.IsNullOrEmpty(makes)) {
                     string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    return Json(SessionData?.Vehicles?.Where(m => request.Contains(m.Make)).Select(m => m.FuelType).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
+                    return Json(SessionData?.Inventory.All?.Where(m => request.Contains(m.Make)).Select(m => m.FuelType).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
                 }
                 else {
                     return Json(SessionData?.Filters?.FuelTypes, JsonRequestBehavior.AllowGet);
@@ -132,7 +162,7 @@ namespace GTX.Controllers {
             try {
                 if (!string.IsNullOrEmpty(makes)) {
                     string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    return Json(SessionData?.Vehicles?.Where(m => request.Contains(m.Make)).Select(m => m.DriveTrain).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
+                    return Json(SessionData?.Inventory.All?.Where(m => request.Contains(m.Make)).Select(m => m.DriveTrain).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
                 }
                 else {
                     return Json(SessionData?.Filters?.DriveTrains, JsonRequestBehavior.AllowGet);
@@ -151,7 +181,7 @@ namespace GTX.Controllers {
             try {
                 if (!string.IsNullOrEmpty(makes)) {
                     string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    return Json(SessionData?.Vehicles?.Where(m => request.Contains(m.Make)).Select(m => m.Body).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
+                    return Json(SessionData?.Inventory.All?.Where(m => request.Contains(m.Make)).Select(m => m.Body).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
                 }
                 else {
                     return Json(SessionData?.Filters?.BodyTypes, JsonRequestBehavior.AllowGet);
@@ -172,12 +202,12 @@ namespace GTX.Controllers {
                 int? priceMax;
                 if (!string.IsNullOrEmpty(makes)) {
                     string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    priceMax = SessionData?.Vehicles?.Where(m => request.Contains(m.Make)).Max(m => m.RetailPrice);
-                    priceMin = SessionData?.Vehicles?.Where(m => request.Contains(m.Make)).Min(m => m.RetailPrice);
+                    priceMax = SessionData?.Inventory.All?.Where(m => request.Contains(m.Make)).Max(m => m.RetailPrice);
+                    priceMin = SessionData?.Inventory.All?.Where(m => request.Contains(m.Make)).Min(m => m.RetailPrice);
                 }
                 else {
-                    priceMax = SessionData?.Vehicles?.Max(m => m.RetailPrice);
-                    priceMin = SessionData?.Vehicles?.Min(m => m.RetailPrice);
+                    priceMax = SessionData?.Inventory.All?.Max(m => m.RetailPrice);
+                    priceMin = SessionData?.Inventory.All?.Min(m => m.RetailPrice);
                 }
                 return Json(new { PriceMax = priceMax, PriceMin = priceMin }, JsonRequestBehavior.AllowGet);
             }
@@ -196,12 +226,12 @@ namespace GTX.Controllers {
                 int? milesMax;
                 if (!string.IsNullOrEmpty(makes)) {
                     string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    milesMax = SessionData?.Vehicles?.Where(m => request.Contains(m.Make)).Max(m => m.Mileage);
-                    milesMin = SessionData?.Vehicles?.Where(m => request.Contains(m.Make)).Min(m => m.Mileage);
+                    milesMax = SessionData?.Inventory.All?.Where(m => request.Contains(m.Make)).Max(m => m.Mileage);
+                    milesMin = SessionData?.Inventory.All?.Where(m => request.Contains(m.Make)).Min(m => m.Mileage);
                 }
                 else {
-                    milesMax = SessionData?.Vehicles?.Max(m => m.Mileage);
-                    milesMin = SessionData?.Vehicles?.Min(m => m.Mileage);
+                    milesMax = SessionData?.Inventory.All?.Max(m => m.Mileage);
+                    milesMin = SessionData?.Inventory.All?.Min(m => m.Mileage);
                 }
                 return Json(new { MilesMax = milesMax, MilesMin = milesMin }, JsonRequestBehavior.AllowGet);
             }
@@ -213,5 +243,38 @@ namespace GTX.Controllers {
             return null;
         }
 
+        private Models.GTX[] ApplyFilters(Filters filter) {
+            Models.GTX[] query = SessionData?.Inventory.All;
+
+            if (filter.Makes != null) {
+                query = query.Where(m => filter.Makes.Contains(m.Make)).Distinct().ToArray();
+            }
+
+            if (filter.Models != null) {
+                query = query.Where(m => filter.Models.Contains(m.Model)).Distinct().ToArray();
+            }
+
+            if (filter.Engines != null) {
+                query = query.Where(m => filter.Models.Contains(m.Engine)).Distinct().ToArray();
+            }
+
+            if (filter.DriveTrains != null) {
+                query = query.Where(m => filter.Models.Contains(m.DriveTrain)).Distinct().ToArray();
+            }
+
+            if (filter.BodyTypes != null) {
+                query = query.Where(m => filter.Models.Contains(m.Body)).Distinct().ToArray();
+            }
+
+            if (filter.Milege > 0) {
+                query = query.Where(m => m.Mileage <= filter.Milege).Distinct().ToArray();
+            }
+
+            if (filter.Price > 0) {
+                query = query.Where(m => m.RetailPrice <= filter.Price).Distinct().ToArray();
+            }
+
+            return query.OrderBy(m => m.Make).ToArray();
+        }
     }
 }

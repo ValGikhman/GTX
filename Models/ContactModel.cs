@@ -4,12 +4,9 @@ using System.ComponentModel.DataAnnotations;
 namespace GTX.Models {
     public class ContactModel: BaseModel { 
         public ContactUs Contact { get; set; }
-        public OpenHours[] OpenHours { get; set; }
     }
+
     public class ContactUs {
-
-        public Vehicle Vehicle { get; set; }
-
         public Employer Employer { get; set; }
 
         [DisplayName("First Name")]

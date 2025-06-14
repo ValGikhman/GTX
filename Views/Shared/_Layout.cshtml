@@ -45,7 +45,7 @@
     </div>
     <!-- Offcanvas Menu End -->
     @{
-        Html.RenderPartial("_SearchForm", new GTX.Models.Filters());
+        Html.RenderPartial("_SearchForm");
     }
     <!-- Header Section Begin -->
     <header class="header fixed-top">
@@ -77,7 +77,7 @@
                                 </ul>
                             </li>
                             <li>
-                                <a data-bs-toggle="offcanvas" href="#offcanvasTop" role="button" aria-controls="offcanvasTop">
+                                <a data-bs-toggle="modal" data-bs-target="#filtersModal">
                                     <i class="bi bi-search"></i>
                                 </a>
                             </li>

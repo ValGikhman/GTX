@@ -1,0 +1,426 @@
+﻿<div class="row container-fluid col-12 justify-content-between">
+    @{ Html.RenderPartial("_CategoryFilter"); }
+    <div class="canvas__open">
+        <span class="fa fa-bars"></span>
+    </div>
+</div>
+@*Meat*@
+<div class="row container-fluid mt-2 col-12 justify-content-between">
+    @*Makes*@
+    <div class="col-lg-3 p-2 well">
+        <small class="form-check form-switch text-dark">
+            @Html.CheckBox("allMakes", true, new { @class = "form-check-input", id = "allMakes" })
+            @Html.Label("AllMakes", "All makes(s)", new { @class = "form-check-label text-shadow", @for = "allMakes" })
+        </small>
+        <select multiple class="chosen-select shadow w-25" id="makes" tabindex="1">
+        </select>
+    </div>
+
+    @*Models*@
+    <div class="col-lg-3 p-2 well">
+        <small class="form-check form-switch text-dark">
+            @Html.CheckBox("allModels", true, new { @class = "form-check-input", id = "allModels", disabled = "true" })
+            @Html.Label("AllModels", "All models(s)", new { @class = "form-check-label text-shadow", @for = "allModels" })
+        </small>
+        <select multiple class="chosen-select shadow w-25" id="models" disabled tabindex="2">
+        </select>
+    </div>
+
+    @*Price*@
+    <div class="col-lg-3 p-2 well">
+        @Html.Label("Price", "Price range", new { @class = "form-check-label text-shadow", @for = "price" })
+        @Html.TextBox("price", null, new { @class = "form-range", type = "range", min = "0", max = "5", step = "1000", id = "price" })
+        <div class="d-flex justify-content-between p-0">
+            <span id="priceMin" class="form-check-label text-shadow"></span>
+            <span id="currentPrice" class="badge bg-secondary shadow mt-1"></span>
+            <span id="priceMax" class="form-check-label text-shadow"></span>
+        </div>
+    </div>
+
+    @*Drive*@
+    <div class="col-lg-3 p-2 well">
+        <small class="form-check form-switch text-dark">
+            @Html.CheckBox("allDrives", true, new { @class = "form-check-input", id = "allDrives", disabled = "true" })
+            @Html.Label("AllDrives", "All drive train(s)", new { @class = "form-check-label text-shadow", @for = "allDrives" })
+        </small>
+        <select multiple class="chosen-select shadow w-25" id="drives" tabindex="3">
+        </select>
+    </div>
+
+    @*Body*@
+    <div class="col-lg-3 p-2 well">
+        <small class="form-check form-switch text-dark">
+            @Html.CheckBox("allBodyTypes", true, new { @class = "form-check-input", id = "allBodyTypes", disabled = "true" })
+            @Html.Label("AllBodyTypes", "All body type(s)", new { @class = "form-check-label text-shadow", @for = "allBodyTypes" })
+        </small>
+        <select multiple class="chosen-select shadow w-25" id="bodyTypes" tabindex="3">
+        </select>
+    </div>
+
+    @*Engines*@
+    <div class="col-lg-3 p-2 well">
+        <small class="form-check form-switch text-dark">
+            @Html.CheckBox("allEngines", true, new { @class = "form-check-input", id = "allEngines" })
+            @Html.Label("AllEngines", "All engines(s)", new { @class = "form-check-label text-shadow", @for = "allEngines" })
+        </small>
+        <select multiple class="chosen-select shadow w-25" id="engines" tabindex="4">
+        </select>
+    </div>
+
+    @*Milege*@
+    <div class="col-lg-3 p-2 well">
+        @Html.Label("Miles", "Milege", new { @class = "form-check-label text-shadow", @for = "milege" })
+        @Html.TextBox("milege", null, new { @class = "form-range", type = "range", min = "0", max = "5", step = "1000", id = "milege" })
+        <div class="d-flex justify-content-between p-0">
+            <span id="milegeMin" class="form-check-label text-shadow"></span>
+            <span id="currentMilege" class="badge bg-secondary shadow mt-1"></span>
+            <span id="milegeMax" class="form-check-label text-shadow"></span>
+        </div>
+    </div>
+    
+    @*Fuels*@
+    <div class="col-lg-3 p-2 well">
+        <small class="form-check form-switch text-dark">
+            @Html.CheckBox("allFuelTypes", true, new { @class = "form-check-input", id = "allFuelTypes" })
+            @Html.Label("AllFuelTypes", "All Fuel types(s)", new { @class = "form-check-label text-shadow", @for = "allFuelTypes" })
+        </small>
+        <select multiple class="chosen-select shadow w-25" id="fuelTypes" tabindex="5">
+        </select>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $("#makes").chosen({
+            placeholder_text_multiple: "All make(s)...",
+            no_results_text: "No makes for search criteria"
+        }).on("change", function () {
+            const selected = $(this).val();
+            const setValue = (selected && selected.length === 0);
+            $("#allMakes").prop({ checked: setValue, disabled: setValue });
+
+            if (selected && selected.length == 0) {
+                $("#models").prop({ disabled: true }).trigger("chosen:updated");
+                showOthers(false);
+                updateData();
+            }
+            else if ((selected && selected.length == 1)) {
+                $("#models").prop({ disabled: false }).trigger("chosen:updated");
+                showOthers(false);
+                updateData(selected);
+            }
+            else if (selected && selected.length > 1) {
+                $("#models").prop({ disabled: true }).trigger("chosen:updated");
+                showOthers(true);
+                updateData(selected);
+            }
+        });
+
+        $("#models").chosen({
+            placeholder_text_multiple: "All model(s)...",
+            no_results_text: "No model for search criteria"
+        }).on("change", function () {
+            const selected = $(this).val();
+            const setValue = (selected && selected.length === 0);
+            $("#allModels").prop({ checked: setValue, disabled: setValue });
+        });
+
+        $("#engines").chosen({
+            placeholder_text_multiple: "All engines(s)...",
+            no_results_text: "No engine for search criteria"
+        }).on("change", function () {
+            const selected = $(this).val();
+            const setValue = (selected && selected.length === 0);
+            $("#allEngines").prop({ checked: setValue, disabled: setValue });
+        });
+
+        $("#fuelTypes").chosen({
+            placeholder_text_multiple: "All fuel type(s)...",
+            no_results_text: "No fuel type for search criteria"
+        }).on("change", function () {
+            const selected = $(this).val();
+            const setValue = (selected && selected.length === 0);
+            $("#allFuelTypes").prop({ checked: setValue, disabled: setValue });
+        });
+
+        $("#drives").chosen({
+            placeholder_text_multiple: "All drive train(s)...",
+            no_results_text: "No drive train for search criteria"
+        }).on("change", function () {
+            const selected = $(this).val();
+            const setValue = (selected && selected.length === 0);
+            $("#allDrives").prop({ checked: setValue, disabled: setValue });
+        });
+
+        $("#bodyTypes").chosen({
+            placeholder_text_multiple: "All body types(s)...",
+            no_results_text: "No body type for search criteria"
+        }).on("change", function () {
+            const selected = $(this).val();
+            const setValue = (selected && selected.length === 0);
+            $("#allBodyTypes").prop({ checked: setValue, disabled: setValue });
+        });
+
+        $("#allMakes").prop({ disabled: true }).on("change", function () {
+            $(this).prop("disabled", this.checked);
+
+            if (this.checked) {
+                $("#makes").chosen({ placeholder_text_multiple: "All make(s)..." }).val([]).trigger('chosen:updated');
+            }
+            else {
+                $("#makes").chosen({ placeholder_text_multiple: "Click to select make(s)..." }).trigger('chosen:updated');
+            }
+        });
+
+        $("#allModels").prop({ disabled: true }).on("change", function () {
+            $(this).prop("disabled", this.checked);
+
+            if (this.checked) {
+                $("#models").chosen({ placeholder_text_multiple: "All model(s)..." }).val([]).trigger('chosen:updated');
+            }
+            else {
+                $("#models").chosen({ placeholder_text_multiple: "Click to select model(s)..." }).trigger('chosen:updated');;
+            }
+        });
+
+        $("#allEngines").prop({ disabled: true }).on("change", function () {
+            $(this).prop("disabled", this.checked);
+
+            if (this.checked) {
+                $("#engines").chosen({ placeholder_text_multiple: "All engine(s)..." }).val([]).trigger('chosen:updated');
+            }
+            else {
+                $("#engines").chosen({ placeholder_text_multiple: "Click to select engine(s)..." }).trigger('chosen:updated');;
+            }
+        });
+
+        $("#allDrives").prop({ disabled: true }).on("change", function () {
+            $(this).prop("disabled", this.checked);
+
+            if (this.checked) {
+                $("#drives").chosen({ placeholder_text_multiple: "All drive trains(s)..." }).val([]).trigger('chosen:updated');
+            }
+            else {
+                $("#drives").chosen({ placeholder_text_multiple: "Click to select drive trains(s)..." }).trigger('chosen:updated');;
+            }
+        });
+
+        $("#allBodyTypes").prop({ disabled: true }).on("change", function () {
+            $(this).prop("disabled", this.checked);
+
+            if (this.checked) {
+                $("#bodyTypes").chosen({ placeholder_text_multiple: "All body type(s)..." }).val([]).trigger('chosen:updated');
+            }
+            else {
+                $("#bodyTypes").chosen({ placeholder_text_multiple: "Click to select body types(s)..." }).trigger('chosen:updated');;
+            }
+        });
+
+        $("#allFuelTypes").prop({ disabled: true }).on("change", function () {
+            $(this).prop("disabled", this.checked);
+            if (this.checked) {
+                $("#fuelTypes").chosen({ placeholder_text_multiple: "All fuel type(s)..." }).val([]).trigger('chosen:updated');
+            }
+            else {
+                $("#fuelTypes").chosen({ placeholder_text_multiple: "Click to select fuel type(s)..." }).trigger('chosen:updated');;
+            }
+        });
+
+        getMakes();
+        updateData();
+
+        $(".chosen-choices").addClass("shadow rounded p-0");
+        $(".chosen-container").addClass("w-100 p-1");
+
+        $("#btnSearch").on("click", function () {
+            $("#filtersModal").modal("hide");
+            var model = {
+                Makes: $("#makes").val(),
+                Models: $("#models").val(),
+                Engines: $("#engines").val(),
+                FuelTypes: $("fuelTypes").val(),
+                DriveTrains: $("#drives").val(),
+                BodyTypes: $("#bodyTypes").val(),
+                Milege: $("#milege").val(),
+                Price: $("#price").val()
+            };
+
+            $.post(`${root}Inventory/ApplyFilter`, { model: model }, "json")
+                .done(function (response) {
+                    window.location.href = response.redirectUrl; // ✅ Now navigate to that controller action
+            })
+        })
+    })
+
+    getMakes = function () {
+        $.get(`${root}Inventory/GetMakes`)
+            .done(function (result) {
+                result.forEach(function (opt) {
+                    $("#makes").append(new Option(opt));
+                })
+                $("#makes").trigger("chosen:updated");
+            })
+    }
+
+    getModels = function (makes) {
+        $.get(`${root}Inventory/GetModels`, { "makes": JSON.stringify(makes) })
+            .done(function (result) {
+                result.forEach(function (opt) {
+                    $("#models").append(new Option(opt));
+                })
+                $("#models").trigger("chosen:updated");
+            })
+    }
+
+    getEngines = function (makes) {
+        $.get(`${root}Inventory/GetEngines`, { "makes": JSON.stringify(makes) })
+            .done(function (result) {
+                result.forEach(function (opt) {
+                    $("#engines").append(new Option(opt));
+                })
+                $("#engines").trigger("chosen:updated");
+            })
+    }
+
+    getFuelTypes = function (makes) {
+        $.get(`${root}Inventory/GetFuelTypes`, { "makes": JSON.stringify(makes) })
+            .done(function (result) {
+                result.forEach(function (opt) {
+                    $("#fuelTypes").append(new Option(opt));
+                })
+                $("#fuelTypes").trigger("chosen:updated");
+            })
+    }
+
+    getDrives = function (makes) {
+        $.get(`${root}Inventory/GetDrives`, { "makes": JSON.stringify(makes) })
+            .done(function (result) {
+                result.forEach(function (opt) {
+                    $("#drives").append(new Option(opt));
+                })
+                $("#drives").trigger("chosen:updated");
+            })
+    }
+
+    getBodyTypes = function (makes) {
+        $.get(`${root}Inventory/GetBodyTypes`, { "makes": JSON.stringify(makes) })
+            .done(function (result) {
+                result.forEach(function (opt) {
+                    $("#bodyTypes").append(new Option(opt));
+                })
+                $("#bodyTypes").trigger("chosen:updated");
+            })
+
+    }
+
+    getPriceRange = function (makes) {
+        $.get(`${root}Inventory/GetPriceRange`, { "makes": JSON.stringify(makes) })
+            .done(function (result) {
+                if (result != null) {
+                    const roundedMin = Math.round(result.PriceMin / 1000) * 1000;
+                    const roundedMax = Math.round(result.PriceMax / 1000) * 1000;
+
+                    $("#price").attr({ min: roundedMin, max: roundedMax });
+
+                    const formattedMin = new Intl.NumberFormat('en-US', {
+                        maximumFractionDigits: 0,
+                        minimumFractionDigits: 0,
+                        style: 'currency',
+                        currency: 'USD'
+                    }).format(roundedMin);
+
+
+                    const formattedMax = new Intl.NumberFormat('en-US', {
+                        maximumFractionDigits: 0,
+                        minimumFractionDigits: 0,
+                        style: 'currency',
+                        currency: 'USD'
+                    }).format(roundedMax);
+
+                    $("#priceMin").text(formattedMin);
+                    $("#priceMax").text(formattedMax);
+                    $("#currentPrice").text(`Under ${formattedMin}`);
+                }
+            })
+    }
+
+    $("#price").on("input", function () {
+        const rounded = Math.round(this.value / 1000) * 1000;
+        const formatted = new Intl.NumberFormat('en-US', {
+            maximumFractionDigits: 0,
+            minimumFractionDigits: 0,
+            style: 'currency',
+            currency: 'USD'
+        }).format(rounded);
+
+
+        $("#currentPrice").text(`Under ${formatted}`);
+    });
+
+    getMilege = function (makes) {
+        $.get(`${root}Inventory/GetMilegeRange`, { "makes": JSON.stringify(makes) })
+            .done(function (result) {
+                if (result != null) {
+                    const roundedMin = Math.round(result.MilesMin / 1000) * 1000;
+                    const roundedMax = Math.round(result.MilesMax / 1000) * 1000;
+
+                    $("#milege").attr({ min: roundedMin, max: roundedMax });
+
+                    const formattedMin = new Intl.NumberFormat('en-US', {
+                        maximumFractionDigits: 0,
+                        minimumFractionDigits: 0,
+                    }).format(roundedMin);
+
+
+                    const formattedMax = new Intl.NumberFormat('en-US', {
+                        maximumFractionDigits: 0,
+                        minimumFractionDigits: 0,
+                    }).format(roundedMax);
+
+                    $("#milegeMin").text(formattedMin);
+                    $("#milegeMax").text(formattedMax);
+                    $("#currentMilege").text(formattedMin);
+                }
+            })
+    }
+
+    $("#milege").on("input", function () {
+        const rounded = Math.round(this.value / 1000) * 1000;
+        const formatted = new Intl.NumberFormat('en-US', {
+            maximumFractionDigits: 0,
+            minimumFractionDigits: 0,
+        }).format(rounded);
+
+
+        $("#currentMilege").text(`Less than ${formatted}`);
+    });
+
+    function updateData(selected) {
+        clearData();
+        getModels(selected);
+        getEngines(selected);
+        getFuelTypes(selected);
+        getPriceRange(selected);
+        getDrives(selected);
+        getBodyTypes(selected);
+        getMilege(selected);
+
+        getPriceRange(selected);
+        getMilege(selected);
+    }
+
+    function clearData() {
+        $("#models").val([]).empty().trigger("chosen:updated");
+        $("#engines").val([]).empty().trigger("chosen:updated");
+        $("#fuelTypes").val([]).empty().trigger("chosen:updated");
+        $("#drives").val([]).empty().trigger("chosen:updated");
+        $("#bodyTypes").val([]).empty().trigger("chosen:updated");
+    }
+
+    function showOthers(disabled) {
+        $("#engines").prop({ disabled: disabled }).trigger("chosen:updated");
+        $("#fuelTypes").prop({ disabled: disabled }).trigger("chosen:updated");
+        $("#drives").prop({ disabled: disabled }).trigger("chosen:updated");
+        $("#bodyTypes").prop({ disabled: disabled }).trigger("chosen:updated");
+    }
+</script>

@@ -1,10 +1,10 @@
 ﻿@{
-    @model GTX.Models.Vehicle[]
+    @model GTX.Models.BaseModel
     Html.RenderPartial("_PageTitle");
 }
 
 <ul id="inventory" class="d-flex flex-wrap gap-2 justify-content-center mt-2">
-    @foreach (var vehicle in Model) {
+    @foreach (var vehicle in Model.Inventory.Vehicles) {
         <li class="card well p-3 rounded-3">
             <div class="card-header shadow">
                 <h5>

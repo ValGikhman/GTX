@@ -7,6 +7,8 @@ using System.Threading;
 using System.Web.Mvc;
 using System.Web.Routing;
 using System.Threading.Tasks;
+using GTX.Models;
+using System.Linq;
 
 namespace GTX.Controllers {
 
@@ -16,9 +18,9 @@ namespace GTX.Controllers {
 
         public ILogService _LogService { set; get; }
 
-        public Boolean IsLoggedIn { set; get; }
-
         public ISessionData SessionData { get; private set; }
+
+        public BaseModel Model { get; set; }
 
         #endregion Properties
 
@@ -27,7 +29,7 @@ namespace GTX.Controllers {
         public BaseController(ISessionData sessionData) {
             SessionData = sessionData;
             _LogService = new LogService();
-
+            Model = new BaseModel();
         }
 
         #endregion Construtors
@@ -38,33 +40,26 @@ namespace GTX.Controllers {
             base.Initialize(requestContext);
         }
 
-        protected override void OnActionExecuting(ActionExecutingContext filterContext) {
-            MvcHandler handler;
-            String route = null;
-            String culture = null;
-
+        protected async override void OnActionExecuting(ActionExecutingContext filterContext) {
             base.OnActionExecuting(filterContext);
 
             try {
-                // Get the route
-                handler = this.HttpContext.Handler as MvcHandler;
-                if (handler != null && handler.RequestContext != null && handler.RequestContext.RouteData != null) {
-                    // Route
-                    if (handler.RequestContext.RouteData.Values != null && handler.RequestContext.RouteData.Route != null) {
-                        route = handler.RequestContext.RouteData.Route.GetVirtualPath(handler.RequestContext, handler.RequestContext.RouteData.Values).VirtualPath;
-                    }
-                }
+                BaseModel model = new BaseModel();
+                model.Inventory = await SetModel(model.Inventory);
+                SessionData.SetSession(Constants.SESSION_INVENTORY, model.Inventory);
 
-                if (Request.Cookies["language"] != null) {
-                    culture = Server.HtmlEncode(Request.Cookies["language"].Value);
-                }
-
-                if (!String.IsNullOrEmpty(culture)) {
-                    Thread.CurrentThread.CurrentUICulture = new CultureInfo(culture);
-                }
+                Filters filters = new Filters();
+                filters.Makes = model.Inventory.All.Select(m => m.Make).Distinct().OrderBy(m => m).ToArray();
+                filters.Models = model.Inventory.All.Select(m => m.Model).Distinct().OrderBy(m => m).ToArray();
+                filters.Engines = model.Inventory.All.Select(m => m.Engine).Distinct().OrderBy(m => m).ToArray();
+                filters.FuelTypes = model.Inventory.All.Select(m => m.FuelType).Distinct().OrderBy(m => m).ToArray();
+                filters.MaxPrice = model.Inventory.All.Max(m => m.RetailPrice);
+                filters.MinPrice = model.Inventory.All.Min(m => m.RetailPrice);
+                filters.DriveTrains = model.Inventory.All.Select(m => m.DriveTrain).Distinct().OrderBy(m => m).ToArray();
+                filters.BodyTypes = model.Inventory.All.Select(m => m.Body).Distinct().OrderBy(m => m).ToArray();
+                SessionData.SetSession(Constants.SESSION_FILTERS, filters);
             }
             catch (Exception ex) {
-                throw ex;
             }
         }
 
@@ -95,20 +90,6 @@ namespace GTX.Controllers {
 
         public void Log(CommonUnit.LogType type, String trace, String route) {
             LogData(type, trace, route);
-        }
-
-        private String BuildRoute() {
-            String retValue = String.Empty;
-            if (RouteData.Values["controller"] != null)
-                retValue = RouteData.Values["controller"].ToString();
-
-            if (RouteData.Values["action"] != null)
-                retValue = String.Format("{0}/{1}", retValue, RouteData.Values["action"].ToString());
-
-            if (RouteData.Values["id"] != null)
-                retValue = String.Format("{0}/{1}", retValue, RouteData.Values["id"].ToString());
-
-            return retValue;
         }
 
         private void LogAcvitity(ActionExecutingContext filterContext) {
@@ -157,7 +138,6 @@ namespace GTX.Controllers {
         #endregion public
 
         #region Public Methods
-
         public static string RenderViewToString(ControllerContext context, string viewName) {
             return RenderViewToString(context, viewName, null);
         }
@@ -175,6 +155,25 @@ namespace GTX.Controllers {
 
                 return sw.GetStringBuilder().ToString();
             }
+        }
+
+
+        private async Task<Inventory> SetModel(Inventory model) {
+            if (SessionData?.Inventory == null) {
+                model.All = await Utility.XMLHelpers.XmlRepository.GetInventory();
+                model.All = model.All.Where(m => m.RetailPrice > 0).OrderByDescending(m => m.PurchaseDate).ThenBy(m => m.Make).ToArray(); ;
+
+                model.Cars = model.All.Where(m => m.Body.Equals("2DR")).ToArray();
+                model.Suvs = model.All.Where(m => m.Body.Equals("3DR")).ToArray();
+                model.Trucks = model.All.Where(m => m.Body.Equals("5DR")).ToArray();
+                model.Vans = model.All.Where(m => m.Body.Equals("5DR")).ToArray();
+                model.Cargo = model.All.Where(m => m.Body.Equals("5DR")).ToArray();
+                SessionData.SetSession(Constants.SESSION_INVENTORY, model);
+
+                return model;
+            }
+
+            return SessionData.Inventory;
         }
 
         #endregion Public Methods

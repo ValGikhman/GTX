@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
 
 namespace GTX.Models {
@@ -8,12 +6,12 @@ namespace GTX.Models {
 	public class GTXInventory {
 
 		[XmlElement(ElementName = "vehicle")]
-		public Vehicle[] Vehicles { get; set; }
+		public GTX[] Vehicles { get; set; }
 	}
 
 
 	[XmlRoot(ElementName = "vehicle")]
-	public class Vehicle {
+	public class GTX {
 		[XmlElement(ElementName = "Stock")]
 		public string Stock { get; set; }
 

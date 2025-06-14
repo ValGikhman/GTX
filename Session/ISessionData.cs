@@ -6,13 +6,13 @@ namespace GTX {
     public interface ISessionData {
 
         #region Public Properties
-        Vehicle[] Vehicles { get; set; }
+        Inventory Inventory { get; set; }
 
         Employer[] Employers { get; set; }
 
         Filters Filters { get; set; }
 
-        Vehicle CurrentVehicle { get; set; }
+        Filters CurrentFilter { get; set; }
 
         #endregion Public Properties
 
