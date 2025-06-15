@@ -6,9 +6,9 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>GTX Autogroup</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" />
-              
+
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/scripts/modernizr")
     @Scripts.Render("~/scripts/bootstrap")
@@ -51,7 +51,7 @@
     <header class="header fixed-top">
         <div class="container-fluid set-bg" data-setbg="@Url.Content("~/img/menu-bg.jpg")">
             <div class="row">
-                <div class="col-lg-7">
+                <div class="col-lg-3">
                     <nav class="header__top header__menu">
                         <ul class="main-menu">
                             <li>@Html.ActionLink("Home", "", "Home")</li>
@@ -77,14 +77,16 @@
                                 </ul>
                             </li>
                             <li>
-                                <a data-bs-toggle="modal" data-bs-target="#filtersModal">
+                                <a data-bs-toggle="modal" data-bs-target="#filtersModal" title="Click to ivoke the search dialog.">
                                     <i class="bi bi-search"></i>
                                 </a>
                             </li>
                         </ul>
                     </nav>
                 </div>
-                <div class="col-lg-5">
+                <a class="col-lg-5" data-bs-toggle="modal" data-bs-target="#filtersModal"  title="Click to ivoke the search dialog.">
+                </a>
+                <div class="col-lg-4">
                     <div class="header__top__right">
                         <div class="header__top__phone">
                             <i class="fa fa-clock-o"></i>

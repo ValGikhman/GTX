@@ -9,5 +9,6 @@ public static class Constants {
     public const string SESSION_EMPLOYERS = "SessionEmployers";
     public const string SESSION_CURRENT_FILTER = "SessionCurrentFilter";
     public const string SESSION_FILTERS = "SessionFilters";
+    public const string SESSION_LOG_HEADER = "SessionLogHeader";
     #endregion Public Fields
 }

@@ -1,4 +1,5 @@
 ﻿using GTX.Models;
+using Services;
 using System;
 
 namespace GTX {
@@ -13,6 +14,7 @@ namespace GTX {
         Filters Filters { get; set; }
 
         Filters CurrentFilter { get; set; }
+        Log LogHeader { get; set; }
 
         #endregion Public Properties
 

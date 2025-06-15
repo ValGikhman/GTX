@@ -1,5 +1,6 @@
 ﻿using GTX.Models;
 using GTX.Session;
+using Services;
 using System;
 using System.Linq;
 using System.Net.Http;
@@ -11,8 +12,8 @@ namespace GTX.Controllers {
 
     public class InventoryController : BaseController {
 
-        public InventoryController(ISessionData sessionData)
-            : base(sessionData) {
+        public InventoryController(ISessionData sessionData, ILogService LogService)
+            : base(sessionData, LogService) {
             if (Model == null) {
                 Model = new BaseModel();
                 Model.Inventory = new Inventory();
@@ -101,6 +102,7 @@ namespace GTX.Controllers {
         [HttpGet]
         public JsonResult GetModels(string makes) {
             try {
+                base.Log(CommonUnit.LogType.Activity);
                 if (!string.IsNullOrEmpty(makes)) {
                     string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
                     return Json(SessionData?.Inventory.All?.Where(m => request.Contains(m.Make)).Select(m => m.Model).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);

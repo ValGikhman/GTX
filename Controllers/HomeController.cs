@@ -1,13 +1,9 @@
 ﻿using GTX.Models;
-using GTX;
 using Services;
 using System;
-using System.Collections.Generic;
-using System.Web.Mvc;
-using System.Threading.Tasks;
 using System.Linq;
-using Newtonsoft.Json;
-using System.Web.Script.Serialization;
+using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace GTX.Controllers {
 
@@ -15,8 +11,8 @@ namespace GTX.Controllers {
 
         private readonly IContactService _contactService;
 
-        public HomeController(ISessionData sessionData, ContactService contactService) :
-            base(sessionData)  {
+        public HomeController(ISessionData sessionData, ContactService contactService, ILogService logService) :
+            base(sessionData, logService)  {
             _contactService = contactService;
 
         }

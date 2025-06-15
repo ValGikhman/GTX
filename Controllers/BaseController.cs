@@ -16,7 +16,7 @@ namespace GTX.Controllers {
 
         #region Properties
 
-        public ILogService _LogService { set; get; }
+        public ILogService LogService { get; set; }
 
         public ISessionData SessionData { get; private set; }
 
@@ -26,9 +26,10 @@ namespace GTX.Controllers {
 
         #region Construtors
 
-        public BaseController(ISessionData sessionData) {
+        public BaseController(ISessionData sessionData, ILogService _logService) {
             SessionData = sessionData;
-            _LogService = new LogService();
+            LogService = _logService;
+
             Model = new BaseModel();
         }
 
@@ -76,63 +77,12 @@ namespace GTX.Controllers {
 
         #region public
 
-        public void Log(CommonUnit.LogType logType) {
-            LogData(logType);
+        public void Log(Exception ex) {
+            LogService.Log(SessionData.LogHeader, ex);
         }
 
-        public void Log(CommonUnit.LogType logType, String trace) {
-            LogData(logType, trace);
-        }
-
-        public void Log(Exception exception) {
-            LogData(exception);
-        }
-
-        public void Log(CommonUnit.LogType type, String trace, String route) {
-            LogData(type, trace, route);
-        }
-
-        private void LogAcvitity(ActionExecutingContext filterContext) {
-            //Log(CommonUnit.LogType.Activity
-            //    , "Navigating"
-            //    , SessionData.route
-            //);
-        }
-
-        private void LogData(CommonUnit.LogType logType) {
-            try {
-                //_LogService.Log(logType, SessionData.user.id, SessionData.sessionId, EnumHelper<CommonUnit.LogType>.Parse(logType.ToString()).ToString());
-            }
-            catch (Exception ex) {
-                throw ex;
-            }
-        }
-
-        private void LogData(CommonUnit.LogType logType, String trace) {
-            try {
-                //_LogService.Log(logType, SessionData.user.id, SessionData.sessionId, trace);
-            }
-            catch (Exception ex) {
-                throw ex;
-            }
-        }
-
-        private void LogData(Exception exception) {
-            try {
-                //_LogService.Log(CommonUnit.LogType.Exception, SessionData.user.id, SessionData.sessionId);
-            }
-            catch (Exception ex) {
-                throw ex;
-            }
-        }
-
-        private void LogData(CommonUnit.LogType logType, String trace, String route) {
-            try {
-                //_LogService.Log(logType, SessionData.user.id, SessionData.sessionId, trace, route);
-            }
-            catch (Exception ex) {
-                throw ex;
-            }
+        public void Log(Log header, CommonUnit.LogType logType) {
+            LogService.Log(header, logType);
         }
 
         #endregion public
