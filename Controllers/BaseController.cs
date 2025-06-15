@@ -9,6 +9,7 @@ using System.Web.Routing;
 using System.Threading.Tasks;
 using GTX.Models;
 using System.Linq;
+using System.Text.Json;
 
 namespace GTX.Controllers {
 
@@ -81,6 +82,10 @@ namespace GTX.Controllers {
             LogService.Log(SessionData.LogHeader, ex);
         }
 
+        public void Log(string action) {
+            LogService.Log(SessionData.LogHeader, action);
+        }
+
         public void Log(Log header, CommonUnit.LogType logType) {
             LogService.Log(header, logType);
         }
@@ -126,6 +131,24 @@ namespace GTX.Controllers {
             return SessionData.Inventory;
         }
 
+        public static string SerializeModel(object model) {
+            try {
+                if (model == null) {
+                    return "null";
+                }
+
+                var options = new JsonSerializerOptions {
+                    WriteIndented = true,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    IgnoreNullValues = true
+                };
+                return JsonSerializer.Serialize(model, options);
+            }
+
+            catch (Exception ex) {
+                return $"Serialization Error: {ex.Message}";
+            }
+        }
         #endregion Public Methods
     }
 }

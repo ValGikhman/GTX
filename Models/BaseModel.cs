@@ -31,6 +31,5 @@ namespace GTX.Models {
         public Filters CurrentFilter { get; set; }
 
         public OpenHours[] OpenHours { get; set; }
-
     }
 }

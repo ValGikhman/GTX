@@ -29,12 +29,22 @@ namespace GTX.Controllers {
             ViewBag.Title = "Our staff";
 
             BaseModel model = new BaseModel();
-            if (SessionData?.Employers == null) {
-                Employer[] employers = await Utility.XMLHelpers.XmlRepository.GetEmployers();
-                SessionData.SetSession(Constants.SESSION_EMPLOYERS, employers);
+            try {
+
+                model = new BaseModel();
+                if (SessionData?.Employers == null) {
+                    Employer[] employers = await Utility.XMLHelpers.XmlRepository.GetEmployers();
+                    SessionData.SetSession(Constants.SESSION_EMPLOYERS, employers);
+                }
+
+                model.Employers = SessionData.Employers;
+            }
+            catch (Exception ex) {
+                base.Log(ex);
+            }
+            finally {
             }
 
-            model.Employers = SessionData.Employers;
             return View(model);
         }
 
@@ -43,9 +53,16 @@ namespace GTX.Controllers {
             ViewBag.Title = "Contact us";
 
             ContactModel model = new ContactModel();
-            model.OpenHours = Utility.XMLHelpers.XmlRepository.GetOpenHours();
+            try {
+                model.OpenHours = Utility.XMLHelpers.XmlRepository.GetOpenHours();
+                model.Contact = new ContactUs();
+            }
+            catch (Exception ex) {
+                base.Log(ex);
+            }
+            finally {
+            }
 
-            model.Contact = new ContactUs();
             return View(model);
         }
 
@@ -79,20 +96,27 @@ namespace GTX.Controllers {
 
         [HttpPost]
         public ActionResult SaveContact(ContactUs model) {
-            if (ModelState.IsValid) {
-                Contact contact = new Contact();
-                contact.FirstName = model.FirstName;
-                contact.LastName = model.LastName;
-                contact.Phone = model.Phone;
-                contact.Email = model.Email;
-                contact.Comment = model.Comment;
+            Log($"Saving contact: {SerializeModel(model)}");
+            try {
+                if (ModelState.IsValid) {
+                    Contact contact = new Contact();
+                    contact.FirstName = model.FirstName;
+                    contact.LastName = model.LastName;
+                    contact.Phone = model.Phone;
+                    contact.Email = model.Email;
+                    contact.Comment = model.Comment;
 
-                _contactService.SaveContact(contact);
-                // EmailHelper.SendEmailConfirmation(this.ControllerContext, contact);
+                    _contactService.SaveContact(contact);
+                    // EmailHelper.SendEmailConfirmation(this.ControllerContext, contact);
+                }
             }
+            catch (Exception ex) {
+                base.Log(ex);
+            }
+            finally {
+            }
+
             return RedirectToAction("Contact", model);
         }
-        #region private
-        #endregion private
     }
 }

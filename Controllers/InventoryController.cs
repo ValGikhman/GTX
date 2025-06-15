@@ -21,60 +21,59 @@ namespace GTX.Controllers {
         }
 
         public ActionResult Index(BaseModel model) {
-            ViewBag.Title = $"{Model.Inventory.Tilte} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
+            ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
+            Log($"{Model.Inventory.Title} inventory");
+
 
             return View(Model);
         }
 
         public ActionResult All() {
             Model.Inventory.Vehicles = SessionData.Inventory.All;
+            Model.Inventory.Title = "All";
 
-            Model.Inventory.Tilte = "All";
             return RedirectToAction("Index", Model);
         }
 
         public ActionResult Suvs() {
             Model.Inventory.Vehicles = SessionData.Inventory.Suvs;
-
-            Model.Inventory.Tilte = "SUV's";
             return RedirectToAction("Index", Model);
         }
 
         public ActionResult Cars() {
             Model.Inventory.Vehicles = SessionData.Inventory.Cars;
-
-            Model.Inventory.Tilte = "Cars";
+            Model.Inventory.Title = "Cars";
             return RedirectToAction("Index", Model);
         }
 
         public ActionResult Trucks() {
             Model.Inventory.Vehicles = SessionData.Inventory.Trucks;
+            Model.Inventory.Title = "Trucks";
 
-            Model.Inventory.Tilte = "Trucks";
             return RedirectToAction("Index", Model.Inventory.Trucks);
         }
 
         public ActionResult Vans() {
             Model.Inventory.Vehicles = SessionData.Inventory.Vans;
+            Model.Inventory.Title = "Vans";
 
-            Model.Inventory.Tilte = "Vans";
             return RedirectToAction("Index", Model.Inventory.Vans);
         }
 
         public ActionResult Cargo() {
             Model.Inventory.Vehicles = SessionData.Inventory.Cargo;
+            Model.Inventory.Title = "Cargo";
 
-            Model.Inventory.Tilte = "Cargo";
-            ViewBag.Title = $"Inventory ({Model.Inventory.Vehicles.Length}) vehicles";
             return RedirectToAction("Index", Model.Inventory.Cargo);
         }
 
 
         [HttpPost]
         public JsonResult ApplyFilter(Filters model) {
+            Log($"Applying filter: {SerializeModel(model)}");
             Model.CurrentFilter = model;
             Model.Inventory.Vehicles = ApplyFilters(model);
-            Model.Inventory.Tilte = "Search";
+            Model.Inventory.Title = "Search";
             return Json(new { redirectUrl = Url.Action("Index") });
         }
 
@@ -102,7 +101,6 @@ namespace GTX.Controllers {
         [HttpGet]
         public JsonResult GetModels(string makes) {
             try {
-                base.Log(CommonUnit.LogType.Activity);
                 if (!string.IsNullOrEmpty(makes)) {
                     string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
                     return Json(SessionData?.Inventory.All?.Where(m => request.Contains(m.Make)).Select(m => m.Model).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);

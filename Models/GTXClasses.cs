@@ -27,7 +27,7 @@ namespace GTX.Models {
     }
 
     public class Inventory {
-        public string Tilte { get; set; }
+        public string Title { get; set; }
 
         public GTX[] Vehicles { get; set; }
 
