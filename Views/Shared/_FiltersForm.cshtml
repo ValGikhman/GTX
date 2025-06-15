@@ -29,10 +29,9 @@
     @*Price*@
     <div class="col-lg-3 p-2 well">
         @Html.Label("Price", "Price range", new { @class = "form-check-label text-shadow", @for = "price" })
-        @Html.TextBox("price", null, new { @class = "form-range", type = "range", min = "0", max = "5", step = "1000", id = "price" })
+        <div id="price" class="mx-2"></div>
         <div class="d-flex justify-content-between p-0">
             <span id="priceMin" class="form-check-label text-shadow"></span>
-            <span id="currentPrice" class="badge bg-secondary shadow mt-1"></span>
             <span id="priceMax" class="form-check-label text-shadow"></span>
         </div>
     </div>
@@ -70,14 +69,13 @@
     @*Milege*@
     <div class="col-lg-3 p-2 well">
         @Html.Label("Miles", "Milege", new { @class = "form-check-label text-shadow", @for = "milege" })
-        @Html.TextBox("milege", null, new { @class = "form-range", type = "range", min = "0", max = "5", step = "1000", id = "milege" })
+        <div id="milege" class="mx-2"></div>
         <div class="d-flex justify-content-between p-0">
             <span id="milegeMin" class="form-check-label text-shadow"></span>
-            <span id="currentMilege" class="badge bg-secondary shadow mt-1"></span>
             <span id="milegeMax" class="form-check-label text-shadow"></span>
         </div>
     </div>
-    
+
     @*Fuels*@
     <div class="col-lg-3 p-2 well">
         <small class="form-check form-switch text-dark">
@@ -233,7 +231,6 @@
         $(".chosen-container").addClass("w-100 p-1");
 
         $("#btnSearch").on("click", function () {
-            $("#filtersModal").modal("hide");
             var model = {
                 Makes: $("#makes").val(),
                 Models: $("#models").val(),
@@ -241,14 +238,16 @@
                 FuelTypes: $("fuelTypes").val(),
                 DriveTrains: $("#drives").val(),
                 BodyTypes: $("#bodyTypes").val(),
-                Milege: $("#milege").val(),
-                Price: $("#price").val()
+                MaxMilege: $("#milege").slider("values", 1),
+                MinMilege: $("#milege").slider("values", 0),
+                MaxPrice: $("#price").slider("values", 1),
+                MinPrice: $("#price").slider("values", 0)
             };
 
             $.post(`${root}Inventory/ApplyFilter`, { model: model }, "json")
                 .done(function (response) {
                     window.location.href = response.redirectUrl; // ✅ Now navigate to that controller action
-            })
+                })
         })
     })
 
@@ -319,9 +318,6 @@
                 if (result != null) {
                     const roundedMin = Math.round(result.PriceMin / 1000) * 1000;
                     const roundedMax = Math.round(result.PriceMax / 1000) * 1000;
-
-                    $("#price").attr({ min: roundedMin, max: roundedMax });
-
                     const formattedMin = new Intl.NumberFormat('en-US', {
                         maximumFractionDigits: 0,
                         minimumFractionDigits: 0,
@@ -339,23 +335,35 @@
 
                     $("#priceMin").text(formattedMin);
                     $("#priceMax").text(formattedMax);
-                    $("#currentPrice").text(`Under ${formattedMin}`);
+                    $("#price").slider({
+                        range: true,
+                        min: roundedMin,
+                        max: roundedMax,
+                        values: [roundedMin, roundedMax],
+                        slide: function (event, ui) {
+                            const roundedMin = Math.round(ui.values[0] / 1000) * 1000;
+                            const roundedMax = Math.round(ui.values[1] / 1000) * 1000;
+                            const formattedMin = new Intl.NumberFormat('en-US', {
+                                maximumFractionDigits: 0,
+                                minimumFractionDigits: 0,
+                                style: 'currency',
+                                currency: 'USD'
+                            }).format(roundedMin);
+
+                            const formattedMax = new Intl.NumberFormat('en-US', {
+                                maximumFractionDigits: 0,
+                                minimumFractionDigits: 0,
+                                style: 'currency',
+                                currency: 'USD'
+                            }).format(roundedMax);
+
+                            $("#priceMin").text(`More than ${formattedMin}`);
+                            $("#priceMax").text(`Under ${formattedMax}`);
+                        }
+                    });
                 }
             })
     }
-
-    $("#price").on("input", function () {
-        const rounded = Math.round(this.value / 1000) * 1000;
-        const formatted = new Intl.NumberFormat('en-US', {
-            maximumFractionDigits: 0,
-            minimumFractionDigits: 0,
-            style: 'currency',
-            currency: 'USD'
-        }).format(rounded);
-
-
-        $("#currentPrice").text(`Under ${formatted}`);
-    });
 
     getMilege = function (makes) {
         $.get(`${root}Inventory/GetMilegeRange`, { "makes": JSON.stringify(makes) })
@@ -363,9 +371,6 @@
                 if (result != null) {
                     const roundedMin = Math.round(result.MilesMin / 1000) * 1000;
                     const roundedMax = Math.round(result.MilesMax / 1000) * 1000;
-
-                    $("#milege").attr({ min: roundedMin, max: roundedMax });
-
                     const formattedMin = new Intl.NumberFormat('en-US', {
                         maximumFractionDigits: 0,
                         minimumFractionDigits: 0,
@@ -379,21 +384,31 @@
 
                     $("#milegeMin").text(formattedMin);
                     $("#milegeMax").text(formattedMax);
-                    $("#currentMilege").text(formattedMin);
+                    $("#milege").slider({
+                        range: true,
+                        min: roundedMin,
+                        max: roundedMax,
+                        values: [roundedMin, roundedMax],
+                        slide: function (event, ui) {
+                            const roundedMin = Math.round(ui.values[0] / 1000) * 1000;
+                            const roundedMax = Math.round(ui.values[1] / 1000) * 1000;
+                            const formattedMin = new Intl.NumberFormat('en-US', {
+                                maximumFractionDigits: 0,
+                                minimumFractionDigits: 0,
+                            }).format(roundedMin);
+
+                            const formattedMax = new Intl.NumberFormat('en-US', {
+                                maximumFractionDigits: 0,
+                                minimumFractionDigits: 0,
+                            }).format(roundedMax);
+
+                            $("#milegeMin").text(`More than ${formattedMin}`);
+                            $("#milegeMax").text(`Under ${formattedMax}`);
+                        }
+                    });
                 }
             })
     }
-
-    $("#milege").on("input", function () {
-        const rounded = Math.round(this.value / 1000) * 1000;
-        const formatted = new Intl.NumberFormat('en-US', {
-            maximumFractionDigits: 0,
-            minimumFractionDigits: 0,
-        }).format(rounded);
-
-
-        $("#currentMilege").text(`Less than ${formatted}`);
-    });
 
     function updateData(selected) {
         clearData();

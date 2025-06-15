@@ -71,12 +71,10 @@ namespace GTX.Controllers {
 
         [HttpPost]
         public JsonResult ApplyFilter(Filters model) {
-            SessionData.Inventory.All = ApplyFilters(model);
-            SessionData.CurrentFilter = model;
-
-            ViewBag.Title = $"Inventory ({SessionData.Inventory.All.Length}) vehicles";
-
-            return Json(new { redirectUrl = Url.Action("All") });
+            Model.CurrentFilter = model;
+            Model.Inventory.Vehicles = ApplyFilters(model);
+            Model.Inventory.Tilte = "Search";
+            return Json(new { redirectUrl = Url.Action("Index") });
         }
 
         [HttpPost]
@@ -202,12 +200,12 @@ namespace GTX.Controllers {
                 int? priceMax;
                 if (!string.IsNullOrEmpty(makes)) {
                     string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    priceMax = SessionData?.Inventory.All?.Where(m => request.Contains(m.Make)).Max(m => m.RetailPrice);
-                    priceMin = SessionData?.Inventory.All?.Where(m => request.Contains(m.Make)).Min(m => m.RetailPrice);
+                    priceMax = Model.Inventory.All?.Where(m => request.Contains(m.Make)).Max(m => m.RetailPrice);
+                    priceMin = Model.Inventory.All?.Where(m => request.Contains(m.Make)).Min(m => m.RetailPrice);
                 }
                 else {
-                    priceMax = SessionData?.Inventory.All?.Max(m => m.RetailPrice);
-                    priceMin = SessionData?.Inventory.All?.Min(m => m.RetailPrice);
+                    priceMax = Model.Inventory.All?.Max(m => m.RetailPrice);
+                    priceMin = Model.Inventory.All?.Min(m => m.RetailPrice);
                 }
                 return Json(new { PriceMax = priceMax, PriceMin = priceMin }, JsonRequestBehavior.AllowGet);
             }
@@ -244,34 +242,34 @@ namespace GTX.Controllers {
         }
 
         private Models.GTX[] ApplyFilters(Filters filter) {
-            Models.GTX[] query = SessionData?.Inventory.All;
+            Models.GTX[] query = Model.Inventory.All;
 
-            if (filter.Makes != null) {
+            if (query.Any() && filter.Makes != null) {
                 query = query.Where(m => filter.Makes.Contains(m.Make)).Distinct().ToArray();
             }
 
-            if (filter.Models != null) {
+            if (query.Any() && filter.Models != null) {
                 query = query.Where(m => filter.Models.Contains(m.Model)).Distinct().ToArray();
             }
 
-            if (filter.Engines != null) {
-                query = query.Where(m => filter.Models.Contains(m.Engine)).Distinct().ToArray();
+            if (query.Any() && filter.Engines != null) {
+                query = query.Where(m => filter.Engines.Contains(m.Engine)).Distinct().ToArray();
             }
 
-            if (filter.DriveTrains != null) {
-                query = query.Where(m => filter.Models.Contains(m.DriveTrain)).Distinct().ToArray();
+            if (query.Any() && filter.DriveTrains != null) {
+                query = query.Where(m => filter.DriveTrains.Contains(m.DriveTrain)).Distinct().ToArray();
             }
 
-            if (filter.BodyTypes != null) {
-                query = query.Where(m => filter.Models.Contains(m.Body)).Distinct().ToArray();
+            if (query.Any() && filter.BodyTypes != null) {
+                query = query.Where(m => filter.BodyTypes.Contains(m.Body)).Distinct().ToArray();
             }
 
-            if (filter.Milege > 0) {
-                query = query.Where(m => m.Mileage <= filter.Milege).Distinct().ToArray();
+            if (query.Any() && filter.MinMilege > 0 && filter.MaxMilege > 0) {
+                query = query.Where(m => m.Mileage >= filter.MinMilege && m.Mileage <= filter.MaxMilege).Distinct().ToArray();
             }
 
-            if (filter.Price > 0) {
-                query = query.Where(m => m.RetailPrice <= filter.Price).Distinct().ToArray();
+            if (query.Any() && filter.MinPrice > 0 && filter.MaxPrice > 0) {
+                query = query.Where(m => m.RetailPrice >= filter.MinPrice && m.RetailPrice <= filter.MaxPrice).Distinct().ToArray();
             }
 
             return query.OrderBy(m => m.Make).ToArray();

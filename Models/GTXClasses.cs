@@ -61,13 +61,8 @@ namespace GTX.Models {
 
         public int MinMilege { get; set; }
 
-        public int Milege { get; set; }
-
         public int MaxPrice { get; set; }
 
         public int MinPrice { get; set; }
-
-        public int Price { get; set; }
-
     }
 }
