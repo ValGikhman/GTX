@@ -4,13 +4,13 @@
 }
 
 <div class="container-fluid d-flex justify-content-center">
-    <div class="well row mt-1 p-3 rounded shadow col-lg-7">
+    <div class="well row mt-1 p-3 rounded shadow d-flex justify-content-evenly">
         @foreach (var open in Model.OpenHours) {
-            <div class="col">
-                <button type="button" class="btn btn-secondary shadow position-relative">
-                    @open.Day
-                    <span class="position-absolute top-0 start-100 translate-middle shadow badge rounded bg-dark">
-                        @open.Description
+            <div class="col-1">
+                <button type="button" class="btn btn-outline-secondary bg-gradient shadow position-relative">
+                    @open.Description
+                    <span class="position-absolute top-0 start-100 translate-middle shadow badge bg-secondary bg-gradient">
+                        @open.Day
                     </span>
                 </button>
             </div>
@@ -21,7 +21,7 @@
 <div class="container-fluid d-flex justify-content-center">
     <div class="well row mt-3 p-3 rounded shadow">
         <div class="col-lg-6">
-            <img class="w-50 rounded-2 shadow" src="@Url.Content("~/img/gtx.jpg")">
+            <img class="w-50 rounded-2 shadow" src="@Url.Content("~/GTXImages/gtx.jpg")">
             <h3 class="card-title mt-3">Firfield Showroom</h3>
             <p class="card-text">
                 9516 PRINCETON GLENDALE RD, West Chester, OH 45011<br/>

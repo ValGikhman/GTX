@@ -1,10 +1,7 @@
 ﻿using GTX.Models;
-using GTX.Session;
 using Services;
 using System;
 using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
 
@@ -21,11 +18,16 @@ namespace GTX.Controllers {
         }
 
         public ActionResult Index(BaseModel model) {
-            ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
-            Log($"{Model.Inventory.Title} inventory");
-
+            if (Model.Inventory.Title != null) {
+                ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
+                Log($"{Model.Inventory.Title} inventory");
+            }
 
             return View(Model);
+        }
+        public ActionResult Details(string stock) {
+            Model.CurrentVehicle = Model.Inventory.Vehicles.FirstOrDefault(m => m.Stock == stock);
+            return PartialView("_DetailModal", Model.CurrentVehicle);
         }
 
         public ActionResult All() {
@@ -50,21 +52,21 @@ namespace GTX.Controllers {
             Model.Inventory.Vehicles = SessionData.Inventory.Trucks;
             Model.Inventory.Title = "Trucks";
 
-            return RedirectToAction("Index", Model.Inventory.Trucks);
+            return RedirectToAction("Index", Model);
         }
 
         public ActionResult Vans() {
             Model.Inventory.Vehicles = SessionData.Inventory.Vans;
             Model.Inventory.Title = "Vans";
 
-            return RedirectToAction("Index", Model.Inventory.Vans);
+            return RedirectToAction("Index", Model);
         }
 
         public ActionResult Cargo() {
             Model.Inventory.Vehicles = SessionData.Inventory.Cargo;
             Model.Inventory.Title = "Cargo";
 
-            return RedirectToAction("Index", Model.Inventory.Cargo);
+            return RedirectToAction("Index", Model);
         }
 
 
@@ -274,5 +276,18 @@ namespace GTX.Controllers {
 
             return query.OrderBy(m => m.Make).ToArray();
         }
-    }
+
+/*        private async Task<string> DecodeVin(string vin) {
+            using (HttpClient client = new HttpClient()) {
+                string url = $"https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/{vin}?format=xml";
+                HttpResponseMessage response = await client.GetAsync(url);
+
+                if (!response.IsSuccessStatusCode)
+                    return "Error fetching VIN data.";
+
+                var data = await response.Content.ReadAsStringAsync();
+                return data;
+            }
+        }
+*/    }
 }
