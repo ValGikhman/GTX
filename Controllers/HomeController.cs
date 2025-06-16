@@ -30,8 +30,6 @@ namespace GTX.Controllers {
 
             BaseModel model = new BaseModel();
             try {
-
-                model = new BaseModel();
                 if (SessionData?.Employers == null) {
                     Employer[] employers = await Utility.XMLHelpers.XmlRepository.GetEmployers();
                     SessionData.SetSession(Constants.SESSION_EMPLOYERS, employers);

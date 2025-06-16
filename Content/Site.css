@@ -52,6 +52,15 @@ li.search-field {
     padding: 0.2rem !important;
 }
 
+.hover-bw {
+    transition: filter 0.3s ease;
+}
+
+    .hover-bw:hover {
+        filter: grayscale(100%);
+    }
+
+/*Site*/
 html,
 body {
     font-family: "Lato", sans-serif;

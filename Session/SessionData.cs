@@ -58,6 +58,7 @@ namespace GTX.Session {
             get => GetSession(Constants.SESSION_FILTERS, _filters);
             set => SetSession(Constants.SESSION_FILTERS, value);
         }
+
         #endregion Public Properties
 
         #region Public Methods
