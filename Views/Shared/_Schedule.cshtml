@@ -1,0 +1,14 @@
+﻿<div class="container-fluid d-flex justify-content-center">
+    <div class="well row mt-1 p-3 rounded shadow col-lg-7">
+        @foreach (var open in Model.OpenHours) {
+            <div class="col">
+                <button type="button" class="btn btn-outline-secondary shadow position-relative">
+                    @open.Description
+                    <span class="position-absolute top-0 start-100 translate-middle shadow badge rounded bg-dark">
+                        @open.Day
+                    </span>
+                </button>
+            </div>
+        }
+    </div>
+</div>

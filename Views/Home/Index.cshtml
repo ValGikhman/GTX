@@ -1,8 +1,7 @@
 ﻿@model GTX.Models.BaseModel
 
-
 <div class="toast align-items-center position-absolute p-2" role="alert" aria-live="assertive" aria-atomic="true">
-    <a data-bs-toggle="modal" data-bs-target="#detailsModal">
+    <a data-bs-toggle="modal">
         <div class="d-flex">
             <div class="toast-body">
                 <i class="bi bi-search"></i>
@@ -15,7 +14,7 @@
 
 <!-- Hero Section Begin -->
 <a data-bs-toggle="modal" data-bs-target="#filtersModal" title="Click to invoke search dialog">
-    <section class="hero spad set-bg" data-setbg="@Url.Content("~/img/hero/cin1.jpg")">
+    <section class="hero spad set-bg bw" data-setbg="@Url.Content("~/img/hero/2.png")">
     </section>
 </a>
 
@@ -35,7 +34,6 @@
 </div>
 
 <!-- Hero Section End -->
-
 <script>
     $(function () {
         const toast = new bootstrap.Toast($(".toast"), {
@@ -44,10 +42,9 @@
         toast.show();
 
         const backgrounds = [
+            'url("../img/hero/2.png")',
+            'url("../img/hero/3.png")',
             'url("../img/hero/cin1.jpg")',
-            'url("../img/hero/cin2.jpg")',
-            'url("../img/hero/cin3.jpg")',
-            'url("../img/hero/cin4.jpg")',
             'url("../img/hero/cin5.jpg")',
             'url("../img/hero/cin6.png")'
         ];
@@ -58,5 +55,4 @@
             $(".hero").css("background-image", backgrounds[bgIndex]);
             bgIndex = (bgIndex + 1) % backgrounds.length;
         }, 10000); // 10 seconds
-    });
 </script>

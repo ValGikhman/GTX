@@ -14,6 +14,9 @@ namespace GTX {
         Filters Filters { get; set; }
 
         Filters CurrentFilter { get; set; }
+        
+        OpenHours[] OpenHours { get; set; }
+
         Log LogHeader { get; set; }
 
         #endregion Public Properties

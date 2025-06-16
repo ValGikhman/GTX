@@ -31,7 +31,10 @@
         </div>
         <div id="mobile-menu-wrap"></div>
         <ul class="offcanvas__widget__add">
-            <li><i class="fa fa-clock-o"></i> Week day: 08:00 am to 18:00 pm</li>
+            <li>
+                <i class="fa fa-clock-o"></i>
+                <a href="~/Home/Contact"><span class="schedule"></span></a>
+            </li>
         </ul>
         <div class="offcanvas__phone__num">
             <i class="fa fa-phone"></i>
@@ -85,13 +88,13 @@
                         </ul>
                     </nav>
                 </div>
-                <a class="col-lg-5" data-bs-toggle="modal" data-bs-target="#filtersModal"  title="Click to ivoke the search dialog.">
+                <a class="col-lg-5" data-bs-toggle="modal" data-bs-target="#filtersModal" title="Click to ivoke the search dialog.">
                 </a>
                 <div class="col-lg-4">
                     <div class="header__top__right">
                         <div class="header__top__phone">
                             <i class="fa fa-clock-o"></i>
-                            <span>Week day: 08:00 am to 18:00 pm</span>
+                            <a href="~/Home/Contact"><span class="schedule"></span></a>
                         </div>
                         <div class="header__top__phone">
                             <i class="fa fa-phone"></i>
@@ -138,3 +141,12 @@
     @RenderSection("scripts", required: false)
 </body>
 </html>
+
+<script>
+    $(function () {
+        $.get(`${root}Inventory/GetNow`)
+            .done(function (html) {
+                $(".schedule").text(html.Now);
+            });
+    });
+</script>

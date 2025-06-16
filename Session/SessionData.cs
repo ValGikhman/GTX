@@ -12,6 +12,7 @@ namespace GTX.Session {
         private Filters _currentFilter = null;
         private Filters _filters = null;
         private Log _logHeader = null;
+        private OpenHours[] _openHours = null;
 
         private readonly HttpContextProvider _httpContext;
 
@@ -57,6 +58,10 @@ namespace GTX.Session {
         public Filters Filters {
             get => GetSession(Constants.SESSION_FILTERS, _filters);
             set => SetSession(Constants.SESSION_FILTERS, value);
+        }
+        public OpenHours[] OpenHours {
+            get => GetSession(Constants.SESSION_OOPEN_HOURS, _openHours);
+            set => SetSession(Constants.SESSION_OOPEN_HOURS, value);
         }
 
         #endregion Public Properties

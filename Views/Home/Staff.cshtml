@@ -47,7 +47,7 @@
         $.get(`${root}Home/ContactForm`, {"id": id})
             .done(function (result) {
                 $("#messageBody").html(result);
-                $("#title").html(`${name} at ${email}`);
+                $("#title").html(`Contact ${name}`);
                 $("#message").modal("show");
             })
             .fail(function () {
