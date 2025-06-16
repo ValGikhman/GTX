@@ -10,5 +10,7 @@ public static class Constants {
     public const string SESSION_CURRENT_FILTER = "SessionCurrentFilter";
     public const string SESSION_FILTERS = "SessionFilters";
     public const string SESSION_LOG_HEADER = "SessionLogHeader";
+    public const string SESSION_OOPEN_HOURS = "SessionOpenHours";
+
     #endregion Public Fields
 }

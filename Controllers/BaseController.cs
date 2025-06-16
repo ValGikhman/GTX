@@ -72,6 +72,14 @@ namespace GTX.Controllers {
                     filters.BodyTypes = model.Inventory.All.Select(m => m.Body).Distinct().OrderBy(m => m).ToArray();
                     SessionData.SetSession(Constants.SESSION_FILTERS, filters);
                 }
+
+                if (SessionData?.OpenHours == null) {
+                    OpenHours[] openHours = Utility.XMLHelpers.XmlRepository.GetOpenHours();
+                    SessionData.SetSession(Constants.SESSION_OOPEN_HOURS, openHours);
+                }
+
+                model.Employers = SessionData.Employers;
+
             }
             catch (Exception ex) {
             }
@@ -140,6 +148,28 @@ namespace GTX.Controllers {
             }
 
             return SessionData.Inventory;
+        }
+
+        [HttpGet]
+        public JsonResult GetNow() {
+            try {
+
+                string currentDay = DateTime.Now.DayOfWeek.ToString();
+                int currentHour = DateTime.Now.Hour;
+
+                var today = Model.OpenHours.FirstOrDefault(m => m.Day == currentDay);
+                bool isOpened = (currentHour >= today.From && currentHour <= today.To);
+                string openClose = isOpened ? "Now opened" : "Closed";
+                string returnValue = $"{today.Day}: {today.Description} - {openClose}";
+
+                return Json(new { Now = returnValue }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex) {
+                Log(ex);
+            }
+            finally {
+            }
+            return null;
         }
 
         public static string SerializeModel(object model) {

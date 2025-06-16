@@ -19,9 +19,9 @@ namespace GTX.Models {
     public class OpenHours {
         public string Day { get; set; }
 
-        public string From { get; set; }
+        public int From { get; set; }
 
-        public string To { get; set; }
+        public int To { get; set; }
 
         public string Description { get; set; }
     }
