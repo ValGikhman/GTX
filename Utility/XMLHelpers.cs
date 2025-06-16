@@ -34,8 +34,8 @@ namespace Utility.XMLHelpers {
             return
                 doc.Descendants("open").Select(x => new OpenHours {
                     Day = x.Element("day").Value,
-                    From = x.Element("from").Value,
-                    To = x.Element("to").Value,
+                    From = int.TryParse(x.Element("from")?.Value, out int fromVal) ? fromVal : 0,
+                    To = int.TryParse(x.Element("to")?.Value, out int toVal) ? toVal : 0,
                     Description = x.Element("description").Value
                 })
                 .ToArray();
