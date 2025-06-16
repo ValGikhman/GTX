@@ -47,19 +47,31 @@ namespace GTX.Controllers {
 
             try {
                 BaseModel model = new BaseModel();
-                model.Inventory = await SetModel(model.Inventory);
-                SessionData.SetSession(Constants.SESSION_INVENTORY, model.Inventory);
+                if (SessionData?.Inventory == null) {
+                    model.Inventory = await SetModel(model.Inventory);
+                    SessionData.SetSession(Constants.SESSION_INVENTORY, model.Inventory);
+                }
+                model.Inventory = SessionData.Inventory;
 
-                Filters filters = new Filters();
-                filters.Makes = model.Inventory.All.Select(m => m.Make).Distinct().OrderBy(m => m).ToArray();
-                filters.Models = model.Inventory.All.Select(m => m.Model).Distinct().OrderBy(m => m).ToArray();
-                filters.Engines = model.Inventory.All.Select(m => m.Engine).Distinct().OrderBy(m => m).ToArray();
-                filters.FuelTypes = model.Inventory.All.Select(m => m.FuelType).Distinct().OrderBy(m => m).ToArray();
-                filters.MaxPrice = model.Inventory.All.Max(m => m.RetailPrice);
-                filters.MinPrice = model.Inventory.All.Min(m => m.RetailPrice);
-                filters.DriveTrains = model.Inventory.All.Select(m => m.DriveTrain).Distinct().OrderBy(m => m).ToArray();
-                filters.BodyTypes = model.Inventory.All.Select(m => m.Body).Distinct().OrderBy(m => m).ToArray();
-                SessionData.SetSession(Constants.SESSION_FILTERS, filters);
+                if (SessionData?.Employers == null) {
+                    Employer[] employers = await Utility.XMLHelpers.XmlRepository.GetEmployers();
+                    SessionData.SetSession(Constants.SESSION_EMPLOYERS, employers);
+                }
+
+                model.Employers = SessionData.Employers;
+
+                if (SessionData?.Filters == null) {
+                    Filters filters = new Filters();
+                    filters.Makes = model.Inventory.All.Select(m => m.Make).Distinct().OrderBy(m => m).ToArray();
+                    filters.Models = model.Inventory.All.Select(m => m.Model).Distinct().OrderBy(m => m).ToArray();
+                    filters.Engines = model.Inventory.All.Select(m => m.Engine).Distinct().OrderBy(m => m).ToArray();
+                    filters.FuelTypes = model.Inventory.All.Select(m => m.FuelType).Distinct().OrderBy(m => m).ToArray();
+                    filters.MaxPrice = model.Inventory.All.Max(m => m.RetailPrice);
+                    filters.MinPrice = model.Inventory.All.Min(m => m.RetailPrice);
+                    filters.DriveTrains = model.Inventory.All.Select(m => m.DriveTrain).Distinct().OrderBy(m => m).ToArray();
+                    filters.BodyTypes = model.Inventory.All.Select(m => m.Body).Distinct().OrderBy(m => m).ToArray();
+                    SessionData.SetSession(Constants.SESSION_FILTERS, filters);
+                }
             }
             catch (Exception ex) {
             }
@@ -123,7 +135,6 @@ namespace GTX.Controllers {
                 model.Trucks = model.All.Where(m => m.Body.Equals("5DR")).ToArray();
                 model.Vans = model.All.Where(m => m.Body.Equals("5DR")).ToArray();
                 model.Cargo = model.All.Where(m => m.Body.Equals("5DR")).ToArray();
-                SessionData.SetSession(Constants.SESSION_INVENTORY, model);
 
                 return model;
             }

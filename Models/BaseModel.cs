@@ -30,6 +30,8 @@ namespace GTX.Models {
 
         public Filters CurrentFilter { get; set; }
 
+        public Models.GTX CurrentVehicle { get; set; }
+
         public OpenHours[] OpenHours { get; set; }
     }
 }
