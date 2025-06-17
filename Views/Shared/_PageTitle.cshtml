@@ -1,29 +1,5 @@
-﻿<div class="toast align-items-center position-absolute p-2" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="d-flex">
-        <a data-bs-toggle="modal" data-bs-target="#filtersModal">
-            <div class="toast-body">
-                Click on
-                <i class="bi bi-search"></i>
-                or title to invoke a search dialog.
-            </div>
-        </a>
-        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-    </div>
-</div>
-<a data-bs-toggle="modal" data-bs-target="#filtersModal">
-    <section class="container-fluid page-title shadow">
+﻿<a href="#" data-bs-toggle="modal" data-bs-target="#filtersModal" title="Click to ivoke the filters dialog.">
+    <section class="container-fluid page-title">
         <h2 class="text-white text-center" title="Click to invoke search dialog">@ViewBag.Title</h2>
     </section>
 </a>
-<script>
-    $(function () {
-        const toast = new bootstrap.Toast($(".toast"), {
-            delay: 5000
-        });
-        toast.show();
-
-        setInterval(() => {
-            toast.show()
-        }, 10000); // 10 seconds
-    });
-</script>

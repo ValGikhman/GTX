@@ -21,6 +21,22 @@
 </script>
 
 <body>
+    @*Toast*@
+    <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-4" style="z-index: 1080;">
+        <div id="headerToast" class="toast toast-wide align-items-center well border-2" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    Click on &nbsp;
+                    <a href="#" class="link-success" data-bs-toggle="modal" data-bs-target="#filtersModal" title="Click to ivoke the filters dialog.">
+                        <i class="bi bi-filter-square"></i>
+                        &nbsp;Filters
+                    </a> or title to invoke a filter dialog.
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
     <!-- Offcanvas Menu Begin -->
     <div class="offcanvas-menu-overlay"></div>
     <div class="offcanvas-menu-wrapper">
@@ -32,7 +48,7 @@
         <div id="mobile-menu-wrap"></div>
         <ul class="offcanvas__widget__add">
             <li>
-                <i class="fa fa-clock-o"></i>
+                <i class="bi bi-stopwatch"></i>
                 <a href="~/Home/Contact"><span class="schedule"></span></a>
             </li>
         </ul>
@@ -55,7 +71,7 @@
     <header class="header fixed-top">
         <div class="container-fluid set-bg" data-setbg="@Url.Content("~/img/menu-bg.jpg")">
             <div class="row">
-                <div class="col-lg-5">
+                <div class="col-md-6 pull-left">
                     <nav class="header__top header__menu">
                         <ul class="main-menu">
                             <li>@Html.ActionLink("Home", "", "Home")</li>
@@ -76,21 +92,18 @@
                         </ul>
                     </nav>
                 </div>
-                <a class="col-lg-3" data-bs-toggle="modal" data-bs-target="#filtersModal" title="Click to ivoke the search dialog.">
-                </a>
-                <div class="col-lg-4">
+                <div class="col-md-6 pull-right">
                     <div class="header__top__right">
-                        <div class="header__top header__menu">
-                            <a data-bs-toggle="modal" data-bs-target="#filtersModal" title="Click to ivoke the search dialog.">
-                                <i class="bi bi-search"></i>
-                            </a>
+                        <div class="header__top__phone hand-pointer" data-bs-toggle="modal" data-bs-target="#filtersModal" title="Click to ivoke the filter dialog.">
+                            <i class="bi bi-filter-square"></i>
+                            <span>&nbsp; Filters</span>
                         </div>
                         <div class="header__top__phone">
-                            <i class="fa fa-clock-o"></i>
+                            <i class="bi bi-stopwatch"></i>
                             <a href="~/Home/Contact"><span class="schedule"></span></a>
                         </div>
                         <div class="header__top__phone">
-                            <i class="fa fa-phone"></i>
+                            <i class="bi bi-telephone"></i>
                             <span>(513) 912-4574</span>
                         </div>
                         <div class="header__top__social">
@@ -145,13 +158,17 @@
         $("#term")
             .on("blur", function () {
                 const term = $(this).val();
-                applyTerm(term);
+                if (term.length > 0) {
+                    applyTerm(term);
+                }
             })
             .on("keydown", function (e) {
                 if (e.key === "Enter") {
-                    e.preventDefault(); // optional: prevent form submission if inside a form
+                    e.preventDefault();
                     const term = $(this).val();
-                    applyTerm(term);
+                    if (term.length > 0) {
+                        applyTerm(term);
+                    }
                 }
             });
     });

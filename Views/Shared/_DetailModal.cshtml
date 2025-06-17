@@ -1,7 +1,7 @@
 ﻿@model GTX.Models.GTX
 <div class="modal-header">
     <h5 class="modal-title" id="detailsTitle">
-        @Model.Year @Model.Make - @Model.Model
+        @Model?.Year @Model?.Make - @Model?.Model
     </h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
@@ -12,7 +12,7 @@
                 <div class="p-3 well shadow-lg">Left Div</div>
             </div>
             <div class="col-md-6">
-                <div class="p-3 well shadow-lg p-3">Right Div</div>
+                <div class="p-3 well shadow-lg">Right Div</div>
             </div>
         </div>
     </div>
