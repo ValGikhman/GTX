@@ -80,6 +80,15 @@ namespace GTX.Controllers {
         }
 
         [HttpPost]
+        public JsonResult ApplyTerm(string term) {
+            Log($"Applying term: {term.Trim().ToUpper()}");
+            Model.CurrentFilter = null;
+            Model.Inventory.Vehicles = ApplyTerms(term.Trim().ToUpper());
+            Model.Inventory.Title = "Search";
+            return Json(new { redirectUrl = Url.Action("Index") });
+        }
+
+        [HttpPost]
         public JsonResult ResetFilter(Filters model) {
             SessionData.Inventory.All = null;
             ViewBag.Title = $"Inventory ({SessionData.Inventory.All.Length}) vehicles";
@@ -277,17 +286,28 @@ namespace GTX.Controllers {
             return query.OrderBy(m => m.Make).ToArray();
         }
 
-/*        private async Task<string> DecodeVin(string vin) {
-            using (HttpClient client = new HttpClient()) {
-                string url = $"https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/{vin}?format=xml";
-                HttpResponseMessage response = await client.GetAsync(url);
+        private Models.GTX[] ApplyTerms(string term) {
+            Models.GTX[] query = Model.Inventory.All;
 
-                if (!response.IsSuccessStatusCode)
-                    return "Error fetching VIN data.";
-
-                var data = await response.Content.ReadAsStringAsync();
-                return data;
+            if (query.Any() && term != null) {
+                query = query.Where(m => m.Make.Contains(term) || m.Model.Contains(term)).Distinct().ToArray();
             }
+
+            return query.OrderBy(m => m.Make).ToArray();
         }
-*/    }
+
+        /*        private async Task<string> DecodeVin(string vin) {
+                    using (HttpClient client = new HttpClient()) {
+                        string url = $"https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/{vin}?format=xml";
+                        HttpResponseMessage response = await client.GetAsync(url);
+
+                        if (!response.IsSuccessStatusCode)
+                            return "Error fetching VIN data.";
+
+                        var data = await response.Content.ReadAsStringAsync();
+                        return data;
+                    }
+                }
+        */
+    }
 }
