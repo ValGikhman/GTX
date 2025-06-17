@@ -1,19 +1,36 @@
-﻿@model GTX.Models.GTX
+﻿@model GTX.Models.Vehicle
+
 <div class="modal-header">
     <h5 class="modal-title" id="detailsTitle">
-        @Model?.Year @Model?.Make - @Model?.Model
+        @Model.VehicleDetails.Year @Model.VehicleDetails.Make - @Model.VehicleDetails.Model
     </h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <div class="modal-body">
-    <div class="container-fluid justify-content-evenly">
-        <div class="row p-1">
-            <div class="col-md-6">
-                <div class="p-3 well shadow-lg">Left Div</div>
+    <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+            <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Details</button>
+            <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Pictures ( @Model.VehicleImages.Count())</button>
+        </div>
+    </nav>
+    <div class="tab-content" id="nav-tabContent">
+        <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+            <div class="container-fluid justify-content-evenly">
+                <div class="row">
+                    <div class="well shadow p-3 col-lg-9">
+                        @Html.Partial("_Carousel", Model)
+                    </div>
+                    <div class="well shadow p-3 col-lg-3">
+                        <div class="justify-content-evenly">
+                            <div>Yours for: @Model.VehicleDetails.RetailPrice.ToString("C0")</div>
+                            <div>Miles: @Model.VehicleDetails.Mileage.ToString("N0")</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-6">
-                <div class="p-3 well shadow-lg">Right Div</div>
-            </div>
+        </div>
+        <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+            Картинки блядь!
         </div>
     </div>
 </div>

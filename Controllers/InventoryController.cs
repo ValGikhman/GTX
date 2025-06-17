@@ -1,6 +1,8 @@
 ﻿using GTX.Models;
 using Services;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
@@ -26,7 +28,10 @@ namespace GTX.Controllers {
             return View(Model);
         }
         public ActionResult Details(string stock) {
-            Model.CurrentVehicle = Model.Inventory.Vehicles.FirstOrDefault(m => m.Stock == stock);
+            if (stock != null) {
+                Model.CurrentVehicle.VehicleDetails = Model.Inventory.Vehicles.FirstOrDefault(m => m.Stock == stock);
+                Model.CurrentVehicle.VehicleImages = GetImages(stock);
+            }
             return PartialView("_DetailModal", Model.CurrentVehicle);
         }
 
@@ -296,18 +301,36 @@ namespace GTX.Controllers {
             return query.OrderBy(m => m.Make).ToArray();
         }
 
-        /*        private async Task<string> DecodeVin(string vin) {
-                    using (HttpClient client = new HttpClient()) {
-                        string url = $"https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/{vin}?format=xml";
-                        HttpResponseMessage response = await client.GetAsync(url);
+        public string[] GetImages(string stock) {
+            stock = "GTX002273";
+            string path = $"~/GTXImages/Inventory/{stock}";
+            string[] extensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+            string imagesPath = Server.MapPath($"{path}");
+            string[] imageFiles = Directory.GetFiles(imagesPath).Where(file => extensions.Contains(Path.GetExtension(file).ToLower())).ToArray();
 
-                        if (!response.IsSuccessStatusCode)
-                            return "Error fetching VIN data.";
+            List<string> imageUrls = new List<string>();
+            foreach (string file in imageFiles) {
+                string fileName = Path.GetFileName(file);
+                imageUrls.Add(Url.Content($"{path}/{fileName}"));
+            }
 
-                        var data = await response.Content.ReadAsStringAsync();
-                        return data;
-                    }
-                }
+            Model.CurrentVehicle.VehicleImages = imageUrls.ToArray();
+            return Model.CurrentVehicle.VehicleImages;
+        }
+
+        /*        
+        private async Task<string> DecodeVin(string vin) {
+            using (HttpClient client = new HttpClient()) {
+                string url = $"https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/{vin}?format=xml";
+                HttpResponseMessage response = await client.GetAsync(url);
+
+                if (!response.IsSuccessStatusCode)
+                    return "Error fetching VIN data.";
+
+                var data = await response.Content.ReadAsStringAsync();
+                return data;
+            }
+        }
         */
     }
 }
