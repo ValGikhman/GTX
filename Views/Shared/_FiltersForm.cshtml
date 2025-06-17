@@ -248,6 +248,9 @@
                 .done(function (response) {
                     window.location.href = response.redirectUrl; // ✅ Now navigate to that controller action
                 })
+                .fail(function (xhr, status, error) {
+                    console.error("Error applying term:", error);
+                });
         })
     })
 
@@ -259,6 +262,9 @@
                 })
                 $("#makes").trigger("chosen:updated");
             })
+            .fail(function (xhr, status, error) {
+                console.error("Error applying term:", error);
+            });
     }
 
     getModels = function (makes) {
@@ -269,6 +275,9 @@
                 })
                 $("#models").trigger("chosen:updated");
             })
+            .fail(function (xhr, status, error) {
+                console.error("Error applying term:", error);
+            });
     }
 
     getEngines = function (makes) {
@@ -279,6 +288,9 @@
                 })
                 $("#engines").trigger("chosen:updated");
             })
+            .fail(function (xhr, status, error) {
+                console.error("Error applying term:", error);
+            });
     }
 
     getFuelTypes = function (makes) {
@@ -289,6 +301,9 @@
                 })
                 $("#fuelTypes").trigger("chosen:updated");
             })
+            .fail(function (xhr, status, error) {
+                console.error("Error applying term:", error);
+            });
     }
 
     getDrives = function (makes) {
@@ -299,6 +314,9 @@
                 })
                 $("#drives").trigger("chosen:updated");
             })
+            .fail(function (xhr, status, error) {
+                console.error("Error applying term:", error);
+            });
     }
 
     getBodyTypes = function (makes) {
@@ -309,6 +327,9 @@
                 })
                 $("#bodyTypes").trigger("chosen:updated");
             })
+            .fail(function (xhr, status, error) {
+                console.error("Error applying term:", error);
+            });
 
     }
 
@@ -316,8 +337,9 @@
         $.get(`${root}Inventory/GetPriceRange`, { "makes": JSON.stringify(makes) })
             .done(function (result) {
                 if (result != null) {
-                    const roundedMin = Math.round(result.PriceMin / 1000) * 1000;
-                    const roundedMax = Math.round(result.PriceMax / 1000) * 1000;
+                    const roundedMin = Math.round(Math.floor(result.PriceMin / 1000)) * 1000;
+                    const roundedMax = Math.round(Math.ceil(result.PriceMax / 1000)) * 1000;
+
                     const formattedMin = new Intl.NumberFormat('en-US', {
                         maximumFractionDigits: 0,
                         minimumFractionDigits: 0,
@@ -369,8 +391,8 @@
         $.get(`${root}Inventory/GetMilegeRange`, { "makes": JSON.stringify(makes) })
             .done(function (result) {
                 if (result != null) {
-                    const roundedMin = Math.round(result.MilesMin / 1000) * 1000;
-                    const roundedMax = Math.round(result.MilesMax / 1000) * 1000;
+                    const roundedMin = Math.round(Math.floor(result.MilesMin / 1000)) * 1000;
+                    const roundedMax = Math.round(Math.ceil(result.MilesMax / 1000)) * 1000;
                     const formattedMin = new Intl.NumberFormat('en-US', {
                         maximumFractionDigits: 0,
                         minimumFractionDigits: 0,

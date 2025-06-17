@@ -55,23 +55,10 @@
     <header class="header fixed-top">
         <div class="container-fluid set-bg" data-setbg="@Url.Content("~/img/menu-bg.jpg")">
             <div class="row">
-                <div class="col-lg-3">
+                <div class="col-lg-5">
                     <nav class="header__top header__menu">
                         <ul class="main-menu">
                             <li>@Html.ActionLink("Home", "", "Home")</li>
-                            <li class="visually-hidden">
-                                <a href="#">Buy</a>
-                                <ul class="dropdown shadow rounded">
-                                    <li>@Html.ActionLink("All", "All", "Inventory")</li>
-                                    <li>@Html.ActionLink("Cars", "Cars", "Inventory")</li>
-                                    <li>@Html.ActionLink("Trucks", "Trucks", "Inventory")</li>
-                                    <li>@Html.ActionLink("Minivans", "Minivans", "Inventory")</li>
-                                    <li>@Html.ActionLink("SUVs", "SUVs", "Inventory")</li>
-                                    <li>@Html.ActionLink("Hybrids", "Hybrids", "Inventory")</li>
-                                    <li>@Html.ActionLink("Electrics", "Electrics", "Inventory")</li>
-                                    <li>@Html.ActionLink("Commercials", "Commercials", "Inventory")</li>
-                                </ul>
-                            </li>
                             <li>@Html.ActionLink("Blog", "Blog", "Home")</li>
                             <li>
                                 <a href="#">About us</a>
@@ -81,17 +68,23 @@
                                 </ul>
                             </li>
                             <li>
-                                <a data-bs-toggle="modal" data-bs-target="#filtersModal" title="Click to ivoke the search dialog.">
-                                    <i class="bi bi-search"></i>
-                                </a>
+                                <div class="input-group">
+                                    <input type="text" id="term" class="form-control" placeholder="Search inventory" aria-label="Search inventory" aria-describedby="addon-wrapping">
+                                    <span class="input-group-text bi bi-search" id="addon-wrapping"></span>
+                                </div>
                             </li>
                         </ul>
                     </nav>
                 </div>
-                <a class="col-lg-5" data-bs-toggle="modal" data-bs-target="#filtersModal" title="Click to ivoke the search dialog.">
+                <a class="col-lg-3" data-bs-toggle="modal" data-bs-target="#filtersModal" title="Click to ivoke the search dialog.">
                 </a>
                 <div class="col-lg-4">
                     <div class="header__top__right">
+                        <div class="header__top header__menu">
+                            <a data-bs-toggle="modal" data-bs-target="#filtersModal" title="Click to ivoke the search dialog.">
+                                <i class="bi bi-search"></i>
+                            </a>
+                        </div>
                         <div class="header__top__phone">
                             <i class="fa fa-clock-o"></i>
                             <a href="~/Home/Contact"><span class="schedule"></span></a>
@@ -148,5 +141,31 @@
             .done(function (html) {
                 $(".schedule").text(html.Now);
             });
+
+        $("#term")
+            .on("blur", function () {
+                const term = $(this).val();
+                applyTerm(term);
+            })
+            .on("keydown", function (e) {
+                if (e.key === "Enter") {
+                    e.preventDefault(); // optional: prevent form submission if inside a form
+                    const term = $(this).val();
+                    applyTerm(term);
+                }
+            });
     });
+
+    function applyTerm(term) {
+        $.post(`${root}Inventory/ApplyTerm`, { term })
+            .done(function (response) {
+                if (response.redirectUrl) {
+                    window.location.href = response.redirectUrl;
+                }
+            })
+            .fail(function (xhr, status, error) {
+                console.error("Error applying term:", error);
+            });
+    }
+
 </script>
