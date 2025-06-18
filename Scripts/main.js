@@ -48,16 +48,6 @@
         allowParentLinks: true
     });
 
-    /*Toast*/
-    const toast = new bootstrap.Toast($("#headerToast"), {
-        delay: 5000
-    });
-    toast.show();
-
-    setInterval(() => {
-        toast.show()
-    }, 20000);
-
 })(jQuery);
 
 function showSpinner() {

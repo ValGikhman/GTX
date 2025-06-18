@@ -3,13 +3,13 @@
 <link href="~/Content/Lightbox/lc_lightbox.min.css" rel="stylesheet" />
 
 <!-- SKINS -->
-<link href="~/Content/Lightbox/minimal.css" rel="stylesheet" />
+<link href="~/Content/Lightbox/dark.css" rel="stylesheet" />
 
 <!-- ASSETS -->
 <script src="~/Scripts/AlloyFinger/alloy_finger.min.js" type="text/javascript"></script>
 
 <div class="modal-header">
-    <h5 class="modal-title" id="detailsTitle">
+    <h5 class="modal-title text-white-50" id="detailsTitle">
         @Model.VehicleDetails.Year @Model.VehicleDetails.Make - @Model.VehicleDetails.Model
     </h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -41,9 +41,10 @@
                 </div>
             </div>
         </div>
-        <div class="tab-pane fade content well shadow" id="nav-pictures" role="tabpanel" aria-labelledby="nav-profile-tab">
+        <div class="tab-pane fade content" id="nav-pictures" role="tabpanel" aria-labelledby="nav-profile-tab">
+            <br/>
             @foreach (string imageUrl in Model.VehicleImages) {
-                <a class="elem well rounded" href="@imageUrl" data-lcl-thumb="@imageUrl">
+                <a class="elem gradiant three-d" href="@imageUrl" data-lcl-thumb="@imageUrl">
                     <span class="shadow rounded"style="background-image: url(..@imageUrl);"></span>
                 </a>
             }
@@ -65,10 +66,10 @@
             gallery: true,
             thumb_attr: 'data-lcl-thumb',
 
-            skin: 'minimal',
-            radius: 0,
+            skin: 'dark',
+            radius: 4,
             padding: 0,
-            border_w: 0,
+            border_w: 1,
         });
 
     });

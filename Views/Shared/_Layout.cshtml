@@ -21,22 +21,6 @@
 </script>
 
 <body>
-    @*Toast*@
-    <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-4" style="z-index: 1080;">
-        <div id="headerToast" class="toast toast-wide align-items-center well border-2" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">
-                    Click on &nbsp;
-                    <a href="#" class="link-success" data-bs-toggle="modal" data-bs-target="#filtersModal" title="Click to ivoke the filters dialog.">
-                        <i class="bi bi-filter-square"></i>
-                        &nbsp;Filters
-                    </a> or title to invoke a filter dialog.
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-        </div>
-    </div>
-
     <!-- Offcanvas Menu Begin -->
     <div class="offcanvas-menu-overlay"></div>
     <div class="offcanvas-menu-wrapper">
@@ -46,22 +30,6 @@
             </a>
         </div>
         <div id="mobile-menu-wrap"></div>
-        <ul class="offcanvas__widget__add">
-            <li>
-                <i class="bi bi-stopwatch"></i>
-                <a href="~/Home/Contact"><span class="schedule"></span></a>
-            </li>
-        </ul>
-        <div class="offcanvas__phone__num">
-            <i class="fa fa-phone"></i>
-            <span>(513) 912-4574</span>
-        </div>
-        <div class="offcanvas__social">
-            <a href="https://www.facebook.com/GTXAutoGroup"><i class="fa fa-facebook"></i></a>
-            <a href="https://www.twitter.com/GTXAutoGroup"><i class="fa fa-twitter"></i></a>
-            <a href="#"><i class="fa fa-google"></i></a>
-            <a href="#"><i class="fa fa-instagram"></i></a>
-        </div>
     </div>
     <!-- Offcanvas Menu End -->
     @{
@@ -69,10 +37,12 @@
     }
     <!-- Header Section Begin -->
     <header class="header fixed-top">
-        <div class="container-fluid set-bg" data-setbg="@Url.Content("~/img/menu-bg.jpg")">
+        <div class="container-fluid set-bg" data-setbg="@Url.Content("~/img/gradient-dark-2.jpg")">
             <div class="row">
                 <div class="col-md-6 pull-left">
-                    <nav class="header__top header__menu">
+                    <div class="canvas__open">
+                        <span class="bi bi-justify"></span>
+                    </div>                    <nav class="header__top header__menu">
                         <ul class="main-menu">
                             <li>@Html.ActionLink("Home", "", "Home")</li>
                             <li>@Html.ActionLink("Blog", "Blog", "Home")</li>
@@ -118,9 +88,6 @@
         </div>
         <div class="row">
             @{ Html.RenderPartial("_CategoryFilter"); }
-            <div class="canvas__open">
-                <span class="fa fa-bars"></span>
-            </div>
         </div>
     </header>
     <!-- Header Section End -->
@@ -128,7 +95,7 @@
         @RenderBody()
     </div>
     <!-- Footer Section Begin -->
-    <footer class="set-bg fixed-bottom" data-setbg="@Url.Content("~/img/layout-bg.jpg")">
+    <footer class="set-bg fixed-bottom" data-setbg="@Url.Content("~/img/gradient-dark-2.jpg")">
         <div class="row">
             <div class="col-lg-12 text-white text-center">
                 <a href="https://www.gtxagroup.com" target="_blank">
