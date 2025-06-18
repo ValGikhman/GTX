@@ -1,4 +1,12 @@
 ﻿@model GTX.Models.Vehicle
+<script src="~/Scripts/Lightbox/lc_lightbox.lite.min.js" type="text/javascript"></script>
+<link href="~/Content/Lightbox/lc_lightbox.min.css" rel="stylesheet" />
+
+<!-- SKINS -->
+<link href="~/Content/Lightbox/minimal.css" rel="stylesheet" />
+
+<!-- ASSETS -->
+<script src="~/Scripts/AlloyFinger/alloy_finger.min.js" type="text/javascript"></script>
 
 <div class="modal-header">
     <h5 class="modal-title" id="detailsTitle">
@@ -9,12 +17,16 @@
 <div class="modal-body">
     <nav>
         <div class="nav nav-tabs" id="nav-tab" role="tablist">
-            <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Details</button>
-            <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Pictures ( @Model.VehicleImages.Count())</button>
+            <button class="nav-link active" id="nav-details-tab" data-bs-toggle="tab" data-bs-target="#nav-details" type="button" role="tab" aria-controls="nav-details" aria-selected="true">Details</button>
+            <button class="nav-link" id="nav-pictures-tab" data-bs-toggle="tab" data-bs-target="#nav-pictures" type="button" role="tab" aria-controls="nav-pictures" aria-selected="false">Pictures ( @Model.VehicleImages.Count())</button>
+            <a href="https://www.carfax.com/VehicleHistory/p/Report.cfx?vin=@Model.VehicleDetails.VIN" class="mt-2" target="_blank">
+                <img width="100" src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report">
+            </a>
+
         </div>
     </nav>
     <div class="tab-content" id="nav-tabContent">
-        <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+        <div class="tab-pane fade show active" id="nav-details" role="tabpanel" aria-labelledby="nav-home-tab">
             <div class="container-fluid justify-content-evenly">
                 <div class="row">
                     <div class="well shadow p-3 col-lg-9">
@@ -29,14 +41,35 @@
                 </div>
             </div>
         </div>
-        <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
-            Картинки блядь!
+        <div class="tab-pane fade content well shadow" id="nav-pictures" role="tabpanel" aria-labelledby="nav-profile-tab">
+            @foreach (string imageUrl in Model.VehicleImages) {
+                <a class="elem well rounded" href="@imageUrl" data-lcl-thumb="@imageUrl">
+                    <span class="shadow rounded"style="background-image: url(..@imageUrl);"></span>
+                </a>
+            }
         </div>
     </div>
 </div>
-<div class="modal-footer mt-3">
+<div class="modal-footer">
     <button type="button" class="btn btn-close-white shadow" data-bs-dismiss="modal">
         <i class="bi bi-x-lg"></i>
         Close
     </button>
 </div>
+<script type="text/javascript">
+    $(document).ready(function (e) {
+
+        // live handler
+        lc_lightbox('.elem', {
+            wrap_class: 'lcl_fade_oc',
+            gallery: true,
+            thumb_attr: 'data-lcl-thumb',
+
+            skin: 'minimal',
+            radius: 0,
+            padding: 0,
+            border_w: 0,
+        });
+
+    });
+</script>

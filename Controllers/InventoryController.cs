@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
 
@@ -33,6 +35,21 @@ namespace GTX.Controllers {
                 Model.CurrentVehicle.VehicleImages = GetImages(stock);
             }
             return PartialView("_DetailModal", Model.CurrentVehicle);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> GetReport(string vin) {
+            string url = $"https://www.carfax.com/VehicleHistory/p/Report.cfx?vin={vin}";
+
+            using (var client = new HttpClient()) {
+                try {
+                    var html = await client.GetStringAsync(url);
+                    return Content(html, "text/html"); // Send raw HTML
+                }
+                catch {
+                    return Content("Unable to fetch Carfax report.");
+                }
+            }
         }
 
         public ActionResult All() {
