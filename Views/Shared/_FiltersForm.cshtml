@@ -1,11 +1,14 @@
-﻿<div class="row container-fluid col-12 justify-content-between">
-    @{ Html.RenderPartial("_CategoryFilter"); }
-    <div class="canvas__open">
-        <span class="fa fa-bars"></span>
-    </div>
-</div>
+﻿@{ Html.RenderPartial("_CategoryFilter"); }
+
+
 @*Meat*@
 <div class="row container-fluid mt-2 col-12 justify-content-between">
+    <div id="spinnerOverlay" class="spinner-overlay spinner-hidden">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+    
     @*Makes*@
     <div class="col-lg-3 p-2 well" title="Click in dropdown and type to search for a Makes.">
         <small class="form-check form-switch text-dark">
@@ -231,6 +234,7 @@
         $(".chosen-container").addClass("w-100 p-1");
 
         $("#btnSearch").on("click", function () {
+            showSpinner();
             var model = {
                 Makes: $("#makes").val(),
                 Models: $("#models").val(),
@@ -334,6 +338,8 @@
     }
 
     getPriceRange = function (makes) {
+        showSpinner();
+
         $.get(`${root}Inventory/GetPriceRange`, { "makes": JSON.stringify(makes) })
             .done(function (result) {
                 if (result != null) {
@@ -429,6 +435,7 @@
                         }
                     });
                 }
+                hideSpinner();
             })
     }
 

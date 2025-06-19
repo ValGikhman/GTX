@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using GTX.Models;
 using System.Linq;
 using System.Text.Json;
+using System.Collections.Generic;
 
 namespace GTX.Controllers {
 
@@ -138,11 +139,17 @@ namespace GTX.Controllers {
                 model.All = await Utility.XMLHelpers.XmlRepository.GetInventory();
                 model.All = model.All.Where(m => m.RetailPrice > 0).OrderByDescending(m => m.PurchaseDate).ThenBy(m => m.Make).ToArray(); ;
 
-                model.Cars = model.All.Where(m => m.Body.Equals("2DR")).ToArray();
-                model.Suvs = model.All.Where(m => m.Body.Equals("3DR")).ToArray();
-                model.Trucks = model.All.Where(m => m.Body.Equals("5DR")).ToArray();
-                model.Vans = model.All.Where(m => m.Body.Equals("5DR")).ToArray();
-                model.Cargo = model.All.Where(m => m.Body.Equals("5DR")).ToArray();
+                var carTypes = new HashSet<string> {
+                    CommonUnit.VehicleType.SEDAN.ToString(),
+                    CommonUnit.VehicleType.COUPE.ToString(),
+                    CommonUnit.VehicleType.CONVERTIBLE.ToString(),
+                    CommonUnit.VehicleType.HATCHBACK.ToString()
+                };
+
+                model.Cars = model.All.Where(m => carTypes.Contains(m.VehicleType.ToUpper())).ToArray();
+                model.Suvs = model.All.Where(m => m.VehicleType.ToUpper().Equals(CommonUnit.VehicleType.SUV.ToString())).ToArray();
+                model.Trucks = model.All.Where(m => m.VehicleType.ToUpper().Equals(CommonUnit.VehicleType.TRUCK.ToString())).ToArray();
+                model.Vans = model.All.Where(m => m.VehicleType.ToUpper().Equals(CommonUnit.VehicleType.VAN.ToString())).ToArray();
 
                 return model;
             }

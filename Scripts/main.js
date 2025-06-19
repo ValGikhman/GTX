@@ -47,4 +47,13 @@
         prependTo: '#mobile-menu-wrap',
         allowParentLinks: true
     });
+
 })(jQuery);
+
+function showSpinner() {
+    $("#spinnerOverlay").removeClass("spinner-hidden");
+}
+
+function hideSpinner() {
+    $("#spinnerOverlay").addClass("spinner-hidden");
+}

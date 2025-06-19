@@ -30,9 +30,6 @@ namespace GTX.Models {
 		[XmlElement(ElementName = "Mileage")]
 		public int Mileage { get; set; }
 
-		[XmlElement(ElementName = "New-used")]
-		public string Newused { get; set; }
-
 		[XmlElement(ElementName = "Cylinders")]
 		public int Cylinders { get; set; }
 
@@ -75,13 +72,13 @@ namespace GTX.Models {
 		[XmlElement(ElementName = "FuelType")]
 		public string FuelType { get; set; }
 
-		[XmlElement(ElementName = "ReadyToSellDate")]
-		public string ReadyToSellDate { get; set; }
+		[XmlElement(ElementName = "TransmissionSpeed")]
+		public int TransmissionSpeed { get; set; }
 
-		[XmlElement(ElementName = "TransmissioSpeed")]
-		public int TransmissioSpeed { get; set; }
+		[XmlElement(ElementName = "VehicleType")]
+		public string VehicleType { get; set; }
 
-		[XmlElement(ElementName = "DoNo")]
-		public object DoNo { get; set; }
+		[XmlElement(ElementName = "VehicleStyle")]
+		public string VehicleStyle { get; set; }
 	}
 }

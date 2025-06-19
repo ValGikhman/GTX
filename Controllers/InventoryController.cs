@@ -1,7 +1,11 @@
 ﻿using GTX.Models;
 using Services;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
 
@@ -26,44 +30,62 @@ namespace GTX.Controllers {
             return View(Model);
         }
         public ActionResult Details(string stock) {
-            Model.CurrentVehicle = Model.Inventory.Vehicles.FirstOrDefault(m => m.Stock == stock);
+            if (stock != null) {
+                Model.CurrentVehicle.VehicleDetails = Model.Inventory.Vehicles.FirstOrDefault(m => m.Stock == stock);
+                Model.CurrentVehicle.VehicleImages = GetImages(stock);
+            }
             return PartialView("_DetailModal", Model.CurrentVehicle);
         }
 
+        [HttpGet]
+        public async Task<ActionResult> GetReport(string vin) {
+            string url = $"https://www.carfax.com/VehicleHistory/p/Report.cfx?vin={vin}";
+
+            using (var client = new HttpClient()) {
+                try {
+                    var html = await client.GetStringAsync(url);
+                    return Content(html, "text/html"); // Send raw HTML
+                }
+                catch {
+                    return Content("Unable to fetch Carfax report.");
+                }
+            }
+        }
+
         public ActionResult All() {
-            Model.Inventory.Vehicles = SessionData.Inventory.All;
+            Model.Inventory.Vehicles = SessionData?.Inventory?.All;
             Model.Inventory.Title = "All";
 
             return RedirectToAction("Index", Model);
         }
 
         public ActionResult Suvs() {
-            Model.Inventory.Vehicles = SessionData.Inventory.Suvs;
+            Model.Inventory.Vehicles = SessionData?.Inventory?.Suvs;
             return RedirectToAction("Index", Model);
         }
 
         public ActionResult Cars() {
-            Model.Inventory.Vehicles = SessionData.Inventory.Cars;
+            Model.Inventory.Vehicles = SessionData?.Inventory?.Cars;
             Model.Inventory.Title = "Cars";
             return RedirectToAction("Index", Model);
         }
 
         public ActionResult Trucks() {
-            Model.Inventory.Vehicles = SessionData.Inventory.Trucks;
+            Model.Inventory.Vehicles = SessionData?.Inventory?.Trucks;
             Model.Inventory.Title = "Trucks";
 
             return RedirectToAction("Index", Model);
         }
 
         public ActionResult Vans() {
-            Model.Inventory.Vehicles = SessionData.Inventory.Vans;
+            Model.Inventory.Vehicles = SessionData?.Inventory?.Vans;
             Model.Inventory.Title = "Vans";
 
             return RedirectToAction("Index", Model);
         }
 
         public ActionResult Cargo() {
-            Model.Inventory.Vehicles = SessionData.Inventory.Cargo;
+            Model.Inventory.Vehicles = SessionData?.Inventory?.Cargo;
             Model.Inventory.Title = "Cargo";
 
             return RedirectToAction("Index", Model);
@@ -235,12 +257,12 @@ namespace GTX.Controllers {
                 int? milesMax;
                 if (!string.IsNullOrEmpty(makes)) {
                     string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    milesMax = SessionData?.Inventory.All?.Where(m => request.Contains(m.Make)).Max(m => m.Mileage);
-                    milesMin = SessionData?.Inventory.All?.Where(m => request.Contains(m.Make)).Min(m => m.Mileage);
+                    milesMax = SessionData?.Inventory?.All?.Where(m => request.Contains(m.Make)).Max(m => m.Mileage);
+                    milesMin = SessionData?.Inventory?.All?.Where(m => request.Contains(m.Make)).Min(m => m.Mileage);
                 }
                 else {
-                    milesMax = SessionData?.Inventory.All?.Max(m => m.Mileage);
-                    milesMin = SessionData?.Inventory.All?.Min(m => m.Mileage);
+                    milesMax = SessionData?.Inventory?.All?.Max(m => m.Mileage);
+                    milesMin = SessionData?.Inventory?.All?.Min(m => m.Mileage);
                 }
                 return Json(new { MilesMax = milesMax, MilesMin = milesMin }, JsonRequestBehavior.AllowGet);
             }
@@ -296,18 +318,36 @@ namespace GTX.Controllers {
             return query.OrderBy(m => m.Make).ToArray();
         }
 
-        /*        private async Task<string> DecodeVin(string vin) {
-                    using (HttpClient client = new HttpClient()) {
-                        string url = $"https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/{vin}?format=xml";
-                        HttpResponseMessage response = await client.GetAsync(url);
+        public string[] GetImages(string stock) {
+            stock = "GTX002273";
+            string path = $"~/GTXImages/Inventory/{stock}";
+            string[] extensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+            string imagesPath = Server.MapPath($"{path}");
+            string[] imageFiles = Directory.GetFiles(imagesPath).Where(file => extensions.Contains(Path.GetExtension(file).ToLower())).ToArray();
 
-                        if (!response.IsSuccessStatusCode)
-                            return "Error fetching VIN data.";
+            List<string> imageUrls = new List<string>();
+            foreach (string file in imageFiles) {
+                string fileName = Path.GetFileName(file);
+                imageUrls.Add(Url.Content($"{path}/{fileName}"));
+            }
 
-                        var data = await response.Content.ReadAsStringAsync();
-                        return data;
-                    }
-                }
+            Model.CurrentVehicle.VehicleImages = imageUrls.ToArray();
+            return Model.CurrentVehicle.VehicleImages;
+        }
+
+        /*        
+        private async Task<string> DecodeVin(string vin) {
+            using (HttpClient client = new HttpClient()) {
+                string url = $"https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/{vin}?format=xml";
+                HttpResponseMessage response = await client.GetAsync(url);
+
+                if (!response.IsSuccessStatusCode)
+                    return "Error fetching VIN data.";
+
+                var data = await response.Content.ReadAsStringAsync();
+                return data;
+            }
+        }
         */
     }
 }
