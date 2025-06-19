@@ -53,39 +53,39 @@ namespace GTX.Controllers {
         }
 
         public ActionResult All() {
-            Model.Inventory.Vehicles = SessionData.Inventory.All;
+            Model.Inventory.Vehicles = SessionData?.Inventory?.All;
             Model.Inventory.Title = "All";
 
             return RedirectToAction("Index", Model);
         }
 
         public ActionResult Suvs() {
-            Model.Inventory.Vehicles = SessionData.Inventory.Suvs;
+            Model.Inventory.Vehicles = SessionData?.Inventory?.Suvs;
             return RedirectToAction("Index", Model);
         }
 
         public ActionResult Cars() {
-            Model.Inventory.Vehicles = SessionData.Inventory.Cars;
+            Model.Inventory.Vehicles = SessionData?.Inventory?.Cars;
             Model.Inventory.Title = "Cars";
             return RedirectToAction("Index", Model);
         }
 
         public ActionResult Trucks() {
-            Model.Inventory.Vehicles = SessionData.Inventory.Trucks;
+            Model.Inventory.Vehicles = SessionData?.Inventory?.Trucks;
             Model.Inventory.Title = "Trucks";
 
             return RedirectToAction("Index", Model);
         }
 
         public ActionResult Vans() {
-            Model.Inventory.Vehicles = SessionData.Inventory.Vans;
+            Model.Inventory.Vehicles = SessionData?.Inventory?.Vans;
             Model.Inventory.Title = "Vans";
 
             return RedirectToAction("Index", Model);
         }
 
         public ActionResult Cargo() {
-            Model.Inventory.Vehicles = SessionData.Inventory.Cargo;
+            Model.Inventory.Vehicles = SessionData?.Inventory?.Cargo;
             Model.Inventory.Title = "Cargo";
 
             return RedirectToAction("Index", Model);
@@ -257,12 +257,12 @@ namespace GTX.Controllers {
                 int? milesMax;
                 if (!string.IsNullOrEmpty(makes)) {
                     string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    milesMax = SessionData?.Inventory.All?.Where(m => request.Contains(m.Make)).Max(m => m.Mileage);
-                    milesMin = SessionData?.Inventory.All?.Where(m => request.Contains(m.Make)).Min(m => m.Mileage);
+                    milesMax = SessionData?.Inventory?.All?.Where(m => request.Contains(m.Make)).Max(m => m.Mileage);
+                    milesMin = SessionData?.Inventory?.All?.Where(m => request.Contains(m.Make)).Min(m => m.Mileage);
                 }
                 else {
-                    milesMax = SessionData?.Inventory.All?.Max(m => m.Mileage);
-                    milesMin = SessionData?.Inventory.All?.Min(m => m.Mileage);
+                    milesMax = SessionData?.Inventory?.All?.Max(m => m.Mileage);
+                    milesMin = SessionData?.Inventory?.All?.Min(m => m.Mileage);
                 }
                 return Json(new { MilesMax = milesMax, MilesMin = milesMin }, JsonRequestBehavior.AllowGet);
             }
