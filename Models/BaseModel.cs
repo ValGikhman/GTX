@@ -31,6 +31,8 @@ namespace GTX.Models {
 
         #endregion Public Constructors
 
+        public bool IsDevelopment { get; set; }
+
         public Inventory Inventory { get; set; }
 
         public Employer[] Employers { get; set; }

@@ -1,0 +1,140 @@
+﻿@using Newtonsoft.Json
+@model GTX.Models.BaseModel
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+<style>
+    .img-cell {
+        height: auto;
+        width: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+        display: block;
+        margin: 0 auto;
+    }
+
+    div[data-role="display"] {
+        font-weight: bold;
+        color: #333;
+    }
+</style>
+
+<div class="container-full">
+    <div class="mx-auto well shadow">
+        <div class="row-cols-lg-auto">
+            <div id="search" class="col-lg-5 px-0 mb-3 d-flex rounded-2 visually-hidden">
+                <span><input type="text" class="term form-control shadow" placeholder="Search inventory" aria-label="Search inventory"></span>
+                <span class="term bi bi-search p-3"></span>
+                <span class="reset bi bi-ev-front p-3"></span>
+            </div>
+        </div>
+        <table id="grid"></table>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        var gridData = @Html.Raw(JsonConvert.SerializeObject(Model.Inventory.Vehicles));
+
+        $("#grid").grid({
+            dataSource: gridData,
+            uiLibrary: "bootstrap",
+            primaryKey: "Stock",
+            columns: [
+                { field: 'Image', title: "Image", width: 60, tmpl: '<img src="{Image}" class="img-cell" />', sortable: true },
+                { field: "Stock", width: 100, cssClass: "td-v-center", sortable: true },
+                { field: "Year", width: 100, cssClass: "td-v-center", sortable: true },
+                { field: "Make", width: 100, cssClass: "td-v-center",  sortable: true },
+                { field: "Model", width: 100, cssClass: "td-v-center", sortable: true },
+                { field: "VehicleStyle", width: 75, cssClass: "td-v-center", sortable: true },
+                { field: "", width: 30, cssClass: "td-v-center", tmpl: `<label for="file_{Stock}" class="btn btn-sm btn-primary">Upload</label>` },
+                {
+                    hidden: true,
+                    renderer: function (value, record) {
+                        const id = `file_${record.Stock}`;
+                        return `
+                                <input type="file" id="${id}" style="display: none;" multiple onchange="uploadFiles('${record.Stock}', this)" />
+                        `
+                    }
+                }
+            ],
+            pager: {
+                limit: 10, sizes: [20, 50, 100, 200]
+            },
+            dataBound: function (e, records, totalRecords) {
+                console.log('Grid data bound:', records);
+                $("#search").removeClass("visually-hidden");
+            }
+        });
+
+        $(".term")
+            .on("blur", function () {
+                const term = $(this).val();
+                if (term.length > 0) {
+                    applyTerm(term);
+                }
+            })
+            .on("keydown", function (e) {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    const term = $(this).val();
+                    if (term.length > 0) {
+                        applyTerm(term);
+                    }
+                }
+            });
+
+        $(".reset").on("click", function () { resetFilter() });
+
+    });
+
+    function applyTerm(term) {
+        $.post(`${root}Majordome/ApplyTerm`, { term })
+            .done(function (response) {
+                if (response.redirectUrl) {
+                    window.location.href = response.redirectUrl;
+                }
+            })
+            .fail(function (xhr, status, error) {
+                console.error("Error applying term", error);
+            });
+    }
+
+    function resetFilter() {
+        $.post(`${root}Majordome/Reset`)
+            .done(function (response) {
+                if (response.redirectUrl) {
+                    window.location.href = response.redirectUrl;
+                }
+            })
+            .fail(function (xhr, status, error) {
+                console.error("Error reseting", error);
+            });
+    }
+
+
+    function uploadFiles(stock, input) {
+        const files = input.files;
+        if (files.length === 0) return;
+
+        const formData = new FormData();
+        for (let i = 0; i < files.length; i++) {
+            formData.append("files", files[i]);  // "files" is the key that backend must match
+        }
+        formData.append("stock", stock);
+
+        fetch("/Majordome/Upload", {
+            method: "POST",
+            body: formData
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert(`Uploaded ${files.length} file(s) for ${stock}`);
+                    $('#grid').reload();
+                } else {
+                    alert("Upload failed.");
+                }
+            })
+            .catch(error => {
+                alert("Upload error.");
+            });
+    }
+</script>

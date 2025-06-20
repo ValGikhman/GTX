@@ -80,5 +80,9 @@ namespace GTX.Models {
 
 		[XmlElement(ElementName = "VehicleStyle")]
 		public string VehicleStyle { get; set; }
+
+		public string[] Images { get; set; }
+
+		public string Image { get; set; }
 	}
 }

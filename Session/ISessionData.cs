@@ -7,6 +7,8 @@ namespace GTX {
     public interface ISessionData {
 
         #region Public Properties
+        string Environment { get; set; }
+
         Inventory Inventory { get; set; }
 
         Employer[] Employers { get; set; }

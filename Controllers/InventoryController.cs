@@ -110,14 +110,6 @@ namespace GTX.Controllers {
             return Json(new { redirectUrl = Url.Action("Index") });
         }
 
-        [HttpPost]
-        public JsonResult ResetFilter(Filters model) {
-            SessionData.Inventory.All = null;
-            ViewBag.Title = $"Inventory ({SessionData.Inventory.All.Length}) vehicles";
-
-            return Json(new { redirectUrl = Url.Action("All") });
-        }
-
         [HttpGet]
         public JsonResult GetMakes() {
             try {
@@ -312,7 +304,11 @@ namespace GTX.Controllers {
             Models.GTX[] query = Model.Inventory.All;
 
             if (query.Any() && term != null) {
-                query = query.Where(m => m.Make.Contains(term) || m.Model.Contains(term)).Distinct().ToArray();
+                query = query.Where(m => m.Stock.ToUpper().Contains(term) 
+                    || m.Make.ToUpper().Contains(term) 
+                    || m.Model.ToUpper().Contains(term) 
+                    || m.VehicleStyle.ToUpper().Contains(term))
+                .Distinct().ToArray();
             }
 
             return query.OrderBy(m => m.Make).ToArray();

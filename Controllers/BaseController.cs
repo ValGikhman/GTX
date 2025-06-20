@@ -17,6 +17,7 @@ namespace GTX.Controllers {
     public abstract class BaseController : Controller {
 
         #region Properties
+        public readonly String devComputer = "VALS-PC";
 
         public ILogService LogService { get; set; }
 
@@ -48,6 +49,10 @@ namespace GTX.Controllers {
 
             try {
                 BaseModel model = new BaseModel();
+                model.IsDevelopment = (Environment.GetEnvironmentVariable("COMPUTERNAME") == devComputer);
+                SessionData.SetSession(Constants.SESSION_ENVIRONMENT, model.IsDevelopment ? "Development": "Production");
+                ViewBag.Environment = SessionData.Environment;
+
                 if (SessionData?.Inventory == null) {
                     model.Inventory = await SetModel(model.Inventory);
                     SessionData.SetSession(Constants.SESSION_INVENTORY, model.Inventory);
@@ -97,7 +102,7 @@ namespace GTX.Controllers {
 
         #endregion Overrides
 
-        #region public
+        #region Public
 
         public void Log(Exception ex) {
             LogService.Log(SessionData.LogHeader, ex);
@@ -137,7 +142,8 @@ namespace GTX.Controllers {
         private async Task<Inventory> SetModel(Inventory model) {
             if (SessionData?.Inventory == null) {
                 model.All = await Utility.XMLHelpers.XmlRepository.GetInventory();
-                model.All = model.All.Where(m => m.RetailPrice > 0).OrderByDescending(m => m.PurchaseDate).ThenBy(m => m.Make).ToArray(); ;
+                model.All = model.All.Where(m => m.RetailPrice > 0).OrderByDescending(m => m.PurchaseDate).ThenBy(m => m.Make).ToArray();
+                model.All = ApplyImages(model.All);
 
                 var carTypes = new HashSet<string> {
                     CommonUnit.VehicleType.SEDAN.ToString(),
@@ -196,6 +202,28 @@ namespace GTX.Controllers {
             catch (Exception ex) {
                 return $"Serialization Error: {ex.Message}";
             }
+        }
+
+        public Models.GTX[] ApplyImages(Models.GTX[] vehicles) {
+            string path = @"/GTXImages/Inventory/";
+            foreach (var vehicle in vehicles) {
+                string dirPath = Server.MapPath($"{path}{vehicle.Stock}");
+                vehicle.Image = $"{path}no-image.png";
+
+                if (Directory.Exists(dirPath)) {
+                    vehicle.Images = Directory.GetFiles(dirPath)
+                        .Where(f => f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                                    f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                                    f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase))
+                        .Select(f => $"{path}{vehicle.Stock}/{Path.GetFileName(f)}")
+                        .ToArray();
+
+                    if (vehicle.Images != null) {
+                        vehicle.Image = vehicle.Images[0];
+                    }
+                }
+            }
+            return vehicles;
         }
         #endregion Public Methods
     }
