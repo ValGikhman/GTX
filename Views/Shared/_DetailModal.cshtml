@@ -18,19 +18,27 @@
     <nav>
         <div class="nav nav-tabs" id="nav-tab" role="tablist">
             <button class="nav-link active" id="nav-details-tab" data-bs-toggle="tab" data-bs-target="#nav-details" type="button" role="tab" aria-controls="nav-details" aria-selected="true">Details</button>
-            <button class="nav-link" id="nav-pictures-tab" data-bs-toggle="tab" data-bs-target="#nav-pictures" type="button" role="tab" aria-controls="nav-pictures" aria-selected="false">Pictures ( @Model.VehicleImages.Count())</button>
-            <a href="https://www.carfax.com/VehicleHistory/p/Report.cfx?vin=@Model.VehicleDetails.VIN" class="mt-2" target="_blank">
+            @{
+                if (Model.VehicleImages.Count() > 0) {
+                    <button class="nav-link" id="nav-pictures-tab" data-bs-toggle="tab" data-bs-target="#nav-pictures" type="button" role="tab" aria-controls="nav-pictures" aria-selected="false">Pictures ( @Model.VehicleImages.Count())</button>
+                }
+            }
+            <a href="https://www.carfax.com/VehicleHistory/p/Report.cfx?vin=@Model.VehicleDetails.VIN" class=" shadow rounded mt-2 pull-right" target="_blank">
                 <img width="100" src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report">
             </a>
-
         </div>
     </nav>
     <div class="tab-content" id="nav-tabContent">
         <div class="tab-pane fade show active" id="nav-details" role="tabpanel" aria-labelledby="nav-home-tab">
             <div class="row justify-content-center gradiant">
-                <div class="col-lg-6 p-0">
-                    @Html.Partial("_Carousel", Model)
-                </div>
+                @{
+                    if (Model.VehicleImages.Count() > 0) {
+                        <div class="col-lg-6 p-0">
+                            @Html.Partial("_Carousel", Model)
+
+                        </div>
+                    }
+                }
                 <div class="p-3 col-lg-3">
                     <h7>
                         <div class="d-flex justify-content-evenly">
@@ -93,10 +101,10 @@
             </div>
         </div>
         <div class="tab-pane fade content" id="nav-pictures" role="tabpanel" aria-labelledby="nav-profile-tab">
-            <br/>
+            <br />
             @foreach (string imageUrl in Model.VehicleImages) {
                 <a class="elem three-d" href="@imageUrl" data-lcl-thumb="@imageUrl">
-                    <span class="shadow rounded"style="background-image: url(..@imageUrl);"></span>
+                    <span class="shadow rounded" style="background-image: url(..@imageUrl);"></span>
                 </a>
             }
         </div>

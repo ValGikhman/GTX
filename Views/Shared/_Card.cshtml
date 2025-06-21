@@ -1,6 +1,6 @@
 ﻿@model GTX.Models.GTX
-<li class="card well p-3 rounded-3 hover-bw" data-stock="@Model.Stock" title="Click here to see detasils.">
-    <div class="card-header">
+<li class="card well rounded-3 hover-bw" data-stock="@Model.Stock" title="Click here to see detasils.">
+    <div class="card-header hand-pointer">
         <h5>
             @Model.Year
             @Model.Make
@@ -8,15 +8,19 @@
         <h7>@Model.Model - @Model.VehicleStyle</h7>
     </div>
     <a class="btn btn-outline-light shadow">
-        <img class="rounded-3" width="480" height="200" src="https://cdn05.carsforsale.com/570bf417ac34166c212b83c915204f92/480x360/2012-acura-tl-sh-awd-w-tech-4dr-sedan-6a-w-technology-package.jpg">
+        <img class="rounded-3" width="480" height="200" src="@Model.Image">
     </a>
     <div class="card-header well shadow">
-        <h7>
+        <h7 class="no-click">
             <div class="d-flex flex-wrap justify-content-evenly">
                 <span>Yours for: @Model.RetailPrice.ToString("C0")</span>
                 <span>Miles: @Model.Mileage.ToString("N0")</span>
             </div>
-            <div class="justify-content-evenly">
+            <div class="d-flex flex-wrap justify-content-evenly">
+                <span class="very-small-text">VIN#:@Model.VIN</span>
+                <span class="very-small-text">#:@Model.Stock</span>
+            </div>
+            <div class="d-flex justify-content-center">
                 <a href="https://www.carfax.com/VehicleHistory/p/Report.cfx?vin=@Model.VIN" target="_blank">
                     <img width="100" src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report">
                 </a>

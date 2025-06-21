@@ -324,22 +324,51 @@ namespace GTX.Controllers {
             string path = $"~/GTXImages/Inventory/{stock}";
             string[] extensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
             string imagesPath = Server.MapPath($"{path}");
-            string[] imageFiles = Directory.GetFiles(imagesPath).Where(file => extensions.Contains(Path.GetExtension(file).ToLower())).ToArray();
-
             List<string> imageUrls = new List<string>();
-            foreach (string file in imageFiles) {
-                string fileName = Path.GetFileName(file);
-                imageUrls.Add(Url.Content($"{path}/{fileName}"));
+
+            if (Directory.Exists(imagesPath)) {
+                string[] imageFiles = Directory.GetFiles(imagesPath).Where(file => extensions.Contains(Path.GetExtension(file).ToLower())).ToArray();
+                foreach (string file in imageFiles) {
+                    string fileName = Path.GetFileName(file);
+                    imageUrls.Add(Url.Content($"{path}/{fileName}"));
+                }
             }
 
             Model.CurrentVehicle.VehicleImages = imageUrls.ToArray();
             return Model.CurrentVehicle.VehicleImages;
         }
 
+        [HttpPost]
+        public ActionResult DeleteImages(string stock) {
+            string path = $"~/GTXImages/Inventory/{stock}";
+            path = Server.MapPath(path);
+
+            string[] extensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+
+            if (!Directory.Exists(path)) {
+                return Json(new { success = false, message = "Directory not found." });
+            }
+
+            try {
+                string[] imageFiles = Directory.GetFiles(path).Where(file => extensions.Contains(Path.GetExtension(file).ToLower())).ToArray();
+
+                foreach (string file in imageFiles) {
+                    System.IO.File.Delete(file);
+                }
+
+                return Json(new { success = true, message = "All files deleted successfully." });
+            }
+
+            catch (Exception ex) {
+                return Json(new { success = false, message = "Error: " + ex.Message });
+            }
+
+        }
         /*        
         private async Task<string> DecodeVin(string vin) {
             using (HttpClient client = new HttpClient()) {
-                string url = $"https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/{vin}?format=xml";
+                string url = $"https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/JTMRFREV7EJ012503?format=xml";
+                string url ="https://auto.dev/api/vin/JTMRFREV7EJ012503?apikey=ZrQEPSkKdmFsZW50aW4uZ2lraG1hbkBnbWFpbC5jb20=";
                 HttpResponseMessage response = await client.GetAsync(url);
 
                 if (!response.IsSuccessStatusCode)

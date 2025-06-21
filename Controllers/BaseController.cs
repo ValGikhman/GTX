@@ -134,7 +134,6 @@ namespace GTX.Controllers {
             }
         }
 
-
         private async Task<Inventory> SetModel(Inventory model) {
             if (SessionData?.Inventory == null) {
                 model.All = await Utility.XMLHelpers.XmlRepository.GetInventory();
