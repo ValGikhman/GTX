@@ -313,9 +313,14 @@ namespace GTX.Controllers {
 
             return query.OrderBy(m => m.Make).ToArray();
         }
+        [HttpPost]
+        public ActionResult Reset() {
+            Model.Inventory.Vehicles = Model.Inventory.All;
+            return Json(new { redirectUrl = Url.Action("Index") });
+        }
 
         public string[] GetImages(string stock) {
-            stock = "GTX002273";
+            // stock = "GTX002273";
             string path = $"~/GTXImages/Inventory/{stock}";
             string[] extensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
             string imagesPath = Server.MapPath($"{path}");
