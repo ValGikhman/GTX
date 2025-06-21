@@ -1,10 +1,8 @@
 ﻿using GTX.Models;
 using Services;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
@@ -12,8 +10,8 @@ namespace GTX.Controllers {
 
     public class MajordomeController : BaseController {
 
-        public MajordomeController(ISessionData sessionData, ILogService LogService)
-            : base(sessionData, LogService) {
+        public MajordomeController(ISessionData sessionData, ILogService logService)
+            : base(sessionData, logService) {
             if (Model == null) {
                 Model = new BaseModel();
                 Model.Inventory = new Inventory();
@@ -31,6 +29,16 @@ namespace GTX.Controllers {
             }
 
             return View(Model);
+        }
+
+        public ActionResult Logs() {
+            return View(LogService.GetLogs());
+        }
+
+        [HttpGet]
+        public JsonResult GetUpdatedItems() {
+            var items = Model.Inventory.All; // updated list
+            return Json(items, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -56,31 +64,28 @@ namespace GTX.Controllers {
         }
 
         [HttpPost]
-        public JsonResult ApplyTerm(string term) {
+        public ActionResult ApplyTerm(string term) {
             Log($"Applying term: {term.Trim().ToUpper()}");
-            Model.Inventory.Vehicles = ApplyTerms(term.Trim().ToUpper());
-
-            return Json(new { redirectUrl = Url.Action("Inventory") });
+            var query = ApplyTerms(term);
+            return View("Logs", query);
         }
 
         [HttpPost]
-        public ActionResult Reset(BaseModel model) {
+        public ActionResult Reset() {
             Model.Inventory.Vehicles = Model.Inventory.All;
-            return Json(new { redirectUrl = Url.Action("Inventory") });
+            return Json(new { redirectUrl = Url.Action("Logs") });
         }
 
-        private Models.GTX[] ApplyTerms(string term) {
-            Models.GTX[] query = Model.Inventory.All;
-
+        private Log[] ApplyTerms(string term) {
+            var query = LogService.GetLogs();
             if (query.Any() && term != null) {
-                query = query.Where(m => m.Stock.ToUpper().Contains(term) 
-                    || m.Make.ToUpper().Contains(term) 
-                    || m.Model.ToUpper().Contains(term) 
-                    || m.VehicleStyle.ToUpper().Contains(term))
+                query = query.Where(m => m.LogLevel.ToUpper().Contains(term.ToUpper()) 
+                    || m.Message.ToUpper().Contains(term.ToUpper()) 
+                    || m.Url.ToUpper().Contains(term.ToUpper()))
                 .Distinct().ToArray();
             }
 
-            return query.OrderBy(m => m.Make).ToArray();
+            return query.OrderByDescending(m => m.DateCreated).ToArray();
         }
     }
 }
