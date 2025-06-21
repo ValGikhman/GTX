@@ -1,16 +1,12 @@
-﻿using GTX.Session;
+﻿using GTX.Models;
 using Services;
 using System;
-using System.Globalization;
+using System.Collections.Generic;
 using System.IO;
-using System.Threading;
-using System.Web.Mvc;
-using System.Web.Routing;
-using System.Threading.Tasks;
-using GTX.Models;
 using System.Linq;
 using System.Text.Json;
-using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace GTX.Controllers {
 

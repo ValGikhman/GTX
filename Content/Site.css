@@ -1,4 +1,9 @@
 ﻿/*Custom*/
+#click-area {
+    cursor: pointer;
+    user-select: none;
+}
+
 .well {
     min-height: 20px;
     background-color: #f5f5f5;
@@ -96,11 +101,6 @@ li.search-field {
     display: none;
 }
 
-.toast-wide {
-    min-width: 400px;
-    max-width: 100%; 
-}
-
 .hand-pointer {
     cursor: pointer;
 }
@@ -178,7 +178,11 @@ li.search-field {
     }
 
 .gradiant {
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1));
+    background: linear-gradient(35deg, rgba(0, 0, 0, 0.1), #AAAAB3);
+    background-image: url('../img/gradient.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .td-center {

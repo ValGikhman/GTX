@@ -56,7 +56,8 @@
                             <li>
                                 <div class="input-group">
                                     <input type="text" id="term" class="form-control" placeholder="Search inventory" aria-label="Search inventory" aria-describedby="addon-wrapping">
-                                    <span class="input-group-text bi bi-search" id="addon-wrapping"></span>
+                                    <span class="input-group-text bi bi-search"></span>
+                                    <span class="input-group-text bi bi-ev-front" id="reset" onclick="javascript: reset();"></span>
                                 </div>
                             </li>
                         </ul>
@@ -74,7 +75,7 @@
                         </div>
                         <div class="header__top__phone">
                             <i class="bi bi-telephone"></i>
-                            <span>(513) 912-4574</span>
+                            <span id="click-area">(513) 912-4574</span>
                         </div>
                         <div class="header__top__social">
                             <a href="https://www.facebook.com/GTXAutoGroup"><i class="fa fa-facebook"></i></a>
@@ -138,6 +139,18 @@
                 }
             });
     });
+
+    function reset() {
+        $.post(`${root}Inventory/Reset`)
+            .done(function (response) {
+                if (response.redirectUrl) {
+                    window.location.href = response.redirectUrl;
+                }
+            })
+            .fail(function (xhr, status, error) {
+                console.error("Resetting error", error);
+            });
+    }
 
     function applyTerm(term) {
         $.post(`${root}Inventory/ApplyTerm`, { term })

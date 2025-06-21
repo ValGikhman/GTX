@@ -1,0 +1,58 @@
+﻿@using Newtonsoft.Json
+@model Services.Log[]
+<head>
+    <!-- Includes all JS & CSS for the JavaScript Data Grid -->
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.1/dist/ag-grid-community.min.js"></script>
+</head>
+
+<style>
+    .ag-paging-panel {
+        justify-content: left !important;
+    }
+</style>
+
+<div class="d-flex justify-content-center vh-75 p-5 well shadow">
+    <div id="myGrid" class="ag-theme-alpine w-75" style="height: 80vh;"></div>
+</div>
+
+<script type="text/javascript">
+    let gridApi = null;
+
+    const columnDefs = [
+        { headerName: "LogLevel", field: "LogLevel", width: 100},
+        { headerName: "Message", field: "Message"},
+        { headerName: "Exception", field: "Exception" },
+        { headerName: "Url", field: "Url" },
+        { headerName: "Method", field: "HttpMethod" },
+        { headerName: "IPAddress", field: "IPAddress" },
+        {
+            headerName: "Created", field: "DateCreated",  width: 100, valueFormatter: (params) => {
+                if (!params.value) return '';
+                const date = new Date(params.value);
+                return date.toLocaleDateString(); // or custom format
+            } }
+    ]
+
+    const gridOptions = {
+        rowData: @Html.Raw(JsonConvert.SerializeObject(Model)),
+        onGridReady: (params) => {
+            gridApi = params.api; // ✅ store reference globally
+        },
+        columnDefs: columnDefs,
+        pagination: true,
+        paginationPageSize: 20,
+        paginationPageSizeSelector: [20, 50, 100],
+        defaultColDef: {
+            sortable: true,
+            filter: true,
+            resizable: true,
+            headerClass: 'text-shadow fw-normal td-center'
+        },
+        rowHeight: 30
+    }
+
+    $(function () {
+        var grid = document.querySelector('#myGrid'); /// $("#myGrid");
+        agGrid.createGrid(grid, gridOptions);
+    });
+</script>
