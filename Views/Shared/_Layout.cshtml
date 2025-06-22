@@ -42,7 +42,8 @@
                 <div class="col-md-6 pull-left">
                     <div class="canvas__open">
                         <span class="bi bi-justify"></span>
-                    </div>                    <nav class="header__top header__menu">
+                    </div>                    
+                    <nav class="header__top header__menu">
                         <ul class="main-menu">
                             <li>@Html.ActionLink("Home", "", "Home")</li>
                             <li>@Html.ActionLink("Blog", "Blog", "Home")</li>
@@ -53,12 +54,8 @@
                                     <li>@Html.ActionLink("Our staff", "Staff", "Home")</li>
                                 </ul>
                             </li>
-                            <li>
-                                <div class="input-group">
-                                    <input type="text" id="term" class="form-control" placeholder="Search inventory" aria-label="Search inventory" aria-describedby="addon-wrapping">
-                                    <span class="input-group-text bi bi-search"></span>
-                                    <span class="input-group-text bi bi-ev-front" id="reset" onclick="javascript: reset();"></span>
-                                </div>
+                            <li class="fake-input hand-pointer" data-bs-toggle="modal" data-bs-target="#filtersModal" >
+                                @{Html.RenderPartial("_SearchByTerm");}
                             </li>
                         </ul>
                     </nav>
@@ -117,51 +114,5 @@
 
 <script>
     $(function () {
-        $.get(`${root}Inventory/GetNow`)
-            .done(function (html) {
-                $(".schedule").text(html.Now);
-            });
-
-        $("#term")
-            .on("blur", function () {
-                const term = $(this).val();
-                if (term.length > 0) {
-                    applyTerm(term);
-                }
-            })
-            .on("keydown", function (e) {
-                if (e.key === "Enter") {
-                    e.preventDefault();
-                    const term = $(this).val();
-                    if (term.length > 0) {
-                        applyTerm(term);
-                    }
-                }
-            });
     });
-
-    function reset() {
-        $.post(`${root}Inventory/Reset`)
-            .done(function (response) {
-                if (response.redirectUrl) {
-                    window.location.href = response.redirectUrl;
-                }
-            })
-            .fail(function (xhr, status, error) {
-                console.error("Resetting error", error);
-            });
-    }
-
-    function applyTerm(term) {
-        $.post(`${root}Inventory/ApplyTerm`, { term })
-            .done(function (response) {
-                if (response.redirectUrl) {
-                    window.location.href = response.redirectUrl;
-                }
-            })
-            .fail(function (xhr, status, error) {
-                console.error("Error applying term:", error);
-            });
-    }
-
 </script>

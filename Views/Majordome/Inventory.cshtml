@@ -80,6 +80,7 @@
 
         icon.onclick = () => {
             alert(`Deleting all ${params.data.Images.length} pictures for Stock# ${JSON.stringify(params.data.Stock)}`);
+            deleteImages(params.data.Stock);
             params.api.applyTransaction({ update: [params.node.data] });
         };
         return icon;
@@ -87,9 +88,13 @@
 
     // Show Bootstrap modal with images
     function deleteImages(stock) {
-        $.get(`${root}Inventory/DeleteImages`, { "stock": stock })
-            .done(function (html) {
-                alert("All good...")
+        $.post(`${root}Majordome/DeleteImages`, { stock })
+            .done(function (response) {
+                fetch('/Majordome/GetUpdatedItems')
+                    .then(res => res.json())
+                    .then(data => {
+                        gridApi.setRowData(data);
+                    });
             })
     };
 
@@ -176,7 +181,7 @@
 
         const formData = new FormData();
         for (let i = 0; i < files.length; i++) {
-            formData.append("files", files[i]);  // "files" is the key that backend must match
+            formData.append("files", files[i]);
         }
         formData.append("stock", stock);
 
@@ -186,7 +191,7 @@
         })
             .then(response => {
                 if (response.ok) {
-                    fetch('/Majordome/GetUpdatedItems') // your MVC controller
+                    fetch('/Majordome/GetUpdatedItems')
                         .then(res => res.json())
                         .then(data => {
                             gridApi.setRowData(data);

@@ -297,6 +297,10 @@ namespace GTX.Controllers {
                 query = query.Where(m => m.RetailPrice >= filter.MinPrice && m.RetailPrice <= filter.MaxPrice).Distinct().ToArray();
             }
 
+            if (query.Any() && filter.FuelTypes != null) {
+                query = query.Where(m => filter.FuelTypes.Contains(m.FuelType)).Distinct().ToArray();
+            }
+
             return query.OrderBy(m => m.Make).ToArray();
         }
 
@@ -338,32 +342,6 @@ namespace GTX.Controllers {
             return Model.CurrentVehicle.VehicleImages;
         }
 
-        [HttpPost]
-        public ActionResult DeleteImages(string stock) {
-            string path = $"~/GTXImages/Inventory/{stock}";
-            path = Server.MapPath(path);
-
-            string[] extensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
-
-            if (!Directory.Exists(path)) {
-                return Json(new { success = false, message = "Directory not found." });
-            }
-
-            try {
-                string[] imageFiles = Directory.GetFiles(path).Where(file => extensions.Contains(Path.GetExtension(file).ToLower())).ToArray();
-
-                foreach (string file in imageFiles) {
-                    System.IO.File.Delete(file);
-                }
-
-                return Json(new { success = true, message = "All files deleted successfully." });
-            }
-
-            catch (Exception ex) {
-                return Json(new { success = false, message = "Error: " + ex.Message });
-            }
-
-        }
         /*        
         private async Task<string> DecodeVin(string vin) {
             using (HttpClient client = new HttpClient()) {

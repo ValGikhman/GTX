@@ -213,7 +213,7 @@ namespace GTX.Controllers {
                         .Select(f => $"{path}{vehicle.Stock}/{Path.GetFileName(f)}")
                         .ToArray();
 
-                    if (vehicle.Images != null) {
+                    if (vehicle.Images != null && vehicle.Images.Length > 0) {
                         vehicle.Image = vehicle.Images[0];
                     }
                 }
