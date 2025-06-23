@@ -1,7 +1,7 @@
 ﻿@model GTX.Models.GTX
-<li class="card well rounded-3 hover-bw" data-stock="@Model.Stock" title="Click here to see detasils.">
+<li id="@Model.Stock"" class="card well rounded-3 hover-bw p-0" data-stock="@Model.Stock" title="Click here to see detasils.">
     <div class="card-header hand-pointer">
-        <h5>
+        <h5 class="fw-bold">
             @Model.Year
             @Model.Make
         </h5>

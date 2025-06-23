@@ -55,40 +55,49 @@ namespace GTX.Controllers {
         public ActionResult All() {
             Model.Inventory.Vehicles = SessionData?.Inventory?.All;
             Model.Inventory.Title = "All";
+            ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
 
-            return RedirectToAction("Index", Model);
+            return View("Index", Model);
         }
 
         public ActionResult Suvs() {
             Model.Inventory.Vehicles = SessionData?.Inventory?.Suvs;
-            return RedirectToAction("Index", Model);
+            Model.Inventory.Title = "Suvs";
+            ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
+
+            return View("Index", Model);
         }
 
         public ActionResult Cars() {
             Model.Inventory.Vehicles = SessionData?.Inventory?.Cars;
             Model.Inventory.Title = "Cars";
-            return RedirectToAction("Index", Model);
+            ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
+
+            return View("Index", Model);
         }
 
         public ActionResult Trucks() {
             Model.Inventory.Vehicles = SessionData?.Inventory?.Trucks;
             Model.Inventory.Title = "Trucks";
+            ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
 
-            return RedirectToAction("Index", Model);
+            return View("Index", Model);
         }
 
         public ActionResult Vans() {
             Model.Inventory.Vehicles = SessionData?.Inventory?.Vans;
             Model.Inventory.Title = "Vans";
+            ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
 
-            return RedirectToAction("Index", Model);
+            return View("Index", Model);
         }
 
         public ActionResult Cargo() {
             Model.Inventory.Vehicles = SessionData?.Inventory?.Cargo;
             Model.Inventory.Title = "Cargo";
+            ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
 
-            return RedirectToAction("Index", Model);
+            return View("Index", Model);
         }
 
 
@@ -112,6 +121,19 @@ namespace GTX.Controllers {
 
         [HttpGet]
         public JsonResult GetMakes() {
+            try {
+                return Json(SessionData?.Filters?.Makes, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex) {
+                base.Log(ex);
+            }
+            finally {
+            }
+            return null;
+        }
+
+        [HttpGet]
+        public JsonResult GetMakesImages() {
             try {
                 return Json(SessionData?.Filters?.Makes, JsonRequestBehavior.AllowGet);
             }
@@ -324,7 +346,6 @@ namespace GTX.Controllers {
         }
 
         public string[] GetImages(string stock) {
-            // stock = "GTX002273";
             string path = $"~/GTXImages/Inventory/{stock}";
             string[] extensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
             string imagesPath = Server.MapPath($"{path}");

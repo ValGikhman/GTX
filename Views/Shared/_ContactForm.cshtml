@@ -6,7 +6,7 @@
 <script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@3.2.12/dist/jquery.validate.unobtrusive.min.js"></script>
 
 @using (Html.BeginForm("SaveContact", "Home", FormMethod.Post, new { @id = "form-customer", @class = "form-customer", role = "form", enctype = "multipart/form-data" })) {
-    <div class="form-floating mb-2">
+    <div class="form-floating my-2">
         @Html.TextBoxFor(model => model.FirstName, new { @class = "form-control shadow", placeholder = "First Name", required = "" })
         @Html.LabelFor(model => model.FirstName)
         @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-shadow-small" })
@@ -35,9 +35,9 @@
         @Html.LabelFor(model => model.Comment)
         @Html.ValidationMessageFor(model => model.Comment, "", new { @class = "text-shadow-small" })
     </div>
-
-    <button id="btnClose" type="button" class="btn btn-outline-secondary shadow float-end mt-5 mx-1" data-bs-dismiss="modal">Close</button>
-    <button type="submit" class="btn btn-secondary shadow float-end mt-5">Send</button>
+    <div class="row p-3 justify-content-center">
+        <button type="submit" class="btn btn-secondary shadow w-50"><i class="bi bi-send-fill mr-3"></i>&nbsp;Send</button>
+    </div>
 }
 
 <script>

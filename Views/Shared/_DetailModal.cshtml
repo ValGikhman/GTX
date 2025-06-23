@@ -23,14 +23,12 @@
                     <button class="nav-link" id="nav-pictures-tab" data-bs-toggle="tab" data-bs-target="#nav-pictures" type="button" role="tab" aria-controls="nav-pictures" aria-selected="false">Pictures ( @Model.VehicleImages.Count())</button>
                 }
             }
-            <a href="https://www.carfax.com/VehicleHistory/p/Report.cfx?vin=@Model.VehicleDetails.VIN" class=" shadow rounded mt-2 pull-right" target="_blank">
-                <img width="100" src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report">
-            </a>
+            <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="true">Contact</button>
         </div>
     </nav>
     <div class="tab-content" id="nav-tabContent">
-        <div class="tab-pane fade show active" id="nav-details" role="tabpanel" aria-labelledby="nav-home-tab">
-            <div class="row justify-content-center gradiant">
+        <div class="tab-pane fade show active" id="nav-details" role="tabpanel" aria-labelledby="nav-details-tab">
+            <div class="row justify-content-center well">
                 @{
                     if (Model.VehicleImages.Count() > 0) {
                         <div class="col-lg-6 p-0">
@@ -100,7 +98,7 @@
                 </div>
             </div>
         </div>
-        <div class="tab-pane fade content" id="nav-pictures" role="tabpanel" aria-labelledby="nav-profile-tab">
+        <div class="tab-pane fade content" id="nav-pictures" role="tabpanel" aria-labelledby="nav-picture-tab">
             <br />
             @foreach (string imageUrl in Model.VehicleImages) {
                 <a class="elem three-d" href="@imageUrl" data-lcl-thumb="@imageUrl">
@@ -108,28 +106,45 @@
                 </a>
             }
         </div>
+        <div class="tab-pane fade content" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+            <div class="row justify-content-center well p-3">
+                <div id="contactTab" class="col-lg-5 well shadow">
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-<div class="modal-footer">
-    <button type="button" class="btn btn-close-white shadow" data-bs-dismiss="modal">
-        <i class="bi bi-x-lg"></i>
-        Close
-    </button>
+<div class="modal-footer well shadow">
+    <div class="container-fluid">
+        <span class="btn btn-close-white shadow pull-left">
+            <a href="https://www.carfax.com/VehicleHistory/p/Report.cfx?vin=@Model.VehicleDetails.VIN" target="_blank">
+                <img width="100" src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report">
+            </a>
+        </span>
+        <span class="pull-right">
+            <button type="button" class="btn btn-close-white shadow" data-bs-dismiss="modal"><i class="bi bi-x-lg flex"></i>Close</button>
+        </span>
+    </div>
 </div>
 <script type="text/javascript">
-    $(document).ready(function (e) {
-
-        // live handler
-        lc_lightbox('.elem', {
-            wrap_class: 'lcl_fade_oc',
+    $(function (e) {
+        lc_lightbox(".elem", {
+            wrap_class: "lcl_fade_oc",
             gallery: true,
-            thumb_attr: 'data-lcl-thumb',
-
-            skin: 'dark',
+            thumb_attr: "data-lcl-thumb",
+            skin: "light",
             radius: 4,
             padding: 0,
             border_w: 1,
         });
 
+        $.get(`${root}Home/ContactForm`, { "id": 1 })
+            .done(function (result) {
+                $("#contactTab").html(result);
+            })
+            .fail(function () {
+            })
+            .always(function () {
+            })
     });
 </script>

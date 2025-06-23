@@ -162,13 +162,19 @@ namespace GTX.Controllers {
         public JsonResult GetNow() {
             try {
 
+                string returnValue;
                 string currentDay = DateTime.Now.DayOfWeek.ToString();
                 int currentHour = DateTime.Now.Hour;
 
                 var today = Model.OpenHours.FirstOrDefault(m => m.Day == currentDay);
                 bool isOpened = (currentHour >= today.From && currentHour <= today.To);
                 string openClose = isOpened ? "Now opened" : "Closed";
-                string returnValue = $"{today.Day}: {today.Description} - {openClose}";
+                if (today.From == 0 && today.To == 0) {
+                    returnValue = $"{today.Day}: {today.Description}";
+                }
+                else {
+                    returnValue = $"{today.Day}: {today.Description} - {openClose}";
+                }
 
                 return Json(new { Now = returnValue }, JsonRequestBehavior.AllowGet);
             }

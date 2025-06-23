@@ -80,7 +80,7 @@
 
         if (charIndex < fullText.length) {
             currentText += fullText.charAt(charIndex);
-            $('#term').attr('placeholder', currentText);
+            $('.term').attr('placeholder', currentText);
             charIndex++;
             setTimeout(typePlaceholder, 80); // typing speed
         } else {
@@ -168,7 +168,6 @@ function showSpinner() {
 function hideSpinner() {
     $("#spinnerOverlay").addClass("spinner-hidden");
 }
-
 
 function reset() {
     $.post(`${root}Inventory/Reset`)
