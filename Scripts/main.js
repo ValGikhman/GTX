@@ -47,6 +47,54 @@
         allowParentLinks: true
     });
 
+    // Layout blues
+    $.get(`${root}Inventory/GetNow`)
+        .done(function (html) {
+            $(".schedule").text(html.Now);
+        });
+
+    $("#term")
+        .on("blur", function () {
+            const term = $(this).val();
+            if (term.length > 0) {
+                applyTerm(term);
+            }
+        })
+        .on("keydown", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                const term = $(this).val();
+                if (term.length > 0) {
+                    applyTerm(term);
+                }
+            }
+        });
+
+    const placeholders = ['Type something to search inventory like bmw', 'toyota', 'tes for tesla', 'civi for civics', 'or year like 2015', 'Type ele for electric', 'Or use filters below'];
+    let currentText = '';
+    let currentIndex = 0;
+    let charIndex = 0;
+
+    function typePlaceholder() {
+        const fullText = placeholders[currentIndex];
+
+        if (charIndex < fullText.length) {
+            currentText += fullText.charAt(charIndex);
+            $('.term').attr('placeholder', currentText);
+            charIndex++;
+            setTimeout(typePlaceholder, 80); // typing speed
+        } else {
+            setTimeout(() => {
+                currentText = '';
+                charIndex = 0;
+                currentIndex = (currentIndex + 1) % placeholders.length;
+                typePlaceholder();
+            }, 1000); // pause before next string
+        }
+    }
+
+    typePlaceholder();
+
 
     // ===== Majordome call =====
     // ===== Model =====
@@ -119,4 +167,28 @@ function showSpinner() {
 
 function hideSpinner() {
     $("#spinnerOverlay").addClass("spinner-hidden");
+}
+
+function reset() {
+    $.post(`${root}Inventory/Reset`)
+        .done(function (response) {
+            if (response.redirectUrl) {
+                window.location.href = response.redirectUrl;
+            }
+        })
+        .fail(function (xhr, status, error) {
+            console.error("Resetting error", error);
+        });
+}
+
+function applyTerm(term) {
+    $.post(`${root}Inventory/ApplyTerm`, { term })
+        .done(function (response) {
+            if (response.redirectUrl) {
+                window.location.href = response.redirectUrl;
+            }
+        })
+        .fail(function (xhr, status, error) {
+            console.error("Error applying term:", error);
+        });
 }

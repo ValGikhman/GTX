@@ -134,7 +134,6 @@ namespace GTX.Controllers {
             }
         }
 
-
         private async Task<Inventory> SetModel(Inventory model) {
             if (SessionData?.Inventory == null) {
                 model.All = await Utility.XMLHelpers.XmlRepository.GetInventory();
@@ -163,13 +162,19 @@ namespace GTX.Controllers {
         public JsonResult GetNow() {
             try {
 
+                string returnValue;
                 string currentDay = DateTime.Now.DayOfWeek.ToString();
                 int currentHour = DateTime.Now.Hour;
 
                 var today = Model.OpenHours.FirstOrDefault(m => m.Day == currentDay);
                 bool isOpened = (currentHour >= today.From && currentHour <= today.To);
                 string openClose = isOpened ? "Now opened" : "Closed";
-                string returnValue = $"{today.Day}: {today.Description} - {openClose}";
+                if (today.From == 0 && today.To == 0) {
+                    returnValue = $"{today.Day}: {today.Description}";
+                }
+                else {
+                    returnValue = $"{today.Day}: {today.Description} - {openClose}";
+                }
 
                 return Json(new { Now = returnValue }, JsonRequestBehavior.AllowGet);
             }
@@ -214,7 +219,7 @@ namespace GTX.Controllers {
                         .Select(f => $"{path}{vehicle.Stock}/{Path.GetFileName(f)}")
                         .ToArray();
 
-                    if (vehicle.Images != null) {
+                    if (vehicle.Images != null && vehicle.Images.Length > 0) {
                         vehicle.Image = vehicle.Images[0];
                     }
                 }

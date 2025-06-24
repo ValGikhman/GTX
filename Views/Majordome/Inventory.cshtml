@@ -24,6 +24,12 @@
 
 
 <script type="text/javascript">
+
+    $(function () {
+        var grid = document.querySelector('#myGrid'); /// $("#myGrid");
+        agGrid.createGrid(grid, gridOptions);
+    });
+
     let gridApi = null;
 
     const columnDefs = [
@@ -36,17 +42,15 @@
             sortable: false
         },
         { headerName: "Stock", field: "Stock", width: 120 },
+        { headerName: "LC", field: "LocationCode", width: 60 },
         { headerName: "Year", field: "Year", width: 80 },
         { headerName: "Make", field: "Make"},
         { headerName: "Model", field: "Model" },
         { headerName: "VehicleStyle", field: "VehicleStyle" },
-        {
-            headerName: "Upload",
-            field: "upload",
-            cellRenderer: fileUploadRenderer,
-            filter: false,
-            sortable: false,
-            width: 110
+        {        headerName: '',
+                field: 'action',
+                cellRenderer: actionsRenderer,
+                width: 100
         }
     ]
     const gridOptions = {
@@ -67,17 +71,63 @@
         rowHeight: 30
     };
 
+    // Delete Icon renderer
+    function deleteIconRenderer(params) {
+        const icon = document.createElement('span');
+        icon.className = 'bi bi-trash fs-5 px-2'; 
+        icon.style.cursor = 'pointer';
+        icon.title = `Delete all ${params.data.Images.length} pictures for Stock# ${JSON.stringify(params.data.Stock)}`;
+
+        icon.onclick = () => {
+            alert(`Deleting all ${params.data.Images.length} pictures for Stock# ${JSON.stringify(params.data.Stock)}`);
+            deleteImages(params.data.Stock);
+            params.api.applyTransaction({ update: [params.node.data] });
+        };
+        return icon;
+    }
+
+    // Show Bootstrap modal with images
+    function deleteImages(stock) {
+        $.post(`${root}Majordome/DeleteImages`, { stock })
+            .done(function (response) {
+                fetch('/Majordome/GetUpdatedItems')
+                    .then(res => res.json())
+                    .then(data => {
+                        gridApi.setRowData(data);
+                    });
+            })
+    };
+
     // Image Button Renderer
     function imageButtonRenderer(params) {
-        if (!params.data.Images || params.data.Images.length === 0) return `<img src="${params.data.Image}"></img>`;
+        if (!params.data.Images || params.data.Images.length === 0) {
+            return `<img src="${params.data.Image}"></img>`;
+        } 
 
-        const button = document.createElement('button');
-        button.className = 'badge bg-secondary text-shadow fw-normal';
-        button.style.cursor = 'pointer';
+        const wrapper = document.createElement('div');
+        wrapper.className = 'position-relative d-inline-block';
 
-        button.textContent = `Show (${params.data.Images.length})`;
-        button.onclick = () => showImageModal(params.data.Stock);
-        return button;
+        const icon = document.createElement('i');
+        icon.className = 'bi bi-images fs-3'; // bell icon, font size 3
+        icon.style.cursor = 'pointer';
+        icon.title = `Show all ${params.data.Images.length} picture(s) for Stock# ${JSON.stringify(params.data.Stock)}`;
+        icon.onclick = () => showImageModal(params.data.Stock);
+        wrapper.appendChild(icon);
+
+        if (params.data.Images.length > 0) {
+            const badge = document.createElement('span');
+            badge.className = 'position-absolute badge rounded-pill bg-success';
+            badge.textContent = params.data.Images.length;
+
+            const count = document.createElement('span');
+            count.className = 'visually-hidden';
+            count.textContent = `${params.data.Images.length} images`;
+            badge.appendChild(count);
+
+            wrapper.appendChild(badge);
+        }
+
+        return wrapper;
     }
 
     // Show Bootstrap modal with images
@@ -91,28 +141,23 @@
         };
     }
 
-    $(function () {
-        var grid = document.querySelector('#myGrid'); /// $("#myGrid");
-        agGrid.createGrid(grid, gridOptions);
-    });
-
     // File upload jazz
-    function fileUploadRenderer(params) {
+    function actionsRenderer(params) {
         const container = document.createElement('div');
-
         const fileInput = document.createElement('input');
+
         fileInput.type = 'file';
         fileInput.multiple = true;
         fileInput.style.display = 'none';
 
-        const button = document.createElement('button');
-        button.innerText = 'Upload';
-        button.className = 'badge bg-secondary text-shadow fw-normal';
-        button.style.cursor = 'pointer';
+        const icon = document.createElement('span');
+        icon.className = 'bi bi-upload fs-5 px-2';
+        icon.style.cursor = 'pointer';
+        icon.title = `Upload images for Stock# ${JSON.stringify(params.data.Stock)}`;
 
-        button.addEventListener('click', () => {
-            fileInput.click(); // open dialog
-        });
+        icon.onclick = () => {
+            fileInput.click(); 
+        };
 
         fileInput.addEventListener('change', () => {
             const files = Array.from(fileInput.files);
@@ -121,11 +166,14 @@
             }
         });
 
-        container.appendChild(button);
+        container.appendChild(icon);
         container.appendChild(fileInput);
+        if (params.data.Images && params.data.Images.length > 0) {
+            container.appendChild(deleteIconRenderer(params));
+        }
+
         return container;
     }
-
 
     function uploadFiles(stock, input) {
         const files = input.files;
@@ -133,7 +181,7 @@
 
         const formData = new FormData();
         for (let i = 0; i < files.length; i++) {
-            formData.append("files", files[i]);  // "files" is the key that backend must match
+            formData.append("files", files[i]);
         }
         formData.append("stock", stock);
 
@@ -143,11 +191,11 @@
         })
             .then(response => {
                 if (response.ok) {
-                    fetch('/Majordome/GetUpdatedItems') // your MVC controller
-                      .then(res => res.json())
+                    fetch('/Majordome/GetUpdatedItems')
+                        .then(res => res.json())
                         .then(data => {
                             gridApi.setRowData(data);
-                      });
+                        });
                     alert(`Uploaded ${files.length} file(s) for ${stock}`);
                 } else {
                     alert("Upload failed.");

@@ -93,7 +93,7 @@ namespace GTX.Controllers {
         }
 
         [HttpPost]
-        public ActionResult SaveContact(ContactUs model) {
+        public JsonResult SaveContact(ContactUs model) {
             Log($"Saving contact: {SerializeModel(model)}");
             try {
                 if (ModelState.IsValid) {
@@ -106,6 +106,7 @@ namespace GTX.Controllers {
 
                     _contactService.SaveContact(contact);
                     // EmailHelper.SendEmailConfirmation(this.ControllerContext, contact);
+                    return Json(new { success = true, data = model });
                 }
             }
             catch (Exception ex) {
@@ -113,8 +114,7 @@ namespace GTX.Controllers {
             }
             finally {
             }
-
-            return RedirectToAction("Contact", model);
+            return Json(new { success = false, message = "Invalid data" });
         }
     }
 }
