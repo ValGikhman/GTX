@@ -4,12 +4,16 @@
 }
 <!-- Modal -->
 <div id="message" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div id="header" class="modal-header shadow">
                 <h5 id="title" class="modal-title test-shadow">Contact</h5>
+                <button type="button" class="btn-close-light" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div id="messageBody" class="modal-body well">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-close-white shadow" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i>Close</button>
             </div>
         </div>
     </div>
@@ -42,8 +46,8 @@
     })
 
     function showEmail(obj, id) {
-        var name = `${$(obj).attr("data-name")}`;
-        var email = $(obj).attr("data-email");
+        var name = `${$(obj).data("name")}`;
+        var email = $(obj).data("email");
         $.get(`${root}Home/ContactForm`, {"id": id})
             .done(function (result) {
                 $("#messageBody").html(result);

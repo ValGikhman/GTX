@@ -1,0 +1,43 @@
+﻿<div class="d-flex flex-row overflow-auto" id="makesImages">
+
+</div>
+
+<script>
+    $(function () {
+        getMakesImages()
+    })
+
+    getMakesImages = function () {
+        $.get(`${root}Inventory/GetMakes`)
+            .done(function (result) {
+                const $container = $('#makesImages');
+                $container.empty();
+
+                result.forEach(function (make) {
+                    const $img = $('<img>')
+                        .attr('src', `/GTXImages/makes/${make.replace(/\s+/g, '-')}.png`)
+                        .attr('data-make', make)
+                        .addClass('img-fluid img-thumbnail me-2 hand-pointer hover-bw')
+                        .css({ height: '80px' })
+                        .click(function () {
+                            const make = $(this).data("make");
+                            showSpinner();
+                            var model = { Makes: [make] };
+
+                            $.post(`${root}Inventory/ApplyFilter`, { model: model }, "json")
+                                .done(function (response) {
+                                    window.location.href = response.redirectUrl; // ✅ Now navigate to that controller action
+                                })
+                                .fail(function (xhr, status, error) {
+                                    console.error("Error applying term:", error);
+                                });
+                        });
+
+                    $container.append($img);
+                });
+            })
+            .fail(function (xhr, status, error) {
+                console.error("Error applying term:", error);
+            });
+    }
+</script>

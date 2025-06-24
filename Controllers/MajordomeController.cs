@@ -1,5 +1,6 @@
 ﻿using GTX.Models;
 using Services;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -74,6 +75,35 @@ namespace GTX.Controllers {
         public ActionResult Reset() {
             Model.Inventory.Vehicles = Model.Inventory.All;
             return Json(new { redirectUrl = Url.Action("Logs") });
+        }
+
+        [HttpPost]
+        public ActionResult DeleteImages(string stock) {
+            string path = $"~/GTXImages/Inventory/{stock}";
+            path = Server.MapPath(path);
+
+            string[] extensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+
+            if (!Directory.Exists(path)) {
+                return Json(new { success = false, message = "Directory not found." });
+            }
+
+            try {
+                string[] imageFiles = Directory.GetFiles(path).Where(file => extensions.Contains(Path.GetExtension(file).ToLower())).ToArray();
+
+                foreach (string file in imageFiles) {
+                    System.IO.File.Delete(file);
+                }
+
+
+                Model.Inventory.Vehicles = ApplyImages(Model.Inventory.Vehicles);
+                return Json(new { success = true, message = "All files deleted successfully." });
+            }
+
+            catch (Exception ex) {
+                return Json(new { success = false, message = "Error: " + ex.Message });
+            }
+
         }
 
         private Log[] ApplyTerms(string term) {
