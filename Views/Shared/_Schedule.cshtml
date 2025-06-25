@@ -1,14 +1,20 @@
-﻿<div class="container-fluid d-flex justify-content-center">
-    <div class="well row mt-1 p-3 rounded shadow col-lg-7">
-        @foreach (var open in Model.OpenHours) {
-            <div class="col">
-                <button type="button" class="btn btn-outline-secondary shadow position-relative">
-                    @open.Description
-                    <span class="position-absolute top-0 start-100 translate-middle shadow badge rounded bg-dark">
-                        @open.Day
-                    </span>
-                </button>
-            </div>
-        }
-    </div>
+﻿<div class="d-flex justify-content-evenly rounded gap-3">
+    @foreach (var open in Model.OpenHours) {
+        <button type="button" class="btn btn-outline-secondary shadow position-relative">
+            @open.Description
+            <span class="position-absolute top-0 start-100 translate-middle shadow badge rounded bg-dark">
+                @open.Day
+            </span>
+        </button>
+    }
+</div>
+
+<div class="d-flex justify-content-evenly rounded  gap-3 my-3">
+    <img class="well w-50 rounded-2 shadow" src="@Url.Content("~/GTXImages/gtx.jpg")">
+    <iframe loading="lazy"
+            allowfullscreen
+            referrerpolicy="no-referrer-when-downgrade"
+            src="https://www.google.com/maps?q=9516+Prinston+Glendale+Rd,+West+Checter,+OH, 45011&output=embed"
+            class="well w-75 shadow">
+    </iframe>
 </div>
