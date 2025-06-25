@@ -21,6 +21,16 @@
 </script>
 
 <body>
+    <!-- Offcanvas open hours -->
+    <div class="offcanvas-top-fixed-center" tabindex="-1" id="openHours">
+        <div class="offcanvas-header rounded-top">
+        </div>
+        <div class="offcanvas-body p-3">
+            @Html.Partial("_Schedule")
+            <p id="offsetDisplay"></p>
+        </div>
+    </div>
+
     <!-- Offcanvas Menu Begin -->
     <div class="offcanvas-menu-overlay"></div>
     <div class="offcanvas-menu-wrapper">
@@ -41,7 +51,7 @@
             <div class="d-flex justify-content-between">
                 <div class="canvas__open">
                     <span class="bi bi-justify"></span>
-                </div>                    
+                </div>
                 <nav class="header__top header__menu">
                     <ul class="main-menu">
                         <li>@Html.ActionLink("Home", "", "Home")</li>
@@ -53,19 +63,20 @@
                                 <li>@Html.ActionLink("Our staff", "Staff", "Home")</li>
                             </ul>
                         </li>
-                        <li class="fake-input hand-pointer" data-bs-toggle="modal" data-bs-target="#filtersModal" >
+                        <li class="fake-input hand-pointer" data-bs-toggle="modal" data-bs-target="#filtersModal">
                             @{Html.RenderPartial("_SearchByTerm");}
                         </li>
                     </ul>
                 </nav>
                 <div class="header__top__right">
-@*                        <div class="header__top__phone hand-pointer" data-bs-toggle="modal" data-bs-target="#filtersModal" title="Click to ivoke the filter dialog.">
-                        <i class="bi bi-filter-square"></i>
-                        <span>&nbsp; Filters</span>
-                    </div>*@
                     <div class="header__top__phone">
-                        <i class="bi bi-stopwatch"></i>
-                        <a href="~/Home/Contact"><span class="schedule"></span></a>
+                        <button class="btn bg-transparent dropdown-toggle" type="button" id="btnOpenHours"
+                                data-bs-toggle="offcanvas"
+                                data-bs-target="#openHours"
+                                aria-controls="openHours">
+                            <i class="bi bi-stopwatch"></i>
+                            <span class="schedule"></span>
+                        </button>
                     </div>
                     <div class="header__top__phone">
                         <i class="bi bi-telephone"></i>
