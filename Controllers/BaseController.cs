@@ -78,6 +78,7 @@ namespace GTX.Controllers {
                 if (SessionData?.OpenHours == null) {
                     OpenHours[] openHours = Utility.XMLHelpers.XmlRepository.GetOpenHours();
                     SessionData.SetSession(Constants.SESSION_OOPEN_HOURS, openHours);
+                    model.OpenHours = openHours;                
                 }
 
                 model.Employers = SessionData.Employers;
