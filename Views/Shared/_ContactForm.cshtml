@@ -1,8 +1,5 @@
 ﻿@using Newtonsoft.Json
 @model GTX.Models.ContactUs
-
-<script src="@Url.Content("~/Scripts/jquery/jquery.mask.js")" type="text/javascript"></script>
-<script src="https://cdn.jsdelivr.net/npm/just-validate@4.3.0/dist/just-validate.production.min.js"></script>
 <style>
     .just-validate-error-field {
         border: 2px solid red!important;
@@ -20,7 +17,7 @@
         background-size: 24px;
     }
 </style>
-<form id="contactForm" name="contactForm" novalidate>
+<form id="contactForm" name="contactForm" novalidate autocomplete="off">
     <div class="form-floating mb-2">
         @Html.TextBoxFor(model => model.FirstName, new {@name="FirstName", @class = "form-control shadow", placeholder = "First Name"})
         @Html.LabelFor(model => model.FirstName)
@@ -57,7 +54,10 @@
 </form>
 
 <script>
-    const validator = new JustValidate('#contactForm');
+    const validator = new JustValidate('#contactForm', {
+        validateBeforeSubmitting: true,
+        focusInvalidField: true
+    });
 
     validator
         .addField('#FirstName', [
@@ -85,18 +85,10 @@
         $("#Phone").mask("(000) 000-0000");
 
         $("#btnSent").on("click", function () {
-@*            validator.validate().then( ()=> {
-                console.log(validator);
-                if (validator.isValid) {
-                    send();
-                } else {
-                    console.log('❌ Form has validation errors');
-                }
-            });*@
-
             if (validator.isValid) {
                 send();
-            } else {
+            }
+            else {
                 console.log('❌ Form has validation errors');
             }
         });
@@ -113,6 +105,13 @@
             Comment: $('#Comment').val()
         };
 
+        sendToDbf(model);
+        sendAdf(model);
+
+        $("#btnSend").html(oldHtml).disabled = false;
+    }
+
+    function sendToDbf(model) {
         fetch('/Home/SaveContact', {
             method: 'POST',
             headers: {
@@ -122,24 +121,23 @@
         })
         .then(response => {
             if (!response.ok) throw new Error("Server error");
-
             return response.json();
         })
         .then(data => {
-            setTimeout(() => {
-                $("#FirstName").val("");
-                $("#LastName").val("");
-                $("#Email").val("");
-                $("#Phone").val("");
-                $("#Comment").val("");
-                validator.validate();
-            }, 1000); // 1 second
             console.log("✅ Server response:", data);
         })
         .catch(error => {
             console.log("❌ Error submitting:", error);
         });
+    }
 
-        $("#btnSend").html(oldHtml).disabled = false;
+    function sendAdf(model) {
+        const response = fetch('@Url.Action("SendAdfLeadAsync", "Home")', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(model)
+        });
     }
 </script>

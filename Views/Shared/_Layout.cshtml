@@ -13,6 +13,8 @@
     @Scripts.Render("~/scripts/modernizr")
     @Scripts.Render("~/scripts/bootstrap")
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="~/Scripts/just- validate/just-validate.production.min.js"></script>
+    <script src="~/Scripts/jquery/jquery.mask.js" type="text/javascript"></script>
 </head>
 
 <script type="text/javascript">
@@ -25,7 +27,7 @@
     <div class="offcanvas-top-fixed-center" tabindex="-1" id="openHours">
         <div class="offcanvas-header rounded-top">
         </div>
-        <div class="offcanvas-body p-3">
+        <div class="offcanvas-body">
             @Html.Partial("_Schedule")
             <p id="offsetDisplay"></p>
         </div>
@@ -116,6 +118,7 @@
 
     @Scripts.Render("~/scripts/jquery")
     @RenderSection("scripts", required: false)
+
 </body>
 </html>
 
