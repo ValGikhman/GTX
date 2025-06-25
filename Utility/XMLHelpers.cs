@@ -1,15 +1,13 @@
 ﻿using GTX.Models;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Hosting;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 
 namespace Utility.XMLHelpers {
-   public static class XmlRepository {
+    public static class XmlRepository {
         private static string xmlFilePath = HostingEnvironment.MapPath("~/App_Data/");
 
         public async static Task<Employer[]> GetEmployers() {

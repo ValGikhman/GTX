@@ -14,7 +14,6 @@ namespace GTX.Controllers {
         public HomeController(ISessionData sessionData, ContactService contactService, ILogService logService) :
             base(sessionData, logService)  {
             _contactService = contactService;
-
         }
 
         public ActionResult Index() {
