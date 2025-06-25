@@ -330,7 +330,8 @@ namespace GTX.Controllers {
             Models.GTX[] query = Model.Inventory.All;
 
             if (query.Any() && term != null) {
-                query = query.Where(m => m.Stock.ToUpper().Contains(term) 
+                query = query.Where(m => m.Stock.ToUpper().Contains(term)
+                    || (m.Year.ToString() == term)
                     || m.Make.ToUpper().Contains(term) 
                     || m.Model.ToUpper().Contains(term) 
                     || m.VehicleStyle.ToUpper().Contains(term))
