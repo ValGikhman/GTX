@@ -15,10 +15,6 @@ namespace GTX.Controllers {
 
         public InventoryController(ISessionData sessionData, ILogService LogService)
             : base(sessionData, LogService) {
-            if (Model == null) {
-                Model = new BaseModel();
-                Model.Inventory = new Inventory();
-            }
         }
 
         public ActionResult Index(BaseModel model) {
