@@ -1,7 +1,7 @@
 ﻿@model GTX.Models.BaseModel
 <!-- Hero Section Begin -->
 <a data-bs-toggle="modal" data-bs-target="#filtersModal" title="Click to invoke search dialog">
-    <section class="hero set-bg bw position-relative" data-setbg="@Url.Content("~/img/hero/cin5.jpg")">
+    <section class="hero set-bg" data-setbg="@Url.Content("~/img/hero/GTX-logo.jpg")">
     </section>
 </a>
 
@@ -26,16 +26,18 @@
         const backgrounds = [
 @*            'url("../img/hero/mos.jpg")',
             'url("../img/hero/mos-1.jpg")',
-            'url("../img/hero/3.png")',*@
+            'url("../img/hero/3.png")',
             'url("../img/hero/cin2.jpg")',
             'url("../img/hero/cin5.jpg")',
-            'url("../img/hero/cin6.png")'
+            'url("../img/hero/cin6.png")'*@
         ];
 
         let bgIndex = 0;
-        setInterval(() => {
-            $(".hero").css("background-image", backgrounds[bgIndex]);
-            bgIndex = (bgIndex + 1) % backgrounds.length;
-        }, 10000); // 10 seconds
+        if (backgrounds.leng > 1) {
+            setInterval(() => {
+                $(".hero").css("background-image", backgrounds[bgIndex]);
+                bgIndex = (bgIndex + 1) % backgrounds.length;
+            }, 10000); // 10 seconds
+        }
     });
 </script>
