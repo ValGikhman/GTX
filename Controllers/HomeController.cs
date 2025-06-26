@@ -1,15 +1,20 @@
 ﻿using GTX.Models;
 using Services;
 using System;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using System.Xml;
 
 namespace GTX.Controllers {
 
     public class HomeController : BaseController {
 
         private readonly IContactService _contactService;
+        private static readonly HttpClient client = new HttpClient();
 
         public HomeController(ISessionData sessionData, ContactService contactService, ILogService logService) :
             base(sessionData, logService)  {
@@ -114,6 +119,53 @@ namespace GTX.Controllers {
             finally {
             }
             return Json(new { success = false, message = "Invalid data" });
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> SendAdfLeadAsync(ContactUs customer) {
+            try {
+                var filePath = Server.MapPath("~/App_Data/adf.xml");
+
+                if (!System.IO.File.Exists(filePath))
+                    return Json(new { success = false, message = "ADF file not found." });
+
+                // Load XML
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.Load(filePath);
+
+                // Update XML Nodes (Example)
+                xmlDoc.SelectSingleNode("//name[@part='first']")!.InnerText = customer.FirstName;
+                xmlDoc.SelectSingleNode("//name[@part='last']")!.InnerText = customer.LastName;
+                xmlDoc.SelectSingleNode("//email")!.InnerText = customer.Email;
+                xmlDoc.SelectSingleNode("//phone")!.InnerText = customer.Phone;
+                xmlDoc.SelectSingleNode("//requestdate")!.InnerText = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:sszzz");
+
+                // Convert to string
+                string xmlString;
+                using (var stringWriter = new StringWriter()) {
+                    xmlDoc.Save(stringWriter);
+                    xmlString = stringWriter.ToString();
+                }
+
+                // Send to AutoRaptor
+                var url = "https://ar.autoraptor.com/incoming/adf/ARAP2237-GB"; // Replace with real endpoint
+
+                using (var client = new HttpClient()) {
+                    var content = new StringContent(xmlString, Encoding.UTF8, "application/xml");
+                    var response = await client.PostAsync(url, content);
+
+                    if (response.IsSuccessStatusCode) {
+                        return Json(new { success = true, message = "Lead sent successfully!" });
+                    }
+                    else {
+                        var error = await response.Content.ReadAsStringAsync();
+                        return Json(new { success = false, message = $"Failed to send. {error}" });
+                    }
+                }
+            }
+            catch (Exception ex) {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
     }
 }

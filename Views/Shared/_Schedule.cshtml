@@ -1,4 +1,4 @@
-﻿<div class="d-flex justify-content-evenly rounded gap-3">
+﻿<div class="d-flex justify-content-evenly rounded p-3 gap-3 my-3">
     @{
         GTX.Models.OpenHours[] openHours = Utility.XMLHelpers.XmlRepository.GetOpenHours();
         if (openHours != null) {
@@ -14,7 +14,7 @@
     }
 </div>
 
-<div class="d-flex justify-content-evenly rounded  gap-3 my-3">
+<div class="d-flex justify-content-evenly rounded p-3 gap-3">
     <img class="well w-50 rounded-2 shadow" src="@Url.Content("~/GTXImages/gtx.jpg")">
     <iframe loading="lazy"
             allowfullscreen

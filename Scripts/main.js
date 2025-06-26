@@ -6,18 +6,6 @@
     --------------------*/
     $(window).on("load", function () {
         $(".main-menu li ").removeClass("active");
-
-        'use strict';
-        var forms = $(".needs-validation");
-        Array.prototype.slice.call(forms).forEach(function (form) {
-            form.addEventListener("submit", function (event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add("was-validated");
-            }, false);
-        });
     });
 
     /*------------------
@@ -68,7 +56,7 @@
                     applyTerm(term);
                 }
             }
-        });
+        }).focus();
 
     const placeholders = ['Type something to search inventory like bmw', 'toyota', 'tes for tesla', 'civi for civics', 'or year like 2015', 'Type ele for electric', 'Or use filters below'];
     let currentText = '';

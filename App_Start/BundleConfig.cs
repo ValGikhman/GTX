@@ -11,8 +11,6 @@ namespace GTX {
                         "~/Scripts/jquery/jquery-{version}.js",
                         "~/Scripts/jquery/jquery-ui.min.js",
                         "~/Scripts/bootstrap/bootstrap-datepicker.min.js",
-                        "~/Scripts/mixitup.min.js",
-                        "~/Scripts/owl.carousel.min.js",
                         "~/Scripts/main.js",
                         "~/Scripts/chosen/chosen.jquery.js"
                 )
