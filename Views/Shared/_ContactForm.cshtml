@@ -2,7 +2,7 @@
 @model GTX.Models.ContactUs
 <style>
     .just-validate-error-field {
-        border: 2px solid red!important;
+        border: 1px solid red!important;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='red' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 100 20 10 10 0 000-20zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z'/%3E%3C/svg%3E");
         background-repeat: no-repeat;
         background-position: right 10px center;
@@ -10,7 +10,7 @@
     }
 
     .just-validate-success-field {
-        border: 2px solid green;
+        border: 1px solid green;
         background-image: url('data:image/svg+xml;utf8,<svg fill="green" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M9 16.17l-4.17-4.17L3.59 13.59 9 19l12-12-1.41-1.41z"/></svg>');
         background-repeat: no-repeat;
         background-position: right 10px center;
@@ -59,30 +59,33 @@
         focusInvalidField: true
     });
 
-    validator
-        .addField('#FirstName', [
-            { rule: 'required', errorMessage: 'First name is required' }
-        ])
-        .addField('#LastName', [
-            { rule: 'required', errorMessage: 'Last name is required' }
-        ])
-        .addField('#Email', [
-            { rule: 'required', errorMessage: 'Email is required' },
-            { rule: 'email', errorMessage: 'Email is invalid' }
-        ])
-        .addField('#Phone', [
-            { rule: 'required', errorMessage: 'Phone required' },
-            {
-                validator: value => /^\+?[\d\s\-().]{10,20}$/.test(value.trim()),
-                errorMessage: 'Invalid phone format',
-            }
-        ])
-        .addField('#Comment', [
-            { rule: 'required', errorMessage: 'Comment is required' }
-        ]);
-
     (function () {
         $("#Phone").mask("(000) 000-0000");
+
+        validator
+            .addField('#FirstName', [
+                { rule: 'required', errorMessage: 'First name is required' }
+            ])
+            .addField('#LastName', [
+                { rule: 'required', errorMessage: 'Last name is required' }
+            ])
+            .addField('#Email', [
+                { rule: 'required', errorMessage: 'Email is required' },
+                { rule: 'email', errorMessage: 'Email is invalid' }
+            ])
+            .addField('#Phone', [
+                { rule: 'required', errorMessage: 'Phone required' },
+                {
+                    validator: value => /^\+?[\d\s\-().]{10,20}$/.test(value.trim()),
+                    errorMessage: 'Invalid phone format',
+                }
+            ])
+            .addField('#Comment', [
+                { rule: 'required', errorMessage: 'Comment is required' }
+            ]);
+
+
+
 
         $("#btnSent").on("click", function () {
             if (validator.isValid) {
@@ -95,8 +98,6 @@
     })()
 
     function send() {
-        const oldHtml = $("#btnSend").html();
-        $("#btnSend").html("Sending...").disabled = true;
         const model = {
             FirstName: $('#FirstName').val(),
             LastName: $('#LastName').val(),
@@ -106,9 +107,6 @@
         };
 
         sendToDbf(model);
-        sendAdf(model);
-
-        $("#btnSend").html(oldHtml).disabled = false;
     }
 
     function sendToDbf(model) {
@@ -125,6 +123,15 @@
         })
         .then(data => {
             console.log("✅ Server response:", data);
+            //sendAdf();
+            setTimeout(() => {
+                $('#FirstName').val("");
+                $('#LastName').val("");
+                $('#Email').val("");
+                $('#Phone').val("");
+                $('#Comment').val("");
+                validator.refresh();
+            }, 1000);
         })
         .catch(error => {
             console.log("❌ Error submitting:", error);
