@@ -17,6 +17,7 @@
         background-size: 24px;
     }
 </style>
+<script src="~/Scripts/jquery/jquery.mask.js" type="text/javascript"></script>
 <form id="contactForm" name="contactForm" novalidate autocomplete="off">
     <div class="form-floating mb-2">
         @Html.TextBoxFor(model => model.FirstName, new {@name="FirstName", @class = "form-control shadow", placeholder = "First Name"})
@@ -54,13 +55,13 @@
 </form>
 
 <script>
-    const validator = new JustValidate('#contactForm', {
-        validateBeforeSubmitting: true,
-        focusInvalidField: true
-    });
-
     (function () {
         $("#Phone").mask("(000) 000-0000");
+
+        const validator = new JustValidate('#contactForm', {
+            validateBeforeSubmitting: true,
+            focusInvalidField: true
+        });
 
         validator
             .addField('#FirstName', [
@@ -123,14 +124,16 @@
         })
         .then(data => {
             console.log("✅ Server response:", data);
-            //sendAdf();
+            sendAdf(model);
             setTimeout(() => {
                 $('#FirstName').val("");
                 $('#LastName').val("");
                 $('#Email').val("");
                 $('#Phone').val("");
                 $('#Comment').val("");
+
                 validator.refresh();
+                validator = null;
             }, 1000);
         })
         .catch(error => {
@@ -145,6 +148,24 @@
                 'Accept': 'application/json'
             },
             body: JSON.stringify(model)
+        });
+
+        fetch('/Home/SendAdfLeadAsync', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(model)
+        })
+        .then(response => {
+            if (!response.ok) throw new Error("Server error");
+            return response.json();
+        })
+        .then(data => {
+            console.log("✅ Successfully send Adf:", data);
+        })
+        .catch(error => {
+            console.log("❌ Error sending Adf:", error);
         });
     }
 </script>
