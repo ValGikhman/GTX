@@ -10,8 +10,10 @@
     }
 </style>
 
-<div class="d-flex justify-content-center vh-75 p-5 well shadow">
-    <div id="myGrid" class="ag-theme-alpine w-75" style="height: 80vh;"></div>
+<div class="d-flex justify-content-center p-3">
+    <div id="myGrid" class="ag-theme-alpine" style="height: 77vh; width: 65%;">
+        <div>@{ Html.RenderPartial("_FilterByTerm"); }</div>
+    </div>
 </div>
 
 <div class="modal modal-xl fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModal" aria-hidden="true">
@@ -47,10 +49,12 @@
         { headerName: "Make", field: "Make"},
         { headerName: "Model", field: "Model" },
         { headerName: "VehicleStyle", field: "VehicleStyle" },
-        {        headerName: '',
+        {       headerName: '',
                 field: 'action',
                 cellRenderer: actionsRenderer,
-                width: 100
+                width: 100,
+                filter: false,
+                sortable: false
         }
     ]
     const gridOptions = {
@@ -66,6 +70,7 @@
             sortable: true,
             filter: true,
             resizable: true,
+            floatingFilter: false,
             headerClass: 'text-shadow fw-normal td-center'
         },
         rowHeight: 30
@@ -74,7 +79,7 @@
     // Delete Icon renderer
     function deleteIconRenderer(params) {
         const icon = document.createElement('span');
-        icon.className = 'bi bi-trash fs-5 px-2'; 
+        icon.className = 'bi bi-trash fs-5 px-2';
         icon.style.cursor = 'pointer';
         icon.title = `Delete all ${params.data.Images.length} pictures for Stock# ${JSON.stringify(params.data.Stock)}`;
 
@@ -102,7 +107,7 @@
     function imageButtonRenderer(params) {
         if (!params.data.Images || params.data.Images.length === 0) {
             return `<img src="${params.data.Image}"></img>`;
-        } 
+        }
 
         const wrapper = document.createElement('div');
         wrapper.className = 'position-relative d-inline-block';
@@ -156,7 +161,7 @@
         icon.title = `Upload images for Stock# ${JSON.stringify(params.data.Stock)}`;
 
         icon.onclick = () => {
-            fileInput.click(); 
+            fileInput.click();
         };
 
         fileInput.addEventListener('change', () => {
@@ -205,4 +210,5 @@
                 alert(error);
             });
     }
+
 </script>

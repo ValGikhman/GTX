@@ -58,7 +58,13 @@
             }
         }).focus();
 
-    const placeholders = ['Type something to search inventory like bmw', 'toyota', 'tes for tesla', 'civi for civics', 'or year like 2015', 'Type ele for electric', 'Or use filters below'];
+
+    $("#filterTerm").on("input", function () {
+        var searchText = $(this).val();
+        applyFilterTerm(searchText);
+    }).focus();
+
+    const placeholders = ['Type something to search inventory like bmw', 'toyota', 'tes for tesla', 'civi for civics', 'or year like 2015', 'Type ele for electric'];
     let currentText = '';
     let currentIndex = 0;
     let charIndex = 0;
@@ -82,7 +88,6 @@
     }
 
     typePlaceholder();
-
 
     // ===== Majordome call =====
     // ===== Model =====
@@ -155,28 +160,4 @@ function showSpinner() {
 
 function hideSpinner() {
     $("#spinnerOverlay").addClass("spinner-hidden");
-}
-
-function reset() {
-    $.post(`${root}Inventory/Reset`)
-        .done(function (response) {
-            if (response.redirectUrl) {
-                window.location.href = response.redirectUrl;
-            }
-        })
-        .fail(function (xhr, status, error) {
-            console.error("Resetting error", error);
-        });
-}
-
-function applyTerm(term) {
-    $.post(`${root}Inventory/ApplyTerm`, { term })
-        .done(function (response) {
-            if (response.redirectUrl) {
-                window.location.href = response.redirectUrl;
-            }
-        })
-        .fail(function (xhr, status, error) {
-            console.error("Error applying term:", error);
-        });
 }

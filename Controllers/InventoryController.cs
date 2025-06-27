@@ -108,9 +108,10 @@ namespace GTX.Controllers {
 
         [HttpPost]
         public JsonResult ApplyTerm(string term) {
-            Log($"Applying term: {term.Trim().ToUpper()}");
+            term = term.Trim().ToUpper();
+            Log($"Applying term: {term}");
             Model.CurrentFilter = null;
-            Model.Inventory.Vehicles = ApplyTerms(term.Trim().ToUpper());
+            Model.Inventory.Vehicles = ApplyTerms(term);
             Model.Inventory.Title = "Search";
             return Json(new { redirectUrl = Url.Action("Index") });
         }
@@ -336,6 +337,7 @@ namespace GTX.Controllers {
 
             return query.OrderBy(m => m.Make).ToArray();
         }
+
         [HttpPost]
         public ActionResult Reset() {
             Model.Inventory.Vehicles = Model.Inventory.All;
