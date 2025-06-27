@@ -65,16 +65,19 @@ namespace GTX.Controllers {
         }
 
         [HttpPost]
-        public ActionResult ApplyTerm(string term) {
-            Log($"Applying term: {term.Trim().ToUpper()}");
-            var query = ApplyTerms(term);
-            return View("Logs", query);
+        public JsonResult ApplyTerm(string term) {
+            term = term.Trim().ToUpper();
+            Log($"Applying term: {term}");
+            Model.CurrentFilter = null;
+            Model.Inventory.Vehicles = ApplyTerms(term);
+            Model.Inventory.Title = "Search";
+            return Json(new { redirectUrl = Url.Action("Inventory") });
         }
 
         [HttpPost]
         public ActionResult Reset() {
             Model.Inventory.Vehicles = Model.Inventory.All;
-            return Json(new { redirectUrl = Url.Action("Logs") });
+            return Json(new { redirectUrl = Url.Action("Inventory") });
         }
 
         [HttpPost]
@@ -106,16 +109,20 @@ namespace GTX.Controllers {
 
         }
 
-        private Log[] ApplyTerms(string term) {
-            var query = LogService.GetLogs();
+        private Models.GTX[] ApplyTerms(string term) {
+            Models.GTX[] query = Model.Inventory.All;
+
             if (query.Any() && term != null) {
-                query = query.Where(m => m.LogLevel.ToUpper().Contains(term.ToUpper()) 
-                    || m.Message.ToUpper().Contains(term.ToUpper()) 
-                    || m.Url.ToUpper().Contains(term.ToUpper()))
+                query = query.Where(m => m.Stock.ToUpper().Contains(term)
+                    || (m.Year.ToString() == term)
+                    || m.Make.ToUpper().Contains(term)
+                    || m.Model.ToUpper().Contains(term)
+                    || m.VehicleStyle.ToUpper().Contains(term))
                 .Distinct().ToArray();
             }
 
-            return query.OrderByDescending(m => m.DateCreated).ToArray();
+            return query.OrderBy(m => m.Make).ToArray();
         }
+
     }
 }

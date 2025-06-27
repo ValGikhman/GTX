@@ -122,7 +122,7 @@ namespace GTX.Controllers {
         }
 
         [HttpPost]
-        public async Task<JsonResult> SendAdfLeadAsync(ContactUs customer) {
+        public async Task<JsonResult> SendAdfLeadAsync(ContactUs model) {
             try {
                 var filePath = Server.MapPath("~/App_Data/adf.xml");
 
@@ -134,11 +134,26 @@ namespace GTX.Controllers {
                 xmlDoc.Load(filePath);
 
                 // Update XML Nodes (Example)
-                xmlDoc.SelectSingleNode("//name[@part='first']")!.InnerText = customer.FirstName;
-                xmlDoc.SelectSingleNode("//name[@part='last']")!.InnerText = customer.LastName;
-                xmlDoc.SelectSingleNode("//email")!.InnerText = customer.Email;
-                xmlDoc.SelectSingleNode("//phone")!.InnerText = customer.Phone;
                 xmlDoc.SelectSingleNode("//requestdate")!.InnerText = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:sszzz");
+
+                xmlDoc.SelectSingleNode("//name[@part='first']")!.InnerText = model.FirstName;
+                xmlDoc.SelectSingleNode("//name[@part='last']")!.InnerText = model.LastName;
+                xmlDoc.SelectSingleNode("//email")!.InnerText = model.Email;
+                xmlDoc.SelectSingleNode("//phone")!.InnerText = model.Phone;
+
+                // Set vehicle info
+                xmlDoc.SelectSingleNode("//prospect/vehicle/year")!.InnerText = "Super year";
+                xmlDoc.SelectSingleNode("//prospect/vehicle/make")!.InnerText = "Super make";
+                xmlDoc.SelectSingleNode("//prospect/vehicle/model")!.InnerText = "Super model";
+
+                // Set customer contact info
+                xmlDoc.SelectSingleNode("//prospect/customer/contact/name[@part='first']")!.InnerText =  model.FirstName; ;
+                xmlDoc.SelectSingleNode("//prospect/customer/contact/name[@part='last']")!.InnerText = model.FirstName; ;
+                xmlDoc.SelectSingleNode("//prospect/customer/contact/email")!.InnerText = model.Email;
+                xmlDoc.SelectSingleNode("//prospect/customer/contact/phone")!.InnerText = model.Phone;
+
+                // Set comments
+                xmlDoc.SelectSingleNode("//prospect/customer/comments")!.InnerText = model.Comment;
 
                 // Convert to string
                 string xmlString;
