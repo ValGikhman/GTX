@@ -26,6 +26,7 @@ namespace GTX.Controllers {
             return View(Model);
         }
         public ActionResult Details(string stock) {
+            stock = stock.Trim().ToUpper();
             if (stock != null) {
                 Model.CurrentVehicle.VehicleDetails = Model.Inventory.Vehicles.FirstOrDefault(m => m.Stock == stock);
                 Model.CurrentVehicle.VehicleImages = GetImages(stock);
