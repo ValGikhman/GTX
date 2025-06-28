@@ -83,8 +83,6 @@ namespace GTX.Controllers {
                     Model.OpenHours = openHours;                
                 }
 
-                Model.Employers = SessionData.Employers;
-
             }
             catch (Exception ex) {
             }

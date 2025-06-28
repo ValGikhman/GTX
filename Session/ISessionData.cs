@@ -16,7 +16,9 @@ namespace GTX {
         Filters Filters { get; set; }
 
         Filters CurrentFilter { get; set; }
-        
+
+        Vehicle CurrentVehicle { get; set; }
+
         OpenHours[] OpenHours { get; set; }
 
         Log LogHeader { get; set; }

@@ -10,6 +10,7 @@ namespace GTX.Session {
         private Inventory _inventory = null;
         private Employer[] _employers = null;
         private Filters _currentFilter = null;
+        private Vehicle _currentVehicle = null;
         private Filters _filters = null;
         private Log _logHeader = null;
         private OpenHours[] _openHours = null;
@@ -54,6 +55,11 @@ namespace GTX.Session {
         public Filters CurrentFilter {
             get => GetSession(Constants.SESSION_CURRENT_FILTER, _currentFilter);
             set => SetSession(Constants.SESSION_CURRENT_FILTER, value);
+        }
+
+        public Vehicle CurrentVehicle {
+            get => GetSession(Constants.SESSION_CURRENT_VEHICLE, _currentVehicle);
+            set => SetSession(Constants.SESSION_CURRENT_VEHICLE, value);
         }
 
         public Employer[] Employers {

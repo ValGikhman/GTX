@@ -10,7 +10,7 @@
 
 <div class="modal-header">
     <h5 class="modal-title text-white" id="detailsTitle">
-        @Model.VehicleDetails?.Year @Model.VehicleDetails?.Make - @Model.VehicleDetails?.Model - @Model.VehicleDetails?.VehicleStyle
+        @Model.VehicleDetails.Year @Model.VehicleDetails.Make - @Model.VehicleDetails.Model - @Model.VehicleDetails.VehicleStyle
     </h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
@@ -149,7 +149,7 @@
             border_w: 1,
         });
 
-        $.get(`${root}Home/ContactForm`, { "id": 1 })
+        $.get(`${root}Home/ContactForm`, { "id": 0 })
             .done(function (result) {
                 $("#contactTab").html(result);
             })

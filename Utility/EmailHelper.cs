@@ -1,39 +1,46 @@
-﻿using System;
-using System.IO;
-using System.Net;
-using System.Net.Mail;
-using System.Web.Mvc;
+﻿using MailKit.Net.Smtp;
+using MailKit.Security;
+using MimeKit;
 using Services;
+using System;
+using System.IO;
+using System.Web.Mvc;
 
 namespace Utility {
 
     public static class EmailHelper {
 
-        public static Boolean SendEmail(string emailTo, string emailSubject, string emailBody) {
-            Boolean success = true;
+        public static void SendEmail(string emailTo, string emailSubject, string emailBody) {
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress("Administrator", "admin@usedcarscincinnati.com"));
+            message.To.Add(new MailboxAddress("Valentin Gikhman", "valentin.gikhman@gmail.com"));
+            message.Subject = "Test Email from VPS";
+            message.Body = new TextPart("plain") {
+                Text = emailBody
+            };
 
-            MailAddress from = new MailAddress("valentin.gikhman@gmail.com");
-            MailAddress to = new MailAddress("valentin.gikhman@gmail.com");
-            MailMessage email = new MailMessage(from, to);
-            email.Subject = "GTX contact message.";
-            email.IsBodyHtml = true;
-            SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587);
-            smtp.EnableSsl = true;
-            smtp.Credentials = new NetworkCredential("valentin.gikhman@gmail.com", "@@Kpot1965");       
+            using (var client = new SmtpClient()) {
+                try {
+                    // Connect to IONOS SMTP server
+                    client.Connect("smtp.ionos.com", 587, SecureSocketOptions.StartTls);
 
-            try {
-                email.Body = emailBody;
-                smtp.Send(email);
+                    // Authenticate
+                    client.Authenticate("admin@usedcarscincinnati.com", "nowORnever2017!");
+
+                    // Send
+                    client.Send(message);
+                    Console.WriteLine("Email sent successfully.");
+
+                    // Disconnect
+                    client.Disconnect(true);
+                }
+                catch (Exception ex) {
+                    Console.WriteLine($"Error: {ex.Message}");
+                }
             }
-            catch(Exception ex) {
-                Console.WriteLine($"Error: {ex.Message}");
-                success = false;
-            }
-
-            return success;
         }
 
-        public static Boolean SendEmailConfirmation(ControllerContext context, Contact contact) {
+        public static void SendEmailConfirmation(ControllerContext context, Contact contact) {
             String emailBody = String.Empty;
             ViewDataDictionary viewData = new ViewDataDictionary(contact);
 
@@ -43,7 +50,8 @@ namespace Utility {
                 viewResult.View.Render(viewContext, sw);
                 emailBody = sw.GetStringBuilder().ToString();
             }
-            return SendEmail(contact.Email, "GTX contact lead", emailBody);
+
+            SendEmail(contact.Email, "GTX contact lead", emailBody);
         }
     }
 }

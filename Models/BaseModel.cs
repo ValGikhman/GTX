@@ -9,7 +9,7 @@ namespace GTX.Models {
             Inventory = new Inventory();
             CurrentFilter = new Filters();
             CurrentVehicle = new Vehicle();
-            CurrentVehicle.VehicleDetails = new GTX();
+            //CurrentVehicle.VehicleDetails = new GTX();
 
             if (HttpContext.Current.Session[Constants.SESSION_INVENTORY] != null) {
                 Inventory = (Inventory)HttpContext.Current.Session[Constants.SESSION_INVENTORY];
@@ -22,7 +22,6 @@ namespace GTX.Models {
             if (HttpContext.Current.Session[Constants.SESSION_CURRENT_FILTER] != null) {
                 CurrentFilter = (Filters)HttpContext.Current.Session[Constants.SESSION_CURRENT_FILTER];
             }
-
 
             if (HttpContext.Current.Session[Constants.SESSION_OOPEN_HOURS] != null) {
                 OpenHours = (OpenHours[])HttpContext.Current.Session[Constants.SESSION_OOPEN_HOURS];
