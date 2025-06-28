@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Xml;
+using Utility;
 
 namespace GTX.Controllers {
 
@@ -36,7 +37,6 @@ namespace GTX.Controllers {
             try {
                 if (SessionData?.Employers == null) {
                     Employer[] employers = await Utility.XMLHelpers.XmlRepository.GetEmployers();
-                    SessionData.SetSession(Constants.SESSION_EMPLOYERS, employers);
                 }
 
                 model.Employers = SessionData.Employers;
@@ -85,7 +85,9 @@ namespace GTX.Controllers {
         public String ContactForm(int id) {
             try {
                 ContactUs model = new ContactUs();
-                model.Employer = SessionData.Employers.FirstOrDefault(m => m.id == id);
+                if (id != 0) {
+                    model.Employer = SessionData.Employers.FirstOrDefault(m => m.id == id);
+                }
                 return RenderViewToString(this.ControllerContext, "_ContactForm", model);
             }
             catch (Exception ex) {
@@ -97,8 +99,8 @@ namespace GTX.Controllers {
         }
 
         [HttpPost]
-        public JsonResult SaveContact(ContactUs model) {
-            Log($"Saving contact: {SerializeModel(model)}");
+        public async Task<JsonResult> SendContact(ContactUs model) {
+            Log($"Sending contact: {SerializeModel(model)}");
             try {
                 if (ModelState.IsValid) {
                     Contact contact = new Contact();
@@ -110,6 +112,7 @@ namespace GTX.Controllers {
 
                     _contactService.SaveContact(contact);
                     // EmailHelper.SendEmailConfirmation(this.ControllerContext, contact);
+                    await Utility.XMLHelpers.XmlRepository.SendAdfLeadAsync(model, Model.CurrentVehicle);
                     return Json(new { success = true, data = model });
                 }
             }
@@ -119,68 +122,6 @@ namespace GTX.Controllers {
             finally {
             }
             return Json(new { success = false, message = "Invalid data" });
-        }
-
-        [HttpPost]
-        public async Task<JsonResult> SendAdfLeadAsync(ContactUs model) {
-            try {
-                var filePath = Server.MapPath("~/App_Data/adf.xml");
-
-                if (!System.IO.File.Exists(filePath))
-                    return Json(new { success = false, message = "ADF file not found." });
-
-                // Load XML
-                XmlDocument xmlDoc = new XmlDocument();
-                xmlDoc.Load(filePath);
-
-                // Update XML Nodes (Example)
-                xmlDoc.SelectSingleNode("//requestdate")!.InnerText = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:sszzz");
-
-                xmlDoc.SelectSingleNode("//name[@part='first']")!.InnerText = model.FirstName;
-                xmlDoc.SelectSingleNode("//name[@part='last']")!.InnerText = model.LastName;
-                xmlDoc.SelectSingleNode("//email")!.InnerText = model.Email;
-                xmlDoc.SelectSingleNode("//phone")!.InnerText = model.Phone;
-
-                // Set vehicle info
-                xmlDoc.SelectSingleNode("//prospect/vehicle/year")!.InnerText = "Super year";
-                xmlDoc.SelectSingleNode("//prospect/vehicle/make")!.InnerText = "Super make";
-                xmlDoc.SelectSingleNode("//prospect/vehicle/model")!.InnerText = "Super model";
-
-                // Set customer contact info
-                xmlDoc.SelectSingleNode("//prospect/customer/contact/name[@part='first']")!.InnerText =  model.FirstName; ;
-                xmlDoc.SelectSingleNode("//prospect/customer/contact/name[@part='last']")!.InnerText = model.FirstName; ;
-                xmlDoc.SelectSingleNode("//prospect/customer/contact/email")!.InnerText = model.Email;
-                xmlDoc.SelectSingleNode("//prospect/customer/contact/phone")!.InnerText = model.Phone;
-
-                // Set comments
-                xmlDoc.SelectSingleNode("//prospect/customer/comments")!.InnerText = model.Comment;
-
-                // Convert to string
-                string xmlString;
-                using (var stringWriter = new StringWriter()) {
-                    xmlDoc.Save(stringWriter);
-                    xmlString = stringWriter.ToString();
-                }
-
-                // Send to AutoRaptor
-                var url = "https://ar.autoraptor.com/incoming/adf/ARAP2237-GB"; // Replace with real endpoint
-
-                using (var client = new HttpClient()) {
-                    var content = new StringContent(xmlString, Encoding.UTF8, "application/xml");
-                    var response = await client.PostAsync(url, content);
-
-                    if (response.IsSuccessStatusCode) {
-                        return Json(new { success = true, message = "Lead sent successfully!" });
-                    }
-                    else {
-                        var error = await response.Content.ReadAsStringAsync();
-                        return Json(new { success = false, message = $"Failed to send. {error}" });
-                    }
-                }
-            }
-            catch (Exception ex) {
-                return Json(new { success = false, message = ex.Message });
-            }
         }
     }
 }
