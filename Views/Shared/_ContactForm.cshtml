@@ -16,36 +16,36 @@
         background-position: right 10px center;
         background-size: 24px;
     }
+
+    .just-validate-error-label {
+        font-size: 12px;
+        margin-left: 13px;
+    }
 </style>
 <script src="~/Scripts/jquery/jquery.mask.js" type="text/javascript"></script>
 <form id="contactForm" name="contactForm" novalidate autocomplete="off">
-    <div class="form-floating mb-2">
+    <div class="mb-2">
         @Html.TextBoxFor(model => model.FirstName, new {@name="FirstName", @class = "form-control shadow", placeholder = "First Name"})
-        @Html.LabelFor(model => model.FirstName)
         @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-shadow-small" })
     </div>
 
-    <div class="form-floating mb-2">
+    <div class="mb-2">
         @Html.TextBoxFor(model => model.LastName, new { @name = "LastName",  @class = "form-control shadow", placeholder = "Last Name"})
-        @Html.LabelFor(model => model.LastName)
         @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-shadow-small" })
     </div>
 
-    <div class="form-floating mb-2">
+    <div class="mb-2">
         @Html.TextBoxFor(model => model.Email, new { @name = "Email", @class = "form-control shadow", placeholder = "Email"})
-        @Html.LabelFor(model => model.Email)
         @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-shadow-small" })
     </div>
 
-    <div class="form-floating mb-2">
+    <div class="mb-2">
         @Html.TextBoxFor(model => model.Phone, new { @name="Phone", @class = "form-control shadow", placeholder = "Phone", type = "phone" })
-        @Html.LabelFor(model => model.Phone)
         @Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-shadow-small" })
     </div>
 
     <div class="form-floating">
         @Html.TextAreaFor(model => model.Comment, new {@name="Comment", @class = "form-control shadow", @style = "height: 150px;", placeholder = "Leave a comment here" })
-        @Html.LabelFor(model => model.Comment)
         @Html.ValidationMessageFor(model => model.Comment, "", new { @class = "text-shadow-small" })
     </div>
 
@@ -85,9 +85,6 @@
                 { rule: 'required', errorMessage: 'Comment is required' }
             ]);
 
-
-
-
         $("#btnSent").on("click", function () {
             if (validator.isValid) {
                 send();
@@ -106,12 +103,13 @@
             Phone: $('#Phone').val(),
             Comment: $('#Comment').val()
         };
+        console.log(model);
 
-        sendToDbf(model);
+        sendContact(model);
     }
 
-    function sendToDbf(model) {
-        fetch('/Home/SaveContact', {
+    function sendContact(model) {
+        fetch('/Home/SendContact', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -124,7 +122,6 @@
         })
         .then(data => {
             console.log("✅ Server response:", data);
-            sendAdf(model);
             setTimeout(() => {
                 $('#FirstName').val("");
                 $('#LastName').val("");
@@ -138,34 +135,6 @@
         })
         .catch(error => {
             console.log("❌ Error submitting:", error);
-        });
-    }
-
-    function sendAdf(model) {
-        const response = fetch('@Url.Action("SendAdfLeadAsync", "Home")', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify(model)
-        });
-
-        fetch('/Home/SendAdfLeadAsync', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(model)
-        })
-        .then(response => {
-            if (!response.ok) throw new Error("Server error");
-            return response.json();
-        })
-        .then(data => {
-            console.log("✅ Successfully send Adf:", data);
-        })
-        .catch(error => {
-            console.log("❌ Error sending Adf:", error);
         });
     }
 </script>

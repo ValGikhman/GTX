@@ -30,7 +30,9 @@ namespace GTX.Controllers {
             if (stock != null) {
                 Model.CurrentVehicle.VehicleDetails = Model.Inventory.Vehicles.FirstOrDefault(m => m.Stock == stock);
                 Model.CurrentVehicle.VehicleImages = GetImages(stock);
+                SessionData.CurrentVehicle = Model.CurrentVehicle;
             }
+
             return PartialView("_DetailModal", Model.CurrentVehicle);
         }
 
