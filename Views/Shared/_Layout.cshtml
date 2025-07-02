@@ -57,6 +57,19 @@
                 <nav class="header__top header__menu">
                     <ul class="main-menu">
                         <li>@Html.ActionLink("Home", "", "Home")</li>
+                        <li>
+                            <a href="#">Inevntory</a>
+                            <ul class="dropdown shadow rounded">
+                                <li>@Html.ActionLink("All", "All", "Inventory")</li>
+                                <li>@Html.ActionLink("Suvs", "Suvs", "Inventory")</li>
+                                <li>@Html.ActionLink("Trucks", "Trucks", "Inventory")</li>
+                                <li>@Html.ActionLink("Vans", "Vans", "Inventory")</li>
+                                <li>@Html.ActionLink("Hatchbacks", "Hatchbacks", "Inventory")</li>
+                                <li>@Html.ActionLink("Coupes", "Coupes", "Inventory")</li>
+                                <li>@Html.ActionLink("Sedans", "Sedans", "Inventory")</li>
+                                <li>@Html.ActionLink("Convertibles", "Convertibles", "Inventory")</li>
+                            </ul>
+                        </li>
                         <li>@Html.ActionLink("Blog", "Blog", "Home")</li>
                         <li>
                             <a href="#">About us</a>
@@ -65,11 +78,11 @@
                                 <li>@Html.ActionLink("Our staff", "Staff", "Home")</li>
                             </ul>
                         </li>
-                        <li class="fake-input hand-pointer" data-bs-toggle="modal" data-bs-target="#filtersModal">
-                            @{Html.RenderPartial("_SearchByTerm");}
-                        </li>
                     </ul>
                 </nav>
+                <span class="fake-input hand-pointer my-auto" data-bs-toggle="modal" data-bs-target="#filtersModal">
+                    @{Html.RenderPartial("_SearchByTerm");}
+                </span>
                 <div class="header__top__right">
                     <div class="header__top__phone">
                         <button class="btn bg-transparent dropdown-toggle" type="button" id="btnOpenHours"

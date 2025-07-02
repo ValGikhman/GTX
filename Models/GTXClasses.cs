@@ -42,7 +42,11 @@
 
         public GTX[] Coupe { get; set; }
 
+        public GTX[] Sedans { get; set; }
+
         public GTX[] Hatchbacks { get; set; }
+
+        public GTX[] Wagons { get; set; }
 
     }
 

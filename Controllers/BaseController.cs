@@ -157,7 +157,9 @@ namespace GTX.Controllers {
                 model.Vans = model.All.Where(m => m.VehicleType.ToUpper().Equals(CommonUnit.VehicleType.VAN.ToString())).ToArray();
                 model.Hatchbacks = model.All.Where(m => m.VehicleType.ToUpper().Equals(CommonUnit.VehicleType.HATCHBACK.ToString())).ToArray();
                 model.Convertibles = model.All.Where(m => m.VehicleType.ToUpper().Equals(CommonUnit.VehicleType.CONVERTIBLE.ToString())).ToArray();
+                model.Sedans = model.All.Where(m => m.VehicleType.ToUpper().Equals(CommonUnit.VehicleType.SEDAN.ToString())).ToArray();
                 model.Coupe = model.All.Where(m => m.VehicleType.ToUpper().Equals(CommonUnit.VehicleType.COUPE.ToString())).ToArray();
+                model.Wagons = model.All.Where(m => m.VehicleType.ToUpper().Equals(CommonUnit.VehicleType.WAGON.ToString())).ToArray();
                 return model;
             }
 

@@ -74,14 +74,6 @@ namespace GTX.Controllers {
             return View("Index", Model);
         }
 
-        public ActionResult Suvs() {
-            Model.Inventory.Vehicles = SessionData?.Inventory?.Suvs;
-            Model.Inventory.Title = "Suvs";
-            ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
-
-            return View("Index", Model);
-        }
-
         public ActionResult Cars() {
             Model.Inventory.Vehicles = SessionData?.Inventory?.Cars;
             Model.Inventory.Title = "Cars";
@@ -90,6 +82,30 @@ namespace GTX.Controllers {
             return View("Index", Model);
         }
 
+        public ActionResult Suvs() {
+            Model.Inventory.Vehicles = SessionData?.Inventory?.Suvs;
+            Model.Inventory.Title = "Suvs";
+            ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
+
+            return View("Index", Model);
+        }
+
+        public ActionResult Sedans() {
+            Model.Inventory.Vehicles = SessionData?.Inventory?.Sedans;
+            Model.Inventory.Title = "Sedans";
+            ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
+
+            return View("Index", Model);
+        }
+
+        public ActionResult Wagons() {
+            Model.Inventory.Vehicles = SessionData?.Inventory?.Wagons;
+            Model.Inventory.Title = "Wagons";
+            ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
+
+            return View("Index", Model);
+        }
+        
         public ActionResult Trucks() {
             Model.Inventory.Vehicles = SessionData?.Inventory?.Trucks;
             Model.Inventory.Title = "Trucks";

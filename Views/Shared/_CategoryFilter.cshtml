@@ -5,15 +5,19 @@
             <h6>All</h6>
         </a>
     </div>
+    <div class="knopka p-0 col-lg-1">
+        <a class="cursor-pointer hover-bw text-center" title="All inventory at GTX dealership" href="/inventory/Cars">
+            <img alt="Cars" class="img-fluid d-block mx-auto object-fit-contain" width=90 src="@Url.Content($"~/img/Category/sedan.png")">
+            <h6>Cars</h6>
+        </a>
+    </div>
     @foreach (var item in Enum.GetValues(typeof(CommonUnit.VehicleType)).Cast<CommonUnit.VehicleType>()) {
-        if (item != CommonUnit.VehicleType.WAGON) {
-            <div class="knopka p-0 col-lg-1">
-                <a class="cursor-pointer hover-bw text-center" title="SUVs at GTX dealership" href="/inventory/@item.GetDisplayName()">
-                    <img alt="@item.GetDisplayName()" class="img-fluid d-block mx-auto object-fit-contain" width=90 src="@Url.Content($"~/img/Category/{item.ToString()}.png")">
-                    <h6>@item.GetDisplayName()</h6>
-                </a>
-            </div>
-        }
+        <div class="knopka p-0 col-lg-1">
+            <a class="cursor-pointer hover-bw text-center" title="SUVs at GTX dealership" href="/inventory/@item.GetDisplayName()">
+                <img alt="@item.GetDisplayName()" class="img-fluid d-block mx-auto object-fit-contain" width=90 src="@Url.Content($"~/img/Category/{item.ToString()}.png")">
+                <h6>@item.GetDisplayName()</h6>
+            </a>
+        </div>
     }
 </div>
 
