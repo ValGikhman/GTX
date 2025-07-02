@@ -225,7 +225,7 @@ function imageButtonRenderer(params) {
 // Show Bootstrap modal with images
 function showImageModal(stock) {
     if (stock) {
-        $.get(`${root}Inventory/Details`, { "stock": stock })
+        $.get(`${root}Inventory/DetailsModal`, { "stock": stock })
             .done(function (html) {
                 $("#vehicle-details").html(html);
                 $("#detailsModal").modal("show");

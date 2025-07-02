@@ -25,7 +25,22 @@ namespace GTX.Controllers {
 
             return View(Model);
         }
+
         public ActionResult Details(string stock) {
+            stock = stock?.Trim().ToUpper();
+            if (stock != null) {
+                Model.CurrentVehicle.VehicleDetails = Model.Inventory.Vehicles.FirstOrDefault(m => m.Stock == stock);
+                Model.CurrentVehicle.VehicleImages = GetImages(stock);
+                SessionData.CurrentVehicle = Model.CurrentVehicle;
+            }
+
+            Model.Inventory.Title = "Details";
+            ViewBag.Title = $"{Model.CurrentVehicle.VehicleDetails.Year} - {Model.CurrentVehicle.VehicleDetails.Make} - {Model.CurrentVehicle.VehicleDetails.Model} {Model.CurrentVehicle.VehicleDetails.VehicleStyle} ";
+
+            return View("Details", Model);
+        }
+
+        public ActionResult DetailsModal(string stock) {
             stock = stock.Trim().ToUpper();
             if (stock != null) {
                 Model.CurrentVehicle.VehicleDetails = Model.Inventory.Vehicles.FirstOrDefault(m => m.Stock == stock);
@@ -115,9 +130,9 @@ namespace GTX.Controllers {
             return View("Index", Model);
         }
 
-        public ActionResult Coupe() {
+        public ActionResult Coupes() {
             Model.Inventory.Vehicles = SessionData?.Inventory?.Coupe;
-            Model.Inventory.Title = "Electrics";
+            Model.Inventory.Title = "Coupes";
             ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
 
             return View("Index", Model);

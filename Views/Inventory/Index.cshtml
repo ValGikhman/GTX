@@ -34,11 +34,7 @@
         $(".hover-bw").on("click", function () {
             const stock = $(this).data("stock");
             if (stock) {
-                $.get(`${root}Inventory/Details`, { "stock": stock })
-                    .done(function (html) {
-                        $("#vehicle-details").html(html);
-                        $("#detailsModal").modal("show");
-                    })
+                window.location.href = `${root}Inventory/Details?stock=${stock}`
             }
         });
 
