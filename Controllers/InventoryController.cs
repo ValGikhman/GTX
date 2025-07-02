@@ -99,6 +99,29 @@ namespace GTX.Controllers {
             return View("Index", Model);
         }
 
+        public ActionResult Convertibles() {
+            Model.Inventory.Vehicles = SessionData?.Inventory?.Convertibles;
+            Model.Inventory.Title = "Convertibles";
+            ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
+
+            return View("Index", Model);
+        }
+
+        public ActionResult Hatchbacks() {
+            Model.Inventory.Vehicles = SessionData?.Inventory?.Hatchbacks;
+            Model.Inventory.Title = "Hatchbacks";
+            ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
+
+            return View("Index", Model);
+        }
+
+        public ActionResult Coupe() {
+            Model.Inventory.Vehicles = SessionData?.Inventory?.Coupe;
+            Model.Inventory.Title = "Electrics";
+            ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
+
+            return View("Index", Model);
+        }
 
         [HttpPost]
         public JsonResult ApplyFilter(Filters model) {
@@ -192,6 +215,25 @@ namespace GTX.Controllers {
                 }
                 else {
                     return Json(SessionData?.Filters?.FuelTypes, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception ex) {
+                base.Log(ex);
+            }
+            finally {
+            }
+            return null;
+        }
+
+        [HttpGet]
+        public JsonResult GetVehicleTypes(string makes) {
+            try {
+                if (!string.IsNullOrEmpty(makes)) {
+                    string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
+                    return Json(SessionData?.Inventory.All?.Where(m => request.Contains(m.Make)).Select(m => m.VehicleType).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
+                }
+                else {
+                    return Json(SessionData?.Filters?.VehicleTypes, JsonRequestBehavior.AllowGet);
                 }
             }
             catch (Exception ex) {
@@ -323,6 +365,10 @@ namespace GTX.Controllers {
                 query = query.Where(m => filter.FuelTypes.Contains(m.FuelType)).Distinct().ToArray();
             }
 
+            if (query.Any() && filter.VehicleTypes != null) {
+                query = query.Where(m => filter.VehicleTypes.Contains(m.VehicleType)).Distinct().ToArray();
+            }
+
             return query.OrderBy(m => m.Make).ToArray();
         }
 
@@ -365,20 +411,21 @@ namespace GTX.Controllers {
             return Model.CurrentVehicle.VehicleImages;
         }
 
-        /*        
-        private async Task<string> DecodeVin(string vin) {
+        [HttpPost]
+        public async Task<JsonResult> DecodeVin(string vin) {
+            return Json(new { Error = "Not ready yet" }, JsonRequestBehavior.AllowGet);
+
             using (HttpClient client = new HttpClient()) {
-                string url = $"https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/JTMRFREV7EJ012503?format=xml";
-                string url ="https://auto.dev/api/vin/JTMRFREV7EJ012503?apikey=ZrQEPSkKdmFsZW50aW4uZ2lraG1hbkBnbWFpbC5jb20=";
+                string url = $"https://www.vinaudit.com/vin-decoder?vin={vin}";
                 HttpResponseMessage response = await client.GetAsync(url);
 
                 if (!response.IsSuccessStatusCode)
-                    return "Error fetching VIN data.";
+                    return Json(new { Error = "Error fetching VIN data." }, JsonRequestBehavior.AllowGet);
 
-                var data = await response.Content.ReadAsStringAsync();
-                return data;
+                var data = await response.Content.ReadAsHttpResponseMessageAsync();
+                return Json(new { data }, JsonRequestBehavior.AllowGet);
             }
         }
-        */
+        
     }
 }

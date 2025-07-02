@@ -74,6 +74,7 @@ namespace GTX.Controllers {
                     filters.MinPrice = Model.Inventory.All.Min(m => m.RetailPrice);
                     filters.DriveTrains = Model.Inventory.All.Select(m => m.DriveTrain).Distinct().OrderBy(m => m).ToArray();
                     filters.BodyTypes = Model.Inventory.All.Select(m => m.Body).Distinct().OrderBy(m => m).ToArray();
+                    filters.VehicleTypes = Model.Inventory.All.Select(m => m.VehicleType).Distinct().OrderBy(m => m).ToArray();
                     SessionData.SetSession(Constants.SESSION_FILTERS, filters);
                 }
 
@@ -146,14 +147,17 @@ namespace GTX.Controllers {
                     CommonUnit.VehicleType.SEDAN.ToString(),
                     CommonUnit.VehicleType.COUPE.ToString(),
                     CommonUnit.VehicleType.CONVERTIBLE.ToString(),
-                    CommonUnit.VehicleType.HATCHBACK.ToString()
+                    CommonUnit.VehicleType.HATCHBACK.ToString(),
+                    CommonUnit.VehicleType.WAGON.ToString(),
                 };
 
                 model.Cars = model.All.Where(m => carTypes.Contains(m.VehicleType.ToUpper())).ToArray();
                 model.Suvs = model.All.Where(m => m.VehicleType.ToUpper().Equals(CommonUnit.VehicleType.SUV.ToString())).ToArray();
                 model.Trucks = model.All.Where(m => m.VehicleType.ToUpper().Equals(CommonUnit.VehicleType.TRUCK.ToString())).ToArray();
                 model.Vans = model.All.Where(m => m.VehicleType.ToUpper().Equals(CommonUnit.VehicleType.VAN.ToString())).ToArray();
-
+                model.Hatchbacks = model.All.Where(m => m.VehicleType.ToUpper().Equals(CommonUnit.VehicleType.HATCHBACK.ToString())).ToArray();
+                model.Convertibles = model.All.Where(m => m.VehicleType.ToUpper().Equals(CommonUnit.VehicleType.CONVERTIBLE.ToString())).ToArray();
+                model.Coupe = model.All.Where(m => m.VehicleType.ToUpper().Equals(CommonUnit.VehicleType.COUPE.ToString())).ToArray();
                 return model;
             }
 
