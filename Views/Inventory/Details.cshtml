@@ -6,6 +6,7 @@
 
 <!-- ASSETS -->
 <script src="~/Scripts/AlloyFinger/alloy_finger.min.js" type="text/javascript"></script>
+
 @{
     @model GTX.Models.BaseModel
     Html.RenderPartial("_PageTitle");
@@ -39,7 +40,7 @@
                             }
                         }
                     </div>
-                    <div class="p-3 col-lg-3 text-shadow-small small">
+                    <div class="p-2 col-lg-3 text-shadow-small small">
                         <div class="d-flex justify-content-evenly">
                             <div class="col fw-bold">Condition:</div>
                             <div class="pull-right">Pre-owned</div>
@@ -63,6 +64,10 @@
                         <div class="d-flex justify-content-evenly">
                             <div class="col fw-bold">Type:</div>
                             <div class="pull-right">@Model.CurrentVehicle.VehicleDetails.VehicleType</div>
+                        </div>
+                        <div class="d-flex justify-content-evenly">
+                            <div class="col fw-bold">Style:</div>
+                            <div class="pull-right">@Model.CurrentVehicle.VehicleDetails.VehicleStyle</div>
                         </div>
                         <div class="d-flex justify-content-evenly">
                             <div class="col fw-bold">Cylinders:</div>
@@ -100,24 +105,18 @@
                             <div class="col fw-bold">Stock:</div>
                             <div class="pull-right">@Model.CurrentVehicle.VehicleDetails.Stock</div>
                         </div>
-                        <div class="d-flex justify-content-evenly">
-                            <div class="col fw-bold">Weight:</div>
-                            <div class="pull-right">@Model.CurrentVehicle.VehicleDetails.Weight</div>
-                        </div>
                     </div>
                 </div>
-                <div class="row justify-content-center well">
+                <div class="row justify-content-center well my-3">
                     <button class="btn btn-light shadow w-100" type="button" data-bs-toggle="collapse" data-bs-target="#features" aria-expanded="false" aria-controls="features">
                         <div class="bg-lighter py-2 px-3 text-center hand-pointer">
                             <h7 class="text-uppercase">Features</h7>
                         </div>
                     </button>
-                    <div class="collapse text-shadow-small rounded shadow mt-3 small" id="features">
-                        <ul>
-                            @foreach (var feature in Model.CurrentVehicle.VehicleDetails.Features.Split(';')) {
-                                <li class="offset-1">@feature</li>
-                            }
-                        </ul>
+                    <div class="collapse text-shadow-small rounded shadow mt-2" id="features">
+                        @foreach (var feature in Model.CurrentVehicle.VehicleDetails.Features.Split(';')) {
+                            <span class="btn btn-outline-secondary shadow gap-2 my-1">@feature</span>
+                        }
                     </div>
                 </div>
             </div>
@@ -165,30 +164,63 @@
     <div style="flex: 0 0 30%;" class="p-1 well shadow">
         <button class="btn btn-light shadow w-100" type="button" data-bs-toggle="collapse" data-bs-target="#calculator" aria-expanded="false" aria-controls="calculator">
             <div class="bg-lighter py-2 px-3 text-center hand-pointer">
-                <h7 class="text-uppercase">Estimated Payment</h7>
-                <div class="text-lg-center">$??? / month</div>
+                <h6 class="text-uppercase fw-bold">Estimated Payment</h6>
+                <div class="text-lg-center">$<span id="monthlyAmount"></span> / month</div>
             </div>
         </button>
 
         <div class="collapse rounded shadow mt-3" id="calculator">
-            <div class="w-100 p-2">
-                <div class="container">
-                    <div class="col-md-4">
-                        <label for="LoanAmount" class="form-label">Loan Amount ($)</label>
-                        <input type="number" class="form-control" id="LoanAmount" placeholder="10000" required />
-                    </div>
-                    <div class="col-md-4">
-                        <label for="TermInYears" class="form-label">Term (Years)</label>
-                        <input type="number" class="form-control" id="TermInYears" placeholder="5" required />
-                    </div>
-                    <div class="col-md-4">
-                        <label for="CreditScore" class="form-label">Credit Score</label>
-                        <input type="number" class="form-control" id="CreditScore" placeholder="700" required />
-                    </div>
-                    <div class="col-12">
-                        <button type="submit" class="btn btn-light shadow">Calculate</button>
+            <div class="text-center border-bottom">
+                <h6 class="text-uppercase fw-bold">@Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model @Model.CurrentVehicle.VehicleDetails.VehicleType @Model.CurrentVehicle.VehicleDetails.VehicleStyle</h6>
+                <small>Est. payment for 84 months at 8.79% APR</small>
+            </div>
+            <div class="row my-3">
+                <div class="col-md-4 col-6">
+                    <div class="mb-3 mb-md-4">
+                        <label class="text-shadow">Amount down</label>
+                        <input id="downPayment" class="form-control" placeholder="10,000" max="1000000" required="" type="text" value="@(Model.CurrentVehicle.VehicleDetails.RetailPrice * 0.2)">
                     </div>
                 </div>
+                <div class="col-md-4 col-6">
+                    <div class="mb-3 mb-md-4">
+                        <label class="text-shadow">Loan months</label>
+                        <select id="month" name="term" class="form-control" onchange="calculate()">
+                            <option value="">Select...</option>
+                            <option value="36">36 months</option>
+                            <option value="48">48 months</option>
+                            <option value="60">60 months</option>
+                            <option value="72">72 months</option>
+                            <option value="75">75 months</option>
+                            <option value="84" selected>84 months</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4 col-6">
+                    <div class="mb-3 mb-md-4">
+                        <label class="text-shadow">Zip code for tax</label>
+                        <input id="zipCode" class="form-control" maxlength="5" minlength="5" type="text" value="">
+                    </div>
+                </div>
+            </div>
+
+            <div class="py-3 border-top">
+                <label class="d-flex mb-2 justify-content-center text-shadow">Credit score</label>
+                <div class="d-flex justify-content-evenly">
+                    <input type="radio" class="btn-check" name="scores" id="scoreRebuilding" value="640" autocomplete="off">
+                    <label class="btn btn-light shadow" for="scoreRebuilding">Under 640<span class="font-weight-bold d-none d-md-block">Rebuilding</span></label>
+
+                    <input type="radio" class="btn-check" name="scores" id="scoreFair" value="699" autocomplete="off">
+                    <label class="btn btn-light shadow" for="scoreFair">640 - 699<span class="font-weight-bold d-none d-md-block">Fair</span></label>
+
+                    <input type="radio" class="btn-check" name="scores" id="scoreVeryGood" value="749" autocomplete="off">
+                    <label class="btn btn-light shadow" for="scoreVeryGood">700 - 749<span class="font-weight-bold d-none d-md-block">Very Good</span></label>
+
+                    <input type="radio" class="btn-check" name="scores" id="scoreExcellent" value="750" autocomplete="off" checked>
+                    <label class="btn btn-light shadow" for="scoreExcellent">Over 750<span class="font-weight-bold d-none d-md-block">Excellent</span></label>
+                </div>
+            </div>
+            <div class="d-flex justify-content-center">
+                <button type="submit" class="btn btn-secondary shadow my-3 shadow" onclick="calculate();">Calculate</button>
             </div>
         </div>
 
@@ -201,8 +233,12 @@
             <h7>Space holder</h7>
         </div>
     </div>
+</div>
+
 <script type="text/javascript">
     $(function (e) {
+        calculate();
+        
         lc_lightbox(".elem", {
             wrap_class: "lcl_fade_oc",
             gallery: true,
@@ -210,7 +246,6 @@
             skin: "light",
             radius: 4,
             padding: 0,
-
             border_w: 1
         });
 
@@ -223,7 +258,29 @@
             })
             .always(function () {
             })
+
+        $("input[name='scores']").change(function () {
+            calculate();
+        });
     });
+
+    function calculate() {
+        const score = $("input[name='scores']:checked").val();
+        console.log(`The score ${score}`);
+
+        const amount = @Model.CurrentVehicle.VehicleDetails.RetailPrice - $("#downPayment").val();
+        console.log(`Amount ${amount}`);
+
+        const term = $("#month").val();
+        console.log(`Term ${term}`);
+
+        const rate = getInterestRate(score);
+        console.log(`Rate ${rate}`);
+
+        const monthly = calculateMonthlyPayment(amount, rate, term).toFixed(2);
+        $("#monthlyAmount").html(monthly);
+        console.log(`Monthly ${monthly}`);
+    }
 </script>
 
 
