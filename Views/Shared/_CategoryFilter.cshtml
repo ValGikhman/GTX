@@ -1,39 +1,23 @@
-﻿<div class="row">
-    <div class="knopka p-0 col well shadow">
-        <a class="d-block cursor-pointer bg-white border rounded p-2 text-center text-shadow-small hover-bw" title="All inventory at GTX dealership" href="/inventory/all">
-            <img width="122" height="74" "class="my-1 img-fluid" src="@Url.Content("~/GTXImages/gtx.png")" alt="All GTX inventory">
+﻿<div class="d-flex flex-row justify-content-evenly bg-white pb-2 border-bottom shadow">
+    <div class="knopka p-0 col-lg-1">
+        <a class="cursor-pointer hover-bw text-center" title="All inventory at GTX dealership" href="/inventory/all">
+            <img class="img-fluid d-block mx-auto" width=85 src="@Url.Content("~/GTXImages/gtx.png")" alt="All GTX inventory">
             <h6>All</h6>
         </a>
     </div>
-    <div class="knopka p-0 col well shadow">
-        <a class="d-block cursor-pointer bg-white border rounded p-2 text-center text-shadow-small hover-bw" title="SUVs at GTX dealership" href="/inventory/suvs">
-            <img width="120" height="66" alt="SUVs" class="my-1" src="@Url.Content("~/img/Category/suv.png")">
-            <h6>SUVs</h6>
-        </a>
-    </div>
-    <div class="knopka p-0 col well shadow">
-        <a class="d-block cursor-pointer bg-white border rounded p-2 text-center text-shadow-small hover-bw" title="Sedans at GTX dealership" href="/inventory/cars">
-            <img width="120" height="66" alt="Sedans" class="my-1" src="@Url.Content("~/img/Category/sedan.png")">
+    <div class="knopka p-0 col-lg-1">
+        <a class="cursor-pointer hover-bw text-center" title="All inventory at GTX dealership" href="/inventory/Cars">
+            <img alt="Cars" class="img-fluid d-block mx-auto object-fit-contain" width=90 src="@Url.Content($"~/img/Category/sedan.png")">
             <h6>Cars</h6>
         </a>
     </div>
-    <div class="knopka p-0 col well shadow">
-        <a class="d-block cursor-pointer bg-white border rounded p-2 text-center text-shadow-small hover-bw" title="Pickup trucks at GTX dealership" href="/inventory/trucks">
-            <img width="120" height="66" alt="Pickup trucks" class="my-1" src="@Url.Content("~/img/Category/truck.png")">
-            <h6>Trucks</h6>
-        </a>
-    </div>
-    <div class="knopka p-0 col well shadow">
-        <a class="d-block cursor-pointer bg-white border rounded p-2 text-center text-shadow-small hover-bw" title="Vans at  at GTX dealership" href="/inventory/vans">
-            <img width="120" height="66" alt="Vans" class="my-1" src="@Url.Content("~/img/Category/van.png")">
-            <h6>Vans</h6>
-        </a>
-    </div>
-    @*<div class="p-0 col-md-2 well shadow">
-            <a class="d-block cursor-pointer bg-white border rounded p-3 text-center text-shadow-small hover-bw" title="Cargo at GTX dealership" href="~/inventory/cargo">
-                <img width="120" height="66" alt="Cargo" class="my-1" src="@Url.Content("~/img/Category/cargovan.png")">
-                <h6>Cargo</h6>
+    @foreach (var item in Enum.GetValues(typeof(CommonUnit.VehicleType)).Cast<CommonUnit.VehicleType>()) {
+        <div class="knopka p-0 col-lg-1">
+            <a class="cursor-pointer hover-bw text-center" title="SUVs at GTX dealership" href="/inventory/@item.GetDisplayName()">
+                <img alt="@item.GetDisplayName()" class="img-fluid d-block mx-auto object-fit-contain" width=90 src="@Url.Content($"~/img/Category/{item.ToString()}.png")">
+                <h6>@item.GetDisplayName()</h6>
             </a>
-        </div>*@
+        </div>
+    }
 </div>
 

@@ -43,3 +43,17 @@ function applyFilterTerm(term) {
         }
     });
 }
+
+function getInterestRate(creditScore) {
+    if (creditScore >= 750) return 5.0;
+    if (creditScore >= 700) return 6.5;
+    if (creditScore >= 650) return 8.0;
+    if (creditScore >= 600) return 10.0;
+    return 15.0; // bad credit
+}
+
+function calculateMonthlyPayment(P, rate, month) {
+    const r = rate / 100 / 12;
+    const n = month;
+    return (P * r) / (1 - Math.pow(1 + r, -n));
+}
