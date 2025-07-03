@@ -63,6 +63,10 @@
                             <div class="pull-right">@Model.VehicleDetails.Body</div>
                         </div>
                         <div class="d-flex justify-content-evenly">
+                            <div class="col fw-bold">Type:</div>
+                            <div class="pull-right">@Model.VehicleDetails.VehicleType</div>
+                        </div>
+                        <div class="d-flex justify-content-evenly">
                             <div class="col fw-bold">Cylinders:</div>
                             <div class="pull-right">@Model.VehicleDetails.Cylinders</div>
                         </div>
@@ -146,7 +150,7 @@
             skin: "light",
             radius: 4,
             padding: 0,
-            border_w: 1,
+            border_w: 1
         });
 
         $.get(`${root}Home/ContactForm`, { "id": 0 })

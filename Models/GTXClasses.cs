@@ -37,6 +37,17 @@
         public GTX[] Vans { get; set; }
 
         public GTX[] Cargo { get; set; }
+
+        public GTX[] Convertibles { get; set; }
+
+        public GTX[] Coupe { get; set; }
+
+        public GTX[] Sedans { get; set; }
+
+        public GTX[] Hatchbacks { get; set; }
+
+        public GTX[] Wagons { get; set; }
+
     }
 
     public class Filters {
@@ -51,6 +62,8 @@
         public string[] DriveTrains { get; set; }
 
         public string[] BodyTypes { get; set; }
+
+        public string[] VehicleTypes { get; set; }
 
         public int MaxMilege { get; set; }
 

@@ -92,6 +92,15 @@
             $("#allBodyTypes").prop({ checked: setValue, disabled: setValue });
         });
 
+        $("#vehicleTypes").chosen({
+            placeholder_text_multiple: "All vehicle type(s)...",
+            no_results_text: "No vehicle type for search criteria"
+        }).on("change", function () {
+            const selected = $(this).val();
+            const setValue = (selected && selected.length === 0);
+            $("#allVehicleTypes").prop({ checked: setValue, disabled: setValue });
+        });
+
         $("#allMakes").prop({ disabled: true }).on("change", function () {
             $(this).prop("disabled", this.checked);
 
@@ -157,6 +166,18 @@
             }
         });
 
+
+        $("#allVehicleTypes").prop({ disabled: true }).on("change", function () {
+            $(this).prop("disabled", this.checked);
+
+            if (this.checked) {
+                $("#vehicleTypes").chosen({ placeholder_text_multiple: "All vehicle type(s)..." }).val([]).trigger('chosen:updated');
+            }
+            else {
+                $("#vehicleTypes").chosen({ placeholder_text_multiple: "Click to select vehicle types(s)..." }).trigger('chosen:updated');;
+            }
+        });
+
         getMakes();
         updateData();
 
@@ -170,6 +191,7 @@
                 Models: $("#models").val(),
                 Engines: $("#engines").val(),
                 FuelTypes: $("#fuelTypes").val(),
+                VehicleTypes: $("#vehicleTypes").val(),
                 DriveTrains: $("#drives").val(),
                 BodyTypes: $("#bodyTypes").val(),
                 MaxMilege: $("#milege").slider("values", 1),
@@ -260,6 +282,20 @@
                     $("#bodyTypes").append(new Option(opt));
                 })
                 $("#bodyTypes").trigger("chosen:updated");
+            })
+            .fail(function (xhr, status, error) {
+                console.error("Error applying term:", error);
+            });
+
+    }
+
+    getVehicleTypes = function (makes) {
+        $.get(`${root}Inventory/GetVehicleTypes`, { "makes": JSON.stringify(makes) })
+            .done(function (result) {
+                result.forEach(function (opt) {
+                    $("#vehicleTypes").append(new Option(opt));
+                })
+                $("#vehicleTypes").trigger("chosen:updated");
             })
             .fail(function (xhr, status, error) {
                 console.error("Error applying term:", error);
@@ -377,6 +413,7 @@
         getPriceRange(selected);
         getDrives(selected);
         getBodyTypes(selected);
+        getVehicleTypes(selected);
         getMilege(selected);
 
         getPriceRange(selected);
@@ -387,6 +424,7 @@
         $("#models").val([]).empty().trigger("chosen:updated");
         $("#engines").val([]).empty().trigger("chosen:updated");
         $("#fuelTypes").val([]).empty().trigger("chosen:updated");
+        $("#vehicleTypes").val([]).empty().trigger("chosen:updated");
         $("#drives").val([]).empty().trigger("chosen:updated");
         $("#bodyTypes").val([]).empty().trigger("chosen:updated");
     }
@@ -394,6 +432,7 @@
     function showOthers(disabled) {
         $("#engines").prop({ disabled: disabled }).trigger("chosen:updated");
         $("#fuelTypes").prop({ disabled: disabled }).trigger("chosen:updated");
+        $("#vehicleTypes").prop({ disabled: disabled }).trigger("chosen:updated");
         $("#drives").prop({ disabled: disabled }).trigger("chosen:updated");
         $("#bodyTypes").prop({ disabled: disabled }).trigger("chosen:updated");
     }
