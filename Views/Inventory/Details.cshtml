@@ -11,7 +11,7 @@
     Html.RenderPartial("_PageTitle");
 }
 
-<div style="display: flex; justify-content: center; gap: 20px;">
+<div class="py-5" style="display: flex; justify-content: center; gap: 20px;">
     <div style="flex: 0 0 50%;" class="p-3 well shadow">
         <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
@@ -25,22 +25,21 @@
             </div>
         </nav>
         <div class="tab-content" id="nav-tabContent">
-            <div class="tab-pane fade show active vh-100 overflow-auto" id="nav-details" role="tabpanel" aria-labelledby="nav-details-tab">
+            <div class="tab-pane fade show active" id="nav-details" role="tabpanel" aria-labelledby="nav-details-tab">
                 <div class="row justify-content-center well">
-                    @{
-                        if (Model.CurrentVehicle.VehicleImages.Count() > 0) {
-                            <div class="p-0">
-                                @Html.Partial("_Carousel", Model.CurrentVehicle)
-                            </div>
+                    <div class="col-9">
+                        @{
+                            if (Model.CurrentVehicle.VehicleImages.Count() > 0) {
+                                <div class="p-0">
+                                    @Html.Partial("_Carousel", Model.CurrentVehicle)
+                                </div>
+                            }
+                            else {
+                                <img class="w-50 well shadow p-0" src="/GTXImages/Inventory/no-image.png" />
+                            }
                         }
-                        else {
-                            <img class="w-50 well shadow p-0" src="/GTXImages/Inventory/no-image.png" />
-                        }
-                    }
-
-                </div>
-                <div class="row justify-content-center well">
-                    <div class="p-3 col-lg-6 text-shadow-small">
+                    </div>
+                    <div class="p-3 col-lg-3 text-shadow-small small">
                         <div class="d-flex justify-content-evenly">
                             <div class="col fw-bold">Condition:</div>
                             <div class="pull-right">Pre-owned</div>
@@ -93,16 +92,32 @@
                             <div class="col fw-bold">Color 2:</div>
                             <div class="pull-right">@Model.CurrentVehicle.VehicleDetails.Color2</div>
                         </div>
-                    </div>
-                    <div class="p-3 col-lg-6 text-shadow-small">
-                        <div class="col fw-bold">Features:</div>
-                        <div>
-                            <ul>
-                                @foreach (var feature in Model.CurrentVehicle.VehicleDetails.Features.Split(';')) {
-                                    <li class="offset-2">@feature</li>
-                                }
-                            </ul>
+                        <div class="d-flex justify-content-evenly">
+                            <div class="col fw-bold">VIN:</div>
+                            <div class="pull-right">@Model.CurrentVehicle.VehicleDetails.VIN</div>
                         </div>
+                        <div class="d-flex justify-content-evenly">
+                            <div class="col fw-bold">Stock:</div>
+                            <div class="pull-right">@Model.CurrentVehicle.VehicleDetails.Stock</div>
+                        </div>
+                        <div class="d-flex justify-content-evenly">
+                            <div class="col fw-bold">Weight:</div>
+                            <div class="pull-right">@Model.CurrentVehicle.VehicleDetails.Weight</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row justify-content-center well">
+                    <button class="btn btn-light shadow w-100" type="button" data-bs-toggle="collapse" data-bs-target="#features" aria-expanded="false" aria-controls="features">
+                        <div class="bg-lighter py-2 px-3 text-center hand-pointer">
+                            <h7 class="text-uppercase">Features</h7>
+                        </div>
+                    </button>
+                    <div class="collapse text-shadow-small rounded shadow mt-3 small" id="features">
+                        <ul>
+                            @foreach (var feature in Model.CurrentVehicle.VehicleDetails.Features.Split(';')) {
+                                <li class="offset-1">@feature</li>
+                            }
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -147,10 +162,45 @@
         </div>
     </div>
 
-    <div style="flex: 0 0 30%;" class="p-5 well shadow">
+    <div style="flex: 0 0 30%;" class="p-1 well shadow">
+        <button class="btn btn-light shadow w-100" type="button" data-bs-toggle="collapse" data-bs-target="#calculator" aria-expanded="false" aria-controls="calculator">
+            <div class="bg-lighter py-2 px-3 text-center hand-pointer">
+                <h7 class="text-uppercase">Estimated Payment</h7>
+                <div class="text-lg-center">$??? / month</div>
+            </div>
+        </button>
 
+        <div class="collapse rounded shadow mt-3" id="calculator">
+            <div class="w-100 p-2">
+                <div class="container">
+                    <div class="col-md-4">
+                        <label for="LoanAmount" class="form-label">Loan Amount ($)</label>
+                        <input type="number" class="form-control" id="LoanAmount" placeholder="10000" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label for="TermInYears" class="form-label">Term (Years)</label>
+                        <input type="number" class="form-control" id="TermInYears" placeholder="5" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label for="CreditScore" class="form-label">Credit Score</label>
+                        <input type="number" class="form-control" id="CreditScore" placeholder="700" required />
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-light shadow">Calculate</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn btn-light shadow w-100 my-3" type="button" data-bs-toggle="collapse" data-bs-target="#unlock" aria-expanded="false" aria-controls="unlock">
+            <div class="bg-lighter py-2 px-3 text-center hand-pointer">
+                <h7 class="text-uppercase">Unlock manager special</h7>
+            </div>
+        </button>
+        <div class="collapse rounded shadow mt-3" id="unlock">
+            <h7>Space holder</h7>
+        </div>
     </div>
-</div>
 <script type="text/javascript">
     $(function (e) {
         lc_lightbox(".elem", {
@@ -167,6 +217,7 @@
         $.get(`${root}Home/ContactForm`, { "id": 0 })
             .done(function (result) {
                 $("#contactTab").html(result);
+                // $("#unlock").html(result);
             })
             .fail(function () {
             })
