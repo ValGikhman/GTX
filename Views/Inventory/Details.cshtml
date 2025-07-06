@@ -12,8 +12,8 @@
     Html.RenderPartial("_PageTitle");
 }
 
-<div class="py-5" style="display: flex; justify-content: center; gap: 20px;">
-    <div style="flex: 0 0 50%;" class="p-3 well shadow">
+<div class="d-flex justify-content-center">
+    <div class="p-3 w-45">
         <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
                 <button class="nav-item active btn btn-outline-secondary text-shadow-small" id="nav-details-tab" data-bs-toggle="tab" data-bs-target="#nav-details" type="button" role="tab" aria-controls="nav-details" aria-selected="true">Details</button>
@@ -28,7 +28,7 @@
         <div class="tab-content" id="nav-tabContent">
             <div class="tab-pane fade show active" id="nav-details" role="tabpanel" aria-labelledby="nav-details-tab">
                 <div class="row justify-content-center well">
-                    <div class="col-9">
+                    <div class="shadow">
                         @{
                             if (Model.CurrentVehicle.VehicleImages.Count() > 0) {
                                 <div class="p-0">
@@ -36,94 +36,32 @@
                                 </div>
                             }
                             else {
-                                <img class="w-50 well shadow p-0" src="/GTXImages/Inventory/no-image.png" />
+                                <img class="d-block mx-auto bg-transparent" src="/GTXImages/Inventory/no-image.png" />
+                                <h6 class="text-uppercase ">No image yet</h6>
                             }
                         }
                     </div>
-                    <div class="p-2 col-lg-3 text-shadow-small small">
-                        <div class="d-flex justify-content-evenly">
-                            <div class="col fw-bold">Condition:</div>
-                            <div class="pull-right">Pre-owned</div>
-                        </div>
-                        <div class="d-flex justify-content-evenly">
-                            <div class="col fw-bold">Price:</div>
-                            <div class="pull-right">@Model.CurrentVehicle.VehicleDetails.RetailPrice.ToString("C0")</div>
-                        </div>
-                        <div class="d-flex justify-content-evenly">
-                            <div class="col fw-bold">Miles:</div>
-                            <div class="pull-right">@Model.CurrentVehicle.VehicleDetails.Mileage.ToString("N0")</div>
-                        </div>
-                        <div class="d-flex justify-content-evenly">
-                            <div class="col fw-bold">Engine:</div>
-                            <div class="pull-right">@Model.CurrentVehicle.VehicleDetails.Engine</div>
-                        </div>
-                        <div class="d-flex justify-content-evenly">
-                            <div class="col fw-bold">Body:</div>
-                            <div class="pull-right">@Model.CurrentVehicle.VehicleDetails.Body</div>
-                        </div>
-                        <div class="d-flex justify-content-evenly">
-                            <div class="col fw-bold">Type:</div>
-                            <div class="pull-right">@Model.CurrentVehicle.VehicleDetails.VehicleType</div>
-                        </div>
-                        <div class="d-flex justify-content-evenly">
-                            <div class="col fw-bold">Style:</div>
-                            <div class="pull-right">@Model.CurrentVehicle.VehicleDetails.VehicleStyle</div>
-                        </div>
-                        <div class="d-flex justify-content-evenly">
-                            <div class="col fw-bold">Cylinders:</div>
-                            <div class="pull-right">@Model.CurrentVehicle.VehicleDetails.Cylinders</div>
-                        </div>
-                        <div class="d-flex justify-content-evenly">
-                            <div class="col fw-bold">Drivetrain:</div>
-                            <div class="pull-right">@Model.CurrentVehicle.VehicleDetails.DriveTrain</div>
-                        </div>
-                        <div class="d-flex justify-content-evenly">
-                            <div class="col fw-bold">Transmission:</div>
-                            <div class="pull-right">@Model.CurrentVehicle.VehicleDetails.Transmission</div>
-                        </div>
-                        <div class="d-flex justify-content-evenly">
-                            <div class="col fw-bold">Transmission speed:</div>
-                            <div class="pull-right">@Model.CurrentVehicle.VehicleDetails.TransmissionSpeed.ToString("N0")</div>
-                        </div>
-                        <div class="d-flex justify-content-evenly">
-                            <div class="col fw-bold">Fuel:</div>
-                            <div class="pull-right">@Model.CurrentVehicle.VehicleDetails.FuelType</div>
-                        </div>
-                        <div class="d-flex justify-content-evenly">
-                            <div class="col fw-bold">Color:</div>
-                            <div class="pull-right">@Model.CurrentVehicle.VehicleDetails.Color</div>
-                        </div>
-                        <div class="d-flex justify-content-evenly">
-                            <div class="col fw-bold">Color 2:</div>
-                            <div class="pull-right">@Model.CurrentVehicle.VehicleDetails.Color2</div>
-                        </div>
-                        <div class="d-flex justify-content-evenly">
-                            <div class="col fw-bold">VIN:</div>
-                            <div class="pull-right">@Model.CurrentVehicle.VehicleDetails.VIN</div>
-                        </div>
-                        <div class="d-flex justify-content-evenly">
-                            <div class="col fw-bold">Stock:</div>
-                            <div class="pull-right">@Model.CurrentVehicle.VehicleDetails.Stock</div>
-                        </div>
-                    </div>
                 </div>
+                @*May Like*@
                 <div class="row justify-content-center well my-3">
-                    <button class="btn btn-light shadow w-100" type="button" data-bs-toggle="collapse" data-bs-target="#features" aria-expanded="false" aria-controls="features">
+                    <button class="btn btn-light shadow w-100" type="button" data-bs-toggle="collapse" data-bs-target="#suggestion" aria-expanded="false" aria-controls="features">
                         <div class="bg-lighter py-2 px-3 text-center hand-pointer">
-                            <h7 class="text-uppercase">Features</h7>
+                            <h5 class="fw-bold text-uppercase">You may also like</h5>
                         </div>
                     </button>
-                    <div class="collapse text-shadow-small rounded shadow mt-2" id="features">
-                        @foreach (var feature in Model.CurrentVehicle.VehicleDetails.Features.Split(';')) {
-                            <span class="btn btn-outline-secondary shadow gap-2 my-1">@feature</span>
-                        }
+                    <div class="collapse show rounded shadow" id="suggestion">
+                        <div class="d-flex flex-wrap gap-3 p-2 justify-content-evenly">
+                            @foreach (var suggestion in Model.CurrentVehicle.VehicleSuggesion) {
+                                Html.RenderPartial("_Card", suggestion);
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="tab-pane fade" id="nav-pictures" role="tabpanel" aria-labelledby="nav-picture-tab">
-                <div class="d-flex flex-wrap justify-content-center gap-1">
+                <div class="d-flex flex-wrap justify-content-evenly gap-1">
                     @foreach (string imageUrl in Model.CurrentVehicle.VehicleImages) {
-                        <a class="elem three-d" href="@imageUrl" data-lcl-thumb="@imageUrl">
+                        <a class="elem three-d w-25" href="@imageUrl" data-lcl-thumb="@imageUrl">
                             <span class="shadow rounded" style="background-image: url(..@imageUrl);"></span>
                         </a>
                     }
@@ -160,77 +98,177 @@
             </div>
         </div>
     </div>
-
-    <div style="flex: 0 0 30%;" class="p-1 well shadow">
-        <button class="btn btn-light shadow w-100" type="button" data-bs-toggle="collapse" data-bs-target="#calculator" aria-expanded="false" aria-controls="calculator">
-            <div class="bg-lighter py-2 px-3 text-center hand-pointer">
-                <h6 class="text-uppercase fw-bold">Estimated Payment</h6>
-                <div class="text-lg-center">$<span id="monthlyAmount"></span> / month</div>
-            </div>
-        </button>
-
-        <div class="collapse rounded shadow mt-3" id="calculator">
-            <div class="text-center border-bottom">
-                <h6 class="text-uppercase fw-bold">@Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model @Model.CurrentVehicle.VehicleDetails.VehicleType @Model.CurrentVehicle.VehicleDetails.VehicleStyle</h6>
-                <small>Est. payment for 84 months at 8.79% APR</small>
-            </div>
-            <div class="row my-3">
-                <div class="col-md-4 col-6">
-                    <div class="mb-3 mb-md-4">
-                        <label class="text-shadow">Amount down</label>
-                        <input id="downPayment" class="form-control" placeholder="10,000" max="1000000" required="" type="text" value="@(Model.CurrentVehicle.VehicleDetails.RetailPrice * 0.2)">
-                    </div>
+    <div class="p-4 w-25">
+        @*Details*@
+        <div class="row justify-content-center well shadow  my-3">
+            <button class="btn btn-light shadow w-100" type="button" data-bs-toggle="collapse" data-bs-target="#details" aria-expanded="false" aria-controls="details">
+                <div class="bg-lighter py-2 px-3 text-center hand-pointer">
+                    <h5 class="fw-bold text-uppercase">Details</h5>
                 </div>
-                <div class="col-md-4 col-6">
-                    <div class="mb-3 mb-md-4">
-                        <label class="text-shadow">Loan months</label>
-                        <select id="month" name="term" class="form-control" onchange="calculate()">
-                            <option value="">Select...</option>
-                            <option value="36">36 months</option>
-                            <option value="48">48 months</option>
-                            <option value="60">60 months</option>
-                            <option value="72">72 months</option>
-                            <option value="75">75 months</option>
-                            <option value="84" selected>84 months</option>
-                        </select>
-                    </div>
+            </button>
+            <div class="collapse show text-shadow-small rounded" id="details">
+                <div class="d-flex justify-content-between mb-3 gap-4 flex-wrap">
+                    <span class="very-small-text text-shadow-small">@Model.CurrentVehicle.VehicleDetails.VIN</span>
+                    <span class="very-small-text text-shadow-small">@Model.CurrentVehicle.VehicleDetails.Stock</span>
                 </div>
-                <div class="col-md-4 col-6">
-                    <div class="mb-3 mb-md-4">
-                        <label class="text-shadow">Zip code for tax</label>
-                        <input id="zipCode" class="form-control" maxlength="5" minlength="5" type="text" value="">
-                    </div>
+                <div class="d-flex justify-content-around gap-4 flex-wrap mb-3">
+                    <span class="btn btn-outline-secondary shadow position-relative details">
+                        <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.RetailPrice.ToString("C0")</span>
+                        <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                            Price
+                        </span>
+                    </span>
+                    <span class="btn btn-outline-secondary shadow position-relative details">
+                        <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.Mileage.ToString("N0")</span>
+                        <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                            Miles
+                        </span>
+                    </span>
+                    <span class="btn btn-outline-secondary shadow position-relative details">
+                        <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.Engine</span>
+                        <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                            Engine
+                        </span>
+                    </span>
+                    <span class="btn btn-outline-secondary shadow position-relative details">
+                        <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.Body</span>
+                        <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                            Body
+                        </span>
+                    </span>
+                    <span class="btn btn-outline-secondary shadow position-relative details">
+                        <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.VehicleType</span>
+                        <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                            Type
+                        </span>
+                    </span>
+                    <span class="btn btn-outline-secondary shadow position-relative details">
+                        <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.Cylinders</span>
+                        <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                            Cylinders
+                        </span>
+                    </span>
+                    <span class="btn btn-outline-secondary shadow position-relative details">
+                        <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.DriveTrain</span>
+                        <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                            Drivetrain
+                        </span>
+                    </span>
+                    <span class="btn btn-outline-secondary shadow position-relative details">
+                        <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.Transmission/@Model.CurrentVehicle.VehicleDetails.TransmissionSpeed</span>
+                        <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                            Transmission
+                        </span>
+                    </span>
+                    <span class="btn btn-outline-secondary shadow position-relative details">
+                        <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.FuelType</span>
+                        <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                            Fuel
+                        </span>
+                    </span>
+                    <span class="btn btn-outline-secondary shadow position-relative details" style="background-color: @Model.CurrentVehicle.VehicleDetails.Color">
+                        <span class="medium-small-text">&emsp;</span>
+                        <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                            @Model.CurrentVehicle.VehicleDetails.Color
+                        </span>
+                    </span>
+                    @{
+                        if (!@Model.CurrentVehicle.VehicleDetails.Color2.IsEmpty()) {
+                            <span class="btn btn-outline-secondary shadow position-relative details" style="background-color: @Model.CurrentVehicle.VehicleDetails.Color2">
+                                <span class="medium-small-text">&emsp;</span>
+                                <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                                    @Model.CurrentVehicle.VehicleDetails.Color2
+                                </span>
+                            </span> 
+                        }
+                    }
                 </div>
             </div>
-
-            <div class="py-3 border-top">
-                <label class="d-flex mb-2 justify-content-center text-shadow">Credit score</label>
-                <div class="d-flex justify-content-evenly">
-                    <input type="radio" class="btn-check" name="scores" id="scoreRebuilding" value="640" autocomplete="off">
-                    <label class="btn btn-light shadow" for="scoreRebuilding">Under 640<span class="font-weight-bold d-none d-md-block">Rebuilding</span></label>
-
-                    <input type="radio" class="btn-check" name="scores" id="scoreFair" value="699" autocomplete="off">
-                    <label class="btn btn-light shadow" for="scoreFair">640 - 699<span class="font-weight-bold d-none d-md-block">Fair</span></label>
-
-                    <input type="radio" class="btn-check" name="scores" id="scoreVeryGood" value="749" autocomplete="off">
-                    <label class="btn btn-light shadow" for="scoreVeryGood">700 - 749<span class="font-weight-bold d-none d-md-block">Very Good</span></label>
-
-                    <input type="radio" class="btn-check" name="scores" id="scoreExcellent" value="750" autocomplete="off" checked>
-                    <label class="btn btn-light shadow" for="scoreExcellent">Over 750<span class="font-weight-bold d-none d-md-block">Excellent</span></label>
+        </div>
+        @*Features*@
+        <div class="row justify-content-center well my-3">
+            <button class="btn btn-light shadow w-100" type="button" data-bs-toggle="collapse" data-bs-target="#features" aria-expanded="false" aria-controls="features">
+                <div class="bg-lighter py-2 px-3 text-center hand-pointer">
+                    <h5 class="fw-bold text-uppercase">Features</h5>
                 </div>
-            </div>
-            <div class="d-flex justify-content-center">
-                <button type="submit" class="btn btn-secondary shadow my-3 shadow" onclick="calculate();">Calculate</button>
+            </button>
+            <div class="collapse text-shadow-small rounded shadow mt-2" id="features">
+                @foreach (var feature in Model.CurrentVehicle.VehicleDetails.Features.Split(';')) {
+                    <span class="btn btn-outline-secondary shadow gap-2 my-1">@feature</span>
+                }
             </div>
         </div>
 
-        <button class="btn btn-light shadow w-100 my-3" type="button" data-bs-toggle="collapse" data-bs-target="#unlock" aria-expanded="false" aria-controls="unlock">
-            <div class="bg-lighter py-2 px-3 text-center hand-pointer">
-                <h7 class="text-uppercase">Unlock manager special</h7>
+    </div>
+    <div class="p-4 w-30">
+        <div class="row justify-content-center well my-3">
+            <button class="btn btn-light shadow w-100" type="button" data-bs-toggle="collapse" data-bs-target="#calculator" aria-expanded="false" aria-controls="calculator">
+                <div class="bg-lighter py-2 px-3 text-center hand-pointer">
+                    <h5 class="text-uppercase fw-bold">Estimated Payment: $<span id="monthlyAmount"></span> / month</h5>
+                </div>
+            </button>
+            <div class="collapse show text-shadow-small rounded shadow mt-2" id="calculator">
+                <div class="text-center border-bottom">
+                    <h6 class="text-uppercase fw-bold">@Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model @Model.CurrentVehicle.VehicleDetails.VehicleType @Model.CurrentVehicle.VehicleDetails.VehicleStyle</h6>
+                    <small class="text-shadow">Est. payment for <span id="monthTerms"></span> months at <span id="apr"></span>% APR</small>
+                </div>
+                <div class="row my-3">
+                    <div class="col-md-4 col-6">
+                        <div class="mb-3 mb-md-4">
+                            <label class="text-shadow">Amount down</label>
+                            <input id="downPayment" class="form-control" placeholder="10,000" max="1000000" required="" type="text" value="@(Math.Round(Math.Ceiling(Model.CurrentVehicle.VehicleDetails.RetailPrice * 0.2 / 500) * 500))">
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-6">
+                        <div class="mb-3 mb-md-4">
+                            <label class="text-shadow">Loan months</label>
+                            <select id="month" name="term" class="form-control" onchange="calculate()">
+                                <option value="">Select...</option>
+                                <option value="36">36 months</option>
+                                <option value="48">48 months</option>
+                                <option value="60">60 months</option>
+                                <option value="72">72 months</option>
+                                <option value="75">75 months</option>
+                                <option value="84" selected>84 months</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-6">
+                        <div class="mb-3 mb-md-4">
+                            <label class="text-shadow">Zip</label>
+                            <input id="zipCode" class="form-control" maxlength="5" minlength="5" type="text" value="">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="py-3 border-top">
+                    <label class="d-flex mb-2 justify-content-center text-shadow fw-bold">Credit score</label>
+                    <div class="d-flex justify-content-evenly">
+                        <input type="radio" class="btn-check" name="scores" id="scoreRebuilding" value="640" autocomplete="off">
+                        <label class="btn btn-light border- shadow" for="scoreRebuilding">Under 640
+                            <span class="font-weight-bold d-none d-md-block medium-small-text">Rebuilding</span>
+                        </label>
+
+                        <input type="radio" class="btn-check" name="scores" id="scoreFair" value="699" autocomplete="off">
+                        <label class="btn btn-light shadow" for="scoreFair">640 - 699
+                            <span class="font-weight-bold d-none d-md-block medium-small-text">Fair</span>
+                        </label>
+
+                        <input type="radio" class="btn-check" name="scores" id="scoreVeryGood" value="749" autocomplete="off">
+                        <label class="btn btn-light shadow" for="scoreVeryGood">700 - 749
+                            <span class="font-weight-bold d-none d-md-block medium-small-text">Very Good</span>
+                        </label>
+
+                        <input type="radio" class="btn-check" name="scores" id="scoreExcellent" value="750" autocomplete="off" checked>
+                        <label class="btn btn-light shadow" for="scoreExcellent">Over 750
+                            <span class="font-weight-bold d-none d-md-block medium-small-text">Excellent</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-center">
+                    <button type="submit" class="btn btn-secondary shadow my-3 shadow" onclick="calculate();">Calculate</button>
+                </div>
             </div>
-        </button>
-        <div class="collapse rounded shadow mt-3" id="unlock">
-            <h7>Space holder</h7>
         </div>
     </div>
 </div>
@@ -238,7 +276,7 @@
 <script type="text/javascript">
     $(function (e) {
         calculate();
-        
+
         lc_lightbox(".elem", {
             wrap_class: "lcl_fade_oc",
             gallery: true,
@@ -262,26 +300,26 @@
         $("input[name='scores']").change(function () {
             calculate();
         });
+
+        $(".hover-bw").on("click", function () {
+            const stock = $(this).data("stock");
+            if (stock) {
+                window.location.href = `${root}Inventory/Details?stock=${stock}`
+            }
+        });
     });
 
     function calculate() {
         const score = $("input[name='scores']:checked").val();
-        console.log(`The score ${score}`);
-
         const amount = @Model.CurrentVehicle.VehicleDetails.RetailPrice - $("#downPayment").val();
-        console.log(`Amount ${amount}`);
-
         const term = $("#month").val();
-        console.log(`Term ${term}`);
-
+        $("#monthTerms").html(term);
         const rate = getInterestRate(score);
-        console.log(`Rate ${rate}`);
-
-        const monthly = calculateMonthlyPayment(amount, rate, term).toFixed(2);
-        $("#monthlyAmount").html(monthly);
-        console.log(`Monthly ${monthly}`);
+        $("#apr").html(rate);
+        const monthly = calculateMonthlyPayment(amount, rate, term);
+        $("#monthlyAmount").html(monthly.toFixed(2));
     }
-</script>
+    </script>
 
 
 

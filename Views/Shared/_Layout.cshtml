@@ -14,13 +14,12 @@
     @Scripts.Render("~/scripts/bootstrap")
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="~/Scripts/just- validate/just-validate.production.min.js"></script>
+    <script type="text/javascript">
+        var root = "@Url.Content("~/")";
+        var images = "@Url.Content("~/GTXImages")";
+    </script>
+    <script src="~/Scripts/inventory.js"></script>
 </head>
-
-<script type="text/javascript">
-    var root = "@Url.Content("~/")";
-    var images = "@Url.Content("~/GTXImages")";
-</script>
-<script src="~/Scripts/inventory.js"></script>
 
 <body>
     <!-- Offcanvas open hours -->
@@ -92,7 +91,7 @@
                             <i class="bi bi-stopwatch"></i>
                             <span class="schedule"></span>
                         </button>
-                    </div>
+                    </div>>
                     <div class="header__top__phone">
                         <i class="bi bi-telephone"></i>
                         <span id="click-area">(513) 912-4574</span>

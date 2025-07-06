@@ -1,7 +1,12 @@
-﻿<div class="input-group">
+﻿<div class="input-group no-wrap-group">
     <input type="search" id="term" class="term form-control" style="width: 350px" placeholder="Search inventory" aria-label="Search inventory" aria-describedby="addon-wrapping">
-    <span class="input-group-text bi bi-search" title="Search..."></span>
-    <span class="input-group-text bi bi-ev-front" id="reset" onclick="reset();" title="Reset current filter"></span>
+    <button class="btn btn-light" type="button" title="Search...">
+        <i class="bi bi-search"></i>
+    </button>
+
+    <button class="btn btn-light" type="button" id="reset" onclick="reset();" title="Reset current filter">
+        <i class="bi bi-ev-front"></i>
+    </button>
 </div>
 
 <script>
