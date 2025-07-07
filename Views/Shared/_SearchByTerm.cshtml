@@ -1,11 +1,11 @@
-﻿<div class="input-group no-wrap-group">
+﻿<div class="input-group no-wrap-group popoverable" data-bs-toggle="popover" data-bs-content="<span class='text-danger'><strong>Click to open search dialog</strong></span>">
     <input type="search" id="term" class="term form-control" style="width: 350px" placeholder="Search inventory" aria-label="Search inventory" aria-describedby="addon-wrapping">
 
-    <button class="btn btn-light" type="button" title="Search...">
+    <button class="btn btn-light">
         <i class="bi bi-search"></i>
     </button>
 
-    <button class="btn btn-light" type="button" id="reset" onclick="reset();" title="Reset current filter">
+    <button class="btn btn-light popoverable" data-bs-toggle="popover" data-bs-content="<span class='text-danger'><strong>Click to reset filtered result</strong></span>" id="reset" onclick="reset();">
         <i class="bi bi-ev-front"></i>
     </button>
 </div>

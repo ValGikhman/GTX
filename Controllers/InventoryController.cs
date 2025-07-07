@@ -20,18 +20,20 @@ namespace GTX.Controllers {
         }
 
         public ActionResult Index(BaseModel model) {
-            if (Model.Inventory.Title != null) {
-                ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
-                Log($"{Model.Inventory.Title} inventory");
-            }
-
+            Model.Inventory.Title = "All";
+            Model.Inventory.Vehicles = SessionData?.Inventory?.All;
+            ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
+            Log($"{Model.Inventory.Title} inventory");
             return View(Model);
         }
 
         public async Task<ActionResult> Details(string stock) {
             Model.Inventory.Title = "Details";
             stock = stock?.Trim().ToUpper();
-            if (stock == null) {
+            if (string.IsNullOrEmpty(stock)) {
+                Model.Inventory.Title = "All";
+                Model.Inventory.Vehicles = SessionData?.Inventory?.All;
+                ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
                 return View("Index", Model);
             }
 

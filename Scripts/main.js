@@ -1,6 +1,26 @@
 'use strict';
 
 (function ($) {
+    /*-------------------
+            Popovers
+    --------------------*/
+    var popoverTriggerList = [].slice.call(document.querySelectorAll('.popoverable'))
+    var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+        return new bootstrap.Popover(popoverTriggerEl, {
+            trigger: 'manual',  // we'll control it manually
+            placement: 'auto',
+            html: true
+        })
+    });
+
+    $('.popoverable').on('mouseenter', function () {
+        console.log("enter");
+        var popover = bootstrap.Popover.getInstance(this);
+        popover.show();
+    }).on('mouseleave', function () {
+        var popover = bootstrap.Popover.getInstance(this);
+        popover.hide();
+    });
     /*------------------
         Preloader
     --------------------*/
