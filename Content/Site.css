@@ -1,8 +1,30 @@
 ﻿/*Custom*/
-.details {
-    min-width: 100px;
-
+.scroll-button {
+    height: 120px; /* Match approximate scaled card height */
+    width: 33px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
+
+.scroll-container {
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    white-space: nowrap;
+    margin-bottom: 20px;
+}
+
+.card-wrapper {
+    flex: 0 0 auto;
+    height: 100%; /* ensures card fills available height */
+}
+
+    /* Optional: ensure cards themselves have consistent height */
+    .card-wrapper > * {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
 
 .no-wrap-group {
     white-space: nowrap; /* Prevent wrapping */
@@ -215,6 +237,11 @@ li.search-field {
         background-size: cover;
         background-position: center center;
     }
+
+.carousel-item {
+    width: 100%;
+    max-height: 365px;
+}
 
 .carousel-item img {
     transition: transform 0.4s ease;

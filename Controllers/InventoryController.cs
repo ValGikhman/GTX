@@ -29,20 +29,20 @@ namespace GTX.Controllers {
         }
 
         public async Task<ActionResult> Details(string stock) {
+            Model.Inventory.Title = "Details";
             stock = stock?.Trim().ToUpper();
-            if (stock != null) {
-                Model.CurrentVehicle.VehicleDetails = Model.Inventory.All.FirstOrDefault(m => m.Stock == stock);
-                Model.CurrentVehicle.VehicleImages = GetImages(stock);
-                SessionData.CurrentVehicle = Model.CurrentVehicle;
-                Model.CurrentVehicle.VehicleSuggesion = Model.Inventory.All.Where(m => m.Stock != stock && Math.Abs(m.RetailPrice - Model.CurrentVehicle.VehicleDetails.RetailPrice) < 3000).Take(10).ToArray();
-                // Model.CurrentVehicle.Story = await GenerateCarStory(Model.CurrentVehicle.VehicleDetails);
-
+            if (stock == null) {
+                return View("Index", Model);
             }
 
-            Model.Inventory.Title = "Details";
+            Model.CurrentVehicle.VehicleDetails = Model.Inventory.All.FirstOrDefault(m => m.Stock == stock);
+            Model.CurrentVehicle.VehicleImages = GetImages(stock);
+            SessionData.CurrentVehicle = Model.CurrentVehicle;
+            Model.CurrentVehicle.VehicleSuggesion = Model.Inventory.All.Where(m => m.Stock != stock && Math.Abs(m.RetailPrice - Model.CurrentVehicle.VehicleDetails.RetailPrice) < 3000).Take(10).ToArray();
             ViewBag.Title = $"{Model.CurrentVehicle.VehicleDetails.Year} - {Model.CurrentVehicle.VehicleDetails.Make} - {Model.CurrentVehicle.VehicleDetails.Model} {Model.CurrentVehicle.VehicleDetails.VehicleStyle} ";
 
             return View("Details", Model);
+
         }
 
         public ActionResult DetailsModal(string stock) {
@@ -460,31 +460,6 @@ namespace GTX.Controllers {
 
                 var data = await response.Content.ReadAsHttpResponseMessageAsync();
                 return Json(new { data }, JsonRequestBehavior.AllowGet);
-            }
-        }
-
-        public async Task<string> GenerateCarStory(Models.GTX details) {
-            using (var httpClient = new HttpClient()) {
-                var prompt = $"Write a fun and engaging car sale story for a {details.Year} {details.Make} {details.Model} with features like {details.Features} selling by GTX Autogroup.";
-                string apikey = "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";
-                httpClient.DefaultRequestHeaders.Add("Authorization", apikey);
-
-                var requestBody = new {
-                    model = "gpt-3.5-turbo",  // Or "gpt-4" if available
-                    messages = new[]
-                    {
-                        new { role = "user", content = prompt }
-                    },
-                    max_tokens = 500
-                };
-
-                var content = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
-
-                var response = await httpClient.PostAsync("https://api.openai.com/v1/chat/completions", content);
-                var responseString = await response.Content.ReadAsStringAsync();
-
-                dynamic result = JsonConvert.DeserializeObject(responseString);
-                return result.choices[0].message.content;
             }
         }
     }

@@ -23,82 +23,135 @@
                     }
                 }
                 <button class="nav-item btn btn-outline-secondary text-shadow-small" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="true">Contact</button>
+                <button class="nav-item btn btn-outline-secondary text-shadow-small" id="nav-location-tab" data-bs-toggle="tab" data-bs-target="#nav-location" type="button" role="tab" aria-controls="nav-location" aria-selected="true">Location</button>
+                <button class="nav-item btn btn-outline-secondary text-shadow-small" id="nav-payment-tab" data-bs-toggle="tab" data-bs-target="#nav-payment" type="button" role="tab" aria-controls="nav-payment" aria-selected="true">Pay $<span id="monthlyAmount"></span>/monthly</button>
             </div>
         </nav>
         <div class="tab-content" id="nav-tabContent">
             <div class="tab-pane fade show active" id="nav-details" role="tabpanel" aria-labelledby="nav-details-tab">
                 <div class="row justify-content-center well">
-                    <div class="shadow">
-                        @{
-                            if (Model.CurrentVehicle.VehicleImages.Count() > 0) {
-                                <div class="p-0">
-                                    @Html.Partial("_Carousel", Model.CurrentVehicle)
-                                </div>
-                            }
-                            else {
-                                <img class="d-block mx-auto bg-transparent" src="/GTXImages/Inventory/no-image.png" />
-                                <h6 class="text-uppercase ">No image yet</h6>
-                            }
+                    @{
+                        if (Model.CurrentVehicle.VehicleImages.Count() > 0) {
+                            <div class="p-3 w-100">
+                                @Html.Partial("_Carousel", Model.CurrentVehicle)
+                            </div>
                         }
-                    </div>
-                </div>
-                @*May Like*@
-                <div class="row justify-content-center well my-3">
-                    <button class="btn btn-light shadow w-100" type="button" data-bs-toggle="collapse" data-bs-target="#suggestion" aria-expanded="false" aria-controls="features">
-                        <div class="bg-lighter py-2 px-3 text-center hand-pointer">
-                            <h5 class="fw-bold text-uppercase">You may also like</h5>
-                        </div>
-                    </button>
-                    <div class="collapse show rounded shadow" id="suggestion">
-                        <div class="d-flex flex-wrap gap-3 p-2 justify-content-evenly">
-                            @foreach (var suggestion in Model.CurrentVehicle.VehicleSuggesion) {
-                                Html.RenderPartial("_Card", suggestion);
-                            }
-                        </div>
-                    </div>
+                        else {
+                            <h6 class="text-uppercase p-4"><strong>No image yet</strong></h6>
+                            <img class="d-block mx-auto bg-transparent" src="/GTXImages/Inventory/no-image.png" />
+                        }
+                    }
                 </div>
             </div>
-            <div class="tab-pane fade" id="nav-pictures" role="tabpanel" aria-labelledby="nav-picture-tab">
-                <div class="d-flex flex-wrap justify-content-evenly gap-1">
+            <div class="tab-pane fade well" id="nav-pictures" role="tabpanel" aria-labelledby="nav-picture-tab">
+                <div class="d-flex flex-wrap justify-content-center overflow-auto">
                     @foreach (string imageUrl in Model.CurrentVehicle.VehicleImages) {
-                        <a class="elem three-d w-25" href="@imageUrl" data-lcl-thumb="@imageUrl">
+                        <a class="elem three-d w-30" href="@imageUrl" data-lcl-thumb="@imageUrl">
                             <span class="shadow rounded" style="background-image: url(..@imageUrl);"></span>
                         </a>
                     }
                 </div>
             </div>
-            <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+            <div class="tab-pane fade well" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+                <div id="contactTab" class="mx-auto w-75 mt-4">
+                </div>
+            </div>
+            <div class="tab-pane fade well" id="nav-location" role="tabpanel" aria-labelledby="nav-location-tab">
                 <div class="d-flex justify-content-evenly mt-4">
                     @{
                         GTX.Models.OpenHours[] openHours = Utility.XMLHelpers.XmlRepository.GetOpenHours();
                         if (openHours != null) {
                             foreach (var open in openHours) {
-                                <button type="button" class="btn btn-outline-secondary shadow position-relative">
+                                <span class="btn btn-outline-secondary shadow position-relative details">
                                     <span class="medium-small-text">@open.Description</span>
-                                    <span class="position-absolute top-0 start-100 translate-middle shadow badge rounded bg-dark">
+                                    <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
                                         @open.Day
                                     </span>
-                                </button>
+                                </span>
                             }
                         }
                     }
                 </div>
-                <div class="d-flex justify-content-evenly rounded p-3 gap-3">
-                    <div id="contactTab" class="p-3 d-flex justify-content-center w-50">
+                <iframe loading="eager"
+                        allowfullscreen
+                        referrerpolicy="no-referrer-when-downgrade"
+                        src="https://www.google.com/maps?q=9516+Prinston+Glendale+Rd,+West+Checter,+OH, 45011&output=embed"
+                        class="well shadow my-3"
+                        width="100%"
+                        height="360">
+                </iframe>
+            </div>
+            <div class="tab-pane fade well" id="nav-payment" role="tabpanel" aria-labelledby="nav-payment-tab">
+                <div class="text-shadow-small rounded shadow" id="calculator">
+                    <div class="text-center border-bottom p-3 my-auto">
+                        <h6 class="text-uppercase fw-bold">@Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model @Model.CurrentVehicle.VehicleDetails.VehicleType @Model.CurrentVehicle.VehicleDetails.VehicleStyle</h6>
+                        <small class="text-shadow">Est. payment for <span id="monthTerms"></span> months at <span id="apr"></span>% APR</small>
                     </div>
-                    <iframe loading="eager"
-                            allowfullscreen
-                            referrerpolicy="no-referrer-when-downgrade"
-                            src="https://www.google.com/maps?q=9516+Prinston+Glendale+Rd,+West+Checter,+OH, 45011&output=embed"
-                            class="well shadow my-3"
-                            width="400"
-                            height="333">
-                    </iframe>
+                    <div class="row my-3">
+                        <div class="col-md-4 col-6">
+                            <div class="mb-3 mb-md-4">
+                                <label class="text-shadow">Amount down</label>
+                                <input id="downPayment" class="form-control" placeholder="10,000" max="1000000" required="" type="text" value="@(Math.Round(Math.Ceiling(Model.CurrentVehicle.VehicleDetails.RetailPrice * 0.2 / 500) * 500))">
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-6">
+                            <div class="mb-3 mb-md-4">
+                                <label class="text-shadow">Loan months</label>
+                                <select id="month" name="term" class="form-control" onchange="calculate()">
+                                    <option value="">Select...</option>
+                                    <option value="36">36 months</option>
+                                    <option value="48">48 months</option>
+                                    <option value="60">60 months</option>
+                                    <option value="72">72 months</option>
+                                    <option value="75">75 months</option>
+                                    <option value="84" selected>84 months</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-6">
+                            <div class="mb-3 mb-md-4">
+                                <label class="text-shadow">Zip</label>
+                                <input id="zipCode" class="form-control" maxlength="5" minlength="5" type="text" value="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="py-3 border-top">
+                        <label class="d-flex mb-2 justify-content-center text-shadow fw-bold">Credit score</label>
+                        <div class="d-flex justify-content-evenly">
+                            <input type="radio" class="btn-check" name="scores" id="scoreRebuilding" value="640" autocomplete="off">
+                            <label class="btn btn-light border- shadow" for="scoreRebuilding">
+                                Under 640
+                                <span class="font-weight-bold d-none d-md-block medium-small-text">Rebuilding</span>
+                            </label>
+
+                            <input type="radio" class="btn-check" name="scores" id="scoreFair" value="699" autocomplete="off">
+                            <label class="btn btn-light shadow" for="scoreFair">
+                                640 - 699
+                                <span class="font-weight-bold d-none d-md-block medium-small-text">Fair</span>
+                            </label>
+
+                            <input type="radio" class="btn-check" name="scores" id="scoreVeryGood" value="749" autocomplete="off">
+                            <label class="btn btn-light shadow" for="scoreVeryGood">
+                                700 - 749
+                                <span class="font-weight-bold d-none d-md-block medium-small-text">Very Good</span>
+                            </label>
+
+                            <input type="radio" class="btn-check" name="scores" id="scoreExcellent" value="750" autocomplete="off" checked>
+                            <label class="btn btn-light shadow" for="scoreExcellent">
+                                Over 750
+                                <span class="font-weight-bold d-none d-md-block medium-small-text">Excellent</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <button type="submit" class="btn btn-secondary shadow my-3 shadow" onclick="calculate();">Calculate</button>
+                    </div>
                 </div>
+
             </div>
         </div>
     </div>
-    <div class="p-4 w-25">
+    <div class="p-4 w-35">
         @*Details*@
         <div class="row justify-content-center well shadow  my-3">
             <button class="btn btn-light shadow w-100" type="button" data-bs-toggle="collapse" data-bs-target="#details" aria-expanded="false" aria-controls="details">
@@ -106,7 +159,7 @@
                     <h5 class="fw-bold text-uppercase">Details</h5>
                 </div>
             </button>
-            <div class="collapse show text-shadow-small rounded" id="details">
+            <div class="collapse show text-shadow-small rounded p-2" id="details">
                 <div class="d-flex justify-content-between mb-3 gap-4 flex-wrap">
                     <span class="very-small-text text-shadow-small">@Model.CurrentVehicle.VehicleDetails.VIN</span>
                     <span class="very-small-text text-shadow-small">@Model.CurrentVehicle.VehicleDetails.Stock</span>
@@ -179,9 +232,14 @@
                                 <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
                                     @Model.CurrentVehicle.VehicleDetails.Color2
                                 </span>
-                            </span> 
+                            </span>
                         }
                     }
+                </div>
+                <div class="d-flex justify-content-center my-4">
+                    <a href="https://www.carfax.com/VehicleHistory/p/Report.cfx?vin=@Model.CurrentVehicle.VehicleDetails.VIN" target="_blank">
+                        <img src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report">
+                    </a>
                 </div>
             </div>
         </div>
@@ -198,80 +256,38 @@
                 }
             </div>
         </div>
-
     </div>
-    <div class="p-4 w-30">
-        <div class="row justify-content-center well my-3">
-            <button class="btn btn-light shadow w-100" type="button" data-bs-toggle="collapse" data-bs-target="#calculator" aria-expanded="false" aria-controls="calculator">
-                <div class="bg-lighter py-2 px-3 text-center hand-pointer">
-                    <h5 class="text-uppercase fw-bold">Estimated Payment: $<span id="monthlyAmount"></span> / month</h5>
-                </div>
-            </button>
-            <div class="collapse show text-shadow-small rounded shadow mt-2" id="calculator">
-                <div class="text-center border-bottom">
-                    <h6 class="text-uppercase fw-bold">@Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model @Model.CurrentVehicle.VehicleDetails.VehicleType @Model.CurrentVehicle.VehicleDetails.VehicleStyle</h6>
-                    <small class="text-shadow">Est. payment for <span id="monthTerms"></span> months at <span id="apr"></span>% APR</small>
-                </div>
-                <div class="row my-3">
-                    <div class="col-md-4 col-6">
-                        <div class="mb-3 mb-md-4">
-                            <label class="text-shadow">Amount down</label>
-                            <input id="downPayment" class="form-control" placeholder="10,000" max="1000000" required="" type="text" value="@(Math.Round(Math.Ceiling(Model.CurrentVehicle.VehicleDetails.RetailPrice * 0.2 / 500) * 500))">
+</div>
+
+@*May Like*@
+<div class="row p-3 mx-auto">
+    @*May Like*@
+    <button class="btn btn-light shadow" type="button" data-bs-toggle="collapse" data-bs-target="#suggestion" aria-expanded="false" aria-controls="features">
+        <div class="bg-lighter py-2 px-3 text-center hand-pointer">
+            <h5 class="fw-bold text-uppercase">You may also like</h5>
+        </div>
+    </button>
+    <div class="collapse rounded well shadow" id="suggestion">
+        <div class="d-flex justify-content-evenly">
+            <span type="button" class="btn btn-outline-secondary scroll-button" onclick="scrollSuggestions(-300)">
+                <i class="bi bi-arrow-left-circle-fill"></i>
+            </span>
+            <div class="scroll-container" " id="suggestionScroll">
+                <div class="d-flex justify-content-evenly">
+                    @foreach (var suggestion in Model.CurrentVehicle.VehicleSuggesion) {
+                        <div class="card-wrapper">
+                            @Html.Partial("_AdCard", suggestion)
                         </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="mb-3 mb-md-4">
-                            <label class="text-shadow">Loan months</label>
-                            <select id="month" name="term" class="form-control" onchange="calculate()">
-                                <option value="">Select...</option>
-                                <option value="36">36 months</option>
-                                <option value="48">48 months</option>
-                                <option value="60">60 months</option>
-                                <option value="72">72 months</option>
-                                <option value="75">75 months</option>
-                                <option value="84" selected>84 months</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="mb-3 mb-md-4">
-                            <label class="text-shadow">Zip</label>
-                            <input id="zipCode" class="form-control" maxlength="5" minlength="5" type="text" value="">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="py-3 border-top">
-                    <label class="d-flex mb-2 justify-content-center text-shadow fw-bold">Credit score</label>
-                    <div class="d-flex justify-content-evenly">
-                        <input type="radio" class="btn-check" name="scores" id="scoreRebuilding" value="640" autocomplete="off">
-                        <label class="btn btn-light border- shadow" for="scoreRebuilding">Under 640
-                            <span class="font-weight-bold d-none d-md-block medium-small-text">Rebuilding</span>
-                        </label>
-
-                        <input type="radio" class="btn-check" name="scores" id="scoreFair" value="699" autocomplete="off">
-                        <label class="btn btn-light shadow" for="scoreFair">640 - 699
-                            <span class="font-weight-bold d-none d-md-block medium-small-text">Fair</span>
-                        </label>
-
-                        <input type="radio" class="btn-check" name="scores" id="scoreVeryGood" value="749" autocomplete="off">
-                        <label class="btn btn-light shadow" for="scoreVeryGood">700 - 749
-                            <span class="font-weight-bold d-none d-md-block medium-small-text">Very Good</span>
-                        </label>
-
-                        <input type="radio" class="btn-check" name="scores" id="scoreExcellent" value="750" autocomplete="off" checked>
-                        <label class="btn btn-light shadow" for="scoreExcellent">Over 750
-                            <span class="font-weight-bold d-none d-md-block medium-small-text">Excellent</span>
-                        </label>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-center">
-                    <button type="submit" class="btn btn-secondary shadow my-3 shadow" onclick="calculate();">Calculate</button>
+                    }
                 </div>
             </div>
+            <span type="button" class="btn btn-outline-secondary scroll-button" onclick="scrollSuggestions(300)">
+                <i class="bi bi-arrow-right-circle-fill"></i>
+            </span>
         </div>
     </div>
 </div>
+
 
 <script type="text/javascript">
     $(function (e) {
@@ -319,7 +335,12 @@
         const monthly = calculateMonthlyPayment(amount, rate, term);
         $("#monthlyAmount").html(monthly.toFixed(2));
     }
-    </script>
+
+    function scrollSuggestions(amount) {
+        const container = document.getElementById('suggestionScroll');
+        container.scrollBy({ left: amount, behavior: 'smooth' });
+    }
+</script>
 
 
 
