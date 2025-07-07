@@ -243,6 +243,7 @@
                 </div>
             </div>
         </div>
+
         @*Features*@
         <div class="row justify-content-center well my-3">
             <button class="btn btn-light shadow w-100" type="button" data-bs-toggle="collapse" data-bs-target="#features" aria-expanded="false" aria-controls="features">
@@ -256,23 +257,36 @@
                 }
             </div>
         </div>
+
+        @*Loan app*@
+        <div class="row justify-content-center well my-3">
+            <button class="btn btn-light shadow w-100" type="button" data-bs-toggle="collapse" data-bs-target="#application" aria-expanded="false" aria-controls="featapplicationures">
+                <div class="bg-lighter py-2 px-3 text-center hand-pointer">
+                    <h5 class="fw-bold text-uppercase">Loan application</h5>
+                </div>
+            </button>
+            <div class="collapse text-shadow-small rounded shadow mt-2" id="application">
+                <div class="col-12">
+                    <iframe src="https://www.700dealer.com/QuickQualify/43783416bf5141ff8b8d1a40387ee700-20181212" width="100%" height="400px" scrolling="auto"></iframe>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 @*May Like*@
-<div class="row p-3 mx-auto">
-    @*May Like*@
+<div class="row p-3 mx-auto p-2 w-75">
     <button class="btn btn-light shadow" type="button" data-bs-toggle="collapse" data-bs-target="#suggestion" aria-expanded="false" aria-controls="features">
         <div class="bg-lighter py-2 px-3 text-center hand-pointer">
             <h5 class="fw-bold text-uppercase">You may also like</h5>
         </div>
     </button>
-    <div class="collapse rounded well shadow" id="suggestion">
+    <div class="collapse" id="suggestion">    
         <div class="d-flex justify-content-evenly">
-            <span type="button" class="btn btn-outline-secondary scroll-button" onclick="scrollSuggestions(-300)">
+            <span type="button" class="btn btn-secondary scroll-button" onclick="scrollSuggestions(-300)">
                 <i class="bi bi-arrow-left-circle-fill"></i>
             </span>
-            <div class="scroll-container" " id="suggestionScroll">
+            <div class="scroll-container well shadow" id="suggestionScroll">
                 <div class="d-flex justify-content-evenly">
                     @foreach (var suggestion in Model.CurrentVehicle.VehicleSuggesion) {
                         <div class="card-wrapper">
@@ -281,13 +295,12 @@
                     }
                 </div>
             </div>
-            <span type="button" class="btn btn-outline-secondary scroll-button" onclick="scrollSuggestions(300)">
+            <span type="button" class="btn btn-secondary scroll-button" onclick="scrollSuggestions(300)">
                 <i class="bi bi-arrow-right-circle-fill"></i>
             </span>
         </div>
     </div>
 </div>
-
 
 <script type="text/javascript">
     $(function (e) {
@@ -340,6 +353,7 @@
         const container = document.getElementById('suggestionScroll');
         container.scrollBy({ left: amount, behavior: 'smooth' });
     }
+
 </script>
 
 

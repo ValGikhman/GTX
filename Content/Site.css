@@ -165,7 +165,7 @@ input::placeholder {
 }
 
 .body-content {
-    margin-top: 150px;
+    margin-top: 155px;
 }
 
 li.search-field {
@@ -706,6 +706,12 @@ a, u {
 
 .header__top__right {
     text-align: right;
+}
+
+.header__top__schedule {
+    display: inline-block;
+    margin-right: 20px;
+    color: #ffffff;
 }
 
 .header__top__phone {
@@ -3026,7 +3032,6 @@ a, u {
 }
 
 /* Medium Device = 1200px */
-
 @media only screen and (min-width: 992px) and (max-width: 1199px) {
     .header__menu ul li {
         margin-right: 32px;
@@ -3061,8 +3066,11 @@ a, u {
 }
 
 /* Tablet Device = 768px */
-
 @media only screen and (min-width: 768px) and (max-width: 991px) {
+    .body-content {
+        margin: 0px;
+    }
+    
     .hero__text {
         padding-top: 0;
         margin-bottom: 40px;
@@ -3135,7 +3143,8 @@ a, u {
         border-radius: 2px;
         cursor: pointer;
         position: absolute;
-        top: 35px;
+        top: 18px;
+        left: 18px;
     }
 
     .offcanvas-menu-overlay {
@@ -3297,8 +3306,11 @@ a, u {
 }
 
 /* Wide Mobile = 480px */
-
 @media only screen and (max-width: 767px) {
+    .body-content {
+        margin: 0px;
+    }
+    
     .hero__text {
         padding-top: 0;
         margin-bottom: 40px;
@@ -3420,7 +3432,8 @@ a, u {
         border-radius: 2px;
         cursor: pointer;
         position: absolute;
-        top: 35px;
+        top: 18px;
+        left: 18px;
     }
 
     .offcanvas-menu-overlay {
@@ -3584,6 +3597,10 @@ a, u {
 /* Small Device = 320px */
 
 @media only screen and (max-width: 479px) {
+    .body-content {
+        margin: 0px;
+    }
+    
     .section-title h2,
     .breadcrumb__text h2 {
         font-size: 34px;

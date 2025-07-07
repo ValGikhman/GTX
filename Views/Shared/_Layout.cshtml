@@ -43,71 +43,73 @@
         <div id="mobile-menu-wrap"></div>
     </div>
     <!-- Offcanvas Menu End -->
-    @{
-        Html.RenderPartial("_SearchForm");
-    }
+
+
+    @{Html.RenderPartial("_SearchForm");}
+
     <!-- Header Section Begin -->
-    <header class="header fixed-top">
-        <div class="container-fluid set-bg" data-setbg="@Url.Content("~/img/gradient-dark-2.jpg")">
-            <div class="d-flex justify-content-between">
-                <div class="canvas__open">
-                    <span class="bi bi-justify"></span>
-                </div>
-                <nav class="header__top header__menu">
-                    <ul class="main-menu">
-                        <li>@Html.ActionLink("Home", "", "Home")</li>
-                        <li>
-                            <a href="#">Inevntory</a>
-                            <ul class="dropdown shadow rounded">
-                                <li>@Html.ActionLink("All", "All", "Inventory")</li>
-                                <li>@Html.ActionLink("Suvs", "Suvs", "Inventory")</li>
-                                <li>@Html.ActionLink("Trucks", "Trucks", "Inventory")</li>
-                                <li>@Html.ActionLink("Vans", "Vans", "Inventory")</li>
-                                <li>@Html.ActionLink("Hatchbacks", "Hatchbacks", "Inventory")</li>
-                                <li>@Html.ActionLink("Coupes", "Coupes", "Inventory")</li>
-                                <li>@Html.ActionLink("Sedans", "Sedans", "Inventory")</li>
-                                <li>@Html.ActionLink("Convertibles", "Convertibles", "Inventory")</li>
-                            </ul>
-                        </li>
-                        <li>@Html.ActionLink("Blog", "Blog", "Home")</li>
-                        <li>
-                            <a href="#">About us</a>
-                            <ul class="dropdown shadow rounded">
-                                <li>@Html.ActionLink("Contact us", "Contact", "Home")</li>
-                                <li>@Html.ActionLink("Our staff", "Staff", "Home")</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </nav>
-                <span class="fake-input hand-pointer my-auto" data-bs-toggle="modal" data-bs-target="#filtersModal">
-                    @{Html.RenderPartial("_SearchByTerm");}
-                </span>
-                <div class="header__top__right">
-                    <div class="header__top__phone">
-                        <button class="btn bg-transparent dropdown-toggle" type="button" id="btnOpenHours"
-                                data-bs-toggle="offcanvas"
-                                data-bs-target="#openHours"
-                                aria-controls="openHours">
+<header class="header fixed-top">
+    <div class="canvas__open">
+        <span class="bi bi-justify"></span>
+    </div>
+    <div class="container-fluid set-bg" data-setbg="@Url.Content("~/img/gradient-dark-2.jpg")">
+        <div class="d-flex justify-content-between">
+            <nav class="header__top header__menu">
+                <ul class="main-menu">
+                    <li>@Html.ActionLink("Home", "", "Home")</li>
+                    <li>
+                        <a href="#">Inevntory</a>
+                        <ul class="dropdown shadow rounded">
+                            <li>@Html.ActionLink("All", "All", "Inventory")</li>
+                            <li>@Html.ActionLink("Suvs", "Suvs", "Inventory")</li>
+                            <li>@Html.ActionLink("Trucks", "Trucks", "Inventory")</li>
+                            <li>@Html.ActionLink("Vans", "Vans", "Inventory")</li>
+                            <li>@Html.ActionLink("Hatchbacks", "Hatchbacks", "Inventory")</li>
+                            <li>@Html.ActionLink("Coupes", "Coupes", "Inventory")</li>
+                            <li>@Html.ActionLink("Sedans", "Sedans", "Inventory")</li>
+                            <li>@Html.ActionLink("Convertibles", "Convertibles", "Inventory")</li>
+                        </ul>
+                    </li>
+                    <li>@Html.ActionLink("Blog", "Blog", "Home")</li>
+                    <li>
+                        <a href="#">About us</a>
+                        <ul class="dropdown shadow rounded">
+                            <li>@Html.ActionLink("Contact us", "Contact", "Home")</li>
+                            <li>@Html.ActionLink("Our staff", "Staff", "Home")</li>
+                        </ul>
+                    </li>
+                    <li class="fake-input hand-pointer d-none d-lg-inline-block" data-bs-toggle="modal" data-bs-target="#filtersModal">
+                        @{Html.RenderPartial("_SearchByTerm");}
+                    </li>
+                </ul>
+            </nav>
+            <nav class="header__top">
+                <ul class="main-menu start-100">
+                    <li class="d-none d-xxl-inline">
+                        <a class="btn btn-light" id="btnOpenHours" data-bs-toggle="offcanvas" data-bs-target="#openHours" aria-controls="openHours">
                             <i class="bi bi-stopwatch"></i>
                             <span class="schedule"></span>
-                        </button>
-                    </div>>
-                    <div class="header__top__phone">
-                        <i class="bi bi-telephone"></i>
-                        <span id="click-area">(513) 912-4574</span>
-                    </div>
-                    <div class="header__top__social visually-hidden">
-                        <a href="https://www.facebook.com/GTXAutoGroup"><i class="fa fa-facebook"></i></a>
-                        <a href="https://www.twitter.com/GTXAutoGroup"><i class="fa fa-twitter"></i></a>
-                        <a href="#"><i class="fa fa-google"></i></a>
-                        <a href="#"><i class="fa fa-instagram"></i></a>
-                    </div>
-                </div>
+                        </a>
+                    </li>
+                    <li class="d-none d-xxl-inline">
+                        <a class="btn btn-light" id="click-area" href="tel:(513) 912-4574">
+                            <i class="bi bi-telephone"></i>
+                            (513) 912-4574
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="header__top__social visually-hidden">
+                <a href="https://www.facebook.com/GTXAutoGroup"><i class="fa fa-facebook"></i></a>
+                <a href="https://www.twitter.com/GTXAutoGroup"><i class="fa fa-twitter"></i></a>
+                <a href="#"><i class="fa fa-google"></i></a>
+                <a href="#"><i class="fa fa-instagram"></i></a>
             </div>
         </div>
+    </div>
 
-        @{ Html.RenderPartial("_CategoryFilter"); }
-    </header>
+    @{ Html.RenderPartial("_CategoryFilter"); }
+</header>
     <!-- Header Section End -->
     <div class="body-content">
         @RenderBody()
