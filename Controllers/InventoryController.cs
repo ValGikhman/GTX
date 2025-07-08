@@ -58,6 +58,12 @@ namespace GTX.Controllers {
         }
 
         [HttpGet]
+        public ActionResult ShareVehicle(string stock) {
+            Models.GTX model = Model.Inventory.All.FirstOrDefault(m => m.Stock == stock);
+            return PartialView("_AdCard", model);
+        }
+
+        [HttpGet]
         public async Task<ActionResult> GetReport(string vin) {
             string url = $"https://www.carfax.com/VehicleHistory/p/Report.cfx?vin={vin}";
 
