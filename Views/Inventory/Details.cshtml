@@ -25,6 +25,7 @@
                 <button class="nav-item btn btn-outline-secondary text-shadow-small" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="true">Contact</button>
                 <button class="nav-item btn btn-outline-secondary text-shadow-small" id="nav-location-tab" data-bs-toggle="tab" data-bs-target="#nav-location" type="button" role="tab" aria-controls="nav-location" aria-selected="true">Location</button>
                 <button class="nav-item btn btn-outline-secondary text-shadow-small" id="nav-payment-tab" data-bs-toggle="tab" data-bs-target="#nav-payment" type="button" role="tab" aria-controls="nav-payment" aria-selected="true">Pay $<span id="monthlyAmount"></span>/monthly</button>
+                <h5 class="ms-auto my-auto"><i id="like-btn" class="bi bi-heart-fill text-danger popoverable" data-bs-toggle="popover" data-bs-content="<span class='text-danger'><strong>Toggle you favorites</strong></span>" style="display: none;" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"></i></h5>
             </div>
         </nav>
         <div class="tab-content" id="nav-tabContent">
@@ -147,7 +148,6 @@
                         <button type="submit" class="btn btn-secondary shadow my-3 shadow" onclick="calculate();">Calculate</button>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -302,8 +302,23 @@
 </div>
 
 <script type="text/javascript">
-    $(function (e) {
+    var stock = "@Model.CurrentVehicle.VehicleDetails.Stock";
+
+    $(function () {
+        $('#like-btn').on("click", function () {
+            var index = likedCars.indexOf(stock);
+            if (index === -1) {
+                likedCars.push(stock);
+            } else {
+                likedCars.splice(index, 1);
+            }
+
+            saveLikedCars();
+            updateLiked(stock);
+        });
+
         calculate();
+        updateLiked(stock);
 
         lc_lightbox(".elem", {
             wrap_class: "lcl_fade_oc",

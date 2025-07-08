@@ -23,7 +23,7 @@ function applyTerm(term) {
 }
 
 function applyFilterTerm(term) {
-    const filter = term.trim().toLowerCase();
+    const filter = term.trim().toUpperCase();
     const items = document.querySelectorAll("#inventory > li");
 
     items.forEach(item => {
@@ -40,6 +40,25 @@ function applyFilterTerm(term) {
             item.style.display = '';
         } else {
             item.style.display = 'none';
+        }
+    });
+}
+
+function applyFilterLiked() {
+    const items = document.querySelectorAll("#inventory > li");
+    updateFilterLiked();
+    items.forEach(item => {
+        if ($("#filterLiked").hasClass("bi-heart-fill")) {
+            var heart = $(item).find(".liked");
+            if (heart && heart[0].style.display === "") {
+                item.style.display = "";
+            }
+            else {
+                item.style.display = "none";
+            }
+        }
+        else {
+            item.style.display = "";
         }
     });
 }

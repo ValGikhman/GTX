@@ -14,13 +14,13 @@
     });
 
     $('.popoverable').on('mouseenter', function () {
-        console.log("enter");
         var popover = bootstrap.Popover.getInstance(this);
         popover.show();
     }).on('mouseleave', function () {
         var popover = bootstrap.Popover.getInstance(this);
         popover.hide();
     });
+
     /*------------------
         Preloader
     --------------------*/
@@ -83,6 +83,11 @@
         var searchText = $(this).val();
         applyFilterTerm(searchText);
     }).focus();
+
+    $("#filterLiked").on("click", function () {
+        applyFilterLiked();
+    });
+
 
     const placeholders = ['Type something to search inventory like bmw', 'toyota', 'tes for tesla', 'civi for civics', 'or year like 2015', 'Type ele for electric'];
     let currentText = '';
@@ -180,4 +185,33 @@ function showSpinner() {
 
 function hideSpinner() {
     $("#spinnerOverlay").addClass("spinner-hidden");
+}
+
+function loadLikedCars() {
+    var cookieValue = Cookies.get(cookieName);
+    likedCars = cookieValue ? cookieValue.split(',') : [];
+}
+
+function saveLikedCars() {
+    Cookies.set(cookieName, likedCars.join(','), { expires: 21 });
+}
+
+function isCarLiked(stock) {
+    return likedCars.includes(stock);
+}
+
+function updateLiked(stock) {
+    if (likedCars.includes(stock)) {
+        $("#like-btn").removeClass("bi-heart").addClass("bi-heart-fill").show();
+    } else {
+        $("#like-btn").removeClass("bi-heart-fill").addClass("bi-heart").show();
+    }
+}
+
+function updateFilterLiked() {
+    if ($("#filterLiked").hasClass("bi-heart")) {
+        $("#filterLiked").removeClass("bi-heart").addClass("bi-heart-fill").show();
+    } else {
+        $("#filterLiked").removeClass("bi-heart-fill").addClass("bi-heart").show();
+    }
 }

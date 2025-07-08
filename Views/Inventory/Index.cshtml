@@ -11,12 +11,12 @@
 </div>
 
 @{ 
-    if (Model.Inventory.Vehicles.Count() > 5) { 
+    if (Model.Inventory.Vehicles.Count() > 5) {
         <div class="mt-3">@{ Html.RenderPartial("_FilterByTerm"); }</div>
     }
 }
 
-<ul id="inventory" class="d-flex flex-wrap gap-2 justify-content-center mt-2">
+<ul id="inventory" class="d-flex flex-wrap gap-2 justify-content-center my-5">
     @{
         if (Model.Inventory.Vehicles != null) {
             foreach (var vehicle in Model.Inventory.Vehicles) {
@@ -31,15 +31,34 @@
 
 <script type="text/javascript">
     $(function () {
-        $(".hover-bw").on("click", function () {
+        $(window).on('pageshow', function (event) {
+            loadLikedCars();
+            refreshCarLikes();
+        });
+
+        $(".card").on("click", function () {
             const stock = $(this).data("stock");
             if (stock) {
                 window.location.href = `${root}Inventory/Details?stock=${stock}`
             }
         });
 
-        $('.no-click').on('click', function (e) {
+        $(".no-click").on("click", function (e) {
             e.stopPropagation();
         });
+
+        refreshCarLikes();
     })
+
+    function refreshCarLikes() {
+        $(".card").each(function () {
+            var stock = $(this).data("stock");
+            if (isCarLiked(stock)) {
+                $(this).find(".liked").show();
+            }
+            else {
+                $(this).find(".liked").hide();
+            }
+        });
+    }
 </script>

@@ -14,6 +14,8 @@
     @Scripts.Render("~/scripts/bootstrap")
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="~/Scripts/just- validate/just-validate.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+
     <script type="text/javascript">
         var root = "@Url.Content("~/")";
         var images = "@Url.Content("~/GTXImages")";
@@ -85,10 +87,10 @@
             </nav>
             <nav class="header__top">
                 <ul class="main-menu start-100">
-                    <li class="d-none d-xxl-inline popoverable" data-bs-toggle="popover" data-bs-content="<span class='text-danger'><strong>Click to toggle open/close for hours an directions</strong></span>">
+                    <li class="d-none d-xxl-inline">
                         <a class="btn btn-light" id="btnOpenHours" data-bs-toggle="offcanvas" data-bs-target="#openHours" aria-controls="openHours">
                             <i class="bi bi-stopwatch"></i>
-                            <span class="schedule"></span>
+                            <span class="schedule popoverable" data-bs-toggle="popover" data-bs-content="<span class='text-danger'><strong>Click to toggle open/close for hours and directions</strong></span>"></span>
                         </a>
                     </li>
                     <li class="d-none d-xxl-inline">
@@ -137,6 +139,7 @@
 </html>
 
 <script>
-    $(function () {
-    });
+    var cookieName = 'likedCars';
+    var likedCars = [];
+    loadLikedCars();
 </script>

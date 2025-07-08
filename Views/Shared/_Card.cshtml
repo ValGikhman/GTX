@@ -1,15 +1,15 @@
 ﻿@model GTX.Models.GTX
-
-<li id="@Model.Stock" class="card well rounded-3 hover-bw p-0" title="Click here to see detasils."
+<li id="@Model.Stock" class="card well rounded-3 p-0" title="Click here to see details."
     data-year="@Model.Year" 
-    data-stock="@Model.Stock.ToLower()" 
-    data-make="@Model.Make.ToLower()" 
-    data-model="@Model.Model.ToLower()" 
-    data-style="@Model.VehicleStyle.ToLower()"
-    data-type="@Model.VehicleType.ToLower()">
+    data-stock="@Model.Stock.ToUpper()" 
+    data-make="@Model.Make.ToUpper()" 
+    data-model="@Model.Model.ToUpper()" 
+    data-style="@Model.VehicleStyle.ToUpper()"
+    data-type="@Model.VehicleType.ToUpper()">
 
     <div class="card-header hand-pointer">
         <h5 class="fw-bold">
+            <i class="liked bi bi-heart-fill text-danger" style="display:none "></i>
             @Model.Year
             @Model.Make
         </h5>
