@@ -88,7 +88,7 @@
     });
 
 
-    const placeholders = ['Click here to search'];
+    const placeholders = ['Type something to search inventory like bmw', 'toyota', 'tes for tesla', 'civi for civics', 'or year like 2015', 'Type ele for electric'];
     let currentText = '';
     let currentIndex = 0;
     let charIndex = 0;
