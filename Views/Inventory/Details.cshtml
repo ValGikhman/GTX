@@ -328,6 +328,23 @@
 
 <script type="text/javascript">
     var stock = "@Model.CurrentVehicle.VehicleDetails.Stock";
+    let startX = 0;
+    let scrollLeft = 0;
+    const scrollContainer = document.getElementById('suggestionScroll');
+
+    if (scrollContainer) {
+        scrollContainer.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].pageX - scrollContainer.offsetLeft;
+            scrollLeft = scrollContainer.scrollLeft;
+        });
+
+        scrollContainer.addEventListener('touchmove', (e) => {
+            e.preventDefault();  // Optional: Prevent vertical scrolling
+            const x = e.touches[0].pageX - scrollContainer.offsetLeft;
+            const walk = (startX - x);
+            scrollContainer.scrollLeft = scrollLeft + walk;
+        }, { passive: false });
+    }
 
     $(function () {
         $("#like-btn").on("click", function () {
@@ -378,24 +395,16 @@
 
         $("#shareToFacebook").on("click", function() {
             var stock = $(this).data('stock');
-
-            // This should point to your actual public car details page
             var shareUrl = "https://usedcarscincinnati.com/inventory/details?stock=@Model.CurrentVehicle.VehicleDetails.Stock";
-
             var facebookShareUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl);
-
             window.open(facebookShareUrl, 'facebook-share-dialog', 'width=800,height=600');
         });
 
         $("#shareToTwitter").on("click", function() {
             var stock = $(this).data('stock');
-
-            // This should point to your actual public car details page
             var shareUrl = "https://usedcarscincinnati.com/inventory/details?stock=@Model.CurrentVehicle.VehicleDetails.Stock";
             var tweetText = 'Check out this amazing @Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model for sale!'
-
             var twitterShareUrl = 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(shareUrl) + '&text=' + encodeURIComponent(tweetText);
-
             window.open(twitterShareUrl, 'twitter-share-dialog', 'width=800,height=400');
         });
     });

@@ -36,13 +36,20 @@
 
     <!-- Offcanvas Menu Begin -->
     <div class="offcanvas-menu-overlay"></div>
-    <div class="offcanvas-menu-wrapper">
+    <div class="offcanvas-menu-wrapper gradiant rounded-2 text-shadow">
         <div class="offcanvas__logo">
             <a href="./">
-                <img src="@Url.Content("~/GTXImages/gtx.png")" alt="www.gtxautogroup.com">
+                <img width="100" src="@Url.Content("~/GTXImages/gtx.png")" alt="www.gtxautogroup.com">
+            </a>
+            <a class="btn btn-light my-2" id="click-area" href="tel:(513) 912-4574">
+                <i class="bi bi-telephone"></i>
+                (513) 912-4574
             </a>
         </div>
-        <div id="mobile-menu-wrap"></div>
+        <div id="mobile-menu-wrap">
+            <i class="bi bi-stopwatch text-shadow">&nbsp;</i><h7 class="schedule"></h7>
+            @Html.Partial("_ScheduleMobile")
+        </div>
     </div>
     <!-- Offcanvas Menu End -->
 
@@ -61,7 +68,7 @@
                     <li>@Html.ActionLink("Home", "", "Home")</li>
                     <li>
                         <a href="#">Inevntory</a>
-                        <ul class="dropdown shadow rounded">
+                        <ul class="dropdown rounded">
                             <li>@Html.ActionLink("All", "All", "Inventory")</li>
                             <li>@Html.ActionLink("Suvs", "Suvs", "Inventory")</li>
                             <li>@Html.ActionLink("Trucks", "Trucks", "Inventory")</li>
@@ -75,7 +82,7 @@
                     <li>@Html.ActionLink("Blog", "Blog", "Home")</li>
                     <li>
                         <a href="#">About us</a>
-                        <ul class="dropdown shadow rounded">
+                        <ul class="dropdown rounded">
                             <li>@Html.ActionLink("Contact us", "Contact", "Home")</li>
                             <li>@Html.ActionLink("Our staff", "Staff", "Home")</li>
                         </ul>
@@ -86,23 +93,23 @@
                 </ul>
             </nav>
             <nav class="header__top">
-                <ul class="main-menu start-100">
+                <ul class="main-menu start-100 list-unstyled">
                     <li class="d-none d-xxl-inline">
                         <a class="btn btn-light" id="btnOpenHours" data-bs-toggle="offcanvas" data-bs-target="#openHours" aria-controls="openHours">
                             <i class="bi bi-stopwatch"></i>
                             <span class="schedule popoverable" data-bs-toggle="popover" data-bs-content="<span class='text-danger'><strong>Click to toggle open/close for hours and directions</strong></span>"></span>
                         </a>
                     </li>
-                    <li class="d-none d-xxl-inline m-lg-1">
+                    <li class="d-sm-inline m-xl-1">
                         <a class="btn btn-light" id="click-area" href="tel:(513) 912-4574">
                             <i class="bi bi-telephone"></i>
                             (513) 912-4574
                         </a>
                     </li>
-                    <li class="d-none d-xxl-inline m-lg-1">
+                    <li class="d-md-inline m-xl-1">
                         <a class="btn btn-light" href="https://www.facebook.com/GTXAutoGroup"><i class="fa fa-facebook"></i></a>
                     </li>
-                    <li class="d-none d-xxl-inline m-lg-1">
+                    <li class="d-md-inline m-xl-1">
                         <a class="btn btn-light" href="https://www.twitter.com/GTXAutoGroup"><i class="fa fa-twitter"></i></a>
                     </li>
                 </ul>

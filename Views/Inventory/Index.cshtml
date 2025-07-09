@@ -1,20 +1,14 @@
 ﻿@{
     @model GTX.Models.BaseModel
-    Html.RenderPartial("_PageTitle");
-}
-<div class="modal modal-xl fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModal" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-lg-down">
-        <div class="modal-content" id="vehicle-details">
-
-        </div>
-    </div>
-</div>
-
-@{ 
-    if (Model.Inventory.Vehicles.Count() > 5) {
-        <div class="mt-3">@{ Html.RenderPartial("_FilterByTerm"); }</div>
+        Html.RenderPartial("_PageTitle");
     }
-}
+<div class="searchTop">
+    @{
+        if (Model.Inventory.Vehicles.Count() > 0) {
+            Html.RenderPartial("_FilterByTerm");
+        }
+    }
+    </div>
 
 <ul id="inventory" class="d-flex flex-wrap gap-2 justify-content-center my-5">
     @{
