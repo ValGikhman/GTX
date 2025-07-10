@@ -22,7 +22,7 @@ namespace GTX {
                         "~/Scripts/modernizr-*"));
 
             bundles.Add(new Bundle("~/Scripts/bootstrap").Include(
-                      "~/Scripts/bootstrap/bootstrap.min.js"));
+                      "~/Scripts/bootstrap/bootstrap.bundle.min.js"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/jquery/jquery-ui.min.css",

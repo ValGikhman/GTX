@@ -1,22 +1,16 @@
 ﻿@{
     @model GTX.Models.BaseModel
-    Html.RenderPartial("_PageTitle");
-}
-<div class="modal modal-xl fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModal" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-lg-down">
-        <div class="modal-content" id="vehicle-details">
-
-        </div>
-    </div>
-</div>
-
-@{ 
-    if (Model.Inventory.Vehicles.Count() > 5) { 
-        <div class="mt-3">@{ Html.RenderPartial("_FilterByTerm"); }</div>
+        Html.RenderPartial("_PageTitle");
     }
-}
+<div class="searchTop">
+    @{
+        if (Model.Inventory.Vehicles.Count() > 0) {
+            Html.RenderPartial("_FilterByTerm");
+        }
+    }
+    </div>
 
-<ul id="inventory" class="d-flex flex-wrap gap-2 justify-content-center mt-2">
+<ul id="inventory" class="d-flex flex-wrap gap-2 justify-content-center my-5">
     @{
         if (Model.Inventory.Vehicles != null) {
             foreach (var vehicle in Model.Inventory.Vehicles) {
@@ -31,15 +25,34 @@
 
 <script type="text/javascript">
     $(function () {
-        $(".hover-bw").on("click", function () {
+        $(window).on('pageshow', function (event) {
+            loadLikedCars();
+            refreshCarLikes();
+        });
+
+        $(".card").on("click", function () {
             const stock = $(this).data("stock");
             if (stock) {
                 window.location.href = `${root}Inventory/Details?stock=${stock}`
             }
         });
 
-        $('.no-click').on('click', function (e) {
+        $(".no-click").on("click", function (e) {
             e.stopPropagation();
         });
+
+        refreshCarLikes();
     })
+
+    function refreshCarLikes() {
+        $(".card").each(function () {
+            var stock = $(this).data("stock");
+            if (isCarLiked(stock)) {
+                $(this).find(".liked").show();
+            }
+            else {
+                $(this).find(".liked").hide();
+            }
+        });
+    }
 </script>

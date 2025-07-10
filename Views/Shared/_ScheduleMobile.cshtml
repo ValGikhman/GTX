@@ -1,0 +1,13 @@
+﻿<div class="open-hours">
+    @{
+        GTX.Models.OpenHours[] openHours = Utility.XMLHelpers.XmlRepository.GetOpenHours();
+        if (openHours != null) {
+            foreach (var open in openHours) {
+                    <div class="open-row">
+                        <div class="open-cell small">@open.Day</div>
+                        <div class="open-cell small">@open.Description</div>
+                    </div>
+            }
+        }
+    }
+</div>

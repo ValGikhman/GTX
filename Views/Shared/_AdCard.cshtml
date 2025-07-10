@@ -1,0 +1,41 @@
+﻿@model GTX.Models.GTX
+
+<li id="@Model.Stock"
+    class="btn btn-light hover-bw"
+    title="Click here to see details."
+    data-year="@Model.Year"
+    data-stock="@Model.Stock.ToUpper()"
+    data-make="@Model.Make.ToUpper()"
+    data-model="@Model.Model.ToUpper()"
+    data-style="@Model.VehicleStyle.ToUpper()"
+    data-type="@Model.VehicleType.ToUpper()">
+
+    <a class="d-flex align-items-center btn btn-outline-light text-start" style="text-decoration: none;">
+        <!-- Image Left -->
+        <img src="@Model.Image" class="rounded-3 me-3" style="width: 100px; height: auto; object-fit: cover; max-height: 76px;">
+
+        <!-- Details Right -->
+        <div class="flex-grow-1 p-0">
+            <h6>
+                <strong>@Model.Year @Model.Make</strong>
+            </h6>
+            <div>
+                <h8 class="fw-bold mb-1">
+                    @Model.Model - @Model.VehicleStyle
+                </h8>
+            </div>
+            <div>
+                <h8 class="fw-bold mb-1">
+                    <strong>Price: </strong>@Model.RetailPrice.ToString("C0")
+                </h8>
+            </div>
+            <div>
+                <h8 class="fw-bold mb-1">
+                    <strong>Miles: </strong>@Model.Mileage.ToString("N0")
+                </h8>
+            </div>
+        </div>
+
+    </a>
+
+</li>

@@ -1,10 +1,12 @@
 ﻿using GTX.Models;
+using Newtonsoft.Json;
 using Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
@@ -18,26 +20,30 @@ namespace GTX.Controllers {
         }
 
         public ActionResult Index(BaseModel model) {
-            if (Model.Inventory.Title != null) {
-                ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
-                Log($"{Model.Inventory.Title} inventory");
-            }
-
+            Model.Inventory.Title = "All";
+            ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
+            Log($"{Model.Inventory.Title} inventory");
             return View(Model);
         }
 
-        public ActionResult Details(string stock) {
+        public async Task<ActionResult> Details(string stock) {
+            Model.Inventory.Title = "Details";
             stock = stock?.Trim().ToUpper();
-            if (stock != null) {
-                Model.CurrentVehicle.VehicleDetails = Model.Inventory.Vehicles.FirstOrDefault(m => m.Stock == stock);
-                Model.CurrentVehicle.VehicleImages = GetImages(stock);
-                SessionData.CurrentVehicle = Model.CurrentVehicle;
+            if (string.IsNullOrEmpty(stock)) {
+                Model.Inventory.Title = "All";
+                Model.Inventory.Vehicles = SessionData?.Inventory?.All;
+                ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
+                return View("Index", Model);
             }
 
-            Model.Inventory.Title = "Details";
+            Model.CurrentVehicle.VehicleDetails = Model.Inventory.All.FirstOrDefault(m => m.Stock == stock);
+            Model.CurrentVehicle.VehicleImages = GetImages(stock);
+            SessionData.CurrentVehicle = Model.CurrentVehicle;
+            Model.CurrentVehicle.VehicleSuggesion = Model.Inventory.All.Where(m => m.Stock != stock && Math.Abs(m.RetailPrice - Model.CurrentVehicle.VehicleDetails.RetailPrice) < 3000).Take(10).ToArray();
             ViewBag.Title = $"{Model.CurrentVehicle.VehicleDetails.Year} - {Model.CurrentVehicle.VehicleDetails.Make} - {Model.CurrentVehicle.VehicleDetails.Model} {Model.CurrentVehicle.VehicleDetails.VehicleStyle} ";
 
             return View("Details", Model);
+
         }
 
         public ActionResult DetailsModal(string stock) {
@@ -52,6 +58,12 @@ namespace GTX.Controllers {
         }
 
         [HttpGet]
+        public ActionResult ShareVehicle(string stock) {
+            Models.GTX model = Model.Inventory.All.FirstOrDefault(m => m.Stock == stock);
+            return PartialView("_AdCard", model);
+        }
+
+        [HttpGet]
         public async Task<ActionResult> GetReport(string vin) {
             string url = $"https://www.carfax.com/VehicleHistory/p/Report.cfx?vin={vin}";
 
@@ -60,7 +72,7 @@ namespace GTX.Controllers {
                     var html = await client.GetStringAsync(url);
                     return Content(html, "text/html"); // Send raw HTML
                 }
-                catch {
+                catch(Exception ex) {
                     return Content("Unable to fetch Carfax report.");
                 }
             }
@@ -457,6 +469,5 @@ namespace GTX.Controllers {
                 return Json(new { data }, JsonRequestBehavior.AllowGet);
             }
         }
-        
     }
 }
