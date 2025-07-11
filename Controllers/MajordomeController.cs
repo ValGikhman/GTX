@@ -201,14 +201,14 @@ Our sales crew: {reps} will help you to start your thrilling journey through sce
 
 Your response must:
 1. Start with a catchy **title inside <title> tags** (for example: <title>The Electric Dream</title>).
-2. Write a minimum of **10 sentences**, each inside a separate <p> tag.
-3. Use poetic language.
-4. Mention at least **5 car features** from the provided list and wrap each feature in <strong> tags as well as the car.
+2. Write a minimum of **10 sentences**, each inside a separate <p class='p-story'> tag.
+3. Write in a poetic yet mysterious and persuasive tone with a touch of futuristic imagery to make story vivid, rich, and atmospheric.
+4. Mention at least **5 car features** from the provided list and wrap each feature in <strong class='strong-story'> tags as well as the car.
 5. Do **not use double quotes** anywhere in the story.
 6. End the story with a sense of joy, adventure, opportunity.
 
 The output should be **only the HTML story** without any extra text before or after.
-Please do not place any other characters like **` and **html text in front of the output.
+Please do not place any other characters like **``` and **```html text in front of the output.
 ";
             return prompt;
         }

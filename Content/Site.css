@@ -1,4 +1,13 @@
 ﻿/*Custom*/
+.p-story {
+    margin: 0;
+    padding: 0;
+}
+
+.strong-story {
+    color:purple;
+}
+
 .video-background {
     position: fixed;
     top: 0;
@@ -393,10 +402,10 @@ h3,
 h4,
 h5,
 h6,
-h7, 
+h7,
 h8 {
     margin: 0;
-    color: #111111;
+    color: slategrey;
     font-weight: 400;
     font-family: "Lato", sans-serif;
     text-shadow: 2px 2px 3px #8D8484;
@@ -2748,6 +2757,10 @@ a, u {
 
 /* Wide Mobile = 480px */
 @media only screen and (max-width: 767px) {
+    .details-container {
+        margin-top: 70px;
+    }
+
     .my-5 {
         margin-top: 6rem !important;
         margin-bottom: 3rem !important;
