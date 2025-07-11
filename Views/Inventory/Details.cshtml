@@ -77,6 +77,12 @@
                         </div>
                     </button>
                     <div class="collapse show pt-3 text-shadow-small" id="story">
+                        <style>
+                            p {
+                                margin: 0; /* Remove default spacing between <p> elements */
+                                padding: 0;
+                            }
+                        </style>
                         @Html.Raw(@Model.CurrentVehicle.VehicleDetails.Story.HtmlContent)
                     </div>
                 </div>
