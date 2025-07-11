@@ -1,4 +1,5 @@
-﻿using System.Xml.Serialization;
+﻿using Services;
+using System.Xml.Serialization;
 
 
 namespace GTX.Models {
@@ -84,5 +85,7 @@ namespace GTX.Models {
 		public string[] Images { get; set; }
 
 		public string Image { get; set; }
+
+		public Story Story { get; set; }
 	}
 }

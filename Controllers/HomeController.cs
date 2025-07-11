@@ -17,8 +17,8 @@ namespace GTX.Controllers {
         private readonly IContactService _contactService;
         private static readonly HttpClient client = new HttpClient();
 
-        public HomeController(ISessionData sessionData, ContactService contactService, ILogService logService) :
-            base(sessionData, logService)  {
+        public HomeController(ISessionData sessionData, ContactService contactService, IInventoryService inventoryService, ILogService logService) :
+            base(sessionData, inventoryService,  logService)  {
             _contactService = contactService;
         }
 

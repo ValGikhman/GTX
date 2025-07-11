@@ -51,7 +51,8 @@
 </div>
 
 <template id="addNew">
-    <button type="button" id="btnAddNew" class="btn btn-light shadow">Add new vehicle</button>
+    <button type="button" id="btnAddNew" class="btn btn-light shadow">Add new</button>
+    <button type="button" id="btnReStoryAll" class="btn btn-light shadow">Restory</button>
 </template>
 
 <script type="text/javascript">
@@ -69,24 +70,31 @@ $(function () {
             <input type="search" id="vin" class="form-control w-25 mb-3 shadow" placeholder="Search for VIN #">
             `
         );
+    });
 
-        $("#vin")
-            .on("blur", function () {
+    $("#btnReStoryAll").on("click", function () {
+        reStoryAll();
+    });
+
+    $("#filterLiked").hide();
+
+    $("#vin")
+        .on("blur", function () {
+            const vin = $(this).val();
+            if (vin.length > 0) {
+                decodeVin(vin);
+            }
+        })
+        .on("keydown", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
                 const vin = $(this).val();
                 if (vin.length > 0) {
                     decodeVin(vin);
                 }
-            })
-            .on("keydown", function (e) {
-                if (e.key === "Enter") {
-                    e.preventDefault();
-                    const vin = $(this).val();
-                    if (vin.length > 0) {
-                        decodeVin(vin);
-                    }
-                }
-            }).focus();
-    });
+            }
+    }).focus();
+
 });
 
 let gridApi = null;
@@ -126,8 +134,16 @@ const columnDefs = [
             return `${Year} ${Make} ${Model} ${VehicleStyle} ${Stock} ${LocationCode}`;
         }
     },
-    { headerName: "Stock", field: "Stock", filter: false },
-    { headerName: "LC", field: "LocationCode", filter: false },
+    { headerName: "Stock", field: "Stock", filter: false, width: 120 },
+    { headerName: "LC", field: "LocationCode", filter: false, width: 70  },
+    {
+        headerName: 'Story',
+        field: 'Story',
+        width: 400,
+        cellRenderer: storyRenderer,
+        filter: false,
+        sortable: false
+    },
     {
         headerName: '',
         field: 'action',
@@ -178,9 +194,35 @@ function deleteIconRenderer(params) {
     return icon;
 }
 
-// Show Bootstrap modal with images
+// Restory Icon renderer
+function reStoryIconRenderer(params) {
+    const icon = document.createElement('span');
+    icon.className = 'bi bi-book fs-5 px-2';
+    icon.style.cursor = 'pointer';
+    icon.title = `Create story for Stock# ${JSON.stringify(params.data.Stock)}`;
+
+    icon.onclick = () => {
+        alert(`Do you want to creater a story for Stock# ${JSON.stringify(params.data.Stock)}`);
+        createStory(params.data.Stock);
+        params.api.applyTransaction({ update: [params.node.data] });
+    };
+    return icon;
+}
+
+
 function deleteImages(stock) {
     $.post(`${root}Majordome/DeleteImages`, { stock })
+        .done(function (response) {
+            fetch('/Majordome/GetUpdatedItems')
+                .then(res => res.json())
+                .then(data => {
+                    gridApi.setRowData(data);
+                });
+        })
+};
+
+function createStory(stock) {
+    $.post(`${root}Majordome/CreateStory`, { stock })
         .done(function (response) {
             fetch('/Majordome/GetUpdatedItems')
                 .then(res => res.json())
@@ -222,6 +264,22 @@ function imageButtonRenderer(params) {
     return wrapper;
 }
 
+function storyRenderer(params) {
+    if (!params.data.Story) {
+        return ""
+    }
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'position-relative d-inline-block';
+
+    const title = document.createElement('span');
+    title.className = 'position-absolute badge rounded-pill bg-success';
+    title.textContent = params.data.Story.Title;
+    wrapper.appendChild(title);
+
+    return wrapper;
+}
+
 // Show Bootstrap modal with images
 function showImageModal(stock) {
     if (stock) {
@@ -258,12 +316,12 @@ function actionsRenderer(params) {
         }
     });
 
+    container.appendChild(reStoryIconRenderer(params));
     container.appendChild(icon);
     container.appendChild(fileInput);
     if (params.data.Images && params.data.Images.length > 0) {
         container.appendChild(deleteIconRenderer(params));
     }
-
     return container;
 }
 
@@ -281,33 +339,55 @@ function uploadFiles(stock, input) {
         method: "POST",
         body: formData
     })
-        .then(response => {
-            if (response.ok) {
-                fetch('/Majordome/GetUpdatedItems')
-                    .then(res => res.json())
-                    .then(data => {
-                        gridApi.setRowData(data);
-                    });
-                    alert(`Uploaded ${files.length} file(s) for ${stock}`);
-                } else {
-                    alert("Upload failed.");
-                }
-        })
-        .catch(error => {
-            alert(error);
-        });
-    }
+    .then(response => {
+        if (response.ok) {
+            fetch('/Majordome/GetUpdatedItems')
+                .then(res => res.json())
+                .then(data => {
+                    gridApi.setRowData(data);
+                });
+                alert(`Uploaded ${files.length} file(s) for ${stock}`);
+        } else {
+            alert("Upload failed.");
+        }
+    })
+    .catch(error => {
+        alert(error);
+    });
+}
 
-    function decodeVin(vin) {
-        fetch('/Inventory/DecodeVin', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ vin: vin })
-        })
-        .then(res => res.json())
-        .then(data => {
-            console.log(data);
-            $("#details-content").html(data.Error);
-        });
-    }
+function decodeVin(vin) {
+    fetch('/Inventory/DecodeVin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vin: vin })
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log(data);
+        $("#details-content").html(data.Error);
+    });
+}
+
+function reStoryAll() {
+    fetch('/Majordome/ReStoryAll', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => {
+        if (response.ok) {
+            fetch('/Majordome/GetUpdatedItems')
+                .then(res => res.json())
+                .then(data => {
+                    gridApi.setRowData(data);
+                });
+            alert(`Restory is done`);
+        } else {
+            alert("Restory failed.");
+        }
+    })
+    .catch(error => {
+        alert(error);
+    });
+}
 </script>
