@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Services;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -14,9 +15,10 @@ using System.Web.Script.Serialization;
 namespace GTX.Controllers {
 
     public class InventoryController : BaseController {
+        private readonly string openAiApiKey = ConfigurationManager.AppSettings["OpenAI:ApiKey"];
 
-        public InventoryController(ISessionData sessionData, ILogService LogService)
-            : base(sessionData, LogService) {
+        public InventoryController(ISessionData sessionData, IInventoryService inventoryService, ILogService LogService)
+            : base(sessionData, inventoryService, LogService) {
         }
 
         public ActionResult Index(BaseModel model) {
@@ -42,6 +44,7 @@ namespace GTX.Controllers {
             Model.CurrentVehicle.VehicleSuggesion = Model.Inventory.All.Where(m => m.Stock != stock && Math.Abs(m.RetailPrice - Model.CurrentVehicle.VehicleDetails.RetailPrice) < 3000).Take(10).ToArray();
             ViewBag.Title = $"{Model.CurrentVehicle.VehicleDetails.Year} - {Model.CurrentVehicle.VehicleDetails.Make} - {Model.CurrentVehicle.VehicleDetails.Model} {Model.CurrentVehicle.VehicleDetails.VehicleStyle} ";
 
+            Model.CurrentVehicle.VehicleDetails.Story = InventoryService.GetStory(stock);
             return View("Details", Model);
 
         }
@@ -415,27 +418,6 @@ namespace GTX.Controllers {
             return query.OrderBy(m => m.Make).ToArray();
         }
 
-        private Models.GTX[] ApplyTerms(string term) {
-            Models.GTX[] query = Model.Inventory.All;
-
-            if (query.Any() && term != null) {
-                query = query.Where(m => m.Stock.ToUpper().Contains(term)
-                    || (m.Year.ToString() == term)
-                    || m.Make.ToUpper().Contains(term) 
-                    || m.Model.ToUpper().Contains(term) 
-                    || m.VehicleStyle.ToUpper().Contains(term))
-                .Distinct().ToArray();
-            }
-
-            return query.OrderBy(m => m.Make).ToArray();
-        }
-
-        [HttpPost]
-        public ActionResult Reset() {
-            Model.Inventory.Vehicles = Model.Inventory.All;
-            return Json(new { redirectUrl = Url.Action("Index") });
-        }
-
         public string[] GetImages(string stock) {
             string path = $"~/GTXImages/Inventory/{stock}";
             string[] extensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
@@ -467,6 +449,39 @@ namespace GTX.Controllers {
 
                 var data = await response.Content.ReadAsHttpResponseMessageAsync();
                 return Json(new { data }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        private async Task<string> GetChatGptResponse(string prompt) {
+            var apiUrl = "https://api.openai.com/v1/chat/completions";
+
+            using (var httpClient = new HttpClient()) {
+                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {openAiApiKey}");
+
+                var requestBody = new {
+/*                    model = "gpt-3.5-turbo",   // or "gpt-4o" if your account supports it
+*/                    model = "gpt-4o",  
+                    messages = new[]
+                    {
+                        new { role = "user", content = prompt }
+                    },
+                    max_tokens = 500,
+                    temperature = 0.7
+                };
+
+                var content = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
+
+                var response = await httpClient.PostAsync(apiUrl, content);
+
+                if (response.IsSuccessStatusCode) {
+                    var jsonResponse = await response.Content.ReadAsStringAsync();
+                    dynamic result = JsonConvert.DeserializeObject(jsonResponse);
+
+                    return result.choices[0].message.content.ToString();
+                }
+                else {
+                    return $"Error: {response.StatusCode}";
+                }
             }
         }
     }

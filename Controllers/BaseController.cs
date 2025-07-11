@@ -17,6 +17,8 @@ namespace GTX.Controllers {
 
         public ILogService LogService { get; set; }
 
+        public IInventoryService InventoryService { get; set; }
+
         public ISessionData SessionData { get; private set; }
 
         public BaseModel Model { get; set; }
@@ -25,9 +27,10 @@ namespace GTX.Controllers {
 
         #region Construtors
 
-        public BaseController(ISessionData sessionData, ILogService _logService) {
-            SessionData = sessionData;
+        public BaseController(ISessionData _sessionData, IInventoryService _invntoryService, ILogService _logService) {
+            SessionData = _sessionData;
             LogService = _logService;
+            InventoryService = _invntoryService;
 
             Model = new BaseModel();
         }
@@ -234,6 +237,32 @@ namespace GTX.Controllers {
             }
             return vehicles;
         }
+
+        [HttpPost]
+        public ActionResult Reset() {
+            Model.Inventory.Vehicles = Model.Inventory.All;
+            return Json(new { redirectUrl = Url.Action("All") });
+        }
+
+        public Models.GTX[] ApplyTerms(string term) {
+            Models.GTX[] query = Model.Inventory.All;
+
+            if (query.Any() && term != null) {
+                query = query.Where(m => m.Stock.ToUpper().Contains(term)
+                    || (m.Year.ToString() == term)
+                    || m.Make.ToUpper().Contains(term)
+                    || m.Model.ToUpper().Contains(term)
+                    || m.VehicleStyle.ToUpper().Contains(term))
+                .Distinct().ToArray();
+            }
+
+            return query.OrderBy(m => m.Make).ToArray();
+        }
         #endregion Public Methods
+
+
+        #region private methods
+
+        #endregion
     }
 }

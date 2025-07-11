@@ -47,6 +47,5 @@ namespace GTX.Models {
         public Models.GTX VehicleDetails { get; set; }
         public string[] VehicleImages { get; set; }
         public Models.GTX[] VehicleSuggesion { get; set; }
-        public string Story { get; set; }
     }
 }
