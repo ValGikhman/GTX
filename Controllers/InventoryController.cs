@@ -49,7 +49,6 @@ namespace GTX.Controllers {
             Model.CurrentVehicle.VehicleSuggesion = Model.Inventory.All.Where(m => m.Stock != stock && Math.Abs(m.RetailPrice - Model.CurrentVehicle.VehicleDetails.RetailPrice) < 3000).Take(10).ToArray();
             ViewBag.Title = $"{Model.CurrentVehicle.VehicleDetails.Year} - {Model.CurrentVehicle.VehicleDetails.Make} - {Model.CurrentVehicle.VehicleDetails.Model} {Model.CurrentVehicle.VehicleDetails.VehicleStyle} ";
 
-            Model.CurrentVehicle.VehicleDetails.Story = InventoryService.GetStory(stock);
             return View("Details", Model);
 
         }

@@ -1,11 +1,16 @@
 ﻿@model GTX.Models.GTX
 <li id="@Model.Stock" class="card well rounded-3 p-0" title="Click here to see details."
+    data-location-code="@Model.LocationCode" 
+    data-story="@(Model.Story is null ? "NOSTORY" : "STORY")"
+    data-images="@(Model.Image.Contains("no-image") ? "NOIMAGE" : "IMAGE")"
     data-year="@Model.Year" 
     data-stock="@Model.Stock.ToUpper()" 
     data-make="@Model.Make.ToUpper()" 
     data-model="@Model.Model.ToUpper()" 
     data-style="@Model.VehicleStyle.ToUpper()"
-    data-type="@Model.VehicleType.ToUpper()">
+    data-type="@Model.VehicleType.ToUpper()"
+    data-color="@Model.Color.ToUpper()"
+    data-color2="@Model.Color2.ToUpper()">
 
     <div class="card-header hand-pointer">
         <h5 class="fw-bold">
@@ -26,7 +31,7 @@
             </div>
             <div class="d-flex flex-wrap justify-content-evenly">
                 <span class="very-small-text">VIN#:@Model.VIN</span>
-                <span class="very-small-text">#:@Model.Stock</span>
+                <span class="very-small-text">@Model.LocationCode:@Model.Stock</span>
             </div>
             <div class="d-flex justify-content-center">
                 <a href="https://www.carfax.com/VehicleHistory/p/Report.cfx?vin=@Model.VIN" target="_blank">

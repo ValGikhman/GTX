@@ -206,7 +206,7 @@
             <div class="collapse show text-shadow-small rounded well" id="details">
                 <div class="d-flex justify-content-between mb-3 flex-wrap">
                     <span class="very-small-text">@Model.CurrentVehicle.VehicleDetails.VIN</span>
-                    <span class="very-small-text">@Model.CurrentVehicle.VehicleDetails.Stock</span>
+                    <span class="very-small-text">@Model.CurrentVehicle.VehicleDetails.LocationCode:@Model.CurrentVehicle.VehicleDetails.Stock</span>
                 </div>
                 <div class="d-flex flex-wrap justify-content-evenly rounded p-2 gap-5">
                     <span class="btn btn-outline-secondary shadow position-relative details">
@@ -414,14 +414,14 @@
 
         $("#shareToFacebook").on("click", function() {
             var stock = $(this).data('stock');
-            var shareUrl = "https://usedcarscincinnati.com/inventory/details?stock=@Model.CurrentVehicle.VehicleDetails.Stock";
+            var shareUrl = "https://usedcarscincinnati.com/inventory/detailsCard?stock=@Model.CurrentVehicle.VehicleDetails.Stock";
             var facebookShareUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl);
             window.open(facebookShareUrl, 'facebook-share-dialog', 'width=800,height=600');
         });
 
         $("#shareToTwitter").on("click", function() {
             var stock = $(this).data('stock');
-            var shareUrl = "https://usedcarscincinnati.com/inventory/details?stock=@Model.CurrentVehicle.VehicleDetails.Stock";
+            var shareUrl = "https://usedcarscincinnati.com/inventory/detailsCard?stock=@Model.CurrentVehicle.VehicleDetails.Stock";
             var tweetText = 'Check out this amazing @Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model for sale!'
             var twitterShareUrl = 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(shareUrl) + '&text=' + encodeURIComponent(tweetText);
             window.open(twitterShareUrl, 'twitter-share-dialog', 'width=800,height=400');
