@@ -144,9 +144,24 @@ const columnDefs = [
         headerName: 'Story',
         field: 'Story',
         width: 400,
-        cellRenderer: storyRenderer,
+        cellRenderer: (params) => {
+            const { Title, HtmlContent } = params.data.Story;
+            return `
+                <style>.p-story {font-size: 10px; margin-top: -15px;}</style>
+                <div><h7>${Title}</h7></div>
+                ${HtmlContent.substring(0, 100).trim()}...
+        `;
+        },
         filter: false,
-        sortable: false
+        sortable: true,
+        comparator: (valueA, valueB, nodeA, nodeB) => {
+            const a = `${nodeA.data.Story.Title}`.toLowerCase();
+            const b = `${nodeB.data.Story.Title}`.toLowerCase();
+
+            if (a < b) return -1;
+            if (a > b) return 1;
+            return 0;
+        },
     },
     {
         headerName: '',
@@ -206,7 +221,6 @@ function reStoryIconRenderer(params) {
     icon.title = `Create story for Stock# ${JSON.stringify(params.data.Stock)}`;
 
     icon.onclick = () => {
-        alert(`Do you want to creater a story for Stock# ${JSON.stringify(params.data.Stock)}`);
         createStory(params.data.Stock);
         params.api.applyTransaction({ update: [params.node.data] });
     };

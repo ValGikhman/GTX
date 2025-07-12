@@ -28,7 +28,12 @@ namespace GTX.Controllers {
             return View(Model);
         }
 
-        public async Task<ActionResult> Details(string stock) {
+        public ActionResult DetailsCard(string stock) {
+            Model.CurrentVehicle.VehicleDetails = Model.Inventory.All.FirstOrDefault(m => m.Stock == stock);
+            return View("DetailsCard", Model.CurrentVehicle.VehicleDetails);
+        }
+
+            public async Task<ActionResult> Details(string stock) {
             Model.Inventory.Title = "Details";
             stock = stock?.Trim().ToUpper();
             if (string.IsNullOrEmpty(stock)) {

@@ -63,14 +63,14 @@ namespace GTX.Controllers {
         public async Task<ActionResult> ReStoryAll() {
             try {
                 Model.Inventory.Vehicles = Model.Inventory.All;
-                foreach (var vehicle in Model.Inventory.Vehicles) {
-                    vehicle.Story = InventoryService.GetStory(vehicle.Stock);
-                    if (vehicle.Story == null) {
+                Parallel.ForEach(Model.Inventory.Vehicles, new ParallelOptions { MaxDegreeOfParallelism = 3 }, async vehicle => {
+                    if (string.IsNullOrEmpty(vehicle.Story.Title)) {
                         var story = await GetChatGptResponse(GetPrompt(vehicle));
                         var response = SplitResponse(story);
                         InventoryService.SaveStory(vehicle.Stock, response.story, response.title);
                     }
-                }
+                });
+
                 return Json(new { success = true, message = "Story created successfully." });
             }
 
@@ -158,13 +158,12 @@ namespace GTX.Controllers {
                 httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {openAiApiKey}");
 
                 var requestBody = new {
-/*                    model = "gpt-3.5-turbo",   // or "gpt-4o" if your account supports it */
                     model = "gpt-4o",
                     messages = new[]
                     {
                         new { role = "user", content = prompt }
                     },
-                    max_tokens = 500,
+                    max_tokens = 700,
                     temperature = 0.9
                 };
 
@@ -209,6 +208,7 @@ Your response must:
 
 The output should be **only the HTML story** without any extra text before or after.
 Please do not place any other characters like **``` and **```html text in front of the output.
+Do not place any **<html>**, **<body>** and **<head>** tags
 ";
             return prompt;
         }
@@ -219,6 +219,10 @@ Please do not place any other characters like **``` and **```html text in front 
 
             // Гамно remover
             story = response.Replace("```html", "").Replace("```", "").Replace("\"", "");
+            story = story.Replace("<html>", "").Replace("</html>", "");
+            story = story.Replace("<head>", "").Replace("</head>", "");
+            story = story.Replace("<body>", "").Replace("</body>", "");
+
             string pattern = @"<title>(.*?)</title>";
             Match match = Regex.Match(story, pattern, RegexOptions.IgnoreCase);
 
