@@ -8,7 +8,7 @@
     <meta property="og:title" content="@Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model @Model.CurrentVehicle.VehicleDetails.VehicleStyle" />
     <meta property="og:description" content="GTX Autogroup @Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model @Model.CurrentVehicle.VehicleDetails.VehicleStyle" />
     <meta property="og:image" content="https://usedcarscincinnati.com/@Model.CurrentVehicle.VehicleDetails.Image" />
-    <meta property="og:url" content="https://usedcarscincinnati.com/inventory/details?stock=@Model.CurrentVehicle.VehicleDetails.Stock">
+    <meta property="og:url" content="https://usedcarscincinnati.com/inventory/DetailsCard?stock=@Model.CurrentVehicle.VehicleDetails.Stock">
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content="GTX Auto Group" />
 
@@ -16,7 +16,7 @@
     <meta name="twitter:title" content="@Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model @Model.CurrentVehicle.VehicleDetails.VehicleStyle" />
     <meta name="twitter:description" content="GTX Autogroup @Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model @Model.CurrentVehicle.VehicleDetails.VehicleStyle" />
     <meta name="twitter:image" content="https://usedcarscincinnati.com/@Model.CurrentVehicle.VehicleDetails.Image" />
-    <meta name="twitter:url" content="https://usedcarscincinnati.com/inventory/details?stock=@Model.CurrentVehicle.VehicleDetails.Stock" />
+    <meta name="twitter:url" content="https://usedcarscincinnati.com/inventory/DetailsCard?stock=@Model.CurrentVehicle.VehicleDetails.Stock" />
 
 
     <script src="~/Scripts/Lightbox/lc_lightbox.lite.min.js" type="text/javascript"></script>
@@ -31,7 +31,7 @@
 <div class="details-container d-flex flex-column flex-lg-row justify-content-center p-3 gap-5">
     <div class="col-lg-5 col-md-8 col-sm-12">
         <nav>
-            <div class="nav nav-tabs" id="nav-tab" role="tablist">
+            <div class="nav nav-tabs  no-wrap-group" id="nav-tab" role="tablist">
                 <button class="nav-item active btn btn-outline-secondary text-shadow-small" id="nav-details-tab" data-bs-toggle="tab" data-bs-target="#nav-details" type="button" role="tab" aria-controls="nav-details" aria-selected="true">Details</button>
                 @{
                     if (Model.CurrentVehicle.VehicleImages.Count() > 0) {
@@ -41,15 +41,6 @@
                 <button class="nav-item btn btn-outline-secondary text-shadow-small" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="true">Contact</button>
                 <button class="nav-item btn btn-outline-secondary text-shadow-small" id="nav-location-tab" data-bs-toggle="tab" data-bs-target="#nav-location" type="button" role="tab" aria-controls="nav-location" aria-selected="true">Location</button>
                 <button class="nav-item btn btn-outline-secondary text-shadow-small" id="nav-payment-tab" data-bs-toggle="tab" data-bs-target="#nav-payment" type="button" role="tab" aria-controls="nav-payment" aria-selected="true"><strong>Pay $<span id="monthlyAmount"></span>/mo</strong></button>
-                <h5 class="ms-auto my-auto">
-                    <i id="like-btn" class="btn btn-light rounded shadow bi bi-heart-fill text-danger popoverable" data-bs-toggle="popover" data-bs-content="<span class='text-danger'><strong>Toggle you favorites</strong></span>" style="display: none;" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"></i>
-                    <span class="d-none d-xxl-inline popoverable" data-bs-toggle="popover" data-bs-content="<span class='text-danger'><strong>Click to share with facebook</strong></span>">
-                        <a id="shareToFacebook" class="btn btn-light rounded shadow" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"><i class="bi bi-facebook"></i></a>
-                    </span>
-                    <span class="d-none d-xxl-inline mx-1 popoverable" data-bs-toggle="popover" data-bs-content="<span class='text-danger'><strong>Click to share with twitter</strong></span>">
-                        <a id="shareToTwitter" class="btn btn-light rounded shadow" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"><i class="bi bi-twitter"></i></a>
-                    </span>
-                </h5>
             </div>
         </nav>
         <div class="tab-content" id="nav-tabContent">
@@ -67,6 +58,15 @@
                         }
                     }
                 </div>
+                <h5>
+                    <i id="like-btn" class="btn btn-light rounded shadow bi bi-heart-fill text-danger popoverable" data-bs-toggle="popover" data-bs-content="<span class='text-danger'><strong>Toggle you favorites</strong></span>" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"></i>
+                    <span class="mx-1 popoverable" data-bs-toggle="popover" data-bs-content="<span class='text-danger'><strong>Click to share with facebook</strong></span>">
+                        <a id="shareToFacebook" class="btn btn-light rounded shadow" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"><i class="bi bi-facebook"></i></a>
+                    </span>
+                    <span class="popoverable" data-bs-toggle="popover" data-bs-content="<span class='text-danger'><strong>Click to share with twitter</strong></span>">
+                        <a id="shareToTwitter" class="btn btn-light rounded shadow" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"><i class="bi bi-twitter"></i></a>
+                    </span>
+                </h5>
                 @*Story*@
                 @if (@Model.CurrentVehicle.VehicleDetails.Story != null) {
                     <div class="row pt-3 mx-auto">
