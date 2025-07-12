@@ -33,8 +33,11 @@ function applyFilterTerm(term) {
         const style = $(item).data('style') || '';
         const type = $(item).data('type') || '';
         const year = $(item).data('year') || '';
+        const color = $(item).data('color') || '';
+        const color2 = $(item).data('color2') || '';
+        const location = $(item).data('location-code') || '';
 
-        const combined = `${stock} ${make} ${model} ${style} ${type} ${year}`;
+        const combined = `${stock} ${make} ${model} ${style} ${type} ${year} ${color} ${color2} @@${location}`;
 
         if (combined.includes(filter)) {
             item.style.display = '';

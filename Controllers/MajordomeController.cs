@@ -214,7 +214,7 @@ Do not place any **<html>**, **<body>** and **<head>** tags
         }
 
         private (string story, string title) SplitResponse(string response) {
-            string story = string.Empty;
+            string story;
             string title = string.Empty;
 
             // Гамно remover

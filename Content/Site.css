@@ -1,13 +1,15 @@
 ﻿/*Custom*/
 .p-story {
-    margin: 0;
+    margin-bottom: 7px;
     padding: 0;
     font-size: clamp(0.8rem, 2vw, 1rem);
+    text-indent: 25px;
+    text-align: justify;
 }
 
-.strong-story {
-    color:purple;
-}
+    .strong-story {
+        color: purple;
+    }
 
 .video-background {
     position: fixed;
@@ -67,6 +69,11 @@
     white-space: nowrap;
     margin-bottom: 20px;
 }
+
+.card {
+    width: 320px!important;
+}
+
 
 .card-wrapper {
     flex: 0 0 auto;
@@ -2759,8 +2766,12 @@ a, u {
 
 /* Wide Mobile = 480px */
 @media only screen and (max-width: 767px) {
-    .details-container {
-        margin-top: 70px;
+    .staff-row {
+        margin-top: 60px;
+    }
+
+    .open-hours {
+        font-size: large;
     }
 
     .my-5 {
@@ -2778,7 +2789,7 @@ a, u {
       top: 0;
       right: 0;
       left: 0;
-      z-index: 0;
+      z-index: 3;
     }
 
     .searchTop {
@@ -2876,7 +2887,7 @@ a, u {
     .offcanvas-menu-wrapper {
         position: fixed;
         left: -300px;
-        width: 50%;
+        width: 80%;
         /*
          height: 100%;
          background: #ffffff;
@@ -2937,6 +2948,7 @@ a, u {
 
     .slicknav_nav {
         display: block !important;
+        font-size: 1.7rem;
     }
 
     .offcanvas__logo {
