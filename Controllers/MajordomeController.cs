@@ -107,7 +107,7 @@ namespace GTX.Controllers {
                 }
             }
 
-            Model.Inventory.Vehicles = ApplyImages(Model.Inventory.Vehicles);
+            Model.Inventory.Vehicles = ApplyImagesAndStories(Model.Inventory.Vehicles);
             return Json(new { Message = "Upload successful", FileCount = files.Count });
         }
 
@@ -140,7 +140,7 @@ namespace GTX.Controllers {
                 }
 
 
-                Model.Inventory.Vehicles = ApplyImages(Model.Inventory.Vehicles);
+                Model.Inventory.Vehicles = ApplyImagesAndStories(Model.Inventory.Vehicles);
                 return Json(new { success = true, message = "All files deleted successfully." });
             }
 

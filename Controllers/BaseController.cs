@@ -143,7 +143,7 @@ namespace GTX.Controllers {
             if (SessionData?.Inventory == null) {
                 model.All = await Utility.XMLHelpers.XmlRepository.GetInventory();
                 model.All = model.All.Where(m => m.RetailPrice > 0).OrderByDescending(m => m.PurchaseDate).ThenBy(m => m.Make).ToArray();
-                model.All = ApplyImages(model.All);
+                model.All = ApplyImagesAndStories(model.All);
                 model.Vehicles = model.All;
 
                 var carTypes = new HashSet<string> {
@@ -216,9 +216,11 @@ namespace GTX.Controllers {
             }
         }
 
-        public Models.GTX[] ApplyImages(Models.GTX[] vehicles) {
+        public Models.GTX[] ApplyImagesAndStories(Models.GTX[] vehicles) {
             string path = @"/GTXImages/Inventory/";
             foreach (var vehicle in vehicles) {
+                vehicle.Story = InventoryService.GetStory(vehicle.Stock);
+
                 string dirPath = Server.MapPath($"{path}{vehicle.Stock}");
                 vehicle.Image = $"{path}no-image.png";
 

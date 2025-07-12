@@ -2766,6 +2766,10 @@ a, u {
 
 /* Wide Mobile = 480px */
 @media only screen and (max-width: 767px) {
+    h4 {
+        font-size: large;
+    }
+
     .staff-row {
         margin-top: 60px;
     }
@@ -2780,7 +2784,8 @@ a, u {
     }
 
     #filterTerm {
-        width: 35vh;
+        width: 20vh;
+        margin-bottom: 10px;
     }
 
 
@@ -2861,8 +2866,8 @@ a, u {
         border-radius: 2px;
         cursor: pointer;
         position: absolute;
-        top: 18px;
-        left: 18px;
+        top: 10px;
+        left: 10px;
     }
 
     .offcanvas-menu-overlay {
