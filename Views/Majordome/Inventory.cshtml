@@ -145,12 +145,19 @@ const columnDefs = [
         field: 'Story',
         width: 400,
         cellRenderer: (params) => {
-            const { Title, HtmlContent } = params.data.Story;
-            return `
+            if (params.data.Story != null) {
+                const { Title, HtmlContent } = params.data.Story;
+                return `
                 <style>.p-story {font-size: 10px; margin-top: -15px;}</style>
                 <div><h7>${Title}</h7></div>
                 ${HtmlContent.substring(0, 100).trim()}...
-        `;
+            `;
+            }
+            else {
+                return `
+                    <h7>No story created</h7>
+                `;
+            }
         },
         filter: false,
         sortable: true,
@@ -206,9 +213,10 @@ function deleteIconRenderer(params) {
     icon.title = `Delete all ${params.data.Images.length} pictures for Stock# ${JSON.stringify(params.data.Stock)}`;
 
     icon.onclick = () => {
-        alert(`Deleting all ${params.data.Images.length} pictures for Stock# ${JSON.stringify(params.data.Stock)}`);
-        deleteImages(params.data.Stock);
-        params.api.applyTransaction({ update: [params.node.data] });
+        if (confirm(`Deleting all ${params.data.Images.length} pictures for Stock# ${JSON.stringify(params.data.Stock)}`)) {
+            deleteImages(params.data.Stock);
+            params.api.applyTransaction({ update: [params.node.data] });
+        }
     };
     return icon;
 }

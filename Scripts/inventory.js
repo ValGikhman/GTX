@@ -24,29 +24,50 @@ function applyTerm(term) {
 
 function applyFilterTerm(term) {
     const filter = term.trim().toUpperCase();
-    const items = document.querySelectorAll("#inventory > li");
 
-    items.forEach(item => {
-        const stock = $(item).data('stock') || '';
-        const make = $(item).data('make') || '';
-        const model = $(item).data('model') || '';
-        const style = $(item).data('style') || '';
-        const type = $(item).data('type') || '';
-        const year = $(item).data('year') || '';
-        const color = $(item).data('color') || '';
-        const color2 = $(item).data('color2') || '';
-        const location = $(item).data('location-code') || '';
-        const story = $(item).data('story') || '';
-        const images = $(item).data('images') || '';
+    if (filter == "@") return;
 
-        const combined = `${stock} ${make} ${model} ${style} ${type} ${year} ${color} ${color2} @@${location} @@${story} @@${images}`;
+    const vehicles = document.querySelectorAll("#inventory > li");
+    let combined;
+
+    let i = 0;
+    vehicles.forEach(vehicle => {
+        const stock = $(vehicle).data("stock") || "";
+        const make = $(vehicle).data("make") || "";
+        const model = $(vehicle).data("model") || "";
+        const style = $(vehicle).data("style") || "";
+        const type = $(vehicle).data("type") || "";
+        const year = $(vehicle).data("year") || "";
+        const color = $(vehicle).data("color") || "";
+        const color2 = $(vehicle).data("color2") || "";
+        const location = $(vehicle).data("location-code") || "";
+        const story = $(vehicle).data("story") || "";
+        const images = $(vehicle).data("images") || "";
+
+        if (filter.startsWith("@@")) {
+            // Hidden  features
+            $("#filterTerm").addClass("text-info").addClass("border-info");
+            combined = `@@${location} @@${story} @@${images}`;
+        }
+        else {
+            // Normal search
+            $("#filterTerm").removeClass("text-info").removeClass("border-info");
+            combined = `${stock} ${make} ${model} ${style} ${type} ${year} ${color} ${color2}`;
+        }
 
         if (combined.includes(filter)) {
-            item.style.display = '';
+            vehicle.style.display = "";
+            i++;
         } else {
-            item.style.display = 'none';
+            vehicle.style.display = "none";
         }
     });
+    if (filter === "") {
+        $("#filterResults").empty();
+    }
+    else {
+        $("#filterResults").empty().html(`${i} record(s) found.`);
+    }
 }
 
 function applyFilterLiked() {

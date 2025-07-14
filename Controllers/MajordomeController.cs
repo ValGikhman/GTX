@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -95,20 +96,51 @@ namespace GTX.Controllers {
                 return new HttpStatusCodeResult(400, "No files uploaded.");
             }
 
-            var uploadPath = Server.MapPath("~/GTXImages/Inventory/" + stock);
-            if (!Directory.Exists(uploadPath)) {
-                Directory.CreateDirectory(uploadPath);
+            if (string.IsNullOrWhiteSpace(stock)) {
+                return new HttpStatusCodeResult(400, "Invalid stock identifier.");
             }
 
-            foreach (var file in files) {
-                if (file != null && file.ContentLength > 0) {
-                    var filePath = Path.Combine(uploadPath, Path.GetFileName(file.FileName));
-                    file.SaveAs(filePath);
+            var uploadPath = Server.MapPath(Path.Combine("~/GTXImages/Inventory/", stock));
+            try {
+                if (!Directory.Exists(uploadPath)) {
+                    Directory.CreateDirectory(uploadPath);
                 }
             }
 
+            catch { 
+            }
+
+            int savedCount = 0;
+            var errors = new List<string>();
+
+            Parallel.ForEach(files.Where(f => f != null && f.ContentLength > 0),
+                new ParallelOptions { MaxDegreeOfParallelism = 3 },
+                file => {
+                    try {
+                        var safeFileName = string.Concat(
+                            Path.GetFileName(file.FileName)
+                                .Where(c => !Path.GetInvalidFileNameChars().Contains(c))
+                        );
+
+                        var filePath = Path.Combine(uploadPath, safeFileName);
+                        file.SaveAs(filePath);
+                        Interlocked.Increment(ref savedCount);
+                    }
+                    catch (Exception ex) {
+                        lock (errors) {
+                            errors.Add($"Failed to save {file?.FileName}: {ex.Message}");
+                        }
+                    }
+                });
+
             Model.Inventory.Vehicles = ApplyImagesAndStories(Model.Inventory.Vehicles);
-            return Json(new { Message = "Upload successful", FileCount = files.Count });
+
+            return Json(new {
+                Message = savedCount > 0 ? "Upload successful" : "No files saved.",
+                SavedCount = savedCount,
+                FailedCount = files.Count - savedCount,
+                Errors = errors
+            });
         }
 
         [HttpPost]
