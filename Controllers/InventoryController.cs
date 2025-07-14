@@ -22,8 +22,8 @@ namespace GTX.Controllers {
         }
 
         public ActionResult Index(BaseModel model) {
-            Model.Inventory.Title = "All";
-            ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
+            Model.Inventory.Title = "Search  result";
+            ViewBag.Title = $"{Model.Inventory.Title} ({Model.Inventory.Vehicles.Length}) vehicles";
             Log($"{Model.Inventory.Title} inventory");
             return View(Model);
         }
