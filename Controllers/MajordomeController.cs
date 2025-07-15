@@ -117,12 +117,13 @@ namespace GTX.Controllers {
                 new ParallelOptions { MaxDegreeOfParallelism = 3 },
                 file => {
                     try {
-                        var safeFileName = string.Concat(
+/*                        var safeFileName = string.Concat(
                             Path.GetFileName(file.FileName)
                                 .Where(c => !Path.GetInvalidFileNameChars().Contains(c))
                         );
-
                         var filePath = Path.Combine(uploadPath, safeFileName);
+*/
+                        var filePath = Path.Combine(uploadPath, $"{savedCount}.{Path.GetExtension(file.FileName)}");
                         file.SaveAs(filePath);
                         Interlocked.Increment(ref savedCount);
                     }
