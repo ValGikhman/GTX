@@ -14,7 +14,7 @@
         <span class="visually-hidden">Working...</span>
     </div>
 </div>
-<div class="container mx-auto">
+<div class="container-fluid">
     <h2 class="mb-4">Inventory Management (Shmeizer)</h2>
     <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
@@ -25,6 +25,11 @@
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" type="button" role="tab">
                 Details
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="galery-tab" data-bs-toggle="tab" data-bs-target="#galery" type="button" role="tab">
+                Galery
             </button>
         </li>
     </ul>
@@ -38,13 +43,57 @@
         </div>
 
         <!-- Details Tab -->
-        <div class="tab-pane fade" id="details" role="tabpanel">
-            <h5>Vehicle details</h5>
-            <div id="details-content" class="mb-2">
+        <div class="tab-pane fade mb-2" id="details" role="tabpanel">
+            <form id="detailsForm" name="detailsForm" novalidate autocomplete="off" class="w-100">
+                <div class="mb-2">
+                    @Html.Label("Year", new { @class = "text-shadow" })
+                    <input id="year" class="form-control shadow w-25" placeholder="Year" />
+                </div>
+                <div class="mb-2">
+                    @Html.Label("Make", new { @class = "text-shadow" })
+                    <input id="make" class="form-control shadow w-25" placeholder="Make" />
+                </div>
 
+                <div class="mb-2">
+                    @Html.Label("Model", new { @class = "text-shadow" })
+                    <input id="model" class="form-control shadow w-25" placeholder="Model" />
+                </div>
+
+                <div class="mb-2">
+                    @Html.Label("Mileage", new { @class = "text-shadow" })
+                    <input id="mileage" class="form-control shadow w-25" placeholder="Mileage" />
+                </div>
+
+                <div class="mb-2">
+                    @Html.Label("Price", new { @class = "text-shadow" })
+                    <input id="price" class="form-control shadow w-25" placeholder="Price" />
+                </div>
+
+                <div class="mb-2">
+                    @Html.Label("Style", new { @class = "text-shadow" })
+                    <input id="style" class="form-control shadow w-25" placeholder="Style" />
+                </div>
+
+                <div class="mb-2">
+                    @Html.Label("Type", new { @class = "text-shadow" })
+                    <input id="type" class="form-control shadow w-25" placeholder="Type" />
+                </div>
+
+                <div class="d-flex justify-content-center p-3">
+                    <button id="saveDetails" type="submit" class="btn btn-secondary shadow w-50"><i class="bi bi-send"></i> Send</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="tab-pane fade" id="galery" role="tabpanel">
+            <h5>Vehicle galery</h5>
+            <div id="galery-content" class="container-fluid mb-2">
+                <div id="sortable-gallery" class="row">
+                </div>
             </div>
         </div>
     </div>
+</div>
 </div>
 
 <div class="modal modal-xl fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModal" aria-hidden="true">
@@ -97,7 +146,11 @@ $(function () {
                     decodeVin(vin);
                 }
             }
-    }).focus();
+        }).focus();
+
+    window.addEventListener('resize', function () {
+        gridOptions.api.sizeColumnsToFit();
+    });
 
 });
 
@@ -107,7 +160,6 @@ const columnDefs = [
     {
         headerName: 'Images',
         field: 'images',
-        width: 110,
         cellRenderer: imageButtonRenderer,
         filter: false,
         sortable: false
@@ -127,10 +179,17 @@ const columnDefs = [
             return 0;
         },
         cellRenderer: (params) => {
-            const { Year, Make, Model, VehicleStyle } = params.data;
+            const { Year, Make, Model, VehicleStyle, Mileage, RetailPrice } = params.data;
+            var formattedPrice = new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(RetailPrice);
+
+            var formattedMileage = new Intl.NumberFormat('en-US').format(Mileage);
             return `
                 <div><h7>${Year} ${Make}</h7></div>
                 <div style="margin-top: -15px;"><h8>${Model} ${VehicleStyle}</h8></div>
+                <div style="margin-top: -15px;"><h8>Miles: ${formattedMileage} Price:${formattedPrice}</h8></div>
         `;
         },
         getQuickFilterText: (params) => {
@@ -139,7 +198,7 @@ const columnDefs = [
         }
     },
     { headerName: "Stock", field: "Stock", filter: false, width: 120 },
-    { headerName: "LC", field: "LocationCode", filter: false, width: 70  },
+    { headerName: "GTX", field: "LocationCode", filter: false, width: 70  },
     {
         headerName: 'Story',
         field: 'Story',
@@ -150,8 +209,7 @@ const columnDefs = [
                 return `
                 <style>.p-story {font-size: 10px; margin-top: -15px;}</style>
                 <div><h7>${Title}</h7></div>
-                ${HtmlContent.substring(0, 100).trim()}...
-            `;
+                `
             }
             else {
                 return `
@@ -198,10 +256,8 @@ const gridOptions = {
         headerClass: 'text-shadow fw-normal td-center'
     },
     onRowDoubleClicked: function (event) {
-        $('#details-tab').tab('show');
-        $('#details-content').html(
-            `<h4>Details for ${event.data.Year} ${event.data.Make} ${event.data.Model} ${event.data.VehicleStyle}</h4>`
-        );
+        showVehicleDetails(event.data);
+        loadGallery(event.data.stock);
     },
 };
 
@@ -269,23 +325,15 @@ function imageButtonRenderer(params) {
     const wrapper = document.createElement('div');
     wrapper.className = 'position-relative d-inline-block';
 
-    const icon = document.createElement('i');
-    icon.className = 'bi bi-images fs-3'; // bell icon, font size 3
-    icon.style.cursor = 'pointer';
-    icon.title = `Show all ${params.data.Images.length} picture(s) for Stock# ${JSON.stringify(params.data.Stock)}`;
-    icon.onclick = () => showImageModal(params.data.Stock);
-    wrapper.appendChild(icon);
+    const image = new Image();;
+    image.title = `Show all ${params.data.Images.length} picture(s) for Stock# ${JSON.stringify(params.data.Stock)}`;
+    image.src = params.data.Image;
+    wrapper.appendChild(image)
 
     if (params.data.Images.length > 0) {
         const badge = document.createElement('span');
-        badge.className = 'position-absolute badge rounded-pill bg-success';
-        badge.textContent = params.data.Images.length;
-
-        const count = document.createElement('span');
-        count.className = 'visually-hidden';
-        count.textContent = `${params.data.Images.length} images`;
-        badge.appendChild(count);
-
+        badge.className = 'position-absolute badge rounded-pill bg-success start-25';
+        badge.textContent = `${params.data.Images.length} images`;
         wrapper.appendChild(badge);
     }
 
@@ -422,4 +470,61 @@ function reStoryAll() {
         alert(error);
     });
 }
+
+function showVehicleDetails(vehicle) {
+    $('#details-tab').tab('show');
+    $('#year').val(vehicle.Year);
+    $('#make').val(vehicle.Make);
+    $('#model').val(vehicle.Model);
+    $('#year').val(vehicle.Year);
+    $('#price').val(vehicle.RetailPrice);
+    $('#mileage').val(vehicle.Mileage);
+    $('#style').val(vehicle.VehicleStyle);
+    $('#type').val(vehicle.VehicleType);
+}
+
+function saveDetails(model) {
+    fetch('/Majordome/SaveDetails', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(model)
+    })
+        .then(response => {
+            if (!response.ok) throw new Error("Server error");
+            return response.json();
+        })
+        .then(data => {
+            console.log("✅ Server response:", data);;
+        })
+        .catch(error => {
+            console.log("❌ Error submitting:", error);
+        });
+    }
+
+    function loadGallery(stock) {
+        $.get('/Inventory/GetImages', { stock: stock }, function (images) {
+            var container = $("#sortable-gallery");
+            container.empty();
+
+            images.forEach(function (imgPath) {
+                var fileName = imgPath.split('/').pop();
+
+                var item = `
+                <div class="col-md-3 gallery-item" data-filename="${fileName}">
+                    <a href="${imgPath}" data-lightbox="gallery">
+                        <img src="${imgPath}" class="img-fluid img-thumbnail" />
+                    </a>
+                    <button class="btn btn-sm btn-danger mt-2 delete-btn" data-stock="${stock}" data-filename="${fileName}">Delete</button>
+                </div>
+            `;
+
+                container.append(item);
+            });
+
+            lightbox.reload();
+        });
+    }
+
 </script>
