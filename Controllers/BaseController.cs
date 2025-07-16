@@ -2,6 +2,7 @@
 using Services;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -14,6 +15,9 @@ namespace GTX.Controllers {
 
         #region Properties
         public readonly String devComputer = "VALS-PC";
+
+        public readonly string imageFolder = "~/GTXImages/Inventory/";
+        public readonly string openAiApiKey = ConfigurationManager.AppSettings["OpenAI:ApiKey"];
 
         public ILogService LogService { get; set; }
 

@@ -15,7 +15,6 @@ using System.Web.Script.Serialization;
 namespace GTX.Controllers {
 
     public class InventoryController : BaseController {
-        private readonly string openAiApiKey = ConfigurationManager.AppSettings["OpenAI:ApiKey"];
 
         public InventoryController(ISessionData sessionData, IInventoryService inventoryService, ILogService LogService)
             : base(sessionData, inventoryService, LogService) {
@@ -423,7 +422,7 @@ namespace GTX.Controllers {
         }
 
         public string[] GetImages(string stock) {
-            string path = $"~/GTXImages/Inventory/{stock}";
+            string path = $"{imageFolder}{stock}";
             string[] extensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
             string imagesPath = Server.MapPath($"{path}");
             List<string> imageUrls = new List<string>();

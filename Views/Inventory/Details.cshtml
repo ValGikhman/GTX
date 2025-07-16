@@ -47,7 +47,7 @@
             <div class="tab-pane fade show active" id="nav-details" role="tabpanel" aria-labelledby="nav-details-tab">
                 <div class="row justify-content-center well">
                     @{
-                        if (Model.CurrentVehicle.VehicleImages.Count() > 0) {
+                        if (Model.CurrentVehicle.VehicleDetails.Images.Count() > 0) {
                             <div class="p-3 w-100">
                                 <h7>@Html.Partial("_Carousel", Model.CurrentVehicle)</h7>
                             </div>
@@ -83,7 +83,7 @@
             </div>
             <div class="tab-pane fade well" id="nav-pictures" role="tabpanel" aria-labelledby="nav-picture-tab">
                 <div class="d-flex flex-wrap justify-content-center overflow-auto">
-                    @foreach (string imageUrl in Model.CurrentVehicle.VehicleImages) {
+                    @foreach (string imageUrl in Model.CurrentVehicle.VehicleDetails.Images) {
                         <a class="elem three-d w-30" href="@imageUrl" data-lcl-thumb="@imageUrl">
                             <span class="shadow rounded" style="background-image: url(..@imageUrl);"></span>
                         </a>

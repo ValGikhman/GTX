@@ -17,8 +17,6 @@ using System.Web.Mvc;
 namespace GTX.Controllers {
 
     public class MajordomeController : BaseController {
-        private readonly string openAiApiKey = ConfigurationManager.AppSettings["OpenAI:ApiKey"];
-
         public MajordomeController(ISessionData sessionData, IInventoryService inventoryService, ILogService logService)
             : base(sessionData, inventoryService, logService) {
             if (Model == null) {
@@ -82,12 +80,8 @@ namespace GTX.Controllers {
 
         [HttpGet]
         public JsonResult GetUpdatedItems() {
-            var items = Model.Inventory.All; // updated list
-            foreach (var vehicle in Model.Inventory.Vehicles) {
-                vehicle.Story = InventoryService.GetStory(vehicle.Stock); // Attach stories
-            }
-
-            return Json(items, JsonRequestBehavior.AllowGet);
+            Model.Inventory.Vehicles = ApplyImagesAndStories(Model.Inventory.Vehicles);
+            return Json(Model.Inventory.Vehicles, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -100,7 +94,7 @@ namespace GTX.Controllers {
                 return new HttpStatusCodeResult(400, "Invalid stock identifier.");
             }
 
-            var uploadPath = Server.MapPath(Path.Combine("~/GTXImages/Inventory/", stock));
+            var uploadPath = Server.MapPath(Path.Combine(imageFolder, stock));
             try {
                 if (!Directory.Exists(uploadPath)) {
                     Directory.CreateDirectory(uploadPath);
@@ -117,13 +111,7 @@ namespace GTX.Controllers {
                 new ParallelOptions { MaxDegreeOfParallelism = 3 },
                 file => {
                     try {
-/*                        var safeFileName = string.Concat(
-                            Path.GetFileName(file.FileName)
-                                .Where(c => !Path.GetInvalidFileNameChars().Contains(c))
-                        );
-                        var filePath = Path.Combine(uploadPath, safeFileName);
-*/
-                        var filePath = Path.Combine(uploadPath, $"{savedCount}.{Path.GetExtension(file.FileName)}");
+                        var filePath = Path.Combine(uploadPath, $"{savedCount}{Path.GetExtension(file.FileName)}");
                         file.SaveAs(filePath);
                         Interlocked.Increment(ref savedCount);
                     }
@@ -155,8 +143,21 @@ namespace GTX.Controllers {
         }
 
         [HttpPost]
+        public JsonResult DeleteImage(string file) {
+            string filePath = Server.MapPath(file);
+
+            if (System.IO.File.Exists(filePath)) {
+                System.IO.File.Delete(filePath);
+                return Json(new { success = true });
+            }
+
+            Model.Inventory.Vehicles = ApplyImagesAndStories(Model.Inventory.Vehicles);
+            return Json(new { success = false });
+        }
+
+        [HttpPost]
         public ActionResult DeleteImages(string stock) {
-            string path = $"~/GTXImages/Inventory/{stock}";
+            string path = $"{imageFolder}{stock}";
             path = Server.MapPath(path);
 
             string[] extensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };

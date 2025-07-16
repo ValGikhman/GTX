@@ -2,6 +2,11 @@
 <head>
     <!-- Includes all JS & CSS for the JavaScript Data Grid -->
     <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.1/dist/ag-grid-community.min.js"></script>
+    <!-- Lightbox2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/lightbox2@2/dist/css/lightbox.min.css" rel="stylesheet" />
+
+    <!-- Lightbox2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/lightbox2@2/dist/js/lightbox.min.js"></script>
 </head>
 
 <style>
@@ -46,6 +51,10 @@
         <div class="tab-pane fade mb-2" id="details" role="tabpanel">
             <form id="detailsForm" name="detailsForm" novalidate autocomplete="off" class="w-100">
                 <div class="mb-2">
+                    @Html.Label("Stock", new { @class = "text-shadow" })
+                    <input id="stock" class="form-control shadow w-25" placeholder="Style" />
+                </div>
+                <div class="mb-2">
                     @Html.Label("Year", new { @class = "text-shadow" })
                     <input id="year" class="form-control shadow w-25" placeholder="Year" />
                 </div>
@@ -86,14 +95,14 @@
         </div>
 
         <div class="tab-pane fade" id="galery" role="tabpanel">
-            <h5>Vehicle galery</h5>
-            <div id="galery-content" class="container-fluid mb-2">
+            <button id="upload" class="btn btn-light shadow">Upload Images</button>
+            <input type="file" id="fileInput" class="d-none" multiple accept="image/*">
+            <div id="galery-content" class="container-fluid my-2">
                 <div id="sortable-gallery" class="row">
                 </div>
             </div>
         </div>
     </div>
-</div>
 </div>
 
 <div class="modal modal-xl fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModal" aria-hidden="true">
@@ -103,33 +112,44 @@
     </div>
 </div>
 
-<template id="addNew">
-    <button type="button" id="btnAddNew" class="btn btn-light shadow">Add new</button>
-    <button type="button" id="btnReStoryAll" class="btn btn-light shadow">Restory</button>
+<template id="actions">
+    <button type="button" id="btnReStoryAll" class="btn btn-light shadow">Restory all</button>
 </template>
 
+<input type="hidden" id="currentVehicle"/>
 <script type="text/javascript">
 
 $(function () {
     var grid = document.querySelector('#myGrid');
     agGrid.createGrid(grid, gridOptions);
 
-    $(".ag-column-last").html($("#addNew").html());
-
-    $("#btnAddNew").on("click", function () {
-        $("#details-tab").tab("show");
-        $('#details-content').html(
-            `<h4>Add new vehicle</h4>
-            <input type="search" id="vin" class="form-control w-25 mb-3 shadow" placeholder="Search for VIN #">
-            `
-        );
+    $(document).on("click", ".delete-image", function () {
+        var file = $(this).data("file");
+        if (confirm(`Do you want to delete this file?`)) {
+            deleteImage(file, this);
+        }
     });
+
+    $(".ag-column-last").html($("#actions").html());
 
     $("#btnReStoryAll").on("click", function () {
         reStoryAll();
     });
 
     $("#filterLiked").hide();
+
+    $("#upload").on("click", function () {
+        $('#fileInput').click();
+    });
+
+    $("#fileInput").on("change", function () {
+        const files = Array.from(fileInput.files);
+        const stock = $("#stock").val();
+
+        if (files.length > 0) {
+            uploadFiles(stock, fileInput);
+        }
+    });
 
     $("#vin")
         .on("blur", function () {
@@ -147,6 +167,18 @@ $(function () {
                 }
             }
         }).focus();
+
+    $("#sortable-gallery").sortable({
+        items: ".gallery-item",
+        update: function (event, ui) {
+            var sorted = [];
+            $(".gallery-item").each(function () {
+                sorted.push($(this).data("filename"));
+            });
+
+@*            $.post('@Url.Action("SaveOrder", "Gallery")', { order: sorted });*@
+        }
+    });
 
     window.addEventListener('resize', function () {
         gridOptions.api.sizeColumnsToFit();
@@ -193,8 +225,8 @@ const columnDefs = [
         `;
         },
         getQuickFilterText: (params) => {
-            const { Year, Make, Model, VehicleStyle, Stock, LocationCode } = params.data;
-            return `${Year} ${Make} ${Model} ${VehicleStyle} ${Stock} ${LocationCode}`;
+            const { Year, Make, Model, VehicleStyle, Stock } = params.data;
+            return `${Year} ${Make} ${Model} ${VehicleStyle} ${Stock}`;
         }
     },
     { headerName: "Stock", field: "Stock", filter: false, width: 120 },
@@ -255,10 +287,10 @@ const gridOptions = {
         floatingFilter: false,
         headerClass: 'text-shadow fw-normal td-center'
     },
-    onRowDoubleClicked: function (event) {
+    onRowClicked: function (event) {
         showVehicleDetails(event.data);
-        loadGallery(event.data.stock);
-    },
+        loadGallery(event.data);
+    }
 };
 
 // Delete Icon renderer
@@ -291,31 +323,6 @@ function reStoryIconRenderer(params) {
     return icon;
 }
 
-
-function deleteImages(stock) {
-    $.post(`${root}Majordome/DeleteImages`, { stock })
-        .done(function (response) {
-            fetch('/Majordome/GetUpdatedItems')
-                .then(res => res.json())
-                .then(data => {
-                    gridApi.setRowData(data);
-                });
-        })
-};
-
-function createStory(stock) {
-    showSpinner();
-    $.post(`${root}Majordome/CreateStory`, { stock })
-        .done(function (response) {
-            fetch('/Majordome/GetUpdatedItems')
-                .then(res => res.json())
-                .then(data => {
-                    gridApi.setRowData(data);
-                    hideSpinner();
-                });
-        })
-};
-
 // Image Button Renderer
 function imageButtonRenderer(params) {
     if (!params.data.Images || params.data.Images.length === 0) {
@@ -326,7 +333,6 @@ function imageButtonRenderer(params) {
     wrapper.className = 'position-relative d-inline-block';
 
     const image = new Image();;
-    image.title = `Show all ${params.data.Images.length} picture(s) for Stock# ${JSON.stringify(params.data.Stock)}`;
     image.src = params.data.Image;
     wrapper.appendChild(image)
 
@@ -356,123 +362,7 @@ function storyRenderer(params) {
     return wrapper;
 }
 
-// Show Bootstrap modal with images
-function showImageModal(stock) {
-    if (stock) {
-        $.get(`${root}Inventory/DetailsModal`, { "stock": stock })
-            .done(function (html) {
-                $("#vehicle-details").html(html);
-                $("#detailsModal").modal("show");
-            })
-    };
-}
-
-// File upload jazz
-function actionsRenderer(params) {
-    const container = document.createElement('div');
-    const fileInput = document.createElement('input');
-
-    fileInput.type = 'file';
-    fileInput.multiple = true;
-    fileInput.style.display = 'none';
-
-    const icon = document.createElement('span');
-    icon.className = 'bi bi-upload fs-5 px-2';
-    icon.style.cursor = 'pointer';
-    icon.title = `Upload images for Stock# ${JSON.stringify(params.data.Stock)}`;
-
-    icon.onclick = () => {
-        fileInput.click();
-    };
-
-    fileInput.addEventListener('change', () => {
-        const files = Array.from(fileInput.files);
-        if (files.length > 0) {
-            uploadFiles(params.data.Stock, fileInput);
-        }
-    });
-
-    container.appendChild(reStoryIconRenderer(params));
-    container.appendChild(icon);
-    container.appendChild(fileInput);
-    if (params.data.Images && params.data.Images.length > 0) {
-        container.appendChild(deleteIconRenderer(params));
-    }
-    return container;
-}
-
-function uploadFiles(stock, input) {
-    const files = input.files;
-    if (files.length === 0) return;
-
-    const formData = new FormData();
-    for (let i = 0; i < files.length; i++) {
-        formData.append("files", files[i]);
-    }
-    formData.append("stock", stock);
-
-    fetch("/Majordome/Upload", {
-        method: "POST",
-        body: formData
-    })
-    .then(response => {
-        if (response.ok) {
-            fetch('/Majordome/GetUpdatedItems')
-                .then(res => res.json())
-                .then(data => {
-                    gridApi.setRowData(data);
-                });
-                alert(`Uploaded ${files.length} file(s) for ${stock}`);
-        } else {
-            alert("Upload failed.");
-        }
-    })
-    .catch(error => {
-        alert(error);
-    });
-}
-
-function decodeVin(vin) {
-    fetch('/Inventory/DecodeVin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ vin: vin })
-    })
-    .then(res => res.json())
-    .then(data => {
-        console.log(data);
-        $("#details-content").html(data.Error);
-    });
-}
-
-function reStoryAll() {
-    showSpinner();
-
-    fetch('/Majordome/ReStoryAll', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-    })
-    .then(response => {
-        if (response.ok) {
-            fetch('/Majordome/GetUpdatedItems')
-                .then(res => res.json())
-                .then(data => {
-                    gridApi.setRowData(data);
-                });
-            alert(`Restory is done`);
-        } else {
-            alert("Restory failed.");
-        }
-        hideSpinner();
-
-    })
-    .catch(error => {
-        alert(error);
-    });
-}
-
 function showVehicleDetails(vehicle) {
-    $('#details-tab').tab('show');
     $('#year').val(vehicle.Year);
     $('#make').val(vehicle.Make);
     $('#model').val(vehicle.Model);
@@ -481,50 +371,7 @@ function showVehicleDetails(vehicle) {
     $('#mileage').val(vehicle.Mileage);
     $('#style').val(vehicle.VehicleStyle);
     $('#type').val(vehicle.VehicleType);
+    $('#stock').val(vehicle.Stock);
 }
-
-function saveDetails(model) {
-    fetch('/Majordome/SaveDetails', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(model)
-    })
-        .then(response => {
-            if (!response.ok) throw new Error("Server error");
-            return response.json();
-        })
-        .then(data => {
-            console.log("✅ Server response:", data);;
-        })
-        .catch(error => {
-            console.log("❌ Error submitting:", error);
-        });
-    }
-
-    function loadGallery(stock) {
-        $.get('/Inventory/GetImages', { stock: stock }, function (images) {
-            var container = $("#sortable-gallery");
-            container.empty();
-
-            images.forEach(function (imgPath) {
-                var fileName = imgPath.split('/').pop();
-
-                var item = `
-                <div class="col-md-3 gallery-item" data-filename="${fileName}">
-                    <a href="${imgPath}" data-lightbox="gallery">
-                        <img src="${imgPath}" class="img-fluid img-thumbnail" />
-                    </a>
-                    <button class="btn btn-sm btn-danger mt-2 delete-btn" data-stock="${stock}" data-filename="${fileName}">Delete</button>
-                </div>
-            `;
-
-                container.append(item);
-            });
-
-            lightbox.reload();
-        });
-    }
 
 </script>
