@@ -1,4 +1,16 @@
 ﻿/*Custom*/
+.sortable-gallery-ghost {
+    opacity: 0.4;
+    background: rgba(0, 0, 0, 0.4)!important;
+}
+
+.sortable-gallery-chosen {
+    border: 4px solid grey!important;
+}
+
+.sortable-gallery-drag {
+    background: #727171!important;
+}
 
 #sortable-gallery {
     list-style: none;
@@ -18,8 +30,7 @@
 
 .gallery-item:first-child {
     background-color: rgba(0,0,0,0.2);
-    border: 1px solid #db2d2e;
-    border-radius: 14px;
+    border: 1px solid grey;
 }
 
     .gallery-item:first-child::after {
