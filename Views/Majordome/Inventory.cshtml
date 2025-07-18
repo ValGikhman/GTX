@@ -254,7 +254,7 @@ $(function () {
 
             saveOrder(sorted, selectedVehicle.Stock)
         }
-    });
+    }).disableSelection();
 
     tinymce.init({
         selector: '#story',
@@ -464,6 +464,6 @@ function showVehicleDetails(vehicle) {
         editor.setContent(vehicle?.Story?.HtmlContent || "");
     }
 
-    $("#galery-tab").text(`Galery (${vehicle.Images.length})`);
+    $("#galery-tab").text(`Gallery (${vehicle.Images.length})`);
 }
 </script>
