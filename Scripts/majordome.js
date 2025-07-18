@@ -194,12 +194,21 @@ function createStory(stock) {
     showSpinner();
     $.post(`${root}Majordome/CreateStory`, { stock })
         .done(function (response) {
-            fetch('/Majordome/GetUpdatedItems')
-            .then(res => res.json())
-            .then(data => {
-                updateRow(data);
-            });
-        })
+            if (response.success) {
+                const editor = tinymce.get("story");
+
+                if (editor) {
+                    editor.setContent(response.Story || "");
+                }
+                $("#title").val(response.Title);
+
+                fetch('/Majordome/GetUpdatedItems')
+                    .then(res => res.json())
+                    .then(data => {
+                        updateRow(data);
+                });
+        }
+    })
 };
 
 function saveOrder(sorted, stock) {

@@ -47,11 +47,23 @@ namespace GTX.Controllers {
                 var vehicle = Model.Inventory.Vehicles.FirstOrDefault(m => m.Stock == stock);
                 var story = await GetChatGptResponse(GetPrompt(vehicle));
                 var response = SplitResponse(story);
-                InventoryService.SaveStory(vehicle.Stock, response.story, response.title);
-                return Json(new { success = true, message = "Story created successfully." });
+                return SaveStory(vehicle.Stock, response.story, response.title);
             }
 
             catch (Exception ex) {
+                return Json(new { success = false, message = "Error: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public JsonResult SaveStory(string stock, string story, string title) {
+            try {
+                InventoryService.SaveStory(stock, story, title);
+                return Json(new { success = true, message = "Story saved successfully.", Title = title, Story = story });
+            }
+
+            catch (Exception ex) {
+                System.Diagnostics.Debug.WriteLine("ERROR: " + ex.Message);
                 return Json(new { success = false, message = "Error: " + ex.Message });
             }
         }
