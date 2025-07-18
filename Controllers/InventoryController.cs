@@ -2,9 +2,6 @@
 using Newtonsoft.Json;
 using Services;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -32,7 +29,7 @@ namespace GTX.Controllers {
             return View("DetailsCard", Model.CurrentVehicle.VehicleDetails);
         }
 
-            public async Task<ActionResult> Details(string stock) {
+        public async Task<ActionResult> Details(string stock) {
             Model.Inventory.Title = "Details";
             stock = stock?.Trim().ToUpper();
             if (string.IsNullOrEmpty(stock)) {
@@ -419,24 +416,6 @@ namespace GTX.Controllers {
             }
 
             return query.OrderBy(m => m.Make).ToArray();
-        }
-
-        public string[] GetImages(string stock) {
-            string path = $"{imageFolder}{stock}";
-            string[] extensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
-            string imagesPath = Server.MapPath($"{path}");
-            List<string> imageUrls = new List<string>();
-
-            if (Directory.Exists(imagesPath)) {
-                string[] imageFiles = Directory.GetFiles(imagesPath).Where(file => extensions.Contains(Path.GetExtension(file).ToLower())).ToArray();
-                foreach (string file in imageFiles) {
-                    string fileName = Path.GetFileName(file);
-                    imageUrls.Add(Url.Content($"{path}/{fileName}"));
-                }
-            }
-
-            Model.CurrentVehicle.VehicleImages = imageUrls.ToArray();
-            return Model.CurrentVehicle.VehicleImages;
         }
 
         [HttpPost]

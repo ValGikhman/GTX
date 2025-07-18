@@ -1,4 +1,6 @@
-﻿function applyFilterTerm(term) {
+﻿var selectedVehicle;
+
+function applyFilterTerm(term) {
     gridApi.setGridOption('quickFilterText', term);
 }
 
@@ -25,18 +27,19 @@ function saveDetails(model) {
 function loadGallery(vehicle) {
     var container = $("#sortable-gallery");
     container.empty();
-
+    var i = 0;
     vehicle.Images.forEach(function (imgPath) {
         var item = `
-            <div class="col-md-2 gallery-item well p-3" data-filename="${imgPath}">
-                <a href="${imgPath}" data-lightbox="gallery">
-                    <img src="${imgPath}"/>
-                </a>
-                <span class="delete-image bi bi-trash" data-file="${imgPath}"></span>
-            </div>
+        <div class="col-lg-2 col-md-3 col-sm-4 gallery-item well pt-3 shadow m-2" data-filename="${imgPath}">
+            <a href="${imgPath}" data-lightbox="gallery">
+                <img src="${imgPath}"/>
+            </a>
+            <span class="delete-image bi bi-trash btn btn-light shadow my-3" data-file="${imgPath}"></span>
+        </div>
         `;
 
         container.append(item);
+        i++;
     });
 }
 
@@ -75,6 +78,7 @@ function actionsRenderer(params) {
 }
 
 function uploadFiles(stock, input) {
+    showSpinner();
     const files = input.files;
     if (files.length === 0) return;
 
@@ -88,23 +92,22 @@ function uploadFiles(stock, input) {
         method: "POST",
         body: formData
     })
-        .then(response => {
-            if (response.ok) {
-                fetch('/Majordome/GetUpdatedItems')
-                    .then(res => res.json())
-                    .then(data => {
-                        gridApi.setRowData(data);
-
-                        loadGallery(data);
-                    });
-                alert(`Uploaded ${files.length} file(s) for ${stock}`);
-            } else {
-                alert("Upload failed.");
-            }
-        })
-        .catch(error => {
-            alert(error);
-        });
+    .then(response => {
+        if (response.ok) {
+            fetch('/Majordome/GetUpdatedItems')
+                .then(res => res.json())
+                .then(data => {
+                    const vehicle = data.find(v => v.Stock === stock);
+                    loadGallery(vehicle);
+                    updateRow(data);
+            });
+        } else {
+            alert("Upload failed.");
+        }
+    })
+    .catch(error => {
+        alert(error);
+    });
 }
 
 function decodeVin(vin) {
@@ -120,6 +123,16 @@ function decodeVin(vin) {
         });
 }
 
+function setDetails(stock) {
+    fetch('/Majordome/SetDetails', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stock: stock })
+    })
+    .then(data => {
+    });
+}
+
 function reStoryAll() {
     showSpinner();
 
@@ -127,49 +140,54 @@ function reStoryAll() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
     })
-        .then(response => {
-            if (response.ok) {
+    .then(response => {
+        if (response.ok) {
+            fetch('/Majordome/GetUpdatedItems')
+                .then(res => res.json())
+                .then(data => {
+                    updateRow(data);
+                });
+            alert(`Restory is done`);
+        } else {
+            alert("Restory failed.");
+        }
+    })
+    .catch(error => {
+        alert(error);
+    });
+}
+
+function deleteImages(stock) {
+    showSpinner();
+    $.post(`${root}Majordome/DeleteImages`, { stock })
+        .done(function (response) {
+            if (response.success) {
                 fetch('/Majordome/GetUpdatedItems')
                     .then(res => res.json())
                     .then(data => {
-                        gridApi.setRowData(data);
-                    });
-                alert(`Restory is done`);
-            } else {
-                alert("Restory failed.");
-            }
-            hideSpinner();
-
-        })
-        .catch(error => {
-            alert(error);
-        });
-}
-
-function deleteImage(file, object) {
-    var item = $(object).closest('.gallery-item');
-    $.post(`${root}Majordome/DeleteImage`, { file })
-        .done(function (response) {
-            if (response.success) {
-                item.fadeOut(300, function () { item.remove(); });
-                            fetch('/Majordome/GetUpdatedItems')
-                .then(res => res.json())
-                .then(data => {
-                    gridApi.setRowData(data);
+                        const vehicle = data.find(v => v.Stock === stock);
+                        loadGallery(vehicle);
+                        updateRow(data);
                 });
             }
         })
 };
 
-function deleteImages(stock) {
-    $.post(`${root}Majordome/DeleteImages`, { stock })
+function deleteImage(file, object) {
+    showSpinner();
+    const stock = selectedVehicle.Stock;
+    var item = $(object).closest('.gallery-item');
+    $.post(`${root}Majordome/DeleteImage`, { file: file, stock: stock })
         .done(function (response) {
-            fetch('/Majordome/GetUpdatedItems')
-                .then(res => res.json())
-                .then(data => {
-                    gridApi.setRowData(data);
+            if (response.success) {
+                item.fadeOut(300, function () { item.remove(); });
+                fetch('/Majordome/GetUpdatedItems')
+                    .then(res => res.json())
+                    .then(data => {
+                        updateRow(data);
                 });
-        })
+            }   
+    })
 };
 
 function createStory(stock) {
@@ -177,11 +195,36 @@ function createStory(stock) {
     $.post(`${root}Majordome/CreateStory`, { stock })
         .done(function (response) {
             fetch('/Majordome/GetUpdatedItems')
-                .then(res => res.json())
-                .then(data => {
-                    gridApi.setRowData(data);
-                    hideSpinner();
-                });
+            .then(res => res.json())
+            .then(data => {
+                updateRow(data);
+            });
         })
 };
+
+function saveOrder(sorted, stock) {
+    showSpinner();
+    $.post(`${root}Majordome/SaveOrder`, { sorted, stock  })
+        .done(function (response) {
+            if (response.success) {
+                fetch('/Majordome/GetUpdatedItems')
+                .then(res => res.json())
+                    .then(data => {
+                        updateRow(data);
+                });
+            }
+        })
+}
+
+function updateRow(data) {
+    const stock = selectedVehicle.Stock;
+    const vehicle = data.find(v => v.Stock === stock);
+    gridApi.forEachNode(function (node) {
+        if (node.data.Stock === stock) {
+            node.setData(vehicle);
+        }
+    });
+
+    hideSpinner();
+}
 

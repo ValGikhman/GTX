@@ -3,13 +3,11 @@ using Newtonsoft.Json;
 using Services;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -85,51 +83,45 @@ namespace GTX.Controllers {
         }
 
         [HttpPost]
-        public ActionResult Upload(List<HttpPostedFileBase> files, string stock) {
-            if (files == null || files.Count == 0) {
-                return new HttpStatusCodeResult(400, "No files uploaded.");
-            }
+        public async Task<ActionResult> Upload(IEnumerable<HttpPostedFileBase> files, string stock) {
+            if (files != null && files.Any()) {
+                var uploadPath = Server.MapPath(Path.Combine(imageFolder, stock));
+                string url = Path.Combine(imageFolder, stock);
 
-            if (string.IsNullOrWhiteSpace(stock)) {
-                return new HttpStatusCodeResult(400, "Invalid stock identifier.");
-            }
+                Directory.CreateDirectory(uploadPath);
+                var tasks = files
+                    .Where(f => f != null && f.ContentLength > 0)
+                    .Select(async f => {
+                        string fullPath = Path.Combine(uploadPath, f.FileName);
 
-            var uploadPath = Server.MapPath(Path.Combine(imageFolder, stock));
-            try {
-                if (!Directory.Exists(uploadPath)) {
-                    Directory.CreateDirectory(uploadPath);
-                }
-            }
-
-            catch { 
-            }
-
-            int savedCount = 0;
-            var errors = new List<string>();
-
-            Parallel.ForEach(files.Where(f => f != null && f.ContentLength > 0),
-                new ParallelOptions { MaxDegreeOfParallelism = 3 },
-                file => {
-                    try {
-                        var filePath = Path.Combine(uploadPath, $"{savedCount}{Path.GetExtension(file.FileName)}");
-                        file.SaveAs(filePath);
-                        Interlocked.Increment(ref savedCount);
-                    }
-                    catch (Exception ex) {
-                        lock (errors) {
-                            errors.Add($"Failed to save {file?.FileName}: {ex.Message}");
+                        using var memoryStream = new MemoryStream(); await f.InputStream.CopyToAsync(memoryStream);
+                        byte[] imageBytes = memoryStream.ToArray();
+                        using (var fs = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite)) {
+                            await fs.WriteAsync(imageBytes, 0, imageBytes.Length);
                         }
-                    }
-                });
 
-            Model.Inventory.Vehicles = ApplyImagesAndStories(Model.Inventory.Vehicles);
+                        InventoryService.SaveImage(stock, $"{url}/{f.FileName}");
+                    });
+
+                await Task.WhenAll(tasks);
+            }
 
             return Json(new {
-                Message = savedCount > 0 ? "Upload successful" : "No files saved.",
-                SavedCount = savedCount,
-                FailedCount = files.Count - savedCount,
-                Errors = errors
+                Message = "Upload successful"
             });
+        }
+
+        public void SetDetails(string stock) {
+            stock = stock?.Trim().ToUpper();
+            Model.CurrentVehicle.VehicleDetails = Model.Inventory.All.FirstOrDefault(m => m.Stock == stock);
+            Model.CurrentVehicle.VehicleImages = GetImages(stock);
+            SessionData.CurrentVehicle = Model.CurrentVehicle;
+        }
+
+        [HttpPost]
+        public JsonResult SaveOrder(string[] sorted, string stock) {
+            InventoryService.UpdateOrder(sorted, stock);
+            return Json(new { success = true });
         }
 
         [HttpPost]
@@ -143,15 +135,15 @@ namespace GTX.Controllers {
         }
 
         [HttpPost]
-        public JsonResult DeleteImage(string file) {
+        public JsonResult DeleteImage(string file, string stock) {
             string filePath = Server.MapPath(file);
 
             if (System.IO.File.Exists(filePath)) {
                 System.IO.File.Delete(filePath);
+                InventoryService.DeleteImage(stock, file);
                 return Json(new { success = true });
             }
 
-            Model.Inventory.Vehicles = ApplyImagesAndStories(Model.Inventory.Vehicles);
             return Json(new { success = false });
         }
 
@@ -173,7 +165,7 @@ namespace GTX.Controllers {
                     System.IO.File.Delete(file);
                 }
 
-
+                InventoryService.DeleteImages(stock);
                 Model.Inventory.Vehicles = ApplyImagesAndStories(Model.Inventory.Vehicles);
                 return Json(new { success = true, message = "All files deleted successfully." });
             }

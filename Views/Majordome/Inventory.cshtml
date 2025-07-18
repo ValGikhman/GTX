@@ -49,53 +49,65 @@
 
         <!-- Details Tab -->
         <div class="tab-pane fade mb-2" id="details" role="tabpanel">
-            <form id="detailsForm" name="detailsForm" novalidate autocomplete="off" class="w-100">
-                <div class="mb-2">
-                    @Html.Label("Stock", new { @class = "text-shadow" })
-                    <input id="stock" class="form-control shadow w-25" placeholder="Style" />
-                </div>
-                <div class="mb-2">
-                    @Html.Label("Year", new { @class = "text-shadow" })
-                    <input id="year" class="form-control shadow w-25" placeholder="Year" />
-                </div>
-                <div class="mb-2">
-                    @Html.Label("Make", new { @class = "text-shadow" })
-                    <input id="make" class="form-control shadow w-25" placeholder="Make" />
-                </div>
+            <div class="row">
+                <!-- Left Column: Form -->
+                <div class="col-md-6">
+                    <form id="detailsForm" name="detailsForm" novalidate autocomplete="off" class="w-100">
+                        <div class="mb-2">
+                            @Html.Label("Stock", new { @class = "text-shadow" })
+                            <input id="stock" class="form-control shadow" placeholder="Style" />
+                        </div>
+                        <div class="mb-2">
+                            @Html.Label("Year", new { @class = "text-shadow" })
+                            <input id="year" class="form-control shadow" placeholder="Year" />
+                        </div>
+                        <div class="mb-2">
+                            @Html.Label("Make", new { @class = "text-shadow" })
+                            <input id="make" class="form-control shadow" placeholder="Make" />
+                        </div>
 
-                <div class="mb-2">
-                    @Html.Label("Model", new { @class = "text-shadow" })
-                    <input id="model" class="form-control shadow w-25" placeholder="Model" />
-                </div>
+                        <div class="mb-2">
+                            @Html.Label("Model", new { @class = "text-shadow" })
+                            <input id="model" class="form-control shadow" placeholder="Model" />
+                        </div>
 
-                <div class="mb-2">
-                    @Html.Label("Mileage", new { @class = "text-shadow" })
-                    <input id="mileage" class="form-control shadow w-25" placeholder="Mileage" />
-                </div>
+                        <div class="mb-2">
+                            @Html.Label("Mileage", new { @class = "text-shadow" })
+                            <input id="mileage" class="form-control shadow" placeholder="Mileage" />
+                        </div>
 
-                <div class="mb-2">
-                    @Html.Label("Price", new { @class = "text-shadow" })
-                    <input id="price" class="form-control shadow w-25" placeholder="Price" />
-                </div>
+                        <div class="mb-2">
+                            @Html.Label("Price", new { @class = "text-shadow" })
+                            <input id="price" class="form-control shadow" placeholder="Price" />
+                        </div>
 
-                <div class="mb-2">
-                    @Html.Label("Style", new { @class = "text-shadow" })
-                    <input id="style" class="form-control shadow w-25" placeholder="Style" />
-                </div>
+                        <div class="mb-2">
+                            @Html.Label("Style", new { @class = "text-shadow" })
+                            <input id="style" class="form-control shadow" placeholder="Style" />
+                        </div>
 
-                <div class="mb-2">
-                    @Html.Label("Type", new { @class = "text-shadow" })
-                    <input id="type" class="form-control shadow w-25" placeholder="Type" />
+                        <div class="mb-2">
+                            @Html.Label("Type", new { @class = "text-shadow" })
+                            <input id="type" class="form-control shadow" placeholder="Type" />
+                        </div>
+                        <div class="d-flex justify-content-center p-3">
+                            <button id="saveDetails" type="submit" class="btn btn-secondary shadow w-50"><i class="bi bi-send"></i>Save</button>
+                        </div>
+                    </form>
                 </div>
-
-                <div class="d-flex justify-content-center p-3">
-                    <button id="saveDetails" type="submit" class="btn btn-secondary shadow w-50"><i class="bi bi-send"></i> Send</button>
+                <div class="col-md-6 pt-3 text-shadow-small">
+                    <button id="createStory" class="btn btn-li bi bi-book shadow"></button>
+                    <label id="title" class="text-shadow-small fs-4">
+                    </label>
+                    <div id="story" class="mt-3">
+                    </div>
                 </div>
-            </form>
+            </div>
         </div>
 
         <div class="tab-pane fade" id="galery" role="tabpanel">
             <button id="upload" class="btn btn-light shadow">Upload Images</button>
+            <button id="deleteAll" class="btn btn-light shadow">Delete all images</button>
             <input type="file" id="fileInput" class="d-none" multiple accept="image/*">
             <div id="galery-content" class="container-fluid my-2">
                 <div id="sortable-gallery" class="row">
@@ -142,9 +154,22 @@ $(function () {
         $('#fileInput').click();
     });
 
+    $("#deleteAll").on("click", function () {
+        const stock = selectedVehicle.Stock;
+        if (confirm(`Deleting all images for Stock# ${stock}`)) {
+            deleteImages(stock);
+        }
+    });
+
+    $("#createStory").on("click", function () {
+        const stock = selectedVehicle.Stock;
+        if (confirm(`Do you want to create story for Stock# ${stock}`)) {
+            createStory(stock);        }
+    });
+
     $("#fileInput").on("change", function () {
         const files = Array.from(fileInput.files);
-        const stock = $("#stock").val();
+        const stock = selectedVehicle.Stock;
 
         if (files.length > 0) {
             uploadFiles(stock, fileInput);
@@ -176,14 +201,9 @@ $(function () {
                 sorted.push($(this).data("filename"));
             });
 
-@*            $.post('@Url.Action("SaveOrder", "Gallery")', { order: sorted });*@
+            saveOrder(sorted, selectedVehicle.Stock)
         }
     });
-
-    window.addEventListener('resize', function () {
-        gridOptions.api.sizeColumnsToFit();
-    });
-
 });
 
 let gridApi = null;
@@ -272,12 +292,18 @@ const gridOptions = {
     rowData: @Html.Raw(Json.Encode(Model.Inventory.Vehicles)),
     onGridReady: (params) => {
         gridApi = params.api; // ✅ store reference globally
+        gridApi.forEachNode(function (node, index) {
+            if (index === 0) {
+                node.setSelected(true);
+                gridOptions.onRowClicked({ data: node.data, node: node });
+            }
+        });
     },
     columnDefs: columnDefs,
-    rowSelection: 'single', // or 'multiple'
+    rowSelection: "single", // or 'multiple'
     suppressRowClickSelection: false, // Allow clicking anywhere in the row
     suppressCellFocus: true, // 🔥 Disable cell selection focus
-    pagination: true,
+    pagination: false,
     paginationPageSize: 20,
     paginationPageSizeSelector: [20, 50, 100],
     defaultColDef: {
@@ -288,10 +314,12 @@ const gridOptions = {
         headerClass: 'text-shadow fw-normal td-center'
     },
     onRowClicked: function (event) {
+        selectedVehicle = event.data;
         showVehicleDetails(event.data);
         loadGallery(event.data);
+        setDetails(event.data.Stock);
     }
-};
+    };
 
 // Delete Icon renderer
 function deleteIconRenderer(params) {
@@ -346,22 +374,6 @@ function imageButtonRenderer(params) {
     return wrapper;
 }
 
-function storyRenderer(params) {
-    if (!params.data.Story) {
-        return ""
-    }
-
-    const wrapper = document.createElement('div');
-    wrapper.className = 'position-relative d-inline-block';
-
-    const title = document.createElement('span');
-    title.className = 'position-absolute badge rounded-pill bg-success';
-    title.textContent = params.data.Story.Title;
-    wrapper.appendChild(title);
-
-    return wrapper;
-}
-
 function showVehicleDetails(vehicle) {
     $('#year').val(vehicle.Year);
     $('#make').val(vehicle.Make);
@@ -372,6 +384,7 @@ function showVehicleDetails(vehicle) {
     $('#style').val(vehicle.VehicleStyle);
     $('#type').val(vehicle.VehicleType);
     $('#stock').val(vehicle.Stock);
-}
+    $('#story').html(vehicle.Story?.HtmlContent);
+    $('#title').html(vehicle.Story?.Title);}
 
 </script>
