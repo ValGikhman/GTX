@@ -1,4 +1,23 @@
 ﻿/*Custom*/
+.tox-statusbar,
+.tox-promotion {
+    display: none !important;
+}
+
+.gallery-item:first-child {
+    background-color: rgba(0,0,0,0.2);
+    border: 1px solid #db2d2e;
+    border-radius: 14px;
+}
+
+    .gallery-item:first-child::after {
+        content: "Default";
+        margin-left: 35px;
+        font-weight: bolder;
+        text-transform: uppercase;
+        text-shadow: 2px 2px 3px #8D8484;
+    }
+
 .p-story {
     margin-bottom: 7px;
     padding: 0;

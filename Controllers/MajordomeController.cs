@@ -3,13 +3,11 @@ using Newtonsoft.Json;
 using Services;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -17,8 +15,6 @@ using System.Web.Mvc;
 namespace GTX.Controllers {
 
     public class MajordomeController : BaseController {
-        private readonly string openAiApiKey = ConfigurationManager.AppSettings["OpenAI:ApiKey"];
-
         public MajordomeController(ISessionData sessionData, IInventoryService inventoryService, ILogService logService)
             : base(sessionData, inventoryService, logService) {
             if (Model == null) {
@@ -51,11 +47,23 @@ namespace GTX.Controllers {
                 var vehicle = Model.Inventory.Vehicles.FirstOrDefault(m => m.Stock == stock);
                 var story = await GetChatGptResponse(GetPrompt(vehicle));
                 var response = SplitResponse(story);
-                InventoryService.SaveStory(vehicle.Stock, response.story, response.title);
-                return Json(new { success = true, message = "Story created successfully." });
+                return SaveStory(vehicle.Stock, response.story, response.title);
             }
 
             catch (Exception ex) {
+                return Json(new { success = false, message = "Error: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public JsonResult SaveStory(string stock, string story, string title) {
+            try {
+                InventoryService.SaveStory(stock, story, title);
+                return Json(new { success = true, message = "Story saved successfully.", Title = title, Story = story });
+            }
+
+            catch (Exception ex) {
+                System.Diagnostics.Debug.WriteLine("ERROR: " + ex.Message);
                 return Json(new { success = false, message = "Error: " + ex.Message });
             }
         }
@@ -82,66 +90,50 @@ namespace GTX.Controllers {
 
         [HttpGet]
         public JsonResult GetUpdatedItems() {
-            var items = Model.Inventory.All; // updated list
-            foreach (var vehicle in Model.Inventory.Vehicles) {
-                vehicle.Story = InventoryService.GetStory(vehicle.Stock); // Attach stories
-            }
-
-            return Json(items, JsonRequestBehavior.AllowGet);
+            Model.Inventory.Vehicles = ApplyImagesAndStories(Model.Inventory.Vehicles);
+            return Json(Model.Inventory.Vehicles, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
-        public ActionResult Upload(List<HttpPostedFileBase> files, string stock) {
-            if (files == null || files.Count == 0) {
-                return new HttpStatusCodeResult(400, "No files uploaded.");
-            }
+        public async Task<ActionResult> Upload(IEnumerable<HttpPostedFileBase> files, string stock) {
+            if (files != null && files.Any()) {
+                var uploadPath = Server.MapPath(Path.Combine(imageFolder, stock));
+                string url = Path.Combine(imageFolder, stock);
 
-            if (string.IsNullOrWhiteSpace(stock)) {
-                return new HttpStatusCodeResult(400, "Invalid stock identifier.");
-            }
+                Directory.CreateDirectory(uploadPath);
+                var tasks = files
+                    .Where(f => f != null && f.ContentLength > 0)
+                    .Select(async f => {
+                        string fullPath = Path.Combine(uploadPath, f.FileName);
 
-            var uploadPath = Server.MapPath(Path.Combine("~/GTXImages/Inventory/", stock));
-            try {
-                if (!Directory.Exists(uploadPath)) {
-                    Directory.CreateDirectory(uploadPath);
-                }
-            }
-
-            catch { 
-            }
-
-            int savedCount = 0;
-            var errors = new List<string>();
-
-            Parallel.ForEach(files.Where(f => f != null && f.ContentLength > 0),
-                new ParallelOptions { MaxDegreeOfParallelism = 3 },
-                file => {
-                    try {
-/*                        var safeFileName = string.Concat(
-                            Path.GetFileName(file.FileName)
-                                .Where(c => !Path.GetInvalidFileNameChars().Contains(c))
-                        );
-                        var filePath = Path.Combine(uploadPath, safeFileName);
-*/
-                        var filePath = Path.Combine(uploadPath, $"{savedCount}.{Path.GetExtension(file.FileName)}");
-                        file.SaveAs(filePath);
-                        Interlocked.Increment(ref savedCount);
-                    }
-                    catch (Exception ex) {
-                        lock (errors) {
-                            errors.Add($"Failed to save {file?.FileName}: {ex.Message}");
+                        using var memoryStream = new MemoryStream(); await f.InputStream.CopyToAsync(memoryStream);
+                        byte[] imageBytes = memoryStream.ToArray();
+                        using (var fs = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite)) {
+                            await fs.WriteAsync(imageBytes, 0, imageBytes.Length);
                         }
-                    }
-                });
 
-            Model.Inventory.Vehicles = ApplyImagesAndStories(Model.Inventory.Vehicles);
+                        InventoryService.SaveImage(stock, $"{url}/{f.FileName}");
+                    });
+
+                await Task.WhenAll(tasks);
+            }
 
             return Json(new {
-                Message = savedCount > 0 ? "Upload successful" : "No files saved.",
-                SavedCount = savedCount,
-                FailedCount = files.Count - savedCount,
-                Errors = errors
+                Message = "Upload successful"
             });
+        }
+
+        public void SetDetails(string stock) {
+            stock = stock?.Trim().ToUpper();
+            Model.CurrentVehicle.VehicleDetails = Model.Inventory.All.FirstOrDefault(m => m.Stock == stock);
+            Model.CurrentVehicle.VehicleImages = GetImages(stock);
+            SessionData.CurrentVehicle = Model.CurrentVehicle;
+        }
+
+        [HttpPost]
+        public JsonResult SaveOrder(string[] sorted, string stock) {
+            InventoryService.UpdateOrder(sorted, stock);
+            return Json(new { success = true });
         }
 
         [HttpPost]
@@ -155,8 +147,21 @@ namespace GTX.Controllers {
         }
 
         [HttpPost]
+        public JsonResult DeleteImage(string file, string stock) {
+            string filePath = Server.MapPath(file);
+
+            if (System.IO.File.Exists(filePath)) {
+                System.IO.File.Delete(filePath);
+                InventoryService.DeleteImage(stock, file);
+                return Json(new { success = true });
+            }
+
+            return Json(new { success = false });
+        }
+
+        [HttpPost]
         public ActionResult DeleteImages(string stock) {
-            string path = $"~/GTXImages/Inventory/{stock}";
+            string path = $"{imageFolder}{stock}";
             path = Server.MapPath(path);
 
             string[] extensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
@@ -172,7 +177,7 @@ namespace GTX.Controllers {
                     System.IO.File.Delete(file);
                 }
 
-
+                InventoryService.DeleteImages(stock);
                 Model.Inventory.Vehicles = ApplyImagesAndStories(Model.Inventory.Vehicles);
                 return Json(new { success = true, message = "All files deleted successfully." });
             }

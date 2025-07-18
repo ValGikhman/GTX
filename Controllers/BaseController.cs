@@ -2,6 +2,7 @@
 using Services;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -14,6 +15,9 @@ namespace GTX.Controllers {
 
         #region Properties
         public readonly String devComputer = "VALS-PC";
+
+        public readonly string imageFolder = "/GTXImages/Inventory/";
+        public readonly string openAiApiKey = ConfigurationManager.AppSettings["OpenAI:ApiKey"];
 
         public ILogService LogService { get; set; }
 
@@ -197,6 +201,11 @@ namespace GTX.Controllers {
             return null;
         }
 
+        public string[] GetImages(string stock) {
+            var imageUrls = InventoryService.GetImages(stock);
+            return imageUrls;
+        }
+
         public static string SerializeModel(object model) {
             try {
                 if (model == null) {
@@ -217,26 +226,18 @@ namespace GTX.Controllers {
         }
 
         public Models.GTX[] ApplyImagesAndStories(Models.GTX[] vehicles) {
-            string path = @"/GTXImages/Inventory/";
             foreach (var vehicle in vehicles) {
                 vehicle.Story = InventoryService.GetStory(vehicle.Stock);
+                vehicle.Images = InventoryService.GetImages(vehicle.Stock);
 
-                string dirPath = Server.MapPath($"{path}{vehicle.Stock}");
-                vehicle.Image = $"{path}no-image.png";
-
-                if (Directory.Exists(dirPath)) {
-                    vehicle.Images = Directory.GetFiles(dirPath)
-                        .Where(f => f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                    f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                                    f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase))
-                        .Select(f => $"{path}{vehicle.Stock}/{Path.GetFileName(f)}")
-                        .ToArray();
-
-                    if (vehicle.Images != null && vehicle.Images.Length > 0) {
-                        vehicle.Image = vehicle.Images[0];
-                    }
+                if (vehicle.Images != null && vehicle.Images.Length > 0) {
+                    vehicle.Image = vehicle.Images[0];
+                }
+                else {
+                    vehicle.Image = $"{imageFolder}no-image.png";
                 }
             }
+
             return vehicles;
         }
 
@@ -264,7 +265,6 @@ namespace GTX.Controllers {
 
 
         #region private methods
-
         #endregion
     }
 }
