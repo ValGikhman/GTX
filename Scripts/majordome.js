@@ -30,12 +30,12 @@ function loadGallery(vehicle) {
     var i = 0;
     vehicle.Images.forEach(function (imgPath) {
         var item = `
-        <div class="col-lg-2 col-md-3 col-sm-4 gallery-item well pt-3 shadow m-2" data-filename="${imgPath}">
+        <li class="col-lg-2 col-md-3 col-sm-4 gallery-item well pt-3 shadow m-2" data-filename="${imgPath}">
             <a href="${imgPath}" data-lightbox="gallery">
                 <img src="${imgPath}"/>
             </a>
             <span class="delete-image bi bi-trash btn btn-light shadow my-3" data-file="${imgPath}"></span>
-        </div>
+        </li>
         `;
 
         container.append(item);

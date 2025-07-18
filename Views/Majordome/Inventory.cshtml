@@ -124,8 +124,8 @@
             <button id="deleteAll" class="btn btn-light shadow">Delete all images</button>
             <input type="file" id="fileInput" class="d-none" multiple accept="image/*">
             <div id="galery-content" class="container-fluid my-2">
-                <div id="sortable-gallery" class="row">
-                </div>
+                <ul id="sortable-gallery" class="row">
+                </ul>
             </div>
         </div>
     </div>
@@ -463,5 +463,7 @@ function showVehicleDetails(vehicle) {
     if (editor) {
         editor.setContent(vehicle?.Story?.HtmlContent || "");
     }
+
+    $("#galery-tab").text(`Galery (${vehicle.Images.length})`);
 }
 </script>
