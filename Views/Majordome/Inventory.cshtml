@@ -243,7 +243,7 @@ $(function () {
         ghostClass: "sortable-gallery-ghost",  // Class applied to "ghost" element
         chosenClass: "sortable-gallery-chosen",// Class applied to dragged element
         dragClass: "sortable-gallery-drag",    // Class during drag
-        delay: 0,                      // Delay before drag (good for mobile)
+        delay: 100,                      // Delay before drag (good for mobile)
         touchStartThreshold: 5,        // Distance in px before drag starts (helps avoid accidental taps)
         onEnd: function (event) {
             console.log("Moved item from", event.oldIndex, "to", event.newIndex);
