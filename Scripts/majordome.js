@@ -60,7 +60,9 @@ function loadGallery(vehicle) {
         var imagePath = `${images}${img.Stock.trim()}/${img.Name}`;
         var item = `
         <li id="${img.Id}" class="col-lg-2 col-md-3 col-sm-4 well pt-3 shadow m-2" data-filename="${img.Name}">
-            <img src="${imagePath}"/>
+            <a href="${imagePath}" data-lightbox="gallery">
+                <img src="${imagePath}"/>
+            </a>
             <span id="${img.Id}" class="delete-image bi bi-trash btn btn-light shadow my-3" data-filename="${img.Name}"></span>
             <span id="${img.Id}" class="overlay-image bi bi-image btn btn-light shadow my-3" data-filename="${img.Name}"></span>
         </li>
