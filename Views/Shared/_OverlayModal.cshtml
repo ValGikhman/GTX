@@ -1,0 +1,180 @@
+﻿@model Services.Image
+@using System.Drawing
+@using System.Reflection
+@using System.Text.Json;
+
+@{
+    var colorProperties = typeof(Color).GetProperties(BindingFlags.Static | BindingFlags.Public)
+                                       .Where(p => p.PropertyType == typeof(Color))
+                                       .Select(p => p.Name)
+                                       .OrderBy(name => name)
+                                       .ToList();
+
+}
+
+<div class="modal-header">
+    <h5 class="modal-title text-white" id="overlayTitle">
+    </h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+
+<div class="d-flex flex-wrap align-items-start m-2 gap-1">
+    <div class="modal-body overlay-image-container shadow rounded m-3 col-3">
+        @{
+            string imagePath = $"/GTXImages/Inventory/{Model.Stock.Trim()}/{Model.Name}";
+            <img src="@imagePath" class="d-block mx-auto rounded" alt="@imagePath" />
+            <div id="overlay" class="overlay-image-overlay rounded-bottom">
+                <p class="overlay-text">Double click to edit.... </p>
+            </div>
+        }
+    </div>
+    <div class="col-3 mx-3">
+        @Html.Label("Text color", new { @class = "text-shadow" })
+        <select id="textColor" class="form-select shadow">
+            <option selected disabled>Choose a color</option>
+            @foreach (var colorName in colorProperties) {
+                var hex = Color.FromName(colorName).IsKnownColor ? ColorTranslator.ToHtml(Color.FromName(colorName)) : "#FFFFFF";
+                <option value="@colorName.ToLower()" style="color: @hex;">@colorName</option>
+            }
+        </select>
+
+        @Html.Label("Background color", new { @class = "text-shadow mt-3" })
+        <select id="backgroundColor" class="form-select shadow">
+            <option selected disabled>Choose a background</option>
+            @foreach (var colorName in colorProperties) {
+                var hex = Color.FromName(colorName).IsKnownColor ? ColorTranslator.ToHtml(Color.FromName(colorName)) : "#FFFFFF";
+                <option value="@colorName.ToLower()" style="background-color: @hex;">@colorName</option>
+            }
+        </select>
+
+        @Html.Label("Font type", new { @class = "text-shadow mt-3" })
+        <select id="fontType" class="form-select shadow">
+            <option value="normal">Normal</option>
+            <option value="bold">Bold</option>
+            <option value="italic">Italic</option>
+            <option value="bolditalic">Bold + Italic</option>
+        </select>
+
+        @Html.Label("Font size", new { @class = "text-shadow mt-3" })
+    <select id="fontSize" class="form-select shadow">
+        <option value="0.1vw">0.1vw</option>
+        <option value="0.2vw">0.2vw</option>
+        <option value="0.3vw">0.3vw</option>
+        <option value="0.4vw">0.4vw</option>
+        <option value="0.5vw">0.5vw</option>
+        <option value="0.6vw">0.6vw</option>
+        <option value="0.7vw">0.7vw</option>
+        <option value="0.8vw">0.8vw</option>
+        <option value="0.9vw">0.9vw</option>
+        <option value="1.0vw">1.0vw</option>
+        <option value="1.1vw">1.1vw</option>
+        <option value="1.2vw">1.2vw</option>
+        <option value="1.3vw">1.3vw</option>
+        <option value="1.4vw">1.4vw</option>
+        <option value="1.5vw">1.5vw</option>
+        <option value="1.6vw">1.6vw</option>
+        <option value="1.7vw">1.7vw</option>
+        <option value="1.8vw">1.8vw</option>
+        <option value="1.9vw">1.9vw</option>
+        <option value="2.0vw">2.0vw</option>
+        <option value="2.1vw">2.1vw</option>
+        <option value="2.2vw">2.2vw</option>
+        <option value="2.3vw">2.3vw</option>
+        <option value="2.4vw">2.4vw</option>
+        <option value="2.6vw">2.6vw</option>
+        <option value="2.7vw">2.7vw</option>
+        <option value="2.8vw">2.8vw</option>
+        <option value="2.9vw">2.9vw</option>
+        <option value="3.0vw">3.0vw</option>
+    </select>
+    </div>
+</div>
+
+<div class="modal-footer well shadow">
+    <div class="container-fluid">
+        <span class="pull-right">
+            <button id="close" type="button" class="btn btn-close-white shadow" data-bs-dismiss="modal"><i class="bi bi-x-lg flex"></i>&nbsp;Close</button>
+            <button id="saveOverlay" type="button" class="btn btn-secondary shadow mx-3"><i class="bi bi-save2 flex"></i>&nbsp;Save</button>
+        </span>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var id = "@Model.Id";
+    var stock = "@Model.Stock.Trim()"
+    var imagePath = `${images}@Model.Stock.Trim()/@Model.Name`;
+    var overlay = @Html.Raw(Json.Encode(Model.Overlay));
+
+    if (overlay) {
+        wearOverlay(overlay);
+        setControls(overlay);
+    }
+
+    $(function () {
+        $(document).on("dblclick", ".overlay-text", function () {
+            const currentText = $(this).text();
+
+            // Replace <p> with <input>
+            const $input = $('<input type="text" class="form-control shadow" id="text" placeholder="Enter or edit description">').val(currentText);
+            $(this).replaceWith($input);
+            $input.focus();
+
+            // On blur or enter, replace back with <p>
+            $input.on('blur keydown', function (e) {
+                if (e.type === 'blur' || e.key === 'Enter') {
+                    const newText = $(this).val();
+                    const $p = $('<p id="overlay-text" class="overlay-text"></p>').text(newText);
+                    $(this).replaceWith($p);
+                }
+            });
+        });
+
+        var car = `${selectedVehicle.Year}-${selectedVehicle.Make} ${selectedVehicle.Model} ${selectedVehicle.VehicleStyle}`;
+        $("#overlayTitle").html(car);
+
+        $("#saveOverlay").on("click", function () {
+            saveOverlayData();
+        })
+
+        $("#text").on("input", function () {
+            $(".overlay-text").text($(this).val());
+        })
+
+        $("#textColor").on("change", function () {
+            $(".overlay-text").css("color", $(this).val());
+        })
+
+        $("#backgroundColor").on("change", function () {
+            const color = $(this).val();
+            $(".overlay-image-overlay").css("background-color", color);
+        })
+
+        $("#fontSize").on("change", function () {
+            const size = $(this).val();
+            $(".overlay-text").css("font-size", `${size}`);
+        })
+
+        $("#fontType").on("change", function () {
+            const selected = $(this).val();
+            const $text = $(".overlay-text");
+
+            $text.css({
+                'font-weight': 'normal',
+                'font-style': 'normal'
+            });
+
+            // Apply selected style
+            if (selected === "bold") {
+                $text.css("font-weight", "bold");
+            } else if (selected === "italic") {
+                $text.css("font-style", "italic");
+            } else if (selected === "bolditalic") {
+                $text.css({
+                    "font-weight": "bold",
+                    "font-style": "italic"
+                });
+            }
+        })
+    });
+</script>
+

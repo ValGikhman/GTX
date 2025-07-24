@@ -1,8 +1,10 @@
-﻿<div id="detailsCarousel" class="carousel slide" data-bs-ride="carousel">
+﻿@using Services;
+<div id="detailsCarousel" class="carousel slide" data-bs-ride="carousel">
     <div class="carousel-inner">
-        @foreach (string imageUrl in Model.VehicleImages) {
+        @foreach (Image image in Model.VehicleImages) {
+            string imagePath = $"/GTXImages/Inventory/{image.Stock.Trim()}/{image.Name}";
             <div class="carousel-item">
-                <img src="@imageUrl" class="shadow d-block mx-auto" alt="@imageUrl">
+                <img src="@imagePath" class="shadow d-block mx-auto" alt="@imagePath">
             </div>
         }
     </div>

@@ -49,17 +49,6 @@ namespace GTX.Controllers {
 
         }
 
-        public ActionResult DetailsModal(string stock) {
-            stock = stock.Trim().ToUpper();
-            if (stock != null) {
-                Model.CurrentVehicle.VehicleDetails = Model.Inventory.Vehicles.FirstOrDefault(m => m.Stock == stock);
-                Model.CurrentVehicle.VehicleImages = GetImages(stock);
-                SessionData.CurrentVehicle = Model.CurrentVehicle;
-            }
-
-            return PartialView("_DetailModal", Model.CurrentVehicle);
-        }
-
         [HttpGet]
         public ActionResult ShareVehicle(string stock) {
             Models.GTX model = Model.Inventory.All.FirstOrDefault(m => m.Stock == stock);

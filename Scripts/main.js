@@ -1,25 +1,6 @@
 'use strict';
 
 (function ($) {
-    /*-------------------
-            Popovers
-    --------------------*/
-    var popoverTriggerList = [].slice.call(document.querySelectorAll('.popoverable'))
-    var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-        return new bootstrap.Popover(popoverTriggerEl, {
-            trigger: 'manual',  // we'll control it manually
-            placement: 'auto',
-            html: true
-        })
-    });
-
-    // Rebind on resize
-    $(window).on('resize', function () {
-        bindPopovers();
-    });
-
-    bindPopovers();
-
     /*------------------
         Preloader
     --------------------*/
@@ -212,27 +193,5 @@ function updateFilterLiked() {
         $("#filterLiked").removeClass("bi-heart").addClass("bi-heart-fill").show();
     } else {
         $("#filterLiked").removeClass("bi-heart-fill").addClass("bi-heart").show();
-    }
-}
-
-function popoversEnabled() {
-    return window.matchMedia('(min-width: 992px)').matches && window.matchMedia('(hover: hover)').matches;
-}
-
-function bindPopovers() {
-    if (popoversEnabled()) {
-        $('.popoverable').on('mouseenter.popover', function () {
-            var popover = bootstrap.Popover.getInstance(this);
-            popover.show();
-        }).on('mouseleave.popover', function () {
-            var popover = bootstrap.Popover.getInstance(this);
-            popover.hide();
-        });
-    } else {
-        $('.popoverable').off('.popover');  // Remove events
-        $('.popoverable').each(function () {
-            var popover = bootstrap.Popover.getInstance(this);
-            if (popover) popover.hide();
-        });
     }
 }

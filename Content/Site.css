@@ -1,7 +1,42 @@
 ﻿/*Custom*/
+.overlay-image-overlay {
+    position: absolute;
+    bottom: 15px;
+    height: 12.5%; /* 1/8th of height */
+    width: 96%;
+    background: rgba(0, 0, 0, 0.6); /* semi-transparent black */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1rem;
+    padding: 0.5rem;
+    box-sizing: border-box;
+    opacity: 0.6;
+}
+
+.overlay-image-container {
+
+}
+
+    .overlay-image-container img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+.overlay-text {
+    font-size: 14px;
+    font-family: "Lato", sans-serif;
+    font-weight: normal;
+    color: white;
+    line-height: 15px;
+    margin: 5px;
+}
+
 .sortable-gallery-ghost {
     opacity: 0.4;
-    background: rgba(0, 0, 0, 0.4)!important;
+    background: rgba(0, 0, 0, 0.4) !important;
 }
 
 .sortable-gallery-chosen {
@@ -348,6 +383,10 @@ li.search-field {
         background-size: cover;
         background-position: center center;
     }
+
+.carousel-inner {
+    height: 525px;
+}
 
 .carousel-item {
     width: 100%;
@@ -2781,6 +2820,10 @@ a, u {
     .header__menu ul li {
         margin-right: 32px;
     }
+
+    .carousel-inner {
+        height: 540px;
+    }
 }
 
 /* Medium Device = 1200px */
@@ -2788,6 +2831,11 @@ a, u {
     .header__menu ul li {
         margin-right: 32px;
     }
+
+    .carousel-inner {
+        height: 300px;
+    }
+
 }
 
 /* Tablet Device = 768px */
@@ -2795,7 +2843,11 @@ a, u {
     .body-content {
         margin: 0px;
     }
-    
+
+    .carousel-inner {
+        height: 380px;
+    }
+
     .hero__text {
         padding-top: 0;
         margin-bottom: 40px;
@@ -2816,6 +2868,10 @@ a, u {
 
 /* Wide Mobile = 480px */
 @media only screen and (max-width: 767px) {
+    .carousel-inner {
+        height: 390px;
+    }
+
     .p-story {
         font-size: 1.3rem;
     }
@@ -3095,6 +3151,10 @@ a, u {
 @media only screen and (max-width: 479px) {
     .body-content {
         margin: 0px;
+    }
+
+    .carousel-inner {
+        height: 325px;
     }
     
     .section-title h2,

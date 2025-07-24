@@ -1,5 +1,33 @@
 ﻿var selectedVehicle;
 
+class StyleParser {
+    constructor(styleString) {
+        this.styles = {};
+        if (!styleString) return;
+
+        styleString.split(';').forEach(rule => {
+            if (!rule.trim()) return;
+            const [prop, val] = rule.split(':').map(s => s.trim());
+            if (prop && val) {
+                const camelProp = prop.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+                this.styles[camelProp] = val;
+            }
+        });
+    }
+
+    get(prop) {
+        return this.styles[prop];
+    }
+
+    has(prop) {
+        return Object.prototype.hasOwnProperty.call(this.styles, prop);
+    }
+
+    toObject() {
+        return this.styles;
+    }
+}
+
 function applyFilterTerm(term) {
     gridApi.setGridOption('quickFilterText', term);
 }
@@ -12,7 +40,7 @@ function saveDetails(model) {
         },
         body: JSON.stringify(model)
     })
-        .then(response => {
+        .then(response => { 
             if (!response.ok) throw new Error("Server error");
             return response.json();
         })
@@ -28,13 +56,13 @@ function loadGallery(vehicle) {
     var container = $("#sortable-gallery");
     container.empty();
     var i = 0;
-    vehicle.Images.forEach(function (imgPath) {
+    vehicle.Images.forEach(function (img) {
+        var imagePath = `${images}${img.Stock.trim()}/${img.Name}`;
         var item = `
-        <li class="col-lg-2 col-md-3 col-sm-4 gallery-item well pt-3 shadow m-2" data-filename="${imgPath}">
-            <a href="${imgPath}" data-lightbox="gallery">
-                <img src="${imgPath}"/>
-            </a>
-            <span class="delete-image bi bi-trash btn btn-light shadow my-3" data-file="${imgPath}"></span>
+        <li id="${img.Id}" class="col-lg-2 col-md-3 col-sm-4 well pt-3 shadow m-2" data-filename="${img.Name}">
+            <img src="${imagePath}"/>
+            <span id="${img.Id}" class="delete-image bi bi-trash btn btn-light shadow my-3" data-filename="${img.Name}"></span>
+            <span id="${img.Id}" class="overlay-image bi bi-image btn btn-light shadow my-3" data-filename="${img.Name}"></span>
         </li>
         `;
 
@@ -173,18 +201,22 @@ function deleteImages(stock) {
         })
 };
 
-function deleteImage(file, object) {
+function deleteImage(id, file, object) {
     showSpinner();
     const stock = selectedVehicle.Stock;
     var item = $(object).closest('.gallery-item');
-    $.post(`${root}Majordome/DeleteImage`, { file: file, stock: stock })
+    $.post(`${root}Majordome/DeleteImage`, { id: id, file: file, stock: stock })
         .done(function (response) {
             if (response.success) {
                 item.fadeOut(300, function () { item.remove(); });
                 fetch('/Majordome/GetUpdatedItems')
                     .then(res => res.json())
                     .then(data => {
+                        const vehicle = data.find(v => v.Stock === stock);
+                        loadGallery(vehicle);
                         updateRow(data);
+                        hideSpinner();
+                        $("#close").click();
                 });
             }   
     })
@@ -211,9 +243,9 @@ function createStory(stock) {
     })
 };
 
-function saveOrder(sorted, stock) {
+function saveOrder(sorted) {
     showSpinner();
-    $.post(`${root}Majordome/SaveOrder`, { sorted, stock  })
+    $.post(`${root}Majordome/SaveOrder`, { sorted  })
         .done(function (response) {
             if (response.success) {
                 fetch('/Majordome/GetUpdatedItems')
@@ -231,9 +263,109 @@ function updateRow(data) {
     gridApi.forEachNode(function (node) {
         if (node.data.Stock === stock) {
             node.setData(vehicle);
+            $("#galery-tab").text(`Gallery (${vehicle.Images.length})`);
         }
     });
 
     hideSpinner();
 }
 
+function wearOverlay(json) {
+    try {
+        const data = JSON.parse(json);
+        const overlay = $("#overlay");
+
+        overlay.empty(); // Clear previous content
+        overlay.attr("style", data.overlay.style); // Apply overlay style
+
+        data.overlay.children.forEach(function (child) {
+            const element = $(`<${child.tag}/>`, {
+                class: "overlay-text",
+                text: child.text,
+                style: child.style
+            });
+            overlay.append(element);
+        });
+
+    } catch (e) {
+        console.error('Invalid overlay JSON:', e);
+    }
+}
+
+function setControls(json) {
+    const data = JSON.parse(json);
+
+    let styleString = data.overlay.style;
+    let parser = new StyleParser(styleString);
+
+    const $backgroundColor = parser.get("backgroundColor");
+    $("#backgroundColor").val($backgroundColor);
+
+    styleString = data.overlay.children[0].style;
+    parser = new StyleParser(styleString);
+
+    const $fontSize = parser.get("fontSize");
+    const $fontWeight = parser.get("fontWeight");
+    const $fontStyle = parser.get("fontStyle");
+    const $color = parser.get("color");
+
+    $("#textColor").val($color).trigger("change");
+    $("#fontSize").val($fontSize).trigger("change");
+
+    // Apply selected style
+    $("#fontType").val("normal");
+
+    if ($fontWeight === "bold") {
+        $("#fontType").val("bold");
+    }
+
+    if ($fontStyle === "italic") {
+        $("#fontType").val("italic");
+    }
+
+    if ($fontStyle === "italic" && $fontWeight === "bold") {
+        $("#fontType").val("bolditalic");
+    }
+}
+
+function saveOverlayData() {
+    showSpinner();
+    const overlay = $("#overlay");
+    const overlayStyle = overlay.attr("style") || "";
+
+    const children = [];
+
+    overlay.children().each(function () {
+        const tag = this.tagName.toLowerCase();
+        const text = $(this).text();
+        const style = $(this).attr("style") || '';
+
+        children.push({
+            tag: tag,
+            text: text,
+            style: style
+        });
+    });
+
+    const json = {
+        overlay: {
+            style: overlayStyle,
+            children: children
+        }
+    };
+
+    $.post(`${root}Majordome/SaveOverlay`, { id, overlay: JSON.stringify(json), stock, imagePath: imagePath })
+        .done(function (response) {
+            if (response.success) {
+                fetch('/Majordome/GetUpdatedItems')
+                    .then(res => res.json())
+                    .then(data => {
+                        const vehicle = data.find(v => v.Stock === stock);
+                        loadGallery(vehicle);
+                        updateRow(data);
+                        hideSpinner();
+                        $("#close").click();
+                    });
+            }
+        })
+}
