@@ -201,9 +201,8 @@ namespace GTX.Controllers {
             return null;
         }
 
-        public string[] GetImages(string stock) {
-            var imageUrls = InventoryService.GetImages(stock);
-            return imageUrls;
+        public Image[] GetImages(string stock) {
+            return InventoryService.GetImages(stock);
         }
 
         public static string SerializeModel(object model) {
@@ -230,11 +229,9 @@ namespace GTX.Controllers {
                 vehicle.Story = InventoryService.GetStory(vehicle.Stock);
                 vehicle.Images = InventoryService.GetImages(vehicle.Stock);
 
+                vehicle.Image = $"{imageFolder}no-image.png";
                 if (vehicle.Images != null && vehicle.Images.Length > 0) {
-                    vehicle.Image = vehicle.Images[0];
-                }
-                else {
-                    vehicle.Image = $"{imageFolder}no-image.png";
+                    vehicle.Image = $"{imageFolder}{vehicle.Stock}/{vehicle.Images[0].Name}"; ;
                 }
             }
 

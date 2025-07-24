@@ -1,8 +1,11 @@
 ﻿using GTX.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Services;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -112,7 +115,7 @@ namespace GTX.Controllers {
                             await fs.WriteAsync(imageBytes, 0, imageBytes.Length);
                         }
 
-                        InventoryService.SaveImage(stock, $"{url}/{f.FileName}");
+                        InventoryService.SaveImage(stock, $"{f.FileName}");
                     });
 
                 await Task.WhenAll(tasks);
@@ -130,9 +133,22 @@ namespace GTX.Controllers {
             SessionData.CurrentVehicle = Model.CurrentVehicle;
         }
 
+        public ActionResult OverlayModal(Guid id) {
+            Services.Image image = InventoryService.GetImage(id);
+            return PartialView("_OverlayModal", image);
+        }
+
+
         [HttpPost]
-        public JsonResult SaveOrder(string[] sorted, string stock) {
-            InventoryService.UpdateOrder(sorted, stock);
+        public JsonResult SaveOrder(Guid[] sorted) {
+            InventoryService.UpdateOrder(sorted);
+            return Json(new { success = true });
+        }
+
+        [HttpPost]
+        public JsonResult SaveOverlay(Guid id, string stock, string overlay, string imagePath) {
+            InventoryService.SaveOverlay(id, overlay);
+            CreateImageWithOverlay(stock, imagePath, overlay);
             return Json(new { success = true });
         }
 
@@ -147,12 +163,13 @@ namespace GTX.Controllers {
         }
 
         [HttpPost]
-        public JsonResult DeleteImage(string file, string stock) {
-            string filePath = Server.MapPath(file);
+        public JsonResult DeleteImage(Guid id, string file, string stock) {
+            string path = $"{imageFolder}{stock}/{file}";
+            path = Server.MapPath(path);
 
-            if (System.IO.File.Exists(filePath)) {
-                System.IO.File.Delete(filePath);
-                InventoryService.DeleteImage(stock, file);
+            if (System.IO.File.Exists(path)) {
+                System.IO.File.Delete(path);
+                InventoryService.DeleteImage(id);
                 return Json(new { success = true });
             }
 
@@ -186,6 +203,64 @@ namespace GTX.Controllers {
                 return Json(new { success = false, message = "Error: " + ex.Message });
             }
 
+        }
+
+        public void CreateImageWithOverlay(string stock, string baseImagePath,  string overlayJson) {
+            string baseImage = Server.MapPath(baseImagePath);
+            string outputImage = Server.MapPath(baseImagePath);
+
+            using (var image = new Bitmap(baseImage))
+            using (var graphics = Graphics.FromImage(image)) {
+                graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+                // Parse JSON
+                JObject overlayObj = JObject.Parse(overlayJson);
+                var overlay = overlayObj["overlay"];
+                var bgColor = GetColorFromStyle((string)overlay["style"]);
+
+                // Draw semi-transparent overlay rectangle (opacity 0.6)
+                float overlayOpacity = 0.6f;
+                int alpha = (int)(overlayOpacity * 255);
+                Color bgColorWithAlpha = Color.FromArgb(alpha, bgColor.R, bgColor.G, bgColor.B);
+
+                int overlayHeight = image.Height / 8;
+                var overlayRect = new Rectangle(0, image.Height - overlayHeight, image.Width, overlayHeight); // bottom banner
+
+                using (Brush brush = new SolidBrush(bgColorWithAlpha)) {
+                    graphics.FillRectangle(brush, overlayRect);
+                }
+
+                // Draw text
+                foreach (var child in overlay["children"]) {
+                    string text = (string)child["text"];
+                    string style = (string)child["style"];
+                    var (font, color) = GetFontAndColorFromStyle(image.Width, style);
+
+                    using (var brush = new SolidBrush(color)) // text has full opacity
+                    {
+                        RectangleF textRect = new RectangleF(
+                            20, // padding-left
+                            image.Height - overlayHeight, // Y: start at bottom overlay
+                            image.Width - 20, // width with horizontal padding
+                            overlayHeight // height
+                        );
+
+                        // Setup string formatting for centered text and wrapping
+                        StringFormat format = new StringFormat() {
+                            Alignment = StringAlignment.Center, // horizontal center
+                            LineAlignment = StringAlignment.Center, // vertical center
+                            Trimming = StringTrimming.EllipsisWord,
+                            FormatFlags = StringFormatFlags.LineLimit
+                        };
+
+                        // Draw the text block
+                        graphics.DrawString(text, font, brush, textRect, format);
+                    }
+                }
+                string filename = $"{Path.GetDirectoryName(outputImage)}/{Path.GetFileNameWithoutExtension(outputImage)}-O{Path.GetExtension(outputImage)}";
+                image.Save(filename, ImageFormat.Png);
+                InventoryService.SaveImage(stock, Path.GetFileName(filename));
+            }
         }
 
         private async Task<string> GetChatGptResponse(string prompt) {
@@ -272,6 +347,34 @@ Do not place any **<html>**, **<body>** and **<head>** tags
             }
 
             return (story, title);
+        }
+
+        private Color GetColorFromStyle(string style) {
+            // crude parser for background-color: lightskyblue;
+            var match = System.Text.RegularExpressions.Regex.Match(style, @"background-color:\s*([^;]+)");
+            return match.Success ? Color.FromName(match.Groups[1].Value.Trim()) : Color.Transparent;
+        }
+
+        private (Font font, Color color) GetFontAndColorFromStyle(int width, string style) {
+            float size = 1.0f;
+            FontStyle fontStyle = FontStyle.Regular;
+            Color color = Color.Black;
+            string fontFamily = "Arial";
+
+            if (style.Contains("italic")) fontStyle |= FontStyle.Italic;
+            if (style.Contains("bold")) fontStyle |= FontStyle.Bold;
+
+
+            float vw = width / 100f;
+
+            var sizeMatch = Regex.Match(style, @"font-size:\s*(\d+(\.\d+)?)vw");
+            if (sizeMatch.Success) size = float.Parse(sizeMatch.Groups[1].Value) * vw * 1.5f;
+
+            var colorMatch = System.Text.RegularExpressions.Regex.Match(style, @"color:\s*([^;]+)");
+            if (colorMatch.Success) color = Color.FromName(colorMatch.Groups[1].Value.Trim());
+
+            Font font = new Font(fontFamily, size, fontStyle);
+            return (font, color);
         }
     }
 }

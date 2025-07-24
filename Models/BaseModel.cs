@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using Services;
+using System.Web;
 
 namespace GTX.Models {
     public class BaseModel {
@@ -45,7 +46,7 @@ namespace GTX.Models {
 
     public class Vehicle { 
         public Models.GTX VehicleDetails { get; set; }
-        public string[] VehicleImages { get; set; }
+        public Image[] VehicleImages { get; set; }
         public Models.GTX[] VehicleSuggesion { get; set; }
     }
 }

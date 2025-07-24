@@ -1,4 +1,6 @@
-﻿@{
+﻿@using Services;
+
+@{
     @model GTX.Models.BaseModel
     Html.RenderPartial("_PageTitle");
 
@@ -59,11 +61,11 @@
                     }
                 </div>
                 <h5>
-                    <i id="like-btn" class="btn btn-light rounded shadow bi bi-heart-fill text-danger popoverable" data-bs-toggle="popover" data-bs-content="<span class='text-danger'><strong>Toggle you favorites</strong></span>" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"></i>
-                    <span class="mx-1 popoverable" data-bs-toggle="popover" data-bs-content="<span class='text-danger'><strong>Click to share with facebook</strong></span>">
+                    <i id="like-btn" class="btn btn-light rounded shadow bi bi-heart-fill text-danger" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"></i>
+                    <span class="mx-1">
                         <a id="shareToFacebook" class="btn btn-light rounded shadow" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"><i class="bi bi-facebook"></i></a>
                     </span>
-                    <span class="popoverable" data-bs-toggle="popover" data-bs-content="<span class='text-danger'><strong>Click to share with twitter</strong></span>">
+                    <span>
                         <a id="shareToTwitter" class="btn btn-light rounded shadow" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"><i class="bi bi-twitter"></i></a>
                     </span>
                 </h5>
@@ -83,9 +85,10 @@
             </div>
             <div class="tab-pane fade well" id="nav-pictures" role="tabpanel" aria-labelledby="nav-picture-tab">
                 <div class="d-flex flex-wrap justify-content-center overflow-auto">
-                    @foreach (string imageUrl in Model.CurrentVehicle.VehicleDetails.Images) {
-                        <a class="elem three-d w-30" href="@imageUrl" data-lcl-thumb="@imageUrl">
-                            <span class="shadow rounded" style="background-image: url(..@imageUrl);"></span>
+                    @foreach (Image image in Model.CurrentVehicle.VehicleDetails.Images) {
+                        string imagePath = $"/GTXImages/Inventory/{image.Stock.Trim()}/{image.Name}";
+                        <a class="elem three-d w-30" href="@imagePath" data-lcl-thumb="@imagePath">
+                            <span class="shadow rounded" style="background-image: url(..@imagePath);"></span>
                         </a>
                     }
                 </div>
@@ -197,7 +200,7 @@
 
     <div class="col-lg-5 col-md-8 col-sm-12">
         @*Details*@
-        <div class="row justify-content-center shadow mb-3 popoverable" data-bs-toggle="popover" data-bs-content="<span class='text-danger'><strong>Click to toggle open/close to see details.</strong></span>">
+        <div class="row justify-content-center shadow mb-3">
             <button class="btn btn-light shadow w-100" type="button" data-bs-toggle="collapse" data-bs-target="#details" aria-expanded="false" aria-controls="details">
                 <div class="bg-lighter py-2 px-3 text-center hand-pointer">
                     <h5 class="fw-bold text-uppercase">Details</h5>
@@ -289,7 +292,7 @@
         </div>
 
         @*Features*@
-        <div class="row justify-content-center well my-3 popoverable" data-bs-toggle="popover" data-bs-content="<span class='text-danger'><strong>Click to toggle open/close to see features</strong></span>">
+        <div class="row justify-content-center well my-3">
             <button class="btn btn-light shadow w-100" type="button" data-bs-toggle="collapse" data-bs-target="#features" aria-expanded="false" aria-controls="features">
                 <div class="bg-lighter py-2 px-3 text-center hand-pointer">
                     <h5 class="fw-bold text-uppercase">Features</h5>
@@ -305,12 +308,12 @@
         @*Loan app*@
         <div class="row justify-content-center well my-3">
             <button class="btn btn-light shadow w-100" type="button" data-bs-toggle="collapse" data-bs-target="#application" aria-expanded="false" aria-controls="application">
-                <div class="bg-lighter py-2 px-3 text-center hand-pointer popoverable" data-bs-toggle="popover" data-bs-content="<span class='text-danger'><strong>Click to toggle open/close and scroll for application</strong></span>">
+                <div class="bg-lighter py-2 px-3 text-center hand-pointer">
                     <h5 class="fw-bold text-uppercase">Loan application</h5>
                 </div>
             </button>
 
-            <div class="collapse show text-shadow-small rounded shadow mt-2 popoverable" id="application" data-bs-toggle="popover" data-bs-content="<span class='text-danger'><strong>Scroll down for application</strong></span>">
+            <div class="collapse show text-shadow-small rounded shadow mt-2" id="application">
                 <iframe src="https://www.700dealer.com/QuickQualify/43783416bf5141ff8b8d1a40387ee700-20181212" width="100%" height="385px" scrolling="auto"></iframe>
             </div>
         </div>
