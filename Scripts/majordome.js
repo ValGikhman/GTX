@@ -349,9 +349,16 @@ function saveOverlayData() {
     const children = [];
 
     overlay.children().each(function () {
+        const bold = $("#fontType").val().includes("bold") ? "bold" : "normal"
+        const italic = $("#fontType").val().includes("italic") ? "italic" : ""
+
         const tag = this.tagName.toLowerCase();
         const text = $(this).text();
-        const style = $(this).attr("style") || '';
+        const color = `color:${$("#textColor").val()};`;
+        const fontSize = `font-size:${$("#fontSize").val()};`;
+        const fontWeight = `font-weight:${bold};`;
+        const fontStyle = `font-style:${italic};`;
+        const style = `${color}${fontSize}${fontWeight}${fontStyle}`;
 
         children.push({
             tag: tag,
