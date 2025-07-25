@@ -125,8 +125,9 @@
             </div>
         </div>
 
+        <!-- Gallery Tab -->
         <div class="tab-pane fade" id="galery" role="tabpanel">
-            <button id="upload" class="btn btn-light shadow">Upload Images</button>
+            <button id="upload" class="btn btn-light shadow mx-4">Upload Images</button>
             <button id="deleteAll" class="btn btn-light shadow">Delete all images</button>
             <input type="file" id="fileInput" class="d-none" multiple accept="image/*">
             <div id="galery-content" class="container-fluid my-2">
@@ -299,11 +300,13 @@ const columnDefs = [
         field: 'images',
         cellRenderer: imageButtonRenderer,
         filter: false,
-        sortable: false
+        sortable: false,
+        width: 435
     },
     {
         headerName: "Vehicle",
         filter: false,
+        width: 475,
         field: "Vehicle", // You can use any placeholder field
         autoHeight: true,
         sortable: true,
@@ -324,9 +327,77 @@ const columnDefs = [
 
             var formattedMileage = new Intl.NumberFormat('en-US').format(Mileage);
             return `
-                <div><h7>${Year} ${Make}</h7></div>
-                <div style="margin-top: -15px;"><h8>${Model} ${VehicleStyle}</h8></div>
-                <div style="margin-top: -15px;"><h8>Miles: ${formattedMileage} Price:${formattedPrice}</h8></div>
+                <div><h6>${Year} ${Make} ${Model} ${VehicleStyle}</h7></div>
+                <div class="row justify-content-center mt-3">
+                    <div class="d-flex flex-wrap justify-content-evenly rounded p-2 gap-5">
+                        <span class="btn btn-outline-secondary shadow position-relative details">
+                            <span class="medium-small-text">${params.data.LocationCode}</span>
+                            <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                                Code
+                            </span>
+                        </span>
+                        <span class="btn btn-outline-secondary shadow position-relative details">
+                            <span class="medium-small-text">${formattedPrice}</span>
+                            <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                                Price
+                            </span>
+                        </span>
+                        <span class="btn btn-outline-secondary shadow position-relative details">
+                            <span class="medium-small-text">${formattedMileage}</span>
+                            <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                                Miles
+                            </span>
+                        </span>
+                        <span class="btn btn-outline-secondary shadow position-relative details">
+                            <span class="medium-small-text">${params.data.Engine}</span>
+                            <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                                Engine
+                            </span>
+                        </span>
+                        <span class="btn btn-outline-secondary shadow position-relative details">
+                            <span class="medium-small-text">${params.data.Body}</span>
+                            <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                                Body
+                            </span>
+                        </span>
+                        <span class="btn btn-outline-secondary shadow position-relative details">
+                            <span class="medium-small-text">${params.data.VehicleType}</span>
+                            <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                                Type
+                            </span>
+                        </span>
+                        <span class="btn btn-outline-secondary shadow position-relative details">
+                            <span class="medium-small-text">${params.data.Cylinders}</span>
+                            <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                                Cylinders
+                            </span>
+                        </span>
+                        <span class="btn btn-outline-secondary shadow position-relative details">
+                            <span class="medium-small-text">${params.data.DriveTrain}</span>
+                            <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                                Drivetrain
+                            </span>
+                        </span>
+                        <span class="btn btn-outline-secondary shadow position-relative details">
+                            <span class="medium-small-text">${params.data.Transmission}/${params.data.TransmissionSpeed}</span>
+                            <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                                Transmission
+                            </span>
+                        </span>
+                        <span class="btn btn-outline-secondary shadow position-relative details">
+                            <span class="medium-small-text">${params.data.FuelType}</span>
+                            <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                                Fuel
+                            </span>
+                        </span>
+                        <span class="btn btn-outline-secondary shadow position-relative details" style="background-color: ${params.data.Color}">
+                            <span class="medium-small-text">&emsp;</span>
+                            <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                                ${params.data.Color}
+                            </span>
+                        </span>
+                    </div>
+                </div>
         `;
         },
         getQuickFilterText: (params) => {
@@ -334,18 +405,22 @@ const columnDefs = [
             return `${Year} ${Make} ${Model} ${VehicleStyle} ${Stock}`;
         }
     },
-    { headerName: "Stock", field: "Stock", filter: false, width: 120 },
-    { headerName: "GTX", field: "LocationCode", filter: false, width: 70  },
+    { headerName: "Stock", field: "Stock", filter: true, width: 120 },
+    { headerName: "GTX", field: "LocationCode", filter: true, width: 80  },
     {
         headerName: 'Story',
         field: 'Story',
-        width: 400,
+        width: 80,
         cellRenderer: (params) => {
             if (params.data.Story != null) {
                 const { Title, HtmlContent } = params.data.Story;
+                var showCheck = "";
+                if (Title === null) {
+                    showCheck = "visually-hidden"
+                }
                 return `
                 <style>.p-story {font-size: 10px; margin-top: -15px;}</style>
-                <div><h7>${Title}</h7></div>
+                <i class="bi bi-check-lg ${showCheck}"></i>
                 `
             }
             else {
@@ -386,6 +461,7 @@ const gridOptions = {
     },
     columnDefs: columnDefs,
     rowSelection: "single", // or 'multiple'
+    rowHeight: 300, // Set fixed row height in pixels
     suppressRowClickSelection: false, // Allow clicking anywhere in the row
     suppressCellFocus: true, // 🔥 Disable cell selection focus
     pagination: false,
@@ -404,7 +480,7 @@ const gridOptions = {
         loadGallery(selectedVehicle);
         setDetails(selectedVehicle.Stock);
     }
-    };
+};
 
 // Delete Icon renderer
 function deleteIconRenderer(params) {
@@ -439,7 +515,7 @@ function reStoryIconRenderer(params) {
 // Image Button Renderer
 function imageButtonRenderer(params) {
     if (!params.data.Images || params.data.Images.length === 0) {
-        return `<img src="${params.data.Image}"></img>`;
+        return `<img class="grid-image" src="${params.data.Image}"></img>`;
     }
 
     const wrapper = document.createElement('div');
@@ -447,11 +523,12 @@ function imageButtonRenderer(params) {
 
     const image = new Image();;
     image.src = params.data.Image;
+    image.className = "grid-image rounded shadow";
     wrapper.appendChild(image)
 
     if (params.data.Images.length > 0) {
         const badge = document.createElement('span');
-        badge.className = 'position-absolute badge rounded-pill bg-success start-25';
+        badge.className = 'position-absolute badge rounded-pill m-2 bg-success start-0 fs-6';
         badge.textContent = `${params.data.Images.length} images`;
         wrapper.appendChild(badge);
     }

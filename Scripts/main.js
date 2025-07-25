@@ -8,6 +8,16 @@
         $(".main-menu li ").removeClass("active");
     });
 
+    $(".copyable").on("dblclick", function () {
+        const htmlContent = $(this).html();
+        const temp = $('<textarea>');
+        $('body').append(temp);
+        temp.val(htmlContent).select();
+        document.execCommand('copy');
+        temp.remove();
+        playBeep();
+    })
+
     /*------------------
         Background Set
     --------------------*/
@@ -194,4 +204,19 @@ function updateFilterLiked() {
     } else {
         $("#filterLiked").removeClass("bi-heart-fill").addClass("bi-heart").show();
     }
+}
+
+function playBeep() {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    oscillator.type = 'triangle';       // 'sine', 'square', 'triangle', or 'sawtooth'
+    oscillator.frequency.setValueAtTime(1100, ctx.currentTime); // Frequency in Hz
+
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    oscillator.start();
+    oscillator.stop(ctx.currentTime + 0.01); // Beep duration: 0.1 second
 }

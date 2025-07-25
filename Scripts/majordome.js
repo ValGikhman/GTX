@@ -57,6 +57,17 @@ function loadGallery(vehicle) {
     container.empty();
     var i = 0;
     vehicle.Images.forEach(function (img) {
+        var showImageEdit = "";
+        var imageIcon = "bi bi-image";
+
+        if (img.Name.includes("-O")) {
+            showImageEdit = "visually-hidden";
+        }
+        console.log(img.Overlay);
+        if (img.Overlay !== null) {
+            imageIcon = "bi bi-image-fill";
+        }
+
         var imagePath = `${images}${img.Stock.trim()}/${img.Name}`;
         var item = `
         <li id="${img.Id}" class="col-lg-2 col-md-3 col-sm-4 well pt-3 shadow m-2" data-filename="${img.Name}">
@@ -64,7 +75,7 @@ function loadGallery(vehicle) {
                 <img src="${imagePath}"/>
             </a>
             <span id="${img.Id}" class="delete-image bi bi-trash btn btn-light shadow my-3" data-filename="${img.Name}"></span>
-            <span id="${img.Id}" class="overlay-image bi bi-image btn btn-light shadow my-3" data-filename="${img.Name}"></span>
+            <span id="${img.Id}" class="overlay-image ${imageIcon} btn btn-light shadow my-3 ${showImageEdit}" data-filename="${img.Name}"></span>
         </li>
         `;
 
@@ -301,7 +312,7 @@ function setControls(json) {
     let parser = new StyleParser(styleString);
 
     const $backgroundColor = parser.get("backgroundColor");
-    $("#backgroundColor").val($backgroundColor);
+    $("#backgroundColor").val($backgroundColor).trigger("change");
 
     styleString = data.overlay.children[0].style;
     parser = new StyleParser(styleString);
