@@ -33,8 +33,10 @@
         <select id="textColor" class="form-select shadow">
             <option selected disabled>Choose a color</option>
             @foreach (var colorName in colorProperties) {
-                var hex = Color.FromName(colorName).IsKnownColor ? ColorTranslator.ToHtml(Color.FromName(colorName)) : "#FFFFFF";
-                <option value="@colorName.ToLower()" style="color: @hex;">@colorName</option>
+                var color = Color.FromName(colorName);
+                if (color.IsKnownColor) {
+                    <option value="@colorName.ToLower()" style="color: @colorName;">@colorName</option>
+                }
             }
         </select>
 
@@ -42,8 +44,10 @@
         <select id="backgroundColor" class="form-select shadow">
             <option selected disabled>Choose a background</option>
             @foreach (var colorName in colorProperties) {
-                var hex = Color.FromName(colorName).IsKnownColor ? ColorTranslator.ToHtml(Color.FromName(colorName)) : "#FFFFFF";
-                <option value="@colorName.ToLower()" style="background-color: @hex;">@colorName</option>
+                var color = Color.FromName(colorName);
+                if (color.IsKnownColor) {
+                    <option value="@colorName.ToLower()" style="color: @colorName;">@colorName</option>
+                }
             }
         </select>
 
@@ -123,7 +127,7 @@
             // Replace <p> with <input>
             const $input = $('<input type="text" class="form-control shadow" id="text" placeholder="Enter or edit description">').val(currentText);
             $(this).replaceWith($input);
-            $input.focus();
+            $input.focus().select();
 
             // On blur or enter, replace back with <p>
             $input.on('blur keydown', function (e) {

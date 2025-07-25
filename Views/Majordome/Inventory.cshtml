@@ -328,8 +328,8 @@ const columnDefs = [
             var formattedMileage = new Intl.NumberFormat('en-US').format(Mileage);
             return `
                 <div><h6>${Year} ${Make} ${Model} ${VehicleStyle}</h7></div>
-                <div class="row justify-content-center mt-3">
-                    <div class="d-flex flex-wrap justify-content-evenly rounded p-2 gap-5">
+                <div class="row justify-content-center mx-3 mt-3">
+                    <div class="d-flex flex-wrap justify-content-between rounded p-2 gap-5">
                         <span class="btn btn-outline-secondary shadow position-relative details">
                             <span class="medium-small-text">${params.data.LocationCode}</span>
                             <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
@@ -378,24 +378,6 @@ const columnDefs = [
                                 Drivetrain
                             </span>
                         </span>
-                        <span class="btn btn-outline-secondary shadow position-relative details">
-                            <span class="medium-small-text">${params.data.Transmission}/${params.data.TransmissionSpeed}</span>
-                            <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
-                                Transmission
-                            </span>
-                        </span>
-                        <span class="btn btn-outline-secondary shadow position-relative details">
-                            <span class="medium-small-text">${params.data.FuelType}</span>
-                            <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
-                                Fuel
-                            </span>
-                        </span>
-                        <span class="btn btn-outline-secondary shadow position-relative details" style="background-color: ${params.data.Color}">
-                            <span class="medium-small-text">&emsp;</span>
-                            <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
-                                ${params.data.Color}
-                            </span>
-                        </span>
                     </div>
                 </div>
         `;
@@ -406,7 +388,7 @@ const columnDefs = [
         }
     },
     { headerName: "Stock", field: "Stock", filter: true, width: 120 },
-    { headerName: "GTX", field: "LocationCode", filter: true, width: 80  },
+    { headerName: "GTX", field: "LocationCode", filter: true, width: 100  },
     {
         headerName: 'Story',
         field: 'Story',
