@@ -208,10 +208,16 @@
             </button>
             <div class="collapse show text-shadow-small rounded well" id="details">
                 <div class="d-flex justify-content-between mb-3 flex-wrap">
-                    <span class="very-small-text">@Model.CurrentVehicle.VehicleDetails.VIN</span>
-                    <span class="very-small-text">@Model.CurrentVehicle.VehicleDetails.LocationCode:@Model.CurrentVehicle.VehicleDetails.Stock</span>
+                    <span class="very-small-text copyable">@Model.CurrentVehicle.VehicleDetails.VIN</span>
+                    <span class="very-small-text copyable">@Model.CurrentVehicle.VehicleDetails.Stock</span>
                 </div>
                 <div class="d-flex flex-wrap justify-content-evenly rounded p-2 gap-5">
+                    <span class="btn btn-outline-secondary shadow position-relative details">
+                        <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.LocationCode</span>
+                        <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                            Code
+                        </span>
+                    </span>
                     <span class="btn btn-outline-secondary shadow position-relative details">
                         <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.RetailPrice.ToString("C0")</span>
                         <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">

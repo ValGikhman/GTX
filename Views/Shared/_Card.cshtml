@@ -25,13 +25,13 @@
     </a>
     <div class="card-header well shadow">
         <h7 class="no-click">
-            <div class="d-flex flex-wrap justify-content-evenly">
+            <div class="d-flex flex-wrap justify-content-between">
                 <span>Yours for: @Model.RetailPrice.ToString("C0")</span>
-                <span>Miles: @Model.Mileage.ToString("N0")</span>
+                <span>Miles: @Model.Mileage.ToString("N0")</span>@Model.LocationCode
             </div>
-            <div class="d-flex flex-wrap justify-content-evenly">
-                <span class="very-small-text">VIN#:@Model.VIN</span>
-                <span class="very-small-text">@Model.LocationCode:@Model.Stock</span>
+            <div class="d-flex flex-wrap justify-content-between">
+                <span class="very-small-text copyable">@Model.VIN</span>
+                <span class="very-small-text copyable">@Model.Stock</span>
             </div>
             <div class="d-flex justify-content-center">
                 <a href="https://www.carfax.com/VehicleHistory/p/Report.cfx?vin=@Model.VIN" target="_blank">
