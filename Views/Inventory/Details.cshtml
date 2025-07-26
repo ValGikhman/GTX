@@ -214,67 +214,67 @@
                 <div class="d-flex flex-wrap justify-content-evenly rounded p-2 gap-5">
                     <span class="btn btn-outline-secondary shadow position-relative details">
                         <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.LocationCode</span>
-                        <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
-                            Code
+                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                            GTX
                         </span>
                     </span>
                     <span class="btn btn-outline-secondary shadow position-relative details">
                         <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.RetailPrice.ToString("C0")</span>
-                        <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
                             Price
                         </span>
                     </span>
                     <span class="btn btn-outline-secondary shadow position-relative details">
                         <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.Mileage.ToString("N0")</span>
-                        <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
                             Miles
                         </span>
                     </span>
                     <span class="btn btn-outline-secondary shadow position-relative details">
                         <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.Engine</span>
-                        <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
                             Engine
                         </span>
                     </span>
                     <span class="btn btn-outline-secondary shadow position-relative details">
                         <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.Body</span>
-                        <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
                             Body
                         </span>
                     </span>
                     <span class="btn btn-outline-secondary shadow position-relative details">
                         <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.VehicleType</span>
-                        <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
                             Type
                         </span>
                     </span>
                     <span class="btn btn-outline-secondary shadow position-relative details">
                         <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.Cylinders</span>
-                        <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
                             Cylinders
                         </span>
                     </span>
                     <span class="btn btn-outline-secondary shadow position-relative details">
                         <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.DriveTrain</span>
-                        <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
                             Drivetrain
                         </span>
                     </span>
                     <span class="btn btn-outline-secondary shadow position-relative details">
                         <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.Transmission/@Model.CurrentVehicle.VehicleDetails.TransmissionSpeed</span>
-                        <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
                             Transmission
                         </span>
                     </span>
                     <span class="btn btn-outline-secondary shadow position-relative details">
                         <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.FuelType</span>
-                        <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
                             Fuel
                         </span>
                     </span>
                     <span class="btn btn-outline-secondary shadow position-relative details" style="background-color: @Model.CurrentVehicle.VehicleDetails.Color">
                         <span class="medium-small-text">&emsp;</span>
-                        <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
                             @Model.CurrentVehicle.VehicleDetails.Color
                         </span>
                     </span>
@@ -327,7 +327,7 @@
 </div>
 
 @*May Like*@
-<div class="row mx-auto col-lg-10 col-md-8 col-sm-12">
+<div class="row mx-auto col-lg-10 col-md-8 col-sm-12  mb-5">
     <button class="btn btn-light shadow" type="button" data-bs-toggle="collapse" data-bs-target="#suggestion" aria-expanded="false" aria-controls="suggestion">
         <div class="bg-lighter py-2 px-3 text-center hand-pointer">
             <h5 class="fw-bold text-uppercase">You may also like</h5>

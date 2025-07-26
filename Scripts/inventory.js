@@ -45,6 +45,10 @@ function applyFilterTerm(term) {
         const images = $(vehicle).data("images") || "";
 
         if (filter.startsWith("@@")) {
+            if (filter === "@@ADMIN" || filter === "@@MAJORDOME") {
+                $("#MajordomeLink").removeClass("d-none");
+                return;
+            }
             // Hidden  features
             $("#filterTerm").addClass("text-info").addClass("border-info");
             combined = `@@${location} @@${story} @@${images}`;

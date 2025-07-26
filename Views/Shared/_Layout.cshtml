@@ -80,6 +80,7 @@
                             <li>@Html.ActionLink("Coupes", "Coupes", "Inventory")</li>
                             <li>@Html.ActionLink("Sedans", "Sedans", "Inventory")</li>
                             <li>@Html.ActionLink("Convertibles", "Convertibles", "Inventory")</li>
+                            <li id="MajordomeLink" class="d-none">@Html.ActionLink("Majordome", "Inventory", "Majordome")</li>
                         </ul>
                     </li>
                     <li>@Html.ActionLink("Blog", "Blog", "Home")</li>
@@ -133,7 +134,7 @@
         @RenderBody()
     </div>
     <!-- Footer Section Begin -->
-    <footer id="click-area" class="set-bg fixed-bottom" data-setbg="@Url.Content("~/img/gradient-dark-2.jpg")">
+    <footer class="set-bg fixed-bottom" data-setbg="@Url.Content("~/img/gradient-dark-2.jpg")">
         <div class="row">
             <div class="col-lg-12 text-white text-center">
                 <a href="https://www.gtxagroup.com" target="_blank">

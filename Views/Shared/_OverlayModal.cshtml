@@ -130,6 +130,7 @@
             $input.focus().select();
 
             // On blur or enter, replace back with <p>
+
             $input.on('blur keydown', function (e) {
                 if (e.type === 'blur' || e.key === 'Enter') {
                     const newText = $(this).val();
