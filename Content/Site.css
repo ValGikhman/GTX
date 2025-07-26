@@ -1,4 +1,9 @@
 ﻿/*Custom*/
+
+.detail-badge {
+    top: -10px!important;
+}
+
 .overlay-image-overlay {
     position: absolute;
     bottom: 15px;
@@ -243,12 +248,6 @@ input::placeholder {
 .medium-small-text {
     font-size: 14px;
     color: grey;
-}
-
-
-#click-area {
-    cursor: pointer;
-    user-select: none;
 }
 
 .well {
@@ -2817,7 +2816,12 @@ a, u {
 
 
 /*--------------------------------- Responsive Media Quaries -----------------------------*/
-@media only screen and (min-width: 1200px) {
+@media only screen and (min-width: 1599px) {
+    .carousel-inner {
+        height: 485px;
+    }
+}
+@media only screen and (min-width: 1200px) and (max-width: 1599px) {
     .container {
         max-width: 1170px;
     }
@@ -2827,7 +2831,7 @@ a, u {
     }
 
     .carousel-inner {
-        height: 540px;
+        height: 400px;
     }
 }
 
@@ -2838,7 +2842,7 @@ a, u {
     }
 
     .carousel-inner {
-        height: 300px;
+        height: 283px;
     }
 }
 
