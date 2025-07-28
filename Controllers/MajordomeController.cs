@@ -32,10 +32,14 @@ namespace GTX.Controllers {
         }
 
         public ActionResult Inventory(BaseModel model) {
-            Model.Inventory.Vehicles = Model.Inventory.All;
-            foreach (var vehicle in Model.Inventory.Vehicles) {
+            var vehicles = Model.Inventory.All ?? Array.Empty<Models.GTX>();
+
+            Parallel.ForEach(vehicles, vehicle =>
+            {
                 vehicle.Story = InventoryService.GetStory(vehicle.Stock);
-            }
+            });
+
+            Model.Inventory.Vehicles = vehicles;
 
             return View(Model);
         }
@@ -75,6 +79,7 @@ namespace GTX.Controllers {
         public async Task<ActionResult> ReStoryAll() {
             try {
                 Model.Inventory.Vehicles = Model.Inventory.All;
+
                 Parallel.ForEach(Model.Inventory.Vehicles, new ParallelOptions { MaxDegreeOfParallelism = 3 }, async vehicle => {
                     if (string.IsNullOrEmpty(vehicle.Story.Title)) {
                         var story = await GetChatGptResponse(GetPrompt(vehicle));
