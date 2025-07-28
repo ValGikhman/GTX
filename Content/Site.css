@@ -242,12 +242,14 @@ input::placeholder {
 
 .very-small-text {
     font-size: 10px;
-    color: grey;
+    color: darkslategrey;
+    font-weight: bold
 }
 
 .medium-small-text {
     font-size: 14px;
-    color: grey;
+    color: darkslategrey;
+    font-weight: bold
 }
 
 .well {
@@ -502,8 +504,8 @@ h6,
 h7,
 h8 {
     margin: 0;
-    color: slategrey;
-    font-weight: 400;
+    color: darkslategrey;
+    font-weight: bold;
     font-family: "Lato", sans-serif;
     text-shadow: 2px 2px 3px #8D8484;
 }
@@ -2816,11 +2818,12 @@ a, u {
 
 
 /*--------------------------------- Responsive Media Quaries -----------------------------*/
-@media only screen and (min-width: 1599px) {
+@media only screen and (min-width: 1600px) and (max: 1800px) {
     .carousel-inner {
-        height: 485px;
+        height: 600px;
     }
 }
+
 @media only screen and (min-width: 1200px) and (max-width: 1599px) {
     .container {
         max-width: 1170px;
@@ -2933,10 +2936,6 @@ a, u {
         margin-bottom: 40px;
     }
 
-    .footer__contact__option .option__item {
-        margin-bottom: 12px;
-    }
-
     .blog__sidebar {
         padding-top: 45px;
     }
@@ -2970,6 +2969,8 @@ a, u {
 
     .offcanvas-menu-wrapper {
         display: block;
+        max-height: 100vh;
+        overflow-y: auto;
     }
 
     .header .container {
@@ -3013,7 +3014,7 @@ a, u {
 
     .offcanvas-menu-wrapper {
         position: fixed;
-        left: -400px;
+        left: -595px;
         width: 80%;
         /*
          height: 100%;
@@ -3162,7 +3163,7 @@ a, u {
     }
 
     .carousel-inner {
-        height: 325px;
+        height: 270px;
     }
     
     .section-title h2,

@@ -12,15 +12,17 @@ using System.Web.Script.Serialization;
 namespace GTX.Controllers {
 
     public class InventoryController : BaseController {
-
+        private static readonly HttpClient httpClient = new HttpClient();
         public InventoryController(ISessionData sessionData, IInventoryService inventoryService, ILogService LogService)
             : base(sessionData, inventoryService, LogService) {
         }
 
         public ActionResult Index(BaseModel model) {
-            Model.Inventory.Title = "Search  result";
-            ViewBag.Title = $"{Model.Inventory.Title} ({Model.Inventory.Vehicles.Length}) vehicles";
+            var vehicles = Model.Inventory.Vehicles ?? Array.Empty<Models.GTX>();
+            Model.Inventory.Title = "Search result";
+            ViewBag.Title = $"{Model.Inventory.Title} ({vehicles.Length}) vehicles";
             Log($"{Model.Inventory.Title} inventory");
+
             return View(Model);
         }
 
@@ -30,24 +32,45 @@ namespace GTX.Controllers {
         }
 
         public async Task<ActionResult> Details(string stock) {
-            Model.Inventory.Title = "Details";
             stock = stock?.Trim().ToUpper();
+
+            // Show all inventory if stock is not provided
             if (string.IsNullOrEmpty(stock)) {
                 Model.Inventory.Title = "All";
-                Model.Inventory.Vehicles = SessionData?.Inventory?.All;
-                ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
+                Model.Inventory.Vehicles = SessionData?.Inventory?.All as Models.GTX[] ?? Array.Empty<Models.GTX>();
+                ViewBag.Title = $"All inventory ({Model.Inventory.Vehicles.Length}) vehicles";
                 return View("Index", Model);
             }
 
-            Model.CurrentVehicle.VehicleDetails = Model.Inventory.All.FirstOrDefault(m => m.Stock == stock);
+            // Set page title
+            Model.Inventory.Title = "Details";
+
+            // Find the vehicle
+            var vehicle = Model.Inventory.All?.FirstOrDefault(m => m.Stock == stock);
+            if (vehicle == null) {
+                // Optional: Redirect or show not found message if vehicle is missing
+                return HttpNotFound($"Vehicle with stock '{stock}' not found.");
+            }
+
+            // Populate current vehicle data
+            Model.CurrentVehicle.VehicleDetails = vehicle;
             Model.CurrentVehicle.VehicleImages = GetImages(stock);
+
+            // Store in session
             SessionData.CurrentVehicle = Model.CurrentVehicle;
-            Model.CurrentVehicle.VehicleSuggesion = Model.Inventory.All.Where(m => m.Stock != stock && Math.Abs(m.RetailPrice - Model.CurrentVehicle.VehicleDetails.RetailPrice) < 3000).Take(10).ToArray();
-            ViewBag.Title = $"{Model.CurrentVehicle.VehicleDetails.Year} - {Model.CurrentVehicle.VehicleDetails.Make} - {Model.CurrentVehicle.VehicleDetails.Model} {Model.CurrentVehicle.VehicleDetails.VehicleStyle} ";
+
+            // Suggest similar vehicles (within $3000 range, excluding the current one)
+            Model.CurrentVehicle.VehicleSuggesion = Model.Inventory.All?
+                .Where(m => m.Stock != stock && Math.Abs(m.RetailPrice - vehicle.RetailPrice) < 3000)
+                .Take(10)
+                .ToArray() ?? Array.Empty<Models.GTX>();
+
+            // Build page title
+            ViewBag.Title = $"{vehicle.Year} - {vehicle.Make} - {vehicle.Model} {vehicle.VehicleStyle}";
 
             return View("Details", Model);
-
         }
+
 
         [HttpGet]
         public ActionResult ShareVehicle(string stock) {
@@ -71,15 +94,18 @@ namespace GTX.Controllers {
         }
 
         public ActionResult All() {
-            Model.Inventory.Vehicles = SessionData?.Inventory?.All;
+            var vehicles = SessionData?.Inventory?.All ?? Array.Empty<Models.GTX>();
+
+            Model.Inventory.Vehicles = vehicles;
             Model.Inventory.Title = "All";
-            ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
+            ViewBag.Title = $"All inventory ({vehicles.Length}) vehicles";
 
             return View("Index", Model);
         }
 
         public ActionResult Cars() {
-            Model.Inventory.Vehicles = SessionData?.Inventory?.Cars;
+            Model.Inventory.Vehicles = SessionData?.Inventory?.Cars ?? Array.Empty<Models.GTX>();
+
             Model.Inventory.Title = "Cars";
             ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
 
@@ -87,7 +113,8 @@ namespace GTX.Controllers {
         }
 
         public ActionResult Suvs() {
-            Model.Inventory.Vehicles = SessionData?.Inventory?.Suvs;
+            Model.Inventory.Vehicles = SessionData?.Inventory?.Suvs ?? Array.Empty<Models.GTX>();
+
             Model.Inventory.Title = "Suvs";
             ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
 
@@ -95,7 +122,8 @@ namespace GTX.Controllers {
         }
 
         public ActionResult Sedans() {
-            Model.Inventory.Vehicles = SessionData?.Inventory?.Sedans;
+            Model.Inventory.Vehicles = SessionData?.Inventory?.Sedans ?? Array.Empty<Models.GTX>();
+
             Model.Inventory.Title = "Sedans";
             ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
 
@@ -103,7 +131,8 @@ namespace GTX.Controllers {
         }
 
         public ActionResult Wagons() {
-            Model.Inventory.Vehicles = SessionData?.Inventory?.Wagons;
+            Model.Inventory.Vehicles = SessionData?.Inventory?.Wagons ?? Array.Empty<Models.GTX>();
+
             Model.Inventory.Title = "Wagons";
             ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
 
@@ -111,7 +140,8 @@ namespace GTX.Controllers {
         }
         
         public ActionResult Trucks() {
-            Model.Inventory.Vehicles = SessionData?.Inventory?.Trucks;
+            Model.Inventory.Vehicles = SessionData?.Inventory?.Trucks ?? Array.Empty<Models.GTX>();
+
             Model.Inventory.Title = "Trucks";
             ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
 
@@ -119,7 +149,8 @@ namespace GTX.Controllers {
         }
 
         public ActionResult Vans() {
-            Model.Inventory.Vehicles = SessionData?.Inventory?.Vans;
+            Model.Inventory.Vehicles = SessionData?.Inventory?.Vans ?? Array.Empty<Models.GTX>();
+
             Model.Inventory.Title = "Vans";
             ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
 
@@ -127,7 +158,8 @@ namespace GTX.Controllers {
         }
 
         public ActionResult Cargo() {
-            Model.Inventory.Vehicles = SessionData?.Inventory?.Cargo;
+            Model.Inventory.Vehicles = SessionData?.Inventory?.Cargo ?? Array.Empty<Models.GTX>();
+
             Model.Inventory.Title = "Cargo";
             ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
 
@@ -135,7 +167,8 @@ namespace GTX.Controllers {
         }
 
         public ActionResult Convertibles() {
-            Model.Inventory.Vehicles = SessionData?.Inventory?.Convertibles;
+            Model.Inventory.Vehicles = SessionData?.Inventory?.Convertibles ?? Array.Empty<Models.GTX>();
+
             Model.Inventory.Title = "Convertibles";
             ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
 
@@ -143,7 +176,8 @@ namespace GTX.Controllers {
         }
 
         public ActionResult Hatchbacks() {
-            Model.Inventory.Vehicles = SessionData?.Inventory?.Hatchbacks;
+            Model.Inventory.Vehicles = SessionData?.Inventory?.Hatchbacks ?? Array.Empty<Models.GTX>();
+
             Model.Inventory.Title = "Hatchbacks";
             ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
 
@@ -151,7 +185,8 @@ namespace GTX.Controllers {
         }
 
         public ActionResult Coupes() {
-            Model.Inventory.Vehicles = SessionData?.Inventory?.Coupe;
+            Model.Inventory.Vehicles = SessionData?.Inventory?.Coupe ?? Array.Empty<Models.GTX>();
+
             Model.Inventory.Title = "Coupes";
             ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
 
@@ -161,16 +196,22 @@ namespace GTX.Controllers {
         [HttpPost]
         public JsonResult ApplyFilter(Filters model) {
             Log($"Applying filter: {SerializeModel(model)}");
+
+            var filteredVehicles = ApplyFilters(model);
+
             Model.CurrentFilter = model;
-            Model.Inventory.Vehicles = ApplyFilters(model);
+            Model.Inventory.Vehicles = filteredVehicles;
             Model.Inventory.Title = "Search";
+
             return Json(new { redirectUrl = Url.Action("Index") });
         }
 
         [HttpPost]
         public JsonResult ApplyTerm(string term) {
-            term = term.Trim().ToUpper();
             Log($"Applying term: {term}");
+            
+            term = term.Trim().ToUpper();
+
             Model.CurrentFilter = null;
             Model.Inventory.Vehicles = ApplyTerms(term);
             Model.Inventory.Title = "Search";
@@ -424,35 +465,37 @@ namespace GTX.Controllers {
         }
 
         private async Task<string> GetChatGptResponse(string prompt) {
-            var apiUrl = "https://api.openai.com/v1/chat/completions";
+            const string apiUrl = "https://api.openai.com/v1/chat/completions";
 
-            using (var httpClient = new HttpClient()) {
-                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {openAiApiKey}");
-
-                var requestBody = new {
-/*                    model = "gpt-3.5-turbo",   // or "gpt-4o" if your account supports it
-*/                    model = "gpt-4o",  
-                    messages = new[]
-                    {
-                        new { role = "user", content = prompt }
-                    },
+            var requestBody = new {
+                model = "gpt-4o",  // Replace with "gpt-3.5-turbo" if needed
+                messages = new[]
+                {
+                    new { role = "user", content = prompt }
+                },
                     max_tokens = 500,
                     temperature = 0.7
-                };
+            };
 
-                var content = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
+            using var request = new HttpRequestMessage(HttpMethod.Post, apiUrl) {
+                Content = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json")
+            };
 
-                var response = await httpClient.PostAsync(apiUrl, content);
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", openAiApiKey);
 
-                if (response.IsSuccessStatusCode) {
-                    var jsonResponse = await response.Content.ReadAsStringAsync();
-                    dynamic result = JsonConvert.DeserializeObject(jsonResponse);
+            try {
+                using var response = await httpClient.SendAsync(request);
 
-                    return result.choices[0].message.content.ToString();
-                }
-                else {
+                if (!response.IsSuccessStatusCode)
                     return $"Error: {response.StatusCode}";
-                }
+
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                dynamic result = JsonConvert.DeserializeObject(jsonResponse);
+
+                return result?.choices?[0]?.message?.content?.ToString() ?? "Error: Empty response";
+            }
+            catch (Exception ex) {
+                return $"Exception: {ex.Message}";
             }
         }
     }
