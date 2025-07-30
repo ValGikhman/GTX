@@ -1,4 +1,30 @@
 ﻿/*Custom*/
+.btn-container {
+    position: absolute;
+    bottom: 15rem;
+    left: 2rem;
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+}
+
+.btn-big-gradient {
+    font-size: 2rem; /* Large text */
+    padding: 1.2rem 2.5rem; /* Large padding */
+    border: none;
+    border-radius: 0.5rem;
+    background: #155A96;
+    background: linear-gradient(83deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1), 94%);
+    color: white;
+    transition: transform 0.2s ease;
+}
+
+    .btn-big-gradient:hover {
+        transform: scale(1.05);
+        background: #155A96;
+        background: linear-gradient(83deg, rgba(30, 115, 190, 1) 43%, rgba(21, 90, 150, 1), 94%);
+        color: white;
+    }
 
 .detail-badge {
     top: -10px!important;
@@ -1052,9 +1078,12 @@ a, u {
   Hero
 -----------------------*/
 .hero {
-    padding: 32vh 0;
-    background-size: cover;
-    background-position-y: bottom;
+    background-position-y: center;
+    background-size: cover; /* Stretch to cover entire area */
+    height: 95vh; /* Viewport height: no scrolling */
+    display: flex;
+    justify-content: center;
+    align-items: center;
     transition: background-image 1s ease-in-out;
 }
 
