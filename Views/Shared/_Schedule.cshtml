@@ -3,9 +3,9 @@
         GTX.Models.OpenHours[] openHours = Utility.XMLHelpers.XmlRepository.GetOpenHours();
         if (openHours != null) {
             foreach (var open in openHours) {
-                <button type="button" class="btn btn-outline-secondary shadow position-relative">
+                <button type="button" class="btn btn-light shadow position-relative">
                     @open.Description
-                    <span class="position-absolute top-0 start-100 translate-middle shadow badge rounded bg-dark">
+                    <span class="position-absolute start-0 translate-middle-y shadow badge rounded bg-secondary" style="margin-top: -5px">
                         @open.Day
                     </span>
                 </button>

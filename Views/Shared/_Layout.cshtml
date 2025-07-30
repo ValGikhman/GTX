@@ -29,11 +29,8 @@
 <body>
     <!-- Offcanvas open hours -->
     <div class="offcanvas-top-fixed-center" tabindex="-1" id="openHours">
-        <div class="offcanvas-header rounded-top">
-        </div>
         <div class="offcanvas-body">
             @Html.Partial("_Schedule")
-            <p id="offsetDisplay"></p>
         </div>
     </div>
 
@@ -56,7 +53,6 @@
     </div>
     <!-- Offcanvas Menu End -->
 
-
     @{Html.RenderPartial("_SearchForm");}
 
     <!-- Header Section Begin -->
@@ -64,7 +60,7 @@
     <div class="canvas__open">
         <span class="bi bi-justify"></span>
     </div>
-    <div class="container-fluid set-bg" data-setbg="@Url.Content("~/img/gradient-dark-2.jpg")">
+    <div class="menu-strip container-fluid">
         <div class="d-flex justify-content-between">
             <nav class="header__top header__menu">
                 <ul class="main-menu">
@@ -127,14 +123,14 @@
         </div>
     </div>
 
-    @{ Html.RenderPartial("_CategoryFilter"); }
+@*    @{ Html.RenderPartial("_CategoryFilter"); }*@
 </header>
     <!-- Header Section End -->
     <div class="body-content">
         @RenderBody()
     </div>
     <!-- Footer Section Begin -->
-    <footer class="set-bg fixed-bottom" data-setbg="@Url.Content("~/img/gradient-dark-2.jpg")">
+    <footer class="footer-strip fixed-bottom">
         <div class="row">
             <div class="col-lg-12 text-white text-center">
                 <a href="https://www.gtxagroup.com" target="_blank">

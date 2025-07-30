@@ -1,18 +1,37 @@
 ﻿@model GTX.Models.BaseModel
 <!-- Hero Section Begin -->
+<style>
+    .landing-page {
+        background: url('/GTXImages/GTX-Index.png') no-repeat center center;
+        background-size: cover; /* Stretch to cover entire area */
+        height: 95vh; /* Viewport height: no scrolling */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
 
-<a data-bs-toggle="modal" data-bs-target="#filtersModal">
-    <video class="video-background" autoplay muted loop playsinline>
-        <source src="~/GTXImages/video/gtx.mov" type="video/mp4" />
-    </video>
-    <div class="d-flex justify-content-center align-items-center" style="height: 550px">
-        <div class="fake-input hand-pointer shadow" data-bs-toggle="modal" data-bs-target="#filtersModal">
+
+    <div class="landing-page">
+@*        <div class="fake-input hand-pointer shadow text-center w-25" data-bs-toggle="modal" data-bs-target="#filtersModal">
             @{ Html.RenderPartial("_SearchByTerm"); }
         </div>
+*@        
+        <div class="hand-pointer position-absolute top-50 start-0 offset-sm-1">
+            <a href="/Home/Application">
+                <img id="btnApplication" width="343" src="/img/btn-gpa.png" class="shadow" />
+             </a>
+            <a data-bs-toggle="modal" data-bs-target="#filtersModal" class="mx-3">
+                <img width="320" src="/img/btn-si.png" class="shadow" />
+            </a>
+        </div>
     </div>
-</a>
+
 <!-- Hero Section End -->
 <script>
     $(function () {
+        $("landing-page").on("click", function () {
+            $("#filtersModal").show();
+        })
     });
 </script>

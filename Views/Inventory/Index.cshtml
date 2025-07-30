@@ -1,14 +1,15 @@
 ﻿@{
     @model GTX.Models.BaseModel
-        Html.RenderPartial("_PageTitle");
-    }
+    Html.RenderPartial("_CategoryFilter");
+    Html.RenderPartial("_PageTitle");
+}
 <div class="searchTop">
     @{
         if (Model.Inventory.Vehicles.Count() > 0) {
             Html.RenderPartial("_FilterByTerm");
         }
     }
-    </div>
+</div>
 
 <ul id="inventory" class="d-flex flex-wrap gap-2 justify-content-center my-5">
     @{
