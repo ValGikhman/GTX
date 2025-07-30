@@ -1,37 +1,13 @@
 ﻿@model GTX.Models.BaseModel
 <!-- Hero Section Begin -->
-<style>
-    .landing-page {
-        background: url('/GTXImages/GTX-Index.png') no-repeat center center;
-        background-size: cover; /* Stretch to cover entire area */
-        height: 95vh; /* Viewport height: no scrolling */
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-</style>
-
-
-    <div class="landing-page">
-@*        <div class="fake-input hand-pointer shadow text-center w-25" data-bs-toggle="modal" data-bs-target="#filtersModal">
-            @{ Html.RenderPartial("_SearchByTerm"); }
-        </div>
-*@        
-        <div class="hand-pointer position-absolute top-50 start-0 offset-sm-1">
-            <a href="/Home/Application">
-                <img id="btnApplication" width="343" src="/img/btn-gpa.png" class="shadow" />
-             </a>
-            <a data-bs-toggle="modal" data-bs-target="#filtersModal" class="mx-3">
-                <img width="320" src="/img/btn-si.png" class="shadow" />
-            </a>
-        </div>
+<section class="hero set-bg" data-setbg="@Url.Content("~/GTXImages/GTX-Index.png")">
+    <div class="btn-container">
+        <a href="/Home/Application" class="btn btn-big-gradient shadow" type="button">Get pre-approval</a>
+        <a data-bs-toggle="modal" class="btn btn-big-gradient " data-bs-target="#filtersModal">Search inventory</a>
     </div>
-
+</section>
 <!-- Hero Section End -->
 <script>
     $(function () {
-        $("landing-page").on("click", function () {
-            $("#filtersModal").show();
-        })
     });
 </script>
