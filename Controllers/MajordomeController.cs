@@ -9,6 +9,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -268,7 +269,79 @@ namespace GTX.Controllers {
             }
         }
 
-        private async Task<string> GetChatGptResponse(string prompt) {
+        [HttpPost]
+        public async Task<ActionResult> RemoveBackground(HttpPostedFileBase image) {
+            if (image == null || image.ContentLength == 0) {
+                ModelState.AddModelError("", "Please upload a PNG image.");
+                return View();
+            }
+
+            if (!image.FileName.EndsWith(".png", StringComparison.OrdinalIgnoreCase)) {
+                ModelState.AddModelError("", "Only PNG images are supported.");
+                return View();
+            }
+
+            var apiUrl = "https://api.openai.com/v1/images/edits";
+
+            using (var client = new HttpClient())
+            using (var form = new MultipartFormDataContent()) {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", openAiApiKey);
+
+                // Read image into stream
+                byte[] imageData;
+                if (image.FileName.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || image.FileName.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase)) {
+                    // Convert JPG to transparent PNG
+                    imageData = ConvertJpgToTransparentPng(image.InputStream, Color.White, 20);
+                }
+                else if (image.FileName.EndsWith(".png", StringComparison.OrdinalIgnoreCase)) {
+                    using (var ms = new MemoryStream()) {
+                        image.InputStream.CopyTo(ms);
+                        imageData = ms.ToArray();
+                    }
+                }
+                else {
+                    ModelState.AddModelError("", "Only JPG or PNG files are allowed.");
+                    return View();
+                }
+
+                var imageContent = new ByteArrayContent(imageData);
+                imageContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/png");
+
+                form.Add(imageContent, "image", image.FileName);
+                form.Add(new StringContent("Remove the background and replace it with a gradient grey to lightgrey background."), "prompt");
+                form.Add(new StringContent("1"), "n");
+                form.Add(new StringContent("800x600"), "size");
+
+                var response = await client.PostAsync(apiUrl, form);
+
+                if (!response.IsSuccessStatusCode) {
+                    var error = await response.Content.ReadAsStringAsync();
+                    ModelState.AddModelError("", $"OpenAI API Error: {error}");
+                    return View();
+                }
+
+                var responseData = await response.Content.ReadAsStringAsync();
+                dynamic result = JsonConvert.DeserializeObject(responseData);
+                string imageUrl = result.data[0].url;
+
+                byte[] finalImageData;
+                using (var imageClient = new HttpClient()) {
+                    finalImageData = await imageClient.GetByteArrayAsync(imageUrl);
+                }
+
+                var dirPath = Server.MapPath(imageFolder);
+                if (!Directory.Exists(dirPath))
+                    Directory.CreateDirectory(dirPath);
+
+                var physicalPath = Server.MapPath(Path.Combine(imageFolder, image.FileName));
+                System.IO.File.WriteAllBytes(physicalPath, finalImageData);
+
+                ViewBag.GeneratedImageUrl = imageUrl;
+                return View();
+            }
+
+        }
+            private async Task<string> GetChatGptResponse(string prompt) {
             var apiUrl = "https://api.openai.com/v1/chat/completions";
 
             using (var httpClient = new HttpClient()) {
@@ -381,5 +454,36 @@ Do not place any **<html>**, **<body>** and **<head>** tags
             Font font = new Font(fontFamily, size, fontStyle);
             return (font, color);
         }
+
+        private byte[] ConvertJpgToTransparentPng(Stream jpgStream, Color backgroundToRemove, int tolerance = 10) {
+            using (var original = new Bitmap(jpgStream)) {
+                Bitmap transparentBitmap = new Bitmap(original.Width, original.Height, PixelFormat.Format32bppArgb);
+
+                for (int y = 0; y < original.Height; y++) {
+                    for (int x = 0; x < original.Width; x++) {
+                        Color pixelColor = original.GetPixel(x, y);
+
+                        if (IsColorClose(pixelColor, backgroundToRemove, tolerance)) {
+                            transparentBitmap.SetPixel(x, y, Color.Transparent);
+                        }
+                        else {
+                            transparentBitmap.SetPixel(x, y, pixelColor);
+                        }
+                    }
+                }
+
+                using (var ms = new MemoryStream()) {
+                    transparentBitmap.Save(ms, ImageFormat.Png);
+                    return ms.ToArray();
+                }
+            }
+        }
+
+        private bool IsColorClose(Color a, Color b, int tolerance) {
+            return Math.Abs(a.R - b.R) <= tolerance &&
+                   Math.Abs(a.G - b.G) <= tolerance &&
+                   Math.Abs(a.B - b.B) <= tolerance;
+        }
+
     }
 }
