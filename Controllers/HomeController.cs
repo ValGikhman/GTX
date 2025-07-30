@@ -70,6 +70,7 @@ namespace GTX.Controllers {
 
         public ActionResult Application() {
             ViewBag.Message = "Application";
+            ViewBag.Title = "Loan application";
 
             return View();
         }
