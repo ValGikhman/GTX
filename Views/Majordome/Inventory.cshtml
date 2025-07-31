@@ -49,11 +49,10 @@
     <div class="tab-content p-3 border border-top-0 well " id="myTabContent">
         <!-- Inventory Tab -->
         <div class="tab-pane fade show active" id="inventory" role="tabpanel" style="height: 640px;">
-            <div id="myGrid" class="ag-theme-alpine mx-auto" style="height: 580px;">
+            <div id="myGrid" class="ag-theme-alpine mx-auto" style="height: 580px; width: 1320px;">
                 <span>@{ Html.RenderPartial("_FilterByTerm"); }</span>
             </div>
         </div>
-
         <!-- Details Tab -->
         <div class="tab-pane fade mb-2" id="details" role="tabpanel">
             <div class="row">
@@ -157,6 +156,13 @@ $(function () {
         }
     });
 
+    $(document).on("click", ".remove-background", function () {
+        var file = $(this).data("filename");
+        var id = $(this).attr("id");
+        if (confirm(`Do you want to remove background for this file?`)) {
+            removeBackground(file);
+        }
+    });
 
     $(document).on("click", ".overlay-image", function () {
         var id = $(this).attr("id");
@@ -164,6 +170,7 @@ $(function () {
     });
 
     $(".ag-column-last").html($("#actions").html());
+    $('div[col-id="images"]').css('left', '-15px');
 
     $("#btnReStoryAll").on("click", function () {
         reStoryAll();
@@ -301,12 +308,12 @@ const columnDefs = [
         cellRenderer: imageButtonRenderer,
         filter: false,
         sortable: false,
-        width: 435
+        width: 440
     },
     {
         headerName: "Vehicle",
         filter: false,
-        width: 475,
+        width: 350,
         field: "Vehicle", // You can use any placeholder field
         autoHeight: true,
         sortable: true,
@@ -328,8 +335,8 @@ const columnDefs = [
             var formattedMileage = new Intl.NumberFormat('en-US').format(Mileage);
             return `
                 <div><h6>${Year} ${Make} ${Model} ${VehicleStyle}</h7></div>
-                <div class="row justify-content-center mx-3 mt-3">
-                    <div class="d-flex flex-wrap justify-content-between rounded p-2 gap-5">
+                <div class="row mt-3">
+                    <div class="d-flex flex-wrap justify-content-evenly rounded p-3 gap-4">
                         <span class="btn btn-outline-secondary shadow position-relative details">
                             <span class="medium-small-text">${params.data.LocationCode}</span>
                             <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">

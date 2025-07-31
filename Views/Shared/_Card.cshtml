@@ -12,7 +12,7 @@
     data-color="@Model.Color.ToUpper()"
     data-color2="@Model.Color2.ToUpper()">
 
-    <div class="card-header hand-pointer">
+    <div class="card-header @Model.LocationCode hand-pointer">
         <h5 class="fw-bold">
             <i class="liked bi bi-heart-fill text-danger" style="display:none "></i>
             @Model.Year
@@ -27,7 +27,7 @@
         <h7 class="no-click">
             <div class="d-flex flex-wrap justify-content-between">
                 <span>Yours for: @Model.RetailPrice.ToString("C0")</span>
-                <span>Miles: @Model.Mileage.ToString("N0")</span>@Model.LocationCode
+                <span>Miles: @Model.Mileage.ToString("N0")</span>
             </div>
             <div class="d-flex flex-wrap justify-content-between">
                 <span class="very-small-text copyable">@Model.VIN</span>
