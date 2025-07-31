@@ -270,54 +270,52 @@ namespace GTX.Controllers {
         }
 
         [HttpPost]
-        public async Task<ActionResult> RemoveBackground(HttpPostedFileBase image) {
-            if (image == null || image.ContentLength == 0) {
-                ModelState.AddModelError("", "Please upload a PNG image.");
-                return View();
+        public async Task<ActionResult> RemoveBackground(string stock, string file) {
+
+            var fileName = Server.MapPath(Path.Combine(imageFolder, stock, file));
+            string originalExtension = Path.GetExtension(file).ToLower();
+
+            if (string.IsNullOrWhiteSpace(file) || !System.IO.File.Exists(fileName)) {
+                return Json(new { success = false, message = "File does not exist." });
             }
 
-            if (!image.FileName.EndsWith(".png", StringComparison.OrdinalIgnoreCase)) {
+/*            if (!fileName.EndsWith(".png", StringComparison.OrdinalIgnoreCase)) {
                 ModelState.AddModelError("", "Only PNG images are supported.");
                 return View();
-            }
+            }*/
 
             var apiUrl = "https://api.openai.com/v1/images/edits";
+
+            // Read image into stream
+            byte[] imageData;
+            if (originalExtension == ".jpg" || originalExtension == ".jpeg") {
+                using (var fs = new FileStream(fileName, FileMode.Open, FileAccess.Read)) {
+                    imageData = ConvertJpgToTransparentPng(fs, Color.White, 20);
+                }
+            }
+            else if (originalExtension == ".png") {
+                imageData = System.IO.File.ReadAllBytes(fileName);
+            }
+            else {
+                return Json(new { success = false, message = "Only JPG or PNG files are supported." });
+            }
 
             using (var client = new HttpClient())
             using (var form = new MultipartFormDataContent()) {
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", openAiApiKey);
-
-                // Read image into stream
-                byte[] imageData;
-                if (image.FileName.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || image.FileName.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase)) {
-                    // Convert JPG to transparent PNG
-                    imageData = ConvertJpgToTransparentPng(image.InputStream, Color.White, 20);
-                }
-                else if (image.FileName.EndsWith(".png", StringComparison.OrdinalIgnoreCase)) {
-                    using (var ms = new MemoryStream()) {
-                        image.InputStream.CopyTo(ms);
-                        imageData = ms.ToArray();
-                    }
-                }
-                else {
-                    ModelState.AddModelError("", "Only JPG or PNG files are allowed.");
-                    return View();
-                }
-
                 var imageContent = new ByteArrayContent(imageData);
                 imageContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/png");
 
-                form.Add(imageContent, "image", image.FileName);
-                form.Add(new StringContent("Remove the background and replace it with a gradient grey to lightgrey background."), "prompt");
+                form.Add(imageContent, "image", fileName);
+                form.Add(new StringContent("Remove the background"), "prompt");
                 form.Add(new StringContent("1"), "n");
-                form.Add(new StringContent("800x600"), "size");
+                form.Add(new StringContent("1024x1024"), "size");
 
                 var response = await client.PostAsync(apiUrl, form);
 
                 if (!response.IsSuccessStatusCode) {
                     var error = await response.Content.ReadAsStringAsync();
-                    ModelState.AddModelError("", $"OpenAI API Error: {error}");
-                    return View();
+                    return Json(new { success = false, message = $"OpenAI API Error: {error}" });
                 }
 
                 var responseData = await response.Content.ReadAsStringAsync();
@@ -333,11 +331,9 @@ namespace GTX.Controllers {
                 if (!Directory.Exists(dirPath))
                     Directory.CreateDirectory(dirPath);
 
-                var physicalPath = Server.MapPath(Path.Combine(imageFolder, image.FileName));
-                System.IO.File.WriteAllBytes(physicalPath, finalImageData);
+                System.IO.File.WriteAllBytes(fileName, finalImageData);
 
-                ViewBag.GeneratedImageUrl = imageUrl;
-                return View();
+                return Json(new { success = true, message = "All good" });
             }
 
         }
@@ -456,6 +452,7 @@ Do not place any **<html>**, **<body>** and **<head>** tags
         }
 
         private byte[] ConvertJpgToTransparentPng(Stream jpgStream, Color backgroundToRemove, int tolerance = 10) {
+
             using (var original = new Bitmap(jpgStream)) {
                 Bitmap transparentBitmap = new Bitmap(original.Width, original.Height, PixelFormat.Format32bppArgb);
 
@@ -484,6 +481,5 @@ Do not place any **<html>**, **<body>** and **<head>** tags
                    Math.Abs(a.G - b.G) <= tolerance &&
                    Math.Abs(a.B - b.B) <= tolerance;
         }
-
     }
 }

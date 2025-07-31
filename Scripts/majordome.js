@@ -63,7 +63,7 @@ function loadGallery(vehicle) {
         if (img.Name.includes("-O")) {
             showImageEdit = "visually-hidden";
         }
-        console.log(img.Overlay);
+
         if (img.Overlay !== null) {
             imageIcon = "bi bi-image-fill";
         }
@@ -76,6 +76,7 @@ function loadGallery(vehicle) {
             </a>
             <span id="${img.Id}" class="delete-image bi bi-trash btn btn-light shadow my-3" data-filename="${img.Name}"></span>
             <span id="${img.Id}" class="overlay-image ${imageIcon} btn btn-light shadow my-3 ${showImageEdit}" data-filename="${img.Name}"></span>
+            <span id="${img.Id}" class="remove-background bi bi-back btn btn-light shadow my-3" data-filename="${img.Name}"></span>
         </li>
         `;
 
@@ -234,6 +235,25 @@ function deleteImage(id, file, object) {
             }   
     })
 };
+
+function removeBackground(file) {
+    showSpinner();
+    const stock = selectedVehicle.Stock;
+    $.post(`${root}Majordome/RemoveBackground`, { stock, file })
+        .done(function (response) {
+            if (response.success) {
+                fetch('/Majordome/GetUpdatedItems')
+                    .then(res => res.json())
+                    .then(data => {
+                        const vehicle = data.find(v => v.Stock === stock);
+                        loadGallery(vehicle);
+                        updateRow(data);
+                        hideSpinner();
+                    });
+            }
+        })
+};
+
 
 function createStory(stock) {
     showSpinner();
