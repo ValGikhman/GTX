@@ -29,6 +29,13 @@ namespace GTX.Controllers {
             return View();
         }
 
+        public ActionResult About() {
+            ViewBag.Message = "About";
+            ViewBag.Title = "About us";
+
+            return View();
+        }
+
         public async Task<ActionResult> Staff() {
             ViewBag.Message = "Staff";
             ViewBag.Title = "Our staff";
