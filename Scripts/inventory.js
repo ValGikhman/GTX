@@ -33,6 +33,7 @@ function applyFilterTerm(term) {
     let i = 0;
     vehicles.forEach(vehicle => {
         const stock = $(vehicle).data("stock") || "";
+        const vin = $(vehicle).data("vin") || "";
         const make = $(vehicle).data("make") || "";
         const model = $(vehicle).data("model") || "";
         const style = $(vehicle).data("style") || "";
@@ -56,7 +57,7 @@ function applyFilterTerm(term) {
         else {
             // Normal search
             $("#filterTerm").removeClass("text-info").removeClass("border-info");
-            combined = `${stock} ${make} ${model} ${style} ${type} ${year} ${color} ${color2}`;
+            combined = `${stock} ${vin} ${make} ${model} ${style} ${type} ${year} ${color} ${color2}`;
         }
 
         if (combined.includes(filter)) {

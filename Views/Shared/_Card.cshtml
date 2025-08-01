@@ -5,6 +5,7 @@
     data-images="@(Model.Image.Contains("no-image") ? "NOIMAGE" : "IMAGE")"
     data-year="@Model.Year" 
     data-stock="@Model.Stock.ToUpper()" 
+    data-vin="@Model.VIN.ToUpper()" 
     data-make="@Model.Make.ToUpper()" 
     data-model="@Model.Model.ToUpper()" 
     data-style="@Model.VehicleStyle.ToUpper()"
