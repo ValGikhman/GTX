@@ -56,7 +56,7 @@
     @{Html.RenderPartial("_SearchForm");}
 
     <!-- Header Section Begin -->
-<header class="header fixed-top">
+<header class="header fixed-top menu-strip" style="height:45px">
     <div class="canvas__open">
         <span class="bi bi-justify"></span>
     </div>
@@ -84,6 +84,7 @@
                     <li>
                         <a href="#">About us</a>
                         <ul class="dropdown rounded">
+                            <li>@Html.ActionLink("About us", "About", "Home")</li>
                             <li>@Html.ActionLink("Contact us", "Contact", "Home")</li>
                             <li>@Html.ActionLink("Our staff", "Staff", "Home")</li>
                         </ul>
