@@ -477,9 +477,9 @@
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2);
     }
 
-    .gradiant {
+    .gradient {
         background: linear-gradient(35deg, rgba(0, 0, 0, 0.1), #AAAAB3);
-        background-image: url('../img/gradient.jpg');
+        background-image: url('../img//backgrounds/gradient.jpg');
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
@@ -1832,11 +1832,16 @@
     }
 
     .page-title {
-      position: fixed;
-      top: 0;
-      right: 0;
-      left: 0;
-      z-index: 3;
+        position: fixed;
+        top: 3rem;
+        border-bottom: none;
+        border-top: none;
+        background-image: none;
+        background: none;
+    }
+
+    .text-white {
+        color: #d54d29 !important;
     }
 
     .searchTop {
@@ -1884,6 +1889,7 @@
         position: absolute;
         top: 6px;
         left: 10px;
+        z-index: 555;
     }
 
     .btn-container {
@@ -1904,7 +1910,7 @@
         background: #155A96;
         background: linear-gradient(180deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1) 94%);
         border-bottom: 1px solid darkred;
-        border-top: 0;
+        border-top: none;
     }
 
     .hero .slogan-big {
