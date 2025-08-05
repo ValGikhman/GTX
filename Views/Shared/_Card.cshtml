@@ -13,7 +13,7 @@
     data-color="@Model.Color.ToUpper()"
     data-color2="@Model.Color2.ToUpper()">
 
-    <div class="card-header @Model.LocationCode hand-pointer">
+    <div class="card-header gradient @Model.LocationCode hand-pointer">
         <h5 class="fw-bold">
             <i class="liked bi bi-heart-fill text-danger pull-right" style="display:none "></i>
             @Model.Year
@@ -22,9 +22,9 @@
         <h7>@Model.Model - @Model.VehicleStyle</h7>
     </div>
     <a class="btn btn-outline-light shadow">
-        <img class="rounded-3" width="480" height="200" src="@Model.Image">
+        <img class="card-image rounded-3" src="@Model.Image">
     </a>
-    <div class="card-header well shadow">
+    <div class="card-header gradient shadow">
         <h7 class="no-click">
             <div class="d-flex flex-wrap justify-content-between">
                 <span>Yours for: @Model.RetailPrice.ToString("C0")</span>

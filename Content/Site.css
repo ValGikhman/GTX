@@ -15,18 +15,21 @@
     }
 
 .G {
-    border-bottom-color: green;
-    border-bottom-width: 1px;
+    border-bottom-color: green !important;
+    ;
+    border-bottom-width: 2px !important;
 }
 
 .X {
-    border-bottom-color: #155A96;
-    border-bottom-width: 1px;
+    border-bottom-color: #155A96 !important;
+    ;
+    border-bottom-width: 2px !important;
 }
 
 .T {
-    border-bottom-color: red;
-    border-bottom-width: 1px;
+    border-bottom-color: red !important;
+    ;
+    border-bottom-width: 2px !important;
 }
 
 .btn-container {
@@ -135,10 +138,10 @@
     }
 
     .p-story {
-        margin-bottom: 7px;
+        margin-top: 10px;
+        margin-bottom: 10px;
         padding: 0;
         font-size: clamp(0.9rem, 2vw, 1rem);
-        text-indent: 25px;
         text-align: justify;
     }
 
@@ -485,9 +488,30 @@
     }
 
 
-    .carousel-control-prev-icon, .carousel-control-next-icon {
-        background-color: #ebebeb;
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        background-image: none !important;
     }
+
+        .carousel-control-prev-icon::before,
+        .carousel-control-next-icon::before {
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            font-size: 2rem;
+            color: darkgrey;
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Specific icons */
+        .carousel-control-prev-icon::before {
+            content: "\f104"; /* fa-chevron-left */
+        }
+
+        .carousel-control-next-icon::before {
+            content: "\f105"; /* fa-chevron-right */
+        }
 
     .three-d {
         font-size: 18px;
@@ -510,11 +534,7 @@
     }
 
     .gradient {
-        background: linear-gradient(35deg, rgba(0, 0, 0, 0.1), #AAAAB3);
-        background-image: url('../img//backgrounds/gradient.jpg');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
+        background: linear-gradient(180deg, rgb(255 255 255), #AAAAB3);
     }
 
     .td-center {
@@ -623,13 +643,19 @@
     }
 
     img {
-        max-width: 280px;
+        max-width: 700px;
     }
 
-    .grid-image {
-        width: 200px;
-        max-width: none;
+    .card-image {
+
+        width: 33vh;
+        height: 25vh;
     }
+
+.grid-image {
+    width: 200px;
+    max-width: none;
+}
 
     input:focus, select:focus, button:focus, textarea:focus {
         outline: none;

@@ -4,11 +4,7 @@
     @model GTX.Models.BaseModel
     var baseUrl = $"{Request.Url.Scheme}://{Request.Url.Authority}";
 }
-<style>
-    .img-carousel {
-        width: 85vh;
-    }
-</style>
+
 <head>
     <meta property="og:title" content="@Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model @Model.CurrentVehicle.VehicleDetails.VehicleStyle" />
     <meta property="og:description" content="GTX Autogroup @Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model @Model.CurrentVehicle.VehicleDetails.VehicleStyle" />
@@ -36,7 +32,7 @@
 <div class="details-container d-flex flex-column flex-lg-row justify-content-center p-3 gap-5">
     <div class="col-lg-6 col-md-8 col-sm-12">
         <nav>
-            <div class="nav nav-tabs  no-wrap-group" id="nav-tab" role="tablist">
+            <div class="nav nav-tabs" id="nav-tab" role="tablist">
                 <button class="nav-item active btn btn-light text-shadow-small" id="nav-details-tab" data-bs-toggle="tab" data-bs-target="#nav-details" type="button" role="tab" aria-controls="nav-details" aria-selected="true">Details</button>
                 @{
                     if (Model.CurrentVehicle.VehicleImages.Count() > 0) {
@@ -74,13 +70,13 @@
                 </h5>
                 @*Story*@
                 @if (@Model.CurrentVehicle.VehicleDetails.Story != null) {
-                    <div class="row pt-3 mx-auto">
-                        <button class="btn btn-light shadow" type="button" data-bs-toggle="collapse" data-bs-target="#story" aria-expanded="false" aria-controls="story">
+                    <div class="row mt-3">
+                        <button class="btn w-100 gradient" type="button" data-bs-toggle="collapse" data-bs-target="#story" aria-expanded="false" aria-controls="story">
                             <div class="bg-lighter py-2 px-3 text-center hand-pointer">
                                 <h5 class="fw-bold text-uppercase">just know about this @Model.CurrentVehicle.VehicleDetails.Story.Title</h5>
                             </div>
                         </button>
-                        <div class="collapse show pt-3 text-shadow-small well" id="story">
+                        <div class="collapse show p-5 text-shadow-small well" id="story">
                             @Html.Raw(@Model.CurrentVehicle.VehicleDetails.Story.HtmlContent)
                         </div>
                     </div>
@@ -204,7 +200,7 @@
     <div class="col-lg-5 col-md-8 col-sm-12">
         @*Details*@
         <div class="row justify-content-center shadow mb-3">
-            <button class="btn btn-light shadow w-100" type="button" data-bs-toggle="collapse" data-bs-target="#details" aria-expanded="false" aria-controls="details">
+            <button class="btn w-100 gradient" type="button" data-bs-toggle="collapse" data-bs-target="#details" aria-expanded="false" aria-controls="details">
                 <div class="bg-lighter py-2 px-3 text-center hand-pointer">
                     <h5 class="fw-bold text-uppercase">Details</h5>
                 </div>
@@ -302,7 +298,7 @@
 
         @*Features*@
         <div class="row justify-content-center well my-3">
-            <button class="btn btn-light shadow w-100" type="button" data-bs-toggle="collapse" data-bs-target="#features" aria-expanded="false" aria-controls="features">
+            <button class="btn w-100 gradient" type="button" data-bs-toggle="collapse" data-bs-target="#features" aria-expanded="false" aria-controls="features">
                 <div class="bg-lighter py-2 px-3 text-center hand-pointer">
                     <h5 class="fw-bold text-uppercase">Features</h5>
                 </div>
@@ -316,7 +312,7 @@
 
         @*Loan app*@
         <div class="row justify-content-center well my-3">
-            <button class="btn btn-light shadow w-100" type="button" data-bs-toggle="collapse" data-bs-target="#application" aria-expanded="false" aria-controls="application">
+            <button class="btn w-100 gradient" type="button" data-bs-toggle="collapse" data-bs-target="#application" aria-expanded="false" aria-controls="application">
                 <div class="bg-lighter py-2 px-3 text-center hand-pointer">
                     <h5 class="fw-bold text-uppercase">Loan application</h5>
                 </div>
@@ -331,14 +327,14 @@
 
 @*May Like*@
 <div class="row mx-auto col-lg-11 col-md-8 col-sm-12  mb-5">
-    <button class="btn btn-light shadow" type="button" data-bs-toggle="collapse" data-bs-target="#suggestion" aria-expanded="false" aria-controls="suggestion">
+    <button class="btn w-100 gradient" type="button" data-bs-toggle="collapse" data-bs-target="#suggestion" aria-expanded="false" aria-controls="suggestion">
         <div class="bg-lighter py-2 px-3 text-center hand-pointer">
             <h5 class="fw-bold text-uppercase">You may also like</h5>
         </div>
     </button>
     <div class="collapse show p-0" id="suggestion">
         <div class="d-flex justify-content-evenly">
-            <span type="button" class="btn btn-secondary scroll-button" onclick="scrollSuggestions(-300)">
+            <span type="button" class="btn scroll-button" onclick="scrollSuggestions(-300)">
                 <i class="bi bi-arrow-left-circle-fill"></i>
             </span>
             <div class="scroll-container well shadow" id="suggestionScroll">
@@ -350,7 +346,7 @@
                     }
                 </div>
             </div>
-            <span type="button" class="btn btn-secondary scroll-button" onclick="scrollSuggestions(300)">
+            <span type="button" class="btn scroll-button" onclick="scrollSuggestions(300)">
                 <i class="bi bi-arrow-right-circle-fill"></i>
             </span>
         </div>

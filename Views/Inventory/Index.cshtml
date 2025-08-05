@@ -8,19 +8,22 @@
 
 <style>
     .small-offcanvas {
-        height: 10rem !important;
+        height: 5rem !important;
+        border: 1.5px slategrey outset;
+        background: linear-gradient(180deg, rgb(255 255 255), #AAAAB3);
+        top: 85vh !important;
     }
 </style>
 
-<div class="offcanvas offcanvas-end small-offcanvas" tabindex="-1" id="smallCanvas" data-bs-backdrop="false">
-    <div class="offcanvas-header gradient">
-        <h5 class="offcanvas-title">Please contact for test drive</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body d-flex justify-content-center align-items-center well">
-        <div class="d-flex justify-content-center align-items-center gap-3 flex-wrap">
-            <a href="/Home/Application" class="btn btn-primary shadow" type="button">Get pre-approval</a>
-            <a href="/Home/Contact" class="btn btn-primary shadow" type="button">Contact us</a>
+<div class="offcanvas offcanvas-end small-offcanvas shadow" tabindex="-1" id="smallCanvas">
+    <!-- Close button at top-right -->
+    <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+
+    <div class="offcanvas-body d-flex justify-content-center align-items-center">
+        <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
+            <a href="/Home/Application" class="btn btn-primary three-d shadow" type="button">Finance</a>
+            <a href="/Home/Contact" class="btn btn-primary three-d shadow" type="button">Contact us</a>
+            <a href="/Home/Contact" class="btn btn-primary three-d shadow" type="button">Test drive</a>
         </div>
     </div>
 </div>
@@ -47,7 +50,11 @@
     $(function () {
         $(".body-content").on('scroll', function () {
             if ($(this).scrollTop() > 100) {
-                new bootstrap.Offcanvas(document.getElementById('smallCanvas')).show();
+                new bootstrap.Offcanvas('#smallCanvas', {
+                    backdrop: false,
+                    scroll: true,
+                    keyboard: false
+                }).show();
             }
         });
 
