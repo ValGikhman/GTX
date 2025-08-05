@@ -1,27 +1,40 @@
 ﻿/*Custom*/
-  .G {
-        border-bottom-color: green;
-        border-bottom-width: 1px;
+.small-offcanvas {
+    width: 400px !important; /* fixed width */
+    height: 200px !important; /* fixed height */
+    top: 50% !important; /* start vertical center */
+    transform: translateY(-50%) !important; /* vertically center */
+    border-radius: 0.5rem 0 0 0.5rem; /* rounded corners on left side */
+    max-height: none !important; /* allow fixed height */
+}
+
+    /* Optional: override Bootstrap's default offcanvas height */
+    .small-offcanvas .offcanvas-body {
+        overflow-y: auto;
+        height: calc(200px - 56px); /* adjust body height minus header height */
     }
 
-    .X {
-        border-bottom-color: #155A96;
-        border-bottom-width: 1px;
-    }
+.G {
+    border-bottom-color: green;
+    border-bottom-width: 1px;
+}
 
-    .T {
-        border-bottom-color: red;
-        border-bottom-width: 1px;
-    }
+.X {
+    border-bottom-color: #155A96;
+    border-bottom-width: 1px;
+}
 
-    .btn-container {
-        position: absolute;
-        bottom: 5rem;
-        left: 5rem;
-        display: flex;
-        flex-direction: row;
-        gap: 2rem;
-    }
+.T {
+    border-bottom-color: red;
+    border-bottom-width: 1px;
+}
+
+.btn-container {
+    position: absolute;
+    bottom: 6vh;
+    display: flex;
+    flex-direction: row;
+}
 
 .btn-big-gradient {
     font-size: 2rem; /* Large text */
@@ -102,6 +115,7 @@
         cursor: move;
         touch-action: none;
     }
+
     /*Tiny editor*/
     .tox-statusbar, .tox-promotion {
         display: none !important;
@@ -193,13 +207,15 @@
 
     .card {
         width: 320px !important;
+        min-height: 320px;
+        flex: 0 0 auto;
     }
-
 
     .card-wrapper {
         flex: 0 0 auto;
         height: 100%; /* ensures card fills available height */
     }
+
     /* Optional: ensure cards themselves have consistent height */
     .card-wrapper > * {
         height: 100%;
@@ -227,6 +243,22 @@
 
     .right {
         text-align: right;
+    }
+
+    .h-5 {
+        height: 5% !important;
+    }
+
+    .h-10 {
+        height: 10% !important;
+    }
+
+    .h-15 {
+        height: 15% !important;
+    }
+
+    .h-20 {
+        height: 20% !important;
     }
 
     .vh-25 {
@@ -264,7 +296,6 @@
     .start-75 {
         left: 75% !important;
     }
-
 
     .form-control:focus {
         color: var(--bs-body-color);
@@ -365,7 +396,8 @@
     }
 
     .body-content {
-        margin-top: 158px;
+        margin-top: 14rem;
+        height: 41rem;
     }
 
     li.search-field {
@@ -591,11 +623,11 @@
     }
 
     img {
-        max-width: 100%;
+        max-width: 280px;
     }
 
     .grid-image {
-        width: 21vw;
+        width: 200px;
         max-width: none;
     }
 
@@ -1771,6 +1803,20 @@
 @media only screen and (min-width: 768px) and (max-width: 991px) {
     .body-content {
         margin: 0px;
+        margin-top: 15vh;
+    }
+
+    .page-title {
+        position: fixed;
+        top: 4rem;
+        border-bottom: none;
+        border-top: none;
+        background-image: none;
+        background: none;
+    }
+
+    .text-white {
+        color: #d54d29 !important;
     }
 
     .carousel-inner {
@@ -1813,10 +1859,6 @@
         font-size: large;
     }
 
-    .staff-row {
-        margin-top: 60px;
-    }
-
     .open-hours {
         font-size: large;
     }
@@ -1850,7 +1892,8 @@
     }
 
     .body-content {
-        margin: 0px;
+        margin-top: 0;
+        height: 68rem;
     }
 
     .hero {
@@ -1883,7 +1926,6 @@
         width: 35px;
         line-height: 35px;
         text-align: center;
-        border: 1px solid #323232;
         border-radius: 2px;
         cursor: pointer;
         position: absolute;
@@ -1892,18 +1934,9 @@
         z-index: 555;
     }
 
-    .btn-container {
-        left: 3rem;
-    }
-
     .btn-big-gradient {
-        left: 5rem;
-        font-size: 1.6rem;
-        padding: 1rem 2rem;
-        background: #155A96;
-        background: linear-gradient(180deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1) 94%);
-        color: white;
-        transition: transform 0.2s ease;
+        font-size: 1.4rem;
+        padding: 1rem 1rem;
     }
 
     .menu-strip {
@@ -2075,7 +2108,8 @@
 
 @media only screen and (max-width: 479px) {
     .body-content {
-        margin: 0px;
+        margin-top: 11rem;
+        height: 41rem;
     }
 
     .carousel-inner {

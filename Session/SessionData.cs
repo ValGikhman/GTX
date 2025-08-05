@@ -15,7 +15,8 @@ namespace GTX.Session {
         private Log _logHeader = null;
         private OpenHours[] _openHours = null;
         private string _environment = null;
-        
+        private bool _majordome = false;
+
         private readonly HttpContextProvider _httpContext;
 
         #endregion Private Fields
@@ -41,6 +42,12 @@ namespace GTX.Session {
             get => GetSession(Constants.SESSION_ENVIRONMENT, _environment);
             set => SetSession(Constants.SESSION_ENVIRONMENT, value);
         }
+
+        public bool Majordome {
+            get => GetSession(Constants.SESSION_MAJORDOME, _majordome);
+            set => SetSession(Constants.SESSION_MAJORDOME, value);
+        }
+
 
         public Log LogHeader {
             get => GetSession(Constants.SESSION_LOG_HEADER, _logHeader);

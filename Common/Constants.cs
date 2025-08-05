@@ -13,6 +13,7 @@ public static class Constants {
     public const string SESSION_LOG_HEADER = "SessionLogHeader";
     public const string SESSION_OOPEN_HOURS = "SessionOpenHours";
     public const string SESSION_ENVIRONMENT = "SessionENVIRONMENT";
+    public const string SESSION_MAJORDOME = "SessionMAJORDOME";
 
     #endregion Public Fields
 }
