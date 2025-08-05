@@ -76,7 +76,7 @@ function loadGallery(vehicle) {
             </a>
             <span id="${img.Id}" class="delete-image bi bi-trash btn btn-light shadow my-3" data-filename="${img.Name}"></span>
             <span id="${img.Id}" class="overlay-image ${imageIcon} btn btn-light shadow my-3 ${showImageEdit}" data-filename="${img.Name}"></span>
-            <span id="${img.Id}" class="remove-background bi bi-back btn btn-light shadow my-3" data-filename="${img.Name}"></span>
+            <span id="${img.Id}" class="remove-background bi bi-back btn btn-light shadow my-3 visually-hidden" data-filename="${img.Name}"></span>
         </li>
         `;
 

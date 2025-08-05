@@ -33,6 +33,8 @@ namespace GTX.Controllers {
         }
 
         public ActionResult Inventory(BaseModel model) {
+            ViewBag.Message = "Inventory management";
+            ViewBag.Title = "Inventory management";
             var vehicles = Model.Inventory.All ?? Array.Empty<Models.GTX>();
 
             Parallel.ForEach(vehicles, vehicle =>
@@ -46,6 +48,8 @@ namespace GTX.Controllers {
         }
 
         public ActionResult Logs() {
+            ViewBag.Message = "Logs";
+            ViewBag.Title = "Logs";
             return View(LogService.GetLogs());
         }
 
@@ -74,6 +78,11 @@ namespace GTX.Controllers {
                 System.Diagnostics.Debug.WriteLine("ERROR: " + ex.Message);
                 return Json(new { success = false, message = "Error: " + ex.Message });
             }
+        }
+
+        [HttpPost]
+        public void ShowAdmin() {
+            SessionData.Majordome = true;
         }
 
         [HttpPost]

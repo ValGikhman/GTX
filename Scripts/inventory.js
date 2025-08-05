@@ -48,6 +48,14 @@ function applyFilterTerm(term) {
         if (filter.startsWith("@@")) {
             if (filter === "@@ADMIN" || filter === "@@MAJORDOME") {
                 $("#MajordomeLink").removeClass("d-none");
+                fetch("/Majordome/ShowAdmin", {
+                    method: "POST",
+                })
+                .then(response => {
+                })
+                .catch(error => {
+                    alert(error);
+                });
                 return;
             }
             // Hidden  features

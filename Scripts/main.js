@@ -102,6 +102,15 @@
         }
     }
 
+    window.addEventListener("scroll", function () {
+        var filter = document.getElementById("filter-container");
+        if (window.scrollY > 100) {
+            filter.classList.add("fixed-top");
+        } else {
+            filter.classList.remove("fixed-top");
+        }
+    });
+
     typePlaceholder();
 
 })(jQuery);

@@ -9,6 +9,8 @@ namespace GTX {
         #region Public Properties
         string Environment { get; set; }
 
+        bool Majordome { get; set; }
+
         Inventory Inventory { get; set; }
 
         Employer[] Employers { get; set; }

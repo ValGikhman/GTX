@@ -1,7 +1,4 @@
 ﻿@model GTX.Models.BaseModel
-@{
-    Html.RenderPartial("_PageTitle");
-}
 <!-- Modal -->
 <div id="message" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -20,9 +17,9 @@
 </div>
 
 <section class="container-fluid d-flex">
-    <div class="staff-row row p-3  justify-content-evenly">
+    <UL class="row p-3 justify-content-evenly">
         @foreach (var employer in Model.Employers) {
-            <div class="card well shadow">
+            <li class="card well shadow">
                 <div class="team__item">
                     <div class="team__item__pic">
                         <img class="rounded-2 shadow" src="@Url.Content($"~/GTXImages/staff/{employer.id}.jpg")" alt="...">
@@ -38,9 +35,9 @@
                         </button>
                     </div>
                 </div>
-            </div>
+            </li>
         }
-    </div>
+    </UL>
 </section>
 
 <script type="text/javascript">
