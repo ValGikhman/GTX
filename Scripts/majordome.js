@@ -120,7 +120,7 @@ function actionsRenderer(params) {
 }
 
 function uploadFiles(stock, input) {
-    showSpinner();
+    showSpinner($("#overlay"));
     const files = input.files;
     if (files.length === 0) return;
 
@@ -176,7 +176,7 @@ function setDetails(stock) {
 }
 
 function reStoryAll() {
-    showSpinner();
+    showSpinner($("#overlay"));
 
     fetch('/Majordome/ReStoryAll', {
         method: 'POST',
@@ -200,7 +200,7 @@ function reStoryAll() {
 }
 
 function deleteImages(stock) {
-    showSpinner();
+    showSpinner($("#overlay"));
     $.post(`${root}Majordome/DeleteImages`, { stock })
         .done(function (response) {
             if (response.success) {
@@ -216,7 +216,7 @@ function deleteImages(stock) {
 };
 
 function deleteImage(id, file, object) {
-    showSpinner();
+    showSpinner($("#overlay"));
     const stock = selectedVehicle.Stock;
     var item = $(object).closest('.gallery-item');
     $.post(`${root}Majordome/DeleteImage`, { id: id, file: file, stock: stock })
@@ -229,7 +229,7 @@ function deleteImage(id, file, object) {
                         const vehicle = data.find(v => v.Stock === stock);
                         loadGallery(vehicle);
                         updateRow(data);
-                        hideSpinner();
+                        hideSpinner($("#overlay"));
                         $("#close").click();
                 });
             }   
@@ -237,7 +237,7 @@ function deleteImage(id, file, object) {
 };
 
 function removeBackground(file) {
-    showSpinner();
+    showSpinner($("#overlay"));
     const stock = selectedVehicle.Stock;
     $.post(`${root}Majordome/RemoveBackground`, { stock, file })
         .done(function (response) {
@@ -248,7 +248,7 @@ function removeBackground(file) {
                         const vehicle = data.find(v => v.Stock === stock);
                         loadGallery(vehicle);
                         updateRow(data);
-                        hideSpinner();
+                        hideSpinner($("#overlay"));
                     });
             }
         })
@@ -256,7 +256,7 @@ function removeBackground(file) {
 
 
 function createStory(stock) {
-    showSpinner();
+    showSpinner($("#overlay"));
     $.post(`${root}Majordome/CreateStory`, { stock })
         .done(function (response) {
             if (response.success) {
@@ -277,7 +277,7 @@ function createStory(stock) {
 };
 
 function saveOrder(sorted) {
-    showSpinner();
+    showSpinner($("#overlay"));
     $.post(`${root}Majordome/SaveOrder`, { sorted  })
         .done(function (response) {
             if (response.success) {
@@ -300,7 +300,7 @@ function updateRow(data) {
         }
     });
 
-    hideSpinner();
+    hideSpinner($("#overlay"));
 }
 
 function wearOverlay(json) {
@@ -362,7 +362,7 @@ function setControls(json) {
 }
 
 function saveOverlayData() {
-    showSpinner();
+    showSpinner($("#overlay"));
     const overlay = $("#overlay");
     const overlayStyle = overlay.attr("style") || "";
 
@@ -403,7 +403,7 @@ function saveOverlayData() {
                         const vehicle = data.find(v => v.Stock === stock);
                         loadGallery(vehicle);
                         updateRow(data);
-                        hideSpinner();
+                        hideSpinner($("#overlay"));
                         $("#close").click();
                     });
             }

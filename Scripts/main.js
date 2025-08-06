@@ -115,13 +115,6 @@
 
 })(jQuery);
 
-function showSpinner() {
-    $("#spinnerOverlay").removeClass("spinner-hidden");
-}
-
-function hideSpinner() {
-    $("#spinnerOverlay").addClass("spinner-hidden");
-}
 
 function loadLikedCars() {
     var cookieValue = Cookies.get(cookieName);
@@ -165,4 +158,13 @@ function playBeep() {
 
     oscillator.start();
     oscillator.stop(ctx.currentTime + 0.01); // Beep duration: 0.1 second
+}
+
+
+function showSpinner(object) {
+    $(object).removeClass("spinner-hidden");
+}
+
+function hideSpinner(object) {
+    $(object).addClass("spinner-hidden");
 }

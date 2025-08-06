@@ -91,7 +91,7 @@ namespace GTX.Controllers {
                 Model.Inventory.Vehicles = Model.Inventory.All;
 
                 Parallel.ForEach(Model.Inventory.Vehicles, new ParallelOptions { MaxDegreeOfParallelism = 3 }, async vehicle => {
-                    if (string.IsNullOrEmpty(vehicle.Story.Title)) {
+                    if (vehicle.Story == null) {
                         var story = await GetChatGptResponse(GetPrompt(vehicle));
                         var response = SplitResponse(story);
                         InventoryService.SaveStory(vehicle.Stock, response.story, response.title);
