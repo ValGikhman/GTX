@@ -26,9 +26,11 @@
 
                             $.post(`${root}Inventory/ApplyFilter`, { model: model }, "json")
                                 .done(function (response) {
+                                    hideSpinner($("#filterOverlay"));
                                     window.location.href = response.redirectUrl; // ✅ Now navigate to that controller action
                                 })
                                 .fail(function (xhr, status, error) {
+                                    hideSpinner($("#filterOverlay"));
                                     console.error("Error applying term:", error);
                                 });
                         });
