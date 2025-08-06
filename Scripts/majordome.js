@@ -70,7 +70,7 @@ function loadGallery(vehicle) {
 
         var imagePath = `${images}${img.Stock.trim()}/${img.Name}`;
         var item = `
-        <li id="${img.Id}" class="col-lg-2 col-md-3 col-sm-4 gradient pt-2 shadow" data-filename="${img.Name}" style="width:323px!important;">
+        <li id="${img.Id}" class="col-lg-2 col-md-3 col-sm-4 gradient pt-2 shadow" data-filename="${img.Name}" style="width:312px!important;height: 295px !important;">
             <a href="${imagePath}" data-lightbox="gallery">
                 <img class="card-image" src="${imagePath}"/>
             </a>
@@ -120,7 +120,7 @@ function actionsRenderer(params) {
 }
 
 function uploadFiles(stock, input) {
-    showSpinner($("#overlay"));
+    showSpinner($("#inventoryOverlay"));
     const files = input.files;
     if (files.length === 0) return;
 
@@ -176,7 +176,7 @@ function setDetails(stock) {
 }
 
 function reStoryAll() {
-    showSpinner($("#overlay"));
+    showSpinner($("#inventoryOverlay"));
 
     fetch('/Majordome/ReStoryAll', {
         method: 'POST',
@@ -200,7 +200,7 @@ function reStoryAll() {
 }
 
 function deleteImages(stock) {
-    showSpinner($("#overlay"));
+    showSpinner($("#inventoryOverlay"));
     $.post(`${root}Majordome/DeleteImages`, { stock })
         .done(function (response) {
             if (response.success) {
@@ -216,7 +216,7 @@ function deleteImages(stock) {
 };
 
 function deleteImage(id, file, object) {
-    showSpinner($("#overlay"));
+    showSpinner($("#inventoryOverlay"));
     const stock = selectedVehicle.Stock;
     var item = $(object).closest('.gallery-item');
     $.post(`${root}Majordome/DeleteImage`, { id: id, file: file, stock: stock })
@@ -229,7 +229,7 @@ function deleteImage(id, file, object) {
                         const vehicle = data.find(v => v.Stock === stock);
                         loadGallery(vehicle);
                         updateRow(data);
-                        hideSpinner($("#overlay"));
+                        hideSpinner($("#inventoryOverlay"));
                         $("#close").click();
                 });
             }   
@@ -237,7 +237,7 @@ function deleteImage(id, file, object) {
 };
 
 function removeBackground(file) {
-    showSpinner($("#overlay"));
+    showSpinner($("#inventoryOverlay"));
     const stock = selectedVehicle.Stock;
     $.post(`${root}Majordome/RemoveBackground`, { stock, file })
         .done(function (response) {
@@ -248,7 +248,7 @@ function removeBackground(file) {
                         const vehicle = data.find(v => v.Stock === stock);
                         loadGallery(vehicle);
                         updateRow(data);
-                        hideSpinner($("#overlay"));
+                        hideSpinner($("#inventoryOverlay"));
                     });
             }
         })
@@ -256,7 +256,7 @@ function removeBackground(file) {
 
 
 function createStory(stock) {
-    showSpinner($("#overlay"));
+    showSpinner($("#inventoryOverlay"));
     $.post(`${root}Majordome/CreateStory`, { stock })
         .done(function (response) {
             if (response.success) {
@@ -277,7 +277,7 @@ function createStory(stock) {
 };
 
 function saveOrder(sorted) {
-    showSpinner($("#overlay"));
+    showSpinner($("#inventoryOverlay"));
     $.post(`${root}Majordome/SaveOrder`, { sorted  })
         .done(function (response) {
             if (response.success) {
@@ -300,7 +300,7 @@ function updateRow(data) {
         }
     });
 
-    hideSpinner($("#overlay"));
+    hideSpinner($("#inventoryOverlay"));
 }
 
 function wearOverlay(json) {
@@ -362,7 +362,7 @@ function setControls(json) {
 }
 
 function saveOverlayData() {
-    showSpinner($("#overlay"));
+    showSpinner($("#inventoryOverlay"));
     const overlay = $("#overlay");
     const overlayStyle = overlay.attr("style") || "";
 
@@ -403,7 +403,7 @@ function saveOverlayData() {
                         const vehicle = data.find(v => v.Stock === stock);
                         loadGallery(vehicle);
                         updateRow(data);
-                        hideSpinner($("#overlay"));
+                        hideSpinner($("#inventoryOverlay"));
                         $("#close").click();
                     });
             }
