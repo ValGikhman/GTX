@@ -125,7 +125,7 @@
                     </div>
                     <div class="row mt-2">
                         @Html.Label("Story", new { @class = "text-shadow" })
-                        <textarea id="story" class="form-control shadow" style="height: 50vh">
+                        <textarea id="story" class="form-control shadow">
                     </textarea>
                     </div>
                 </div>
@@ -290,6 +290,7 @@ $(function () {
 
     tinymce.init({
         selector: '#story',
+        height: 560,
         menubar: 'file edit view insert format customMenu', // add your custom menu here
         setup: function (editor) {
             editor.on('init', function () {
