@@ -21,7 +21,7 @@
                         .css({ height: '80px' })
                         .click(function () {
                             const make = $(this).data("make");
-                            showSpinner();
+                            showSpinner($("#filterOverlay"));
                             var model = { Makes: [make] };
 
                             $.post(`${root}Inventory/ApplyFilter`, { model: model }, "json")

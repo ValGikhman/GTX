@@ -161,10 +161,10 @@ function playBeep() {
 }
 
 
-function showSpinner() {
-    $("#overlay").removeClass("spinner-hidden");
+function showSpinner(object) {
+    $(object).removeClass("spinner-hidden");
 }
 
-function hideSpinner() {
-    $("#overlay").addClass("spinner-hidden");
+function hideSpinner(object) {
+    $(object).addClass("spinner-hidden");
 }

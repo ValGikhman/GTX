@@ -3,7 +3,7 @@
 
 @*Meat*@
 <div class="row container-fluid mt-2 col-12 justify-content-between">
-    <div id="spinnerOverlay" class="spinner-overlay spinner-hidden">
+    <div id="filterOverlay" class="spinner-overlay spinner-hidden">
         <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
         </div>
@@ -184,7 +184,7 @@
         $(".chosen-container").addClass("w-100 p-1");
 
         $("#btnSearch").on("click", function () {
-            showSpinner();
+            showSpinner($(filterOverlay));
             var model = {
                 Makes: $("#makes").val(),
                 Models: $("#models").val(),
@@ -303,7 +303,7 @@
     }
 
     getPriceRange = function (makes) {
-        showSpinner();
+        showSpinner($(filterOverlay));
 
         $.get(`${root}Inventory/GetPriceRange`, { "makes": JSON.stringify(makes) })
             .done(function (result) {
@@ -400,7 +400,7 @@
                         }
                     });
                 }
-                hideSpinner();
+                hideSpinner($(filterOverlay));
             })
     }
 
