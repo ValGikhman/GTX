@@ -184,7 +184,7 @@
         $(".chosen-container").addClass("w-100 p-1");
 
         $("#btnSearch").on("click", function () {
-            showSpinner($(filterOverlay));
+            showSpinner($("#filterOverlay"));
             var model = {
                 Makes: $("#makes").val(),
                 Models: $("#models").val(),
@@ -201,9 +201,11 @@
 
             $.post(`${root}Inventory/ApplyFilter`, { model: model }, "json")
                 .done(function (response) {
+                    hideSpinner($("#filterOverlay"));
                     window.location.href = response.redirectUrl; // ✅ Now navigate to that controller action
                 })
                 .fail(function (xhr, status, error) {
+                    hideSpinner($("#filterOverlay"));
                     console.error("Error applying term:", error);
                 });
         })
@@ -303,7 +305,7 @@
     }
 
     getPriceRange = function (makes) {
-        showSpinner($(filterOverlay));
+        showSpinner($("#filterOverlay"));
 
         $.get(`${root}Inventory/GetPriceRange`, { "makes": JSON.stringify(makes) })
             .done(function (result) {
@@ -400,7 +402,7 @@
                         }
                     });
                 }
-                hideSpinner($(filterOverlay));
+                hideSpinner($("#filterOverlay"));
             })
     }
 
