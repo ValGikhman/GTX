@@ -4,6 +4,11 @@
     @model GTX.Models.BaseModel
     var baseUrl = $"{Request.Url.Scheme}://{Request.Url.Authority}";
 }
+<style>
+    img {
+        max-width: 700px;
+    }    
+</style>
 
 <head>
     <meta property="og:title" content="@Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model @Model.CurrentVehicle.VehicleDetails.VehicleStyle" />
