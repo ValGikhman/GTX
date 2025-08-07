@@ -56,6 +56,7 @@ function loadGallery(vehicle) {
     var container = $("#sortable-gallery");
     container.empty();
     var i = 0;
+    var checked = "";
     vehicle.Images.forEach(function (img) {
         var showImageEdit = "";
         var imageIcon = "bi bi-image";
@@ -70,18 +71,36 @@ function loadGallery(vehicle) {
 
         var imagePath = `${images}${img.Stock.trim()}/${img.Name}`;
         var item = `
-        <li id="${img.Id}" class="col-lg-2 col-md-3 col-sm-4 gradient pt-2 shadow" data-filename="${img.Name}" style="width:312px!important;height: 295px !important;">
+        <li id="${img.Id}" class="col-lg-2 col-md-3 col-sm-4 pt-2 shadow" data-filename="${img.Name}" style="width:245px!important;height:245px !important;">
             <a href="${imagePath}" data-lightbox="gallery">
-                <img class="card-image" src="${imagePath}"/>
+                <img class="edit-image" src="${imagePath}"/>
             </a>
-            <span id="${img.Id}" class="delete-image bi bi-trash btn btn-light shadow my-3" data-filename="${img.Name}"></span>
-            <span id="${img.Id}" class="overlay-image ${imageIcon} btn btn-light shadow my-3 ${showImageEdit}" data-filename="${img.Name}"></span>
-            <span id="${img.Id}" class="remove-background bi bi-back btn btn-light shadow my-3 visually-hidden" data-filename="${img.Name}"></span>
+            <span id="${img.Id}" class="delete-image bi bi-trash btn btn-light shadow my-2" data-filename="${img.Name}" title="Delete image"></span>
+            <span id="${img.Id}" class="overlay-image ${imageIcon} btn btn-light shadow my-2 ${showImageEdit}" data-filename="${img.Name}" title="Add overlay"></span>
+            <span class="move-to-top bi bi-front btn btn-light shadow my-2 pull-right" title="Make it default image"></span>
         </li>
         `;
 
         container.append(item);
         i++;
+    });
+
+    updateGalleryDisplay();
+}
+
+function updateGalleryDisplay() {
+    $("#sortable-gallery li").each(function (index) {
+        const $li = $(this);
+        const $btn = $li.find(".move-to-top");
+
+        if (index === 0) {
+            $btn.addClass("d-none").hide();
+            $li.addClass("gradient");
+        }
+        else {
+            $btn.removeClass("d-none").show();
+            $li.removeClass("gradient");
+        }
     });
 }
 
@@ -236,25 +255,6 @@ function deleteImage(id, file, object) {
     })
 };
 
-function removeBackground(file) {
-    showSpinner($("#inventoryOverlay"));
-    const stock = selectedVehicle.Stock;
-    $.post(`${root}Majordome/RemoveBackground`, { stock, file })
-        .done(function (response) {
-            if (response.success) {
-                fetch('/Majordome/GetUpdatedItems')
-                    .then(res => res.json())
-                    .then(data => {
-                        const vehicle = data.find(v => v.Stock === stock);
-                        loadGallery(vehicle);
-                        updateRow(data);
-                        hideSpinner($("#inventoryOverlay"));
-                    });
-            }
-        })
-};
-
-
 function createStory(stock) {
     showSpinner($("#inventoryOverlay"));
     $.post(`${root}Majordome/CreateStory`, { stock })
@@ -361,10 +361,30 @@ function setControls(json) {
     }
 }
 
+
+function deleteOverlayData() {
+    showSpinner($("#inventoryOverlay"));
+    const overlay = $("#overlay");
+    $.post(`${root}Majordome/DeleteOverlay`, { id })
+        .done(function (response) {
+            if (response.success) {
+                fetch('/Majordome/GetUpdatedItems')
+                    .then(res => res.json())
+                    .then(data => {
+                        const vehicle = data.find(v => v.Stock === stock);
+                        loadGallery(vehicle);
+                        updateRow(data);
+                        hideSpinner($("#inventoryOverlay"));
+                        $("#close").click();
+                    });
+            }
+        })
+}
+
 function saveOverlayData() {
     showSpinner($("#inventoryOverlay"));
     const overlay = $("#overlay");
-    const overlayStyle = overlay.attr("style") || "";
+    const overlayStyle = `background-color: ${$("#backgroundColor").val()}`;
 
     const children = [];
 

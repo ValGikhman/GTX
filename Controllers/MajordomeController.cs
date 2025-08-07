@@ -1,10 +1,12 @@
 ﻿using GTX.Models;
+using ImageMagick;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Services;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -82,7 +84,7 @@ namespace GTX.Controllers {
 
         [HttpPost]
         public void ShowAdmin() {
-            SessionData.Majordome = true;
+            ViewBag.Majordome = true;
         }
 
         [HttpPost]
@@ -114,31 +116,39 @@ namespace GTX.Controllers {
 
         [HttpPost]
         public async Task<ActionResult> Upload(IEnumerable<HttpPostedFileBase> files, string stock) {
-            if (files != null && files.Any()) {
-                var uploadPath = Server.MapPath(Path.Combine(imageFolder, stock));
-                string url = Path.Combine(imageFolder, stock);
+            try {
+                if (files != null && files.Any()) {
+                    var uploadPath = Server.MapPath(Path.Combine(imageFolder, stock));
+                    Directory.CreateDirectory(uploadPath);
 
-                Directory.CreateDirectory(uploadPath);
-                var tasks = files
-                    .Where(f => f != null && f.ContentLength > 0)
-                    .Select(async f => {
-                        string fullPath = Path.Combine(uploadPath, f.FileName);
+                    foreach (var f in files) {
+                        if (f == null || f.ContentLength <= 0) {
+                            continue;
+                        }
+                        string fileName = Path.GetFileNameWithoutExtension(f.FileName) + ".png";
+                        string fullPath = Path.Combine(uploadPath, fileName);
 
-                        using var memoryStream = new MemoryStream(); await f.InputStream.CopyToAsync(memoryStream);
-                        byte[] imageBytes = memoryStream.ToArray();
-                        using (var fs = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite)) {
-                            await fs.WriteAsync(imageBytes, 0, imageBytes.Length);
+                        using var memoryStream = new MemoryStream();
+                        await f.InputStream.CopyToAsync(memoryStream);
+                        memoryStream.Position = 0;
+
+                        using (var image = new MagickImage(memoryStream)) {
+                            image.Format = MagickFormat.Png;
+                            image.Resize(new MagickGeometry(800, 600) { IgnoreAspectRatio = false });
+                            image.Extent(800, 600, Gravity.Center, MagickColors.Transparent);
+                            await image.WriteAsync(fullPath);
                         }
 
-                        InventoryService.SaveImage(stock, $"{f.FileName}");
-                    });
+                        InventoryService.SaveImage(stock, fileName);
+                    }
+                }
 
-                await Task.WhenAll(tasks);
+                return Json(new { Message = "Upload completed with possible errors" });
             }
-
-            return Json(new {
-                Message = "Upload successful"
-            });
+            catch (Exception ex) {
+                System.Diagnostics.Debug.WriteLine("Upload failed completely: " + ex.Message);
+                return new HttpStatusCodeResult(500, "Upload failed: " + ex.Message);
+            }
         }
 
         public void SetDetails(string stock) {
@@ -164,6 +174,12 @@ namespace GTX.Controllers {
         public JsonResult SaveOverlay(Guid id, string stock, string overlay, string imagePath) {
             InventoryService.SaveOverlay(id, overlay);
             CreateImageWithOverlay(stock, imagePath, overlay);
+            return Json(new { success = true });
+        }
+
+        [HttpPost]
+        public JsonResult DeleteOverlay(Guid id, string stock) {
+            InventoryService.DeleteOverlay(id);
             return Json(new { success = true });
         }
 
@@ -278,75 +294,7 @@ namespace GTX.Controllers {
             }
         }
 
-        [HttpPost]
-        public async Task<ActionResult> RemoveBackground(string stock, string file) {
-
-            var fileName = Server.MapPath(Path.Combine(imageFolder, stock, file));
-            string originalExtension = Path.GetExtension(file).ToLower();
-
-            if (string.IsNullOrWhiteSpace(file) || !System.IO.File.Exists(fileName)) {
-                return Json(new { success = false, message = "File does not exist." });
-            }
-
-/*            if (!fileName.EndsWith(".png", StringComparison.OrdinalIgnoreCase)) {
-                ModelState.AddModelError("", "Only PNG images are supported.");
-                return View();
-            }*/
-
-            var apiUrl = "https://api.openai.com/v1/images/edits";
-
-            // Read image into stream
-            byte[] imageData;
-            if (originalExtension == ".jpg" || originalExtension == ".jpeg") {
-                using (var fs = new FileStream(fileName, FileMode.Open, FileAccess.Read)) {
-                    imageData = ConvertJpgToTransparentPng(fs, Color.White, 20);
-                }
-            }
-            else if (originalExtension == ".png") {
-                imageData = System.IO.File.ReadAllBytes(fileName);
-            }
-            else {
-                return Json(new { success = false, message = "Only JPG or PNG files are supported." });
-            }
-
-            using (var client = new HttpClient())
-            using (var form = new MultipartFormDataContent()) {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", openAiApiKey);
-                var imageContent = new ByteArrayContent(imageData);
-                imageContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/png");
-
-                form.Add(imageContent, "image", fileName);
-                form.Add(new StringContent("Remove the background"), "prompt");
-                form.Add(new StringContent("1"), "n");
-                form.Add(new StringContent("1024x1024"), "size");
-
-                var response = await client.PostAsync(apiUrl, form);
-
-                if (!response.IsSuccessStatusCode) {
-                    var error = await response.Content.ReadAsStringAsync();
-                    return Json(new { success = false, message = $"OpenAI API Error: {error}" });
-                }
-
-                var responseData = await response.Content.ReadAsStringAsync();
-                dynamic result = JsonConvert.DeserializeObject(responseData);
-                string imageUrl = result.data[0].url;
-
-                byte[] finalImageData;
-                using (var imageClient = new HttpClient()) {
-                    finalImageData = await imageClient.GetByteArrayAsync(imageUrl);
-                }
-
-                var dirPath = Server.MapPath(imageFolder);
-                if (!Directory.Exists(dirPath))
-                    Directory.CreateDirectory(dirPath);
-
-                System.IO.File.WriteAllBytes(fileName, finalImageData);
-
-                return Json(new { success = true, message = "All good" });
-            }
-
-        }
-            private async Task<string> GetChatGptResponse(string prompt) {
+        private async Task<string> GetChatGptResponse(string prompt) {
             var apiUrl = "https://api.openai.com/v1/chat/completions";
 
             using (var httpClient = new HttpClient()) {
@@ -451,38 +399,13 @@ Do not place any **<html>**, **<body>** and **<head>** tags
             float vw = width / 100f;
 
             var sizeMatch = Regex.Match(style, @"font-size:\s*(\d+(\.\d+)?)vw");
-            if (sizeMatch.Success) size = float.Parse(sizeMatch.Groups[1].Value) * vw * 1.5f;
+            if (sizeMatch.Success) size = float.Parse(sizeMatch.Groups[1].Value) * vw * 2.3f;
 
             var colorMatch = System.Text.RegularExpressions.Regex.Match(style, @"color:\s*([^;]+)");
             if (colorMatch.Success) color = Color.FromName(colorMatch.Groups[1].Value.Trim());
 
             Font font = new Font(fontFamily, size, fontStyle);
             return (font, color);
-        }
-
-        private byte[] ConvertJpgToTransparentPng(Stream jpgStream, Color backgroundToRemove, int tolerance = 10) {
-
-            using (var original = new Bitmap(jpgStream)) {
-                Bitmap transparentBitmap = new Bitmap(original.Width, original.Height, PixelFormat.Format32bppArgb);
-
-                for (int y = 0; y < original.Height; y++) {
-                    for (int x = 0; x < original.Width; x++) {
-                        Color pixelColor = original.GetPixel(x, y);
-
-                        if (IsColorClose(pixelColor, backgroundToRemove, tolerance)) {
-                            transparentBitmap.SetPixel(x, y, Color.Transparent);
-                        }
-                        else {
-                            transparentBitmap.SetPixel(x, y, pixelColor);
-                        }
-                    }
-                }
-
-                using (var ms = new MemoryStream()) {
-                    transparentBitmap.Save(ms, ImageFormat.Png);
-                    return ms.ToArray();
-                }
-            }
         }
 
         private bool IsColorClose(Color a, Color b, int tolerance) {
