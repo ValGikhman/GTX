@@ -140,7 +140,7 @@
                 <input type="file" id="fileInput" class="d-none" multiple accept="image/*">
             </div>
             <div id="galery-content" class="flex-grow-1 w-100 px-3 pb-3">
-                <ul id="sortable-gallery" class="row justify-content-evenly">
+                <ul id="sortable-gallery" class="row justify-content-center">
                     <!-- li items here -->
                 </ul>
             </div>
@@ -179,6 +179,26 @@ $(function () {
         var id = $(this).attr("id");
         showOverlayModal(id);
     });
+
+    $(document).on("click", ".move-to-top", function (e) {
+        e.stopPropagation();
+
+        const $this = $(this);
+        const $item = $this.closest("li");
+
+        // Move this item to the top
+        $item.prependTo("#sortable-gallery");
+
+        const sorted = getSortedIds();
+        saveOrder(sorted, stock)
+        updateGalleryDisplay();
+    });
+
+    function getSortedIds() {
+        return $("#sortable-gallery li").map(function () {
+            return $(this).attr("id");
+        }).get();
+    }
 
     $(".ag-column-last").html($("#actions").html());
     $('div[col-id="images"]').css('left', '-15px');
@@ -280,11 +300,11 @@ $(function () {
         delay: 100,
         touchStartThreshold: 5,
         onEnd: function (event) {
-            console.log("Moved item from", event.oldIndex, "to", event.newIndex);
             let sorted = $("#sortable-gallery li").map(function () {
                 return $(this).attr("id")
             }).get();
             saveOrder(sorted, selectedVehicle.Stock);
+            updateGalleryDisplay();
         }
     });
 
@@ -302,6 +322,7 @@ $(function () {
             'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'image', 'link', 'lists', 'media', 'searchreplace', 'visualblocks'
         ],
         toolbar: '',
+
         tinycomments_mode: 'embedded'
     });
 });

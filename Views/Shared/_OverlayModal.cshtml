@@ -61,44 +61,19 @@
 
         @Html.Label("Font size", new { @class = "text-shadow mt-3" })
     <select id="fontSize" class="form-select shadow">
-        <option value="0.1vw">0.1vw</option>
-        <option value="0.2vw">0.2vw</option>
-        <option value="0.3vw">0.3vw</option>
-        <option value="0.4vw">0.4vw</option>
-        <option value="0.5vw">0.5vw</option>
-        <option value="0.6vw">0.6vw</option>
-        <option value="0.7vw">0.7vw</option>
-        <option value="0.8vw">0.8vw</option>
-        <option value="0.9vw">0.9vw</option>
-        <option value="1vw">1.0vw</option>
-        <option value="1.1vw">1.1vw</option>
-        <option value="1.2vw">1.2vw</option>
-        <option value="1.3vw">1.3vw</option>
-        <option value="1.4vw">1.4vw</option>
-        <option value="1.5vw">1.5vw</option>
-        <option value="1.6vw">1.6vw</option>
-        <option value="1.7vw">1.7vw</option>
-        <option value="1.8vw">1.8vw</option>
-        <option value="1.9vw">1.9vw</option>
-        <option value="2vw">2.0vw</option>
-        <option value="2.1vw">2.1vw</option>
-        <option value="2.2vw">2.2vw</option>
-        <option value="2.3vw">2.3vw</option>
-        <option value="2.4vw">2.4vw</option>
-        <option value="2.6vw">2.6vw</option>
-        <option value="2.7vw">2.7vw</option>
-        <option value="2.8vw">2.8vw</option>
-        <option value="2.9vw">2.9vw</option>
-        <option value="3vw">3.0vw</option>
+        <option value="1vw">x1</option>
+        <option value="2vw">x2</option>
+        <option value="3vw">x3</option>
     </select>
     </div>
 </div>
 
 <div class="modal-footer well shadow">
     <div class="container-fluid">
+        <button id="deleteOverlay" type="button" class="btn btn-danger shadow"><i class="bi bi-trash flex"></i>&nbsp;Delete overlay</button>
         <span class="pull-right">
             <button id="close" type="button" class="btn btn-close-white shadow" data-bs-dismiss="modal"><i class="bi bi-x-lg flex"></i>&nbsp;Close</button>
-            <button id="saveOverlay" type="button" class="btn btn-secondary shadow mx-3"><i class="bi bi-save2 flex"></i>&nbsp;Save</button>
+            <button id="saveOverlay" type="button" class="btn btn-secondary shadow mx-3"><i class="bi bi-save2 flex"></i>&nbsp;Save overlay</button>
         </span>
     </div>
 </div>
@@ -114,10 +89,19 @@
         setControls(overlay);
     }
     else {
-        $("#fontSize").val("1vw").trigger("change");
+        $("#fontSize").val("3vw").trigger("change");
         $("#fontType").val("normal").trigger("change");
         $("#textColor").val("white").trigger("change");
         $("#backgroundColor").val("black").trigger("change")
+
+        $(".overlay-text").css("color", "white");
+        $(".overlay-image-overlay").css("background-color", "black");
+        $(".overlay-text").css("font-size", "3vw");
+        $(".overlay-text").css({
+            "font-weight": "bold",
+            "font-style": "normal"
+        });
+
     }
 
     $(function () {
@@ -136,6 +120,9 @@
                     const newText = $(this).val();
                     const $p = $('<p id="overlay-text" class="overlay-text"></p>').text(newText);
                     $(this).replaceWith($p);
+                    $(this).css("font-size", $("#fontSize").val());
+                    $(this).css("color", $("#textColor").val());
+                    $(".overlay-image-overlay").css("background-color", $("#backgroundColor").val());
                 }
             });
         });
@@ -145,6 +132,13 @@
 
         $("#saveOverlay").on("click", function () {
             saveOverlayData();
+        })
+
+
+        $("#deleteOverlay").on("click", function () {
+            if (confirm(`Do you want to delete overlay for this image`)) {
+                deleteOverlayData();
+            }
         })
 
         $("#text").on("input", function () {
@@ -170,8 +164,8 @@
             const $text = $(".overlay-text");
 
             $text.css({
-                'font-weight': 'normal',
-                'font-style': 'normal'
+                "font-weight": "normal",
+                "font-style": "normal"
             });
 
             // Apply selected style
