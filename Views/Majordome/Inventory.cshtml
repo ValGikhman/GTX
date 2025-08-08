@@ -418,8 +418,8 @@ const columnDefs = [
         `;
         },
         getQuickFilterText: (params) => {
-            const { Year, Make, Model, VehicleStyle, Stock } = params.data;
-            return `${Year} ${Make} ${Model} ${VehicleStyle} ${Stock}`;
+            const { Year, Make, Model, VehicleStyle, Stock, VIN } = params.data;
+            return `${Year} ${Make} ${Model} ${VehicleStyle} ${Stock} ${VIN}`;
         }
     },
     { headerName: "Stock", field: "Stock", filter: true, width: 120 },
