@@ -32,6 +32,7 @@
     border-bottom-width: 2px !important;
 }
 
+
 .btn-container {
     position: absolute;
     bottom: 6vh;
@@ -161,13 +162,17 @@
         z-index: -1;
     }
 
-    .searchTop {
+    .sort-container {
+        top: 1vh;
         position: relative;
-        top: 1rem !important;
+        left: 3vw;
     }
 
+
     #filterTerm {
-        width: 50vh;
+        min-width: 220px;
+        max-width: 420px;
+        width: 40vw; /* responsive width; customize to taste */
     }
 
 
@@ -1916,8 +1921,8 @@
     }
 
     .searchTop {
-        position: relative;
-        top: 80px !important;
+        flex-direction: column;
+        align-items: center !important;
     }
 
     .body-content {

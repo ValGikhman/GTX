@@ -151,7 +151,10 @@ function uploadFiles(stock, input) {
 
     fetch("/Majordome/Upload", {
         method: "POST",
-        body: formData
+        body: formData,
+        headers: {
+            "Cache-Control": "no-cache"
+        }
     })
     .then(response => {
         if (response.ok) {

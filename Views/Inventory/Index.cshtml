@@ -1,10 +1,4 @@
-﻿@{
-    @model GTX.Models.BaseModel
-    if (Model.Inventory.Vehicles.Count() > 0) {
-        Html.RenderPartial("_FilterByTerm");
-    }
-
-}
+﻿@model GTX.Models.BaseModel
 
 <style>
     .small-offcanvas {
@@ -29,8 +23,11 @@
 </div>
 
 <!-- Scrollable wrapper -->
-<div class="inventory-wrapper py-4">
-    <ul id="inventory" class="d-flex flex-wrap justify-content-center gap-2">
+<div class="inventory-wrapper mx-4">
+    @if (Model.Inventory.Vehicles.Count() > 0) {
+        @Html.Partial("_FilterByTerm");
+    }
+    <ul id="inventory" class="d-flex flex-wrap justify-content-evenly gap-1">
         @{
             if (Model.Inventory.Vehicles != null) {
                 foreach (var vehicle in Model.Inventory.Vehicles) {
@@ -75,6 +72,8 @@
         });
 
         refreshCarLikes();
+
+        $('#sortField, #sortDirection').on('change', sortInventory);
     })
 
     function refreshCarLikes() {
@@ -87,5 +86,27 @@
                 $(this).find(".liked").hide();
             }
         });
+    }
+
+    function sortInventory() {
+        var field = $('#sortField').val();
+        var desc = $('#sortDirection').is(':checked');
+        var $container = $('#inventory');
+        var $items = $container.find('.card');
+
+        if (!field) return; // Do nothing if no field selected
+
+        var sortedItems = $items.sort(function (a, b) {
+            var valA = parseFloat($(a).data(field));
+            var valB = parseFloat($(b).data(field));
+
+            if (desc) {
+                return valB - valA;
+            } else {
+                return valA - valB;
+            }
+        });
+
+        $container.append(sortedItems);
     }
 </script>
