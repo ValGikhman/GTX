@@ -1,17 +1,20 @@
 ﻿@model GTX.Models.GTX
-<li id="@Model.Stock" class="card well rounded-3 p-0" title="Click here to see details."
-    data-location-code="@Model.LocationCode" 
+<li id="@Model.Stock" class="card well rounded-3 mb-2" title="Click here to see details."
+    data-location-code="@Model.LocationCode"
     data-story="@(Model.Story is null ? "NOSTORY" : "STORY")"
     data-images="@(Model.Image.Contains("no-image") ? "NOIMAGE" : "IMAGE")"
-    data-year="@Model.Year" 
-    data-stock="@Model.Stock.ToUpper()" 
-    data-vin="@Model.VIN.ToUpper()" 
-    data-make="@Model.Make.ToUpper()" 
-    data-model="@Model.Model.ToUpper()" 
+    data-year="@Model.Year"
+    data-stock="@Model.Stock.ToUpper()"
+    data-vin="@Model.VIN.ToUpper()"
+    data-make="@Model.Make.ToUpper()"
+    data-model="@Model.Model.ToUpper()"
     data-style="@Model.VehicleStyle.ToUpper()"
     data-type="@Model.VehicleType.ToUpper()"
     data-color="@Model.Color.ToUpper()"
-    data-color2="@Model.Color2.ToUpper()">
+    data-color2="@Model.Color2.ToUpper()"
+    data-miles="@Model.Mileage"
+    data-price="@Model.RetailPrice"
+    data-purchased="@Model.PurchaseDate">
 
     <div class="card-header gradient @Model.LocationCode hand-pointer">
         <h5 class="fw-bold">
