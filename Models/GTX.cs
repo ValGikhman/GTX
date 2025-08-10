@@ -70,6 +70,9 @@ namespace GTX.Models {
 		[XmlElement(ElementName = "PurchaseDate")]
 		public string PurchaseDate { get; set; }
 
+		[XmlElement(ElementName = "ArrivalDate")]
+		public string ArrivalDate { get; set; }
+
 		[XmlElement(ElementName = "FuelType")]
 		public string FuelType { get; set; }
 
@@ -81,6 +84,9 @@ namespace GTX.Models {
 
 		[XmlElement(ElementName = "VehicleStyle")]
 		public string VehicleStyle { get; set; }
+
+		[XmlElement(ElementName = "SetToUpload")]
+		public string SetToUpload { get; set; }
 
 		public Image[] Images { get; set; }
 

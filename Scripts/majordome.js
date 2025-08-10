@@ -30,6 +30,8 @@ class StyleParser {
 
 function applyFilterTerm(term) {
     gridApi.setGridOption('quickFilterText', term);
+    const count = gridApi.getDisplayedRowCount();
+    $("#filterResults").empty().html(`${count} record(s) found.`);
 }
 
 function saveDetails(model) {
@@ -130,6 +132,7 @@ function actionsRenderer(params) {
     });
 
     container.appendChild(reStoryIconRenderer(params));
+    container.appendChild(deleteStoryIconRenderer(params));
     container.appendChild(icon);
     container.appendChild(fileInput);
     if (params.data.Images && params.data.Images.length > 0) {
@@ -279,6 +282,27 @@ function createStory(stock) {
     })
 };
 
+function deleteStory(stock) {
+    showSpinner($("#inventoryOverlay"));
+    $.post(`${root}Majordome/DeleteStory`, { stock })
+        .done(function (response) {
+            if (response.success) {
+                const editor = tinymce.get("story");
+
+                if (editor) {
+                    editor.setContent("");
+                }
+                $("#title").val("");
+
+                fetch('/Majordome/GetUpdatedItems')
+                    .then(res => res.json())
+                    .then(data => {
+                        updateRow(data);
+                    });
+            }
+        })
+};
+
 function saveOrder(sorted) {
     showSpinner($("#inventoryOverlay"));
     $.post(`${root}Majordome/SaveOrder`, { sorted  })
@@ -299,7 +323,7 @@ function updateRow(data) {
     gridApi.forEachNode(function (node) {
         if (node.data.Stock === stock) {
             node.setData(vehicle);
-            $("#galery-tab").text(`Gallery (${vehicle.Images.length})`);
+            $("#gallery-tab").text(`Gallery (${vehicle.Images.length})`);
         }
     });
 
