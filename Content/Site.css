@@ -58,6 +58,20 @@
         color: white;
     }
 
+.btn-gradient {
+    border-radius: 0.5rem;
+    background: #155A96;
+    background: linear-gradient(180deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1) 94%);
+    color: white;
+    transition: transform 0.2s ease;
+}
+
+    .btn-gradient:hover {
+        background: #155A96;
+        background: linear-gradient(0deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1) 94%);
+        color: white;
+    }
+
     .detail-badge {
         top: -10px !important;
     }

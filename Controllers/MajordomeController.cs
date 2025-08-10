@@ -16,10 +16,19 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.Xml.Linq;
+using Utility.XMLHelpers;
 
 namespace GTX.Controllers {
 
     public class MajordomeController : BaseController {
+
+        private const string HeaderFileVirtualPath = "~/App_Data/Inventory/header.csv";
+
+        // Optional: cache header bytes to avoid disk I/O on every request
+        private static byte[] _cachedHeaderBytes;
+        private static readonly object _headerLock = new object();
+
         public MajordomeController(ISessionData sessionData, IInventoryService inventoryService, ILogService logService)
             : base(sessionData, inventoryService, logService) {
             if (Model == null) {
@@ -29,7 +38,7 @@ namespace GTX.Controllers {
         }
 
         public ActionResult Index(BaseModel model) {
-            Model.Inventory.Vehicles = Model.Inventory.All;
+            Model.Inventory.Vehicles = Model.Inventory.Current.OrderByDescending(m => DateTime.TryParse(m.PurchaseDate, out var date) ? date : DateTime.MinValue).ToArray(); ;
             return View(Model);
         }
 
@@ -43,7 +52,7 @@ namespace GTX.Controllers {
                 vehicle.Story = InventoryService.GetStory(vehicle.Stock);
             });
 
-            Model.Inventory.Vehicles = vehicles;
+            Model.Inventory.Vehicles = vehicles.OrderByDescending(m => DateTime.TryParse(m.PurchaseDate, out var date) ? date : DateTime.MinValue).ToArray();
 
             return View(Model);
         }
@@ -209,10 +218,8 @@ namespace GTX.Controllers {
 
         [HttpPost]
         public JsonResult ApplyTerm(string term) {
-            term = term.Trim().ToUpper();
-            Log($"Applying term: {term}");
             Model.CurrentFilter = null;
-            Model.Inventory.Vehicles = ApplyTerms(term);
+            Model.Inventory.Vehicles = ApplyTerms(term.Trim().ToUpper());
             Model.Inventory.Title = "Search";
             return Json(new { redirectUrl = Url.Action("Inventory") });
         }
@@ -229,6 +236,57 @@ namespace GTX.Controllers {
             }
 
             return Json(new { success = false });
+        }
+
+        [HttpPost]
+        public ActionResult ReplaceHeaderAndConvertToXml(HttpPostedFileBase dataCsv) {
+            if (dataCsv == null) {
+                return new HttpStatusCodeResult(400, "Upload the data CSV.");
+            }
+
+            XDocument doc;
+            using (var headerStream = GetHeaderStream()) {
+                doc = CsvToXmlHelper.BuildXmlFromCsv(
+                    dataCsv.InputStream,
+                    headerStream,
+                    new CsvXmlOptions()
+                );
+            }
+
+            var saveDir = Server.MapPath("~/App_Data/Inventory/");
+            var inventoryDir = saveDir + "Current";
+
+            Directory.CreateDirectory(saveDir);
+
+            var fileName = "GTX-Inventory-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss") + ".xml";
+            var backup = Path.Combine(inventoryDir,"GTX-Inventory.bak");
+            var inventoryFleName = "GTX-Inventory.xml";
+            var fullPath = Path.Combine(saveDir, fileName);
+            var inventoryFullPath = Path.Combine(inventoryDir, inventoryFleName);
+
+            if (System.IO.File.Exists(backup)) {
+                System.IO.File.Delete(backup);
+            }
+            System.IO.File.Copy(inventoryFullPath, backup);
+
+            CsvToXmlHelper.SaveXmlToFile(doc, fullPath);
+            CsvToXmlHelper.SaveXmlToFile(doc, inventoryFullPath);
+
+            TerminateSession();
+            return RedirectToAction("Index", "Home"); 
+        }
+
+        private Stream GetHeaderStream() {
+            if (_cachedHeaderBytes == null) {
+                lock (_headerLock) {
+                    if (_cachedHeaderBytes == null) {
+                        var headerPath = Server.MapPath(HeaderFileVirtualPath);
+                        _cachedHeaderBytes = System.IO.File.ReadAllBytes(headerPath);
+                    }
+                }
+            }
+            // new stream per request, position=0
+            return new MemoryStream(_cachedHeaderBytes, writable: false);
         }
 
         [HttpPost]
@@ -359,25 +417,25 @@ namespace GTX.Controllers {
             string car = $"{vehicle.Year} {vehicle.Make} {vehicle.Model} {vehicle.VehicleStyle}";
             var features = $"{vehicle.Features}";
             string prompt = $@"
-You are an expert automotive storyteller. Write a short captivating, imaginative, vivid, and engaging story in HTML format for the following car:
-Car: {car}  
-Features: {features}
-Genral: {car} is being sold by the GTX Autogroup here in Cincinnati Ohio area.
-Our sales crew: {reps} will help you to start your thrilling journey through scenic Ohio valley roads.
+    You are an expert automotive storyteller. Write a short captivating, imaginative, vivid, and engaging story in HTML format for the following car:
+    Car: {car}  
+    Features: {features}
+    Genral: {car} is being sold by the GTX Autogroup here in Cincinnati Ohio area.
+    Our sales crew: {reps} will help you to start your thrilling journey through scenic Ohio valley roads.
 
-Your response must:
-1. Start with a catchy **title inside <title> tags** (for example: <title>The Electric Dream</title>).
-2. Write a minimum of **10 sentences**, each inside a separate <p class='p-story'> tag.
-3. Write in a poetic yet mysterious and persuasive tone with a touch of futuristic imagery to make story vivid, rich, and atmospheric.
-4. Mention at least **5 car features** from the provided list and wrap each feature in <strong class='strong-story'> tags as well as the car.
-5. Do **not use double quotes** anywhere in the story.
-6. End the story with a sense of joy, adventure, opportunity.
+    Your response must:
+    1. Start with a catchy **title inside <title> tags** (for example: <title>The Electric Dream</title>).
+    2. Write a minimum of **10 sentences**, each inside a separate <p class='p-story'> tag.
+    3. Write in a poetic yet mysterious and persuasive tone with a touch of futuristic imagery to make story vivid, rich, and atmospheric.
+    4. Mention at least **5 car features** from the provided list and wrap each feature in <strong class='strong-story'> tags as well as the car.
+    5. Do **not use double quotes** anywhere in the story.
+    6. End the story with a sense of joy, adventure, opportunity.
 
-The output should be **only the HTML story** without any extra text before or after.
-Please do not place any other characters like **``` and **```html text in front of the output.
-Do not place any **<html>**, **<body>** and **<head>** tags
-";
-            return prompt;
+    The output should be **only the HTML story** without any extra text before or after.
+    Please do not place any other characters like **``` and **```html text in front of the output.
+    Do not place any **<html>**, **<body>** and **<head>** tags
+    ";
+                return prompt;
         }
 
         private (string story, string title) SplitResponse(string response) {
@@ -433,17 +491,8 @@ Do not place any **<html>**, **<body>** and **<head>** tags
 
         private bool IsColorClose(Color a, Color b, int tolerance) {
             return Math.Abs(a.R - b.R) <= tolerance &&
-                   Math.Abs(a.G - b.G) <= tolerance &&
-                   Math.Abs(a.B - b.B) <= tolerance;
-        }
+                    Math.Abs(a.G - b.G) <= tolerance &&
+                    Math.Abs(a.B - b.B) <= tolerance;
+            }
     }
-
-    public static class ProgressStore {
-        private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, int> _p =
-            new System.Collections.Concurrent.ConcurrentDictionary<string, int>();
-
-        public static void Set(string jobId, int pct) => _p[jobId] = pct;
-        public static int Get(string jobId) => _p.TryGetValue(jobId, out var v) ? v : 0;
-    }
-
 }
