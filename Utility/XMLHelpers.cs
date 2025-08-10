@@ -10,22 +10,25 @@ using System.Web.Mvc;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
+using Microsoft.VisualBasic.FileIO; // TextFieldParser
+using System.Collections.Generic;
 
 namespace Utility.XMLHelpers {
     public static class XmlRepository {
+
         private static string xmlFilePath = HostingEnvironment.MapPath("~/App_Data/");
 
         public async static Task<Employer[]> GetEmployers() {
             string path = $"{xmlFilePath}GTX-Staff.xml";
 
             XDocument doc = XDocument.Load(path);
-            return doc.Descendants("employer") .Select(x => new Employer {
-                    id = int.Parse(x.Element("id").Value),
-                    Name = x.Element("name").Value,
-                    Phone = x.Element("phone").Value,
-                    Position = x.Element("position").Value,
-                    Email = x.Element("email").Value
-                })
+            return doc.Descendants("employer").Select(x => new Employer {
+                id = int.Parse(x.Element("id").Value),
+                Name = x.Element("name").Value,
+                Phone = x.Element("phone").Value,
+                Position = x.Element("position").Value,
+                Email = x.Element("email").Value
+            })
                 .OrderBy(m => m.id)
                 .ToArray();
         }
@@ -114,11 +117,95 @@ namespace Utility.XMLHelpers {
                     else {
                         var error = await response.Content.ReadAsStringAsync();
                         //return Json(new { success = false, message = $"Failed to send. {error}" });
-                    }       
+                    }
                 }
             }
             catch (Exception ex) {
             }
+        }
+    }
+
+    public sealed class CsvXmlOptions {
+        public string Delimiter { get; set; } = ",";
+        public string RootName { get; set; } = "GTX-Inventory";
+        public string RowName { get; set; } = "vehicle";
+        public bool TrimHeaders { get; set; } = true;
+        public Encoding Encoding { get; set; } = Encoding.UTF8;
+    }
+
+    public static class CsvToXmlHelper {
+        public static XDocument BuildXmlFromCsv(Stream dataCsv, Stream headerCsv, CsvXmlOptions ? options = null) {
+            options ??= new CsvXmlOptions();
+
+            var headers = ReadHeader(headerCsv, options);
+            var rows = ReadRows(dataCsv, options); // without the original header
+
+            var root = new XElement(XmlConvert.EncodeName(options.RootName));
+            foreach (var record in rows) {
+                var rowEl = new XElement(XmlConvert.EncodeName(options.RowName));
+                for (int i = 0; i < headers.Length; i++) {
+                    var rawName = options.TrimHeaders ? headers[i].Trim() : headers[i];
+                    var safeName = XmlConvert.EncodeName(string.IsNullOrWhiteSpace(rawName) ? $"Field{i + 1}" : rawName);
+
+                    var value = i < record.Length ? record[i] : string.Empty;
+                    rowEl.Add(new XElement(safeName, value));
+                }
+                root.Add(rowEl);
+            }
+
+            return new XDocument(new XDeclaration("1.0", "utf-8", "yes"), root);
+        }
+
+        /// <summary>
+        /// Overload for file paths.
+        /// </summary>
+        public static XDocument BuildXmlFromCsv(string dataCsvPath, string headerCsvPath, CsvXmlOptions ? options = null) {
+            options ??= new CsvXmlOptions();
+            using var data = File.OpenRead(dataCsvPath);
+            using var head = File.OpenRead(headerCsvPath);
+            return BuildXmlFromCsv(data, head, options);
+        }
+
+        public static void SaveXmlToFile(XDocument doc, string path) {
+            using (var fs = File.Create(path)) {
+                doc.Save(fs);
+            }
+        }
+
+        private static string[] ReadHeader(Stream headerCsv, CsvXmlOptions options) {
+            headerCsv.Position = 0;
+            using var parser = new TextFieldParser(headerCsv, options.Encoding, detectEncoding: true) {
+                TextFieldType = FieldType.Delimited,
+                HasFieldsEnclosedInQuotes = true
+            };
+            parser.SetDelimiters(options.Delimiter);
+
+            var fields = parser.ReadFields();
+            if (fields == null || fields.Length == 0)
+                throw new InvalidOperationException("Header file is empty or unreadable.");
+
+            return fields!;
+        }
+
+        private static List<string[]> ReadRows(Stream dataCsv, CsvXmlOptions options) {
+            var rows = new List<string[]>();
+            dataCsv.Position = 0;
+
+            using var parser = new TextFieldParser(dataCsv, options.Encoding, detectEncoding: true) {
+                TextFieldType = FieldType.Delimited,
+                HasFieldsEnclosedInQuotes = true
+            };
+            parser.SetDelimiters(options.Delimiter);
+
+            // Skip the original (bad) header
+            if (!parser.EndOfData) parser.ReadLine();
+
+            while (!parser.EndOfData) {
+                var fields = parser.ReadFields() ?? Array.Empty<string>();
+                rows.Add(fields);
+            }
+
+            return rows;
         }
     }
 }

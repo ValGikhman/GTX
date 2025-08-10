@@ -58,8 +58,8 @@
 
     <div class="tab-content border border-top-0 well " id="myTabContent">
         <!-- Inventory Tab -->
-        <div class="tab-pane fade show active pt-2" id="inventory" role="tabpanel">
-            <div id="myGrid" class="ag-theme-alpine mx-auto" style="height: 580px; width: 1520px;">
+        <div class="tab-pane fade show active py-2" id="inventory" role="tabpanel">
+            <div id="myGrid" class="ag-theme-alpine mx-auto" style="height: 560px; width: 1520px;">
                 <div>
                     @{ Html.RenderPartial("_FilterByTerm"); }
                 </div>
@@ -154,7 +154,9 @@
 </div>
 
 <template id="actions">
-    <button type="button" id="btnReStoryAll" class="btn btn-light shadow">Restory all</button>
+    <button type="button" id="btnReStoryAll" class="btn btn-gradient shadow">Restory all</button>
+    <button type="button" id="btnUploadInventory" class="btn btn-gradient mx-2 shadow">Upload inventory</button>
+    <input type="file" name="dataCsv" id="dataCsv" class="d-none" accept=".csv,text/csv" />
 </template>
 
 <input type="hidden" id="currentVehicle" />
@@ -205,10 +207,6 @@
 
     $("#filterLiked").hide();
     $(".sort").hide();
-
-    $("#upload").on("click", function () {
-        $('#fileInput').click();
-    });
 
     $("#deleteAll").on("click", function () {
         const stock = selectedVehicle.Stock;
@@ -267,12 +265,29 @@
         }
     });
 
+    $("#upload").on("click", function () {
+        $('#fileInput').click();
+    });
+
     $("#fileInput").on("change", function () {
         const files = Array.from(fileInput.files);
         const stock = selectedVehicle.Stock;
 
         if (files.length > 0) {
             uploadFiles(stock, fileInput);
+        }
+    });
+
+    $("#btnUploadInventory").on("click", function () {
+            $("#dataCsv").click();
+    });
+
+    $("#dataCsv").on("change", function () {
+        var file = this.files && this.files.length ? this.files[0].name : "";
+        if (file.length > 0) {
+            if (confirm("Do you want to upload a inventory?")) {
+                uploadInventory(this);
+            }
         }
     });
 
@@ -517,6 +532,8 @@ const gridOptions = {
                 gridOptions.onRowClicked({ data: node.data, node: node });
             }
         });
+        const count = gridApi.getDisplayedRowCount();
+        $("#filterResults").html(`${count} record(s) found.`);
     },
     columnDefs: columnDefs,
     rowSelection: "single", // or 'multiple'

@@ -264,6 +264,12 @@ namespace GTX.Controllers {
 
             return query.OrderBy(m => m.Make).ToArray();
         }
+
+        public void TerminateSession() {
+            Session.Clear();
+            Session.RemoveAll();
+            Session.Abandon();
+        }
         #endregion Public Methods
 
 
