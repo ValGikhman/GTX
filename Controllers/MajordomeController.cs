@@ -1,17 +1,16 @@
 ﻿using GTX.Models;
 using ImageMagick;
+using ImageMagick.Formats;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Services;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -37,7 +36,7 @@ namespace GTX.Controllers {
         public ActionResult Inventory(BaseModel model) {
             ViewBag.Message = "Inventory management";
             ViewBag.Title = "Inventory management";
-            var vehicles = Model.Inventory.All ?? Array.Empty<Models.GTX>();
+            var vehicles = Model.Inventory.Current ?? Array.Empty<Models.GTX>();
 
             Parallel.ForEach(vehicles, vehicle =>
             {
@@ -70,6 +69,20 @@ namespace GTX.Controllers {
         }
 
         [HttpPost]
+        public JsonResult DeleteStory(string stock) {
+            try {
+                var vehicle = Model.Inventory.Vehicles.FirstOrDefault(m => m.Stock == stock);
+                InventoryService.DeleteStory(stock);
+                return Json(new { success = true, message = "Story deleted successfully." });
+            }
+
+            catch (Exception ex) {
+                return Json(new { success = false, message = "Error: " + ex.Message });
+            }
+        }
+
+
+        [HttpPost]
         public JsonResult SaveStory(string stock, string story, string title) {
             try {
                 InventoryService.SaveStory(stock, story, title);
@@ -92,17 +105,19 @@ namespace GTX.Controllers {
             try {
                 Model.Inventory.Vehicles = Model.Inventory.All;
 
-                Parallel.ForEach(Model.Inventory.Vehicles, new ParallelOptions { MaxDegreeOfParallelism = 3 }, async vehicle => {
-                    if (vehicle.Story == null) {
+                foreach (var vehicle in Model.Inventory.Vehicles) {
+                    if (vehicle.Story == null || (vehicle.Story != null && vehicle.Story.HtmlContent.ToUpper().Contains("ERROR"))) {
                         var story = await GetChatGptResponse(GetPrompt(vehicle));
                         var response = SplitResponse(story);
                         InventoryService.SaveStory(vehicle.Stock, response.story, response.title);
+
+                        // Add a delay to avoid hitting RPM limits
+                        await Task.Delay(1100); // ~55 requests/min
                     }
-                });
+                }
 
                 return Json(new { success = true, message = "Story created successfully." });
             }
-
             catch (Exception ex) {
                 return Json(new { success = false, message = "Error: " + ex.Message });
             }
@@ -120,6 +135,9 @@ namespace GTX.Controllers {
                 if (files != null && files.Any()) {
                     var uploadPath = Server.MapPath(Path.Combine(imageFolder, stock));
                     Directory.CreateDirectory(uploadPath);
+                    
+                    int total = files?.Count() ?? 0;
+                    int i = 0;
 
                     foreach (var f in files) {
                         if (f == null || f.ContentLength <= 0) {
@@ -133,9 +151,15 @@ namespace GTX.Controllers {
                         memoryStream.Position = 0;
 
                         using (var image = new MagickImage(memoryStream)) {
-                            image.Format = MagickFormat.Png;
+                            image.Strip();
                             image.Resize(new MagickGeometry(800, 600) { IgnoreAspectRatio = false });
                             image.Extent(800, 600, Gravity.Center, MagickColors.Transparent);
+
+                            var q = new QuantizeSettings { Colors = 256, DitherMethod = DitherMethod.Riemersma };
+                            image.Quantize(q);
+                            image.Format = MagickFormat.Png8;
+                            image.Settings.SetDefine(MagickFormat.Png, "png:compression-level", "9");
+
                             await image.WriteAsync(fullPath);
                         }
 
@@ -233,7 +257,6 @@ namespace GTX.Controllers {
             catch (Exception ex) {
                 return Json(new { success = false, message = "Error: " + ex.Message });
             }
-
         }
 
         public void CreateImageWithOverlay(string stock, string baseImagePath,  string overlayJson) {
@@ -414,4 +437,13 @@ Do not place any **<html>**, **<body>** and **<head>** tags
                    Math.Abs(a.B - b.B) <= tolerance;
         }
     }
+
+    public static class ProgressStore {
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, int> _p =
+            new System.Collections.Concurrent.ConcurrentDictionary<string, int>();
+
+        public static void Set(string jobId, int pct) => _p[jobId] = pct;
+        public static int Get(string jobId) => _p.TryGetValue(jobId, out var v) ? v : 0;
+    }
+
 }

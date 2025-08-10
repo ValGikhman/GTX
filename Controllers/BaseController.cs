@@ -145,9 +145,14 @@ namespace GTX.Controllers {
 
         private async Task<Inventory> SetModel(Inventory model) {
             if (SessionData?.Inventory == null) {
-                model.All = await Utility.XMLHelpers.XmlRepository.GetInventory();
-                model.All = model.All.Where(m => m.RetailPrice > 0).OrderByDescending(m => m.PurchaseDate).ThenBy(m => m.Make).ToArray();
-                model.All = ApplyImagesAndStories(model.All);
+                model.Current = await Utility.XMLHelpers.XmlRepository.GetInventory();
+                model.Current = ApplyImagesAndStories(model.Current);
+
+                model.All = model.Current
+                    .Where(m => m.SetToUpload == "Y" && !string.IsNullOrWhiteSpace(m.PurchaseDate))
+                    .OrderByDescending(m => DateTime.TryParse(m.PurchaseDate, out var date) ? date : DateTime.MinValue)
+                    .ToArray();
+                
                 model.Vehicles = model.All;
 
                 var carTypes = new HashSet<string> {

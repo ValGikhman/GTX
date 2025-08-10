@@ -1,7 +1,7 @@
 ﻿@model GTX.Models.GTX
 <li id="@Model.Stock" class="card well rounded-3 mb-2" title="Click here to see details."
     data-location-code="@Model.LocationCode"
-    data-story="@(Model.Story is null ? "NOSTORY" : "STORY")"
+    data-story="@(Model.Story is not  null && !Model.Story.HtmlContent.ToUpper().Contains("ERROR") ? "STORY" : "NOSTORY")"
     data-images="@(Model.Image.Contains("no-image") ? "NOIMAGE" : "IMAGE")"
     data-year="@Model.Year"
     data-stock="@Model.Stock.ToUpper()"

@@ -24,6 +24,8 @@
     public class Inventory {
         public string Title { get; set; }
 
+        public GTX[] Current { get; set; }
+
         public GTX[] Vehicles { get; set; }
 
         public GTX[] All { get; set; }
