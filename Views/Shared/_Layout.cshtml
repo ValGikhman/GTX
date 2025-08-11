@@ -35,9 +35,9 @@
 
         <div class="offcanvas-body d-flex justify-content-center align-items-center">
             <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
-                <a href="/Home/Application" class="btn btn-primary three-d shadow" type="button">Finance</a>
-                <a href="/Home/Contact" class="btn btn-primary three-d shadow" type="button">Contact us</a>
-                <a href="/Home/Contact" class="btn btn-primary three-d shadow" type="button">Test drive</a>
+                <a href="/Home/Application" class="btn btn-gradient three-d shadow" type="button">Finance</a>
+                <a href="/Home/Contact" class="btn btn-gradient three-d shadow" type="button">Contact us</a>
+                <a href="/Home/Contact" class="btn btn-gradient three-d shadow" type="button">Test drive</a>
             </div>
         </div>
     </div>
@@ -143,7 +143,7 @@
         </div>
 
         @{
-            if (!ViewBag.Title.Contains("Home") && !ViewBag.Title.Contains("Inventory management")) {
+            if (ViewBag.Title != null && !ViewBag.Title.Contains("Home") && !ViewBag.Title.Contains("Inventory management")) {
                 Html.RenderPartial("_CategoryFilter");
                 Html.RenderPartial("_PageTitle");
             }

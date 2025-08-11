@@ -11,19 +11,16 @@
 
 .G {
     border-bottom-color: green !important;
-    ;
     border-bottom-width: 2px !important;
 }
 
 .X {
     border-bottom-color: #155A96 !important;
-    ;
     border-bottom-width: 2px !important;
 }
 
 .T {
     border-bottom-color: red !important;
-    ;
     border-bottom-width: 2px !important;
 }
 
@@ -66,6 +63,24 @@
         background: linear-gradient(0deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1) 94%);
         color: white;
     }
+
+.btn-gradient-grey {
+    border-color: transparent;
+    background: linear-gradient(180deg, rgba(0, 0, 0, .05) 20%, #727171 80%);
+    margin-inline-end: 0.15rem;
+}
+
+    .btn-gradient-grey:hover {
+        border-color: transparent;
+        background: linear-gradient(180deg, #727171 20%, rgba(0, 0, 0, .05) 80%);
+    }
+
+    .btn-gradient-grey.active {
+        border-color: transparent;
+        background: linear-gradient(180deg, #a3c6e2 20%, rgba(30, 115, 190, 1) 80%);
+        color: white;
+    }
+
 
     .detail-badge {
         top: -10px !important;
@@ -1332,445 +1347,8 @@
             }
 
 /*---------------------
-  Car
------------------------*/
-
-.car {
-    padding-bottom: 120px;
-}
-
-    .car .section-title {
-        margin-bottom: 20px;
-    }
-
-        .car .section-title h2 {
-            margin-bottom: 0;
-        }
-
-.filter__controls {
-    text-align: center;
-    margin-bottom: 40px;
-}
-
-    .filter__controls li {
-        list-style: none;
-        display: inline-block;
-        font-size: 13px;
-        text-transform: uppercase;
-        color: #8d8d8d;
-        font-weight: 700;
-        margin-right: 50px;
-        position: relative;
-        padding: 4px 0;
-        cursor: pointer;
-    }
-
-        .filter__controls li.active {
-            color: #323232;
-        }
-
-            .filter__controls li.active:after {
-                opacity: 1;
-            }
-
-        .filter__controls li:after {
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            height: 2px;
-            width: 100%;
-            background: #db2d2e;
-            content: "";
-            opacity: 0;
-        }
-
-        .filter__controls li:last-child {
-            margin-right: 0;
-        }
-
-.car__filter__option {
-    background: #f7f7f7;
-    padding: 12px 30px;
-    margin-bottom: 30px;
-}
-
-    .car__filter__option .car__filter__option__item.car__filter__option__item--right {
-        text-align: right;
-    }
-
-    .car__filter__option .car__filter__option__item h6 {
-        font-size: 15px;
-        color: #353535;
-        font-weight: 700;
-        display: inline-block;
-        margin-right: 15px;
-    }
-
-    .car__filter__option .car__filter__option__item .nice-select {
-        width: auto;
-        font-size: 15px;
-        color: #353535;
-        padding-left: 20px;
-        padding-right: 50px;
-        border: 1px solid #ebebeb;
-        height: 36px;
-        background: #ffffff;
-        line-height: 36px;
-        border-radius: 0;
-        float: none;
-        display: inline-block;
-    }
-
-        .car__filter__option .car__filter__option__item .nice-select .list {
-            width: 100%;
-            margin-top: 0;
-            border-radius: 0;
-        }
-
-        .car__filter__option .car__filter__option__item .nice-select:after {
-            border-bottom: 1.5px solid #AAAAB3;
-            border-right: 1.5px solid #AAAAB3;
-            height: 7px;
-            right: 22px;
-            width: 7px;
-        }
-
-.car__item {
-    margin-bottom: 30px;
-}
-
-.car__item__pic__slider img {
-    border-radius: 2px 2px 0 0;
-}
-
-.car__item__pic__slider.owl-carousel .owl-dots {
-    text-align: center;
-    position: absolute;
-    width: 100%;
-    left: 0;
-    bottom: 15px;
-}
-
-    .car__item__pic__slider.owl-carousel .owl-dots button {
-        height: 8px;
-        width: 8px;
-        background: #8d8d8d;
-        border-radius: 50%;
-        margin-right: 8px;
-        display: inline-block;
-    }
-
-        .car__item__pic__slider.owl-carousel .owl-dots button.active {
-            background: #ffffff;
-        }
-
-        .car__item__pic__slider.owl-carousel .owl-dots button:last-child {
-            margin-right: 0;
-        }
-
-.car__item__text {
-    border: 1px solid #ebebeb;
-}
-
-.car__item__text__inner {
-    padding: 20px 0 14px 20px;
-}
-
-    .car__item__text__inner .label-date {
-        display: inline-block;
-        font-size: 13px;
-        color: #323232;
-        font-weight: 700;
-        padding: 2px 15px 1px;
-        border: 1px solid #ebebeb;
-        border-radius: 2px;
-    }
-
-    .car__item__text__inner h5 {
-        margin-top: 10px;
-        margin-bottom: 14px;
-    }
-
-        .car__item__text__inner h5 a {
-            color: #353535;
-            font-weight: 700;
-        }
-
-    .car__item__text__inner ul li {
-        list-style: none;
-        font-size: 15px;
-        color: #8d8d8d;
-        font-weight: 700;
-        position: relative;
-        display: inline-block;
-        margin-right: 40px;
-    }
-
-        .car__item__text__inner ul li:after {
-            position: absolute;
-            right: -23px;
-            top: 3px;
-            height: 15px;
-            width: 2px;
-            background: #8d8d8d;
-            content: "";
-        }
-
-        .car__item__text__inner ul li span {
-            color: #323232;
-        }
-
-        .car__item__text__inner ul li:last-child {
-            margin-right: 0;
-        }
-
-            .car__item__text__inner ul li:last-child:after {
-                display: none;
-            }
-
-.car__item__price {
-    position: relative;
-}
-
-    .car__item__price .car-option {
-        font-size: 15px;
-        color: #ffffff;
-        font-weight: 700;
-        background: #4971FF;
-        display: inline-block;
-        padding: 12px 22px 10px;
-        border-radius: 2px 0 0 2px;
-        position: absolute;
-        left: 0;
-        top: 0;
-    }
-
-        .car__item__price .car-option.sale {
-            background: #db2d2e;
-        }
-
-    .car__item__price h6 {
-        font-size: 15px;
-        color: #db2d2e;
-        font-weight: 700;
-        border-top: 1px solid #ebebeb;
-        padding-left: 120px;
-        padding-top: 14px;
-        padding-bottom: 11px;
-    }
-
-        .car__item__price h6 span {
-            color: #727171;
-            font-size: 13px;
-            font-weight: 400;
-        }
-
-.pagination__option {
-    padding-top: 20px;
-}
-
-    .pagination__option a {
-        display: inline-block;
-        height: 50px;
-        width: 50px;
-        font-size: 18px;
-        color: #727171;
-        font-weight: 700;
-        border: 1px solid #ebebeb;
-        border-radius: 2px;
-        line-height: 50px;
-        text-align: center;
-        margin-right: 6px;
-        -webkit-transition: all, 0.3s;
-        -o-transition: all, 0.3s;
-        transition: all, 0.3s;
-    }
-
-        .pagination__option a:hover,
-        .pagination__option a.active {
-            border-color: #db2d2e;
-            color: #353535;
-        }
-
-        .pagination__option a:last-child {
-            margin-right: 0;
-        }
-
-        .pagination__option a span {
-            font-size: 18px;
-            position: relative;
-            top: 2px;
-            font-weight: 700;
-        }
-
-.car__sidebar {
-    background: #f7f7f7;
-    padding: 30px;
-}
-
-.car__search {
-    margin-bottom: 40px;
-}
-
-    .car__search h5 {
-        font-size: 20px;
-        color: #353535;
-        font-weight: 700;
-        margin-bottom: 15px;
-    }
-
-    .car__search form {
-        position: relative;
-    }
-
-        .car__search form input {
-            height: 46px;
-            width: 100%;
-            font-size: 15px;
-            color: #727171;
-            padding-left: 20px;
-            border: 1px solid #ebebeb;
-            background: #ffffff;
-        }
-
-            .car__search form input::-webkit-input-placeholder {
-                color: #727171;
-            }
-
-            .car__search form input::-moz-placeholder {
-                color: #727171;
-            }
-
-            .car__search form input:-ms-input-placeholder {
-                color: #727171;
-            }
-
-            .car__search form input:-ms-input-placeholder {
-                color: #727171;
-            }
-
-            .car__search form input::placeholder {
-                color: #727171;
-            }
-
-        .car__search form button {
-            font-size: 14px;
-            color: #AAAAB3;
-            position: absolute;
-            right: 0;
-            top: 0;
-            background: transparent;
-            border: none;
-            height: 100%;
-            padding: 0 15px;
-        }
-
-.car__filter h5 {
-    font-size: 20px;
-    color: #353535;
-    font-weight: 700;
-    margin-bottom: 15px;
-}
-
-.car__filter form .nice-select {
-    width: 100%;
-    font-size: 15px;
-    color: #727171;
-    padding-left: 20px;
-    border: 1px solid #ebebeb;
-    height: 46px;
-    background: #ffffff;
-    line-height: 46px;
-    border-radius: 0;
-    margin-bottom: 10px;
-    float: none;
-}
-
-    .car__filter form .nice-select .list {
-        width: 100%;
-        margin-top: 0;
-        border-radius: 0;
-    }
-
-    .car__filter form .nice-select:after {
-        border-bottom: 1.5px solid #AAAAB3;
-        border-right: 1.5px solid #AAAAB3;
-        height: 7px;
-        right: 22px;
-        width: 7px;
-    }
-
-.car__filter form .filter-price {
-    margin-bottom: 30px;
-    padding-top: 8px;
-}
-
-    .car__filter form .filter-price p {
-        color: #323232;
-        margin-bottom: 5px;
-        margin-bottom: 18px;
-    }
-
-    .car__filter form .filter-price .price-range-wrap {
-        position: relative;
-    }
-
-        .car__filter form .filter-price .price-range-wrap .ui-widget-content {
-            height: 4px;
-            background: rgba(0, 0, 0, 0.1);
-            border: none;
-            border-radius: 1px;
-        }
-
-        .car__filter form .filter-price .price-range-wrap .ui-slider-horizontal .ui-slider-handle {
-            top: -5px;
-            margin-left: -4px;
-        }
-
-        .car__filter form .filter-price .price-range-wrap .ui-slider .ui-slider-handle {
-            width: 14px;
-            height: 14px;
-            background: #db2d2e;
-            border-radius: 50%;
-            cursor: pointer;
-        }
-
-        .car__filter form .filter-price .price-range-wrap .ui-state-default,
-        .car__filter form .filter-price .price-range-wrap .ui-widget-content .ui-state-default,
-        .car__filter form .filter-price .price-range-wrap .ui-widget-header .ui-state-default,
-        .car__filter form .filter-price .price-range-wrap .ui-button,
-        .car__filter form .filter-price .price-range-wrap html .ui-button.ui-state-disabled:hover,
-        .car__filter form .filter-price .price-range-wrap html .ui-button.ui-state-disabled:active {
-            border: none;
-        }
-
-        .car__filter form .filter-price .price-range-wrap .ui-slider .ui-slider-range {
-            background: #db2d2e;
-        }
-
-    .car__filter form .filter-price .price-input {
-        position: absolute;
-        left: 42px;
-        top: -44px;
-    }
-
-        .car__filter form .filter-price .price-input input {
-            font-size: 15px;
-            color: #353535;
-            font-weight: 700;
-            border: none;
-            width: 200px;
-            background: transparent;
-        }
-
-.car__filter form .car__filter__btn {
-    text-align: center;
-}
-
-/*---------------------
   Team
 -----------------------*/
-
 .team {
     padding-bottom: 70px;
 }
@@ -1884,7 +1462,7 @@
     }
 }
 
-/* Wide Mobile = 480px */
+/* Wide Mobile = 480px-767px */
 @media only screen and (max-width: 767px) {
     .carousel-inner {
         height: 390px;
@@ -1921,21 +1499,23 @@
         top: 3rem;
         border-bottom: none;
         border-top: none;
-        background-image: none;
-        background: none;
+        background: linear-gradient(180deg, #8d8d8d 20%, #353535 80%);
     }
 
-    .text-white {
-        color: #d54d29 !important;
-    }
 
     .searchTop {
         flex-direction: column;
         align-items: center !important;
     }
 
+    .search-center {
+        left: 57% !important; /* acts like start-75 */
+        transform: translateX(-50%) !important; /* center on the 75% anchor */
+        transform: none !important; /* cancels .translate-middle-x */
+    }
+
     .body-content {
-        margin-top: 0;
+        margin-top: 10vh ;
         height: 68rem;
     }
 
@@ -2015,12 +1595,8 @@
     .offcanvas-menu-wrapper {
         position: fixed;
         left: -595px;
-        width: 80%;
-        /*
-         height: 100%;
-         background: #ffffff;
-        */
-        padding: 50px 30px 30px;
+        width: 50vw;
+        padding: 1rem;
         display: block;
         z-index: 99;
         overflow-y: auto;
@@ -2033,7 +1609,7 @@
         .offcanvas-menu-wrapper.active {
             opacity: 1;
             left: 0;
-            top: 70px;
+            top: 10vh;
         }
 
     .offcanvas__menu {
@@ -2047,7 +1623,6 @@
     .slicknav_menu {
         background: transparent;
         padding: 0;
-        margin-bottom: 30px;
     }
 
     .slicknav_nav ul {
@@ -2076,7 +1651,7 @@
 
     .slicknav_nav {
         display: block !important;
-        font-size: 1.7rem;
+        font-size: 1.5rem;
     }
 
     .offcanvas__logo {
