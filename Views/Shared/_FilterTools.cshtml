@@ -1,5 +1,5 @@
 ﻿@*Makes*@
-<div class="col-lg-3 p-2 well" title="Click in dropdown and type to search for a Makes.">
+<div class="col-lg-3 col-sm-6 p-2 well" title="Click in dropdown and type to search for a Makes.">
     <small class="form-check form-switch text-dark">
         @Html.CheckBox("allMakes", true, new { @class = "form-check-input", id = "allMakes" })
         @Html.Label("AllMakes", "All makes(s)", new { @class = "form-check-label text-shadow", @for = "allMakes" })
@@ -9,7 +9,7 @@
 </div>
 
 @*Models*@
-<div class="col-lg-3 p-2 well" title="Click in dropdown and type to search for a Models.">
+<div class="col-lg-3 col-sm-6 p-2 well" title="Click in dropdown and type to search for a Models.">
     <small class="form-check form-switch text-dark">
         @Html.CheckBox("allModels", true, new { @class = "form-check-input", id = "allModels", disabled = "true" })
         @Html.Label("AllModels", "All models(s)", new { @class = "form-check-label text-shadow", @for = "allModels" })
@@ -19,7 +19,7 @@
 </div>
 
 @*Drive*@
-<div class="col-lg-3 p-2 well" title="Click in dropdown and type to search for a Drive Trains.">
+<div class="col-lg-3 col-sm-6 p-2 well" title="Click in dropdown and type to search for a Drive Trains.">
     <small class="form-check form-switch text-dark">
         @Html.CheckBox("allDrives", true, new { @class = "form-check-input", id = "allDrives", disabled = "true" })
         @Html.Label("AllDrives", "All drive train(s)", new { @class = "form-check-label text-shadow", @for = "allDrives" })
@@ -29,7 +29,7 @@
 </div>
 
 @*Body*@
-<div class="col-lg-3 p-2 well" title="Click in dropdown and type to search for a Body types.">
+<div class="col-lg-3 col-sm-6 p-2 well" title="Click in dropdown and type to search for a Body types.">
     <small class="form-check form-switch text-dark">
         @Html.CheckBox("allBodyTypes", true, new { @class = "form-check-input", id = "allBodyTypes", disabled = "true" })
         @Html.Label("AllBodyTypes", "All body type(s)", new { @class = "form-check-label text-shadow", @for = "allBodyTypes" })
@@ -39,7 +39,7 @@
 </div>
 
 @*Engines*@
-<div class="col-lg-4 p-2 well" title="Click in dropdown and type to search for a Engines.">
+<div class="col-lg-4 col-sm-6 p-2 well" title="Click in dropdown and type to search for a Engines.">
     <small class="form-check form-switch text-dark">
         @Html.CheckBox("allEngines", true, new { @class = "form-check-input", id = "allEngines" })
         @Html.Label("AllEngines", "All engines(s)", new { @class = "form-check-label text-shadow", @for = "allEngines" })
@@ -49,7 +49,7 @@
 </div>
 
 @*Fuels*@
-<div class="col-lg-4 p-2 well" title="Click in dropdown and type to search for a Fuels.">
+<div class="col-lg-4 col-sm-6 p-2 well" title="Click in dropdown and type to search for a Fuels.">
     <small class="form-check form-switch text-dark">
         @Html.CheckBox("allFuelTypes", true, new { @class = "form-check-input", id = "allFuelTypes" })
         @Html.Label("AllFuelTypes", "All Fuel types(s)", new { @class = "form-check-label text-shadow", @for = "allFuelTypes" })
@@ -59,7 +59,7 @@
 </div>
 
 @*Vehicle types*@
-<div class="col-lg-4 p-2 well" title="Click in dropdown and type to search for a Fuels.">
+<div class="col-lg-4 col-sm-6 p-2 well" title="Click in dropdown and type to search for a Fuels.">
     <small class="form-check form-switch text-dark">
         @Html.CheckBox("allVehicleTypes", true, new { @class = "form-check-input", id = "allVehicleTypes" })
         @Html.Label("allVehicleTypes", "All vehicle types(s)", new { @class = "form-check-label text-shadow", @for = "allVehicleTypes" })
@@ -69,7 +69,7 @@
 </div>
 
 @*Price*@
-<div class="col-lg-6 p-2 well">
+<div class="col-lg-6 col-sm-6 p-2 well">
     @Html.Label("Price", "Price range", new { @class = "form-check-label text-shadow", @for = "price" })
     <div id="price" class="mx-2"></div>
     <div class="d-flex justify-content-between p-0">
@@ -79,7 +79,7 @@
 </div>
 
 @*Milege*@
-<div class="col-lg-6 p-2 well">
+<div class="col-lg-6 col-sm-6 p-2 well">
     @Html.Label("Miles", "Milege", new { @class = "form-check-label text-shadow", @for = "milege" })
     <div id="milege" class="mx-2"></div>
     <div class="d-flex justify-content-between p-0">
