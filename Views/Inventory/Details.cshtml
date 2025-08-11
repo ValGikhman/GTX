@@ -4,10 +4,22 @@
     @model GTX.Models.BaseModel
     var baseUrl = $"{Request.Url.Scheme}://{Request.Url.Authority}";
 }
+
 <style>
     img {
         max-width: 700px;
-    }    
+    }
+
+    @@media only screen and (max-width: 767px) {
+        .body-content {
+            margin-top: 10vh;
+            height: 54rem;
+        }
+
+        .details-container {
+            margin-top: 1vh;
+        }
+    }
 </style>
 
 <head>
@@ -38,15 +50,15 @@
     <div class="col-lg-6 col-md-8 col-sm-12">
         <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                <button class="nav-item active btn btn-danger text-shadow-small" id="nav-details-tab" data-bs-toggle="tab" data-bs-target="#nav-details" type="button" role="tab" aria-controls="nav-details" aria-selected="true">Details</button>
+                <button class="nav-item active btn btn-gradient-grey text-shadow-small" id="nav-details-tab" data-bs-toggle="tab" data-bs-target="#nav-details" type="button" role="tab" aria-controls="nav-details" aria-selected="true">Details</button>
                 @{
                     if (Model.CurrentVehicle.VehicleImages.Count() > 0) {
-                        <button class="nav-item btn btn-danger text-shadow-small" id="nav-pictures-tab" data-bs-toggle="tab" data-bs-target="#nav-pictures" type="button" role="tab" aria-controls="nav-pictures" aria-selected="false">Gallery ( @Model.CurrentVehicle.VehicleDetails.Images.Count())</button>
+                        <button class="nav-item btn btn-gradient-grey text-shadow-small" id="nav-pictures-tab" data-bs-toggle="tab" data-bs-target="#nav-pictures" type="button" role="tab" aria-controls="nav-pictures" aria-selected="false">Gallery ( @Model.CurrentVehicle.VehicleDetails.Images.Count())</button>
                     }
                 }
-                <button class="nav-item btn btn-danger text-shadow-small" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="true">Contact</button>
-                <button class="nav-item btn btn-danger text-shadow-small" id="nav-location-tab" data-bs-toggle="tab" data-bs-target="#nav-location" type="button" role="tab" aria-controls="nav-location" aria-selected="true">Location</button>
-                <button class="nav-item btn btn-danger text-shadow-small" id="nav-payment-tab" data-bs-toggle="tab" data-bs-target="#nav-payment" type="button" role="tab" aria-controls="nav-payment" aria-selected="true"><strong>Pay $<span id="monthlyAmount"></span>/mo</strong></button>
+                <button class="nav-item btn btn-gradient-grey text-shadow-small" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="true">Contact</button>
+                <button class="nav-item btn btn-gradient-grey text-shadow-small" id="nav-location-tab" data-bs-toggle="tab" data-bs-target="#nav-location" type="button" role="tab" aria-controls="nav-location" aria-selected="true">Location</button>
+                <button class="nav-item btn btn-gradient-grey text-shadow-small" id="nav-payment-tab" data-bs-toggle="tab" data-bs-target="#nav-payment" type="button" role="tab" aria-controls="nav-payment" aria-selected="true"><strong>Pay $<span id="monthlyAmount"></span>/mo</strong></button>
             </div>
         </nav>
         <div class="tab-content" id="nav-tabContent">
@@ -78,19 +90,18 @@
                     <a class="vas-trackable-element" data-vas-account-id="indyautoman" data-vas-vin="3GNAXJEV5JS639549" data-vas-page-location="VDP" data-vas-product="Velocity Window Sticker" style="cursor: pointer;" data-vas-viewed="true"><img src="https://velocity-vdp-prod-attachments.s3.amazonaws.com/Velocity+Automotive+Solutions/WindowSticker_v2.png" alt="Velocity Window Sticker" class="" style="max-height: 100px"></a>
 
                 </h5>
-                @*Story*@
-                @if (@Model.CurrentVehicle.VehicleDetails.Story != null) {
-                    <div class="row mt-3">
-                        <button class="w-100 btn btn-gradient" type="button" data-bs-toggle="collapse" data-bs-target="#story" aria-expanded="false" aria-controls="story">
-                            <div class="bg-lighter py-2 px-3 text-center hand-pointer">
-                                <h5 class="fw-bold text-uppercase text-white">@Model.CurrentVehicle.VehicleDetails.Story.Title</h5>
-                            </div>
-                        </button>
-                        <div class="collapse show p-3 text-shadow-small well" id="story">
-                            @Html.Raw(@Model.CurrentVehicle.VehicleDetails.Story.HtmlContent)
+                @*Loan app*@
+                <div class="row justify-content-center well my-3">
+                    <button class="w-100 btn btn-gradient" type="button" data-bs-toggle="collapse" data-bs-target="#application" aria-expanded="false" aria-controls="application">
+                        <div class="bg-lighter py-2 px-3 text-center hand-pointer">
+                            <h5 class="fw-bold text-uppercase text-white">Loan application</h5>
                         </div>
+                    </button>
+
+                    <div class="collapse show text-shadow-small rounded shadow mt-2" id="application">
+                        <iframe src="https://www.700dealer.com/QuickQualify/43783416bf5141ff8b8d1a40387ee700-20181212" width="100%" height="385px" scrolling="auto"></iframe>
                     </div>
-                }
+                </div>
             </div>
             <div class="tab-pane fade well" id="nav-pictures" role="tabpanel" aria-labelledby="nav-picture-tab">
                 <div class="d-flex flex-wrap justify-content-center overflow-auto">
@@ -301,6 +312,20 @@
             </div>
         </div>
 
+        @*Story*@
+        @if (@Model.CurrentVehicle.VehicleDetails.Story != null) {
+            <div class="row mb-3">
+                <button class="w-100 btn btn-gradient" type="button" data-bs-toggle="collapse" data-bs-target="#story" aria-expanded="false" aria-controls="story">
+                    <div class="bg-lighter py-2 px-3 text-center hand-pointer">
+                        <h5 class="fw-bold text-uppercase text-white">@Model.CurrentVehicle.VehicleDetails.Story.Title</h5>
+                    </div>
+                </button>
+                <div class="collapse show p-3 text-shadow-small well" id="story">
+                    @Html.Raw(@Model.CurrentVehicle.VehicleDetails.Story.HtmlContent)
+                </div>
+            </div>
+        }
+
         @*Features*@
         <div class="row justify-content-center well my-3">
             <button class="w-100 btn btn-gradient" type="button" data-bs-toggle="collapse" data-bs-target="#features" aria-expanded="false" aria-controls="features">
@@ -312,19 +337,6 @@
                 @foreach (var feature in Model.CurrentVehicle.VehicleDetails.Features.Split(';')) {
                     <span class="btn btn-outline-secondary shadow gap-2 my-1">@feature</span>
                 }
-            </div>
-        </div>
-
-        @*Loan app*@
-        <div class="row justify-content-center well my-3">
-            <button class="w-100 btn btn-gradient" type="button" data-bs-toggle="collapse" data-bs-target="#application" aria-expanded="false" aria-controls="application">
-                <div class="bg-lighter py-2 px-3 text-center hand-pointer">
-                    <h5 class="fw-bold text-uppercase text-white">Loan application</h5>
-                </div>
-            </button>
-
-            <div class="collapse show text-shadow-small rounded shadow mt-2" id="application">
-                <iframe src="https://www.700dealer.com/QuickQualify/43783416bf5141ff8b8d1a40387ee700-20181212" width="100%" height="385px" scrolling="auto"></iframe>
             </div>
         </div>
     </div>
@@ -339,7 +351,7 @@
     </button>
     <div class="collapse show p-0 mt-4" id="suggestion">
         <div class="d-flex justify-content-evenly">
-            <button class="btn btn-gradient scroll-button bi bi-arrow-left-circle-fill" onclick="scrollSuggestions(-300)"></button>
+            <button class="btn btn-gradient scroll-button bi bi-arrow-left-circle" onclick="scrollSuggestions(-300)"></button>
             <div class="scroll-container well shadow" id="suggestionScroll">
                 <div class="d-flex justify-content-evenly">
                     @foreach (var suggestion in Model.CurrentVehicle.VehicleSuggesion) {
