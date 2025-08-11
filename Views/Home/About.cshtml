@@ -2,10 +2,33 @@
     p {
         text-shadow: 1px 1px 2px #8D8484;
     }
+
+    .video-box {
+        width: 560px; /* set the size you want */
+        aspect-ratio: 16 / 9; /* keeps it proportional; or remove and set height */
+        overflow: hidden;
+        border-radius: 12px;
+        box-shadow: 0 6px 16px rgba(0,0,0,.15);
+        margin-bottom: 3vh;
+    }
+
+    .video-inline {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* use 'contain' if you prefer letterboxing */
+        display: block;
+    }
 </style>
 
 <section class="container-fluid  p-3" style="text-align: center;">
     <div class="well shadow p-5" style="max-width: 900px; margin: 0 auto; text-align: justify;">
+        <div class="video-box mx-auto">
+            <video class="video-inline" autoplay muted loop playsinline preload="metadata">
+                <source src="@Url.Content("~/GTXImages/video/GTX-1.mov")" type="video/mp4" />
+                <!-- optional fallback -->
+                Your browser does not support the video tag.
+            </video>
+        </div>
         <h2>
             Wellcome to GTX autogroup online. We provide everything you need to a car
         </h2>

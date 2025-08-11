@@ -38,15 +38,15 @@
     <div class="col-lg-6 col-md-8 col-sm-12">
         <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                <button class="nav-item active btn btn-light text-shadow-small" id="nav-details-tab" data-bs-toggle="tab" data-bs-target="#nav-details" type="button" role="tab" aria-controls="nav-details" aria-selected="true">Details</button>
+                <button class="nav-item active btn btn-danger text-shadow-small" id="nav-details-tab" data-bs-toggle="tab" data-bs-target="#nav-details" type="button" role="tab" aria-controls="nav-details" aria-selected="true">Details</button>
                 @{
                     if (Model.CurrentVehicle.VehicleImages.Count() > 0) {
-                        <button class="nav-item btn btn-light text-shadow-small" id="nav-pictures-tab" data-bs-toggle="tab" data-bs-target="#nav-pictures" type="button" role="tab" aria-controls="nav-pictures" aria-selected="false">Gallery ( @Model.CurrentVehicle.VehicleDetails.Images.Count())</button>
+                        <button class="nav-item btn btn-danger text-shadow-small" id="nav-pictures-tab" data-bs-toggle="tab" data-bs-target="#nav-pictures" type="button" role="tab" aria-controls="nav-pictures" aria-selected="false">Gallery ( @Model.CurrentVehicle.VehicleDetails.Images.Count())</button>
                     }
                 }
-                <button class="nav-item btn btn-light text-shadow-small" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="true">Contact</button>
-                <button class="nav-item btn btn-light text-shadow-small" id="nav-location-tab" data-bs-toggle="tab" data-bs-target="#nav-location" type="button" role="tab" aria-controls="nav-location" aria-selected="true">Location</button>
-                <button class="nav-item btn btn-light text-shadow-small" id="nav-payment-tab" data-bs-toggle="tab" data-bs-target="#nav-payment" type="button" role="tab" aria-controls="nav-payment" aria-selected="true"><strong>Pay $<span id="monthlyAmount"></span>/mo</strong></button>
+                <button class="nav-item btn btn-danger text-shadow-small" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="true">Contact</button>
+                <button class="nav-item btn btn-danger text-shadow-small" id="nav-location-tab" data-bs-toggle="tab" data-bs-target="#nav-location" type="button" role="tab" aria-controls="nav-location" aria-selected="true">Location</button>
+                <button class="nav-item btn btn-danger text-shadow-small" id="nav-payment-tab" data-bs-toggle="tab" data-bs-target="#nav-payment" type="button" role="tab" aria-controls="nav-payment" aria-selected="true"><strong>Pay $<span id="monthlyAmount"></span>/mo</strong></button>
             </div>
         </nav>
         <div class="tab-content" id="nav-tabContent">
@@ -72,13 +72,18 @@
                     <span>
                         <a id="shareToTwitter" class="btn btn-light rounded shadow" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"><i class="bi bi-twitter"></i></a>
                     </span>
+                    <a href="http://www.carfax.com/VehicleHistory/p/Report.cfx?partner=DVW_1&vin=@Model.CurrentVehicle.VehicleDetails.VIN" target="_blank">
+                        <img src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report">
+                    </a>
+                    <a class="vas-trackable-element" data-vas-account-id="indyautoman" data-vas-vin="3GNAXJEV5JS639549" data-vas-page-location="VDP" data-vas-product="Velocity Window Sticker" style="cursor: pointer;" data-vas-viewed="true"><img src="https://velocity-vdp-prod-attachments.s3.amazonaws.com/Velocity+Automotive+Solutions/WindowSticker_v2.png" alt="Velocity Window Sticker" class="" style="max-height: 100px"></a>
+
                 </h5>
                 @*Story*@
                 @if (@Model.CurrentVehicle.VehicleDetails.Story != null) {
                     <div class="row mt-3">
-                        <button class="btn w-100 gradient" type="button" data-bs-toggle="collapse" data-bs-target="#story" aria-expanded="false" aria-controls="story">
+                        <button class="w-100 btn btn-gradient" type="button" data-bs-toggle="collapse" data-bs-target="#story" aria-expanded="false" aria-controls="story">
                             <div class="bg-lighter py-2 px-3 text-center hand-pointer">
-                                <h5 class="fw-bold text-uppercase">just know about this @Model.CurrentVehicle.VehicleDetails.Story.Title</h5>
+                                <h5 class="fw-bold text-uppercase text-white">@Model.CurrentVehicle.VehicleDetails.Story.Title</h5>
                             </div>
                         </button>
                         <div class="collapse show p-3 text-shadow-small well" id="story">
@@ -205,9 +210,9 @@
     <div class="col-lg-5 col-md-8 col-sm-12">
         @*Details*@
         <div class="row justify-content-center shadow mb-3">
-            <button class="btn w-100 gradient" type="button" data-bs-toggle="collapse" data-bs-target="#details" aria-expanded="false" aria-controls="details">
+            <button class="w-100 btn btn-gradient" type="button" data-bs-toggle="collapse" data-bs-target="#details" aria-expanded="false" aria-controls="details">
                 <div class="bg-lighter py-2 px-3 text-center hand-pointer">
-                    <h5 class="fw-bold text-uppercase">Details</h5>
+                    <h5 class="fw-bold text-uppercase text-white">Details</h5>
                 </div>
             </button>
             <div class="collapse show text-shadow-small rounded well" id="details">
@@ -218,67 +223,67 @@
                 <div class="d-flex flex-wrap justify-content-evenly rounded p-2 gap-5">
                     <span class="btn btn-light shadow position-relative details">
                         <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.LocationCode</span>
-                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-danger">
                             GTX
                         </span>
                     </span>
                     <span class="btn btn-light shadow position-relative details">
                         <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.RetailPrice.ToString("C0")</span>
-                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-danger">
                             Price
                         </span>
                     </span>
                     <span class="btn btn-light shadow position-relative details">
                         <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.Mileage.ToString("N0")</span>
-                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-danger">
                             Miles
                         </span>
                     </span>
                     <span class="btn btn-light shadow position-relative details">
                         <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.Engine</span>
-                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-danger">
                             Engine
                         </span>
                     </span>
                     <span class="btn btn-light shadow position-relative details">
                         <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.Body</span>
-                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-danger">
                             Body
                         </span>
                     </span>
                     <span class="btn btn-light shadow position-relative details">
                         <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.VehicleType</span>
-                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-danger">
                             Type
                         </span>
                     </span>
                     <span class="btn btn-light shadow position-relative details">
                         <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.Cylinders</span>
-                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-danger">
                             Cylinders
                         </span>
                     </span>
                     <span class="btn btn-light shadow position-relative details">
                         <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.DriveTrain</span>
-                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-danger">
                             Drivetrain
                         </span>
                     </span>
                     <span class="btn btn-light shadow position-relative details">
                         <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.Transmission/@Model.CurrentVehicle.VehicleDetails.TransmissionSpeed</span>
-                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-danger">
                             Transmission
                         </span>
                     </span>
                     <span class="btn btn-light shadow position-relative details">
                         <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.FuelType</span>
-                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-danger">
                             Fuel
                         </span>
                     </span>
                     <span class="btn btn-light shadow position-relative details" style="background-color: @Model.CurrentVehicle.VehicleDetails.Color">
                         <span class="medium-small-text">&emsp;</span>
-                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                        <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-danger">
                             @Model.CurrentVehicle.VehicleDetails.Color
                         </span>
                     </span>
@@ -286,26 +291,21 @@
                         if (!@Model.CurrentVehicle.VehicleDetails.Color2.IsEmpty()) {
                             <span class="btn btn-light shadow position-relative details" style="background-color: @Model.CurrentVehicle.VehicleDetails.Color2">
                                 <span class="medium-small-text">&emsp;</span>
-                                <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                                <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-danger">
                                     @Model.CurrentVehicle.VehicleDetails.Color2
                                 </span>
                             </span>
                         }
                     }
                 </div>
-                <div class="d-flex justify-content-center my-4">
-                    <a href="http://www.carfax.com/VehicleHistory/p/Report.cfx?partner=DVW_1&vin=@Model.CurrentVehicle.VehicleDetails.VIN" target="_blank">
-                        <img src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report">
-                    </a>
-                </div>
             </div>
         </div>
 
         @*Features*@
         <div class="row justify-content-center well my-3">
-            <button class="btn w-100 gradient" type="button" data-bs-toggle="collapse" data-bs-target="#features" aria-expanded="false" aria-controls="features">
+            <button class="w-100 btn btn-gradient" type="button" data-bs-toggle="collapse" data-bs-target="#features" aria-expanded="false" aria-controls="features">
                 <div class="bg-lighter py-2 px-3 text-center hand-pointer">
-                    <h5 class="fw-bold text-uppercase">Features</h5>
+                    <h5 class="fw-bold text-uppercase text-white">Features</h5>
                 </div>
             </button>
             <div class="collapse show text-shadow-small rounded shadow mt-2" id="features">
@@ -317,9 +317,9 @@
 
         @*Loan app*@
         <div class="row justify-content-center well my-3">
-            <button class="btn w-100 gradient" type="button" data-bs-toggle="collapse" data-bs-target="#application" aria-expanded="false" aria-controls="application">
+            <button class="w-100 btn btn-gradient" type="button" data-bs-toggle="collapse" data-bs-target="#application" aria-expanded="false" aria-controls="application">
                 <div class="bg-lighter py-2 px-3 text-center hand-pointer">
-                    <h5 class="fw-bold text-uppercase">Loan application</h5>
+                    <h5 class="fw-bold text-uppercase text-white">Loan application</h5>
                 </div>
             </button>
 
@@ -332,16 +332,14 @@
 
 @*May Like*@
 <div class="row mx-auto col-lg-11 col-md-8 col-sm-12  mb-5">
-    <button class="btn w-100 gradient" type="button" data-bs-toggle="collapse" data-bs-target="#suggestion" aria-expanded="false" aria-controls="suggestion">
+    <button class="w-100 btn btn-gradient" type="button" data-bs-toggle="collapse" data-bs-target="#suggestion" aria-expanded="false" aria-controls="suggestion">
         <div class="bg-lighter py-2 px-3 text-center hand-pointer">
-            <h5 class="fw-bold text-uppercase">You may also like</h5>
+            <h5 class="fw-bold text-uppercase text-white">You may also like</h5>
         </div>
     </button>
-    <div class="collapse show p-0" id="suggestion">
+    <div class="collapse show p-0 mt-4" id="suggestion">
         <div class="d-flex justify-content-evenly">
-            <span type="button" class="btn scroll-button" onclick="scrollSuggestions(-300)">
-                <i class="bi bi-arrow-left-circle-fill"></i>
-            </span>
+            <button class="btn btn-gradient scroll-button bi bi-arrow-left-circle-fill" onclick="scrollSuggestions(-300)"></button>
             <div class="scroll-container well shadow" id="suggestionScroll">
                 <div class="d-flex justify-content-evenly">
                     @foreach (var suggestion in Model.CurrentVehicle.VehicleSuggesion) {
@@ -351,9 +349,7 @@
                     }
                 </div>
             </div>
-            <span type="button" class="btn scroll-button" onclick="scrollSuggestions(300)">
-                <i class="bi bi-arrow-right-circle-fill"></i>
-            </span>
+            <button class="btn btn-gradient scroll-button bi bi-arrow-right-circle" onclick="scrollSuggestions(300)"></button>
         </div>
     </div>
 </div>

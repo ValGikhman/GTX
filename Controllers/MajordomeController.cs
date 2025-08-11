@@ -420,7 +420,7 @@ namespace GTX.Controllers {
     You are an expert automotive storyteller. Write a short captivating, imaginative, vivid, and engaging story in HTML format for the following car:
     Car: {car}  
     Features: {features}
-    Genral: {car} is being sold by the GTX Autogroup here in Cincinnati Ohio area.
+    General: {car} is being sold by the GTX Autogroup here in Cincinnati Ohio area.
     Our sales crew: {reps} will help you to start your thrilling journey through scenic Ohio valley roads.
 
     Your response must:
