@@ -89,6 +89,13 @@ namespace GTX.Controllers {
             return View();
         }
 
+        public ActionResult Testimonials() {
+            ViewBag.Message = "Testimonials";
+            ViewBag.Title = "Testimonials";
+
+            return View();
+        }
+
         [HttpGet]
         public String ContactForm(int id) {
             try {

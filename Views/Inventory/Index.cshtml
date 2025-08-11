@@ -1,27 +1,4 @@
 ﻿@model GTX.Models.BaseModel
-
-<style>
-    .small-offcanvas {
-        height: 5rem !important;
-        border: 1.5px slategrey outset;
-        background: linear-gradient(180deg, rgb(255 255 255), #AAAAB3);
-        top: 85vh !important;
-    }
-</style>
-
-<div class="offcanvas offcanvas-end small-offcanvas shadow" tabindex="-1" id="smallCanvas">
-    <!-- Close button at top-right -->
-    <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-
-    <div class="offcanvas-body d-flex justify-content-center align-items-center">
-        <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
-            <a href="/Home/Application" class="btn btn-primary three-d shadow" type="button">Finance</a>
-            <a href="/Home/Contact" class="btn btn-primary three-d shadow" type="button">Contact us</a>
-            <a href="/Home/Contact" class="btn btn-primary three-d shadow" type="button">Test drive</a>
-        </div>
-    </div>
-</div>
-
 <!-- Scrollable wrapper -->
 <div class="inventory-wrapper mx-4">
     @if (Model.Inventory.Vehicles.Count() > 0) {
@@ -45,16 +22,6 @@
 
 <script type="text/javascript">
     $(function () {
-        $(".body-content").on('scroll', function () {
-            if ($(this).scrollTop() > 100) {
-                new bootstrap.Offcanvas('#smallCanvas', {
-                    backdrop: false,
-                    scroll: true,
-                    keyboard: false
-                }).show();
-            }
-        });
-
         $(window).on('pageshow', function (event) {
             loadLikedCars();
             refreshCarLikes();

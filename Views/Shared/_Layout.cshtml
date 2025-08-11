@@ -29,6 +29,19 @@
 </head>
 
 <body class="overflow-hidden d-flex flex-column">
+    <div class="offcanvas offcanvas-end small-offcanvas shadow" tabindex="-1" id="smallCanvas">
+        <!-- Close button at top-right -->
+        <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+
+        <div class="offcanvas-body d-flex justify-content-center align-items-center">
+            <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
+                <a href="/Home/Application" class="btn btn-primary three-d shadow" type="button">Finance</a>
+                <a href="/Home/Contact" class="btn btn-primary three-d shadow" type="button">Contact us</a>
+                <a href="/Home/Contact" class="btn btn-primary three-d shadow" type="button">Test drive</a>
+            </div>
+        </div>
+    </div>
+
     <!-- Offcanvas open hours -->
     <div class="offcanvas-top-fixed-center" tabindex="-1" id="openHours">
         <div class="offcanvas-body">
@@ -58,85 +71,86 @@
     @{Html.RenderPartial("_SearchForm");}
 
     <!-- Header Section Begin -->
-<header class="header fixed-top menu-strip" style="height:45px">
-    <div class="canvas__open">
-        <span class="bi bi-justify"></span>
-    </div>
-    <div class="menu-strip container-fluid">
-        <div class="d-flex justify-content-between">
-            <nav class="header__top header__menu">
-                <ul class="main-menu">
-                    <li>@Html.ActionLink("Home", "", "Home")</li>
-                    <li>
-                        <a href="#">Ineventory</a>
-                        <ul class="dropdown rounded">
-                            <li>@Html.ActionLink("All", "All", "Inventory")</li>
-                            <li>@Html.ActionLink("Suvs", "Suvs", "Inventory")</li>
-                            <li>@Html.ActionLink("Trucks", "Trucks", "Inventory")</li>
-                            <li>@Html.ActionLink("Vans", "Vans", "Inventory")</li>
-                            <li>@Html.ActionLink("Hatchbacks", "Hatchbacks", "Inventory")</li>
-                            <li>@Html.ActionLink("Coupes", "Coupes", "Inventory")</li>
-                            <li>@Html.ActionLink("Sedans", "Sedans", "Inventory")</li>
-                            <li>@Html.ActionLink("Convertibles", "Convertibles", "Inventory")</li>
-                            <li id="MajordomeLink" class="d-none">@Html.ActionLink("Majordome", "Inventory", "Majordome")</li>
-                        </ul>
-                    </li>
-                    <li>@Html.ActionLink("Application", "Application", "Home")</li>
-                    <li>@Html.ActionLink("Blog", "Blog", "Home")</li>
-                    <li>
-                        <a href="#">About us</a>
-                        <ul class="dropdown rounded">
-                            <li>@Html.ActionLink("About us", "About", "Home")</li>
-                            <li>@Html.ActionLink("Contact us", "Contact", "Home")</li>
-                            <li>@Html.ActionLink("Our staff", "Staff", "Home")</li>
-                        </ul>
-                    </li>
-                    <li class="fake-input hand-pointer d-none d-lg-inline-block" data-bs-toggle="modal" data-bs-target="#filtersModal">
-                        @{Html.RenderPartial("_SearchByTerm");}
-                    </li>
-                </ul>
-            </nav>
-            <nav class="header__top">
-                <ul class="main-menu start-100 list-unstyled">
-                    <li class="d-none d-xxl-inline">
-                        <a class="btn btn-light" id="btnOpenHours" data-bs-toggle="offcanvas" data-bs-target="#openHours" aria-controls="openHours">
-                            <i class="bi bi-stopwatch"></i>
-                            <span class="schedule"></span>
-                        </a>
-                    </li>
-                    <li class="d-sm-inline m-xl-1">
-                        <a class="btn btn-light" href="tel:(513) 912-4574">
-                            <i class="bi bi-telephone"></i>
-                            (513) 912-4574
-                        </a>
-                    </li>
-                    <li class="d-md-inline m-xl-1">
-                        <a class="btn btn-light" href="https://www.facebook.com/GTXAutoGroup"><i class="fa fa-facebook"></i></a>
-                    </li>
-                    <li class="d-md-inline m-xl-1">
-                        <a class="btn btn-light" href="https://www.twitter.com/GTXAutoGroup"><i class="fa fa-twitter"></i></a>
-                    </li>
-                </ul>
-            </nav>
-            <div class="header__top__social visually-hidden">
-                <a href="https://www.facebook.com/GTXAutoGroup"><i class="fa fa-facebook"></i></a>
-                <a href="https://www.twitter.com/GTXAutoGroup"><i class="fa fa-twitter"></i></a>
-                <a href="#"><i class="fa fa-google"></i></a>
-                <a href="#"><i class="fa fa-instagram"></i></a>
+    <header class="header fixed-top menu-strip" style="height:45px">
+        <div class="canvas__open">
+            <span class="bi bi-justify"></span>
+        </div>
+        <div class="menu-strip container-fluid">
+            <div class="d-flex justify-content-between">
+                <nav class="header__top header__menu">
+                    <ul class="main-menu">
+                        <li>@Html.ActionLink("Home", "", "Home")</li>
+                        <li>
+                            <a href="#">Ineventory</a>
+                            <ul class="dropdown rounded">
+                                <li>@Html.ActionLink("All", "All", "Inventory")</li>
+                                <li>@Html.ActionLink("Suvs", "Suvs", "Inventory")</li>
+                                <li>@Html.ActionLink("Trucks", "Trucks", "Inventory")</li>
+                                <li>@Html.ActionLink("Vans", "Vans", "Inventory")</li>
+                                <li>@Html.ActionLink("Hatchbacks", "Hatchbacks", "Inventory")</li>
+                                <li>@Html.ActionLink("Coupes", "Coupes", "Inventory")</li>
+                                <li>@Html.ActionLink("Sedans", "Sedans", "Inventory")</li>
+                                <li>@Html.ActionLink("Convertibles", "Convertibles", "Inventory")</li>
+                                <li id="MajordomeLink" class="d-none">@Html.ActionLink("Majordome", "Inventory", "Majordome")</li>
+                            </ul>
+                        </li>
+                        <li>@Html.ActionLink("Loan application", "Application", "Home")</li>
+                        <li>@Html.ActionLink("Blog", "Blog", "Home")</li>
+                        <li>@Html.ActionLink("Testimonials", "Testimonials", "Home")</li>
+                        <li>
+                            <a href="#">About us</a>
+                            <ul class="dropdown rounded">
+                                <li>@Html.ActionLink("About us", "About", "Home")</li>
+                                <li>@Html.ActionLink("Contact us", "Contact", "Home")</li>
+                                <li>@Html.ActionLink("Our staff", "Staff", "Home")</li>
+                                <li>@Html.ActionLink("Testimonials", "Testimonials", "Home")</li>
+                            </ul>
+                        </li>
+                        <li class="fake-input hand-pointer d-none d-lg-inline-block" data-bs-toggle="modal" data-bs-target="#filtersModal">
+                            @{Html.RenderPartial("_SearchByTerm");}
+                        </li>
+                    </ul>
+                </nav>
+                <nav class="header__top">
+                    <ul class="main-menu start-100 list-unstyled">
+                        <li class="d-none d-xxl-inline">
+                            <a class="btn btn-light" id="btnOpenHours" data-bs-toggle="offcanvas" data-bs-target="#openHours" aria-controls="openHours">
+                                <i class="bi bi-stopwatch"></i>
+                                <span class="schedule"></span>
+                            </a>
+                        </li>
+                        <li class="d-sm-inline m-xl-1">
+                            <a class="btn btn-light" href="tel:(513) 912-4574">
+                                <i class="bi bi-telephone"></i>
+                                (513) 912-4574
+                            </a>
+                        </li>
+                        <li class="d-md-inline m-xl-1">
+                            <a class="btn btn-light" href="https://www.facebook.com/GTXAutoGroup"><i class="fa fa-facebook"></i></a>
+                        </li>
+                        <li class="d-md-inline m-xl-1">
+                            <a class="btn btn-light" href="https://www.twitter.com/GTXAutoGroup"><i class="fa fa-twitter"></i></a>
+                        </li>
+                    </ul>
+                </nav>
+                <div class="header__top__social visually-hidden">
+                    <a href="https://www.facebook.com/GTXAutoGroup"><i class="fa fa-facebook"></i></a>
+                    <a href="https://www.twitter.com/GTXAutoGroup"><i class="fa fa-twitter"></i></a>
+                    <a href="#"><i class="fa fa-google"></i></a>
+                    <a href="#"><i class="fa fa-instagram"></i></a>
+                </div>
             </div>
         </div>
-    </div>
 
-    @{
-        if (!ViewBag.Title.Contains("Home") && !ViewBag.Title.Contains("Inventory management")) {
-            Html.RenderPartial("_CategoryFilter");
-            Html.RenderPartial("_PageTitle");
+        @{
+            if (!ViewBag.Title.Contains("Home") && !ViewBag.Title.Contains("Inventory management")) {
+                Html.RenderPartial("_CategoryFilter");
+                Html.RenderPartial("_PageTitle");
+            }
         }
-    }
 
-</header>
+    </header>
     <!-- Header Section End -->
-
     <!-- MAIN WRAPPER -->
     <div class="d-flex flex-column flex-grow-1">
         <main class="body-content overflow-auto flex-grow-1">

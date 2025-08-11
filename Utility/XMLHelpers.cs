@@ -156,9 +156,6 @@ namespace Utility.XMLHelpers {
             return new XDocument(new XDeclaration("1.0", "utf-8", "yes"), root);
         }
 
-        /// <summary>
-        /// Overload for file paths.
-        /// </summary>
         public static XDocument BuildXmlFromCsv(string dataCsvPath, string headerCsvPath, CsvXmlOptions ? options = null) {
             options ??= new CsvXmlOptions();
             using var data = File.OpenRead(dataCsvPath);

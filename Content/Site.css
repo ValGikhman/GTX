@@ -1,18 +1,13 @@
 ﻿/*Custom*/
 .small-offcanvas {
-    width: 400px !important; /* fixed width */
-    height: 200px !important; /* fixed height */
-    top: 50% !important; /* start vertical center */
-    transform: translateY(-50%) !important; /* vertically center */
+    height: 5rem !important;
+    border: 1.5px slategrey outset;
     border-radius: 0.5rem 0 0 0.5rem; /* rounded corners on left side */
+    background: linear-gradient(180deg, rgb(255 255 255), #AAAAB3);
+    top: 85vh !important;
+    transform: translateY(-50%) !important; /* vertically center */
     max-height: none !important; /* allow fixed height */
 }
-
-    /* Optional: override Bootstrap's default offcanvas height */
-    .small-offcanvas .offcanvas-body {
-        overflow-y: auto;
-        height: calc(200px - 56px); /* adjust body height minus header height */
-    }
 
 .G {
     border-bottom-color: green !important;
