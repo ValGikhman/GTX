@@ -435,6 +435,7 @@
     .body-content {
         margin-top: 14rem;
         height: 41rem;
+        padding-bottom: calc(64px + env(safe-area-inset-bottom)); /* tweak 64px if needed */
     }
 
     li.search-field {
@@ -634,6 +635,17 @@
     .min-h-0 {
         min-height: 0 !important;
     }
+
+    .min-vh-100 {
+        min-height: 100vh !important;
+    }
+
+    @supports (height: 100dvh) {
+        .min-vh-100 {
+            min-height: 100dvh !important;
+        }
+    }
+
 /* lets flex child scroll, esp. Safari */
 
     h1, h2, h3, h4, h5, h6, h7, h8 {
