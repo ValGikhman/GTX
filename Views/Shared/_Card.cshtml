@@ -1,7 +1,7 @@
 ﻿@model GTX.Models.GTX
-<li id="@Model.Stock" class="card well rounded-3 mb-2" title="Click here to see details."
+<li id="@Model.Stock" class="card well rounded-3 col-12 col-sm-6 col-md-4 col-lg-3 @Model.LocationCode" title="Click here to see details."
     data-location-code="@Model.LocationCode"
-    data-story="@(Model.Story is not  null && !Model.Story.HtmlContent.ToUpper().Contains("ERROR") ? "STORY" : "NOSTORY")"
+    data-story="@(Model.Story is not null && !Model.Story.HtmlContent.ToUpper().Contains("ERROR") ? "STORY" : "NOSTORY")"
     data-images="@(Model.Image.Contains("no-image") ? "NOIMAGE" : "IMAGE")"
     data-year="@Model.Year"
     data-stock="@Model.Stock.ToUpper()"
@@ -15,33 +15,40 @@
     data-miles="@Model.Mileage"
     data-price="@Model.RetailPrice"
     data-purchased="@Model.PurchaseDate">
+    <div class="card h-100 rounded-3">
+        <div class="card-header gradient hand-pointer">
+            <h5 class="fw-bold">
+                <i class="liked bi bi-heart-fill text-danger pull-right" style="display:none "></i>
+                @Model.Year
+                @Model.Make
+            </h5>
+            <h7>@Model.Model - @Model.VehicleStyle</h7>
+        </div>
 
-    <div class="card-header gradient @Model.LocationCode hand-pointer">
-        <h5 class="fw-bold">
-            <i class="liked bi bi-heart-fill text-danger pull-right" style="display:none "></i>
-            @Model.Year
-            @Model.Make
-        </h5>
-        <h7>@Model.Model - @Model.VehicleStyle</h7>
-    </div>
-    <a class="btn btn-outline-light shadow">
-        <img class="card-image rounded-3" src="@Model.Image">
-    </a>
-    <div class="card-header gradient shadow">
-        <h7 class="no-click">
-            <div class="d-flex flex-wrap justify-content-between">
-                <span>Yours for: @Model.RetailPrice.ToString("C0")</span>
-                <span>Miles: @Model.Mileage.ToString("N0")</span>
-            </div>
-            <div class="d-flex flex-wrap justify-content-between">
-                <span class="very-small-text copyable">@Model.VIN</span>
-                <span class="very-small-text copyable">@Model.Stock</span>
-            </div>
-            <div class="d-flex justify-content-center">
-                <a href="https://www.carfax.com/VehicleHistory/p/Report.cfx?vin=@Model.VIN" target="_blank">
-                    <img width="100" src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report">
-                </a>
-            </div>
-        </h7>
+        <div class="card-body p-0 well">
+            @{ if (Model.Images.Length == 0) {
+                    <h6 class="text-uppercase p-2"><strong>No image yet</strong></h6>
+                }
+            }
+            <img class="img-fluid w-100" src="@Model.Image" alt="@($"{Model.Year} {Model.Make} {Model.Model}")" loading="lazy" decoding="async">
+        </div>
+
+        <div class="card-header gradient">
+            <h7 class="no-click">
+                <div class="d-flex flex-wrap justify-content-between">
+                    <span>Yours for: @Model.RetailPrice.ToString("C0")</span>
+                    <span>Miles: @Model.Mileage.ToString("N0")</span>
+                </div>
+                <div class="d-flex flex-wrap justify-content-between very-small-text">
+                    <span class="copyable">@Model.VIN</span>
+                    <span class="copyable">@Model.Stock</span>
+                </div>
+                <div class="d-flex justify-content-center">
+                    <a href="https://www.carfax.com/VehicleHistory/p/Report.cfx?vin=@Model.VIN" target="_blank">
+                        <img width="100" src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report">
+                    </a>
+                </div>
+            </h7>
+        </div>
     </div>
 </li>
