@@ -1,4 +1,8 @@
 ﻿/*Custom*/
+.card-header {
+    border-bottom: none;
+}
+
 .small-offcanvas {
     height: 5rem !important;
     border: 1.5px slategrey outset;
@@ -23,7 +27,6 @@
     border-bottom-color: red !important;
     border-bottom-width: 2px !important;
 }
-
 
 .btn-container {
     position: absolute;
@@ -258,7 +261,7 @@
     }
 
     .card:hover {
-        transform: translateY(-3px);
+        transform: translateY(-2px);
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2);
     }
 
@@ -624,6 +627,15 @@
         font-size: clamp(0.8rem, 2vw, 1rem);
     }
 
+    html, body {
+        height: 100%!important;
+    }
+    /* ensure ancestors can stretch */
+    .min-h-0 {
+        min-height: 0 !important;
+    }
+/* lets flex child scroll, esp. Safari */
+
     h1, h2, h3, h4, h5, h6, h7, h8 {
         margin: 0;
         color: darkslategrey;
@@ -676,6 +688,7 @@
 .card-image {
     width: 293px;
     max-width: 293px;
+    min-height: 220px;
 }
 
 .edit-image {
@@ -684,8 +697,8 @@
 }
 
 .grid-image {
-    width: 222px;
-    max-width: 222px;
+    width: 195px;
+    max-width: 195px;
 }
 
     input:focus, select:focus, button:focus, textarea:focus {

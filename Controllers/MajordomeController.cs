@@ -146,7 +146,6 @@ namespace GTX.Controllers {
                     Directory.CreateDirectory(uploadPath);
                     
                     int total = files?.Count() ?? 0;
-                    int i = 0;
 
                     foreach (var f in files) {
                         if (f == null || f.ContentLength <= 0) {
@@ -164,9 +163,8 @@ namespace GTX.Controllers {
                             image.Resize(new MagickGeometry(800, 600) { IgnoreAspectRatio = false });
                             image.Extent(800, 600, Gravity.Center, MagickColors.Transparent);
 
-                            var q = new QuantizeSettings { Colors = 256, DitherMethod = DitherMethod.Riemersma };
-                            image.Quantize(q);
-                            image.Format = MagickFormat.Png8;
+                            image.ColorType = ColorType.TrueColorAlpha; // RGBA (non-indexed)
+                            image.Format = MagickFormat.Png32;
                             image.Settings.SetDefine(MagickFormat.Png, "png:compression-level", "9");
 
                             await image.WriteAsync(fullPath);
@@ -317,7 +315,7 @@ namespace GTX.Controllers {
             }
         }
 
-        public void CreateImageWithOverlay(string stock, string baseImagePath,  string overlayJson) {
+        public void ___CreateImageWithOverlay(string stock, string baseImagePath,  string overlayJson) {
             string baseImage = Server.MapPath(baseImagePath);
             string outputImage = Server.MapPath(baseImagePath);
 
@@ -374,6 +372,77 @@ namespace GTX.Controllers {
                 InventoryService.SaveImage(stock, Path.GetFileName(filename));
             }
         }
+
+        private static Bitmap ToNonIndexedBitmap(System.Drawing.Image src) {
+            if ((src.PixelFormat & PixelFormat.Indexed) == 0)
+                return new Bitmap(src);
+
+            var bmp = new Bitmap(src.Width, src.Height, PixelFormat.Format32bppArgb);
+            bmp.SetResolution(src.HorizontalResolution, src.VerticalResolution);
+            using (var g = Graphics.FromImage(bmp))
+                g.DrawImageUnscaled(src, 0, 0);
+            return bmp;
+        }
+
+        public void CreateImageWithOverlay(string stock, string baseImagePath, string overlayJson) {
+            string baseImage = Server.MapPath(baseImagePath);
+            string dir = Path.GetDirectoryName(baseImage);
+            string filename = Path.Combine(dir, Path.GetFileNameWithoutExtension(baseImage) + "-O.png");
+
+            using (var src = System.Drawing.Image.FromFile(baseImage))
+            using (var image = ToNonIndexedBitmap(src)) // <-- guarantees 32bpp
+            using (var graphics = Graphics.FromImage(image)) {
+                graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+                // Parse JSON
+                JObject overlayObj = JObject.Parse(overlayJson);
+                var overlay = overlayObj["overlay"];
+                var bgColor = GetColorFromStyle((string)overlay["style"]);
+
+                // Semi-transparent overlay (opacity 0.6)
+                int overlayHeight = image.Height / 8;
+                var overlayRect = new Rectangle(0, image.Height - overlayHeight, image.Width, overlayHeight);
+                int alpha = (int)(0.6f * 255);
+                var bgColorWithAlpha = Color.FromArgb(alpha, bgColor.R, bgColor.G, bgColor.B);
+
+                using (var rectBrush = new SolidBrush(bgColorWithAlpha))
+                    graphics.FillRectangle(rectBrush, overlayRect);
+
+                // Draw text
+                foreach (var child in overlay["children"]) {
+                    string text = (string)child["text"];
+                    string style = (string)child["style"];
+
+                    var (font, color) = GetFontAndColorFromStyle(image.Width, style);
+
+                    using (font) // dispose Font if your factory creates one
+                    using (var textBrush = new SolidBrush(color))
+                    using (var format = new StringFormat {
+                        Alignment = StringAlignment.Center,
+                        LineAlignment = StringAlignment.Center,
+                        Trimming = StringTrimming.EllipsisWord,
+                        FormatFlags = StringFormatFlags.LineLimit
+                    }) {
+                        var textRect = new RectangleF(
+                            20,                                  // left padding
+                            image.Height - overlayHeight,        // y
+                            image.Width - 40,                    // width (left+right padding)
+                            overlayHeight                        // height
+                        );
+
+                        graphics.DrawString(text, font, textBrush, textRect, format);
+                    }
+                }
+
+                image.Save(filename, ImageFormat.Png);
+            }
+
+            InventoryService.SaveImage(stock, Path.GetFileName(filename));
+        }
+
+
 
         private async Task<string> GetChatGptResponse(string prompt) {
             var apiUrl = "https://api.openai.com/v1/chat/completions";
