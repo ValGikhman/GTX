@@ -69,21 +69,40 @@
         </nav>
         <div class="tab-content" id="nav-tabContent">
             <div class="tab-pane fade show active" id="nav-details" role="tabpanel" aria-labelledby="nav-details-tab">
-                <div class="row justify-content-start well">
-                    <div class="col-lg-8 col-md-10 col-sm-12">
-                        @if (Model.CurrentVehicle.VehicleDetails.Images?.Any() == true) {
-                            <div class="ratio ratio-4x3 overflow-hidden">
+                <div class="row well">
+                    @if (Model.CurrentVehicle.VehicleDetails.Images?.Any() == true) {
+                        <div class="col-12 col-lg-12 col-md-12 col-sm-12">
+                            <div class="ratio ratio-carousel overflow-hidden">
                                 @Html.Partial("_Carousel", Model.CurrentVehicle)
                             </div>
-                        }
-                    </div>
+                        </div>
+                    }
+                </div>
+
+                @*Dudes*@
+                <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
+                    <span>
+                        <i id="like-btn" class="btn btn-light rounded shadow bi bi-heart-fill text-danger" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"></i>
+                    </span>
+                    <span">
+                        <a id="shareToFacebook" class="btn btn-light rounded shadow" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"><i class="bi bi-facebook"></i></a>
+                    </span>
+                    <span>
+                        <a id="shareToTwitter" class="btn btn-light rounded shadow" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"><i class="bi bi-twitter"></i></a>
+                    </span>
+                    <a href="http://www.carfax.com/VehicleHistory/p/Report.cfx?partner=DVW_1&vin=@Model.CurrentVehicle.VehicleDetails.VIN" target="_blank">
+                        <img src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report">
+                    </a>
+                    <img src="https://velocity-vdp-prod-attachments.s3.amazonaws.com/Velocity+Automotive+Solutions/WindowSticker_v2.png" alt="Velocity Window Sticker" class="" style="max-height: 100px">
+                </div>
+
                 @*Details*@
-                <div class="col-lg-4 col-md-6 col-sm-10">
+                <div class="row justify-content-center well my-3">
                     <button class="btn btn-gradient w-100" type="button" data-bs-toggle="collapse" data-bs-target="#details" aria-expanded="false" aria-controls="details">
                         <div class="bg-lighter py-2 px-3 text-center hand-pointer">
                             <h5 class="fw-bold text-uppercase text-white">Details</h5>
                         </div>
-                    </button>                        
+                    </button>
                     <div class="collapse show text-shadow-small" id="details">
                         <div class="d-flex justify-content-between px-3 mx-2 flex-wrap">
                             <strong class="very-small-text copyable">@Model.CurrentVehicle.VehicleDetails.VIN</strong>
@@ -168,35 +187,15 @@
                             }
                         </div>
                     </div>
-                </div>
-                </div>
-                <h5 class="my-2">
-                    <i id="like-btn" class="btn btn-light rounded shadow bi bi-heart-fill text-danger" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"></i>
-                    <span class="mx-1">
-                        <a id="shareToFacebook" class="btn btn-light rounded shadow" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"><i class="bi bi-facebook"></i></a>
-                    </span>
-                    <span>
-                        <a id="shareToTwitter" class="btn btn-light rounded shadow" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"><i class="bi bi-twitter"></i></a>
-                    </span>
-                    <a href="http://www.carfax.com/VehicleHistory/p/Report.cfx?partner=DVW_1&vin=@Model.CurrentVehicle.VehicleDetails.VIN" target="_blank">
-                        <img src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report">
-                    </a>
-                    <a class="vas-trackable-element" data-vas-account-id="indyautoman" data-vas-vin="3GNAXJEV5JS639549" data-vas-page-location="VDP" data-vas-product="Velocity Window Sticker" style="cursor: pointer;" data-vas-viewed="true"><img src="https://velocity-vdp-prod-attachments.s3.amazonaws.com/Velocity+Automotive+Solutions/WindowSticker_v2.png" alt="Velocity Window Sticker" class="" style="max-height: 100px"></a>
-
-                </h5>
-                @*Loan app*@
-                <div class="row justify-content-center well my-3">
-                    <button class="w-100 btn btn-gradient" type="button" data-bs-toggle="collapse" data-bs-target="#application" aria-expanded="false" aria-controls="application">
-                        <div class="bg-lighter py-2 px-3 text-center hand-pointer">
-                            <h5 class="fw-bold text-uppercase text-white">Loan application</h5>
-                        </div>
-                    </button>
-
-                    <div class="collapse show text-shadow-small rounded shadow mt-2" id="application">
-                        <iframe src="https://www.700dealer.com/QuickQualify/43783416bf5141ff8b8d1a40387ee700-20181212" width="100%" height="385px" scrolling="auto"></iframe>
+                    @*Features*@
+                    <div class="show text-shadow-small rounded" id="features">
+                        @foreach (var feature in Model.CurrentVehicle.VehicleDetails.Features.Split(';')) {
+                            <span class="btn btn-outline-secondary shadow gap-2 my-1">@feature</span>
+                        }
                     </div>
                 </div>
             </div>
+
             <div class="tab-pane fade well" id="nav-pictures" role="tabpanel" aria-labelledby="nav-picture-tab">
                 <div class="d-flex flex-wrap justify-content-center overflow-auto">
                     @foreach (Image image in Model.CurrentVehicle.VehicleDetails.Images) {
@@ -327,17 +326,16 @@
             </div>
         }
 
-        @*Features*@
+        @*Loan app*@
         <div class="row justify-content-center well my-3">
-            <button class="w-100 btn btn-gradient" type="button" data-bs-toggle="collapse" data-bs-target="#features" aria-expanded="false" aria-controls="features">
+            <button class="w-100 btn btn-gradient" type="button" data-bs-toggle="collapse" data-bs-target="#application" aria-expanded="false" aria-controls="application">
                 <div class="bg-lighter py-2 px-3 text-center hand-pointer">
-                    <h5 class="fw-bold text-uppercase text-white">Features</h5>
+                    <h5 class="fw-bold text-uppercase text-white">Loan application</h5>
                 </div>
             </button>
-            <div class="collapse show text-shadow-small rounded shadow mt-2" id="features">
-                @foreach (var feature in Model.CurrentVehicle.VehicleDetails.Features.Split(';')) {
-                    <span class="btn btn-outline-secondary shadow gap-2 my-1">@feature</span>
-                }
+
+            <div class="collapse show text-shadow-small rounded shadow mt-2" id="application">
+                <iframe src="https://www.700dealer.com/QuickQualify/43783416bf5141ff8b8d1a40387ee700-20181212" width="100%" height="385px" scrolling="auto"></iframe>
             </div>
         </div>
     </div>
