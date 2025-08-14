@@ -371,8 +371,8 @@ const columnDefs = [
         comparator: function (valueA, valueB) {
             // Convert to 1 if has image, 0 if "noimage"
             console.log(valueA, valueB)
-            const hasImageA = valueA && !valueA.toLowerCase().includes("no-image.png") ? 1 : 0;
-            const hasImageB = valueB && !valueB.toLowerCase().includes("no-image.png") ? 1 : 0;
+            const hasImageA = valueA && !valueA.toLowerCase().includes("no-image") ? 1 : 0;
+            const hasImageB = valueB && !valueB.toLowerCase().includes("no-image") ? 1 : 0;
 
             return hasImageA - hasImageB; // ascending: noimage first, then images
         },
