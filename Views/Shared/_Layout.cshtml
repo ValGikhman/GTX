@@ -106,29 +106,34 @@
                                 <li>@Html.ActionLink("Testimonials", "Testimonials", "Home")</li>
                             </ul>
                         </li>
-                        <li class="fake-input hand-pointer d-none d-lg-inline-block" data-bs-toggle="modal" data-bs-target="#filtersModal">
+                        <li class="fake-input hand-pointer d-none d-xl-inline-block" data-bs-toggle="modal" data-bs-target="#filtersModal">
                             @{Html.RenderPartial("_SearchByTerm");}
+                        </li>
+                        <li class="d-xl-none">
+                            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#filtersModal">
+                                <i class="bi bi-search"></i>
+                            </a>
                         </li>
                     </ul>
                 </nav>
-                <nav class="header__top">
-                    <ul class="main-menu start-100 list-unstyled">
-                        <li class="d-none d-xxl-inline">
+                <nav class="header__top d-none d-lg-flex">
+                    <ul class="main-menu start-100 list-unstyled no-wrap-group">
+                        <li class="mx-sm-1">
                             <a class="btn btn-light" id="btnOpenHours" data-bs-toggle="offcanvas" data-bs-target="#openHours" aria-controls="openHours">
                                 <i class="bi bi-stopwatch"></i>
-                                <span class="schedule"></span>
+                                <span class="schedule d-none d-xxl-inline m-sm-1"></span>
                             </a>
                         </li>
-                        <li class="d-sm-inline m-xl-1">
+                        <li class="mx-sm-1">
                             <a class="btn btn-light" href="tel:(513) 912-4574">
                                 <i class="bi bi-telephone"></i>
-                                (513) 912-4574
+                                <span class="d-none d-xxl-inline m-sm-1">(513) 912-4574</span>   
                             </a>
                         </li>
-                        <li class="d-md-inline m-xl-1">
+                        <li class="d-md-inline mx-sm-1">
                             <a class="btn btn-light" href="https://www.facebook.com/GTXAutoGroup"><i class="fa fa-facebook"></i></a>
                         </li>
-                        <li class="d-md-inline m-xl-1">
+                        <li class="d-md-inline mx-sm-1">
                             <a class="btn btn-light" href="https://www.twitter.com/GTXAutoGroup"><i class="fa fa-twitter"></i></a>
                         </li>
                     </ul>

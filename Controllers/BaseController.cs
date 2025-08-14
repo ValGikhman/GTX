@@ -19,6 +19,10 @@ namespace GTX.Controllers {
         public readonly string imageFolder = "/GTXImages/Inventory/";
         public readonly string openAiApiKey = ConfigurationManager.AppSettings["OpenAI:ApiKey"];
 
+        private static readonly object _sync = new object();
+        private static readonly Random _rand = new Random();
+        private static int Version() { lock (_sync) return _rand.Next(1, 5); }
+
         public ILogService LogService { get; set; }
 
         public IInventoryService InventoryService { get; set; }
@@ -234,7 +238,7 @@ namespace GTX.Controllers {
                 vehicle.Story = InventoryService.GetStory(vehicle.Stock);
                 vehicle.Images = InventoryService.GetImages(vehicle.Stock);
 
-                vehicle.Image = $"{imageFolder}no-image.png";
+                vehicle.Image = $"{imageFolder}no-image-{Version()}.png";
                 if (vehicle.Images != null && vehicle.Images.Length > 0) {
                     vehicle.Image = $"{imageFolder}{vehicle.Stock}/{vehicle.Images[0].Name}"; ;
                 }
