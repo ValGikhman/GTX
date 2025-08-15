@@ -7,15 +7,15 @@ namespace GTX.Session {
 
         #region Private Fields
 
-        private Inventory _inventory = null;
-        private Employer[] _employers = null;
-        private Filters _currentFilter = null;
-        private Vehicle _currentVehicle = null;
-        private Filters _filters = null;
-        private Log _logHeader = null;
-        private OpenHours[] _openHours = null;
-        private string _environment = null;
-        private bool _majordome = false;
+        private readonly Inventory _inventory = null;
+        private readonly Employer[] _employers = null;
+        private readonly Filters _currentFilter = null;
+        private readonly Vehicle _currentVehicle = null;
+        private readonly Filters _filters = null;
+        private readonly Log _logHeader = null;
+        private readonly OpenHours[] _openHours = null;
+        private readonly string _environment = null;
+        private readonly bool? _isMajordome = false;
 
         private readonly HttpContextProvider _httpContext;
 
@@ -43,8 +43,8 @@ namespace GTX.Session {
             set => SetSession(Constants.SESSION_ENVIRONMENT, value);
         }
 
-        public bool Majordome {
-            get => GetSession(Constants.SESSION_MAJORDOME, _majordome);
+        public bool? IsMajordome {
+            get => (bool)GetSession(Constants.SESSION_MAJORDOME, _isMajordome);
             set => SetSession(Constants.SESSION_MAJORDOME, value);
         }
 

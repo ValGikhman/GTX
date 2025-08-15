@@ -1,6 +1,5 @@
 ﻿using GTX.Models;
 using ImageMagick;
-using ImageMagick.Formats;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Services;
@@ -106,7 +105,7 @@ namespace GTX.Controllers {
 
         [HttpPost]
         public void ShowAdmin() {
-            ViewBag.Majordome = true;
+            SessionData.SetSession(Constants.SESSION_MAJORDOME, true);
         }
 
         [HttpPost]

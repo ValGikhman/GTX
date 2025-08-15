@@ -56,26 +56,34 @@ namespace GTX.Controllers {
 
             try {
                 Model = new BaseModel();
-                Model.IsDevelopment = (Environment.GetEnvironmentVariable("COMPUTERNAME") == devComputer);
-                var session = filterContext.HttpContext.Session;
 
-                SessionData.SetSession(Constants.SESSION_ENVIRONMENT, Model.IsDevelopment ? "Development": "Production");
+                Model.IsDevelopment = (Environment.GetEnvironmentVariable("COMPUTERNAME") == devComputer);
+                SessionData.SetSession(Constants.SESSION_ENVIRONMENT, Model.IsDevelopment ? "Development" : "Production");
                 ViewBag.Environment = SessionData.Environment;
+
+                if (SessionData == null || SessionData?.IsMajordome == null) {
+                    Model.IsMajordome = false;
+                    SessionData.SetSession(Constants.SESSION_MAJORDOME, Model.IsMajordome);
+                }
+
+                Model.IsMajordome = (bool)SessionData.IsMajordome;
+                ViewBag.IsMajordome = Model.IsMajordome;
 
                 if (SessionData == null || SessionData?.Inventory == null) {
                     Model.Inventory = await SetModel(Model.Inventory);
                     SessionData.SetSession(Constants.SESSION_INVENTORY, Model.Inventory);
                 }
+
                 Model.Inventory = SessionData.Inventory;
 
-                if (SessionData?.Employers == null) {
+                if (SessionData == null || SessionData?.Employers == null) {
                     Employer[] employers = await Utility.XMLHelpers.XmlRepository.GetEmployers();
                     SessionData.SetSession(Constants.SESSION_EMPLOYERS, employers);
                 }
 
                 Model.Employers = SessionData.Employers;
 
-                if (SessionData?.Filters == null) {
+                if (SessionData == null || SessionData?.Filters == null) {
                     Filters filters = new Filters();
                     filters.Makes = Model.Inventory.All.Select(m => m.Make).Distinct().OrderBy(m => m).ToArray();
                     filters.Models = Model.Inventory.All.Select(m => m.Model).Distinct().OrderBy(m => m).ToArray();
@@ -89,11 +97,13 @@ namespace GTX.Controllers {
                     SessionData.SetSession(Constants.SESSION_FILTERS, filters);
                 }
 
-                if (SessionData?.OpenHours == null) {
+                if (SessionData == null ||  SessionData?.OpenHours == null) {
                     OpenHours[] openHours = Utility.XMLHelpers.XmlRepository.GetOpenHours();
                     SessionData.SetSession(Constants.SESSION_OOPEN_HOURS, openHours);
                     Model.OpenHours = openHours;                
                 }
+
+                Model.OpenHours = SessionData.OpenHours;
 
             }
             catch (Exception ex) {
