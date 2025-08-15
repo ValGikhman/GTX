@@ -156,13 +156,6 @@ namespace Utility.XMLHelpers {
             return new XDocument(new XDeclaration("1.0", "utf-8", "yes"), root);
         }
 
-        public static XDocument BuildXmlFromCsv(string dataCsvPath, string headerCsvPath, CsvXmlOptions ? options = null) {
-            options ??= new CsvXmlOptions();
-            using var data = File.OpenRead(dataCsvPath);
-            using var head = File.OpenRead(headerCsvPath);
-            return BuildXmlFromCsv(data, head, options);
-        }
-
         public static void SaveXmlToFile(XDocument doc, string path) {
             using (var fs = File.Create(path)) {
                 doc.Save(fs);
@@ -199,7 +192,10 @@ namespace Utility.XMLHelpers {
 
             while (!parser.EndOfData) {
                 var fields = parser.ReadFields() ?? Array.Empty<string>();
-                rows.Add(fields);
+                // if Y or M or M is not empty strings add new row
+                if (!string.IsNullOrEmpty(fields[1]) || !string.IsNullOrEmpty(fields[2]) || !string.IsNullOrEmpty(fields[3])) {
+                    rows.Add(fields);
+                }
             }
 
             return rows;

@@ -91,7 +91,13 @@
                                 <li>@Html.ActionLink("Coupes", "Coupes", "Inventory")</li>
                                 <li>@Html.ActionLink("Sedans", "Sedans", "Inventory")</li>
                                 <li>@Html.ActionLink("Convertibles", "Convertibles", "Inventory")</li>
-                                <li id="MajordomeLink" class="d-none">@Html.ActionLink("Majordome", "Inventory", "Majordome")</li>
+                                @{
+                                    var _class = "d-none";
+                                    if (ViewBag.IsMajordome) {
+                                        _class = string.Empty;
+                                    }
+                                    <li id="MajordomeLink" class=@_class>@Html.ActionLink("Majordome", "Inventory", "Majordome")</li>
+                                }
                             </ul>
                         </li>
                         <li>@Html.ActionLink("Loan application", "Application", "Home")</li>

@@ -9,7 +9,7 @@ namespace GTX {
         #region Public Properties
         string Environment { get; set; }
 
-        bool Majordome { get; set; }
+        bool? IsMajordome { get; set; }
 
         Inventory Inventory { get; set; }
 

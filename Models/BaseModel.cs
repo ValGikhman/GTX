@@ -10,7 +10,6 @@ namespace GTX.Models {
             Inventory = new Inventory();
             CurrentFilter = new Filters();
             CurrentVehicle = new Vehicle();
-            //CurrentVehicle.VehicleDetails = new GTX();
 
             if (HttpContext.Current.Session[Constants.SESSION_INVENTORY] != null) {
                 Inventory = (Inventory)HttpContext.Current.Session[Constants.SESSION_INVENTORY];
@@ -30,6 +29,8 @@ namespace GTX.Models {
         }
 
         #endregion Public Constructors
+
+        public bool IsMajordome { get; set; }
 
         public bool IsDevelopment { get; set; }
 

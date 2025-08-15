@@ -31,32 +31,25 @@ namespace GTX.Controllers {
             return View("DetailsCard", Model.CurrentVehicle.VehicleDetails);
         }
 
-        public async Task<ActionResult> Details(string stock) {
+        public ActionResult Details(string stock) {
             stock = stock?.Trim().ToUpper();
 
-            // Show all inventory if stock is not provided
             if (string.IsNullOrEmpty(stock)) {
                 Model.Inventory.Title = "All";
                 Model.Inventory.Vehicles = SessionData?.Inventory?.All as Models.GTX[] ?? Array.Empty<Models.GTX>();
                 ViewBag.Title = $"All inventory ({Model.Inventory.Vehicles.Length}) vehicles";
                 return View("Index", Model);
             }
-
-            // Set page title
             Model.Inventory.Title = "Details";
 
-            // Find the vehicle
             var vehicle = Model.Inventory.All?.FirstOrDefault(m => m.Stock == stock);
             if (vehicle == null) {
-                // Optional: Redirect or show not found message if vehicle is missing
                 return HttpNotFound($"Vehicle with stock '{stock}' not found.");
             }
 
-            // Populate current vehicle data
             Model.CurrentVehicle.VehicleDetails = vehicle;
             Model.CurrentVehicle.VehicleImages = GetImages(stock);
 
-            // Store in session
             SessionData.CurrentVehicle = Model.CurrentVehicle;
 
             // Suggest similar vehicles (within $3000 range, excluding the current one)
@@ -65,7 +58,6 @@ namespace GTX.Controllers {
                 .Take(10)
                 .ToArray() ?? Array.Empty<Models.GTX>();
 
-            // Build page title
             ViewBag.Title = $"{vehicle.Year} - {vehicle.Make} - {vehicle.Model} {vehicle.VehicleStyle}";
 
             return View("Details", Model);
