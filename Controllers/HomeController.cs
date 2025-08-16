@@ -3,6 +3,7 @@ using Services;
 using System;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -61,18 +62,7 @@ namespace GTX.Controllers {
             ViewBag.Message = "Contact";
             ViewBag.Title = "Contact us";
 
-            ContactModel model = new ContactModel();
-            try {
-                model.OpenHours = Utility.XMLHelpers.XmlRepository.GetOpenHours();
-                model.Contact = new ContactUs();
-            }
-            catch (Exception ex) {
-                base.Log(ex);
-            }
-            finally {
-            }
-
-            return View(model);
+            return View(new ContactModel());
         }
 
         public ActionResult Application() {
@@ -99,7 +89,7 @@ namespace GTX.Controllers {
         [HttpGet]
         public String ContactForm(int id) {
             try {
-                ContactUs model = new ContactUs();
+                ContactModel model = new ContactModel();
                 if (id != 0) {
                     model.Employer = SessionData.Employers.FirstOrDefault(m => m.id == id);
                 }
@@ -114,7 +104,7 @@ namespace GTX.Controllers {
         }
 
         [HttpPost]
-        public async Task<JsonResult> SendContact(ContactUs model) {
+        public async Task<ActionResult> SendContact(ContactModel model) {
             Log($"Sending contact: {SerializeModel(model)}");
             try {
                 if (ModelState.IsValid) {
@@ -126,9 +116,8 @@ namespace GTX.Controllers {
                     contact.Comment = model.Comment;
 
                     _contactService.SaveContact(contact);
-                    // EmailHelper.SendEmailConfirmation(this.ControllerContext, contact);
                     await Utility.XMLHelpers.XmlRepository.SendAdfLeadAsync(model, Model.CurrentVehicle);
-                    return Json(new { success = true, data = model });
+                    return Json(new {data = contact });
                 }
             }
             catch (Exception ex) {
@@ -136,7 +125,8 @@ namespace GTX.Controllers {
             }
             finally {
             }
-            return Json(new { success = false, message = "Invalid data" });
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            return Json(new { message = "Unexpected error occurred." });
         }
     }
 }

@@ -52,14 +52,14 @@
             Details
         </button>
         <button class="nav-link btn btn-light text-shadow-small" id="gallery-tab" data-bs-toggle="tab" data-bs-target="#gallery" type="button" role="tab">
-            Gallery
+            Photos
         </button>
     </nav>
 
     <div class="tab-content border border-top-0 well " id="myTabContent">
         <!-- Inventory Tab -->
         <div class="tab-pane fade show active py-2" id="inventory" role="tabpanel">
-            <div id="myGrid" class="ag-theme-alpine mx-auto" style="height: 560px; width: 1520px;">
+            <div id="myGrid" class="ag-theme-alpine mx-auto" style="height: 560px; width: 1600px;">
                 <div>
                     @{ Html.RenderPartial("_FilterByTerm"); }
                 </div>
@@ -160,16 +160,17 @@
 </template>
 
 <input type="hidden" id="currentVehicle" />
+
 <script type="text/javascript">
 
     $(function () {
-        var grid = document.querySelector('#myGrid');
+        var grid = document.querySelector("#myGrid");
         agGrid.createGrid(grid, gridOptions);
 
         $(document).on("click", ".delete-image", function () {
             var file = $(this).data("filename");
             var id = $(this).attr("id");
-            if (confirm(`Do you want to delete this file?`)) {
+            if (confirm("Do you want to delete this file?")) {
                 deleteImage(id, file, this);
             }
         });
@@ -526,12 +527,20 @@ const gridOptions = {
     rowData: @Html.Raw(Json.Encode(Model.Inventory.Vehicles)),
     onGridReady: (params) => {
         gridApi = params.api; // ✅ store reference globally
+
+        const $stock = "@ViewBag.Stock";
+        if ($stock !== null && $stock !== "") {
+            $("#filterTerm").val($stock);
+            applyFilterTerm($stock);
+        }
+
         gridApi.forEachNode(function (node, index) {
             if (index === 0) {
                 node.setSelected(true);
                 gridOptions.onRowClicked({ data: node.data, node: node });
             }
         });
+
         const count = gridApi.getDisplayedRowCount();
         $("#filterResults").html(`${count} record(s) found.`);
     },
@@ -560,7 +569,8 @@ const gridOptions = {
     onFilterChanged: params => {
         const count = gridApi.getDisplayedRowCount();
         $("#filterResults").html(`${count} record(s) found.`);
-    }
+    },
+    onGridSizeChanged: p => p.api.sizeColumnsToFit()
 };
 
 // Delete Icon renderer
@@ -657,7 +667,7 @@ function showVehicleDetails(vehicle) {
         editor.setContent(vehicle?.Story?.HtmlContent || "");
     }
 
-    $("#gallery-tab").text(`Gallery (${vehicle.Images.length})`);
+    $("#gallery-tab").text(`Photos (${vehicle.Images.length})`);
 }
 
     // Show Bootstrap modal with images

@@ -11,6 +11,12 @@ namespace GTX {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
             routes.MapRoute(
+                name: "Inventory",
+                url: "Majordome/Inventory/{stock}",
+                defaults: new { controller = "Majordome", action = "Inventory", stock = UrlParameter.Optional }
+            );
+
+            routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
