@@ -1,5 +1,5 @@
 ﻿@using Newtonsoft.Json
-@model GTX.Models.ContactUs
+@model GTX.Models.ContactModel
 <style>
     .just-validate-error-field {
         border: 1px solid red!important;
@@ -22,30 +22,41 @@
         margin-left: 13px;
     }
 </style>
+
 <script src="~/Scripts/jquery/jquery.mask.js" type="text/javascript"></script>
 <form id="contactForm" name="contactForm" novalidate autocomplete="off" class="w-100">
+    <div id="contactSpinner" class="spinner-overlay spinner-hidden">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
     <div class="mb-2">
-        @Html.TextBoxFor(model => model.FirstName, new {@name="FirstName", @class = "form-control shadow", placeholder = "First Name"})
+        @Html.TextBoxFor(model => model.FirstName, new { @name = "FirstName", @class = "form-control shadow", placeholder = "First Name" })
         @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-shadow-small" })
     </div>
 
     <div class="mb-2">
-        @Html.TextBoxFor(model => model.LastName, new { @name = "LastName",  @class = "form-control shadow", placeholder = "Last Name"})
+        @Html.TextBoxFor(model => model.LastName, new { @name = "LastName", @class = "form-control shadow", placeholder = "Last Name" })
         @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-shadow-small" })
     </div>
 
     <div class="mb-2">
-        @Html.TextBoxFor(model => model.Email, new { @name = "Email", @class = "form-control shadow", placeholder = "Email"})
+        @Html.TextBoxFor(model => model.Email, new { @name = "Email", @class = "form-control shadow", placeholder = "Email" })
         @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-shadow-small" })
     </div>
 
     <div class="mb-2">
-        @Html.TextBoxFor(model => model.Phone, new { @name="Phone", @class = "form-control shadow", placeholder = "Phone", type = "phone" })
+        @Html.TextBoxFor(model => model.Phone, new { @name = "Phone", @class = "form-control shadow", placeholder = "Phone", type = "phone" })
         @Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-shadow-small" })
     </div>
 
+    <div class="mb-2">
+        @Html.TextBoxFor(m => m.PreferredDate, new { @name = "PreferredDate", @class = "form-control shadow", placeholder = "Preferred date", min = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd"), max = DateTime.Today.AddMonths(1).ToString("yyyy-MM-dd") })
+        @Html.ValidationMessageFor(m => m.PreferredDate, "", new { @class = "text-shadow-small" })
+    </div>
+
     <div class="form-floating">
-        @Html.TextAreaFor(model => model.Comment, new {@name="Comment", @class = "form-control shadow", @style = "height: 150px;", placeholder = "Leave a comment here" })
+        @Html.TextAreaFor(model => model.Comment, new { @name = "Comment", @class = "form-control shadow", @style = "height: 150px;", placeholder = "Leave a comment here" })
         @Html.ValidationMessageFor(model => model.Comment, "", new { @class = "text-shadow-small" })
     </div>
 
@@ -54,9 +65,14 @@
     </div>
 </form>
 
+
 <script>
     (function () {
         $("#Phone").mask("(000) 000-0000");
+        $("#PreferredDate").datepicker({
+            showOtherMonths: true,
+            selectOtherMonths: true
+        });
 
         const validator = new JustValidate('#contactForm', {
             validateBeforeSubmitting: true,
@@ -83,11 +99,18 @@
             ])
             .addField('#Comment', [
                 { rule: 'required', errorMessage: 'Comment is required' }
+            ])
+            .addField('#PreferredDate', [
+                { rule: 'required', errorMessage: 'Preferred date is required' }
             ]);
 
         $("#btnSent").on("click", function () {
             if (validator.isValid) {
                 send();
+                setTimeout(() => {
+                    $("#FirstName, #LastName, #Email, #Phone, #Comment").val("");
+                    validator.refresh();
+                }, 1000);
             }
             else {
                 console.log('❌ Form has validation errors');
@@ -96,45 +119,37 @@
     })()
 
     function send() {
+        showSpinner($("#contactSpinner"));
         const model = {
-            FirstName: $('#FirstName').val(),
-            LastName: $('#LastName').val(),
-            Email: $('#Email').val(),
-            Phone: $('#Phone').val(),
-            Comment: $('#Comment').val()
+            FirstName: $('#FirstName').val()?.trim(),
+            LastName: $('#LastName').val()?.trim(),
+            Email: $('#Email').val()?.trim(),
+            Phone: $('#Phone').val()?.trim(),
+            PreferredDate: $('#PreferredDate').val()?.trim(),
+            Comment: $('#Comment').val()?.trim()
         };
-        console.log(model);
 
         sendContact(model);
     }
 
     function sendContact(model) {
-        fetch('/Home/SendContact', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+        fetch("/Home/SendContact", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(model)
         })
-        .then(response => {
-            if (!response.ok) throw new Error("Server error");
-            return response.json();
+        .then(res => {
+            if (!res.ok) return res.json().then(err => { throw err; });
+            return res.json();
         })
         .then(data => {
             console.log("✅ Server response:", data);
-            setTimeout(() => {
-                $('#FirstName').val("");
-                $('#LastName').val("");
-                $('#Email').val("");
-                $('#Phone').val("");
-                $('#Comment').val("");
-
-                validator.refresh();
-                validator = null;
-            }, 1000);
         })
-        .catch(error => {
-            console.log("❌ Error submitting:", error);
+        .catch(err => {
+            console.warn("❌ Server responded with an error", err);
+        })
+        .finally(() => {
+            hideSpinner($("#contactSpinner"));
         });
     }
 </script>

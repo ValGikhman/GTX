@@ -347,7 +347,7 @@ function updateRow(data) {
     gridApi.forEachNode(function (node) {
         if (node.data.Stock === stock) {
             node.setData(vehicle);
-            $("#gallery-tab").text(`Gallery (${vehicle.Images.length})`);
+            $("#gallery-tab").text(`Photos (${vehicle.Images.length})`);
         }
     });
 

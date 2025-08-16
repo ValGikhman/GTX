@@ -36,14 +36,14 @@ namespace GTX.Controllers {
             }
         }
 
-        public ActionResult Index(BaseModel model) {
-            Model.Inventory.Vehicles = Model.Inventory.Current.OrderByDescending(m => DateTime.TryParse(m.PurchaseDate, out var date) ? date : DateTime.MinValue).ToArray(); ;
-            return View(Model);
-        }
-
-        public ActionResult Inventory(BaseModel model) {
+        [HttpGet]
+        [Route("Majordome/Inventory")]
+        [Route("Majordome/Inventory/{stock}")]
+        public ActionResult Inventory(string stock = null) {
             ViewBag.Message = "Inventory management";
             ViewBag.Title = "Inventory management";
+            ViewBag.Stock = stock;
+
             var vehicles = Model.Inventory.Current ?? Array.Empty<Models.GTX>();
 
             Parallel.ForEach(vehicles, vehicle =>
@@ -314,64 +314,6 @@ namespace GTX.Controllers {
             }
         }
 
-        public void ___CreateImageWithOverlay(string stock, string baseImagePath,  string overlayJson) {
-            string baseImage = Server.MapPath(baseImagePath);
-            string outputImage = Server.MapPath(baseImagePath);
-
-            using (var image = new Bitmap(baseImage))
-            using (var graphics = Graphics.FromImage(image)) {
-                graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-
-                // Parse JSON
-                JObject overlayObj = JObject.Parse(overlayJson);
-                var overlay = overlayObj["overlay"];
-                var bgColor = GetColorFromStyle((string)overlay["style"]);
-
-                // Draw semi-transparent overlay rectangle (opacity 0.6)
-                float overlayOpacity = 0.6f;
-                int alpha = (int)(overlayOpacity * 255);
-                Color bgColorWithAlpha = Color.FromArgb(alpha, bgColor.R, bgColor.G, bgColor.B);
-
-                int overlayHeight = image.Height / 8;
-                var overlayRect = new Rectangle(0, image.Height - overlayHeight, image.Width, overlayHeight); // bottom banner
-
-                using (Brush brush = new SolidBrush(bgColorWithAlpha)) {
-                    graphics.FillRectangle(brush, overlayRect);
-                }
-
-                // Draw text
-                foreach (var child in overlay["children"]) {
-                    string text = (string)child["text"];
-                    string style = (string)child["style"];
-                    var (font, color) = GetFontAndColorFromStyle(image.Width, style);
-
-                    using (var brush = new SolidBrush(color)) // text has full opacity
-                    {
-                        RectangleF textRect = new RectangleF(
-                            20, // padding-left
-                            image.Height - overlayHeight, // Y: start at bottom overlay
-                            image.Width - 20, // width with horizontal padding
-                            overlayHeight // height
-                        );
-
-                        // Setup string formatting for centered text and wrapping
-                        StringFormat format = new StringFormat() {
-                            Alignment = StringAlignment.Center, // horizontal center
-                            LineAlignment = StringAlignment.Center, // vertical center
-                            Trimming = StringTrimming.EllipsisWord,
-                            FormatFlags = StringFormatFlags.LineLimit
-                        };
-
-                        // Draw the text block
-                        graphics.DrawString(text, font, brush, textRect, format);
-                    }
-                }
-                string filename = $"{Path.GetDirectoryName(outputImage)}/{Path.GetFileNameWithoutExtension(outputImage)}-O{Path.GetExtension(outputImage)}";
-                image.Save(filename, ImageFormat.Png);
-                InventoryService.SaveImage(stock, Path.GetFileName(filename));
-            }
-        }
-
         private static Bitmap ToNonIndexedBitmap(System.Drawing.Image src) {
             if ((src.PixelFormat & PixelFormat.Indexed) == 0)
                 return new Bitmap(src);
@@ -476,7 +418,7 @@ namespace GTX.Controllers {
             }
         }
 
-        private string GetPrompt(Models.GTX vehicle) {
+        private string GetPromptPoeticFun(Models.GTX vehicle) {
             var reps = string.Empty;
             var representatives = Model.Employers.Where(m => m.Position.Contains("Sales")).Select(m => m.Name).ToArray();
             if (representatives != null) {
@@ -504,6 +446,36 @@ namespace GTX.Controllers {
     Do not place any **<html>**, **<body>** and **<head>** tags
     ";
                 return prompt;
+        }
+
+        private string GetPrompt(Models.GTX vehicle) {
+            var reps = string.Empty;
+            var representatives = Model.Employers.Where(m => m.Position.Contains("Sales")).Select(m => m.Name).ToArray();
+            if (representatives != null) {
+                reps = string.Join(", ", representatives);
+            }
+            string car = $"{vehicle.Year} {vehicle.Make} {vehicle.Model} {vehicle.VehicleStyle}";
+            var features = $"{vehicle.Features}";
+            string prompt = $@"
+    You are an expert used cars automotive sales person with a high level of technical skill. Write a short captivating, imaginative, vivid, and engaging story in HTML format for the following car:
+    Car: {car}  
+    Features: {features}
+    General: {car} is being sold by the GTX Autogroup here in Cincinnati Ohio area.
+    Our sales crew: {reps} will help you will help you buy a perfect car you need.
+
+    Your response must:
+    1. Start with a catchy **title inside <title> tags** (for example: <title>The Electric Dream</title>).
+    2. Write a minimum of **10 sentences**, each inside a separate <p class='p-story'> tag.
+    3. Write in very technical tone with a touch sales person can be to make story vivid, rich, and atmospheric.
+    4. Mention at least **5 car features** from the provided list and wrap each feature in <strong class='strong-story'> tags as well as the car.
+    5. Do **not use double quotes** anywhere in the story.
+    6. End the story with a sense of joy, adventure, opportunity.
+
+    The output should be **only the HTML story** without any extra text before or after.
+    Please do not place any other characters like **``` and **```html text in front of the output.
+    Do not place any **<html>**, **<body>** and **<head>** tags
+    ";
+            return prompt;
         }
 
         private (string story, string title) SplitResponse(string response) {

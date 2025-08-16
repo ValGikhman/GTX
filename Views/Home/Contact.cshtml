@@ -2,16 +2,17 @@
 
 <div class="container-fluid d-flex justify-content-center my-3">
     <div class="well row p-3 rounded shadow">
-        <div class="col-lg-6">
-            <img class="w-50 rounded-2 shadow" src="@Url.Content("~/GTXImages/gtx.jpg")">
-            <h3 class="card-title mt-3">Firfield Showroom</h3>
-            <p class="card-text">
-                9516 PRINCETON GLENDALE RD, West Chester, OH 45011<br />
+        <div class="col-xl-4 col-xxl-6 col-xxl-6 col-xxl-6">
+            <h5 class="mt-3">Firfield Showroom</h5>
+            <img class="w-75 rounded-2 shadow" src="@Url.Content("~/GTXImages/gtx.jpg")">
+            <h8>
+                <br/>9516 PRINCETON GLENDALE RD<br />
+                West Chester, OH 45011<br />
                 (513) 912-4574
-            </p>
+            </h8>
         </div>
-        <div class="col-lg-6">
-            @{ Html.RenderPartial("_ContactForm", Model.Contact); }
+        <div class="col-lg-6 mt-3">
+            @{ Html.RenderPartial("_ContactForm", Model); }
         </div>
     </div>
 </div>

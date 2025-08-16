@@ -1,5 +1,34 @@
 ﻿/*Custom*/
 /* Absolutely fill each slide, then flex-center the image */
+.container-fluid .card {
+    width: 18rem; /* adjust to your taste (e.g., 16rem, 20rem) */
+    border: 0;
+    border-radius: 0.75rem;
+    overflow: hidden; /* keep rounded corners clean */
+}
+
+    /* The image becomes a fixed-size frame with gray background */
+    .container-fluid .card .card-img-top {
+        display: block;
+        width: 100%;
+        aspect-ratio: 3 / 4; /* square frame; change to 4 / 3 or 3 / 4 if you prefer */
+        object-fit: contain; /* keep the original ratio, no cropping */
+        object-position: center;
+    }
+
+    /* Optional: a little polish */
+    .container-fluid .card.shadow {
+        box-shadow: 0 6px 18px rgba(0,0,0,.08);
+    }
+
+    .container-fluid .card .card-title {
+        margin-bottom: .25rem;
+    }
+
+    .container-fluid .card .card-subtitle {
+        color: #6c757d;
+    }
+
 .slide-box {
     position: absolute;
     inset: 0; /* top/right/bottom/left: 0 */
@@ -1390,44 +1419,76 @@ s}
 /*---------------------
   Team
 -----------------------*/
-.team {
-    padding-bottom: 70px;
+/* Grid + card polish */
+.team-grid .card {
+    border: 0;
+    border-radius: 1rem;
+    background: var(--bs-body-bg);
+    box-shadow: 0 6px 18px rgba(0,0,0,.08);
+    transition: transform .18s ease, box-shadow .18s ease;
 }
 
-.section-title.team-title {
-    margin-bottom: 50px;
-}
+    .team-grid .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 28px rgba(0,0,0,.12);
+    }
 
-.team__item {
-    margin-bottom: 10px;
-}
+    .team-grid .card:focus-within {
+        outline: 2px solid rgba(13,110,253,.4); /* BS primary */
+        outline-offset: 2px;
+    }
 
-.team__item__pic img {
+/* Image area: square crop with gentle zoom on hover */
+.team-grid .media-wrap {
     position: relative;
-    max-width: 100%;
-    min-width: 100%;
-    border-radius: 2px;
-    vertical-align: bottom;
     overflow: hidden;
-    height: 350px;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    aspect-ratio: 1 / 1; /* modern browsers */
+    background: rgba(0,0,0,.03);
 }
 
-.team__item__text {
-    padding-top: 10px;
+    .team-grid .media-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform: scale(1.02);
+        transition: transform .4s ease;
+    }
+
+.team-grid .card:hover .media-wrap img {
+    transform: scale(1.06);
+}
+
+/* Text styles */
+.team-grid .card-body {
     text-align: center;
 }
 
-    .team__item__text h5 {
-        font-size: 20px;
-        color: #353535;
-        font-weight: 700;
-        margin-bottom: 5px;
+.team-grid .card-title {
+    margin-bottom: .25rem;
+}
+
+.team-grid .card-subtitle {
+    color: var(--bs-secondary-color);
+    font-size: .95rem;
+}
+
+/* Button: pill shape with subtle shadow */
+.team-grid .btn-contact {
+    border-radius: 999px;
+    padding: .5rem 1rem;
+    box-shadow: 0 4px 12px rgba(13,110,253,.15);
+}
+
+    .team-grid .btn-contact:focus-visible {
+        box-shadow: 0 0 0 .2rem rgba(13,110,253,.25);
     }
 
-    .team__item__text span {
-        font-size: 15px;
-        color: #727171;
-    }
+/* Reset list look */
+.team-grid.list-unstyled {
+    margin: 0;
+}
 
 /*--------------------------------- Responsive Media Quaries -----------------------------*/
 @media only screen and (min-width: 1600px) and (max: 1800px) {

@@ -1,12 +1,10 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace GTX.Models {
     public class ContactModel: BaseModel { 
-        public ContactUs Contact { get; set; }
-    }
 
-    public class ContactUs {
         public Employer Employer { get; set; }
 
         [DisplayName("First Name")]
@@ -33,5 +31,11 @@ namespace GTX.Models {
         [DisplayName("Comment")]
         [Required(ErrorMessage = "Please enter comment")]
         public string Comment { get; set; }
+
+        [Display(Name = "Preferred contact date")]
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        [Required(ErrorMessage = "Please pick a date.")]
+        public DateTime? PreferredDate { get; set; }
     }
 }

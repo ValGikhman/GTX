@@ -59,7 +59,7 @@
                 <button class="nav-item active btn btn-gradient-grey text-shadow-small" id="nav-details-tab" data-bs-toggle="tab" data-bs-target="#nav-details" type="button" role="tab" aria-controls="nav-details" aria-selected="true">Details</button>
                 @{
                     if (Model.CurrentVehicle.VehicleImages.Count() > 0) {
-                        <button class="nav-item btn btn-gradient-grey text-shadow-small" id="nav-pictures-tab" data-bs-toggle="tab" data-bs-target="#nav-pictures" type="button" role="tab" aria-controls="nav-pictures" aria-selected="false">Gallery ( @Model.CurrentVehicle.VehicleDetails.Images.Count())</button>
+                        <button class="nav-item btn btn-gradient-grey text-shadow-small" id="nav-pictures-tab" data-bs-toggle="tab" data-bs-target="#nav-pictures" type="button" role="tab" aria-controls="nav-pictures" aria-selected="false">Photos ( @Model.CurrentVehicle.VehicleDetails.Images.Count())</button>
                     }
                 }
                 <button class="nav-item btn btn-gradient-grey text-shadow-small" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="true">Contact</button>
@@ -77,8 +77,16 @@
                                     @Html.Partial("_Carousel", Model.CurrentVehicle)
                                 </div>
                             </div>
+                            }
+                            else {
+                                <div class="d-flex justify-content-center text-uppercase p-5">
+                                    <h6>
+                                        <img class="img-fluid d-block mx-auto" width="85" src="@Url.Content("~/GTXImages/gtx.png")" alt="GTX Autogroup">
+                                        is still working on images
+                                    </h6>
+                                </div>
+                            }
                         }
-                    }
                 </div>
 
                 @*Dudes*@
@@ -100,12 +108,17 @@
 
                 @*Details*@
                 <div class="row justify-content-center well my-3">
-                    <button class="btn btn-gradient w-100" type="button" data-bs-toggle="collapse" data-bs-target="#details" aria-expanded="false" aria-controls="details">
+                    <button class="btn btn-gradient w-100" type="button">
                         <div class="bg-lighter py-2 px-3 text-center hand-pointer">
-                            <h5 class="fw-bold text-uppercase text-white">Details</h5>
+                            @if (ViewBag.IsMajordome) {
+                                <h5 class="fw-bold text-uppercase text-white" onclick="window.location.href = '/Majordome/Inventory/@Model.CurrentVehicle.VehicleDetails.Stock'">Details</h5>
+                            }
+                            else {
+                                <h5 class="fw-bold text-uppercase text-white">Details</h5>
+                            }
                         </div>
                     </button>
-                    <div class="collapse show text-shadow-small" id="details">
+                    <div class="text-shadow-small">
                         <div class="d-flex justify-content-between px-3 mx-2 flex-wrap">
                             <strong class="very-small-text copyable">@Model.CurrentVehicle.VehicleDetails.VIN</strong>
                             <strong class="very-small-text copyable">@Model.CurrentVehicle.VehicleDetails.Stock</strong>

@@ -8,10 +8,7 @@
             var imagePath = $"/GTXImages/Inventory/{image.Stock.Trim()}/{image.Name}";
             <div class="carousel-item @(i == 0 ? "active" : "")">
                 <div class="slide-box">
-                    <img src="@imagePath"
-                         alt="Vehicle image @i"
-                         loading="@(i == 0 ? "eager" : "lazy")"
-                         decoding="async" />
+                    <img src="@imagePath" alt="Vehicle image @i" loading="@(i == 0 ? "eager" : "lazy")" decoding="async" />
                 </div>
             </div>
             i++;

@@ -64,7 +64,7 @@ namespace Utility.XMLHelpers {
             }
         }
 
-        public async static Task SendAdfLeadAsync(ContactUs model, Vehicle vehicle) {
+        public async static Task SendAdfLeadAsync(ContactModel model, Vehicle vehicle) {
             try {
                 string filePath = $"{xmlFilePath}adf.xml";
 
