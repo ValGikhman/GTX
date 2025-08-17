@@ -111,7 +111,7 @@
                     <button class="btn btn-gradient w-100" type="button">
                         <div class="bg-lighter py-2 px-3 text-center hand-pointer">
                             @if (ViewBag.IsMajordome) {
-                                <h5 class="fw-bold text-uppercase text-white" onclick="window.location.href = '/Majordome/Inventory/@Model.CurrentVehicle.VehicleDetails.Stock'">Details</h5>
+                                <h5 class="fw-bold text-uppercase text-white" onclick="window.open('/Majordome/Inventory/@(Uri.EscapeDataString(Model.CurrentVehicle.VehicleDetails.Stock))', '_blank')">Details</h5>
                             }
                             else {
                                 <h5 class="fw-bold text-uppercase text-white">Details</h5>

@@ -24,11 +24,11 @@
                     <div class="card-body gradient">
                         <h5 class="card-title">@employer.Name</h5>
                         <div class="card-subtitle text-muted">@employer.Position</div>
-                        <button class="btn btn-secondary shadow mt-2"
+                        <button class="btn btn-primary shadow rounded-5 mt-2 w-75"
                                 data-name="@employer.Name"
                                 data-email="@employer.Email"
                                 onclick="showEmail(this, @employer.id)">
-                            Contact
+                            <i class="bi bi-send"></i> Sent
                         </button>
                     </div>
                 </article>
