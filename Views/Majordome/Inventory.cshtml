@@ -15,7 +15,6 @@
         }
     </style>
 
-
     <!-- Includes all JS & CSS for the JavaScript Data Grid -->
     <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.1/dist/ag-grid-community.min.js"></script>
 
@@ -394,70 +393,7 @@ const columnDefs = [
             if (a > b) return 1;
             return 0;
         },
-        cellRenderer: (params) => {
-            const { Year, Make, Model, VehicleStyle, Mileage, RetailPrice } = params.data;
-            var formattedPrice = new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD'
-            }).format(RetailPrice);
-
-            var formattedMileage = new Intl.NumberFormat('en-US').format(Mileage);
-            return `
-                <div><h5>${Year} ${Make} ${Model} ${VehicleStyle}</h5></div>
-                <div class="row mt-2" style="scale: 0.75; margin-left: -50px;">
-                    <div class="d-flex flex-wrap justify-content-evenly rounde gap-4">
-                        <span class="btn btn-outline-secondary shadow position-relative details">
-                            <span class="detail-button medium-small-text">${params.data.LocationCode}</span>
-                            <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
-                                Code
-                            </span>
-                        </span>
-                        <span class="btn btn-outline-secondary shadow position-relative details">
-                            <span class="detail-button medium-small-text">${formattedPrice}</span>
-                            <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
-                                Price
-                            </span>
-                        </span>
-                        <span class="btn btn-outline-secondary shadow position-relative details">
-                            <span class="detail-button medium-small-text">${formattedMileage}</span>
-                            <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
-                                Miles
-                            </span>
-                        </span>
-                        <span class="btn btn-outline-secondary shadow position-relative details">
-                            <span class="detail-button medium-small-text">${params.data.Engine}</span>
-                            <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
-                                Engine
-                            </span>
-                        </span>
-                        <span class="btn btn-outline-secondary shadow position-relative details">
-                            <span class="detail-button medium-small-text">${params.data.Body}</span>
-                            <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
-                                Body
-                            </span>
-                        </span>
-                        <span class="btn btn-outline-secondary shadow position-relative details">
-                            <span class="detail-button medium-small-text">${params.data.VehicleType}</span>
-                            <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
-                                Type
-                            </span>
-                        </span>
-                        <span class="btn btn-outline-secondary shadow position-relative details">
-                            <span class="detail-button medium-small-text">${params.data.Cylinders}</span>
-                            <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
-                                Cylinders
-                            </span>
-                        </span>
-                        <span class="btn btn-outline-secondary shadow position-relative details">
-                            <span class="detail-button medium-small-text">${params.data.DriveTrain}</span>
-                            <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
-                                Drivetrain
-                            </span>
-                        </span>
-                    </div>
-                </div>
-        `;
-        },
+        cellRenderer: vehicleDetailsCellRenderer,
         getQuickFilterText: (params) => {
             const { Year, Make, Model, VehicleStyle, Stock, VIN } = params.data;
             return `${Year} ${Make} ${Model} ${VehicleStyle} ${Stock} ${VIN}`;
@@ -605,6 +541,41 @@ function reStoryIconRenderer(params) {
 
     return icon;
 }
+
+
+const nfUSD = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+const nfInt = new Intl.NumberFormat('en-US');
+
+const fmtPrice = v => (v ?? v === 0) ? nfUSD.format(v) : '';
+const fmtMileage = v => (v ?? v === 0) ? nfInt.format(v) : '';
+function vehicleDetailsCellRenderer(params) {
+    const d = params.data || {};
+    const formattedPrice = fmtPrice(d.RetailPrice);
+    const formattedMileage = fmtMileage(d.Mileage);
+
+    return `
+    <div><h5>${d.Year ?? ''} ${d.Make ?? ''} ${d.Model ?? ''} ${d.VehicleStyle ?? ''}</h5></div>
+    <div class="row mt-2" style="scale: 0.75; margin-left: -50px;">
+      <div class="d-flex flex-wrap justify-content-evenly rounde gap-4">
+        ${[
+                { v: d.LocationCode, l: 'Code' },
+                { v: formattedPrice, l: 'Price' },
+                { v: formattedMileage, l: 'Miles' },
+                { v: d.Engine, l: 'Engine' },
+                { v: d.Body, l: 'Body' },
+                { v: d.VehicleType, l: 'Type' },
+                { v: d.Cylinders, l: 'Cylinders' },
+                { v: d.DriveTrain, l: 'Drivetrain' }
+            ].map(x => `
+          <span class="btn btn-outline-secondary shadow position-relative details">
+            <span class="detail-button medium-small-text">${x.v ?? ''}</span>
+            <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">${x.l}</span>
+          </span>
+        `).join('')}
+      </div>
+    </div>
+  `;
+    }
 
 // Delete story Icon renderer
 function deleteStoryIconRenderer(params) {

@@ -1,18 +1,67 @@
 ﻿@model GTX.Models.ContactModel
 
-<div class="container-fluid d-flex justify-content-center my-3">
-    <div class="well row p-3 rounded shadow">
-        <div class="col-xl-4 col-xxl-6 col-xxl-6 col-xxl-6">
-            <h5 class="mt-3">Firfield Showroom</h5>
-            <img class="w-75 rounded-2 shadow" src="@Url.Content("~/GTXImages/gtx.jpg")">
-            <h8>
-                <br/>9516 PRINCETON GLENDALE RD<br />
-                West Chester, OH 45011<br />
-                (513) 912-4574
-            </h8>
-        </div>
-        <div class="col-lg-6 mt-3">
-            @{ Html.RenderPartial("_ContactForm", Model); }
+<style>
+    .showroom-photo {
+        object-fit: cover;
+        width: 50%;
+    }
+</style>
+
+<div class="container-fluid mt-5 d-flex justify-content-center">
+    <div class="container">
+        <!-- Stretch columns so their cards can match heights -->
+        <div class="row g-4 justify-content-center align-items-stretch">
+
+            <!-- Showroom / Address -->
+            <div class="col-12 col-md-6 col-xl-5 d-flex">
+                <div class="card shadow-sm text-center well flex-fill h-100">
+                    <div class="card-header gradient border-0">
+                        <h5 class="mb-0"><i class="bi bi-geo-alt"></i> Firfield Showroom</h5>
+                    </div>
+
+                    <!-- Make body flex so buttons can sit at bottom with mt-auto -->
+                    <div class="card-body d-flex flex-column">
+                        <img class="img-fluid rounded-2 mb-3 showroom-photo d-block mx-auto"
+                             src="@Url.Content("~/GTXImages/gtx.jpg")"
+                             alt="GTX Auto Group showroom">
+
+                        <address class="mb-3 small lh-base">
+                            <strong class="text-uppercase d-block text-shadow">
+                                9516 Princeton Glendale Rd<br />
+                                West Chester, OH 45011
+                            </strong>
+                        </address>
+
+                        <!-- Push the actions to the bottom for consistent spacing -->
+                        <div class="vstack gap-2 mt-auto">
+                            <a class="btn btn-outline-primary rounded-5 shadow" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=9516+Princeton+Glendale+Rd%2C+West+Chester%2C+OH+45011">
+                               <i class="bi bi-map"></i> Get Directions
+                            </a>
+                            <a class="btn btn-primary rounded-5 shadow" href="tel:+15139124574">
+                                <i class="bi bi-telephone"></i> (513) 912-4574
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Form -->
+            <div class="col-12 col-md-6 col-xl-5 d-flex">
+                <div class="card shadow-sm text-center well flex-fill h-100">
+                    <div class="card-header gradient border-0 text-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-envelope-paper"></i> Contact Us
+                        </h5>
+                    </div>
+
+                    <div class="card-body d-flex flex-column">
+                        @{ Html.RenderPartial("_ContactForm", Model); }
+                        <!-- If your form is short, add a tiny spacer so headers align nicely -->
+                        <div class="mt-auto"></div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
