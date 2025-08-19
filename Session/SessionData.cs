@@ -79,8 +79,8 @@ namespace GTX.Session {
             set => SetSession(Constants.SESSION_FILTERS, value);
         }
         public OpenHours[] OpenHours {
-            get => GetSession(Constants.SESSION_OOPEN_HOURS, _openHours);
-            set => SetSession(Constants.SESSION_OOPEN_HOURS, value);
+            get => GetSession(Constants.SESSION_OPEN_HOURS, _openHours);
+            set => SetSession(Constants.SESSION_OPEN_HOURS, value);
         }
 
         #endregion Public Properties

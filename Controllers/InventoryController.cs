@@ -23,11 +23,12 @@ namespace GTX.Controllers {
             ViewBag.Title = $"{Model.Inventory.Title} ({vehicles.Length}) vehicles";
             Log($"{Model.Inventory.Title} inventory");
 
-            return View(Model);
+            return View(model);
         }
 
         public ActionResult DetailsCard(string stock) {
             Model.CurrentVehicle.VehicleDetails = Model.Inventory.All.FirstOrDefault(m => m.Stock == stock);
+
             return View("DetailsCard", Model.CurrentVehicle.VehicleDetails);
         }
 
@@ -38,6 +39,7 @@ namespace GTX.Controllers {
                 Model.Inventory.Title = "All";
                 Model.Inventory.Vehicles = SessionData?.Inventory?.All as Models.GTX[] ?? Array.Empty<Models.GTX>();
                 ViewBag.Title = $"All inventory ({Model.Inventory.Vehicles.Length}) vehicles";
+
                 return View("Index", Model);
             }
             Model.Inventory.Title = "Details";

@@ -1,17 +1,22 @@
-﻿<video class="video-background" autoplay muted loop playsinline>
-    <source src="~/GTXImages/video/GTX-1.MOV" type="video/mp4" />
-</video>
+﻿<style>
+    .body-content {
+        margin-top: 3rem;
+        height: 70rem;
+    }
 
-<div class="d-flex justify-content-center align-items-center" style="height: 550px">
-@*    <div class="fake-input hand-pointer shadow" data-bs-toggle="modal" data-bs-target="#filtersModal">
-        @{ Html.RenderPartial("_SearchByTerm"); }
-    </div>*@
+</style>
+
+<!-- Hero Section Begin -->
+<section class="hero set-bg" data-setbg="@Url.Content("~/GTXImages/GTX-Index-3.png")">
+    <div class="slogan-big">Many happy families</div>
+    <div class="slogan-small">Driving our cars</div>
     <div class="btn-container d-flex justify-content-center gap-3 flex-wrap">
         <a href="/Home/Application" class="btn btn-big-gradient shadow" type="button">Get pre-approval</a>
         <a data-bs-toggle="modal" class="btn btn-big-gradient " data-bs-target="#filtersModal">Search inventory</a>
         <a href="/Home/Contact" class="btn btn-big-gradient shadow" type="button">Contact us</a>
     </div>
-</div>
+</section>
+<!-- Hero Section End -->
 <script>
     $(function () {
     });
