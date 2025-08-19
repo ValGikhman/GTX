@@ -21,7 +21,7 @@ namespace GTX.Controllers {
 
         private static readonly object _sync = new object();
         private static readonly Random _rand = new Random();
-        private static int Version() { lock (_sync) return _rand.Next(1, 5); }
+        private static int Version() { lock (_sync) return _rand.Next(1, 1); }
 
         public ILogService LogService { get; set; }
 
@@ -39,8 +39,6 @@ namespace GTX.Controllers {
             SessionData = _sessionData;
             LogService = _logService;
             InventoryService = _invntoryService;
-
-            Model = new BaseModel();
         }
 
         #endregion Construtors
@@ -84,27 +82,17 @@ namespace GTX.Controllers {
                 Model.Employers = SessionData.Employers;
 
                 if (SessionData == null || SessionData?.Filters == null) {
-                    Filters filters = new Filters();
-                    filters.Makes = Model.Inventory.All.Select(m => m.Make).Distinct().OrderBy(m => m).ToArray();
-                    filters.Models = Model.Inventory.All.Select(m => m.Model).Distinct().OrderBy(m => m).ToArray();
-                    filters.Engines = Model.Inventory.All.Select(m => m.Engine).Distinct().OrderBy(m => m).ToArray();
-                    filters.FuelTypes = Model.Inventory.All.Select(m => m.FuelType).Distinct().OrderBy(m => m).ToArray();
-                    filters.MaxPrice = Model.Inventory.All.Max(m => m.RetailPrice);
-                    filters.MinPrice = Model.Inventory.All.Min(m => m.RetailPrice);
-                    filters.DriveTrains = Model.Inventory.All.Select(m => m.DriveTrain).Distinct().OrderBy(m => m).ToArray();
-                    filters.BodyTypes = Model.Inventory.All.Select(m => m.Body).Distinct().OrderBy(m => m).ToArray();
-                    filters.VehicleTypes = Model.Inventory.All.Select(m => m.VehicleType).Distinct().OrderBy(m => m).ToArray();
+                    Filters filters = BuildFilters(Model.Inventory);
                     SessionData.SetSession(Constants.SESSION_FILTERS, filters);
                 }
 
                 if (SessionData == null ||  SessionData?.OpenHours == null) {
                     OpenHours[] openHours = Utility.XMLHelpers.XmlRepository.GetOpenHours();
-                    SessionData.SetSession(Constants.SESSION_OOPEN_HOURS, openHours);
+                    SessionData.SetSession(Constants.SESSION_OPEN_HOURS, openHours);
                     Model.OpenHours = openHours;                
                 }
 
                 Model.OpenHours = SessionData.OpenHours;
-
             }
             catch (Exception ex) {
             }
@@ -195,7 +183,6 @@ namespace GTX.Controllers {
         [HttpGet]
         public JsonResult GetNow() {
             try {
-
                 string returnValue;
                 string currentDay = DateTime.Now.DayOfWeek.ToString();
                 int currentHour = DateTime.Now.Hour;
@@ -248,7 +235,7 @@ namespace GTX.Controllers {
                 vehicle.Story = InventoryService.GetStory(vehicle.Stock);
                 vehicle.Images = InventoryService.GetImages(vehicle.Stock);
 
-                vehicle.Image = $"{imageFolder}no-image-{Version()}.png";
+                vehicle.Image = $"{imageFolder}no-image-{Version()}.jpg";
                 if (vehicle.Images != null && vehicle.Images.Length > 0) {
                     vehicle.Image = $"{imageFolder}{vehicle.Stock}/{vehicle.Images[0].Name}"; ;
                 }
@@ -288,6 +275,22 @@ namespace GTX.Controllers {
 
 
         #region private methods
+        private static Filters BuildFilters(Inventory inv) {
+            var all = inv.All;
+
+            return new Filters {
+                Makes = all.Select(x => x.Make).Distinct().OrderBy(x => x).ToArray(),
+                Models = all.Select(x => x.Model).Distinct().OrderBy(x => x).ToArray(),
+                Engines = all.Select(x => x.Engine).Distinct().OrderBy(x => x).ToArray(),
+                FuelTypes = all.Select(x => x.FuelType).Distinct().OrderBy(x => x).ToArray(),
+                DriveTrains = all.Select(x => x.DriveTrain).Distinct().OrderBy(x => x).ToArray(),
+                BodyTypes = all.Select(x => x.Body).Distinct().OrderBy(x => x).ToArray(),
+                VehicleTypes = all.Select(x => x.VehicleType).Distinct().OrderBy(x => x).ToArray(),
+                MaxPrice = all.Max(x => x.RetailPrice),
+                MinPrice = all.Min(x => x.RetailPrice)
+            };
+        }
+
         #endregion
     }
 }

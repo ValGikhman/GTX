@@ -11,7 +11,7 @@ public static class Constants {
     public const string SESSION_CURRENT_FILTER = "SessionCurrentFilter";
     public const string SESSION_FILTERS = "SessionFilters";
     public const string SESSION_LOG_HEADER = "SessionLogHeader";
-    public const string SESSION_OOPEN_HOURS = "SessionOpenHours";
+    public const string SESSION_OPEN_HOURS = "SessionOpenHours";
     public const string SESSION_ENVIRONMENT = "SessionENVIRONMENT";
     public const string SESSION_MAJORDOME = "SessionMAJORDOME";
 

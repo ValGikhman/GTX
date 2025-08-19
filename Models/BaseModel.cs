@@ -23,8 +23,8 @@ namespace GTX.Models {
                 CurrentFilter = (Filters)HttpContext.Current.Session[Constants.SESSION_CURRENT_FILTER];
             }
 
-            if (HttpContext.Current.Session[Constants.SESSION_OOPEN_HOURS] != null) {
-                OpenHours = (OpenHours[])HttpContext.Current.Session[Constants.SESSION_OOPEN_HOURS];
+            if (HttpContext.Current.Session[Constants.SESSION_OPEN_HOURS] != null) {
+                OpenHours = (OpenHours[])HttpContext.Current.Session[Constants.SESSION_OPEN_HOURS];
             }
         }
 
