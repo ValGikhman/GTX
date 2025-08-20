@@ -113,7 +113,7 @@
                             </ul>
                         </li>
                         <li class="fake-input hand-pointer d-none d-xxl-inline-block" data-bs-toggle="modal" data-bs-target="#filtersModal">
-                            @{Html.RenderPartial("_SearchByTerm");}
+                            @Html.Partial("_SearchByTerm")
                         </li>
                         <li class="d-xxl-none">
                             <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#filtersModal">
@@ -122,7 +122,7 @@
                         </li>
                     </ul>
                 </nav>
-                <nav class="header__top d-none d-lg-flex">
+                <nav class="header__top d-none d-xxl-flex">
                     <ul class="main-menu start-100 list-unstyled no-wrap-group">
                         <li class="mx-sm-1">
                             <a class="btn btn-light" id="btnOpenHours" data-bs-toggle="offcanvas" data-bs-target="#openHours" aria-controls="openHours">
@@ -149,8 +149,8 @@
 
         @{
             if (ViewBag.Title != null && !ViewBag.Title.Contains("Home") && !ViewBag.Title.Contains("Inventory management")) {
-                Html.RenderPartial("_CategoryFilter");
-                Html.RenderPartial("_PageTitle");
+                @Html.Partial("_CategoryFilter")
+                @Html.Partial("_PageTitle")
             }
         }
 

@@ -227,12 +227,20 @@
 
     .video-background {
         position: fixed;
-        top: 0;
-        left: 0;
-        min-width: 100%;
-        min-height: 100%;
-        object-fit: cover;
+        inset: 0; /* shorthand for top/right/bottom/left: 0 */
+        width: 100vw;
+        height: 100svh; /* better on mobile; falls back below */
+        object-fit: cover; /* cover the whole area */
+        object-position: center; /* crop from the center */
         z-index: -1;
+        pointer-events: none; /* don't block clicks on content */
+    }
+
+    /* Fallback for browsers without svh */
+    @supports (height: 100dvh) {
+        .video-background {
+            height: 100dvh;
+        }
     }
 
     .sort-container {
@@ -1610,10 +1618,11 @@ s}
 
         .page-title {
             position: fixed;
-            top: 3rem;
+            top: 0rem;
             border-bottom: none;
             border-top: none;
             background: linear-gradient(180deg, #8d8d8d 20%, #353535 80%);
+            background: linear-gradient(0deg, rgba(21, 90, 150, 1) 20%, rgba(30, 115, 190, 1) 80%);
         }
 
 
@@ -1629,7 +1638,7 @@ s}
         }
 
         .body-content {
-            margin-top: 10vh;
+            margin-top: 5vh;
             height: 68rem;
         }
 
@@ -1709,10 +1718,10 @@ s}
         .offcanvas-menu-wrapper {
             position: fixed;
             left: -595px;
-            width: 50vw;
+            width: 75vw;
             padding: 1rem;
             display: block;
-            z-index: 99;
+            z-index: 9090;
             overflow-y: auto;
             -webkit-transition: all, 0.5s;
             -o-transition: all, 0.5s;
@@ -1723,7 +1732,7 @@ s}
             .offcanvas-menu-wrapper.active {
                 opacity: 1;
                 left: 0;
-                top: 10vh;
+                top: 5vh;
             }
 
         .offcanvas__menu {
