@@ -236,6 +236,23 @@
         pointer-events: none; /* don't block clicks on content */
     }
 
+    .video-background-video {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        /* Make sure it covers in both axes */
+        min-width: 100vw;
+        min-height: 100svh;
+        width: auto;
+        height: auto;
+        transform: translate(-50%, -50%); /* true centering */
+        object-fit: cover; /* harmless on browsers that behave */
+        object-position: center center;
+        /* iOS/WebKit sometimes needs this to avoid weird compositing offsets */
+        transform-origin: center center;
+        will-change: transform;
+    }
+
     /* Fallback for browsers without svh */
     @supports (height: 100dvh) {
         .video-background {
