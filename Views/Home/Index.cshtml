@@ -1,19 +1,20 @@
 ﻿<div class="video-background" aria-hidden="true">
-    <video class="video-background-video" autoplay muted loop playsinline"">
-        <source src="~/GTXImages/video/GTX-1.MOV" type="video/mp4" />
+    <video class="video-background-video" autoplay muted loop playsinline webkit-playsinline preload="auto" poster="~/GTXImages/GTX-poster.jpg">
+        <source src="~/GTXImages/video/GTX.MP4" type="video/mp4" />
     </video>
 </div>
 
 <div class="d-flex justify-content-center align-items-center" style="height: 550px">
-    @*    <div class="fake-input hand-pointer shadow" data-bs-toggle="modal" data-bs-target="#filtersModal">
+    @*  <div class="fake-input hand-pointer shadow" data-bs-toggle="modal" data-bs-target="#filtersModal">
             @{ Html.RenderPartial("_SearchByTerm"); }
-        </div>*@
-    <div class="btn-container d-flex justify-content-center gap-3 flex-wrap">
+        </div> *@
+    <div class="btn-container d-flex justify-content-center gap-xxl-3 gap-xl-3 gap-lg-2 flex-wrap">
         <a href="/Home/Application" class="btn btn-big-gradient shadow" type="button">Get pre-approval</a>
-        <a data-bs-toggle="modal" class="btn btn-big-gradient " data-bs-target="#filtersModal">Search inventory</a>
+        <a data-bs-toggle="modal" class="btn btn-big-gradient shadow" data-bs-target="#filtersModal">Search inventory</a>
         <a href="/Home/Contact" class="btn btn-big-gradient shadow" type="button">Contact us</a>
     </div>
 </div>
+
 <script>
     $(function () {
     });
