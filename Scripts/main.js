@@ -48,7 +48,7 @@
     // Layout blues
     $.get(`${root}Inventory/GetNow`)
         .done(function (html) {
-            $(".schedule").text(html.Now);
+            $("#schedule").text(html.Now);
         });
 
     $("#term")

@@ -77,24 +77,25 @@
                                     @Html.Partial("_Carousel", Model.CurrentVehicle)
                                 </div>
                             </div>
-                            }
-                            else {
-                                <div class="d-flex justify-content-center text-uppercase p-5">
-                                    <h6>
-                                        <img class="img-fluid d-block mx-auto" width="85" src="@Url.Content("~/GTXImages/gtx.png")" alt="GTX Autogroup">
-                                        is still working on images
-                                    </h6>
-                                </div>
-                            }
                         }
+                        else {
+                            <div class="d-flex justify-content-center text-uppercase p-5">
+                                <h6>
+                                    <img class="img-fluid d-block mx-auto" width="85" src="@Url.Content("~/GTXImages/gtx.png")" alt="GTX Autogroup">
+                                    <br />
+                                    is still working on images
+                                </h6>
+                            </div>
+                        }
+                    }
                 </div>
 
                 @*Dudes*@
-                <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
+                <div class="d-flex justify-content-center align-items-center gap-2 flex-nowrap ">
                     <span>
                         <i id="like-btn" class="btn btn-light rounded shadow bi bi-heart-fill text-danger" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"></i>
                     </span>
-                    <span">
+                    <span>
                         <a id="shareToFacebook" class="btn btn-light rounded shadow" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"><i class="bi bi-facebook"></i></a>
                     </span>
                     <span>
@@ -103,7 +104,6 @@
                     <a href="http://www.carfax.com/VehicleHistory/p/Report.cfx?partner=DVW_1&vin=@Model.CurrentVehicle.VehicleDetails.VIN" target="_blank">
                         <img src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report">
                     </a>
-                    <img src="https://velocity-vdp-prod-attachments.s3.amazonaws.com/Velocity+Automotive+Solutions/WindowSticker_v2.png" alt="Velocity Window Sticker" class="" style="max-height: 100px">
                 </div>
 
                 @*Details*@
@@ -208,6 +208,11 @@
                             <span class="btn btn-outline-secondary shadow gap-2 my-1">@feature</span>
                         }
                     </div>
+                </div>
+
+                @*Stickers placeholder*@
+                <div class="d-flex justify-content-center align-items-center gap-2 flex-nowrap ">
+                    <img src="https://velocity-vdp-prod-attachments.s3.amazonaws.com/Velocity+Automotive+Solutions/WindowSticker_v2.png" alt="Velocity Window Sticker" class="" style="max-height: 100px">
                 </div>
             </div>
 

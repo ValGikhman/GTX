@@ -190,12 +190,14 @@ namespace GTX.Controllers {
                 var today = Model.OpenHours.FirstOrDefault(m => m.Day == currentDay);
                 bool isOpened = (currentHour >= today.From && currentHour <= today.To);
                 string openClose = isOpened ? "Now opened" : "Closed";
-                if (today.From == 0 && today.To == 0) {
+/*                if (today.From == 0 && today.To == 0) {
                     returnValue = $"{today.Day}: {today.Description}";
                 }
                 else {
                     returnValue = $"{today.Day}: {today.Description} - {openClose}";
-                }
+                }*/
+
+                returnValue = $"{openClose}";
 
                 return Json(new { Now = returnValue }, JsonRequestBehavior.AllowGet);
             }
