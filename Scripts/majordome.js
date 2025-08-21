@@ -58,7 +58,6 @@ function loadGallery(vehicle) {
     var container = $("#sortable-gallery");
     container.empty();
     var i = 0;
-    var checked = "";
     vehicle.Images.forEach(function (img) {
         var showImageEdit = "";
         var imageIcon = "bi bi-image";
@@ -106,7 +105,6 @@ function updateGalleryDisplay() {
     });
 }
 
-// File upload jazz
 function actionsRenderer(params) {
     const container = document.createElement('div');
     const fileInput = document.createElement('input');
@@ -144,7 +142,6 @@ function actionsRenderer(params) {
 function uploadFiles(stock, input) {
     showSpinner($("#inventoryOverlay"));
     const files = input.files;
-    if (files.length === 0) return;
 
     const formData = new FormData();
     for (let i = 0; i < files.length; i++) {
@@ -152,6 +149,19 @@ function uploadFiles(stock, input) {
     }
     formData.append("stock", stock);
 
+    upload(formData, stock);
+}
+
+function uploadDroppedFiles(stock, files) {
+    showSpinner($("#inventoryOverlay"));
+    const formData = new FormData();
+    files.forEach(f => formData.append("files", f, f.name));
+    formData.append("stock", stock);
+
+    upload(formData, stock);
+}
+
+function upload(formData, stock) {
     fetch("/Majordome/Upload", {
         method: "POST",
         body: formData,
@@ -167,7 +177,7 @@ function uploadFiles(stock, input) {
                     const vehicle = data.find(v => v.Stock === stock);
                     loadGallery(vehicle);
                     updateRow(data);
-            });
+                });
         } else {
             alert("Upload failed.");
         }
@@ -197,9 +207,6 @@ function uploadInventory(input) {
         alert(error);
     });
 }
-
-
-
 
 function decodeVin(vin) {
     fetch('/Inventory/DecodeVin', {
@@ -411,7 +418,6 @@ function setControls(json) {
         $("#fontType").val("bolditalic");
     }
 }
-
 
 function deleteOverlayData() {
     showSpinner($("#inventoryOverlay"));

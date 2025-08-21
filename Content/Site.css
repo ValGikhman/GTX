@@ -1,4 +1,15 @@
 ﻿/*Custom*/
+#gridShell {
+    height: 65vh; /* initial (works even before JS runs) */
+    width: 83.6rem;
+}
+
+/* AG Grid must fill its parent to show vertical scrollbar */
+#myGrid {
+    height: 100%;
+    width: 100%;
+}
+
 /* Absolutely fill each slide, then flex-center the image */
 .container-fluid .card {
     width: 18rem; /* adjust to your taste (e.g., 16rem, 20rem) */
