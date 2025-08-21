@@ -687,7 +687,10 @@
     }
 
     function handleFiles(fileList) {
-        const files = Array.from(fileList).filter(f => f.type.startsWith("image/"));
+        const files = Array.from(fileList || []).filter(f => {
+            const n = (f.name || '').toLowerCase();
+            return f.type.startsWith('image/') || /\.(heic|heif|jpg|jpeg|png|webp|gif|bmp|tiff)$/.test(n);
+        });
         const stock = selectedVehicle.Stock;
         if (!files.length) return;
         uploadDroppedFiles(stock, files);
