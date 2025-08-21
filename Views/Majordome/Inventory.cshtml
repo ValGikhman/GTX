@@ -19,7 +19,7 @@
         }
 
             .dropzone.dragover {
-                background: #7aa7ff;
+                background: #bbb;
                 border-color: red;
             }
 
@@ -90,7 +90,9 @@
                 </div>
 
                 <!-- Grid shell gets a dynamic height -->
-                <div id="gridShell" class="mt-2 mx-auto">
+                <div id="gridShell" class="mx-auto">
+                    <div id="specials" class="my-1">
+                    </div>
                     <div id="myGrid" class="ag-theme-alpine w-100"></div>
                 </div>
             </div>
@@ -168,7 +170,7 @@
         </div>
 
         <!-- Gallery Tab -->
-        <div class="tab-pane fade  d-flex flex-column align-items-center" id="gallery" role="tabpanel">
+        <div class="tab-pane fade d-flex flex-column align-items-center" id="gallery" role="tabpanel">
             <div class="d-flex justify-content-center w-100 p-3">
                 <button id="upload" class="btn btn-light shadow mx-2 bi bi-upload">&nbsp;Upload images</button>
                 <button id="deleteAll" class="btn btn-light shadow bi bi-trash">&nbsp;Delete all images</button>
@@ -177,7 +179,6 @@
             <div id="dropzone" class="dropzone w-100 border">
                 <div id="gallery-content" class="flex-grow-1 w-100 px-3 pb-3">
                     <ul id="sortable-gallery" class="row justify-content-center">
-                        <!-- li items here -->
                     </ul>
                 </div>
             </div>
@@ -247,7 +248,9 @@
         }).get();
     }
 
-        $(".ag-column-last").html($("#actions").html());
+
+        $("#specials").html($("#actions").html());
+@*        $(".ag-column-last").html($("#actions").html());*@
 
         $("#btnReStoryAll").on("click", function () {
             reStoryAll();
@@ -375,22 +378,22 @@
         });
 
         tinymce.init({
-        selector: '#story',
-        height: 560,
-        menubar: 'file edit view insert format customMenu', // add your custom menu here
-        setup: function (editor) {
-            editor.on('init', function () {
-                editor.setContent(selectedVehicle.Story?.HtmlContent || '');
-            });
-        },
-        plugins: [
-            // Core editing features
-            'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'image', 'link', 'lists', 'media', 'searchreplace', 'visualblocks'
-        ],
-        toolbar: '',
+            selector: '#story',
+            height: 560,
+            menubar: 'file edit view insert format customMenu', // add your custom menu here
+            setup: function (editor) {
+                editor.on('init', function () {
+                    editor.setContent(selectedVehicle.Story?.HtmlContent || '');
+                });
+            },
+            plugins: [
+                // Core editing features
+                'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'image', 'link', 'lists', 'media', 'searchreplace', 'visualblocks'
+            ],
+            toolbar: '',
 
-        tinycomments_mode: 'embedded'
-    });
+            tinycomments_mode: 'embedded'
+        });
 
         $("#myGrid").on("dblclick", ".details", function () {
             $("#details-tab").tab("show");
@@ -509,7 +512,7 @@
         },
         {
             headerName: '',
-            width: 260,
+            width: 140,
             field: 'action',
             pinned: 'right',
             suppressSizeToFit: true, // don't let "fit" shrink this
@@ -634,21 +637,25 @@
         }
 
         const wrapper = document.createElement('div');
-        wrapper.className = 'd-flex position-relative';
-
         const image = new Image();;
         image.src = params.data.Image;
         image.className = "grid-image rounded shadow";
         wrapper.appendChild(image)
 
-        if (params.data.Images.length > 0) {
-            const badge = document.createElement('span');
-            badge.className = 'position-absolute badge rounded-pill m-2 bg-success start-0 fs-6';
-            badge.textContent = `${params.data.Images.length} images`;
-            wrapper.appendChild(badge);
-        }
-
         return wrapper;
+    }
+
+    // Show Bootstrap modal with images
+    function showOverlayModal(id) {
+        if (stock) {
+            showSpinner($("#inventoryOverlay"));
+            $.get(`${root}Majordome/OverlayModal`, { id })
+                .done(function (html) {
+                    $("#vehicle-overlay").html(html);
+                    $("#overlayModal").modal("show");
+                    hideSpinner($("#inventoryOverlay"));
+                })
+        };
     }
 
     function showVehicleDetails(vehicle) {
@@ -671,19 +678,6 @@
         }
 
         $("#gallery-tab").text(`Photos (${vehicle.Images.length})`);
-    }
-
-    // Show Bootstrap modal with images
-    function showOverlayModal(id) {
-        if (stock) {
-            showSpinner($("#inventoryOverlay"));
-            $.get(`${root}Majordome/OverlayModal`, { id })
-                .done(function (html) {
-                    $("#vehicle-overlay").html(html);
-                    $("#overlayModal").modal("show");
-                    hideSpinner($("#inventoryOverlay"));
-                })
-        };
     }
 
     function handleFiles(fileList) {
