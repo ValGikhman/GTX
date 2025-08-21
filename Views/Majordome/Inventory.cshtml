@@ -413,113 +413,115 @@
     const fmtMileage = v => (v ?? v === 0) ? nfInt.format(v) : '';
 
     const columnDefs = [
-        {
-            field: 'images',
-            valueGetter: function (params) {
-                return params.data.Image || "";
-            },
-            cellRenderer: imageButtonRenderer,
-            filter: false,
-            sortable: true,
-            width: 200,
-            cellClass: 'd-flex align-items-center justify-content-center',
-            comparator: function (valueA, valueB) {
-                // Convert to 1 if has image, 0 if "noimage"
-                console.log(valueA, valueB)
-                const hasImageA = valueA && !valueA.toLowerCase().includes("no-image") ? 1 : 0;
-                const hasImageB = valueB && !valueB.toLowerCase().includes("no-image") ? 1 : 0;
+    {
+        field: 'images',
+        valueGetter: function (params) {
+            return params.data.Image || "";
+        },
+        cellRenderer: imageButtonRenderer,
+        filter: false,
+        sortable: true,
+        width: 200,
+        cellClass: 'd-flex align-items-center justify-content-center',
+        comparator: function (valueA, valueB) {
+            // Convert to 1 if has image, 0 if "noimage"
+            console.log(valueA, valueB)
+            const hasImageA = valueA && !valueA.toLowerCase().includes("no-image") ? 1 : 0;
+            const hasImageB = valueB && !valueB.toLowerCase().includes("no-image") ? 1 : 0;
 
-                return hasImageA - hasImageB; // ascending: noimage first, then images
-            },
+            return hasImageA - hasImageB; // ascending: noimage first, then images
         },
-        {
-            headerName: "Details",
-            filter: false,
-            width: 170,
-            minWidth: 120,
-            field: "Vehicle", // You can use any placeholder field
-            autoHeight: true,
-            sortable: true,
-            comparator: (valueA, valueB, nodeA, nodeB) => {
-                const a = `${nodeA.data.Year} ${nodeA.data.Make} ${nodeA.data.Model}`.toLowerCase();
-                const b = `${nodeB.data.Year} ${nodeB.data.Make} ${nodeB.data.Model}`.toLowerCase();
+    },
+    {
+        headerName: "Details",
+        filter: false,
+        width: 170,
+        minWidth: 120,
+        field: "Vehicle", // You can use any placeholder field
+        autoHeight: true,
+        sortable: true,
+        comparator: (valueA, valueB, nodeA, nodeB) => {
+            const a = `${nodeA.data.Year} ${nodeA.data.Make} ${nodeA.data.Model}`.toLowerCase();
+            const b = `${nodeB.data.Year} ${nodeB.data.Make} ${nodeB.data.Model}`.toLowerCase();
 
-                if (a < b) return -1;
-                if (a > b) return 1;
-                return 0;
-            },
-            cellRenderer: vehicleDetailsCellRenderer,
-            getQuickFilterText: (params) => {
-                const { Year, Make, Model, VehicleStyle, Stock, VIN } = params.data;
-                return `${Year} ${Make} ${Model} ${VehicleStyle} ${Stock} ${VIN}`;
-            }
+            if (a < b) return -1;
+            if (a > b) return 1;
+            return 0;
         },
-        {
-            headerName: "Purchased",
-            field: "PurchaseDate",
-            filter: 'agDateColumnFilter',
-            sortable: true,
-            width: 160,
-            minWidth: 120,
-            comparator: (date1, date2) => {
-                if (date1 == null && date2 == null) return 0;
-                if (date1 == null) return -1;
-                if (date2 == null) return 1;
-                return date1.getTime() - date2.getTime();
-            },
-            valueGetter: params => params.data.PurchaseDate ? new Date(params.data.PurchaseDate) : null,
-            valueFormatter: p => p.value ? new Date(p.value).toLocaleDateString('en-US') : ''
-        },
-        {
-            headerName: "Stock", field: "Stock", filter: true,
-            width: 110,
-            minWidth: 100
-        },
-        {
-            headerName: "GTX",
-            field: "LocationCode",
-            filter: true,
-            width: 150,
-            minWidth: 120
-        },
-        {
-            headerName: "Upload",
-            field: "SetToUpload",
-            sortable: true,
-            width: 150,
-            minWidth: 100,
-            cellRenderer: params => {
-                return params.value === "Y" ? "✔" : "";
-            }
-        },
-        {
-            headerName: 'Story',
-            field: 'Story',
-            width: 80,
-            cellRenderer: (params) => {
-                const story = params.data?.Story; // optional chaining
-                const hasTitle = story?.Title != null && story.Title !== "";
-                return hasTitle ? "✔" : "";
-            },
-            filter: false,
-            sortable: true,
-            comparator: (a, b) => {
-                // a & b are the raw Story objects
-                const aHasTitle = a && a.Title ? 1 : 0;
-                const bHasTitle = b && b.Title ? 1 : 0;
-                return aHasTitle - bHasTitle;
-            },
-        },
-        {
-            headerName: '',
-            width: 140,
-            field: 'action',
-            pinned: 'right',
-            suppressSizeToFit: true, // don't let "fit" shrink this
-            cellRenderer: actionsRenderer,
-            filter: false,
-            sortable: true
+        cellRenderer: vehicleDetailsCellRenderer,
+        getQuickFilterText: (params) => {
+            const { Year, Make, Model, VehicleStyle, Stock, VIN } = params.data;
+            return `${Year} ${Make} ${Model} ${VehicleStyle} ${Stock} ${VIN}`;
         }
+    },
+    {
+        headerName: "Purchased",
+        field: "PurchaseDate",
+        filter: 'agDateColumnFilter',
+        sortable: true,
+        width: 160,
+        minWidth: 120,
+        comparator: (date1, date2) => {
+            if (date1 == null && date2 == null) return 0;
+            if (date1 == null) return -1;
+            if (date2 == null) return 1;
+            return date1.getTime() - date2.getTime();
+        },
+        valueGetter: params => params.data.PurchaseDate ? new Date(params.data.PurchaseDate) : null,
+        valueFormatter: p => p.value ? new Date(p.value).toLocaleDateString('en-US') : ''
+    },
+    {
+        headerName: "Stock",
+        field: "Stock",
+        filter: true,
+        width: 110,
+        minWidth: 100
+    },
+    {
+        headerName: "GTX",
+        field: "LocationCode",
+        filter: true,
+        width: 150,
+        minWidth: 120
+    },
+    {
+        headerName: "Upload",
+        field: "SetToUpload",
+        sortable: true,
+        width: 150,
+        minWidth: 100,
+        cellRenderer: params => {
+            return params.value === "Y" ? "✔" : "";
+        }
+    },
+    {
+        headerName: 'Story',
+        field: 'Story',
+        width: 80,
+        cellRenderer: (params) => {
+            const story = params.data?.Story; // optional chaining
+            const hasTitle = story?.Title != null && story.Title !== "";
+            return hasTitle ? "✔" : "";
+        },
+        filter: false,
+        sortable: true,
+        comparator: (a, b) => {
+            // a & b are the raw Story objects
+            const aHasTitle = a && a.Title ? 1 : 0;
+            const bHasTitle = b && b.Title ? 1 : 0;
+            return aHasTitle - bHasTitle;
+        },
+    },
+    {
+        headerName: '',
+        width: 180,
+        field: 'action',
+        pinned: 'right',
+        suppressSizeToFit: true, // don't let "fit" shrink this
+        cellRenderer: actionsRenderer,
+        filter: false,
+        sortable: true
+    }
     ]
     const gridOptions = {
         rowData: @Html.Raw(Json.Encode(Model.Inventory.Vehicles)),
@@ -604,14 +606,6 @@
         return icon;
     }
 
-    function vehicleDetailsCellRenderer(params) {
-        const d = params.data || {};
-        return `
-        <div class="details"><h6>${d.Year ?? ''} ${d.Make ?? ''}</h6>
-        <h7>${d.Model ?? ''} ${d.VehicleStyle ?? ''}</h7></div>
-      `;
-        }
-
     // Delete story Icon renderer
     function deleteStoryIconRenderer(params) {
         const icon = document.createElement('span');
@@ -678,6 +672,14 @@
         }
 
         $("#gallery-tab").text(`Photos (${vehicle.Images.length})`);
+    }
+
+    function vehicleDetailsCellRenderer(params) {
+        const d = params.data || {};
+        return `
+        <div class="details"><h6>${d.Year ?? ''} ${d.Make ?? ''}</h6>
+        <h7>${d.Model ?? ''} ${d.VehicleStyle ?? ''}</h7></div>
+      `;
     }
 
     function handleFiles(fileList) {
