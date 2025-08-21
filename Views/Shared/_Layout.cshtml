@@ -52,22 +52,18 @@
     <!-- Offcanvas Menu Begin -->
     <div class="offcanvas-menu-overlay"></div>
     <div class="offcanvas-menu-wrapper gradient rounded-2 text-shadow">
-        <div class="offcanvas__logo">
-            <a href="./">
-                <img width="100" src="@Url.Content("~/GTXImages/GTX-Black.png")" alt="www.gtxautogroup.com">
-            </a>
-            <a class="btn btn-light shadow my-2" href="tel:(513) 912-4574">
-                <i class="bi bi-telephone"></i>
-                (513) 912-4574
-            </a>
-        </div>
+        <a href="./">
+            <img width="100" src="@Url.Content("~/GTXImages/GTX-Black.png")" alt="www.gtxautogroup.com">
+        </a>
+        <a class="btn btn-light shadow my-2 pull-right" href="tel:(513) 912-4574">
+            <i class="bi bi-telephone"></i>
+            (513) 912-4574
+        </a>
         <div id="mobile-menu-wrap">
-            <i class="bi bi-stopwatch text-shadow">&nbsp;</i><h7 class="schedule"></h7>
             @Html.Partial("_ScheduleMobile")
         </div>
     </div>
     <!-- Offcanvas Menu End -->
-
     @{Html.RenderPartial("_SearchForm");}
 
     <!-- Header Section Begin -->
@@ -133,7 +129,7 @@
                         <li class="mx-sm-1">
                             <a class="btn btn-light" href="tel:(513) 912-4574">
                                 <i class="bi bi-telephone"></i>
-                                <span id="telephone" class="d-none d-xxl-inline m-sm-1">(513) 912-4574</span>   
+                                <span id="telephone" class="d-none d-xxl-inline m-sm-1">(513) 912-4574</span>
                             </a>
                         </li>
                         <li class="d-md-inline mx-sm-1">

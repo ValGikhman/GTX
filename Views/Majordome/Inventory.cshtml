@@ -13,6 +13,31 @@
         #filterResults {
             margin-top: 40px !important;
         }
+
+        .dropzone {
+            transition: background-color .15s, border-color .15s;
+        }
+
+            .dropzone.dragover {
+                background: #7aa7ff;
+                border-color: red;
+            }
+
+        #sortable-gallery > li {
+            list-style: none;
+        }
+
+        .sortable-placeholder {
+            border: 2px dashed #bbb;
+            background: #f8f9fa;
+            height: 160px;
+            border-radius: .5rem;
+        }
+
+        .this-container {
+            margin-top: -20px;
+        }
+
     </style>
 
     <!-- Includes all JS & CSS for the JavaScript Data Grid -->
@@ -26,7 +51,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
 
-<h2 class="text-center">@ViewBag.Title</h2>
+<h5 class="text-center">@ViewBag.Title</h5>
 
 <div id="inventoryOverlay" class="spinner-overlay spinner-hidden">
     <div class="spinner-border text-primary" role="status">
@@ -42,7 +67,7 @@
     </div>
 </div>
 
-<div class="container-fluid">
+<div class="this-container container-fluid">
     <nav class="nav nav-tabs no-wrap-group" id="myTab" role="tablist">
         <button class="nav-link btn btn-light text-shadow-small active" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#inventory" type="button" role="tab">
             Inventory
@@ -58,9 +83,15 @@
     <div class="tab-content border border-top-0 well " id="myTabContent">
         <!-- Inventory Tab -->
         <div class="tab-pane fade show active py-2" id="inventory" role="tabpanel">
-            <div id="myGrid" class="ag-theme-alpine mx-auto" style="height: 560px; width: 1600px;">
-                <div>
+            <div class="container-fluid">
+                <!-- Filters -->
+                <div id="filtersWrap">
                     @{ Html.RenderPartial("_FilterByTerm"); }
+                </div>
+
+                <!-- Grid shell gets a dynamic height -->
+                <div id="gridShell" class="mt-2 mx-auto">
+                    <div id="myGrid" class="ag-theme-alpine w-100"></div>
                 </div>
             </div>
         </div>
@@ -68,20 +99,20 @@
         <div class="tab-pane fade" id="details" role="tabpanel">
             <div class="row">
                 <!-- Left Column: Form -->
-                <div class="col-md-7">
-                    <div class="row col-lg-4">
+                <div class="col-lg-6">
+                    <div class="row col-lg-5 mt-3">
                         @Html.Label("VIN", new { @class = "text-shadow" })
                         <div class="input-group mb-2">
                             <input id="vin" class="form-control shadow" placeholder="VIN" aria-label="VIN" aria-describedby="vin" />
                             <button id="decode" class="btn btn-light bi bi-search input-group-text "></button>
                         </div>
                     </div>
-                    <div class="row mt-3">
-                        <div class="mb-2 col-lg-2">
+                    <div class="row mt-3 d-flex justify-content-center">
+                        <div class="mb-2 col-lg-3">
                             @Html.Label("Stock", new { @class = "text-shadow" })
                             <input id="stock" class="form-control shadow" placeholder="Style" />
                         </div>
-                        <div class="mb-2 col-lg-1">
+                        <div class="mb-2 col-lg-3">
                             @Html.Label("Year", new { @class = "text-shadow" })
                             <input id="year" class="form-control shadow" placeholder="Year" />
                         </div>
@@ -89,26 +120,26 @@
                             @Html.Label("Make", new { @class = "text-shadow" })
                             <input id="make" class="form-control shadow" placeholder="Make" />
                         </div>
-                        <div class="mb-2 col-lg-2">
+                        <div class="mb-2 col-lg-3">
                             @Html.Label("Model", new { @class = "text-shadow" })
                             @Html.Label("Model", new { @class = "text-shadow" })
                             <input id="model" class="form-control shadow" placeholder="Model" />
                         </div>
-                        <div class="mb-2 col-lg-2">
+                    </div>
+                    <div class="row mt-3 d-flex justify-content-center">
+                        <div class="mb-2 col-lg-3">
                             @Html.Label("Style", new { @class = "text-shadow" })
                             <input id="style" class="form-control shadow" placeholder="Style" />
                         </div>
-                        <div class="mb-2 col-lg-2">
+                        <div class="mb-2 col-lg-3">
                             @Html.Label("Type", new { @class = "text-shadow" })
                             <input id="type" class="form-control shadow" placeholder="Type" />
                         </div>
-                    </div>
-                    <div class="row mt-3">
-                        <div class="mb-2 col-lg-6">
+                        <div class="mb-2 col-lg-3">
                             @Html.Label("Mileage", new { @class = "text-shadow" })
                             <input id="mileage" class="form-control shadow" placeholder="Mileage" />
                         </div>
-                        <div class="mb-2 col-lg-6">
+                        <div class="mb-2 col-lg-3">
                             @Html.Label("Price", new { @class = "text-shadow" })
                             <input id="retailPrice" class="form-control shadow" placeholder="Price" />
                         </div>
@@ -143,10 +174,12 @@
                 <button id="deleteAll" class="btn btn-light shadow bi bi-trash">&nbsp;Delete all images</button>
                 <input type="file" id="fileInput" class="d-none" multiple accept="image/*">
             </div>
-            <div id="gallery-content" class="flex-grow-1 w-100 px-3 pb-3">
-                <ul id="sortable-gallery" class="row justify-content-center">
-                    <!-- li items here -->
-                </ul>
+            <div id="dropzone" class="dropzone w-100 border">
+                <div id="gallery-content" class="flex-grow-1 w-100 px-3 pb-3">
+                    <ul id="sortable-gallery" class="row justify-content-center">
+                        <!-- li items here -->
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -161,10 +194,25 @@
 <input type="hidden" id="currentVehicle" />
 
 <script type="text/javascript">
-
     $(function () {
         var grid = document.querySelector("#myGrid");
         agGrid.createGrid(grid, gridOptions);
+
+
+        const $dropzone = $('#dropzone');
+
+        // Drag & drop events
+        const prevent = e => { e.preventDefault(); e.stopPropagation(); };
+            ["dragenter","dragover","dragleave","drop"].forEach(evt => {
+            $dropzone.on(evt, prevent);
+        });
+
+        $dropzone.on("dragover", () => $dropzone.addClass("dragover"));
+        $dropzone.on("dragleave drop", () => $dropzone.removeClass("dragover"));
+        $dropzone.on("drop", (e) => {
+            const dt = e.originalEvent.dataTransfer;
+            if (dt && dt.files) handleFiles(dt.files);
+        });
 
         $(document).on("click", ".delete-image", function () {
             var file = $(this).data("filename");
@@ -193,141 +241,140 @@
             updateGalleryDisplay();
         });
 
-    function getSortedIds() {
-        return $("#sortable-gallery li").map(function () {
-            return $(this).attr("id");
+        function getSortedIds() {
+            return $("#sortable-gallery li").map(function () {
+                return $(this).attr("id");
         }).get();
     }
 
-    $(".ag-column-last").html($("#actions").html());
+        $(".ag-column-last").html($("#actions").html());
 
-    $("#btnReStoryAll").on("click", function () {
-        reStoryAll();
-    });
+        $("#btnReStoryAll").on("click", function () {
+            reStoryAll();
+        });
 
-    $("#filterLiked").hide();
-    $(".sort").hide();
+        $("#filterLiked, .sort").hide();
 
-    $("#deleteAll").on("click", function () {
-        const stock = selectedVehicle.Stock;
-        if (confirm(`Deleting all images for Stock# ${stock}`)) {
-            deleteImages(stock);
-        }
-    });
+        $("#deleteAll").on("click", function () {
+            const stock = selectedVehicle.Stock;
+            if (confirm(`Deleting all images for Stock# ${stock}`)) {
+                deleteImages(stock);
+            }
+        });
 
-    $("#createStory").on("click", function () {
-        const stock = selectedVehicle.Stock;
-        if (confirm(`Do you want to create story for Stock# ${stock}`)) {
-            createStory(stock);
-        }
-    });
+        $("#createStory").on("click", function () {
+            const stock = selectedVehicle.Stock;
+            if (confirm(`Do you want to create story for Stock# ${stock}`)) {
+                createStory(stock);
+            }
+        });
 
-    $("#deleteStory").on("click", function () {
-        const stock = selectedVehicle.Stock;
-        if (confirm(`Do you want to delete story for Stock# ${stock}`)) {
-            deleteStory(stock);
-        }
-    });
+        $("#deleteStory").on("click", function () {
+            const stock = selectedVehicle.Stock;
+            if (confirm(`Do you want to delete story for Stock# ${stock}`)) {
+                deleteStory(stock);
+            }
+        });
 
-    $("#saveStory").on("click", function () {
-        const stock = selectedVehicle.Stock;
-        var story = tinymce.get('story').getContent();
-        const title = $("#title").val();
-        if (confirm(`Do you want to save story for Stock# ${stock}`)) {
-            showSpinner($("#inventoryOverlay"));
+        $("#saveStory").on("click", function () {
+            const stock = selectedVehicle.Stock;
+            var story = tinymce.get('story').getContent();
+            const title = $("#title").val();
+            if (confirm(`Do you want to save story for Stock# ${stock}`)) {
+                showSpinner($("#inventoryOverlay"));
 
-            fetch('/Majordome/SaveStory', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ stock, story, title })
-            })
-            .then(response => {
-                if (!response.ok) throw new Error("Server error");
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    console.log("✅ Story saved:", data.message);
-                    fetch('/Majordome/GetUpdatedItems')
-                        .then(res => res.json())
-                        .then(data => {
-                            updateRow(data);
-                    });
-                } else {
-                    console.log("❌ Server returned error:", data.message);
+                fetch('/Majordome/SaveStory', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ stock, story, title })
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error("Server error");
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        console.log("✅ Story saved:", data.message);
+                        fetch('/Majordome/GetUpdatedItems')
+                            .then(res => res.json())
+                            .then(data => {
+                                updateRow(data);
+                        });
+                    } else {
+                        console.log("❌ Server returned error:", data.message);
+                    }
+                })
+                .catch(error => {
+                    console.log("❌ Error submitting:", error);
+                });
+            }
+        });
+
+        $("#upload").on("click", function () {
+            $('#fileInput').click();
+        });
+
+        $("#fileInput").on("change", function () {
+            const files = Array.from(fileInput.files);
+            const stock = selectedVehicle.Stock;
+
+            if (files.length > 0) {
+                uploadFiles(stock, fileInput);
+            }
+        });
+
+        $("#btnUploadInventory").on("click", function () {
+                $("#dataCsv").click();
+        });
+
+        $("#dataCsv").on("change", function () {
+            var file = this.files && this.files.length ? this.files[0].name : "";
+            if (file.length > 0) {
+                if (confirm("Do you want to upload a inventory?")) {
+                    uploadInventory(this);
                 }
-            })
-            .catch(error => {
-                console.log("❌ Error submitting:", error);
-            });
-        }
-    });
-
-    $("#upload").on("click", function () {
-        $('#fileInput').click();
-    });
-
-    $("#fileInput").on("change", function () {
-        const files = Array.from(fileInput.files);
-        const stock = selectedVehicle.Stock;
-
-        if (files.length > 0) {
-            uploadFiles(stock, fileInput);
-        }
-    });
-
-    $("#btnUploadInventory").on("click", function () {
-            $("#dataCsv").click();
-    });
-
-    $("#dataCsv").on("change", function () {
-        var file = this.files && this.files.length ? this.files[0].name : "";
-        if (file.length > 0) {
-            if (confirm("Do you want to upload a inventory?")) {
-                uploadInventory(this);
             }
-        }
-    });
+        });
 
-    $("#vin")
-        .on("blur", function () {
-            const vin = $(this).val();
-            if (vin.length > 0) {
-                decodeVin(vin);
-            }
-        })
-        .on("keydown", function (e) {
-            if (e.key === "Enter") {
-                e.preventDefault();
+        $("#vin")
+            .on("blur", function () {
                 const vin = $(this).val();
                 if (vin.length > 0) {
                     decodeVin(vin);
                 }
+            })
+            .on("keydown", function (e) {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    const vin = $(this).val();
+                    if (vin.length > 0) {
+                        decodeVin(vin);
+                    }
+                }
+            }).focus();
+
+        new Sortable(document.getElementById("sortable-gallery"), {
+            scroll: true,
+            scrollSensitivity: 30,
+            scrollSpeed: 20,
+            animation: 150,
+            ghostClass: "sortable-gallery-ghost",
+            chosenClass: "sortable-gallery-chosen",
+            dragClass: "sortable-gallery-drag",
+            delay: 100,
+            touchStartThreshold: 5,
+            onEnd: function (event) {
+                let sorted = $("#sortable-gallery li").map(function () {
+                    return $(this).attr("id")
+                }).get();
+                saveOrder(sorted, selectedVehicle.Stock);
+                updateGalleryDisplay();
             }
-        }).focus();
+        });
 
-    new Sortable(document.getElementById("sortable-gallery"), {
-        scroll: true,
-        scrollSensitivity: 30,
-        scrollSpeed: 20,
-        animation: 150,
-        ghostClass: "sortable-gallery-ghost",
-        chosenClass: "sortable-gallery-chosen",
-        dragClass: "sortable-gallery-drag",
-        delay: 100,
-        touchStartThreshold: 5,
-        onEnd: function (event) {
-            let sorted = $("#sortable-gallery li").map(function () {
-                return $(this).attr("id")
-            }).get();
-            saveOrder(sorted, selectedVehicle.Stock);
-            updateGalleryDisplay();
-        }
-    });
-
-    tinymce.init({
+        tinymce.init({
         selector: '#story',
         height: 560,
         menubar: 'file edit view insert format customMenu', // add your custom menu here
@@ -345,312 +392,305 @@
         tinycomments_mode: 'embedded'
     });
 
-    $("#myGrid").on("dblclick", ".detail-button, .detail-badge", function () {
-        $("#details-tab").tab("show");
-    });
-
-    $("#myGrid").on("dblclick", ".grid-image", function () {
-        $("#gallery-tab").tab("show");
-    });
-
-});
-
-let gridApi = null;
-
-const columnDefs = [
-    {
-        field: 'images',
-        valueGetter: function (params) {
-            return params.data.Image || "";
-        },
-        cellRenderer: imageButtonRenderer,
-        filter: false,
-        sortable: true,
-        width: 210 ,
-        cellClass: 'd-flex align-items-center justify-content-center',
-        comparator: function (valueA, valueB) {
-            // Convert to 1 if has image, 0 if "noimage"
-            console.log(valueA, valueB)
-            const hasImageA = valueA && !valueA.toLowerCase().includes("no-image") ? 1 : 0;
-            const hasImageB = valueB && !valueB.toLowerCase().includes("no-image") ? 1 : 0;
-
-            return hasImageA - hasImageB; // ascending: noimage first, then images
-        },
-    },
-    {
-        headerName: "Vehicle details",
-        filter: false,
-        width: 350,
-        field: "Vehicle", // You can use any placeholder field
-        autoHeight: true,
-        sortable: true,
-        cellClass: 'd-flex align-items-center justify-content-center',
-        comparator: (valueA, valueB, nodeA, nodeB) => {
-            const a = `${nodeA.data.Year} ${nodeA.data.Make} ${nodeA.data.Model}`.toLowerCase();
-            const b = `${nodeB.data.Year} ${nodeB.data.Make} ${nodeB.data.Model}`.toLowerCase();
-
-            if (a < b) return -1;
-            if (a > b) return 1;
-            return 0;
-        },
-        cellRenderer: vehicleDetailsCellRenderer,
-        getQuickFilterText: (params) => {
-            const { Year, Make, Model, VehicleStyle, Stock, VIN } = params.data;
-            return `${Year} ${Make} ${Model} ${VehicleStyle} ${Stock} ${VIN}`;
-        }
-    },
-    {
-        headerName: "Purchased",
-        field: "PurchaseDate",
-        filter: 'agDateColumnFilter',
-        sortable: true,
-        width: 120,
-        valueGetter: params => {
-            // Convert from string like "2025-08-09" to Date object
-            return params.data.PurchaseDate ? new Date(params.data.PurchaseDate) : null;
-        },
-        comparator: (date1, date2) => {
-            if (date1 == null && date2 == null) return 0;
-            if (date1 == null) return -1;
-            if (date2 == null) return 1;
-            return date1.getTime() - date2.getTime();
-        },
-        valueFormatter: params => {
-            if (!params.value) return "";
-            return params.value.toLocaleDateString('en-US');
-        }
-    },
-    { headerName: "Stock", field: "Stock", filter: true, width: 150 },
-    { headerName: "GTX", field: "LocationCode", filter: true, width: 150 },
-    {
-        headerName: "Site Upload",
-        field: "SetToUpload",
-        sortable: true,
-        filter: true,
-        width: 170,
-        cellRenderer: params => {
-            return params.value === "Y" ? "✔" : "";
-        }
-    },
-    {
-        headerName: 'Story',
-        field: 'Story',
-        width: 80,
-        cellRenderer: (params) => {
-            const story = params.data?.Story; // optional chaining
-            const hasTitle = story?.Title != null && story.Title !== "";
-            return hasTitle ? "✔" : "";
-        },
-        filter: false,
-        sortable: true,
-        comparator: (a, b) => {
-            // a & b are the raw Story objects
-            const aHasTitle = a && a.Title ? 1 : 0;
-            const bHasTitle = b && b.Title ? 1 : 0;
-            return aHasTitle - bHasTitle;
-        },
-    },
-    {
-        headerName: '',
-        width: 260,
-        field: 'action',
-        cellRenderer: actionsRenderer,
-        filter: false,
-        sortable: true
-    }
-]
-const gridOptions = {
-    rowData: @Html.Raw(Json.Encode(Model.Inventory.Vehicles)),
-    onGridReady: (params) => {
-        gridApi = params.api; // ✅ store reference globally
-
-        const $stock = "@ViewBag.Stock";
-        if ($stock !== null && $stock !== "") {
-            $("#filterTerm").val($stock);
-            applyFilterTerm($stock);
-        }
-
-        gridApi.forEachNode(function (node, index) {
-            if (index === 0) {
-                node.setSelected(true);
-                gridOptions.onRowClicked({ data: node.data, node: node });
-            }
+        $("#myGrid").on("dblclick", ".details", function () {
+            $("#details-tab").tab("show");
         });
 
-        const count = gridApi.getDisplayedRowCount();
-        $("#filterResults").html(`${count} record(s) found.`);
-    },
-    columnDefs: columnDefs,
-    rowSelection: "single", // or 'multiple'
-    rowHeight: 150, // Set fixed row height in pixels
-    suppressRowClickSelection: false, // Allow clicking anywhere in the row
-    suppressCellFocus: true, // 🔥 Disable cell selection focus
-    pagination: false,
-    paginationPageSize: 20,
-    multiSortKey: 'ctrl', // or 'shift' (which key you want to hold to multi-sort)
-    paginationPageSizeSelector: [20, 50, 100],
-    defaultColDef: {
-        sortable: true,
-        filter: true,
-        resizable: true,
-        floatingFilter: false,
-        headerClass: 'text-shadow fw-normal td-center'
-    },
-    onRowClicked: function (event) {
-        selectedVehicle = event.data;
-        showVehicleDetails(selectedVehicle);
-        loadGallery(selectedVehicle);
-        setDetails(selectedVehicle.Stock);
-    },
-    onFilterChanged: params => {
-        const count = gridApi.getDisplayedRowCount();
-        $("#filterResults").html(`${count} record(s) found.`);
-    },
-    onGridSizeChanged: p => p.api.sizeColumnsToFit()
-};
+        $("#myGrid").on("dblclick", ".grid-image", function () {
+            $("#gallery-tab").tab("show");
+        });
+    });
 
-// Delete Icon renderer
-function deleteIconRenderer(params) {
-    const icon = document.createElement('span');
-    icon.className = 'bi bi-trash fs-5 px-2';
-    icon.style.cursor = 'pointer';
-    icon.title = `Delete all ${params.data.Images.length} pictures for Stock# ${JSON.stringify(params.data.Stock)}`;
+    let gridApi = null;
 
-    icon.onclick = () => {
-        if (confirm(`Deleting all ${params.data.Images.length} pictures for Stock# ${JSON.stringify(params.data.Stock)}`)) {
-            deleteImages(params.data.Stock);
-            params.api.applyTransaction({ update: [params.node.data] });
+    const nfUSD = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+    const nfInt = new Intl.NumberFormat('en-US');
+
+    const fmtPrice = v => (v ?? v === 0) ? nfUSD.format(v) : '';
+    const fmtMileage = v => (v ?? v === 0) ? nfInt.format(v) : '';
+
+    const columnDefs = [
+        {
+            field: 'images',
+            valueGetter: function (params) {
+                return params.data.Image || "";
+            },
+            cellRenderer: imageButtonRenderer,
+            filter: false,
+            sortable: true,
+            width: 200,
+            cellClass: 'd-flex align-items-center justify-content-center',
+            comparator: function (valueA, valueB) {
+                // Convert to 1 if has image, 0 if "noimage"
+                console.log(valueA, valueB)
+                const hasImageA = valueA && !valueA.toLowerCase().includes("no-image") ? 1 : 0;
+                const hasImageB = valueB && !valueB.toLowerCase().includes("no-image") ? 1 : 0;
+
+                return hasImageA - hasImageB; // ascending: noimage first, then images
+            },
+        },
+        {
+            headerName: "Details",
+            filter: false,
+            width: 170,
+            minWidth: 120,
+            field: "Vehicle", // You can use any placeholder field
+            autoHeight: true,
+            sortable: true,
+            comparator: (valueA, valueB, nodeA, nodeB) => {
+                const a = `${nodeA.data.Year} ${nodeA.data.Make} ${nodeA.data.Model}`.toLowerCase();
+                const b = `${nodeB.data.Year} ${nodeB.data.Make} ${nodeB.data.Model}`.toLowerCase();
+
+                if (a < b) return -1;
+                if (a > b) return 1;
+                return 0;
+            },
+            cellRenderer: vehicleDetailsCellRenderer,
+            getQuickFilterText: (params) => {
+                const { Year, Make, Model, VehicleStyle, Stock, VIN } = params.data;
+                return `${Year} ${Make} ${Model} ${VehicleStyle} ${Stock} ${VIN}`;
+            }
+        },
+        {
+            headerName: "Purchased",
+            field: "PurchaseDate",
+            filter: 'agDateColumnFilter',
+            sortable: true,
+            width: 160,
+            minWidth: 120,
+            comparator: (date1, date2) => {
+                if (date1 == null && date2 == null) return 0;
+                if (date1 == null) return -1;
+                if (date2 == null) return 1;
+                return date1.getTime() - date2.getTime();
+            },
+            valueGetter: params => params.data.PurchaseDate ? new Date(params.data.PurchaseDate) : null,
+            valueFormatter: p => p.value ? new Date(p.value).toLocaleDateString('en-US') : ''
+        },
+        {
+            headerName: "Stock", field: "Stock", filter: true,
+            width: 110,
+            minWidth: 100
+        },
+        {
+            headerName: "GTX",
+            field: "LocationCode",
+            filter: true,
+            width: 150,
+            minWidth: 120
+        },
+        {
+            headerName: "Upload",
+            field: "SetToUpload",
+            sortable: true,
+            width: 150,
+            minWidth: 100,
+            cellRenderer: params => {
+                return params.value === "Y" ? "✔" : "";
+            }
+        },
+        {
+            headerName: 'Story',
+            field: 'Story',
+            width: 80,
+            cellRenderer: (params) => {
+                const story = params.data?.Story; // optional chaining
+                const hasTitle = story?.Title != null && story.Title !== "";
+                return hasTitle ? "✔" : "";
+            },
+            filter: false,
+            sortable: true,
+            comparator: (a, b) => {
+                // a & b are the raw Story objects
+                const aHasTitle = a && a.Title ? 1 : 0;
+                const bHasTitle = b && b.Title ? 1 : 0;
+                return aHasTitle - bHasTitle;
+            },
+        },
+        {
+            headerName: '',
+            width: 260,
+            field: 'action',
+            pinned: 'right',
+            suppressSizeToFit: true, // don't let "fit" shrink this
+            cellRenderer: actionsRenderer,
+            filter: false,
+            sortable: true
+        }
+    ]
+    const gridOptions = {
+        rowData: @Html.Raw(Json.Encode(Model.Inventory.Vehicles)),
+        onGridReady: (params) => {
+            gridApi = params.api; // ✅ store reference globally
+
+            const $stock = "@ViewBag.Stock";
+            if ($stock !== null && $stock !== "") {
+                $("#filterTerm").val($stock);
+                applyFilterTerm($stock);
+            }
+
+            gridApi.forEachNode(function (node, index) {
+                if (index === 0) {
+                    node.setSelected(true);
+                    gridOptions.onRowClicked({ data: node.data, node: node });
+                }
+            });
+
+            const count = gridApi.getDisplayedRowCount();
+            $("#filterResults").html(`${count} record(s) found.`);
+        },
+        columnDefs: columnDefs,
+        rowSelection: "single", // or 'multiple'
+        rowHeight: 150, // Set fixed row height in pixels
+        suppressRowClickSelection: false, // Allow clicking anywhere in the row
+        suppressCellFocus: true, // 🔥 Disable cell selection focus
+        pagination: false,
+        paginationPageSize: 20,
+        multiSortKey: 'ctrl', // or 'shift' (which key you want to hold to multi-sort)
+        paginationPageSizeSelector: [20, 50, 100],
+        defaultColDef: {
+            sortable: true,
+            filter: true,
+            resizable: true,
+            floatingFilter: false,
+            minWidth: 120,
+            headerClass: 'text-shadow fw-normal td-center'
+        },
+        onRowClicked: function (event) {
+            selectedVehicle = event.data;
+            showVehicleDetails(selectedVehicle);
+            loadGallery(selectedVehicle);
+            setDetails(selectedVehicle.Stock);
+        },
+        onFilterChanged: params => {
+            const count = gridApi.getDisplayedRowCount();
+            $("#filterResults").html(`${count} record(s) found.`);
         }
     };
-    return icon;
-}
 
-// Restory Icon renderer
-function reStoryIconRenderer(params) {
-    const icon = document.createElement('span');
-    icon.className = 'bi bi-book fs-5 px-2';
-    icon.style.cursor = 'pointer';
-    icon.title = `Create story for Stock# ${JSON.stringify(params.data.Stock)}`;
+    // Delete Icon renderer
+    function deleteIconRenderer(params) {
+        const icon = document.createElement('span');
+        icon.className = 'bi bi-trash fs-5 px-2';
+        icon.style.cursor = 'pointer';
+        icon.title = `Delete all ${params.data.Images.length} pictures for Stock# ${JSON.stringify(params.data.Stock)}`;
 
-    icon.onclick = () => {
-    const stock = params.data.Stock;
-    if (confirm(`Do you want to create story for Stock# ${stock}`)) {
-        createStory(params.data.Stock);        }
-    };
-    params.api.applyTransaction({ update: [params.node.data] });
-
-    return icon;
-}
-
-
-const nfUSD = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
-const nfInt = new Intl.NumberFormat('en-US');
-
-const fmtPrice = v => (v ?? v === 0) ? nfUSD.format(v) : '';
-const fmtMileage = v => (v ?? v === 0) ? nfInt.format(v) : '';
-function vehicleDetailsCellRenderer(params) {
-    const d = params.data || {};
-    const formattedPrice = fmtPrice(d.RetailPrice);
-    const formattedMileage = fmtMileage(d.Mileage);
-
-    return `
-    <div><h5>${d.Year ?? ''} ${d.Make ?? ''} ${d.Model ?? ''} ${d.VehicleStyle ?? ''}</h5></div>
-    <div class="row mt-2" style="scale: 0.75; margin-left: -50px;">
-      <div class="d-flex flex-wrap justify-content-evenly rounde gap-4">
-        ${[
-                { v: d.LocationCode, l: 'Code' },
-                { v: formattedPrice, l: 'Price' },
-                { v: formattedMileage, l: 'Miles' },
-                { v: d.Engine, l: 'Engine' },
-                { v: d.Body, l: 'Body' },
-                { v: d.VehicleType, l: 'Type' },
-                { v: d.Cylinders, l: 'Cylinders' },
-                { v: d.DriveTrain, l: 'Drivetrain' }
-            ].map(x => `
-          <span class="btn btn-outline-secondary shadow position-relative details">
-            <span class="detail-button medium-small-text">${x.v ?? ''}</span>
-            <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded bg-secondary">${x.l}</span>
-          </span>
-        `).join('')}
-      </div>
-    </div>
-  `;
+        icon.onclick = () => {
+            if (confirm(`Deleting all ${params.data.Images.length} pictures for Stock# ${JSON.stringify(params.data.Stock)}`)) {
+                deleteImages(params.data.Stock);
+                params.api.applyTransaction({ update: [params.node.data] });
+            }
+        };
+        return icon;
     }
 
-// Delete story Icon renderer
-function deleteStoryIconRenderer(params) {
-    const icon = document.createElement('span');
-    icon.className = 'bi bi-book-fill fs-5 px-2';
-    icon.style.cursor = 'pointer';
-    icon.title = `Delete story for Stock# ${JSON.stringify(params.data.Stock)}`;
+    // Restory Icon renderer
+    function reStoryIconRenderer(params) {
+        const icon = document.createElement('span');
+        icon.className = 'bi bi-book fs-5 px-2';
+        icon.style.cursor = 'pointer';
+        icon.title = `Create story for Stock# ${JSON.stringify(params.data.Stock)}`;
 
-    icon.onclick = () => {
+        icon.onclick = () => {
         const stock = params.data.Stock;
-        if (confirm(`Do you want to delete story for Stock# ${stock}`)) {
-            deleteStory(stock);
-        }
+        if (confirm(`Do you want to create story for Stock# ${stock}`)) {
+            createStory(params.data.Stock);        }
+        };
         params.api.applyTransaction({ update: [params.node.data] });
-    };
 
-    return icon;
-}
-
-// Image Button Renderer
-function imageButtonRenderer(params) {
-    if (!params.data.Images || params.data.Images.length === 0) {
-        return `<img class="grid-image" src="${params.data.Image}"></img>`;
+        return icon;
     }
 
-    const wrapper = document.createElement('div');
-    wrapper.className = 'd-flex position-relative';
+    function vehicleDetailsCellRenderer(params) {
+        const d = params.data || {};
+        return `
+        <div class="details"><h6>${d.Year ?? ''} ${d.Make ?? ''}</h6>
+        <h7>${d.Model ?? ''} ${d.VehicleStyle ?? ''}</h7></div>
+      `;
+        }
 
-    const image = new Image();;
-    image.src = params.data.Image;
-    image.className = "grid-image rounded shadow";
-    wrapper.appendChild(image)
+    // Delete story Icon renderer
+    function deleteStoryIconRenderer(params) {
+        const icon = document.createElement('span');
+        icon.className = 'bi bi-book-fill fs-5 px-2';
+        icon.style.cursor = 'pointer';
+        icon.title = `Delete story for Stock# ${JSON.stringify(params.data.Stock)}`;
 
-    if (params.data.Images.length > 0) {
-        const badge = document.createElement('span');
-        badge.className = 'position-absolute badge rounded-pill m-2 bg-success start-0 fs-6';
-        badge.textContent = `${params.data.Images.length} images`;
-        wrapper.appendChild(badge);
+        icon.onclick = () => {
+            const stock = params.data.Stock;
+            if (confirm(`Do you want to delete story for Stock# ${stock}`)) {
+                deleteStory(stock);
+            }
+            params.api.applyTransaction({ update: [params.node.data] });
+        };
+
+        return icon;
     }
 
-    return wrapper;
-}
+    // Image Button Renderer
+    function imageButtonRenderer(params) {
+        if (!params.data.Images || params.data.Images.length === 0) {
+            return `<img class="grid-image" src="${params.data.Image}"></img>`;
+        }
 
-function showVehicleDetails(vehicle) {
-    $('#vin').val(vehicle.VIN);
-    $('#year').val(vehicle.Year);
-    $('#make').val(vehicle.Make);
-    $('#model').val(vehicle.Model);
-    $('#year').val(vehicle.Year);
-    $('#retailPrice').val(vehicle.RetailPrice);
-    $('#mileage').val(vehicle.Mileage);
-    $('#style').val(vehicle.VehicleStyle);
-    $('#type').val(vehicle.VehicleType);
-    $('#stock').val(vehicle.Stock);
-    $('#title').val(vehicle.Story?.Title);
+        const wrapper = document.createElement('div');
+        wrapper.className = 'd-flex position-relative';
 
+        const image = new Image();;
+        image.src = params.data.Image;
+        image.className = "grid-image rounded shadow";
+        wrapper.appendChild(image)
 
-    const editor = tinymce.get("story");
-    if (editor) {
-        editor.setContent(vehicle?.Story?.HtmlContent || "");
+        if (params.data.Images.length > 0) {
+            const badge = document.createElement('span');
+            badge.className = 'position-absolute badge rounded-pill m-2 bg-success start-0 fs-6';
+            badge.textContent = `${params.data.Images.length} images`;
+            wrapper.appendChild(badge);
+        }
+
+        return wrapper;
     }
 
-    $("#gallery-tab").text(`Photos (${vehicle.Images.length})`);
-}
+    function showVehicleDetails(vehicle) {
+        $('#vin').val(vehicle.VIN);
+        $('#year').val(vehicle.Year);
+        $('#make').val(vehicle.Make);
+        $('#model').val(vehicle.Model);
+        $('#year').val(vehicle.Year);
+        $('#retailPrice').val(vehicle.RetailPrice);
+        $('#mileage').val(vehicle.Mileage);
+        $('#style').val(vehicle.VehicleStyle);
+        $('#type').val(vehicle.VehicleType);
+        $('#stock').val(vehicle.Stock);
+        $('#title').val(vehicle.Story?.Title);
+
+
+        const editor = tinymce.get("story");
+        if (editor) {
+            editor.setContent(vehicle?.Story?.HtmlContent || "");
+        }
+
+        $("#gallery-tab").text(`Photos (${vehicle.Images.length})`);
+    }
 
     // Show Bootstrap modal with images
-function showOverlayModal(id) {
-    if (stock) {
-        showSpinner($("#inventoryOverlay"));
-        $.get(`${root}Majordome/OverlayModal`, { id })
-            .done(function (html) {
-                $("#vehicle-overlay").html(html);
-                $("#overlayModal").modal("show");
-                hideSpinner($("#inventoryOverlay"));
-            })
-    };
-}
+    function showOverlayModal(id) {
+        if (stock) {
+            showSpinner($("#inventoryOverlay"));
+            $.get(`${root}Majordome/OverlayModal`, { id })
+                .done(function (html) {
+                    $("#vehicle-overlay").html(html);
+                    $("#overlayModal").modal("show");
+                    hideSpinner($("#inventoryOverlay"));
+                })
+        };
+    }
+
+    function handleFiles(fileList) {
+        const files = Array.from(fileList).filter(f => f.type.startsWith("image/"));
+        const stock = selectedVehicle.Stock;
+        if (!files.length) return;
+        uploadDroppedFiles(stock, files);
+    }
+
 </script>
