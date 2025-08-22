@@ -220,6 +220,7 @@
                 $("#makes").trigger("chosen:updated");
             })
             .fail(function (xhr, status, error) {
+                hideSpinner($("#filterOverlay"));
                 console.error("Error applying term:", error);
             });
     }
@@ -233,6 +234,7 @@
                 $("#models").trigger("chosen:updated");
             })
             .fail(function (xhr, status, error) {
+                hideSpinner($("#filterOverlay"));
                 console.error("Error applying term:", error);
             });
     }
@@ -246,6 +248,7 @@
                 $("#engines").trigger("chosen:updated");
             })
             .fail(function (xhr, status, error) {
+                hideSpinner($("#filterOverlay"));
                 console.error("Error applying term:", error);
             });
     }
@@ -259,6 +262,7 @@
                 $("#fuelTypes").trigger("chosen:updated");
             })
             .fail(function (xhr, status, error) {
+                hideSpinner($("#filterOverlay"));
                 console.error("Error applying term:", error);
             });
     }
@@ -272,6 +276,7 @@
                 $("#drives").trigger("chosen:updated");
             })
             .fail(function (xhr, status, error) {
+                hideSpinner($("#filterOverlay"));
                 console.error("Error applying term:", error);
             });
     }
@@ -285,6 +290,7 @@
                 $("#bodyTypes").trigger("chosen:updated");
             })
             .fail(function (xhr, status, error) {
+                hideSpinner($("#filterOverlay"));
                 console.error("Error applying term:", error);
             });
 
@@ -299,6 +305,7 @@
                 $("#vehicleTypes").trigger("chosen:updated");
             })
             .fail(function (xhr, status, error) {
+                hideSpinner($("#filterOverlay"));
                 console.error("Error applying term:", error);
             });
 
@@ -357,6 +364,7 @@
                         }
                     });
                 }
+                hideSpinner($("#filterOverlay"));
             })
     }
 
