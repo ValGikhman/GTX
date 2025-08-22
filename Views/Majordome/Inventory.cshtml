@@ -5,6 +5,11 @@
     <script src="~/Scripts/majordome.js"></script>
 
     <style>
+
+        #filterLiked, .sort {
+            display: none!important;
+        }
+
         .body-content {
             height: 100%;
             margin-top: 5rem;
@@ -33,11 +38,6 @@
             height: 160px;
             border-radius: .5rem;
         }
-
-        .this-container {
-
-        }
-
     </style>
 
     <!-- Includes all JS & CSS for the JavaScript Data Grid -->
@@ -259,7 +259,6 @@
 
 
         $("#specials").html($("#actions").html());
-@*        $(".ag-column-last").html($("#actions").html());*@
 
         $("#btnReStoryAll").on("click", function () {
             reStoryAll();

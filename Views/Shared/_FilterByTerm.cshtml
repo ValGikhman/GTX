@@ -1,29 +1,29 @@
-﻿<div class="searchTop position-relative w-100 my-3">
-    <!-- Left: Sort (stays in normal flow, left-aligned) -->
-    <div class="sort-container d-flex align-items-center gap-3">
-        <div class="sort">
-            <label for="sortField" class="me-1 fw-bold">Sort By:</label>
-            <select id="sortField" class="form-select d-inline-block w-auto">
-                <option value="purchased">Default</option>
-                <option value="year">Year</option>
-                <option value="miles">Miles</option>
-                <option value="price">Price</option>
-            </select>
-        </div>
-
-        <div class="sort form-check align-items-center">
-            <input class="form-check-input me-2" type="checkbox" id="sortDirection">
-            <label class="me-1 fw-bold" for="sortDirection">Desc</label>
-        </div>
-
-        <div class="search-center position-absolute start-50 translate-middle-x d-flex align-items-center gap-3">
-            <input type="search" id="filterTerm" class="form-control shadow" placeholder="Search within results..." aria-label="Search inventory">
-            <h5 class="mb-0">
-                <i id="filterLiked" class="bi bi-heart text-danger"></i>
-            </h5>
+﻿<div class="d-flex align-items-center position-relative w-100 p-3 mb-3">
+    <!-- Centered search -->
+    <div class="position-absolute start-50 translate-middle-x d-flex align-items-center gap-3">
+        <input type="search" id="filterTerm" class="form-control shadow" placeholder="Search within results..." aria-label="Search inventory">
+        <h5 class="mb-0">
+            <i id="filterLiked" class="bi bi-heart text-danger"></i>
+        </h5>
+        <!-- Centered directly below the input -->
+        <div class="position-absolute top-100 start-50 translate-middle-x text-center w-100">
+            <h8 id="filterResults"></h8>
         </div>
     </div>
-    <h8 id="filterResults" class="d-flex justify-content-center align-items-center my-3"></h8>
+
+    <!-- RIGHT: Sort (pushed right with ms-auto) -->
+    <div class="sort d-none d-lg-inline ms-auto d-flex align-items-center gap-2">
+        <label for="sortField" class="fw-bold mb-0">Sort By:</label>
+        <select id="sortField" class="form-select d-inline-block w-auto">
+            <option value="purchased">Default</option>
+            <option value="year">Year</option>
+            <option value="miles">Miles</option>
+            <option value="price">Price</option>
+        </select>
+
+        <span class="form-check form-check-inline m-0">
+            <input class="form-check-input me-2" type="checkbox" id="sortDirection">
+            <label class="fw-bold mb-0" for="sortDirection">Desc</label>
+        </span>
+    </div>
 </div>
-
-
