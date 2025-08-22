@@ -92,7 +92,7 @@ namespace GTX.Controllers {
 
             Model.Inventory.Vehicles = vehicles;
             Model.Inventory.Title = "All";
-            ViewBag.Title = $"{Model.Inventory.Title.ToUpper()} ({vehicles.Length}) vehicles";
+            ViewBag.Title = $"{Model.Inventory.Title.ToUpper()} {vehicles.Length} vehicles";
 
             return View("Index", Model);
         }
@@ -100,8 +100,8 @@ namespace GTX.Controllers {
         public ActionResult Suvs() {
             Model.Inventory.Vehicles = SessionData?.Inventory?.Suvs ?? Array.Empty<Models.GTX>();
 
-            Model.Inventory.Title = "Suvs";
-            ViewBag.Title = $"{Model.Inventory.Title.ToUpper()} ({Model.Inventory.Vehicles.Length}) vehicles";
+            Model.Inventory.Title = "Suv(s)";
+            ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
 
             return View("Index", Model);
         }
@@ -109,8 +109,8 @@ namespace GTX.Controllers {
         public ActionResult Sedans() {
             Model.Inventory.Vehicles = SessionData?.Inventory?.Sedans ?? Array.Empty<Models.GTX>();
 
-            Model.Inventory.Title = "Sedans";
-            ViewBag.Title = $"{Model.Inventory.Title.ToUpper()} ({Model.Inventory.Vehicles.Length}) vehicles";
+            Model.Inventory.Title = "Sedan(s)";
+            ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
 
             return View("Index", Model);
         }
@@ -118,8 +118,8 @@ namespace GTX.Controllers {
         public ActionResult Wagons() {
             Model.Inventory.Vehicles = SessionData?.Inventory?.Wagons ?? Array.Empty<Models.GTX>();
 
-            Model.Inventory.Title = "Wagons";
-            ViewBag.Title = $"{Model.Inventory.Title.ToUpper()} ({Model.Inventory.Vehicles.Length}) vehicles";
+            Model.Inventory.Title = "Wagon(s)";
+            ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
 
             return View("Index", Model);
         }
@@ -127,8 +127,8 @@ namespace GTX.Controllers {
         public ActionResult Trucks() {
             Model.Inventory.Vehicles = SessionData?.Inventory?.Trucks ?? Array.Empty<Models.GTX>();
 
-            Model.Inventory.Title = "Trucks";
-            ViewBag.Title = $"{Model.Inventory.Title.ToUpper()} ({Model.Inventory.Vehicles.Length}) vehicles";
+            Model.Inventory.Title = "Truck(s)";
+            ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
 
             return View("Index", Model);
         }
@@ -136,8 +136,8 @@ namespace GTX.Controllers {
         public ActionResult Vans() {
             Model.Inventory.Vehicles = SessionData?.Inventory?.Vans ?? Array.Empty<Models.GTX>();
 
-            Model.Inventory.Title = "Vans";
-            ViewBag.Title = $"{Model.Inventory.Title.ToUpper()} ({Model.Inventory.Vehicles.Length}) vehicles";
+            Model.Inventory.Title = "Van(s)";
+            ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
 
             return View("Index", Model);
         }
@@ -145,8 +145,8 @@ namespace GTX.Controllers {
         public ActionResult Cargo() {
             Model.Inventory.Vehicles = SessionData?.Inventory?.Cargo ?? Array.Empty<Models.GTX>();
 
-            Model.Inventory.Title = "Cargo";
-            ViewBag.Title = $"{Model.Inventory.Title.ToUpper()} ({Model.Inventory.Vehicles.Length}) vehicles";
+            Model.Inventory.Title = "Cargo(s)";
+            ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
 
             return View("Index", Model);
         }
@@ -154,8 +154,8 @@ namespace GTX.Controllers {
         public ActionResult Convertibles() {
             Model.Inventory.Vehicles = SessionData?.Inventory?.Convertibles ?? Array.Empty<Models.GTX>();
 
-            Model.Inventory.Title = "Convertibles";
-            ViewBag.Title = $"{Model.Inventory.Title.ToUpper()} ({Model.Inventory.Vehicles.Length}) vehicles";
+            Model.Inventory.Title = "Convertible(s)";
+            ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
 
             return View("Index", Model);
         }
@@ -163,8 +163,8 @@ namespace GTX.Controllers {
         public ActionResult Hatchbacks() {
             Model.Inventory.Vehicles = SessionData?.Inventory?.Hatchbacks ?? Array.Empty<Models.GTX>();
 
-            Model.Inventory.Title = "Hatchbacks";
-            ViewBag.Title = $"{Model.Inventory.Title.ToUpper()} ({Model.Inventory.Vehicles.Length}) vehicles";
+            Model.Inventory.Title = "Hatchback(s)";
+            ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
 
             return View("Index", Model);
         }
@@ -173,7 +173,7 @@ namespace GTX.Controllers {
             Model.Inventory.Vehicles = SessionData?.Inventory?.Coupe ?? Array.Empty<Models.GTX>();
 
             Model.Inventory.Title = "Coupes";
-            ViewBag.Title = $"{Model.Inventory.Title.ToUpper()} ({Model.Inventory.Vehicles.Length}) vehicles";
+            ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
 
             return View("Index", Model);
         }
