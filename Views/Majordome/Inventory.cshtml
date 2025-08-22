@@ -35,7 +35,7 @@
         }
 
         .this-container {
-            margin-top: -20px;
+
         }
 
     </style>
@@ -50,8 +50,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
-
-<h5 class="text-center">@ViewBag.Title</h5>
 
 <div id="inventoryOverlay" class="spinner-overlay spinner-hidden">
     <div class="spinner-border text-primary" role="status">
@@ -199,7 +197,6 @@
         var grid = document.querySelector("#myGrid");
         agGrid.createGrid(grid, gridOptions);
 
-
         const $dropzone = $('#dropzone');
 
         // Drag & drop events
@@ -214,6 +211,18 @@
             const dt = e.originalEvent.dataTransfer;
             if (dt && dt.files) handleFiles(dt.files);
         });
+
+        const onResize = debounce(function () {
+            const bp = currentBp();
+            // Only re-apply if breakpoint actually changed
+            if (window.__lastBp !== bp) {
+                window.__lastBp = bp;
+                applyResponsiveColumns(bp);
+            }
+        }, 120);
+
+        window.__lastBp = currentBp();
+        $(window).on('resize orientationchange', onResize);
 
         $(document).on("click", ".delete-image", function () {
             var file = $(this).data("filename");
@@ -404,17 +413,53 @@
         });
     });
 
-    let gridApi = null;
+    let gridApi, gridColumnApi = null;
+    const hiddenByBP = {
+        xs: ["PurchaseDate", "LocationCode", "Stock", "Story", "SetToUpload"],
+        sm: ["PurchaseDate", "LocationCode", "Stock", "Story", "SetToUpload"],
+        md: ["PurchaseDate", "LocationCode", "Story"]
+    };
+
+    function currentBp() {
+        if (window.matchMedia('(max-width: 575.98px)').matches) return 'xs';
+        if (window.matchMedia('(max-width: 767.98px)').matches) return 'sm';
+        if (window.matchMedia('(max-width: 991.98px)').matches) return 'md';
+        return 'lg';
+    }
+
+    function debounce(fn, wait) {
+        let t;
+        return function () {
+            clearTimeout(t);
+            t = setTimeout(() => fn.apply(this, arguments), wait);
+        };
+    }
+
+    function applyResponsiveColumns(bp) {
+        if (!gridColumnApi) return;
+
+        // Build a list of all column ids (prefer colId, fallback to field)
+        const allColIds = (columnDefs || []).map(c => c.colId || c.field).filter(Boolean);
+
+        // Show everything first…
+        gridColumnApi.setColumnsVisible(allColIds, true);
+
+        // …then hide only what this breakpoint dictates
+        const toHide = hiddenByBP[bp] || [];
+        if (toHide.length) gridColumnApi.setColumnsVisible(toHide, false);
+    }
 
     const nfUSD = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
     const nfInt = new Intl.NumberFormat('en-US');
 
     const fmtPrice = v => (v ?? v === 0) ? nfUSD.format(v) : '';
+
     const fmtMileage = v => (v ?? v === 0) ? nfInt.format(v) : '';
 
     const columnDefs = [
     {
-        field: 'images',
+        field: "images",
+        colId: "images",
         valueGetter: function (params) {
             return params.data.Image || "";
         },
@@ -438,6 +483,7 @@
         width: 170,
         minWidth: 120,
         field: "Vehicle", // You can use any placeholder field
+        colId: "Vehicle",
         autoHeight: true,
         sortable: true,
         comparator: (valueA, valueB, nodeA, nodeB) => {
@@ -457,6 +503,7 @@
     {
         headerName: "Purchased",
         field: "PurchaseDate",
+        colId: "PurchaseDate",
         filter: 'agDateColumnFilter',
         sortable: true,
         width: 160,
@@ -473,6 +520,7 @@
     {
         headerName: "Stock",
         field: "Stock",
+        colId: "Stock",
         filter: true,
         width: 110,
         minWidth: 100
@@ -480,6 +528,7 @@
     {
         headerName: "GTX",
         field: "LocationCode",
+        colId: "LocationCode",
         filter: true,
         width: 150,
         minWidth: 120
@@ -487,6 +536,7 @@
     {
         headerName: "Upload",
         field: "SetToUpload",
+        colId: "SetToUpload",
         sortable: true,
         width: 150,
         minWidth: 100,
@@ -497,6 +547,7 @@
     {
         headerName: 'Story',
         field: 'Story',
+        colId: 'Story',
         width: 80,
         cellRenderer: (params) => {
             const story = params.data?.Story; // optional chaining
@@ -516,17 +567,19 @@
         headerName: '',
         width: 180,
         field: 'action',
-        pinned: 'right',
+        colId: 'action',
         suppressSizeToFit: true, // don't let "fit" shrink this
         cellRenderer: actionsRenderer,
         filter: false,
         sortable: true
     }
     ]
+
     const gridOptions = {
         rowData: @Html.Raw(Json.Encode(Model.Inventory.Vehicles)),
         onGridReady: (params) => {
             gridApi = params.api; // ✅ store reference globally
+            gridColumnApi = params.columnApi;
 
             const $stock = "@ViewBag.Stock";
             if ($stock !== null && $stock !== "") {
@@ -543,6 +596,9 @@
 
             const count = gridApi.getDisplayedRowCount();
             $("#filterResults").html(`${count} record(s) found.`);
+
+            const bp = currentBp();
+            applyResponsiveColumns(bp);
         },
         columnDefs: columnDefs,
         rowSelection: "single", // or 'multiple'
