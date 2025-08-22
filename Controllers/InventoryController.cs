@@ -97,15 +97,6 @@ namespace GTX.Controllers {
             return View("Index", Model);
         }
 
-        public ActionResult Cars() {
-            Model.Inventory.Vehicles = SessionData?.Inventory?.Cars ?? Array.Empty<Models.GTX>();
-
-            Model.Inventory.Title = "Cars";
-            ViewBag.Title = $"{Model.Inventory.Title} inventory ({Model.Inventory.Vehicles.Length}) vehicles";
-
-            return View("Index", Model);
-        }
-
         public ActionResult Suvs() {
             Model.Inventory.Vehicles = SessionData?.Inventory?.Suvs ?? Array.Empty<Models.GTX>();
 
