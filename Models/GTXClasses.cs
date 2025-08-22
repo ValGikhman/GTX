@@ -32,8 +32,6 @@
 
         public GTX[] Suvs { get; set; }
 
-        public GTX[] Cars { get; set; }
-
         public GTX[] Trucks { get; set; }
 
         public GTX[] Vans { get; set; }

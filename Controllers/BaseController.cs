@@ -168,13 +168,10 @@ namespace GTX.Controllers {
                 string COUPE = CommonUnit.VehicleType.COUPE.ToString();
                 string WAGON = CommonUnit.VehicleType.WAGON.ToString();
 
-                var carTypes = new HashSet<string> { SEDAN, COUPE, CONVERTIBLE, HATCHBACK, WAGON };
-
                 var byType = model.All
                     .GroupBy(v => v.VehicleType == null ? "" : v.VehicleType.Trim(), StringComparer.OrdinalIgnoreCase)
                     .ToDictionary(g => g.Key, g => g.ToArray(), StringComparer.OrdinalIgnoreCase);
 
-                model.Cars = carTypes.SelectMany(t => GetOrEmpty(byType, t, emptyArray)).ToArray();
                 model.Suvs = GetOrEmpty(byType, SUV, emptyArray);
                 model.Trucks = GetOrEmpty(byType, TRUCK, emptyArray);
                 model.Vans = GetOrEmpty(byType, VAN, emptyArray);
