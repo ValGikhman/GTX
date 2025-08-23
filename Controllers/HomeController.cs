@@ -16,7 +16,6 @@ namespace GTX.Controllers {
     public class HomeController : BaseController {
 
         private readonly IContactService _contactService;
-        private static readonly HttpClient client = new HttpClient();
 
         public HomeController(ISessionData sessionData, ContactService contactService, IInventoryService inventoryService, ILogService logService) :
             base(sessionData, inventoryService,  logService)  {

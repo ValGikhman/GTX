@@ -20,13 +20,32 @@
         }
 
         .dropzone {
+            --dz-label-size: clamp(26px, 2.4vw, 28px);
             transition: background-color .15s, border-color .15s;
         }
 
+            .dropzone::after {
+                content: "Drop your files here";
+                position: absolute;
+                inset: 0; /* top/right/bottom/left: 0 */
+                display: grid; /* easy centering */
+                place-items: center; /* center both axes */
+                font-size: var(--dz-label-size);
+                font-weight: 800;
+                color: #333;
+                opacity: 0;
+                pointer-events: none; /* don't block drops */
+                transition: opacity .15s;
+            }
+
             .dropzone.dragover {
                 background: #bbb;
-                border-color: red;
+                border: 3px dashed #727171;
             }
+
+                .dropzone.dragover::after {
+                    opacity: 1;
+                }
 
         #sortable-gallery > li {
             list-style: none;
@@ -174,7 +193,7 @@
                 <button id="deleteAll" class="btn btn-light shadow bi bi-trash">&nbsp;Delete all images</button>
                 <input type="file" id="fileInput" class="d-none" multiple accept="image/*">
             </div>
-            <div id="dropzone" class="dropzone w-100 border">
+            <div id="dropzone" class="dropzone w-100">
                 <div id="gallery-content" class="flex-grow-1 w-100 px-3 pb-3">
                     <ul id="sortable-gallery" class="row justify-content-center">
                     </ul>
@@ -210,6 +229,29 @@
         $dropzone.on("drop", (e) => {
             const dt = e.originalEvent.dataTransfer;
             if (dt && dt.files) handleFiles(dt.files);
+        });
+        $dropzone.on('paste', function (e) {
+            const oe = e.originalEvent;
+            const dt = oe.clipboardData;
+            if (!dt) return;
+
+            // Prefer actual files (screenshots, copied files)
+            if (dt.files && dt.files.length) {
+                e.preventDefault();
+                handleFiles(dt.files);
+                return;
+            }
+
+            // Fallback: items -> File
+            const items = (dt.items ? Array.from(dt.items) : [])
+                .filter(i => i.kind === 'file')
+                .map(i => i.getAsFile())
+                .filter(Boolean);
+
+            if (items.length) {
+                e.preventDefault();
+                handleFiles(items);
+            }
         });
 
         const onResize = debounce(function () {

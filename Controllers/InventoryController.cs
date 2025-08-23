@@ -12,7 +12,7 @@ using System.Web.Script.Serialization;
 namespace GTX.Controllers {
 
     public class InventoryController : BaseController {
-        private static readonly HttpClient httpClient = new HttpClient();
+        private readonly HttpClient httpClient = new();
         public InventoryController(ISessionData sessionData, IInventoryService inventoryService, ILogService LogService)
             : base(sessionData, inventoryService, LogService) {
         }
