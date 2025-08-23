@@ -17,21 +17,24 @@ namespace GTX.Controllers {
             : base(sessionData, inventoryService, LogService) {
         }
 
+        [HttpGet]
         public ActionResult Index(BaseModel model) {
             var vehicles = Model.Inventory.Vehicles ?? Array.Empty<Models.GTX>();
-            Model.Inventory.Title = "Result(s)";
-            ViewBag.Title = $"{Model.Inventory.Title.ToUpper()} ({vehicles.Length}) vehicles";
+            Model.Inventory.Title = "Found";
+            ViewBag.Title = $"{Model.Inventory.Title.ToUpper()} {vehicles.Length} vehicles";
             Log($"{Model.Inventory.Title} inventory");
 
             return View(model);
         }
 
+        [HttpGet]
         public ActionResult DetailsCard(string stock) {
             Model.CurrentVehicle.VehicleDetails = Model.Inventory.All.FirstOrDefault(m => m.Stock == stock);
 
             return View("DetailsCard", Model.CurrentVehicle.VehicleDetails);
         }
 
+        [HttpGet]
         public ActionResult Details(string stock) {
             stock = stock?.Trim().ToUpper();
 
@@ -65,7 +68,6 @@ namespace GTX.Controllers {
             return View("Details", Model);
         }
 
-
         [HttpGet]
         public ActionResult ShareVehicle(string stock) {
             Models.GTX model = Model.Inventory.All.FirstOrDefault(m => m.Stock == stock);
@@ -87,6 +89,7 @@ namespace GTX.Controllers {
             }
         }
 
+        [HttpGet]
         public ActionResult All() {
             var vehicles = SessionData?.Inventory?.All ?? Array.Empty<Models.GTX>();
 
@@ -97,6 +100,7 @@ namespace GTX.Controllers {
             return View("Index", Model);
         }
 
+        [HttpGet]
         public ActionResult Suvs() {
             Model.Inventory.Vehicles = SessionData?.Inventory?.Suvs ?? Array.Empty<Models.GTX>();
 
@@ -106,6 +110,7 @@ namespace GTX.Controllers {
             return View("Index", Model);
         }
 
+        [HttpGet]
         public ActionResult Sedans() {
             Model.Inventory.Vehicles = SessionData?.Inventory?.Sedans ?? Array.Empty<Models.GTX>();
 
@@ -115,6 +120,7 @@ namespace GTX.Controllers {
             return View("Index", Model);
         }
 
+        [HttpGet]
         public ActionResult Wagons() {
             Model.Inventory.Vehicles = SessionData?.Inventory?.Wagons ?? Array.Empty<Models.GTX>();
 
@@ -123,7 +129,8 @@ namespace GTX.Controllers {
 
             return View("Index", Model);
         }
-        
+
+        [HttpGet]
         public ActionResult Trucks() {
             Model.Inventory.Vehicles = SessionData?.Inventory?.Trucks ?? Array.Empty<Models.GTX>();
 
@@ -133,6 +140,7 @@ namespace GTX.Controllers {
             return View("Index", Model);
         }
 
+        [HttpGet]
         public ActionResult Vans() {
             Model.Inventory.Vehicles = SessionData?.Inventory?.Vans ?? Array.Empty<Models.GTX>();
 
@@ -142,6 +150,7 @@ namespace GTX.Controllers {
             return View("Index", Model);
         }
 
+        [HttpGet]
         public ActionResult Cargo() {
             Model.Inventory.Vehicles = SessionData?.Inventory?.Cargo ?? Array.Empty<Models.GTX>();
 
@@ -151,6 +160,7 @@ namespace GTX.Controllers {
             return View("Index", Model);
         }
 
+        [HttpGet]
         public ActionResult Convertibles() {
             Model.Inventory.Vehicles = SessionData?.Inventory?.Convertibles ?? Array.Empty<Models.GTX>();
 
@@ -160,6 +170,7 @@ namespace GTX.Controllers {
             return View("Index", Model);
         }
 
+        [HttpGet]
         public ActionResult Hatchbacks() {
             Model.Inventory.Vehicles = SessionData?.Inventory?.Hatchbacks ?? Array.Empty<Models.GTX>();
 
@@ -169,10 +180,11 @@ namespace GTX.Controllers {
             return View("Index", Model);
         }
 
+        [HttpGet]
         public ActionResult Coupes() {
             Model.Inventory.Vehicles = SessionData?.Inventory?.Coupe ?? Array.Empty<Models.GTX>();
 
-            Model.Inventory.Title = "Coupes";
+            Model.Inventory.Title = "Coupe(s)";
             ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
 
             return View("Index", Model);
@@ -218,6 +230,7 @@ namespace GTX.Controllers {
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public JsonResult GetMakesImages() {
             try {
                 return Json(SessionData?.Filters?.Makes, JsonRequestBehavior.AllowGet);

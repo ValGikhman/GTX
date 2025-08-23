@@ -1,0 +1,41 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "command": "msbuild",
+            "type": "shell",
+            "args": [
+                "${workspaceFolder}/GTX.csproj",
+                "/p:Configuration=Debug",
+                "/p:Platform=AnyCPU"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "clean",
+            "command": "msbuild",
+            "type": "shell",
+            "args": [
+                "${workspaceFolder}/GTX.csproj",
+                "/t:Clean",
+                "/p:Configuration=Debug",
+                "/p:Platform=AnyCPU"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        }
+    ]
+}

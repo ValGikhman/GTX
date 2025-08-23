@@ -89,7 +89,6 @@ namespace GTX.Controllers {
             }
         }
 
-
         [HttpPost]
         public JsonResult SaveStory(string stock, string story, string title) {
             try {
@@ -193,7 +192,6 @@ namespace GTX.Controllers {
             return PartialView("_OverlayModal", image);
         }
 
-
         [HttpPost]
         public JsonResult SaveOrder(Guid[] sorted) {
             InventoryService.UpdateOrder(sorted);
@@ -282,7 +280,6 @@ namespace GTX.Controllers {
                     }
                 }
             }
-            // new stream per request, position=0
             return new MemoryStream(_cachedHeaderBytes, writable: false);
         }
 
@@ -382,8 +379,6 @@ namespace GTX.Controllers {
 
             InventoryService.SaveImage(stock, Path.GetFileName(filename));
         }
-
-
 
         private async Task<string> GetChatGptResponse(string prompt) {
             var apiUrl = "https://api.openai.com/v1/chat/completions";
