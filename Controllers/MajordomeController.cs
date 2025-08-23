@@ -149,6 +149,7 @@ namespace GTX.Controllers {
                         if (f == null || f.ContentLength <= 0) {
                             continue;
                         }
+                        
                         string fileName = Path.GetFileNameWithoutExtension(f.FileName) + ".png";
                         string fullPath = Path.Combine(uploadPath, fileName);
 
