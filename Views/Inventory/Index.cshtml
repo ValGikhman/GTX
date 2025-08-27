@@ -4,7 +4,7 @@
     @if (Model.Inventory.Vehicles.Count() > 0) {
         @Html.Partial("_FilterByTerm");
     }
-    <ul id="inventory" class="d-flex flex-wrap justify-content-evenly gap-1">
+    <ul id="inventory" class="d-flex flex-wrap justify-content-center gap-3">
         @{
             if (Model.Inventory.Vehicles != null) {
                 foreach (var vehicle in Model.Inventory.Vehicles) {
@@ -59,21 +59,31 @@
         var field = $('#sortField').val();
         var desc = $('#sortDirection').is(':checked');
         var $container = $('#inventory');
-        var $items = $container.find('.card');
 
         if (!field) return; // Do nothing if no field selected
 
-        var sortedItems = $items.sort(function (a, b) {
-            var valA = parseFloat($(a).data(field));
-            var valB = parseFloat($(b).data(field));
+        var $items = $container.find('.card').get();
+        var isTextField = (field === 'make');
+        var collator = new Intl.Collator(undefined, { sensitivity: 'base', numeric: true });
 
-            if (desc) {
-                return valB - valA;
+        $items.sort(function (a, b) {
+            var rawA = $(a).data(field);
+            var rawB = $(b).data(field);
+
+            if (isTextField) {
+                var valA = (rawA == null ? '' : String(rawA));
+                var valB = (rawB == null ? '' : String(rawB));
+                var cmp = collator.compare(valA, valB);
+                return desc ? -cmp : cmp;
             } else {
-                return valA - valB;
+                // Clean numbers like "$12,345.00" -> 12345.00
+                var numA = parseFloat(String(rawA).replace(/[^0-9.\-]/g, '')) || 0;
+                var numB = parseFloat(String(rawB).replace(/[^0-9.\-]/g, '')) || 0;
+                var cmp = numA - numB;
+                return desc ? -cmp : cmp;
             }
         });
 
-        $container.append(sortedItems);
+        $container.append($items);
     }
 </script>

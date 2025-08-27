@@ -41,14 +41,14 @@ namespace GTX.Controllers {
             return View();
         }
 
-        public async Task<ActionResult> Staff() {
+        public ActionResult Staff() {
             ViewBag.Message = "Staff";
             ViewBag.Title = "Our staff";
 
             BaseModel model = new BaseModel();
             try {
                 if (SessionData?.Employers == null) {
-                    Employer[] employers = await Utility.XMLHelpers.XmlRepository.GetEmployers();
+                    Employer[] employers = Utility.XMLHelpers.XmlRepository.GetEmployers();
                 }
 
                 model.Employers = SessionData.Employers;

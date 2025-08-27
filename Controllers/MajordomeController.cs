@@ -152,6 +152,11 @@ namespace GTX.Controllers {
                         
                         string fileName = Path.GetFileNameWithoutExtension(f.FileName) + ".png";
                         string fullPath = Path.Combine(uploadPath, fileName);
+                        
+                        // Do now override existing files
+                        if(  System.IO.File.Exists(fullPath)) {
+                            continue;
+                        }
 
                         using var memoryStream = new MemoryStream();
                         await f.InputStream.CopyToAsync(memoryStream);
