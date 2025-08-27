@@ -75,7 +75,7 @@ namespace GTX.Controllers {
                 Model.Inventory = SessionData.Inventory;
 
                 if (SessionData == null || SessionData?.Employers == null) {
-                    Employer[] employers = await Utility.XMLHelpers.XmlRepository.GetEmployers();
+                    Employer[] employers = Utility.XMLHelpers.XmlRepository.GetEmployers();
                     SessionData.SetSession(Constants.SESSION_EMPLOYERS, employers);
                 }
 
@@ -196,7 +196,7 @@ namespace GTX.Controllers {
 
                 var today = Model.OpenHours.FirstOrDefault(m => m.Day == currentDay);
                 bool isOpened = (currentHour >= today.From && currentHour <= today.To);
-                string openClose = isOpened ? "Now opened" : "Closed";
+                string openClose = isOpened ? "Now open" : "Closed";
 /*                if (today.From == 0 && today.To == 0) {
                     returnValue = $"{today.Day}: {today.Description}";
                 }

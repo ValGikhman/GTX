@@ -15,10 +15,6 @@
             margin-top: 5rem;
         }
 
-        #filterResults {
-            margin-top: 40px !important;
-        }
-
         .dropzone {
             --dz-label-size: clamp(26px, 2.4vw, 28px);
             transition: background-color .15s, border-color .15s;
@@ -86,13 +82,13 @@
 
 <div class="this-container container-fluid">
     <nav class="nav nav-tabs no-wrap-group" id="myTab" role="tablist">
-        <button class="nav-link btn btn-light text-shadow-small active" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#inventory" type="button" role="tab">
+        <button class="nav-item btn btn-gradient-grey text-shadow-small active" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#inventory" type="button" role="tab">
             Inventory
         </button>
-        <button class="nav-link btn btn-light text-shadow-small" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" type="button" role="tab">
+        <button class="nav-item btn btn-gradient-grey text-shadow-small" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" type="button" role="tab">
             Details
         </button>
-        <button class="nav-link btn btn-light text-shadow-small" id="gallery-tab" data-bs-toggle="tab" data-bs-target="#gallery" type="button" role="tab">
+        <button class="nav-item btn btn-gradient-grey text-shadow-small" id="gallery-tab" data-bs-toggle="tab" data-bs-target="#gallery" type="button" role="tab">
             Photos
         </button>
     </nav>
@@ -101,15 +97,18 @@
         <!-- Inventory Tab -->
         <div class="tab-pane fade show active py-2" id="inventory" role="tabpanel">
             <div class="container-fluid">
-                <!-- Filters -->
-                <div id="filtersWrap">
-                    @{ Html.RenderPartial("_FilterByTerm"); }
-                </div>
-
-                <!-- Grid shell gets a dynamic height -->
-                <div id="gridShell" class="mx-auto">
-                    <div id="specials" class="my-1">
+                <div class="row row-cols-3">
+                    <div class="col">
                     </div>
+                    <!-- Filters -->
+                    <div id="filtersWrap" class="col my-2">
+                        @{ Html.RenderPartial("_FilterByTerm"); }
+                    </div>
+                    <div id="specials" class="d-none d-lg-block col l pull-right mt-1">
+                    </div>
+                </div>
+                <!-- Grid shell gets a dynamic height -->
+                <div id="gridShell" class="mx-auto row row-cols-3">
                     <div id="myGrid" class="ag-theme-alpine w-100"></div>
                 </div>
             </div>
@@ -212,11 +211,18 @@
 <input type="hidden" id="currentVehicle" />
 
 <script type="text/javascript">
+    const $dropzone = $("#dropzone");
+    let gridApi, gridColumnApi = null;
+
+    const hiddenByBP = {
+        xs: ["PurchaseDate", "LocationCode", "Stock", "Story", "SetToUpload", "Actions"],
+        sm: ["PurchaseDate", "LocationCode", "Stock", "Story", "SetToUpload", "action"],
+        md: ["PurchaseDate", "LocationCode", "Story"]
+    };
+
     $(function () {
         var grid = document.querySelector("#myGrid");
         agGrid.createGrid(grid, gridOptions);
-
-        const $dropzone = $('#dropzone');
 
         // Drag & drop events
         const prevent = e => { e.preventDefault(); e.stopPropagation(); };
@@ -292,13 +298,6 @@
             saveOrder(sorted, stock)
             updateGalleryDisplay();
         });
-
-        function getSortedIds() {
-            return $("#sortable-gallery li").map(function () {
-                return $(this).attr("id");
-        }).get();
-    }
-
 
         $("#specials").html($("#actions").html());
 
@@ -408,25 +407,6 @@
                 }
             }).focus();
 
-        new Sortable(document.getElementById("sortable-gallery"), {
-            scroll: true,
-            scrollSensitivity: 30,
-            scrollSpeed: 20,
-            animation: 150,
-            ghostClass: "sortable-gallery-ghost",
-            chosenClass: "sortable-gallery-chosen",
-            dragClass: "sortable-gallery-drag",
-            delay: 100,
-            touchStartThreshold: 5,
-            onEnd: function (event) {
-                let sorted = $("#sortable-gallery li").map(function () {
-                    return $(this).attr("id")
-                }).get();
-                saveOrder(sorted, selectedVehicle.Stock);
-                updateGalleryDisplay();
-            }
-        });
-
         tinymce.init({
             selector: '#story',
             height: 560,
@@ -454,12 +434,11 @@
         });
     });
 
-    let gridApi, gridColumnApi = null;
-    const hiddenByBP = {
-        xs: ["PurchaseDate", "LocationCode", "Stock", "Story", "SetToUpload"],
-        sm: ["PurchaseDate", "LocationCode", "Stock", "Story", "SetToUpload"],
-        md: ["PurchaseDate", "LocationCode", "Story"]
-    };
+    function getSortedIds() {
+        return $("#sortable-gallery li").map(function () {
+            return $(this).attr("id");
+        }).get();
+    }
 
     function currentBp() {
         if (window.matchMedia('(max-width: 575.98px)').matches) return 'xs';
@@ -494,7 +473,6 @@
     const nfInt = new Intl.NumberFormat('en-US');
 
     const fmtPrice = v => (v ?? v === 0) ? nfUSD.format(v) : '';
-
     const fmtMileage = v => (v ?? v === 0) ? nfInt.format(v) : '';
 
     const columnDefs = [
@@ -669,6 +647,25 @@
             $("#filterResults").html(`${count} record(s) found.`);
         }
     };
+
+    const sortable = new Sortable(document.getElementById("sortable-gallery"), {
+        scroll: true,
+        scrollSensitivity: 30,
+        scrollSpeed: 20,
+        animation: 150,
+        ghostClass: "sortable-gallery-ghost",
+        chosenClass: "sortable-gallery-chosen",
+        dragClass: "sortable-gallery-drag",
+        delay: 100,
+        touchStartThreshold: 5,
+        onEnd: function (event) {
+            let sorted = $("#sortable-gallery li").map(function () {
+                return $(this).attr("id")
+            }).get();
+            saveOrder(sorted, selectedVehicle.Stock);
+            updateGalleryDisplay();
+        }
+    });
 
     // Delete Icon renderer
     function deleteIconRenderer(params) {

@@ -18,17 +18,18 @@ namespace Utility.XMLHelpers {
 
         private static string xmlFilePath = HostingEnvironment.MapPath("~/App_Data/");
 
-        public async static Task<Employer[]> GetEmployers() {
+        public static Employer[] GetEmployers() {
             string path = $"{xmlFilePath}GTX-Staff.xml";
 
             XDocument doc = XDocument.Load(path);
-            return doc.Descendants("employer").Select(x => new Employer {
-                id = int.Parse(x.Element("id").Value),
-                Name = x.Element("name").Value,
-                Phone = x.Element("phone").Value,
-                Position = x.Element("position").Value,
-                Email = x.Element("email").Value
-            })
+            return doc.Descendants("employer")
+                .Select(x => new Employer {
+                    id = int.Parse(x.Element("id").Value),
+                    Name = x.Element("name").Value,
+                    Phone = x.Element("phone").Value,
+                    Position = x.Element("position").Value,
+                    Email = x.Element("email").Value
+                })
                 .OrderBy(m => m.id)
                 .ToArray();
         }
