@@ -16,6 +16,14 @@
         --bs-gutter-x: 0rem;
     }
 
+    .just-validate-error-label {
+        margin-left: 65% !important;
+    }
+
+    #smallCanvas {
+        width: 15rem!important;
+    }
+
     @@media only screen and (max-width: 767px) {
         .body-content {
             margin-top: 5vh;
@@ -62,7 +70,7 @@
                         <button class="nav-item btn btn-gradient-grey text-shadow-small" id="nav-pictures-tab" data-bs-toggle="tab" data-bs-target="#nav-pictures" type="button" role="tab" aria-controls="nav-pictures" aria-selected="false">Photos ( @Model.CurrentVehicle.VehicleDetails.Images.Count())</button>
                     }
                 }
-                <button class="nav-item btn btn-gradient-grey text-shadow-small" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="true">Contact</button>
+                <button class="nav-item btn btn-gradient-grey text-shadow-small" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="true">Test drive</button>
                 <button class="nav-item btn btn-gradient-grey text-shadow-small" id="nav-location-tab" data-bs-toggle="tab" data-bs-target="#nav-location" type="button" role="tab" aria-controls="nav-location" aria-selected="true">Location</button>
                 <button class="nav-item btn btn-gradient-grey text-shadow-small" id="nav-payment-tab" data-bs-toggle="tab" data-bs-target="#nav-payment" type="button" role="tab" aria-controls="nav-payment" aria-selected="true"><strong>Pay $<span id="monthlyAmount"></span>/mo</strong></button>
             </div>
@@ -125,7 +133,6 @@
                     <img src="https://velocity-vdp-prod-attachments.s3.amazonaws.com/Velocity+Automotive+Solutions/WindowSticker_v2.png" alt="Velocity Window Sticker" class="" style="max-height: 100px">
                 </div>
             </div>
-
             <div class="tab-pane fade well" id="nav-pictures" role="tabpanel" aria-labelledby="nav-picture-tab">
                 <div class="d-flex flex-wrap justify-content-center overflow-auto">
                     @foreach (Image image in Model.CurrentVehicle.VehicleDetails.Images) {
@@ -138,6 +145,7 @@
             </div>
             <div class="tab-pane fade well" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
                 <div id="contactTab" class="mx-auto w-75 mt-4">
+                    @{ Html.RenderPartial("_ContactForm", new GTX.Models.ContactModel()); }
                 </div>
             </div>
             <div class="tab-pane fade well" id="nav-location" role="tabpanel" aria-labelledby="nav-location-tab">
@@ -176,7 +184,7 @@
                         <h6 class="text-uppercase fw-bold">@Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model @Model.CurrentVehicle.VehicleDetails.VehicleType @Model.CurrentVehicle.VehicleDetails.VehicleStyle</h6>
                         <small class="text-shadow">Est. payment for <span id="monthTerms"></span> months at <span id="apr"></span>% APR</small>
                     </div>
-                    <div class="row my-3">
+                    <div class="row  p-3">
                         <div class="col-md-4 col-6">
                             <div class="mb-3 mb-md-4">
                                 <label class="text-shadow">Trade In</label>
@@ -185,7 +193,7 @@
                         </div>
                         <div class="col-md-4 col-6">
                             <div class="mb-3 mb-md-4">
-                                <label class="text-shadow">Amount down (default 20%)</label>
+                                <label class="text-shadow">Amount down (20%)</label>
                                 <input id="downPayment" class="form-control" placeholder="Enter adount down" max="1000000" required="" type="number" value="@(Math.Round(Math.Ceiling(Model.CurrentVehicle.VehicleDetails.RetailPrice * 0.2 / 500) * 500))">
                             </div>
                         </div>
@@ -346,6 +354,18 @@
             </div>
         </div>
 
+        @*Test drive*@
+@*        <div class="row justify-content-center well mb-3">
+            <button class="w-100 btn btn-gradient" type="button" data-bs-toggle="collapse" data-bs-target="#contactus" aria-expanded="false" aria-controls="contactus">
+                <div class="bg-lighter py-2 px-3 text-center hand-pointer">
+                    <h5 class="fw-bold text-uppercase text-white">Test drive</h5>
+                </div>
+            </button>
+            <div class="collapse text-shadow-small rounded shadow px-5" id="contactus">
+                @{ Html.RenderPartial("_ContactForm", new GTX.Models.ContactModel()); }
+            </div>
+        </div>*@
+
         @*Loan app*@
         <div class="row justify-content-center well my-3">
             <button class="w-100 btn btn-gradient" type="button" data-bs-toggle="collapse" data-bs-target="#application" aria-expanded="false" aria-controls="application">
@@ -387,9 +407,14 @@
 
 <script type="text/javascript">
     var stock = "@Model.CurrentVehicle.VehicleDetails.Stock";
+    var vehicle = "@ViewBag.Title";
     let startX = 0;
     let scrollLeft = 0;
     const scrollContainer = document.getElementById('suggestionScroll');
+
+
+    const request = `Subject: Test Drive Request — 2015 BMW 428i Gran Coupe (GTX410978)\n\nDear GTX Crew!\nI have an unbearable interest in test driving this ${vehicle} [${stock}].`;
+    const schedule = `I will be extremely happy to schedule the test drive for:`;
 
     if (scrollContainer) {
         scrollContainer.addEventListener('touchstart', (e) => {
@@ -406,6 +431,8 @@
     }
 
     $(function () {
+        $("#Comment").val(request);
+
         $("#like-btn").on("click", function () {
             var index = likedCars.indexOf(stock);
             if (index === -1) {
@@ -430,16 +457,6 @@
             padding: 0,
             border_w: 1
         });
-
-        $.get(`${root}Home/ContactForm`, { "id": 0 })
-            .done(function (result) {
-                $("#contactTab").html(result);
-                // $("#unlock").html(result);
-            })
-            .fail(function () {
-            })
-            .always(function () {
-            })
 
         $("input[name='scores']").change(function () {
             calculate();
@@ -466,6 +483,28 @@
             var twitterShareUrl = 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(shareUrl) + '&text=' + encodeURIComponent(tweetText);
             window.open(twitterShareUrl, 'twitter-share-dialog', 'width=800,height=400');
         });
+
+@*        $(".body-content").on("scroll", function (e) {
+            $("#smallCanvas").hide();
+        });*@
+        $("#testDrive, #loanApplication").hide();
+
+        $(document).on("change", "#PreferredDate", function (e) {
+            e.stopPropagation();
+            const time = $("#PreferredTime").val();
+            const defaultText = `${$(this).val()} : ${time}`;
+
+            $("#Comment").val(`${request}\n${schedule}\n${defaultText}`);
+        });
+
+        $(document).on("change", "#PreferredTime", function (e) {
+            e.stopPropagation();
+            const date = $("#PreferredDate").val();
+            const defaultText = `${date} : ${$(this).val()}`;
+
+            $("#Comment").val(`${request}\n${schedule}\n${defaultText}`);
+        });
+
     });
 
     function calculate() {
