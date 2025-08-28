@@ -1,7 +1,25 @@
 ﻿/*Custom*/
+.fs-7 {
+    font-size: 0.7rem !important;
+}
+
+.fs-8 {
+    font-size: 0.55rem !important;
+}
+
+#gtxDevelopment {
+    height: 15rem !important;
+    border-radius: 0.5rem;
+}
+
+#filterByTerm {
+    padding-right: 8rem !important;
+    padding-left: 8rem !important;
+}
+
 #gridShell {
     height: 70vh; /* initial (works even before JS runs) */
-    width: 78.6rem;
+    width: 80.6rem;
     margin-top: 15px;
 }
 
@@ -57,7 +75,7 @@
         object-fit: contain;
     }
 
-.card-header {
+.card-header, .card-footer {
     border-bottom: none;
 }
 
@@ -69,6 +87,11 @@
     top: 85vh !important;
     transform: translateY(-50%) !important; /* vertically center */
     max-height: none !important; /* allow fixed height */
+}
+
+.V {
+    border-bottom-color: purple !important;
+    border-bottom-width: 2px !important;
 }
 
 .G {
@@ -94,8 +117,8 @@
 }
 
 .btn-big-gradient {
-    font-size: 2rem; /* Large text */
-    padding: 1.2rem 2.5rem; /* Large padding */
+    font-size: 1.7rem; /* Large text */
+    padding: 1.2rem 2rem; /* Large padding */
     border: none;
     border-radius: 0.5rem;
     background: #155A96;
@@ -338,7 +361,7 @@
     }
 
     .card:hover {
-        transform: translateY(-2px);
+        transform: translateX(-2px) translateY(-2px);
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2);
     }
 
@@ -814,7 +837,7 @@
     }
 
     .container, .container-fluid, .container-xxl, .container-xl, .container-lg, .container-md, .container-sm {
-        margin-right: 0;:hovr
+        margin-right: 0;
         margin-left: 0;
     }
 

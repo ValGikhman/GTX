@@ -1,4 +1,8 @@
-﻿<div class="d-flex align-items-center position-relative w-100 p-3 mb-3">
+﻿<div id="filterByTerm" class="d-flex align-items-center position-relative w-100 p-3 mb-3">
+    <div id="socials" class="d-none d-xl-inline">
+        <a class="btn btn-light shadow mx-sm-1" href="https://www.facebook.com/GTXAutoGroup" target="_blank" title=" GTX Facebook page"><i class="fa fa-facebook"></i></a>
+        <a class="btn btn-light shadow" href="https://www.twitter.com/GTXAutoGroup" target="_blank" title=" GTX Meta page"><i class="fa fa-twitter"></i></a>
+    </div>
     <!-- Centered search -->
     <div class="position-absolute start-50 translate-middle-x d-flex align-items-center gap-3">
         <input type="search" id="filterTerm" class="form-control shadow" placeholder="Search within results..." aria-label="Search inventory">
@@ -23,7 +27,7 @@
         </select>
 
         <span class="form-check form-check-inline mx-1">
-            <input class="form-check-input me-2" type="checkbox" id="sortDirection">
+            <input class="form-check-input me-2" type="checkbox" id="sortDirection" checked>
             <label class="fw-bold mb-0" for="sortDirection">Desc</label>
         </span>
     </div>
