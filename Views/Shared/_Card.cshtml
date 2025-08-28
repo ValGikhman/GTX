@@ -1,5 +1,5 @@
 ﻿@model GTX.Models.GTX
-<li id="@Model.Stock" class="card well rounded-3 col-12 col-sm-6 col-md-4 col-lg-3 @Model.LocationCode" title="Click here to see details."
+<li id="@Model.Stock" class="card rounded-3 col-12 col-sm-6 col-md-4 col-lg-3 V @Model.LocationCode" title="Click here to see details."
     data-location-code="@Model.LocationCode"
     data-story="@(Model.Story is not null && !Model.Story.HtmlContent.ToUpper().Contains("ERROR") ? "STORY" : "NOSTORY")"
     data-images="@(Model.Image.Contains("no-image") ? "NOIMAGE" : "IMAGE")"
@@ -16,20 +16,28 @@
     data-price="@Model.RetailPrice"
     data-purchased="@Model.PurchaseDate">
     <div class="h-100 rounded-3">
-        <div class="card-header gradient hand-pointer">
-            <h5 class="fw-bold">
-                <i class="liked bi bi-heart-fill text-danger pull-right" style="display:none "></i>
-                @Model.Year
-                @Model.Make
-            </h5>
-            <h7>@Model.Model - @Model.VehicleStyle</h7>
-        </div>
+        <div class="card-header gradient hand-pointer position-relative">
+            <div class="row g-2" style="margin-left:-1rem">
+                <div class="col-auto">
+                    @{
+                        var makeImg = $"/GTXImages/makes/{Model.Make.Replace(" ", "-")}.png";
+                    }
+                    <img src="@makeImg" alt="@Model.Make logo" data-make="@Model.Make" class="img-fluid" style="height:40px;">
+                </div>
 
+                <div class="col">
+                    <div class="fw-bold fs-6 text-shadow">@Model.Year @Model.Make
+                        <i class="liked bi bi-heart-fill text-danger position-absolute top-0 end-0 mt-2 me-2" style="display:none;"></i>
+                    </div>
+                    <div class="fw-bold fs-7 text-shadow">@Model.Model - @Model.VehicleStyle</div>
+                </div>
+            </div>
+        </div>
         <div class="card-body p-0 well">
             <img class="img-fluid w-100" src="@Model.Image" alt="@($"{Model.Year} {Model.Make} {Model.Model}")" loading="lazy" decoding="async">
         </div>
 
-        <div class="card-header gradient">
+        <div class="card-footer gradient">
             <h7 class="no-click">
                 <div class="d-flex flex-wrap justify-content-between">
                     <span>Yours for: @Model.RetailPrice.ToString("C0")</span>

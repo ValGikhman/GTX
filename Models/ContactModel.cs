@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 namespace GTX.Models {
     public class ContactModel: BaseModel { 
 
-        public Employer Employer { get; set; }
+        public int EmployerId { get; set; }
 
         [DisplayName("First Name")]
         [Required(ErrorMessage = "Please enter your first name")]
@@ -35,7 +35,8 @@ namespace GTX.Models {
         [Display(Name = "Preferred contact date")]
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
-        [Required(ErrorMessage = "Please pick a date.")]
-        public DateTime? PreferredDate { get; set; }
+        public String PreferredDate { get; set; }
+
+        public String PreferredTime { get; set; }
     }
 }

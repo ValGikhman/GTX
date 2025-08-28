@@ -1,17 +1,21 @@
-﻿@model GTX.Models.ContactModel
+﻿﻿@model GTX.Models.ContactModel
 
 <style>
     .showroom-photo {
         object-fit: cover;
         width: 50%;
     }
+
+    .card:hover {
+        transform: none;
+    }
+
 </style>
 
-<div class="container-fluid mt-5 d-flex justify-content-center">
+<div class="container-fluid mt-3 d-flex justify-content-center">
     <div class="container">
         <!-- Stretch columns so their cards can match heights -->
-        <div class="row g-4 justify-content-center align-items-stretch">
-
+        <div class="row g-4 justify-content-center">
             <!-- Showroom / Address -->
             <div class="col-12 col-md-6 col-xl-5 d-flex">
                 <div class="card shadow-sm text-center well flex-fill h-100">
@@ -35,7 +39,7 @@
                         <!-- Push the actions to the bottom for consistent spacing -->
                         <div class="vstack gap-2 mt-auto">
                             <a class="btn btn-outline-primary rounded-5 shadow" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=9516+Princeton+Glendale+Rd%2C+West+Chester%2C+OH+45011">
-                               <i class="bi bi-map"></i> Get Directions
+                                <i class="bi bi-map"></i> Get Directions
                             </a>
                             <a class="btn btn-primary rounded-5 shadow" href="tel:+15139124574">
                                 <i class="bi bi-telephone"></i> (513) 489-2886
@@ -54,14 +58,13 @@
                         </h5>
                     </div>
 
-                    <div class="card-body d-flex flex-column">
+                    <div class="card-body d-flex flex-column" style="margin-top: -2rem;">
                         @{ Html.RenderPartial("_ContactForm", Model); }
                         <!-- If your form is short, add a tiny spacer so headers align nicely -->
                         <div class="mt-auto"></div>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

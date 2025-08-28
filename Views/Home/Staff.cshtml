@@ -1,4 +1,13 @@
 ﻿@model GTX.Models.BaseModel
+<style>
+    .just-validate-error-label {
+        margin-left: 65% !important;
+    }
+
+    .card:hover {
+        transform: none;
+    }
+</style>
 <!-- Modal -->
 <div id="message" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -26,8 +35,7 @@
                         <div class="card-subtitle text-muted">@employer.Position</div>
                         <button class="btn btn-primary shadow rounded-5 mt-2 w-75"
                                 data-name="@employer.Name"
-                                data-email="@employer.Email"
-                                onclick="showEmail(this, @employer.id)">
+                                onclick="showContactForm(this, @employer.id)">
                             <i class="bi bi-send"></i> Sent
                         </button>
                     </div>
@@ -37,15 +45,12 @@
     </ul>
 </section>
 
-
-
 <script type="text/javascript">
     $(function () {
     })
 
-    function showEmail(obj, id) {
+    function showContactForm(obj, id) {
         var name = `${$(obj).data("name")}`;
-        var email = $(obj).data("email");
         $.get(`${root}Home/ContactForm`, { "id": id })
             .done(function (result) {
                 $("#messageBody").html(result);

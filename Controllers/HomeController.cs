@@ -95,7 +95,7 @@ namespace GTX.Controllers {
             try {
                 ContactModel model = new ContactModel();
                 if (id != 0) {
-                    model.Employer = SessionData.Employers.FirstOrDefault(m => m.id == id);
+                    model.EmployerId = id;
                 }
                 return RenderViewToString(this.ControllerContext, "_ContactForm", model);
             }
@@ -117,6 +117,18 @@ namespace GTX.Controllers {
                     contact.LastName = model.LastName;
                     contact.Phone = model.Phone;
                     contact.Email = model.Email;
+                    if (!string.IsNullOrEmpty(model.PreferredDate)) {
+                        model.Comment = $"{model.Comment}\nPreffered date and time to schedule: {model.PreferredDate}";
+                        if (!string.IsNullOrEmpty(model.PreferredTime)) {
+                            model.Comment = $"\n{model.Comment}:{model.PreferredTime}";
+                        }
+                    }
+
+                    if (model.EmployerId > 0) {
+                        var employer = Model.Employers.FirstOrDefault(m => m.id == model.EmployerId);
+                        model.Comment = $"{model.Comment}\nAttn: {employer.Name}";
+                    }
+
                     contact.Comment = model.Comment;
 
                     _contactService.SaveContact(contact);

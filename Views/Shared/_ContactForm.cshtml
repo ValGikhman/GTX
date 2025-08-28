@@ -1,8 +1,8 @@
-﻿@using Newtonsoft.Json
+﻿﻿@using Newtonsoft.Json
 @model GTX.Models.ContactModel
 <style>
     .just-validate-error-field {
-        border: 1px solid red!important;
+        border: 1px solid red !important;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='red' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 100 20 10 10 0 000-20zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z'/%3E%3C/svg%3E");
         background-repeat: no-repeat;
         background-position: right 10px center;
@@ -18,9 +18,12 @@
     }
 
     .just-validate-error-label {
+        flex: 0 0 100%; /* full row */
         font-size: 12px;
-        margin-left: 13px;
+        margin-top: -1.6rem !important;
+        z-index: 99;
     }
+
 </style>
 
 <script src="~/Scripts/jquery/jquery.mask.js" type="text/javascript"></script>
@@ -30,44 +33,97 @@
             <span class="visually-hidden">Loading...</span>
         </div>
     </div>
-    <div class="mb-2">
-        @Html.TextBoxFor(model => model.FirstName, new { @name = "FirstName", @class = "form-control shadow", placeholder = "First Name" })
-        @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-shadow-small" })
-    </div>
 
     <div class="mb-2">
-        @Html.TextBoxFor(model => model.LastName, new { @name = "LastName", @class = "form-control shadow", placeholder = "Last Name" })
-        @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-shadow-small" })
-    </div>
-
-    <div class="mb-2">
-        @Html.TextBoxFor(model => model.Email, new { @name = "Email", @class = "form-control shadow", placeholder = "Email" })
-        @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-shadow-small" })
+        <div class="input-group">
+            <span class="input-group-text shadow">
+                <i class="bi bi-file-person"></i>
+            </span>
+            @Html.TextBoxFor(model => model.FirstName, new { @name = "FirstName", @class = "form-control shadow", placeholder = "First Name" })
+        </div>
     </div>
 
     <div class="mb-2">
-        @Html.TextBoxFor(model => model.Phone, new { @name = "Phone", @class = "form-control shadow", placeholder = "Phone", type = "phone" })
-        @Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-shadow-small" })
+        <div class="input-group">
+            <span class="input-group-text shadow">
+                <i class="bi bi-file-person-fill"></i>
+            </span>
+            @Html.TextBoxFor(model => model.LastName, new { @name = "LastName", @class = "form-control shadow", placeholder = "Last Name" })
+        </div>
     </div>
 
     <div class="mb-2">
-        @Html.TextBoxFor(m => m.PreferredDate, new { @name = "PreferredDate", @class = "form-control shadow", placeholder = "Preferred date", min = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd"), max = DateTime.Today.AddMonths(1).ToString("yyyy-MM-dd") })
-        @Html.ValidationMessageFor(m => m.PreferredDate, "", new { @class = "text-shadow-small" })
+        <div class="input-group">
+            <span class="input-group-text shadow">
+                <i class="bi bi-mailbox"></i>
+            </span>
+            @Html.TextBoxFor(model => model.Email, new { @name = "Email", @class = "form-control shadow", placeholder = "Email" })
+        </div>
     </div>
 
-    <div class="form-floating">
-        @Html.TextAreaFor(model => model.Comment, new { @name = "Comment", @class = "form-control shadow", @style = "height: 150px;", placeholder = "Leave a comment here" })
-        @Html.ValidationMessageFor(model => model.Comment, "", new { @class = "text-shadow-small" })
+    <div class="mb-2">
+        <div class="input-group">
+            <span class="input-group-text shadow">
+                <i class="bi bi-phone"></i>
+            </span>
+            @Html.TextBoxFor(model => model.Phone, new { @name = "Phone", @class = "form-control shadow", placeholder = "Phone", type = "phone" })
+        </div>
     </div>
 
+    <div class="mb-2">
+        <div class="input-group">
+            <span class="input-group-text shadow"><i class="bi bi-calendar"></i></span>
+            @Html.TextBoxFor(m => m.PreferredDate, new { @name = "PreferredDate", @class = "form-control shadow", placeholder = "Preferred date and time", min = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd"), max = DateTime.Today.AddMonths(1).ToString("yyyy-MM-dd") })
+            @Html.TextBoxFor(m => m.PreferredTime, new { @type = "time", @class = "form-control shadow", step = "900", min = "09:00", max = "19:00", list = "timeOptions", placeholder = "Preferred time" })
+        </div>
+        <datalist id="timeOptions">
+            <option value="09:00"></option>
+            <option value="09:30"></option>
+            <option value="10:00"></option>
+            <option value="10:30"></option>
+            <option value="11:00"></option>
+            <option value="11:30"></option>
+            <option value="12:00"></option>
+            <option value="12:30"></option>
+            <option value="13:00"></option>
+            <option value="13:30"></option>
+            <option value="14:00"></option>
+            <option value="14:30"></option>
+            <option value="15:00"></option>
+            <option value="15:30"></option>
+            <option value="16:00"></option>
+            <option value="16:30"></option>
+            <option value="17:00"></option>
+            <option value="17:30"></option>
+            <option value="18:00"></option>
+            <option value="18:30"></option>
+        </datalist>
+    </div>
+
+    <div class="mb-2">
+        @Html.TextAreaFor(model => model.Comment, new { @name = "Comment", @class = "form-control shadow", @style = "height: 150px;", placeholder = "Leave a request here" })
+    </div>
+
+    <input type="hidden" id="EmployerId" value="@Model.EmployerId" />
     <div class="d-flex justify-content-center p-3">
         <button id="btnSent" type="submit" class="btn btn-primary rounded-5  shadow w-75"><i class="bi bi-send"></i> Send</button>
     </div>
+    @{
+        if (Model.CurrentVehicle != null && Model.CurrentVehicle.VehicleDetails != null) {
+            var stock = Model.CurrentVehicle.VehicleDetails.Stock;
+            <input type="hidden" id="Stock" value="@stock" />
+        }
+    }
 </form>
 
 
 <script>
     (function () {
+        $(document).on("click", ".just-validate-error-label", function (e) {
+            e.stopPropagation();
+            $(this).hide();
+        });
+
         $("#Phone").mask("(000) 000-0000");
         $("#PreferredDate").datepicker({
             showOtherMonths: true,
@@ -88,27 +144,26 @@
             ])
             .addField('#Email', [
                 { rule: 'required', errorMessage: 'Email is required' },
-                { rule: 'email', errorMessage: 'Email is invalid' }
+                {    validator: value => /^[\w-\.]+@@([\w-]+\.)+[\w-]{2,4}$/.test(value.trim()),
+                    errorMessage: 'Email is invalid format',
+                }
             ])
             .addField('#Phone', [
                 { rule: 'required', errorMessage: 'Phone required' },
                 {
-                    validator: value => /^\+?[\d\s\-().]{10,20}$/.test(value.trim()),
+                    validator: value => /^\(?([0-9]{3})\)?[- ]?([0-9]{3})[- ]?([0-9]{4})$/.test(value.trim()),
                     errorMessage: 'Invalid phone format',
                 }
             ])
             .addField('#Comment', [
                 { rule: 'required', errorMessage: 'Comment is required' }
-            ])
-            .addField('#PreferredDate', [
-                { rule: 'required', errorMessage: 'Preferred date is required' }
             ]);
 
         $("#btnSent").on("click", function () {
             if (validator.isValid) {
                 send();
                 setTimeout(() => {
-                    $("#FirstName, #LastName, #Email, #Phone, #Comment").val("");
+                    $("#FirstName, #LastName, #Email, #Phone, #PreferredDate, #PreferredTime, #Comment").val("");
                     validator.refresh();
                 }, 1000);
             }
@@ -121,12 +176,14 @@
     function send() {
         showSpinner($("#contactSpinner"));
         const model = {
-            FirstName: $('#FirstName').val()?.trim(),
-            LastName: $('#LastName').val()?.trim(),
-            Email: $('#Email').val()?.trim(),
-            Phone: $('#Phone').val()?.trim(),
-            PreferredDate: $('#PreferredDate').val()?.trim(),
-            Comment: $('#Comment').val()?.trim()
+            FirstName: $("#FirstName").val()?.trim(),
+            LastName: $("#LastName").val()?.trim(),
+            Email: $("#Email").val()?.trim(),
+            Phone: $("#Phone").val()?.trim(),
+            PreferredDate: $("#PreferredDate").val()?.trim(),
+            PreferredTime: $("#PreferredTime").val()?.trim(),
+            Comment: $("#Comment").val()?.trim(),
+            EmployerId: $("#EmployerId").val()?.trim()
         };
 
         sendContact(model);
@@ -138,18 +195,18 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(model)
         })
-        .then(res => {
-            if (!res.ok) return res.json().then(err => { throw err; });
-            return res.json();
-        })
-        .then(data => {
-            console.log("✅ Server response:", data);
-        })
-        .catch(err => {
-            console.warn("❌ Server responded with an error", err);
-        })
-        .finally(() => {
-            hideSpinner($("#contactSpinner"));
-        });
+            .then(res => {
+                if (!res.ok) return res.json().then(err => { throw err; });
+                return res.json();
+            })
+            .then(data => {
+                console.log("✅ Server response:", data);
+            })
+            .catch(err => {
+                console.warn("❌ Server responded with an error", err);
+            })
+            .finally(() => {
+                hideSpinner($("#contactSpinner"));
+            });
     }
 </script>
