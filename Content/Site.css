@@ -1,4 +1,38 @@
 ﻿/*Custom*/
+.carousel-control-prev,
+.carousel-control-next {
+    width: auto; /* don't stretch the whole side */
+    opacity: 1; /* keep fully visible */
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    --circle-size: 40px; /* tweak size here */
+    width: var(--circle-size);
+    height: var(--circle-size);
+    border-radius: 50%;
+    background-color: #fff; /* the white circle */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 55% 55%;
+    box-shadow: 0 4px 12px rgba(0,0,0,.18);
+}
+
+/* Black arrow icons on white circle (override Bootstrap's default white SVGs) */
+.carousel-control-prev-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16'%3e%3cpath stroke='%23000' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M11 1 4 8l7 7'/%3e%3c/svg%3e");
+}
+
+.carousel-control-next-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16'%3e%3cpath stroke='%23000' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 1l7 7-7 7'/%3e%3c/svg%3e");
+}
+
+/* Optional: small hover pop */
+.carousel-control-prev:hover .carousel-control-prev-icon,
+.carousel-control-next:hover .carousel-control-next-icon {
+    transform: scale(1.06);
+}
+
 .btn-close {
     width: 5px;
     height: 5px;
@@ -610,44 +644,19 @@
     }
 
     /* Make the carousel fill the ratio box */
-.ratio > #detailsCarousel,
-    #detailsCarousel .carousel-inner,
-    #detailsCarousel .carousel-item {
-        height: 100%;
+    .ratio > #detailsCarousel,
+        #detailsCarousel .carousel-inner,
+        #detailsCarousel .carousel-item {
+            height: 100%;
+        }
+
+    #detailsCarousel .carousel-item img {
+        width: auto; /* preserve aspect */
+        max-width: 100%; /* don’t overflow horizontally */
+        height: auto;
+        object-fit: contain; /* safety if something sets width/height */
+        display: inline-block; /* works with text-align:center */
     }
-
-#detailsCarousel .carousel-item img {
-    width: auto; /* preserve aspect */
-    max-width: 100%; /* don’t overflow horizontally */
-    height: auto;
-    object-fit: contain; /* safety if something sets width/height */
-    display: inline-block; /* works with text-align:center */
-}
-
-    .carousel-control-prev-icon,
-    .carousel-control-next-icon {
-        background-image: none !important;
-    }
-
-        .carousel-control-prev-icon::before,
-        .carousel-control-next-icon::before {
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            font-size: 2rem;
-            color: darkgrey;
-            display: inline-block;
-            width: 100%;
-            text-align: center;
-        }
-
-        /* Specific icons */
-        .carousel-control-prev-icon::before {
-            content: "\f104"; /* fa-chevron-left */
-        }
-
-        .carousel-control-next-icon::before {
-            content: "\f105"; /* fa-chevron-right */
-        }
 
     .ratio-carousel {
         --bs-aspect-ratio: 70%;
