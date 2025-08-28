@@ -64,15 +64,15 @@
     <div class="col-lg-6 col-md-8 col-sm-12">
         <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                <button class="nav-item active btn btn-gradient-grey text-shadow-small" id="nav-details-tab" data-bs-toggle="tab" data-bs-target="#nav-details" type="button" role="tab" aria-controls="nav-details" aria-selected="true">Details</button>
+                <button class="nav-item active btn btn-gradient-grey text-shadow-small" id="nav-details-tab" data-bs-toggle="tab" data-bs-target="#nav-details" type="button" role="tab" aria-controls="nav-details" aria-selected="true">📝&nbsp; Details</button>
                 @{
                     if (Model.CurrentVehicle.VehicleImages.Count() > 0) {
                         <button class="nav-item btn btn-gradient-grey text-shadow-small" id="nav-pictures-tab" data-bs-toggle="tab" data-bs-target="#nav-pictures" type="button" role="tab" aria-controls="nav-pictures" aria-selected="false">Photos ( @Model.CurrentVehicle.VehicleDetails.Images.Count())</button>
                     }
                 }
-                <button class="nav-item btn btn-gradient-grey text-shadow-small" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="true">Test drive</button>
-                <button class="nav-item btn btn-gradient-grey text-shadow-small" id="nav-location-tab" data-bs-toggle="tab" data-bs-target="#nav-location" type="button" role="tab" aria-controls="nav-location" aria-selected="true">Location</button>
-                <button class="nav-item btn btn-gradient-grey text-shadow-small" id="nav-payment-tab" data-bs-toggle="tab" data-bs-target="#nav-payment" type="button" role="tab" aria-controls="nav-payment" aria-selected="true"><strong>Pay $<span id="monthlyAmount"></span>/mo</strong></button>
+            <button class="nav-item btn btn-gradient-grey text-shadow-small" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="true">📅&nbsp; Test drive</button>
+            <button class="nav-item btn btn-gradient-grey text-shadow-small" id="nav-location-tab" data-bs-toggle="tab" data-bs-target="#nav-location" type="button" role="tab" aria-controls="nav-location" aria-selected="true">📍&nbsp; Location</button>
+                <button class="nav-item btn btn-gradient-grey text-shadow-small" id="nav-payment-tab" data-bs-toggle="tab" data-bs-target="#nav-payment" type="button" role="tab" aria-controls="nav-payment" aria-selected="true"><strong>🧮&nbsp; Pay $<span id="monthlyAmount"></span>/mo</strong></button>
             </div>
         </nav>
         <div class="tab-content" id="nav-tabContent">
@@ -492,7 +492,7 @@
         $(document).on("change", "#PreferredDate", function (e) {
             e.stopPropagation();
             const time = $("#PreferredTime").val();
-            const defaultText = `${$(this).val()} : ${time}`;
+            const defaultText = `📅 ${$(this).val()} 🕒 ${time}`;
 
             $("#Comment").val(`${request}\n${schedule}\n${defaultText}`);
         });
@@ -500,7 +500,7 @@
         $(document).on("change", "#PreferredTime", function (e) {
             e.stopPropagation();
             const date = $("#PreferredDate").val();
-            const defaultText = `${date} : ${$(this).val()}`;
+            const defaultText = `📅 ${date} 🕒 ${$(this).val()}`;
 
             $("#Comment").val(`${request}\n${schedule}\n${defaultText}`);
         });

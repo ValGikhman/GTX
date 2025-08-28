@@ -34,6 +34,7 @@
         </div>
     </div>
 
+    @* First Name *@
     <div class="mb-2">
         <div class="input-group">
             <span class="input-group-text shadow">
@@ -43,6 +44,7 @@
         </div>
     </div>
 
+    @* Last Name *@
     <div class="mb-2">
         <div class="input-group">
             <span class="input-group-text shadow">
@@ -52,6 +54,7 @@
         </div>
     </div>
 
+    @* Email *@
     <div class="mb-2">
         <div class="input-group">
             <span class="input-group-text shadow">
@@ -61,6 +64,7 @@
         </div>
     </div>
 
+    @* Phone *@
     <div class="mb-2">
         <div class="input-group">
             <span class="input-group-text shadow">
@@ -70,11 +74,12 @@
         </div>
     </div>
 
+    @* Date & Time *@
     <div class="mb-2">
         <div class="input-group">
             <span class="input-group-text shadow"><i class="bi bi-calendar"></i></span>
-            @Html.TextBoxFor(m => m.PreferredDate, new { @name = "PreferredDate", @class = "form-control shadow", placeholder = "Preferred date and time", min = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd"), max = DateTime.Today.AddMonths(1).ToString("yyyy-MM-dd") })
-            @Html.TextBoxFor(m => m.PreferredTime, new { @type = "time", @class = "form-control shadow", step = "900", min = "09:00", max = "19:00", list = "timeOptions", placeholder = "Preferred time" })
+            @Html.TextBoxFor(m => m.PreferredDate, new { @name = "PreferredDate", @class = "form-control shadow", placeholder = "Preferred date and time" })
+            @Html.TextBoxFor(m => m.PreferredTime, new { @type = "time", @class = "form-control shadow", step = "900", min = "09:00", max = "18:30", list = "timeOptions", placeholder = "Preferred time" })
         </div>
         <datalist id="timeOptions">
             <option value="09:00"></option>
@@ -100,6 +105,7 @@
         </datalist>
     </div>
 
+    @* Comments *@
     <div class="mb-2">
         @Html.TextAreaFor(model => model.Comment, new { @name = "Comment", @class = "form-control shadow", @style = "height: 150px;", placeholder = "Leave a request here" })
     </div>
@@ -128,7 +134,10 @@
 
         $("#PreferredDate").datepicker({
             showOtherMonths: true,
-            selectOtherMonths: true
+            selectOtherMonths: true,
+            dateFormat: "yy-mm-dd",
+            minDate: 1,              // tomorrow
+            maxDate: "+1M"        // one month out
         });
 
         const validator = new JustValidate('#contactForm', {
