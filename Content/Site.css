@@ -1,4 +1,18 @@
 ﻿/*Custom*/
+.ui-datepicker .ui-datepicker-prev span,
+.ui-datepicker .ui-datepicker-next span {
+    background-image: none !important;
+    text-indent: 3px !important;
+    font-size: 14px;
+}
+
+    .ui-datepicker .ui-datepicker-prev span::before {
+        content: "◀";
+    }
+
+    .ui-datepicker .ui-datepicker-next span::before {
+        content: "▶";
+    }
 .carousel-control-prev,
 .carousel-control-next {
     width: auto; /* don't stretch the whole side */
