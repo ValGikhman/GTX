@@ -67,7 +67,7 @@
                 <button class="nav-item active btn btn-gradient-grey text-shadow-small" id="nav-details-tab" data-bs-toggle="tab" data-bs-target="#nav-details" type="button" role="tab" aria-controls="nav-details" aria-selected="true">📝&nbsp; Details</button>
                 @{
                     if (Model.CurrentVehicle.VehicleImages.Count() > 0) {
-                        <button class="nav-item btn btn-gradient-grey text-shadow-small" id="nav-pictures-tab" data-bs-toggle="tab" data-bs-target="#nav-pictures" type="button" role="tab" aria-controls="nav-pictures" aria-selected="false">Photos ( @Model.CurrentVehicle.VehicleDetails.Images.Count())</button>
+                                <button class="nav-item btn btn-gradient-grey text-shadow-small" id="nav-pictures-tab" data-bs-toggle="tab" data-bs-target="#nav-pictures" type="button" role="tab" aria-controls="nav-pictures" aria-selected="false">📷&nbsp; Photos ( @Model.CurrentVehicle.VehicleDetails.Images.Count())</button>
                     }
                 }
             <button class="nav-item btn btn-gradient-grey text-shadow-small" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="true">📅&nbsp; Test drive</button>
