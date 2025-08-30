@@ -55,7 +55,7 @@
         <a href="./">
             <img width="100" src="@Url.Content("~/GTXImages/GTX-Black.png")" alt="www.gtxautogroup.com">
         </a>
-        <a class="btn btn-light shadow my-2 pull-right" href="tel:(513) 489-2886">
+        <a class="btn gradient shadow my-2 pull-right" href="tel:(513) 489-2886">
             <i class="bi bi-telephone"></i>
             (513) 489-2886
         </a>
@@ -121,13 +121,13 @@
                 <nav class="header__top d-none d-xxl-flex">
                     <ul class="main-menu start-100 list-unstyled no-wrap-group">
                         <li class="mx-sm-1">
-                            <a class="btn btn-light" id="btnOpenHours" data-bs-toggle="offcanvas" data-bs-target="#openHours" aria-controls="openHours">
+                            <a class="btn btn-gradient-grey border-dark rounded-4" id="btnOpenHours" data-bs-toggle="offcanvas" data-bs-target="#openHours" aria-controls="openHours">
                                 <i class="bi bi-stopwatch"></i>
                                 <span id="schedule" class="schedule d-none d-xxl-inline m-sm-1"></span>
                             </a>
                         </li>
                         <li class="mx-sm-1">
-                            <a class="btn btn-light" href="tel:(513) 489-2886">
+                            <a class="btn btn-gradient-grey border-dark rounded-4" href="tel:(513) 489-2886">
                                 <i class="bi bi-telephone"></i>
                                 <span id="telephone" class="d-none d-xxl-inline m-sm-1">(513) 489-2886</span>
                             </a>
@@ -168,8 +168,6 @@
 
     @Scripts.Render("~/scripts/jquery")
     @RenderSection("scripts", required: false)
-
-    <a class="btn btn-primary" data-bs-toggle="offcanvas" href="#gtxDevelopment" role="button" aria-controls="gtxDevelopment">Link with href</a>
 
     <div class="offcanvas offcanvas-bottom small-offcanvas w-25 centered" tabindex="-1" id="gtxDevelopment" aria-labelledby="offcanvasBottomLabel">
         <div class="offcanvas-header">
