@@ -1,17 +1,16 @@
 ﻿using GTX.Models;
+using Microsoft.VisualBasic.FileIO; // TextFieldParser
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Hosting;
-using System.Web.Mvc;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
-using Microsoft.VisualBasic.FileIO; // TextFieldParser
-using System.Collections.Generic;
 
 namespace Utility.XMLHelpers {
     public static class XmlRepository {
@@ -65,7 +64,7 @@ namespace Utility.XMLHelpers {
             }
         }
 
-        public async static Task SendAdfLeadAsync(ContactModel model, Vehicle vehicle) {
+        public async static Task SendAdfLeadAsync(ContactModel model) {
             try {
                 string filePath = $"{xmlFilePath}adf.xml";
 
@@ -81,12 +80,12 @@ namespace Utility.XMLHelpers {
                 xmlDoc.SelectSingleNode("//email")!.InnerText = model.Email;
                 xmlDoc.SelectSingleNode("//phone")!.InnerText = model.Phone;
 
-                if (vehicle.VehicleDetails != null) {
+                if (model.CurrentVehicle.VehicleDetails != null) {
                     // Set vehicle info
-                    xmlDoc.SelectSingleNode("//prospect/vehicle/stock")!.InnerText = vehicle.VehicleDetails.Stock;
-                    xmlDoc.SelectSingleNode("//prospect/vehicle/year")!.InnerText = vehicle.VehicleDetails.Year.ToString();
-                    xmlDoc.SelectSingleNode("//prospect/vehicle/make")!.InnerText = vehicle.VehicleDetails.Make;
-                    xmlDoc.SelectSingleNode("//prospect/vehicle/model")!.InnerText = vehicle.VehicleDetails.Model;
+                    xmlDoc.SelectSingleNode("//prospect/vehicle/stock")!.InnerText = model.CurrentVehicle.VehicleDetails.Stock;
+                    xmlDoc.SelectSingleNode("//prospect/vehicle/year")!.InnerText = model.CurrentVehicle.VehicleDetails.Year.ToString();
+                    xmlDoc.SelectSingleNode("//prospect/vehicle/make")!.InnerText = model.CurrentVehicle.VehicleDetails.Make;
+                    xmlDoc.SelectSingleNode("//prospect/vehicle/model")!.InnerText = model.CurrentVehicle.VehicleDetails.Model;
                 }
 
                 // Set customer contact info
@@ -113,12 +112,12 @@ namespace Utility.XMLHelpers {
                     var response = await client.PostAsync(url, content);
 
                     if (response.IsSuccessStatusCode) {
-                        //return Json(new { success = true, message = "Lead sent successfully!" });
-                    }
+/*                        return Json(new { success = true, message = "Lead sent successfully!" });
+*/                    }
                     else {
                         var error = await response.Content.ReadAsStringAsync();
-                        //return Json(new { success = false, message = $"Failed to send. {error}" });
-                    }
+  /*                      return Json(new { success = false, message = $"Failed to send. {error}" });
+  */                  }
                 }
             }
             catch (Exception ex) {

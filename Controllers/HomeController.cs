@@ -111,6 +111,8 @@ namespace GTX.Controllers {
             Log($"Sending contact: {SerializeModel(model)}");
             try {
                 if (ModelState.IsValid) {
+                    model.CurrentVehicle = SessionData.CurrentVehicle;
+
                     Contact contact = new Contact();
                     contact.FirstName = model.FirstName;
                     contact.LastName = model.LastName;
@@ -131,7 +133,7 @@ namespace GTX.Controllers {
                     contact.Comment = model.Comment;
 
                     _contactService.SaveContact(contact);
-                    await Utility.XMLHelpers.XmlRepository.SendAdfLeadAsync(model, Model.CurrentVehicle);
+                    await Utility.XMLHelpers.XmlRepository.SendAdfLeadAsync(model);
                     return Json(new {data = contact });
                 }
             }

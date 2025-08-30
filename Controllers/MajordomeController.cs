@@ -529,11 +529,5 @@ namespace GTX.Controllers {
             Font font = new Font(fontFamily, size, fontStyle);
             return (font, color);
         }
-
-        private bool IsColorClose(Color a, Color b, int tolerance) {
-            return Math.Abs(a.R - b.R) <= tolerance &&
-                    Math.Abs(a.G - b.G) <= tolerance &&
-                    Math.Abs(a.B - b.B) <= tolerance;
-            }
     }
 }
