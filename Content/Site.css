@@ -1,4 +1,26 @@
 ﻿/*Custom*/
+.collapse-toggle .icon-minus {
+    display: none;
+}
+
+.collapse-toggle[aria-expanded="true"] .icon-plus {
+    display: none;
+}
+
+.collapse-toggle[aria-expanded="true"] .icon-minus {
+    display: inline-block;
+}
+
+/* Niceties */
+.collapse-toggle {
+    text-align: left;
+}
+
+    .collapse-toggle .toggle-icons {
+        display: inline-flex;
+        align-items: center;
+    }
+
 .ui-datepicker .ui-datepicker-prev span,
 .ui-datepicker .ui-datepicker-next span {
     background-image: none !important;
