@@ -75,7 +75,7 @@
                     }
                 }
                 @*            <button class="nav-item btn btn-gradient-grey text-shadow-small" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="true"><i class="bi bi-calendar3"></i>&nbsp; Test drive</button>
-                *@            <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small" id="nav-location-tab" data-bs-toggle="tab" data-bs-target="#nav-location" type="button" role="tab" aria-controls="nav-location" aria-selected="true"><i class="bi bi-pin-map"></i>&nbsp; Location</button>
+                *@            <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small" id="nav-location-tab" data-bs-toggle="tab" data-bs-target="#nav-location" type="button" role="tab" aria-controls="nav-location" aria-selected="true"><i class="bi bi-geo-fill"></i>&nbsp; Location</button>
                 <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small" id="nav-payment-tab" data-bs-toggle="tab" data-bs-target="#nav-payment" type="button" role="tab" aria-controls="nav-payment" aria-selected="true"><strong><i class="bi bi-calculator"></i>&nbsp; Pay $<span id="monthlyAmount"></span>/mo</strong></button>
             </div>
         </nav>
@@ -103,7 +103,7 @@
                 </div>
 
                 @*Dudes*@
-                <div class="d-flex justify-content-center align-items-center gap-2 flex-nowrap mt-2">
+                <div class="d-flex justify-content-center align-items-center gap-2 flex-nowrap my-2">
                     <span>
                         <i id="like-btn" class="btn btn-gradient-grey border-dark rounded shadow bi bi-heart-fill text-danger" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"></i>
                     </span>
@@ -120,12 +120,22 @@
 
                 @*Story*@
                 @if (@Model.CurrentVehicle.VehicleDetails.Story != null) {
-                    <div class="row mt-3">
-                        <button class="w-100 btn btn-gradient" type="button" data-bs-toggle="collapse" data-bs-target="#story" aria-expanded="false" aria-controls="story">
-                            <div class="bg-lighter py-2 px-3 text-center hand-pointer">
-                                <h5 class="fw-bold text-uppercase text-white">@Model.CurrentVehicle.VehicleDetails.Story.Title</h5>
-                            </div>
+                    <div class="row justify-content-center well mb-3">
+                        <button class="w-100 btn btn-gradient position-relative collapse-toggle"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#story"
+                            aria-expanded="true"
+                            aria-controls="story">
+                            <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2"><i class="bi bi-pen"></i>&nbsp;&nbsp;@Model.CurrentVehicle.VehicleDetails.Story.Title</h5>
+
+                            <!-- right-side +/–, stays out of the flow so the H5 can center -->
+                            <span class="toggle-icons position-absolute end-0 top-50 translate-middle-y pe-3" aria-hidden="true">
+                                <i class="bi bi-plus-lg icon-plus"></i>
+                                <i class="bi bi-dash-lg icon-minus"></i>
+                            </span>
                         </button>
+
                         <div class="collapse show p-3 text-shadow-small well" id="story">
                             @Html.Raw(@Model.CurrentVehicle.VehicleDetails.Story.HtmlContent)
                         </div>
@@ -246,7 +256,7 @@
                         </div>
                     </div>
                     <div class="d-flex justify-content-center">
-                        <button type="submit" class="btn btn-secondary shadow my-3 shadow" onclick="calculate();">Calculate</button>
+                        <button type="submit" class="btn btn-gradient-grey border-dark rounded-4 my-3 shadow" onclick="calculate();"><i class="bi bi-calculator"></i>&nbsp;&nbsp;Calculate</button>
                     </div>
                 </div>
             </div>
@@ -364,41 +374,73 @@
 
         @*Test drive*@
         <div class="row justify-content-center well mb-3">
-            <button class="w-100 btn btn-gradient" type="button" data-bs-toggle="collapse" data-bs-target="#contactus" aria-expanded="false" aria-controls="contactus">
-                <div class="bg-lighter py-2 px-3 text-center hand-pointer">
-                    <h5 class="fw-bold text-uppercase text-white"><i class="bi bi-calendar3"></i>&nbsp;&nbsp;Test drive</h5>
-                </div>
+            <button class="w-100 btn btn-gradient position-relative collapse-toggle"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#contactus"
+                    aria-expanded="false"
+                    aria-controls="contactus">
+                <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
+                    <i class="bi bi-calendar3"></i>&nbsp;&nbsp;Schedule test drive
+                </h5>
+
+                <!-- right-side +/–, stays out of the flow so the H5 can center -->
+                <span class="toggle-icons position-absolute end-0 top-50 translate-middle-y pe-3" aria-hidden="true">
+                    <i class="bi bi-plus-lg icon-plus"></i>
+                    <i class="bi bi-dash-lg icon-minus"></i>
+                </span>
             </button>
+
             <div class="collapse text-shadow-small rounded shadow px-5" id="contactus">
                 @{ Html.RenderPartial("_ContactForm", new GTX.Models.ContactModel()); }
             </div>
         </div>
 
         @*Loan app*@
-        <div class="row justify-content-center well my-3">
-            <button class="w-100 btn btn-gradient" type="button" data-bs-toggle="collapse" data-bs-target="#application" aria-expanded="false" aria-controls="application">
-                <div class="bg-lighter py-2 px-3 text-center hand-pointer">
-                    <h5 class="fw-bold text-uppercase text-white"><i class="bi bi-cash-coin"></i>&nbsp;&nbsp;Loan application</h5>
-                </div>
+        <div class="row justify-content-center well mb-3">
+            <button class="w-100 btn btn-gradient position-relative collapse-toggle"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#application"
+                    aria-expanded="false"
+                    aria-controls="application">
+                <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
+                    <i class="bi bi-currency-dollar"></i>&nbsp;&nbsp;Loan application
+                </h5>
+
+                <!-- right-side +/–, stays out of the flow so the H5 can center -->
+                <span class="toggle-icons position-absolute end-0 top-50 translate-middle-y pe-3" aria-hidden="true">
+                    <i class="bi bi-plus-lg icon-plus"></i>
+                    <i class="bi bi-dash-lg icon-minus"></i>
+                </span>
             </button>
 
             <div class="collapse text-shadow-small rounded shadow mt-2" id="application">
                 <iframe src="https://www.700dealer.com/QuickQualify/43783416bf5141ff8b8d1a40387ee700-20181212" width="100%" height="385px" scrolling="auto"></iframe>
-            </div>
-        </div>
+            </div>        </div>
     </div>
 </div>
-
 @*May Like*@
 <div class="row mx-auto col-lg-11 col-md-8 col-sm-12  mb-5">
-    <button class="w-100 btn btn-gradient" type="button" data-bs-toggle="collapse" data-bs-target="#suggestion" aria-expanded="false" aria-controls="suggestion">
-        <div class="bg-lighter py-2 px-3 text-center hand-pointer">
-            <h5 class="fw-bold text-uppercase text-white">You may also like</h5>
-        </div>
+    <button class="w-100 btn btn-gradient position-relative collapse-toggle"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#suggestion"
+            aria-expanded="true"
+            aria-controls="suggestion">
+        <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
+            <i class="bi bi-hand-thumbs-up"></i>&nbsp;&nbsp;You may also like
+        </h5>
+
+        <!-- right-side +/–, stays out of the flow so the H5 can center -->
+        <span class="toggle-icons position-absolute end-0 top-50 translate-middle-y pe-3" aria-hidden="true">
+            <i class="bi bi-plus-lg icon-plus"></i>
+            <i class="bi bi-dash-lg icon-minus"></i>
+        </span>
     </button>
-    <div class="collapse show p-0 mt-4" id="suggestion">
+    <div class="collapse show p-0" id="suggestion">
         <div class="d-flex justify-content-evenly">
-            <button class="btn btn-gradient scroll-button bi bi-arrow-left-circle" onclick="scrollSuggestions(-300)"></button>
+            <button class="btn btn-gradient-grey scroll-button bi bi-arrow-left-circle" onclick="scrollSuggestions(-300)"></button>
             <div class="scroll-container well shadow" id="suggestionScroll">
                 <div class="d-flex justify-content-evenly">
                     @foreach (var suggestion in Model.CurrentVehicle.VehicleSuggesion) {
@@ -408,7 +450,7 @@
                     }
                 </div>
             </div>
-            <button class="btn btn-gradient scroll-button bi bi-arrow-right-circle" onclick="scrollSuggestions(300)"></button>
+            <button class="btn btn-gradient-grey scroll-button bi bi-arrow-right-circle" onclick="scrollSuggestions(300)"></button>
         </div>
     </div>
 </div>
