@@ -41,7 +41,7 @@ namespace GTX.Controllers {
             if (string.IsNullOrEmpty(stock)) {
                 Model.Inventory.Title = "All";
                 Model.Inventory.Vehicles = SessionData?.Inventory?.All as Models.GTX[] ?? Array.Empty<Models.GTX>();
-                ViewBag.Title = $"All inventory ({Model.Inventory.Vehicles.Length}) vehicles";
+                ViewBag.Title = $"({Model.Inventory.Vehicles.Length}) vehicles";
 
                 return View("Index", Model);
             }
@@ -95,7 +95,7 @@ namespace GTX.Controllers {
 
             Model.Inventory.Vehicles = vehicles;
             Model.Inventory.Title = "All";
-            ViewBag.Title = $"{Model.Inventory.Title.ToUpper()} {vehicles.Length} vehicles";
+            ViewBag.Title = $"{vehicles.Length} vehicles";
 
             return View("Index", Model);
         }

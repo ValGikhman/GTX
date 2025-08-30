@@ -1,0 +1,46 @@
+﻿@model GTX.Models.BaseModel
+<style>
+    .just-validate-error-label {
+        margin-left: 65% !important;
+    }
+
+    .card:hover {
+        transform: none;
+    }
+</style>
+<!-- Modal -->
+<div id="message" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div id="header" class="modal-header shadow">
+                <h5 id="title" class="modal-title test-shadow">Contact</h5>
+            </div>
+            <div id="messageBody" class="modal-body well">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-close-white shadow" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i>Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="container-fluid py-4">
+    <ul class="row g-4 justify-content-center list-unstyled">
+        @foreach (var employer in Model.Employers) {
+            <li class="col-auto">
+                <article class="card shadow text-center">
+                    <img class="card-img-top rounded-2" src="@Url.Content($"~/GTXImages/staff/{employer.id}.jpg")" alt="@employer.Name">
+                    <div class="card-body gradient">
+                        <h5 class="card-title">@employer.Name</h5>
+                        <div class="card-subtitle text-muted">@employer.Position</div>
+                    </div>
+                </article>
+            </li>
+        }
+    </ul>
+</section>
+
+<script type="text/javascript">
+    $(function () {
+    })
+</script>

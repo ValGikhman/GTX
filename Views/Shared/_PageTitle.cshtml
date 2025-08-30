@@ -1,8 +1,13 @@
-﻿<a href="#" data-bs-toggle="modal" data-bs-target="#filtersModal">
-    <section class="container-fluid page-title">
-        <h4 class="text-center text-white">
+﻿<section class="container-fluid page-title position-relative d-flex align-items-center justify-content-center py-3">
+    <div id="socials" class="d-none d-xl-flex align-items-center gap-2 position-absolute start-0 top-50 translate-middle-y ps-2 mx-3">
+        <a class="btn btn-light shadow" href="https://www.facebook.com/GTXAutoGroup" target="_blank" title="GTX Facebook page"><i class="fa fa-facebook"></i></a>
+        <a class="btn btn-light shadow" href="https://www.twitter.com/GTXAutoGroup" target="_blank" title="GTX Meta page"><i class="fa fa-twitter"></i></a>
+    </div>
+
+    <a href="#" data-bs-toggle="modal" data-bs-target="#filtersModal" class="text-decoration-none">
+        <h4 class="text-center text-white fancy m-0">
             @Html.Raw(ViewBag.Title)
-            <i class="bi bi-search d-md-none mx-4"></i>
+            <i class="bi bi-search d-md-none ms-2"></i>
         </h4>
-    </section>
-</a>
+    </a>
+</section>
