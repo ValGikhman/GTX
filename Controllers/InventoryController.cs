@@ -41,7 +41,7 @@ namespace GTX.Controllers {
             if (string.IsNullOrEmpty(stock)) {
                 Model.Inventory.Title = "All";
                 Model.Inventory.Vehicles = SessionData?.Inventory?.All as Models.GTX[] ?? Array.Empty<Models.GTX>();
-                ViewBag.Title = $"({Model.Inventory.Vehicles.Length}) vehicles";
+                ViewBag.Title = $"{Model.Inventory.Vehicles.Length} vehicles";
 
                 return View("Index", Model);
             }
