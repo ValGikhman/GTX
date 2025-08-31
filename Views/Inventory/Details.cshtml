@@ -127,7 +127,7 @@
                             data-bs-target="#story"
                             aria-expanded="true"
                             aria-controls="story">
-                            <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2"><i class="bi bi-pen"></i>&nbsp;&nbsp;@Model.CurrentVehicle.VehicleDetails.Story.Title</h5>
+                            <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2"><i class="bi bi-pen mx-2"></i>@Model.CurrentVehicle.VehicleDetails.Story.Title</h5>
 
                             <!-- right-side +/–, stays out of the flow so the H5 can center -->
                             <span class="toggle-icons position-absolute end-0 top-50 translate-middle-y pe-3" aria-hidden="true">
@@ -256,7 +256,7 @@
                         </div>
                     </div>
                     <div class="d-flex justify-content-center">
-                        <button type="submit" class="btn btn-gradient-grey border-dark rounded-4 my-3 shadow" onclick="calculate();"><i class="bi bi-calculator"></i>&nbsp;&nbsp;Calculate</button>
+                        <button type="submit" class="btn btn-gradient-grey border-dark rounded-4 my-3 shadow" onclick="calculate();"><i class="bi bi-calculator mx-2"></i>Calculate</button>
                     </div>
                 </div>
             </div>
@@ -270,12 +270,12 @@
                 <div class="bg-lighter py-2 px-3 text-center hand-pointer">
                     @if (ViewBag.IsMajordome) {
                         <h5 class="fw-bold text-uppercase text-white" onclick="window.open('/Majordome/Inventory/@(Uri.EscapeDataString(Model.CurrentVehicle.VehicleDetails.Stock))', '_blank')">
-                            <i class="bi bi-car-front"></i>&nbsp;&nbsp;Details
+                            <i class="bi bi-car-front mx-2"></i>Details
                         </h5>
                     }
                     else {
                         <h5 class="fw-bold text-uppercase text-white">
-                            <i class="bi bi-car-front"></i>&nbsp;&nbsp;Details
+                            <i class="bi bi-car-front mx-2"></i>Details
                         </h5>
                     }
                 </div>
@@ -381,7 +381,7 @@
                     aria-expanded="false"
                     aria-controls="contactus">
                 <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
-                    <i class="bi bi-calendar3"></i>&nbsp;&nbsp;Schedule test drive
+                    <i class="bi bi-calendar3 mx-2"></i>Schedule test drive
                 </h5>
 
                 <!-- right-side +/–, stays out of the flow so the H5 can center -->
@@ -405,7 +405,7 @@
                     aria-expanded="false"
                     aria-controls="application">
                 <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
-                    <i class="bi bi-currency-dollar"></i>&nbsp;&nbsp;Loan application
+                    <i class="bi bi-currency-dollar mx-2"></i>Loan application
                 </h5>
 
                 <!-- right-side +/–, stays out of the flow so the H5 can center -->
@@ -429,7 +429,7 @@
             aria-expanded="true"
             aria-controls="suggestion">
         <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
-            <i class="bi bi-hand-thumbs-up"></i>&nbsp;&nbsp;You may also like
+            <i class="bi bi-hand-thumbs-up mx-2"></i>You may also like
         </h5>
 
         <!-- right-side +/–, stays out of the flow so the H5 can center -->

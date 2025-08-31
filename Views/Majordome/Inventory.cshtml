@@ -1,13 +1,13 @@
 ﻿@model GTX.Models.BaseModel
 <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
-    <script src="~/Scripts/just- validate/just-validate.production.min.js"></script>
+    <script src="~/Scripts/just-validate/just-validate.production.min.js"></script>
     <script src="~/Scripts/majordome.js"></script>
 
     <style>
 
         #filterLiked, .sort {
-            display: none!important;
+            display: none !important;
         }
 
         .body-content {
@@ -61,9 +61,12 @@
     <!-- Lightbox2 JS -->
     <link href="https://cdn.jsdelivr.net/npm/lightbox2@2/dist/css/lightbox.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/lightbox2@2/dist/js/lightbox.min.js"></script>
-    <script src="https://cdn.tiny.cloud/1/okduuxn2eosmoqo3ssyfokh7d79xg1u9w40g9d9yid9lnf8t/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+
+    <script src="~/Scripts/tinymce/tinymce.min.js"></script>
+    <script src="~/Scripts/tinymce-jquery/dist/tinymce-jquery.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
 </head>
 
 <div id="inventoryOverlay" class="spinner-overlay spinner-hidden">
@@ -163,7 +166,7 @@
                         </div>
                     </div>
                     <div class="d-flex justify-content-center pt-5">
-                        <button id="saveDetails" type="submit" class="btn btn-gradient-grey border-dark rounded-4 shadow w-25"><i class="bi bi-save"></i>Save</button>
+                        <button id="saveDetails" type="submit" class="btn btn-gradient-grey border-dark rounded-4 shadow w-25"><i class="bi bi-save mx-2"></i>Save</button>
                     </div>
                 </div>
                 <div class="col-md-5 text-shadow-small">
@@ -407,24 +410,6 @@
                 }
             }).focus();
 
-        tinymce.init({
-            selector: '#story',
-            height: 560,
-            menubar: 'file edit view insert format customMenu', // add your custom menu here
-            setup: function (editor) {
-                editor.on('init', function () {
-                    editor.setContent(selectedVehicle.Story?.HtmlContent || '');
-                });
-            },
-            plugins: [
-                // Core editing features
-                'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'image', 'link', 'lists', 'media', 'searchreplace', 'visualblocks'
-            ],
-            toolbar: '',
-
-            tinycomments_mode: 'embedded'
-        });
-
         $("#myGrid").on("dblclick", ".details", function () {
             $("#details-tab").tab("show");
         });
@@ -432,6 +417,27 @@
         $("#myGrid").on("dblclick", ".grid-image", function () {
             $("#gallery-tab").tab("show");
         });
+    });
+
+    $('#story').tinymce({
+        height: 560,
+        license_key: 'gpl',
+        resize: true,
+        autosave_ask_before_unload: false,
+        powerpaste_allow_local_images: true,
+        menubar: 'file edit view insert format customMenu', // add your custom menu here
+        setup: function (editor) {
+            editor.on('init', function () {
+                editor.setContent(selectedVehicle.Story?.HtmlContent || '');
+            });
+        },
+        plugins: [
+            'advlist', 'anchor', 'autolink', 'codesample', 'fullscreen', 
+            'image', 'lists', 'link', 'media', 'preview',
+            'searchreplace', 'table', 'visualblocks'
+        ],
+        toolbar: 'insertfile a11ycheck undo redo | fontfamily fontsize | bold italic underline | forecolor backcolor | link image | alignleft aligncenter alignright alignjustify',
+        spellchecker_dialog: true
     });
 
     function getSortedIds() {
@@ -462,11 +468,11 @@
         const allColIds = (columnDefs || []).map(c => c.colId || c.field).filter(Boolean);
 
         // Show everything first…
-        gridColumnApi.setColumnsVisible(allColIds, true);
+        gridApi.setColumnsVisible(allColIds, true);
 
         // …then hide only what this breakpoint dictates
         const toHide = hiddenByBP[bp] || [];
-        if (toHide.length) gridColumnApi.setColumnsVisible(toHide, false);
+        if (toHide.length) gridApi.setColumnsVisible(toHide, false);
     }
 
     const nfUSD = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
@@ -534,7 +540,7 @@
             return date1.getTime() - date2.getTime();
         },
         valueGetter: params => params.data.PurchaseDate ? new Date(params.data.PurchaseDate) : null,
-        valueFormatter: p => p.value ? new Date(p.value).toLocaleDateString('en-US') : ''
+        valueFormatter: params => params.value ? new Date(params.value).toLocaleDateString('en-US') : ''
     },
     {
         headerName: "Stock",
