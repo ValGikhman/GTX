@@ -540,11 +540,11 @@
 
 @*        $(".body-content").on("scroll", function (e) {
             $("#smallCanvas").hide();
-        });*@
+        });
+*@
         $("#testDrive, #loanApplication").hide();
 
-        $(document).on("change", "#PreferredDate", function (e) {
-            e.stopPropagation();
+        $(document).on("input change", "#PreferredDate", function (e) {
             const time = $("#PreferredTime").val();
             const defaultText = `📅 ${$(this).val()} 🕒 ${time}`;
 

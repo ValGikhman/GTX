@@ -78,7 +78,7 @@
     <div class="mb-2">
         <div class="input-group">
             <span class="input-group-text shadow"><i class="bi bi-calendar"></i></span>
-            @Html.TextBoxFor(m => m.PreferredDate, new { @name = "PreferredDate", @class = "form-control shadow", placeholder = "Preferred date and time" })
+            @Html.TextBoxFor(m => m.PreferredDate, new { @type = "text", @name = "PreferredDate", @class = "form-control shadow", placeholder = "Preferred date and time" })
             @Html.TextBoxFor(m => m.PreferredTime, new { @type = "time", @class = "form-control shadow", step = "900", min = "09:00", max = "18:30", list = "timeOptions", placeholder = "Preferred time" })
         </div>
         <datalist id="timeOptions">
@@ -133,12 +133,17 @@
         $("#Phone").mask("(000) 000-0000");
 
         $("#PreferredDate").datepicker({
+            showOn: 'focus', // opens when input gets focus
             showOtherMonths: true,
             selectOtherMonths: true,
             dateFormat: "yy-mm-dd",
+            onSelect: function (dateText) {
+                $(this).val(dateText).trigger('input').trigger('change');
+            },
             minDate: 1,              // tomorrow
             maxDate: "+1M"        // one month out
         });
+
 
         const validator = new JustValidate('#contactForm', {
             validateBeforeSubmitting: true,
