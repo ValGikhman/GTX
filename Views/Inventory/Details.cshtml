@@ -524,25 +524,17 @@
         });
 
         $("#shareToFacebook").on("click", function() {
-            var stock = $(this).data('stock');
             var shareUrl = "https://usedcarscincinnati.com/inventory/detailsCard?stock=@Model.CurrentVehicle.VehicleDetails.Stock";
             var facebookShareUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl);
             window.open(facebookShareUrl, 'facebook-share-dialog', 'width=800,height=600');
         });
 
         $("#shareToTwitter").on("click", function() {
-            var stock = $(this).data('stock');
             var shareUrl = "https://usedcarscincinnati.com/inventory/detailsCard?stock=@Model.CurrentVehicle.VehicleDetails.Stock";
             var tweetText = 'Check out this amazing @Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model for sale!'
             var twitterShareUrl = 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(shareUrl) + '&text=' + encodeURIComponent(tweetText);
             window.open(twitterShareUrl, 'twitter-share-dialog', 'width=800,height=400');
         });
-
-@*        $(".body-content").on("scroll", function (e) {
-            $("#smallCanvas").hide();
-        });
-*@
-        $("#testDrive, #loanApplication").hide();
 
         $(document).on("input change", "#PreferredDate", function (e) {
             const time = $("#PreferredTime").val();

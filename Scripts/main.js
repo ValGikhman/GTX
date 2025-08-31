@@ -112,17 +112,6 @@
     });
 
     typePlaceholder();
-
-    $(".body-content").on("scroll", function () {
-        if ($(this).scrollTop() > 100) {
-            new bootstrap.Offcanvas("#smallCanvas", {
-                backdrop: false,
-                scroll: true,
-                keyboard: false
-            }).show();
-        }
-    });
-
 })(jQuery);
 
 
