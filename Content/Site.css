@@ -1521,6 +1521,11 @@
 
 /* Medium Device = 1200px */
 @media only screen and (min-width: 992px) and (max-width: 1199px) {
+    #shorts .btn {
+        transform: scale(0.80);
+        margin-inline-end: -1.5rem;
+    }
+
     .header__menu ul li {
         margin-right: 32px;
     }
@@ -1532,6 +1537,10 @@
 
 /* Tablet Device = 768px */
 @media only screen and (min-width: 768px) and (max-width: 991px) {
+    #shorts .btn {
+        transform: scale(0.80);
+    }
+
     .inventory-wrapper {
         margin-top: 2rem;
     }
