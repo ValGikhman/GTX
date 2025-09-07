@@ -92,7 +92,8 @@
 }
 
 #gtxDevelopment {
-    height: 15rem !important;
+    top: 50% !important;
+    height: 10rem !important;
     border-radius: 0.5rem;
 }
 
@@ -1543,6 +1544,11 @@
 @media only screen and (min-width: 768px) and (max-width: 991px) {
     #shorts .btn {
         transform: scale(0.80);
+        margin-inline-end: -1.5rem;
+    }
+
+    .page-title {
+        justify-content: space-between !important;
     }
 
     .inventory-wrapper {
@@ -1555,21 +1561,9 @@
 
     .body-content {
         margin: 0px;
-        margin-top: 10vh;
+        margin-top: 1vh;
     }
 
-    .page-title {
-        position: fixed;
-        top: 4rem;
-        border-bottom: none;
-        border-top: none;
-        background-image: none;
-        background: none;
-    }
-
-    .text-white {
-        color: #727171 !important;
-    }
 
     .carousel-inner {
         height: 325px;
@@ -1595,6 +1589,11 @@
 
 /* Wide Mobile = 480px-767px */
 @media only screen and (max-width: 767px) {
+    #shorts .btn {
+        transform: scale(0.80);
+        margin-inline-end: -1.5rem;
+    }
+
     .btn-big-gradient {
         transform: scale(0.80);
     }
