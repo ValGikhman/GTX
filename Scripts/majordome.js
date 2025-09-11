@@ -209,16 +209,15 @@ function uploadInventory(input) {
 }
 
 function decodeVin(vin) {
-    fetch('/Inventory/DecodeVin', {
+    fetch('/Api/DecodeVin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ vin: vin })
     })
-        .then(res => res.json())
-        .then(data => {
-            console.log(data);
-            $("#details-content").html(data.Error);
-        });
+    .then(res => res.json())
+    .then(data => {
+        console.log(data);
+    });
 }
 
 function setDetails(stock) {

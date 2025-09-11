@@ -1,4 +1,5 @@
 ﻿using GTX.Models;
+using Newtonsoft.Json;
 using Services;
 using System;
 using System.Linq;
@@ -7,19 +8,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
-using System.Net;
-using System.IO;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace GTX.Controllers {
 
     public class InventoryController : BaseController {
         private readonly HttpClient httpClient = new();
-        public InventoryController(ISessionData sessionData, IInventoryService inventoryService, ILogService LogService)
-            : base(sessionData, inventoryService, LogService) {
+        public InventoryController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, ILogService LogService)
+            : base(sessionData, inventoryService, vinDecoderService, LogService) {
         }
 
         [HttpGet]
@@ -473,231 +468,8 @@ namespace GTX.Controllers {
                 query = query.Where(m => filter.VehicleTypes.Contains(m.VehicleType)).Distinct().ToArray();
             }
 
-            return query.OrderBy(m => m.Make).ToArray();
+            return query.OrderBy(m => m.Make).ThenBy(m => m.Model).ToArray();
         }
 
-        [HttpPost]
-        public async Task<JsonResult> DecodeVin(string vin) {
-            string url = "https://api.dataonesoftware.com/webservices/vindecoder/decode";
-            string postData = "access_key_id=jyg507jPdK&secret_access_key=fhEOtGMS8kLgXaYDrxrNNrXNKy0XWOx1BkRo3Idf&decoder_query=";
-            postData += dataOneQuery1("55SWF6EB9GU127085");
-            // postData += dataOneQuery2("55SWF6EB9GU127085");
-
-            // set up the request object        
-            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
-            request.Method = "POST";
-            request.ContentType = "application/x-www-form-urlencoded";
-            request.ContentLength = postData.Length;
-
-            // set the SSL certificate validation function
-            ServicePointManager.ServerCertificateValidationCallback += new System.Net.Security.RemoteCertificateValidationCallback(ValidateServerCertificate);
-            Stream writeStream = request.GetRequestStream();
-
-            // Encode the string to be posted
-            UTF8Encoding encoding = new UTF8Encoding();
-            byte[] bytes = encoding.GetBytes(postData);
-            writeStream.Write(bytes, 0, bytes.Length);
-            writeStream.Close();
-
-            var httpResponse = (HttpWebResponse)request.GetResponse();
-            using (httpResponse)
-            using (var reader = new StreamReader(httpResponse.GetResponseStream())) {
-                var jsonText = reader.ReadToEnd();        // <- JSON string
-                return Json(new { jsonText }, JsonRequestBehavior.AllowGet);
-            }
-        }
-
-
-        // This is a validation function that accepts any SSL certificate
-        private static bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) {
-            return true;
-        }
-
-        private async Task<string> GetChatGptResponse(string prompt) {
-            const string apiUrl = "https://api.openai.com/v1/chat/completions";
-
-            var requestBody = new {
-                model = "gpt-4o",  // Replace with "gpt-3.5-turbo" if needed
-                messages = new[]
-                {
-                    new { role = "user", content = prompt }
-                },
-                    max_tokens = 500,
-                    temperature = 0.7
-            };
-
-            using var request = new HttpRequestMessage(HttpMethod.Post, apiUrl) {
-                Content = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json")
-            };
-
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", openAiApiKey);
-
-            try {
-                using var response = await httpClient.SendAsync(request);
-
-                if (!response.IsSuccessStatusCode)
-                    return $"Error: {response.StatusCode}";
-
-                var jsonResponse = await response.Content.ReadAsStringAsync();
-                dynamic result = JsonConvert.DeserializeObject(jsonResponse);
-
-                return result?.choices?[0]?.message?.content?.ToString() ?? "Error: Empty response";
-            }
-            catch (Exception ex) {
-                return $"Exception: {ex.Message}";
-            }
-        }
-
-        private string dataOneQuery1(string vin) {
-            return @$"<decoder_query> 
-                <decoder_settings>
-                <display>full</display>
-                <styles>on</styles>
-                <style_data_packs>
-                    <basic_data>on</basic_data>
-                    <pricing>on</pricing>
-                    <engines>on</engines>
-                    <transmissions>on</transmissions>
-                    <specifications>on</specifications>
-                    <installed_equipment>on</installed_equipment>
-                    <optional_equipment>off</optional_equipment>
-                    <generic_optional_equipment>on</generic_optional_equipment>
-                    <colors>on</colors>
-                    <warranties>on</warranties>
-                    <fuel_efficiency>on</fuel_efficiency>
-                    <green_scores>on</green_scores>
-                    <crash_test>on</crash_test>
-                </style_data_packs>
-                <common_data>off</common_data>
-                <common_data_packs>
-                    <basic_data>on</basic_data>
-                    <pricing>on</pricing>
-                    <engines>on</engines>
-                    <transmissions>on</transmissions>
-                    <specifications>on</specifications>
-                    <installed_equipment>on</installed_equipment>
-                    <generic_optional_equipment>on</generic_optional_equipment>
-                </common_data_packs>
-            </decoder_settings>
-            <query_requests>
-                <query_request identifier=""GTX Request"">
-                    <vin>{vin}</vin>
-                    <year/>
-                    <make/>
-                    <model/>
-                    <trim/>
-                    <model_number/>
-                    <package_code/>
-                    <drive_type/>
-                    <vehicle_type/>
-                    <body_type/>
-                    <doors/>
-                    <bedlength/>
-                    <wheelbase/>
-                    <msrp/>
-                    <invoice_price/>
-                    <engine description="""">
-                        <block_type/>
-                        <cylinders/>
-                        <displacement/>
-                        <fuel_type/>
-                    </engine>
-                    <transmission description="""">
-                        <trans_type/>
-                        <trans_speeds/>
-                    </transmission>
-                    <optional_equipment_codes/>
-                    <interior_color description="""">
-                        <color_code/>
-                    </interior_color>
-                    <exterior_color description="""">
-                        <color_code/>
-                    </exterior_color>
-                </query_request>
-            </query_requests>
-            </decoder_query>";
-        }
-
-        private string dataOneQuery2(string vin) {
-            return @$"< decoder_query> 
-                <decoder_settings>
-                <display>full</display>
-                <styles>on</styles>
-                <style_data_packs>
-                    <basic_data>on</basic_data>
-                    <pricing>on</pricing>
-                    <engines>on</engines>
-                    <transmissions>on</transmissions>
-                    <standard_specifications>on</standard_specifications>
-                    <optional_specifications_2_0>on</optional_specifications_2_0>
-                    <standard_generic_equipment>on</standard_generic_equipment>
-                    <oem_options>off</oem_options>
-                    <optional_generic_equipment>on</optional_generic_equipment>
-                    <colors>on</colors>
-                    <warranties>on</warranties>
-                    <fuel_efficiency>on</fuel_efficiency>
-                    <green_scores>on</green_scores>
-                    <crash_test>on</crash_test>
-                    <awards>on</awards>
-                    <market_segment>on</market_segment>
-                </style_data_packs>
-                <common_data>on</common_data>
-                <common_data_packs>
-                    <basic_data>on</basic_data>
-                    <pricing>on</pricing>
-                    <engines>on</engines>
-                    <transmissions>on</transmissions>
-                    <standard_specifications>on</standard_specifications>
-                    <optional_specifications_2_0>on</optional_specifications_2_0>
-                    <standard_generic_equipment>on</standard_generic_equipment>
-                    <oem_options>on</oem_options>
-                    <optional_generic_equipment>on</optional_generic_equipment>
-                    <colors>on</colors>
-                    <warranties>on</warranties>
-                    <fuel_efficiency>on</fuel_efficiency>
-                    <green_scores>on</green_scores>
-                    <crash_test>on</crash_test>
-                    <awards>on</awards>
-                    <market_segment>on</market_segment>
-                  </common_data_packs>
-            </decoder_settings>
-            <query_requests>
-                <query_request identifier=""GTX Request"">
-                    <vin>{vin}</vin>
-                    <year/>
-                    <make/>
-                    <model/>
-                    <trim/>
-                    <model_number/>
-                    <package_code/>
-                    <drive_type/>
-                    <vehicle_type/>
-                    <body_type/>
-                    <doors/>
-                    <bedlength/>
-                    <wheelbase/>
-                    <msrp/>
-                    <invoice_price/>
-                    <engine description="""">
-                        <block_type/>
-                        <cylinders/>
-                        <displacement/>
-                        <fuel_type/>
-                    </engine>
-                    <transmission description="""">
-                        <trans_type/>
-                        <trans_speeds/>
-                    </transmission>
-                    <optional_equipment_codes/>
-                    <interior_color description="""">
-                        <color_code/>
-                    </interior_color>
-                    <exterior_color description="""">
-                        <color_code/>
-                    </exterior_color>
-                </query_request>
-            </query_requests>
-            </decoder_query>";
-        }
     }
 }

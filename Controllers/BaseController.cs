@@ -18,6 +18,8 @@ namespace GTX.Controllers {
 
         public readonly string imageFolder = "/GTXImages/Inventory/";
         public readonly string openAiApiKey = ConfigurationManager.AppSettings["OpenAI:ApiKey"];
+        public readonly string dataOneApiKey = ConfigurationManager.AppSettings["DataOne:AccessKey"];
+        public readonly string dataOneSecretApiKey = ConfigurationManager.AppSettings["DataOne:SecretAccessKey"];
 
         private static readonly object _sync = new object();
         private static readonly Random _rand = new Random();
@@ -27,6 +29,8 @@ namespace GTX.Controllers {
 
         public IInventoryService InventoryService { get; set; }
 
+        public IVinDecoderService VinDecoderService { get; set; }
+
         public ISessionData SessionData { get; private set; }
 
         public BaseModel Model { get; set; }
@@ -35,10 +39,11 @@ namespace GTX.Controllers {
 
         #region Construtors
 
-        public BaseController(ISessionData _sessionData, IInventoryService _invntoryService, ILogService _logService) {
+        public BaseController(ISessionData _sessionData, IInventoryService _invntoryService, IVinDecoderService _vinDecoderService, ILogService _logService) {
             SessionData = _sessionData;
             LogService = _logService;
             InventoryService = _invntoryService;
+            VinDecoderService = _vinDecoderService;
         }
 
         #endregion Construtors
@@ -154,7 +159,7 @@ namespace GTX.Controllers {
 
                 model.All = model.Current
                     .Where(m => m.SetToUpload == "Y" && !string.IsNullOrWhiteSpace(m.PurchaseDate))
-                    .OrderByDescending(m => DateTime.TryParse(m.PurchaseDate, out var date) ? date : DateTime.MinValue)
+                    .OrderBy(m => m.Make).ThenBy(m => m.Model)
                     .ToArray();
                 
                 model.Vehicles = model.All;

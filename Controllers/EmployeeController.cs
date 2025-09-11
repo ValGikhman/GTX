@@ -1,15 +1,8 @@
 ﻿using GTX.Models;
 using Services;
 using System;
-using System.IO;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Mvc;
-using System.Xml;
-using Utility;
 
 namespace GTX.Controllers {
 
@@ -17,8 +10,8 @@ namespace GTX.Controllers {
 
         private readonly IEmployeesService _employeesService;
 
-        public EmployeesController(ISessionData sessionData, IEmployeesService employeesService, IInventoryService inventoryService, ILogService logService) :
-            base(sessionData, inventoryService,  logService)  {
+        public EmployeesController(ISessionData sessionData, IEmployeesService employeesService, IInventoryService inventoryService, IVinDecoderService vinDecoderService, ILogService logService) :
+            base(sessionData, inventoryService, vinDecoderService, logService)  {
             _employeesService = employeesService;
         }
 

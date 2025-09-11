@@ -14,6 +14,7 @@ namespace GTX
             
            
             DependencyResolver.SetResolver(new UnityDependencyResolver(container));
+            container.RegisterType<IVinDecoderService, VinDecoderService>();
             container.RegisterType<IEmployeesService, EmployyesService>();
             container.RegisterType<IContactService, ContactService>();
             container.RegisterType<ILogService, LogService>();
