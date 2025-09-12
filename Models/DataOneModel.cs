@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace Models {
+namespace GTX.Models {
     // ---------- ROOT ----------
     [XmlRoot("decoded_data")]
     public class DecodedData {

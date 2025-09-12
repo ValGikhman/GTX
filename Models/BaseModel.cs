@@ -46,8 +46,9 @@ namespace GTX.Models {
     }
 
     public class Vehicle { 
-        public Models.GTX VehicleDetails { get; set; }
+        public GTX VehicleDetails { get; set; }
+        public DecodedData VehicleDataOneDetails { get; set; }
         public Image[] VehicleImages { get; set; }
-        public Models.GTX[] VehicleSuggesion { get; set; }
+        public GTX[] VehicleSuggesion { get; set; }
     }
 }

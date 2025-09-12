@@ -254,6 +254,30 @@ function reStoryAll() {
     });
 }
 
+function decodeAll() {
+    showSpinner($("#inventoryOverlay"));
+
+    fetch('/Majordome/DecodeAll', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    })
+        .then(response => {
+            if (response.ok) {
+                fetch('/Majordome/GetUpdatedItems')
+                    .then(res => res.json())
+                    .then(data => {
+                        updateRow(data);
+                    });
+                alert(`Decoding is done`);
+            } else {
+                alert("Decoding failed.");
+            }
+        })
+        .catch(error => {
+            alert(error);
+        });
+}
+
 function deleteImages(stock) {
     showSpinner($("#inventoryOverlay"));
     $.post(`${root}Majordome/DeleteImages`, { stock })

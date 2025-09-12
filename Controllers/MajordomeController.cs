@@ -130,6 +130,25 @@ namespace GTX.Controllers {
             }
         }
 
+        [HttpPost]
+        public ActionResult DecodeAll() {
+            try {
+                Model.Inventory.Vehicles = Model.Inventory.All;
+
+                foreach (var vehicle in Model.Inventory.Vehicles) {
+                    if (InventoryService.AnyDataOneDetails(vehicle.Stock)) {
+                        var details = VinDecoderService.DecodeVin(vehicle.VIN, dataOneApiKey, dataOneSecretApiKey);
+                        InventoryService.SaveDataOneDetails(vehicle.Stock, details);
+                    }
+                }
+
+                return Json(new { success = true, message = "Story created successfully." });
+            }
+            catch (Exception ex) {
+                return Json(new { success = false, message = "Error: " + ex.Message });
+            }
+        }
+
         [HttpGet]
         public JsonResult GetUpdatedItems() {
             Model.Inventory.Vehicles = ApplyImagesAndStories(Model.Inventory.Vehicles);
@@ -272,7 +291,7 @@ namespace GTX.Controllers {
 
             CsvToXmlHelper.SaveXmlToFile(doc, fullPath);
             CsvToXmlHelper.SaveXmlToFile(doc, inventoryFullPath);
-
+            
             TerminateSession();
             return RedirectToAction("Index", "Home"); 
         }

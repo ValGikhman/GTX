@@ -2,12 +2,14 @@
 using Newtonsoft.Json;
 using Services;
 using System;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
+using System.Xml.Serialization;
 
 namespace GTX.Controllers {
 
@@ -53,6 +55,7 @@ namespace GTX.Controllers {
             }
 
             Model.CurrentVehicle.VehicleDetails = vehicle;
+            Model.CurrentVehicle.VehicleDataOneDetails = GetDecodedData(stock);
             Model.CurrentVehicle.VehicleImages = GetImages(stock);
 
             SessionData.CurrentVehicle = Model.CurrentVehicle;
@@ -469,6 +472,18 @@ namespace GTX.Controllers {
             }
 
             return query.OrderBy(m => m.Make).ThenBy(m => m.Model).ToArray();
+        }
+
+        private DecodedData GetDecodedData(string stock) {
+            string dataOne = InventoryService.GetDataOneDetails(stock);
+
+            if (string.IsNullOrWhiteSpace(dataOne))
+                return null;
+
+            var serializer = new XmlSerializer(typeof(DecodedData));
+            using (TextReader reader = new StringReader(dataOne)) {
+                return (DecodedData)serializer.Deserialize(reader);
+            }
         }
 
     }
