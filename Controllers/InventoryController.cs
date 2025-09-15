@@ -66,7 +66,12 @@ namespace GTX.Controllers {
                 .Take(10)
                 .ToArray() ?? Array.Empty<Models.GTX>();
 
-            ViewBag.Title = $"{vehicle.Year} - {vehicle.Make} - {vehicle.Model} {vehicle.VehicleStyle}";
+            if (Model.CurrentVehicle.VehicleDataOneDetails == null) {
+                ViewBag.Title = $"{vehicle.Year} - {vehicle.Make} - {vehicle.Model} {vehicle.VehicleStyle}";
+            }
+            else {
+                ViewBag.Title = $"{Model.CurrentVehicle.VehicleDataOneDetails.QueryResponses.Items[0].UsMarketData.UsStyles.Styles[0].Name.ToUpper()}";
+            }
 
             return View("Details", Model);
         }

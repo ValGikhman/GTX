@@ -1,0 +1,580 @@
+﻿@model GTX.Models.BaseModel
+@using System.Linq
+@using System.Globalization
+
+@functions{
+    string Safe(string s) => string.IsNullOrWhiteSpace(s) ? "" : s;
+    string Id(params object[] parts) => string.Join("_", parts.Where(p => p != null));
+    string Money(string val, string culture = "en-US", string format = "C2") {
+        if (string.IsNullOrWhiteSpace(val)) return "";
+        if (decimal.TryParse(val, NumberStyles.Any, CultureInfo.InvariantCulture, out var d))
+            return d.ToString(format, CultureInfo.GetCultureInfo(culture));
+        return "";
+    }
+}
+
+<style>
+    .toggle {
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+    }
+
+    .pm {
+        display: inline-block;
+        width: 4rem;
+        text-align: center;
+        line-height: 2rem;
+    }
+
+        .pm::before {
+            content: "+";
+        }
+
+    .toggle[aria-expanded="true"] .pm::before {
+        content: "–";
+    }
+
+
+    .kv td:first-child {
+        white-space: nowrap;
+        color: var(--bs-secondary-color);
+        width: 1%;
+    }
+
+    .muted {
+        color: var(--bs-secondary-color);
+    }
+
+    .section {
+        margin-bottom: .75rem;
+    }
+</style>
+
+<div class="row justify-content-center well mb-3">
+    <button class="w-100 btn btn-gradient position-relative collapse-toggle"
+            data-bs-toggle="collapse"
+            data-bs-target="#details"
+            aria-expanded="true"
+            aria-controls="details">
+        <div class="bg-lighter py-2 px-3 text-center hand-pointer">
+            @if (ViewBag.IsMajordome) {
+                <h5 class="fw-bold text-uppercase text-white" onclick="window.open('/Majordome/Inventory/@(Uri.EscapeDataString(Model.CurrentVehicle.VehicleDetails.Stock))', '_blank')">
+                    <i class="bi bi-car-front mx-2"></i>Details
+                </h5>
+            }
+            else {
+                <h5 class="fw-bold text-uppercase text-white">
+                    <i class="bi bi-car-front mx-2"></i>Details
+                </h5>
+            }
+        </div>
+        <span class="toggle-icons position-absolute end-0 top-50 translate-middle-y pe-3" aria-hidden="true">
+            <i class="bi bi-plus-lg icon-plus"></i>
+            <i class="bi bi-dash-lg icon-minus"></i>
+        </span>
+    </button>
+
+    <div class="text-shadow-small show" id="details">
+        <div class="d-flex justify-content-between px-3 mx-2 flex-wrap">
+            <strong class="very-small-text copyable">@Model.CurrentVehicle.VehicleDetails.VIN</strong>
+            <strong class="very-small-text copyable">@Model.CurrentVehicle.VehicleDetails.Stock</strong>
+        </div>
+        <div class="m-2">
+            @if (Model.CurrentVehicle.VehicleDataOneDetails?.QueryResponses?.Items == null || !Model.CurrentVehicle.VehicleDataOneDetails.QueryResponses.Items.Any()) {
+                <div class="alert alert-warning">No query responses.</div>
+            }
+            else {
+                var qi = 0;
+                foreach (var qr in Model.CurrentVehicle.VehicleDataOneDetails.QueryResponses.Items) {
+                    var qrId = Id("qr", qi++);
+
+                    if (!string.IsNullOrWhiteSpace(qr?.QueryError?.ErrorCode)) {<span class="badge bg-danger">Error @qr.QueryError.ErrorCode</span>}
+
+                if (qr?.UsMarketData?.UsStyles?.Styles == null || !qr.UsMarketData.UsStyles.Styles.Any()) {
+                    <div class="muted">No US market styles.</div>
+                }
+                else {
+                    var si = 0;
+                    foreach (var style in qr.UsMarketData.UsStyles.Styles) {
+                        var sId = Id(qrId, "s", si++);
+                        var bdId = Id("bd", sId);
+                        var prId = Id("pr", sId);
+                        var enId = Id("en", sId);
+                        var trId = Id("tr", sId);
+                        var ssId = Id("ss", sId);
+                        var geStdId = Id("geStd", sId);
+                        var geOptId = Id("geOpt", sId);
+                        var colId = Id("col", sId);
+                        var wId = Id("wr", sId);
+                        var epaId = Id("epa", sId);
+                        var greenId = Id("green", sId);
+                        var nhtsaId = Id("nhtsa", sId);
+
+                        <!-- Basic -->
+                        <div class="section">
+                            <button class="w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#@bdId"
+                                    aria-expanded="true"
+                                    aria-controls="@bdId">
+                                <h5 class="fw-bold m-0 text-center py-2">
+                                    Basic data
+                                </h5>
+
+                                <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
+                                    <i class="bi bi-plus-lg icon-plus"></i>
+                                    <i class="bi bi-dash-lg icon-minus"></i>
+                                </span>
+                            </button>
+                            <div id="@bdId" class="collapse show">
+                                @if (style?.BasicData == null) {<div class="muted">No data</div> }
+                                else {
+                                    <table class="table table-sm kv mb-0">
+                                        <tbody>
+                                            <tr><td class="fw-bold w-25">Selling for: </td><td>@Model.CurrentVehicle.VehicleDetails.RetailPrice.ToString("C0")</td></tr>
+                                            <tr><td class="fw-bold">Year</td><td>@Safe(style.BasicData.Year)</td></tr>
+                                            <tr><td class="fw-bold">Make</td><td>@Safe(style.BasicData.Make)</td></tr>
+                                            <tr><td class="fw-bold">Model</td><td>@Safe(style.BasicData.Model)</td></tr>
+                                            <tr><td class="fw-bold">Trim</td><td>@Safe(style.BasicData.Trim)</td></tr>
+                                            <tr><td class="fw-bold">Vehicle Type</td><td>@Safe(style.BasicData.VehicleType)</td></tr>
+                                            <tr><td class="fw-bold">Body Type</td><td>@Safe(style.BasicData.BodyType)</td></tr>
+                                            <tr><td class="fw-bold">OEM Body Style</td><td>@Safe(style.BasicData.OemBodyStyle)</td></tr>
+                                            <tr><td class="fw-bold">Doors</td><td>@Safe(style.BasicData.Doors)</td></tr>
+                                            <tr><td class="fw-bold">Drive Type</td><td>@Safe(style.BasicData.DriveType)</td></tr>
+                                            <tr><td class="fw-bold">Brake System</td><td>@Safe(style.BasicData.BrakeSystem)</td></tr>
+                                            <tr><td class="fw-bold">Plant</td><td>@Safe(style.BasicData.Plant)</td></tr>
+                                        </tbody>
+                                    </table>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Pricing -->
+                        <div class="section">
+                            <button class="w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#@prId"
+                                    aria-expanded="false"
+                                    aria-controls="@prId">
+                                <h5 class="fw-bold m-0 text-center py-2">
+                                    Pricing
+                                </h5>
+
+                                <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
+                                    <i class="bi bi-plus-lg icon-plus"></i>
+                                    <i class="bi bi-dash-lg icon-minus"></i>
+                                </span>
+                            </button>
+                            <div id="@prId" class="collapse mt-2">
+                                @if (style?.Pricing == null) {<div class="muted">No data</div> }
+                                else {
+                                    <table class="table table-sm kv mb-0">
+                                        <tbody>
+                                            <tr><td>MSRP</td><td>@Safe(Money(style.Pricing.Msrp))</td></tr>
+                                            <tr><td>Invoice</td><td>@Safe(Money(style.Pricing.InvoicePrice))</td></tr>
+                                            <tr><td>Destination</td><td>@Safe(style.Pricing.DestinationCharge)</td></tr>
+                                            <tr><td>Gas Guzzler</td><td>@Safe(style.Pricing.GasGuzzlerTax)</td></tr>
+                                        </tbody>
+                                    </table>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Engines -->
+                        <div class="section">
+                            <button class="w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#@enId"
+                                    aria-expanded="false"
+                                    aria-controls="@enId">
+                                <h5 class="fw-bold m-0 text-center py-2">
+                                    Engines
+                                </h5>
+
+                                <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
+                                    <i class="bi bi-plus-lg icon-plus"></i>
+                                    <i class="bi bi-dash-lg icon-minus"></i>
+                                </span>
+                            </button>
+
+                            <div id="@enId" class="collapse mt-2">
+                                @if (style?.Engines?.Items == null || !style.Engines.Items.Any()) {<div class="muted">No engines</div> }
+                                else {
+                                    var ei = 0;
+                                    foreach (var e in style.Engines.Items) {
+                                        <div class="border rounded p-2 mb-2">
+                                            <div class="fw-semibold">
+                                                @((!string.IsNullOrWhiteSpace(e?.Name) ? e.Name : $"Engine #{ei+1}"))
+                                                @if (!string.IsNullOrWhiteSpace(e?.EngineId)) {<span class="chip ms-2">ID: @e.EngineId</span>}
+                                            </div>
+                                            <table class="table table-sm kv mb-0 mt-1">
+                                                <tbody>
+                                                    <tr><td class="fw-bold w-25">Type</td><td>@Safe(e.EngineType)</td></tr>
+                                                    <tr><td class="fw-bold">Fuel</td><td>@Safe(e.FuelType)</td></tr>
+                                                    <tr><td class="fw-bold">Induction</td><td>@Safe(e.IceFuelInduction)</td></tr>
+                                                    <tr><td class="fw-bold">Displacement</td><td>@Safe(e.IceDisplacement)</td></tr>
+                                                    <tr><td class="fw-bold">ICE HP</td><td>@Safe(e.IceMaxHp)</td></tr>
+                                                    <tr><td class="fw-bold">ICE Torque</td><td>@Safe(e.IceMaxTorque)</td></tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        ei++;
+                                    }
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Transmissions -->
+                        <div class="section">
+                            <button class="w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#@trId"
+                                    aria-expanded="false"
+                                    aria-controls="@trId">
+                                <h5 class="fw-bold m-0 text-center py-2">
+                                    Transmissions
+                                </h5>
+
+                                <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
+                                    <i class="bi bi-plus-lg icon-plus"></i>
+                                    <i class="bi bi-dash-lg icon-minus"></i>
+                                </span>
+                            </button>
+
+                            <div id="@trId" class="collapse mt-2">
+                                @if (style?.Transmissions?.Items == null || !style.Transmissions.Items.Any()) {<div class="muted">No transmissions</div> }
+                                else {
+                                    var ti = 0;
+                                    foreach (var t in style.Transmissions.Items) {
+                                        <div class="border rounded p-2 mb-2">
+                                            <div class="fw-semibold">
+                                                @((!string.IsNullOrWhiteSpace(t?.Name) ? t.Name : $"Transmission #{ti+1}"))
+                                                @if (!string.IsNullOrWhiteSpace(t?.TransmissionId)) {<span class="chip ms-2">ID: @t.TransmissionId</span>}
+                                            </div>
+                                            <table class="table table-sm kv mb-0 mt-1">
+                                                <tbody>
+                                                    <tr><td class="fw-bold w-25">Type</td><td>@Safe(t.Type)</td></tr>
+                                                    <tr><td class="fw-bold">Detail</td><td>@Safe(t.DetailType)</td></tr>
+                                                    <tr><td class="fw-bold">Gears</td><td>@Safe(t.Gears)</td></tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        ti++;
+                                    }
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Standard Specifications -->
+                        <div class="section">
+                            <button class="w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#@ssId"
+                                    aria-expanded="false"
+                                    aria-controls="@ssId">
+                                <h5 class="fw-bold m-0 text-center py-2">
+                                    Standard Specifications
+                                </h5>
+
+                                <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
+                                    <i class="bi bi-plus-lg icon-plus"></i>
+                                    <i class="bi bi-dash-lg icon-minus"></i>
+                                </span>
+                            </button>
+                            <div id="@ssId" class="collapse mt-2">
+                                @if (style?.StandardSpecifications?.Categories == null || !style.StandardSpecifications.Categories.Any()) {<div class="muted">No specifications</div> }
+                                else {
+                                    var ci = 0;
+                                    foreach (var cat in style.StandardSpecifications.Categories) {
+                                        var catId = Id("spec", sId, ci++);
+                                        <div class="mb-1">
+                                            <a class="toggle small" data-bs-toggle="collapse" href="#@catId" aria-expanded="false">
+                                                <span class="pm"></span> @(!string.IsNullOrWhiteSpace(cat?.Name) ? cat.Name : "Category")
+                                            </a>
+                                            <div id="@catId" class="collapse mt-2 ms-3">
+                                                @if (cat?.Values == null || !cat.Values.Any()) {<div class="muted">No values</div> }
+                                                else {
+                                                    <table class="table table-sm align-middle mb-0">
+                                                        <thead class="small"><tr><th style="width:35%">Name</th><th style="width:20%">ID</th><th>Value</th></tr></thead>
+                                                        <tbody class="small">
+                                                            @foreach (var v in cat.Values) {
+                                                                <tr><td>@Safe(v?.Name)</td><td class="text-muted">@Safe(v?.Id)</td><td><code>@Safe(v?.Value)</code></td></tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Equipment (Standard) -->
+                        <div class="section">
+                            <button class="w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#@geStdId"
+                                    aria-expanded="false"
+                                    aria-controls="@geStdId">
+                                <h5 class="fw-bold m-0 text-center py-2">
+                                    Standard Equipment
+                                </h5>
+
+                                <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
+                                    <i class="bi bi-plus-lg icon-plus"></i>
+                                    <i class="bi bi-dash-lg icon-minus"></i>
+                                </span>
+                            </button>
+                            <div id="@geStdId" class="collapse mt-2">
+                                @Html.Partial("_GenericEquipmentTree", style?.StandardGenericEquipment)
+                            </div>
+                        </div>
+
+                        <!-- Equipment (Optional) -->
+                        <div class="section">
+                            <button class="w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#@geOptId"
+                                    aria-expanded="false"
+                                    aria-controls="@geOptId">
+                                <h5 class="fw-bold m-0 text-center py-2">
+                                    Optional Equipment
+                                </h5>
+
+                                <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
+                                    <i class="bi bi-plus-lg icon-plus"></i>
+                                    <i class="bi bi-dash-lg icon-minus"></i>
+                                </span>
+                            </button>
+                            <div id="@geOptId" class="collapse mt-2">
+                                @Html.Partial("_GenericEquipmentTree", style?.OptionalGenericEquipment)
+                            </div>
+                        </div>
+
+                        <!-- Colors -->
+                        <div class="section">
+                            <button class="w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#@colId"
+                                    aria-expanded="false"
+                                    aria-controls="@colId">
+                                <h5 class="fw-bold m-0 text-center py-2">
+                                    Colors
+                                </h5>
+
+                                <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
+                                    <i class="bi bi-plus-lg icon-plus"></i>
+                                    <i class="bi bi-dash-lg icon-minus"></i>
+                                </span>
+                            </button>
+
+                            <div id="@colId" class="collapse mt-2">
+                                @if (style?.Colors == null) {<div class="muted">No colors</div> }
+                                else {
+                                    <div class="row g-2">
+                                        <div class="col-12 col-md-6">
+                                            <div class="fw-semibold mb-1">Exterior</div>
+                                            @if (style.Colors.Exterior?.Colors == null || !style.Colors.Exterior.Colors.Any()) {<div class="muted">None</div> }
+                                            else {
+                                                <ul class="list-group list-group-flush">
+                                                    @foreach (var c in style.Colors.Exterior.Colors) {
+                                                        var hex = Safe(c?.PrimaryRgbCode?.Hex);
+                                                        <li class="list-group-item d-flex align-items-center py-2">
+                                                            <span class="me-2" style="width:16px;height:16px;border-radius:4px;border:1px solid #ccc; display:inline-block; background-color:@(string.IsNullOrWhiteSpace(hex) ? "#ddd" : "#"+hex)"></span>
+                                                            <div>
+                                                                <div class="fw-semibold">@Safe(c?.MfrColorName)</div>
+                                                                <div class="muted">@Safe(c?.GenericColorName) @if (!string.IsNullOrWhiteSpace(hex)) {<text>(#@hex)</text>}</div>
+                                                            </div>
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            }
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <div class="fw-semibold mb-1">Interior</div>
+                                            @if (style.Colors.Interior?.Colors == null || !style.Colors.Interior.Colors.Any()) {<div class="muted">None</div> }
+                                            else {
+                                                <ul class="list-group list-group-flush">
+                                                    @foreach (var c in style.Colors.Interior.Colors) {
+                                                        var hex = Safe(c?.PrimaryRgbCode?.Hex);
+                                                        <li class="list-group-item d-flex align-items-center py-2">
+                                                            <span class="me-2" style="width:16px;height:16px;border-radius:4px;border:1px solid #ccc; display:inline-block; background-color:@(string.IsNullOrWhiteSpace(hex) ? "#ddd" : "#"+hex)"></span>
+                                                            <div>
+                                                                <div class="fw-semibold">@Safe(c?.MfrColorName)</div>
+                                                                <div class="muted">@Safe(c?.GenericColorName) @if (!string.IsNullOrWhiteSpace(hex)) {<text>(#@hex)</text>}</div>
+                                                            </div>
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Warranties -->
+                        <div class="section">
+                            <button class="w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#@wId"
+                                    aria-expanded="false"
+                                    aria-controls="@wId">
+                                <h5 class="fw-bold m-0 text-center py-2">
+                                    Warranties
+                                </h5>
+
+                                <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
+                                    <i class="bi bi-plus-lg icon-plus"></i>
+                                    <i class="bi bi-dash-lg icon-minus"></i>
+                                </span>
+                            </button>
+                            <div id="@wId" class="collapse mt-2">
+                                @if (style?.Warranties?.Items == null || !style.Warranties.Items.Any()) {<div class="muted">No warranties</div> }
+                                else {
+                                    <table class="table align-middle mb-0">
+                                        <thead><tr><th>Name</th><th>Type</th><th>Months</th><th>Miles</th></tr></thead>
+                                        <tbody>
+                                            @foreach (var w in style.Warranties.Items) {
+                                                <tr><td>@Safe(w?.Name)</td><td>@Safe(w?.Type)</td><td>@Safe(w?.Months)</td><td>@Safe(w?.Miles)</td></tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- EPA MPG -->
+                        <div class="section">
+                            <button class="w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#@epaId"
+                                    aria-expanded="false"
+                                    aria-controls="@epaId">
+                                <h5 class="fw-bold m-0 text-center py-2">
+                                    EPA Fuel Efficiency
+                                </h5>
+
+                                <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
+                                    <i class="bi bi-plus-lg icon-plus"></i>
+                                    <i class="bi bi-dash-lg icon-minus"></i>
+                                </span>
+                            </button>
+
+                            <div id="@epaId" class="collapse mt-2">
+                                @if (style?.EpaFuelEfficiency?.Records == null || !style.EpaFuelEfficiency.Records.Any()) {<div class="muted">No records</div> }
+                                else {
+                                    <table class="table align-middle mb-0">
+                                        <thead><tr><th>Engine</th><th>Trans</th><th>Fuel</th><th>Grade</th><th>City</th><th>Hwy</th><th>Comb</th></tr></thead>
+                                        <tbody>
+                                            @foreach (var r in style.EpaFuelEfficiency.Records) {
+                                                <tr><td class="text-muted">@Safe(r?.EngineId)</td><td class="text-muted">@Safe(r?.TransmissionId)</td><td>@Safe(r?.FuelType)</td><td>@Safe(r?.FuelGrade)</td><td>@Safe(r?.City)</td><td>@Safe(r?.Highway)</td><td>@Safe(r?.Combined)</td></tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- EPA Green -->
+                        <div class="section">
+                            <button class="w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#@greenId"
+                                    aria-expanded="false"
+                                    aria-controls="@greenId">
+                                <h5 class="fw-bold m-0 text-center py-2">
+                                    EPA Green Scores
+                                </h5>
+
+                                <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
+                                    <i class="bi bi-plus-lg icon-plus"></i>
+                                    <i class="bi bi-dash-lg icon-minus"></i>
+                                </span>
+                            </button>
+
+                            <div id="@greenId" class="collapse mt-2">
+                                @if (style?.EpaGreenScores?.Records == null || !style.EpaGreenScores.Records.Any()) {<div class="muted">No records</div> }
+                                else {
+                                    <table class="table align-middle mb-0">
+                                        <thead><tr><th>Engine</th><th>Trans</th><th>Std</th><th>Air</th><th>GHG</th><th>Smartway</th></tr></thead>
+                                        <tbody>
+                                            @foreach (var r in style.EpaGreenScores.Records) {
+                                                <tr><td class="text-muted">@Safe(r?.EngineId)</td><td class="text-muted">@Safe(r?.TransmissionId)</td><td>@Safe(r?.EmissionsStandard)</td><td>@Safe(r?.AirPollutionScore)</td><td>@Safe(r?.GreenhouseGasScore)</td><td>@Safe(r?.Smartway)</td></tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- NHTSA -->
+                        <div class="section">
+                            <button class="w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#@nhtsaId"
+                                    aria-expanded="false"
+                                    aria-controls="@nhtsaId">
+                                <h5 class="fw-bold m-0 text-center py-2">
+                                    NHTSA Crash Test Ratings
+                                </h5>
+
+                                <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
+                                    <i class="bi bi-plus-lg icon-plus"></i>
+                                    <i class="bi bi-dash-lg icon-minus"></i>
+                                </span>
+                            </button>
+                            <div id="@nhtsaId" class="collapse mt-2">
+                                @if (style?.NhtsaCrashTestRatings == null) {<div class="muted">No ratings</div> }
+                                else {
+                                    var n = style.NhtsaCrashTestRatings;
+                                    <div class="row g-2">
+                                        <div class="col-12 col-lg-6">
+                                            <table class="table kv mb-0">
+                                                <tbody>
+                                                    <tr><td class="fw-bold w-25">Overall</td><td>@Safe(n.OverallStars)</td></tr>
+                                                    <tr><td class="fw-bold">Front Overall</td><td>@Safe(n.FrontCrashOverallStars)</td></tr>
+                                                    <tr><td class="fw-bold">Front Driver</td><td>@Safe(n.FrontCrashDriverStars)</td></tr>
+                                                    <tr><td class="fw-bold">Front Passenger</td><td>@Safe(n.FrontCrashPassengerStars)</td></tr>
+                                                    <tr><td class="fw-bold">Side Overall</td><td>@Safe(n.SideCrashOverallStars)</td></tr>
+                                                    <tr><td class="fw-bold">Rollover</td><td>@Safe(n.RolloverStars)</td></tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="col-12 col-lg-6">
+                                            <table class="table kv mb-0">
+                                                <tbody>
+                                                    <tr><td class="fw-bold w-25">Side Barrier Overall</td><td>@Safe(n.SideBarrierOverallStars)</td></tr>
+                                                    <tr><td class="fw-bold">Side Barrier Driver</td><td>@Safe(n.SideBarrierDriverStars)</td></tr>
+                                                    <tr><td class="fw-bold">Side Barrier Passenger</td><td>@Safe(n.SideBarrierPassengerStars)</td></tr>
+                                                    <tr><td class="fw-bold">Side Pole Driver</td><td>@Safe(n.SidePoleDriverStars)</td></tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                    }
+                }
+            }
+        }
+        </div>
+    </div>
+</div>
