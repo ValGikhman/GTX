@@ -455,7 +455,7 @@ namespace GTX.Controllers {
 
     Your response must:
     1. Start with a catchy **title inside <title> tags** (for example: <title>The Electric Dream</title>).
-    2. Write a minimum of **10 sentences**, each inside a separate <p class='p-story'> tag.
+    2. Write a minimum of **5 sentences**, each inside a separate <p class='p-story'> tag.
     3. Write in very technical tone with a touch sales person can be to make story vivid, rich, and atmospheric.
     4. Mention at least **5 car features** from the provided list and wrap each feature in <strong class='strong-story'> tags as well as the car.
     5. Do **not use double quotes** anywhere in the story.

@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 
 namespace GTX.Controllers {
@@ -482,12 +483,31 @@ namespace GTX.Controllers {
         private DecodedData GetDecodedData(string stock) {
             string dataOne = InventoryService.GetDataOneDetails(stock);
 
-            if (string.IsNullOrWhiteSpace(dataOne))
+            var (errCode, errMsg) = ParseDecoderError(dataOne);
+
+            if (errCode != null) {
                 return null;
+            }
 
             var serializer = new XmlSerializer(typeof(DecodedData));
             using (TextReader reader = new StringReader(dataOne)) {
                 return (DecodedData)serializer.Deserialize(reader);
+            }
+        }
+
+        private static (string? code, string? message) ParseDecoderError(string xml) {
+            try {
+                var doc = System.Xml.Linq.XDocument.Parse(xml);
+                var err = doc.Descendants("decoder_errors").Descendants("error").FirstOrDefault();
+                if (err == null) return (null, null);
+
+                var code = (string?)err.Element("code");
+                var msg = (string?)err.Element("message");
+                return (code, msg);
+            }
+            catch {
+                // If it isn't valid XML, treat as a body/format error
+                return ("PARSE", "Invalid XML from decoder");
             }
         }
 

@@ -117,6 +117,16 @@
                     </a>
                 </div>
 
+                @*Details*@
+                @{
+                    if (Model.CurrentVehicle.VehicleDataOneDetails == null) {
+                        Html.RenderPartial("_Details");
+                    }
+                    else {
+                        Html.RenderPartial("_DetailsDataOne");
+                    }
+                }
+
                 @*Story*@
                 @if (@Model.CurrentVehicle.VehicleDetails.Story != null) {
                     <div class="row justify-content-center well mb-3">
@@ -262,24 +272,14 @@
         </div>
     </div>
 
-    <div class="col-lg-5 col-md-8 col-sm-12" style="margin-top: 2.4rem;">
-        @*Details*@
-        @{ 
-            if (Model.CurrentVehicle.VehicleDataOneDetails == null) {
-                Html.RenderPartial("_Details");
-            }
-            else {
-                Html.RenderPartial("_DetailsDataOne");
-            }
-        }
-
+    <div class="col-lg-5 col-md-8 col-sm-12 pt-1">
         @*Test drive*@
         <div class="row justify-content-center well mb-3">
             <button class="w-100 btn btn-gradient position-relative collapse-toggle"
                     type="button"
                     data-bs-toggle="collapse"
                     data-bs-target="#contactus"
-                    aria-expanded="false"
+                    aria-expanded="true"
                     aria-controls="contactus">
                 <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
                     <i class="bi bi-calendar3 mx-2"></i>Schedule test drive
@@ -292,7 +292,7 @@
                 </span>
             </button>
 
-            <div class="collapse text-shadow-small rounded shadow px-5" id="contactus">
+            <div class="collapse text-shadow-small rounded shadow px-5 show" id="contactus">
                 @{ Html.RenderPartial("_ContactForm", new GTX.Models.ContactModel()); }
             </div>
         </div>
