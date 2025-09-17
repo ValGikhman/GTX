@@ -11,9 +11,9 @@ namespace GTX
         public static void RegisterComponents()
         {
 			var container = new UnityContainer();
-            
-           
+
             DependencyResolver.SetResolver(new UnityDependencyResolver(container));
+            container.RegisterType<IVinDecoderService, VinDecoderService>();
             container.RegisterType<IEmployeesService, EmployyesService>();
             container.RegisterType<IContactService, ContactService>();
             container.RegisterType<ILogService, LogService>();

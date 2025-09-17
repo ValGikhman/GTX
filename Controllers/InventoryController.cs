@@ -2,19 +2,22 @@
 using Newtonsoft.Json;
 using Services;
 using System;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
+using System.Xml.Linq;
+using System.Xml.Serialization;
 
 namespace GTX.Controllers {
 
     public class InventoryController : BaseController {
         private readonly HttpClient httpClient = new();
-        public InventoryController(ISessionData sessionData, IInventoryService inventoryService, ILogService LogService)
-            : base(sessionData, inventoryService, LogService) {
+        public InventoryController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, ILogService LogService)
+            : base(sessionData, inventoryService, vinDecoderService, LogService) {
         }
 
         [HttpGet]
@@ -53,6 +56,7 @@ namespace GTX.Controllers {
             }
 
             Model.CurrentVehicle.VehicleDetails = vehicle;
+            Model.CurrentVehicle.VehicleDataOneDetails = GetDecodedData(stock);
             Model.CurrentVehicle.VehicleImages = GetImages(stock);
 
             SessionData.CurrentVehicle = Model.CurrentVehicle;
@@ -63,7 +67,12 @@ namespace GTX.Controllers {
                 .Take(10)
                 .ToArray() ?? Array.Empty<Models.GTX>();
 
-            ViewBag.Title = $"{vehicle.Year} - {vehicle.Make} - {vehicle.Model} {vehicle.VehicleStyle}";
+            if (Model.CurrentVehicle.VehicleDataOneDetails == null) {
+                ViewBag.Title = $"{vehicle.Year} - {vehicle.Make} - {vehicle.Model} {vehicle.VehicleStyle}";
+            }
+            else {
+                ViewBag.Title = $"{Model.CurrentVehicle.VehicleDataOneDetails.QueryResponses.Items[0].UsMarketData.UsStyles.Styles[0].Name.ToUpper()}";
+            }
 
             return View("Details", Model);
         }
@@ -83,7 +92,7 @@ namespace GTX.Controllers {
                     var html = await client.GetStringAsync(url);
                     return Content(html, "text/html"); // Send raw HTML
                 }
-                catch(Exception ex) {
+                catch (Exception ex) {
                     return Content("Unable to fetch Carfax report.");
                 }
             }
@@ -206,7 +215,7 @@ namespace GTX.Controllers {
         [HttpPost]
         public JsonResult ApplyTerm(string term) {
             Log($"Applying term: {term}");
-            
+
             term = term.Trim().ToUpper();
 
             Model.CurrentFilter = null;
@@ -468,58 +477,39 @@ namespace GTX.Controllers {
                 query = query.Where(m => filter.VehicleTypes.Contains(m.VehicleType)).Distinct().ToArray();
             }
 
-            return query.OrderBy(m => m.Make).ToArray();
+            return query.OrderBy(m => m.Make).ThenBy(m => m.Model).ToArray();
         }
 
-        [HttpPost]
-        public async Task<JsonResult> DecodeVin(string vin) {
-            return Json(new { Error = "Not ready yet" }, JsonRequestBehavior.AllowGet);
+        private DecodedData GetDecodedData(string stock) {
+            string dataOne = InventoryService.GetDataOneDetails(stock);
 
-            using (HttpClient client = new HttpClient()) {
-                string url = $"https://www.vinaudit.com/vin-decoder?vin={vin}";
-                HttpResponseMessage response = await client.GetAsync(url);
+            var (errCode, errMsg) = ParseDecoderError(dataOne);
 
-                if (!response.IsSuccessStatusCode)
-                    return Json(new { Error = "Error fetching VIN data." }, JsonRequestBehavior.AllowGet);
+            if (errCode != null) {
+                return null;
+            }
 
-                var data = await response.Content.ReadAsHttpResponseMessageAsync();
-                return Json(new { data }, JsonRequestBehavior.AllowGet);
+            var serializer = new XmlSerializer(typeof(DecodedData));
+            using (TextReader reader = new StringReader(dataOne)) {
+                return (DecodedData)serializer.Deserialize(reader);
             }
         }
 
-        private async Task<string> GetChatGptResponse(string prompt) {
-            const string apiUrl = "https://api.openai.com/v1/chat/completions";
-
-            var requestBody = new {
-                model = "gpt-4o",  // Replace with "gpt-3.5-turbo" if needed
-                messages = new[]
-                {
-                    new { role = "user", content = prompt }
-                },
-                    max_tokens = 500,
-                    temperature = 0.7
-            };
-
-            using var request = new HttpRequestMessage(HttpMethod.Post, apiUrl) {
-                Content = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json")
-            };
-
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", openAiApiKey);
-
+        private static (string? code, string? message) ParseDecoderError(string xml) {
             try {
-                using var response = await httpClient.SendAsync(request);
+                var doc = System.Xml.Linq.XDocument.Parse(xml);
+                var err = doc.Descendants("decoder_errors").Descendants("error").FirstOrDefault();
+                if (err == null) return (null, null);
 
-                if (!response.IsSuccessStatusCode)
-                    return $"Error: {response.StatusCode}";
-
-                var jsonResponse = await response.Content.ReadAsStringAsync();
-                dynamic result = JsonConvert.DeserializeObject(jsonResponse);
-
-                return result?.choices?[0]?.message?.content?.ToString() ?? "Error: Empty response";
+                var code = (string?)err.Element("code");
+                var msg = (string?)err.Element("message");
+                return (code, msg);
             }
-            catch (Exception ex) {
-                return $"Exception: {ex.Message}";
+            catch {
+                // If it isn't valid XML, treat as a body/format error
+                return ("PARSE", "Invalid XML from decoder");
             }
         }
+
     }
 }

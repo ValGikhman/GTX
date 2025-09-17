@@ -206,6 +206,7 @@
 </div>
 
 <template id="actions">
+    <button type="button" id="btnDecodeAll" class="btn btn-gradient shadow">Decode all</button>
     <button type="button" id="btnReStoryAll" class="btn btn-gradient shadow">Restory all</button>
     <button type="button" id="btnUploadInventory" class="btn btn-gradient mx-2 shadow">Upload inventory</button>
     <input type="file" name="dataCsv" id="dataCsv" class="d-none" accept=".csv,text/csv" />
@@ -306,6 +307,12 @@
 
         $("#btnReStoryAll").on("click", function () {
             reStoryAll();
+        });
+
+        $("#btnDecodeAll").on("click", function () {
+            if (confirm("Decode all undecoded VINs")) {
+                decodeAll();
+            }
         });
 
         $("#filterLiked, .sort, #socials").hide();

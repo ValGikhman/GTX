@@ -28,8 +28,8 @@ namespace GTX.Controllers {
         private static byte[] _cachedHeaderBytes;
         private static readonly object _headerLock = new object();
 
-        public MajordomeController(ISessionData sessionData, IInventoryService inventoryService, ILogService logService)
-            : base(sessionData, inventoryService, logService) {
+        public MajordomeController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, ILogService logService)
+            : base(sessionData, inventoryService, vinDecoderService, logService) {
             if (Model == null) {
                 Model = new BaseModel();
                 Model.Inventory = new Inventory();
@@ -120,6 +120,25 @@ namespace GTX.Controllers {
 
                         // Add a delay to avoid hitting RPM limits
                         await Task.Delay(1100); // ~55 requests/min
+                    }
+                }
+
+                return Json(new { success = true, message = "Story created successfully." });
+            }
+            catch (Exception ex) {
+                return Json(new { success = false, message = "Error: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public ActionResult DecodeAll() {
+            try {
+                Model.Inventory.Vehicles = Model.Inventory.All;
+
+                foreach (var vehicle in Model.Inventory.Vehicles) {
+                    if (InventoryService.AnyDataOneDetails(vehicle.Stock)) {
+                        var details = VinDecoderService.DecodeVin(vehicle.VIN, dataOneApiKey, dataOneSecretApiKey);
+                        InventoryService.SaveDataOneDetails(vehicle.Stock, details);
                     }
                 }
 
@@ -272,7 +291,7 @@ namespace GTX.Controllers {
 
             CsvToXmlHelper.SaveXmlToFile(doc, fullPath);
             CsvToXmlHelper.SaveXmlToFile(doc, inventoryFullPath);
-
+            
             TerminateSession();
             return RedirectToAction("Index", "Home"); 
         }
@@ -419,36 +438,6 @@ namespace GTX.Controllers {
             }
         }
 
-        private string GetPromptPoeticFun(Models.GTX vehicle) {
-            var reps = string.Empty;
-            var representatives = Model.Employers.Where(m => m.Position.Contains("Sales")).Select(m => m.Name).ToArray();
-            if (representatives != null) {
-                reps = string.Join(", ", representatives);
-            }
-            string car = $"{vehicle.Year} {vehicle.Make} {vehicle.Model} {vehicle.VehicleStyle}";
-            var features = $"{vehicle.Features}";
-            string prompt = $@"
-    You are an expert automotive storyteller. Write a short captivating, imaginative, vivid, and engaging story in HTML format for the following car:
-    Car: {car}  
-    Features: {features}
-    General: {car} is being sold by the GTX Autogroup here in Cincinnati Ohio area.
-    Our sales crew: {reps} will help you to start your thrilling journey through scenic Ohio valley roads.
-
-    Your response must:
-    1. Start with a catchy **title inside <title> tags** (for example: <title>The Electric Dream</title>).
-    2. Write a minimum of **10 sentences**, each inside a separate <p class='p-story'> tag.
-    3. Write in a poetic yet mysterious and persuasive tone with a touch of futuristic imagery to make story vivid, rich, and atmospheric.
-    4. Mention at least **5 car features** from the provided list and wrap each feature in <strong class='strong-story'> tags as well as the car.
-    5. Do **not use double quotes** anywhere in the story.
-    6. End the story with a sense of joy, adventure, opportunity.
-
-    The output should be **only the HTML story** without any extra text before or after.
-    Please do not place any other characters like **``` and **```html text in front of the output.
-    Do not place any **<html>**, **<body>** and **<head>** tags
-    ";
-                return prompt;
-        }
-
         private string GetPrompt(Models.GTX vehicle) {
             var reps = string.Empty;
             var representatives = Model.Employers.Where(m => m.Position.Contains("Sales")).Select(m => m.Name).ToArray();
@@ -466,7 +455,7 @@ namespace GTX.Controllers {
 
     Your response must:
     1. Start with a catchy **title inside <title> tags** (for example: <title>The Electric Dream</title>).
-    2. Write a minimum of **10 sentences**, each inside a separate <p class='p-story'> tag.
+    2. Write a minimum of **5 sentences**, each inside a separate <p class='p-story'> tag.
     3. Write in very technical tone with a touch sales person can be to make story vivid, rich, and atmospheric.
     4. Mention at least **5 car features** from the provided list and wrap each feature in <strong class='strong-story'> tags as well as the car.
     5. Do **not use double quotes** anywhere in the story.

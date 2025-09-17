@@ -209,16 +209,15 @@ function uploadInventory(input) {
 }
 
 function decodeVin(vin) {
-    fetch('/Inventory/DecodeVin', {
+    fetch('/Api/DecodeVin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ vin: vin })
     })
-        .then(res => res.json())
-        .then(data => {
-            console.log(data);
-            $("#details-content").html(data.Error);
-        });
+    .then(res => res.json())
+    .then(data => {
+        console.log(data);
+    });
 }
 
 function setDetails(stock) {
@@ -253,6 +252,30 @@ function reStoryAll() {
     .catch(error => {
         alert(error);
     });
+}
+
+function decodeAll() {
+    showSpinner($("#inventoryOverlay"));
+
+    fetch('/Majordome/DecodeAll', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    })
+        .then(response => {
+            if (response.ok) {
+                fetch('/Majordome/GetUpdatedItems')
+                    .then(res => res.json())
+                    .then(data => {
+                        updateRow(data);
+                    });
+                alert(`Decoding is done`);
+            } else {
+                alert("Decoding failed.");
+            }
+        })
+        .catch(error => {
+            alert(error);
+        });
 }
 
 function deleteImages(stock) {

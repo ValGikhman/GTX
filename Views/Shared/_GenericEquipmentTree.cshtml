@@ -1,0 +1,99 @@
+﻿@model GTX.Models.GenericEquipmentGroups
+@using System.Linq
+
+<style>
+
+</style>
+
+@functions{
+    string Safe(string s) => string.IsNullOrWhiteSpace(s) ? "" : s;
+    string Id(params object[] parts) => string.Join("_", parts.Where(p => p != null)) + "_" + Guid.NewGuid().ToString("N");
+    string ToCamelCase(string input) {
+        if (string.IsNullOrEmpty(input)) return input;
+        var words = input.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries)
+                         .Select(w => char.ToUpperInvariant(w[0]) + w.Substring(1).ToLower());
+        return string.Concat(words);
+}
+}
+
+@if (Model?.Groups == null || !Model.Groups.Any()) {
+    <div class="muted">None</div>
+}
+else {
+    var gi = 0;
+    foreach (var g in Model.Groups) {
+        var gId = Id("geg", gi++);
+        <div class="mb-1">
+            <a class="toggle" data-bs-toggle="collapse" href="#@gId" aria-expanded="false">
+                <span class="pm"></span> @Safe(g?.Name)
+            </a>
+            <div id="@gId" class="collapse mt-2 ms-3">
+                @if (g?.Categories == null || !g.Categories.Any()) {
+                    <div class="text-center">
+                        <code>No categories to show</code>
+                    </div>
+                }
+                else {
+                    var ci = 0;
+                    foreach (var c in g.Categories) {
+                        var cId = Id("gec", gId, ci++);
+                        <div class="mb-1">
+                            <a class="toggle" data-bs-toggle="collapse" href="#@cId" aria-expanded="false">
+                                <span class="pm"></span> @Safe(c?.Name)
+                            </a>
+                            <div id="@cId" class="collapse mt-2 ms-3">
+                                @if (c?.Equipments == null || !c.Equipments.Any()) {
+                                    <div class="text-center">
+                                        <code>No equipment to show</code>
+                                    </div>
+                                }
+                                else {
+                                    var ei = 0;
+                                    foreach (var e in c.Equipments) {
+                                        var eId = Id("gee", cId, ei++);
+
+                                        <div class="mb-1">
+                                            <table class="table table-sm kv mb-0 mt-1">
+                                                <tr>
+                                                    <td class="w-40">
+                                                        <a class="toggle" data-bs-toggle="collapse" href="#@eId" aria-expanded="false">
+                                                            <span class="pm"></span>@Safe(e?.Name)
+                                                        </a>
+                                                    </td>
+                                                    <td>
+                                                        <span>@string.Join(", ", e.Values.Select(m => ToCamelCase(m.Value)))</span>
+                                                    </td>
+                                                    <td>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <div id="@eId" class="collapse">
+                                                @if (e?.Values == null || !e.Values.Any(m => m.Value != null)) {
+                                                    <div class="text-center">
+                                                        <code>No valid data to show</code>
+                                                    </div>
+                                                }
+                                                else {
+                                                    <ul class="list-group list-group-flush">
+                                                        @foreach (var v in e.Values) {
+                                                            if (v?.Value != null) {
+                                                                <li class="list-group-item py-2 d-flex justify-content-between align-items-center small mx-5">
+                                                                    <code>@Safe(v?.Value)</code>
+                                                                    @if (!string.IsNullOrWhiteSpace(v?.Installed)) {<span class="badge shadow rounded-pill bg-info text-dark">@v.Installed</span>}
+                                                                </li>
+                                                            }
+                                                        }
+                                                    </ul>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    }
+}
