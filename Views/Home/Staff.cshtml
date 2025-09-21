@@ -13,7 +13,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div id="header" class="modal-header shadow">
-                <h5 id="title" class="modal-title test-shadow">Contact</h5>
+                <h5 id="titleModal" class="modal-title test-shadow">Contact</h5>
             </div>
             <div id="messageBody" class="modal-body well">
             </div>
@@ -54,7 +54,7 @@
         $.get(`${root}Home/ContactForm`, { "id": id })
             .done(function (result) {
                 $("#messageBody").html(result);
-                $("#title").html(`Contact ${name}`);
+                $("#titleModal").html(`Contact ${name}`);
                 $("#message").modal("show");
             })
             .fail(function () {

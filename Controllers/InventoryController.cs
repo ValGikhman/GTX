@@ -38,6 +38,16 @@ namespace GTX.Controllers {
         }
 
         [HttpGet]
+        public ActionResult ContactModal() {
+            return PartialView("_ContactForm", new GTX.Models.ContactModel());
+        }
+
+        [HttpGet]
+        public ActionResult ApplicationModal() {
+            return PartialView("_LoanApplication");
+        }
+
+        [HttpGet]
         public ActionResult Details(string stock) {
             stock = stock?.Trim().ToUpper();
 
@@ -71,8 +81,10 @@ namespace GTX.Controllers {
                 ViewBag.Title = $"{vehicle.Year} - {vehicle.Make} - {vehicle.Model} {vehicle.VehicleStyle}";
             }
             else {
-                ViewBag.Title = $"{Model.CurrentVehicle.VehicleDataOneDetails.QueryResponses.Items[0].UsMarketData.UsStyles.Styles[0].Name.ToUpper()}";
+                var style = Model.CurrentVehicle.VehicleDataOneDetails.QueryResponses.Items[0].UsMarketData.UsStyles.Styles[0].Name.ToUpper();
+                ViewBag.Title = $"{vehicle.Year} - {vehicle.Make} - {vehicle.Model} {style}";
             }
+            ViewBag.Price = $"{vehicle.RetailPrice.ToString("C")}";
 
             return View("Details", Model);
         }

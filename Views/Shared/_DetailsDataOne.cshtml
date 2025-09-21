@@ -11,6 +11,26 @@
             return d.ToString(format, CultureInfo.GetCultureInfo(culture));
         return "";
     }
+    string Specs(List<GTX.Models.SpecificationCategory> categories, string category, string value) {
+        return categories?
+            .FirstOrDefault(c => c.Name == category)?
+            .Values?
+            .FirstOrDefault(v => v.Name == value)?
+            .Value ?? string.Empty;
+    }
+    string Stands(List<GTX.Models.GenericEquipmentCategoryGroup> groups, string group, string category, string equipment) {
+        var gr = groups.FirstOrDefault(g => g.Name == group);
+        var cat = gr.Categories.FirstOrDefault(c => c.Name == category);
+        var eqv = cat?.Equipments.FirstOrDefault(e => e.Name == equipment);
+        var values = string.Join(", ", eqv.Values.Select(m => ToCamelCase(m.Value)));
+        return values;
+    }
+    string ToCamelCase(string input) {
+        if (string.IsNullOrEmpty(input)) return input;
+        var words = input.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries)
+                         .Select(w => char.ToUpperInvariant(w[0]) + w.Substring(1).ToLower());
+        return string.Concat(words);
+    }
 }
 
 <style>
@@ -50,6 +70,10 @@
     .section {
         margin-bottom: .75rem;
     }
+
+    .w-20 {
+        width: 20% !important;
+    }
 </style>
 
 <div class="row justify-content-center well mb-3">
@@ -77,11 +101,7 @@
     </button>
 
     <div class="text-shadow-small show" id="details">
-        <div class="d-flex justify-content-between px-3 mx-2 flex-wrap">
-            <strong class="very-small-text copyable">@Model.CurrentVehicle.VehicleDetails.VIN</strong>
-            <strong class="very-small-text copyable">@Model.CurrentVehicle.VehicleDetails.Stock</strong>
-        </div>
-        <div class="m-2">
+        <div class="mt-2  px-5 ">
             @if (Model.CurrentVehicle.VehicleDataOneDetails?.QueryResponses?.Items == null || !Model.CurrentVehicle.VehicleDataOneDetails.QueryResponses.Items.Any()) {
                 <div class="alert alert-warning">No query responses.</div>
             }
@@ -115,14 +135,13 @@
                         <!-- Basic -->
                         <div class="section">
                             <button class="w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
-                                    type="button"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target="#@bdId"
-                                    aria-expanded="true"
-                                    aria-controls="@bdId">
+                               data-bs-toggle="collapse"
+                               data-bs-target="#@bdId"
+                               aria-expanded="true"
+                               aria-controls="@bdId">
 
                                 <span class="d-flex justify-content-center text-shadow">
-                                    Basic data
+                                    <strong>@Safe(style.BasicData.Year) @Safe(style.BasicData.Make) @Safe(style.Name) - @Model.CurrentVehicle.VehicleDetails.RetailPrice.ToString("C0")</strong>
                                 </span>
 
                                 <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
@@ -130,48 +149,69 @@
                                     <i class="bi bi-dash-lg icon-minus"></i>
                                 </span>
                             </button>
-                                <div id="@bdId" class="collapse show">
-                                    @if (style?.BasicData == null) {<div class="muted">No data</div> }
-                                    else {
-                                        <table class="table table-sm kv mb-0">
-                                            <tbody>
-                                                <tr><td class="fw-bold w-50">Selling for: </td><td>@Model.CurrentVehicle.VehicleDetails.RetailPrice.ToString("C0")</td></tr>
-                                                <tr><td class="fw-bold">Year</td><td>@Safe(style.BasicData.Year)</td></tr>
-                                                <tr><td class="fw-bold">Make</td><td>@Safe(style.BasicData.Make)</td></tr>
-                                                <tr><td class="fw-bold">Model</td><td>@Safe(style.BasicData.Model)</td></tr>
-                                                <tr><td class="fw-bold">Trim</td><td>@Safe(style.BasicData.Trim)</td></tr>
-                                                <tr><td class="fw-bold">Vehicle Type</td><td>@Safe(style.BasicData.VehicleType)</td></tr>
-                                                <tr><td class="fw-bold">Body Type</td><td>@Safe(style.BasicData.BodyType)</td></tr>
-                                                <tr><td class="fw-bold">OEM Body Style</td><td>@Safe(style.BasicData.OemBodyStyle)</td></tr>
-                                                <tr><td class="fw-bold">OEM Doors</td><td>@Safe(style.BasicData.OemDoors)</td></tr>
-                                                <tr><td class="fw-bold">Doors</td><td>@Safe(style.BasicData.Doors)</td></tr>
-                                                <tr><td class="fw-bold">Mfr Model #</td><td>@Safe(style.BasicData.ModelNumber)</td></tr>
-                                                <tr><td class="fw-bold">Mfr Package</td><td>@Safe(style.BasicData.PackageCode)</td></tr>
-                                                <tr><td class="fw-bold">Drive Type</td><td>@Safe(style.BasicData.DriveType)</td></tr>
-                                                <tr><td class="fw-bold">Brake System</td><td>@Safe(style.BasicData.BrakeSystem)</td></tr>
-                                                <tr><td class="fw-bold">Restraint Type</td><td>@Safe(style.BasicData.RestraintType)</td></tr>
-                                                <tr><td class="fw-bold">Country Of Mfr</td><td>@Safe(style.BasicData.CountryOfManufacture)</td></tr>
-                                                <tr><td class="fw-bold">Plant</td><td>@Safe(style.BasicData.Plant)</td></tr>
-                                                <tr><td class="fw-bold">Package Summary</td><td>@Safe(style.BasicData.PackageSummary)</td></tr>
-                                                <tr><td class="fw-bold">Rear Axle</td><td>@Safe(style.BasicData.RearAxle)</td></tr>
-                                                <tr><td class="fw-bold">Fleet</td><td>@Safe(style.Fleet)</td></tr>
-                                            </tbody>
-                                        </table>
-                                    }
-                                </div>
+
+                            <div id="@bdId" class="collapse show">
+                                @if (style?.BasicData == null) {<div class="muted">No data</div> }
+                                else {
+                                    <table class="table table-sm kv mt-3">
+                                        <tbody>
+                                            <tr>
+                                                <td class="fw-bold w-25">Miles: </td>
+                                                <td colspan="3" class="w-25">@Model.CurrentVehicle.VehicleDetails.Mileage.ToString("N0")</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold w-25">VIN#: </td>
+                                                <td class="w-25 copyable">@Model.CurrentVehicle.VehicleDetails.VIN</td>
+                                                <td class="fw-bold w-25">Stock#</td>
+                                                <td class="w-25 copyable">@Model.CurrentVehicle.VehicleDetails.Stock</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Vehicle Type</td>
+                                                <td>@Safe(style.BasicData.VehicleType)</td>
+                                                <td class="fw-bold">Body Type</td>
+                                                <td>@Safe(style.BasicData.BodyType)</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Doors</td>
+                                                <td>@Safe(style.BasicData.Doors)</td>
+                                                <td class="fw-bold">Drive Type</td>
+                                                <td>@Safe(style.BasicData.DriveType)</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Brake System</td>
+                                                <td>@Safe(style.BasicData.BrakeSystem)</td>
+                                                <td class="fw-bold">Restraint Type</td>
+                                                <td>@Safe(style.BasicData.RestraintType)</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Seats</td>
+                                                <td>@Specs(style.StandardSpecifications.Categories, "Seating", "Max Seating")</td>
+                                                <td class="fw-bold">Rows</td>
+                                                <td>@Specs(style.StandardSpecifications.Categories, "Seating", "Seating Rows")</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Fuel tank capacity</td>
+                                                <td>@Specs(style.StandardSpecifications.Categories, "Weights and Capacities", "Fuel Tank Capacity") gal</td>
+                                                <td class="fw-bold">Front airbags</td>
+                                                <td>@Stands(style.StandardGenericEquipment.Groups, "Safety and Security", "Airbags", "Front airbags")</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                }
+                            </div>
                         </div>
 
-                        <!-- Pricing -->
+                        <!-- EPA MPG -->
                         <div class="section">
                             <button class="w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
                                     type="button"
                                     data-bs-toggle="collapse"
-                                    data-bs-target="#@prId"
-                                    aria-expanded="false"
-                                    aria-controls="@prId">
+                                    data-bs-target="#@epaId"
+                                    aria-expanded="true"
+                                    aria-controls="@epaId">
 
                                 <span class="d-flex justify-content-center text-shadow">
-                                    Pricing
+                                    <strong>Fuel Efficiency</strong>
                                 </span>
 
                                 <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
@@ -179,15 +219,16 @@
                                     <i class="bi bi-dash-lg icon-minus"></i>
                                 </span>
                             </button>
-                            <div id="@prId" class="collapse mt-2">
-                                @if (style?.Pricing == null) {<div class="muted">No data</div> }
+
+                            <div id="@epaId" class="collapse show mt-2">
+                                @if (style?.EpaFuelEfficiency?.Records == null || !style.EpaFuelEfficiency.Records.Any()) {<div class="muted">No records</div> }
                                 else {
-                                    <table class="table table-sm kv mb-0">
+                                    <table class="table align-middle mb-0">
+                                        <thead><tr><th>Engine</th><th>Trans</th><th>Fuel</th><th>Grade</th><th>City</th><th>Hwy</th><th>Comb</th></tr></thead>
                                         <tbody>
-                                            <tr><td class="fw-bold w-50">MSRP</td><td>@Safe(Money(style.Pricing.Msrp))</td></tr>
-                                            <tr><td class="fw-bold">Invoice</td><td>@Safe(Money(style.Pricing.InvoicePrice))</td></tr>
-                                            <tr><td class="fw-bold">Destination</td><td>@Safe(style.Pricing.DestinationCharge)</td></tr>
-                                            <tr><td class="fw-bold">Gas Guzzler</td><td>@Safe(style.Pricing.GasGuzzlerTax)</td></tr>
+                                            @foreach (var r in style.EpaFuelEfficiency.Records) {
+                                                <tr><td class="text-muted">@Safe(r?.EngineId)</td><td class="text-muted">@Safe(r?.TransmissionId)</td><td>@Safe(r?.FuelType)</td><td>@Safe(r?.FuelGrade)</td><td>@Safe(r?.City)</td><td>@Safe(r?.Highway)</td><td>@Safe(r?.Combined)</td></tr>
+                                            }
                                         </tbody>
                                     </table>
                                 }
@@ -200,11 +241,11 @@
                                     type="button"
                                     data-bs-toggle="collapse"
                                     data-bs-target="#@enId"
-                                    aria-expanded="false"
+                                    aria-expanded="true"
                                     aria-controls="@enId">
 
                                 <span class="d-flex justify-content-center text-shadow">
-                                    Engines
+                                    <strong>Engine @((!string.IsNullOrWhiteSpace(style.Engines.Items[0]?.Name) ? style.Engines.Items[0]?.Name : $"{Model.CurrentVehicle.VehicleDetails.Engine}"))</strong>
                                 </span>
 
                                 <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
@@ -213,75 +254,104 @@
                                 </span>
                             </button>
 
-                            <div id="@enId" class="collapse mt-2">
+                            <div id="@enId" class="collapse show mt-2">
                                 @if (style?.Engines?.Items == null || !style.Engines.Items.Any()) {<div class="muted">No engines</div> }
                                 else {
                                     var ei = 0;
                                     foreach (var e in style.Engines.Items) {
                                         <div class="border rounded p-2 mb-2">
-                                            <div class="fw-semibold">
-                                                @((!string.IsNullOrWhiteSpace(e?.Name) ? e.Name : $"Engine #{ei+1}"))
-                                                @if (!string.IsNullOrWhiteSpace(e?.EngineId)) {<span class="chip ms-2">ID: @e.EngineId</span>}
-                                            </div>
                                             <table class="table table-sm kv mb-0 mt-1">
                                                 <tbody>
-                                                    <!-- Attributes -->
-                                                    <tr><td class="fw-bold w-50">Typr</td><td>@Safe(e.EngineType)</td></tr>
-                                                    <tr><td class="fw-bold">Brand</td><td>@Safe(e.Brand)</td></tr>
-                                                    <tr><td class="fw-bold">Marketing Name</td><td>@Safe(e.MarketingName)</td></tr>
-                                                    <tr><td class="fw-bold">Engine ID</td><td>@Safe(e.EngineId)</td></tr>
-
                                                     <!-- Elements -->
-                                                    <tr><td class="fw-bold">Availability</td><td>@Safe(e.Availability)</td></tr>
-                                                    <tr><td class="fw-bold">ICE Aspiration</td><td>@Safe(e.IceAspiration)</td></tr>
-                                                    <tr><td class="fw-bold">ICE Block Type</td><td>@Safe(e.IceBlockType)</td></tr>
-                                                    <tr><td class="fw-bold">ICE Bore</td><td>@Safe(e.IceBore)</td></tr>
-                                                    <tr><td class="fw-bold">ICE Cam Type</td><td>@Safe(e.IceCamType)</td></tr>
-                                                    <tr><td class="fw-bold">ICE Compression</td><td>@Safe(e.IceCompression)</td></tr>
-                                                    <tr><td class="fw-bold">ICE Cylinders</td><td>@Safe(e.IceCylinders)</td></tr>
-                                                    <tr><td class="fw-bold">ICE Displacement</td><td>@Safe(e.IceDisplacement)</td></tr>
+                                                    <tr>
+                                                        <td class="fw-bold w-25">Aspiration</td>
+                                                        <td class="w-25">@Safe(e.IceAspiration)</td>
+                                                        <td class="fw-bold w-25">Block Type</td>
+                                                        <td class="w-25">@Safe(e.IceBlockType)</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-bold">Cam Type</td>
+                                                        <td>@Safe(e.IceCamType)</td>
+                                                        <td class="fw-bold">Fuel Type</td>
+                                                        <td>@Safe(e.FuelType)</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-bold">Compression</td>
+                                                        <td>@Safe(e.IceCompression)</td>
+                                                        <td class="fw-bold">Cylinders</td>
+                                                        <td>@Safe(e.IceCylinders)</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-bold">Displacement</td>
+                                                        <td>@Safe(e.IceDisplacement)</td>
+                                                        <td class="fw-bold">Type</td>
+                                                        <td>@Safe(e.EngineType)</td>
+                                                    </tr>
+                                                    @if (e.ElectricMaxHp != "0") {
+                                                        <tr>
+                                                            <td class="fw-bold">Electric Max HP</td>
+                                                            <td>@Safe(e.ElectricMaxHp)</td>
+                                                            <td class="fw-bold">Electric Max kW</td>
+                                                            <td>@Safe(e.ElectricMaxKw)</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="fw-bold">Electric Motor Configuration</td>
+                                                            <td>@Safe(e.ElectricMotorConfiguration)</td>
+                                                            <td class="fw-bold">Electric Max Torque</td>
+                                                            <td>@Safe(e.ElectricMaxTorque)</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="fw-bold">Generator Description</td>
+                                                            <td>@Safe(e.GeneratorDescription)</td>
+                                                            <td class="fw-bold">Generator Max HP</td>
+                                                            <td>@Safe(e.GeneratorMaxHp)</td>
+                                                        </tr>
+                                                    }
+                                                    <tr>
+                                                        <td class="fw-bold">Fuel Induction</td>
+                                                        <td>@Safe(e.IceFuelInduction)</td>
+                                                        <td class="fw-bold">Fuel Quality</td>
+                                                        <td>@Safe(e.FuelQuality)</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-bold">Max HP</td>
+                                                        <td>@Safe(e.IceMaxHp)</td>
+                                                        <td class="fw-bold">Max HP @@</td>
+                                                        <td>@Safe(e.IceMaxHpAt)</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-bold">Max Torque</td>
+                                                        <td>@Safe(e.IceMaxTorque)</td>
+                                                        <td class="fw-bold">Max Torque @@</td>
+                                                        <td>@Safe(e.IceMaxTorqueAt)</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-bold">Oil Capacity</td>
+                                                        <td>@Safe(e.OilCapacity)</td>
+                                                        <td class="fw-bold">Stroke</td>
+                                                        <td>@Safe(e.IceStroke)</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-bold">Total Max HP</td>
+                                                        <td>@Safe(e.TotalMaxHp)</td>
+                                                        <td class="fw-bold">Total Max HP @@</td>
+                                                        <td>@Safe(e.TotalMaxHpAt)</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-bold">Total Max Torque</td>
+                                                        <td>@Safe(e.TotalMaxTorque)</td>
+                                                        <td class="fw-bold">Total Max Torque @@</td>
+                                                        <td>@Safe(e.TotalMaxTorqueAt)</td>
 
-                                                    <tr><td class="fw-bold">Electric Motor Configuration</td><td>@Safe(e.ElectricMotorConfiguration)</td></tr>
-                                                    <tr><td class="fw-bold">Electric Max HP</td><td>@Safe(e.ElectricMaxHp)</td></tr>
-                                                    <tr><td class="fw-bold">Electric Max kW</td><td>@Safe(e.ElectricMaxKw)</td></tr>
-                                                    <tr><td class="fw-bold">Electric Max Torque</td><td>@Safe(e.ElectricMaxTorque)</td></tr>
-
-                                                    <tr><td class="fw-bold">Engine Type</td><td>@Safe(e.EngineType)</td></tr>
-                                                    <tr><td class="fw-bold">ICE Fuel Induction</td><td>@Safe(e.IceFuelInduction)</td></tr>
-                                                    <tr><td class="fw-bold">Fuel Quality</td><td>@Safe(e.FuelQuality)</td></tr>
-                                                    <tr><td class="fw-bold">Fuel Type</td><td>@Safe(e.FuelType)</td></tr>
-                                                    <tr><td class="fw-bold">Fleet</td><td>@Safe(e.Fleet)</td></tr>
-
-                                                    <tr><td class="fw-bold">Generator Description</td><td>@Safe(e.GeneratorDescription)</td></tr>
-                                                    <tr><td class="fw-bold">Generator Max HP</td><td>@Safe(e.GeneratorMaxHp)</td></tr>
-
-                                                    <tr><td class="fw-bold">Invoice Price</td><td>@Safe(e.InvoicePrice)</td></tr>
-
-                                                    <tr><td class="fw-bold">ICE Max HP</td><td>@Safe(e.IceMaxHp)</td></tr>
-                                                    <tr><td class="fw-bold">ICE Max HP @@</td><td>@Safe(e.IceMaxHpAt)</td></tr>
-
-                                                    <tr><td class="fw-bold">Max Payload</td><td>@Safe(e.MaxPayload)</td></tr>
-
-                                                    <tr><td class="fw-bold">ICE Max Torque</td><td>@Safe(e.IceMaxTorque)</td></tr>
-                                                    <tr><td class="fw-bold">ICE Max Torque @@</td><td>@Safe(e.IceMaxTorqueAt)</td></tr>
-
-                                                    <tr><td class="fw-bold">MSRP</td><td>@Safe(e.Msrp)</td></tr>
-                                                    <tr><td class="fw-bold">Oil Capacity</td><td>@Safe(e.OilCapacity)</td></tr>
-                                                    <tr><td class="fw-bold">Order Code</td><td>@Safe(e.OrderCode)</td></tr>
-                                                    <tr><td class="fw-bold">Redline</td><td>@Safe(e.Redline)</td></tr>
-
-                                                    <tr><td class="fw-bold">ICE Stroke</td><td>@Safe(e.IceStroke)</td></tr>
-
-                                                    <tr><td class="fw-bold">Total Max HP</td><td>@Safe(e.TotalMaxHp)</td></tr>
-                                                    <tr><td class="fw-bold">Total Max HP @@</td><td>@Safe(e.TotalMaxHpAt)</td></tr>
-                                                    <tr><td class="fw-bold">Total Max Torque</td><td>@Safe(e.TotalMaxTorque)</td></tr>
-                                                    <tr><td class="fw-bold">Total Max Torque @@</td><td>@Safe(e.TotalMaxTorqueAt)</td></tr>
-
-                                                    <tr><td class="fw-bold">ICE Valve Timing</td><td>@Safe(e.IceValveTiming)</td></tr>
-                                                    <tr><td class="fw-bold">ICE Valves</td><td>@Safe(e.IceValves)</td></tr>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-bold">Valve Timing</td>
+                                                        <td>@Safe(e.IceValveTiming)</td>
+                                                        <td class="fw-bold">Valves</td>
+                                                        <td>@Safe(e.IceValves)</td>
+                                                    </tr>
                                                 </tbody>
                                             </table>
-
                                         </div>
                                         ei++;
                                     }
@@ -299,7 +369,7 @@
                                     aria-controls="@trId">
 
                                 <span class="d-flex justify-content-center text-shadow">
-                                    Transmissions
+                                    <strong>Transmission @((!string.IsNullOrWhiteSpace(style.Transmissions.Items[0]?.Name) ? style.Transmissions.Items[0]?.Name : $"{Model.CurrentVehicle.VehicleDetails.Transmission}"))</strong>
                                 </span>
 
                                 <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
@@ -314,27 +384,21 @@
                                     var ti = 0;
                                     foreach (var t in style.Transmissions.Items) {
                                         <div class="border rounded p-2 mb-2">
-                                            <div class="fw-semibold">
-                                                @((!string.IsNullOrWhiteSpace(t?.Name) ? t.Name : $"Transmission #{ti+1}"))
-                                                @if (!string.IsNullOrWhiteSpace(t?.TransmissionId)) {<span class="chip ms-2">ID: @t.TransmissionId</span>}
-                                            </div>
                                             <table class="table table-sm kv mb-0 mt-1">
                                                 <tbody>
-                                                    <!-- Attributes -->
-                                                    <tr><td class="fw-bold w-50">Name</td><td>@Safe(t.Name)</td></tr>
-                                                    <tr><td class="fw-bold">Brand</td><td>@Safe(t.Brand)</td></tr>
-                                                    <tr><td class="fw-bold">Marketing Name</td><td>@Safe(t.MarketingName)</td></tr>
-                                                    <tr><td class="fw-bold">Transmission ID</td><td>@Safe(t.TransmissionId)</td></tr>
-
                                                     <!-- Elements -->
-                                                    <tr><td class="fw-bold">Availability</td><td>@Safe(t.Availability)</td></tr>
-                                                    <tr><td class="fw-bold">Type</td><td>@Safe(t.Type)</td></tr>
-                                                    <tr><td class="fw-bold">Detail Type</td><td>@Safe(t.DetailType)</td></tr>
-                                                    <tr><td class="fw-bold">Gears</td><td>@Safe(t.Gears)</td></tr>
-                                                    <tr><td class="fw-bold">Order Code</td><td>@Safe(t.OrderCode)</td></tr>
-                                                    <tr><td class="fw-bold">MSRP</td><td>@Safe(t.Msrp)</td></tr>
-                                                    <tr><td class="fw-bold">Invoice Price</td><td>@Safe(t.InvoicePrice)</td></tr>
-                                                    <tr><td class="fw-bold">Fleet</td><td>@Safe(t.Fleet)</td></tr>
+                                                    <tr>
+                                                        <td class="fw-bold w-25">Type</td>
+                                                        <td class=" w-25">@Safe(t.Type)</td>
+                                                        <td class="fw-bold w-25">Detail Type</td>
+                                                        <td class=" w-25">@Safe(t.DetailType)</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-bold">Gears</td>
+                                                        <td>@Safe(t.Gears)</td>
+                                                        <td class="fw-bold">Order Code</td>
+                                                        <td>@Safe(t.OrderCode)</td>
+                                                    </tr>
                                                 </tbody>
                                             </table>
                                         </div>
@@ -376,10 +440,10 @@
                                                 @if (cat?.Values == null || !cat.Values.Any()) {<div class="muted">No values</div> }
                                                 else {
                                                     <table class="table align-middle mb-0">
-                                                        <thead><tr><th style="width:35%">Name</th><th style="width:20%">ID</th><th>Value</th></tr></thead>
+                                                        <thead><tr><th style="width:35%">Name</th><th>Value</th></tr></thead>
                                                         <tbody>
                                                             @foreach (var v in cat.Values) {
-                                                                <tr><td class="fw-bold">@Safe(v?.Name)</td><td class="text-muted">@Safe(v?.Id)</td><td><code>@Safe(v?.Value)</code></td></tr>
+                                                                <tr><td class="fw-bold">@Safe(v?.Name)</td><td><code>@Safe(v?.Value)</code></td></tr>
                                                             }
                                                         </tbody>
                                                     </table>
@@ -501,17 +565,17 @@
                             </div>
                         </div>
 
-                        <!-- Warranties -->
+                        <!-- Pricing -->
                         <div class="section">
                             <button class="w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
                                     type="button"
                                     data-bs-toggle="collapse"
-                                    data-bs-target="#@wId"
+                                    data-bs-target="#@prId"
                                     aria-expanded="false"
-                                    aria-controls="@wId">
+                                    aria-controls="@prId">
 
                                 <span class="d-flex justify-content-center text-shadow">
-                                    Warranties
+                                    Pricing
                                 </span>
 
                                 <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
@@ -519,135 +583,17 @@
                                     <i class="bi bi-dash-lg icon-minus"></i>
                                 </span>
                             </button>
-                            <div id="@wId" class="collapse mt-2">
-                                @if (style?.Warranties?.Items == null || !style.Warranties.Items.Any()) {<div class="muted">No warranties</div> }
+                            <div id="@prId" class="collapse mt-2">
+                                @if (style?.Pricing == null) {<div class="muted">No data</div> }
                                 else {
-                                    <table class="table align-middle mb-0">
-                                        <thead><tr><th>Name</th><th>Type</th><th>Months</th><th>Miles</th></tr></thead>
+                                    <table class="table table-sm kv mb-0">
                                         <tbody>
-                                            @foreach (var w in style.Warranties.Items) {
-                                                <tr><td>@Safe(w?.Name)</td><td>@Safe(w?.Type)</td><td>@Safe(w?.Months)</td><td>@Safe(w?.Miles)</td></tr>
-                                            }
+                                            <tr><td class="fw-bold w-50">MSRP</td><td>@Safe(Money(style.Pricing.Msrp))</td></tr>
+                                            <tr><td class="fw-bold">Invoice</td><td>@Safe(Money(style.Pricing.InvoicePrice))</td></tr>
+                                            <tr><td class="fw-bold">Destination</td><td>@Safe(style.Pricing.DestinationCharge)</td></tr>
+                                            <tr><td class="fw-bold">Gas Guzzler</td><td>@Safe(style.Pricing.GasGuzzlerTax)</td></tr>
                                         </tbody>
                                     </table>
-                                }
-                            </div>
-                        </div>
-
-                        <!-- EPA MPG -->
-                        <div class="section">
-                            <button class="w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
-                                    type="button"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target="#@epaId"
-                                    aria-expanded="false"
-                                    aria-controls="@epaId">
-
-                                <span class="d-flex justify-content-center text-shadow">
-                                    EPA Fuel Efficiency
-                                </span>
-
-                                <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
-                                    <i class="bi bi-plus-lg icon-plus"></i>
-                                    <i class="bi bi-dash-lg icon-minus"></i>
-                                </span>
-                            </button>
-
-                            <div id="@epaId" class="collapse mt-2">
-                                @if (style?.EpaFuelEfficiency?.Records == null || !style.EpaFuelEfficiency.Records.Any()) {<div class="muted">No records</div> }
-                                else {
-                                    <table class="table align-middle mb-0">
-                                        <thead><tr><th>Engine</th><th>Trans</th><th>Fuel</th><th>Grade</th><th>City</th><th>Hwy</th><th>Comb</th></tr></thead>
-                                        <tbody>
-                                            @foreach (var r in style.EpaFuelEfficiency.Records) {
-                                                <tr><td class="text-muted">@Safe(r?.EngineId)</td><td class="text-muted">@Safe(r?.TransmissionId)</td><td>@Safe(r?.FuelType)</td><td>@Safe(r?.FuelGrade)</td><td>@Safe(r?.City)</td><td>@Safe(r?.Highway)</td><td>@Safe(r?.Combined)</td></tr>
-                                            }
-                                        </tbody>
-                                    </table>
-                                }
-                            </div>
-                        </div>
-
-                        <!-- EPA Green -->
-                        <div class="section">
-                            <button class="w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
-                                    type="button"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target="#@greenId"
-                                    aria-expanded="false"
-                                    aria-controls="@greenId">
-
-                                <span class="d-flex justify-content-center text-shadow">
-                                    EPA Green Scores
-                                </span>
-
-                                <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
-                                    <i class="bi bi-plus-lg icon-plus"></i>
-                                    <i class="bi bi-dash-lg icon-minus"></i>
-                                </span>
-                            </button>
-
-                            <div id="@greenId" class="collapse mt-2">
-                                @if (style?.EpaGreenScores?.Records == null || !style.EpaGreenScores.Records.Any()) {<div class="muted">No records</div> }
-                                else {
-                                    <table class="table align-middle mb-0">
-                                        <thead><tr><th>Engine</th><th>Trans</th><th>Std</th><th>Air</th><th>GHG</th><th>Smartway</th></tr></thead>
-                                        <tbody>
-                                            @foreach (var r in style.EpaGreenScores.Records) {
-                                                <tr><td class="text-muted">@Safe(r?.EngineId)</td><td class="text-muted">@Safe(r?.TransmissionId)</td><td>@Safe(r?.EmissionsStandard)</td><td>@Safe(r?.AirPollutionScore)</td><td>@Safe(r?.GreenhouseGasScore)</td><td>@Safe(r?.Smartway)</td></tr>
-                                            }
-                                        </tbody>
-                                    </table>
-                                }
-                            </div>
-                        </div>
-
-                        <!-- NHTSA -->
-                        <div class="section">
-                            <button class="w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
-                                    type="button"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target="#@nhtsaId"
-                                    aria-expanded="false"
-                                    aria-controls="@nhtsaId">
-
-                                <span class="d-flex justify-content-center text-shadow">
-                                    NHTSA Crash Test Ratings
-                                </span>
-
-                                <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
-                                    <i class="bi bi-plus-lg icon-plus"></i>
-                                    <i class="bi bi-dash-lg icon-minus"></i>
-                                </span>
-                            </button>
-                            <div id="@nhtsaId" class="collapse mt-2">
-                                @if (style?.NhtsaCrashTestRatings == null) {<div class="muted">No ratings</div> }
-                                else {
-                                    var n = style.NhtsaCrashTestRatings;
-                                    <div class="row g-2">
-                                        <div class="col-12 col-lg-6">
-                                            <table class="table kv mb-0">
-                                                <tbody>
-                                                    <tr><td class="fw-bold w-25">Overall</td><td>@Safe(n.OverallStars)</td></tr>
-                                                    <tr><td class="fw-bold">Front Overall</td><td>@Safe(n.FrontCrashOverallStars)</td></tr>
-                                                    <tr><td class="fw-bold">Front Driver</td><td>@Safe(n.FrontCrashDriverStars)</td></tr>
-                                                    <tr><td class="fw-bold">Front Passenger</td><td>@Safe(n.FrontCrashPassengerStars)</td></tr>
-                                                    <tr><td class="fw-bold">Side Overall</td><td>@Safe(n.SideCrashOverallStars)</td></tr>
-                                                    <tr><td class="fw-bold">Rollover</td><td>@Safe(n.RolloverStars)</td></tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        <div class="col-12 col-lg-6">
-                                            <table class="table kv mb-0">
-                                                <tbody>
-                                                    <tr><td class="fw-bold w-25">Side Barrier Overall</td><td>@Safe(n.SideBarrierOverallStars)</td></tr>
-                                                    <tr><td class="fw-bold">Side Barrier Driver</td><td>@Safe(n.SideBarrierDriverStars)</td></tr>
-                                                    <tr><td class="fw-bold">Side Barrier Passenger</td><td>@Safe(n.SideBarrierPassengerStars)</td></tr>
-                                                    <tr><td class="fw-bold">Side Pole Driver</td><td>@Safe(n.SidePoleDriverStars)</td></tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
                                 }
                             </div>
                         </div>

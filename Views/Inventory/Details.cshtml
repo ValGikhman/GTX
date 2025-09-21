@@ -29,14 +29,6 @@
             margin-top: 1vh;
         }
     }
-
-@*    .page-title {
-        background: linear-gradient(180deg, rgb(255 255 255), #AAAAB3);
-    }
-
-    .fancy {
-        color: black !important;
-    }*@
 </style>
 
 <head>
@@ -63,8 +55,23 @@
     <!-- ASSETS -->
     <script src="~/Scripts/AlloyFinger/alloy_finger.min.js" type="text/javascript"></script>
 </head>
-<div class="details-container d-flex flex-column flex-lg-row justify-content-center p-3 gap-5">
-    <div class="col-lg-6 col-md-8 col-sm-12">
+<!-- Modal -->
+<div id="dynamicModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div id="header" class="modal-header shadow">
+                <h5 id="titleModal" class="modal-title test-shadow">Contact</h5>
+            </div>
+            <div id="messageBody" class="modal-body well">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-close-white shadow" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i>Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="details-container d-flex flex-column flex-lg-row justify-content-center gap-5 mt-5">
+    <div class="col-lg-9 col-md-4 col-sm-12">
         <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
                 <button class="nav-item active btn btn-gradient-grey border-dark text-shadow-small" id="nav-details-tab" data-bs-toggle="tab" data-bs-target="#nav-details" type="button" role="tab" aria-controls="nav-details" aria-selected="true"><i class="bi bi-car-front"></i>&nbsp; Details</button>
@@ -272,53 +279,30 @@
         </div>
     </div>
 
-    <div class="col-lg-5 col-md-8 col-sm-12 pt-1">
+    <div class="col-lg-2 col-md-4 col-sm-12 pt-4 mt-3">
         @*Test drive*@
-        <div class="row justify-content-center well mb-3">
-            <button class="w-100 btn btn-gradient position-relative collapse-toggle"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#contactus"
-                    aria-expanded="true"
-                    aria-controls="contactus">
-                <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
-                    <i class="bi bi-calendar3 mx-2"></i>Schedule test drive
-                </h5>
+        <button class="w-100 btn btn-gradient mb-3"
+                type="button"
+                id="btnContactForm"
+                data-url="Inventory/ContactModal" 
+                data-title="Schedule test drive">
 
-                <!-- right-side +/–, stays out of the flow so the H5 can center -->
-                <span class="toggle-icons position-absolute end-0 top-50 translate-middle-y pe-3" aria-hidden="true">
-                    <i class="bi bi-plus-lg icon-plus"></i>
-                    <i class="bi bi-dash-lg icon-minus"></i>
-                </span>
-            </button>
-
-            <div class="collapse text-shadow-small rounded shadow px-5 show" id="contactus">
-                @{ Html.RenderPartial("_ContactForm", new GTX.Models.ContactModel()); }
-            </div>
-        </div>
+            <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
+                <i class="bi bi-calendar3 mx-2"></i>Schedule test drive
+            </h5>
+        </button>
 
         @*Loan app*@
-        <div class="row justify-content-center well mb-3">
-            <button class="w-100 btn btn-gradient position-relative collapse-toggle"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#application"
-                    aria-expanded="false"
-                    aria-controls="application">
-                <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
-                    <i class="bi bi-currency-dollar mx-2"></i>Loan application
-                </h5>
+        <button class="w-100 btn btn-gradient mb-3"
+                type="button"
+                id="btnLoanApplication"
+                data-url="Inventory/ApplicationModal" 
+                data-title="Loan Application">
 
-                <!-- right-side +/–, stays out of the flow so the H5 can center -->
-                <span class="toggle-icons position-absolute end-0 top-50 translate-middle-y pe-3" aria-hidden="true">
-                    <i class="bi bi-plus-lg icon-plus"></i>
-                    <i class="bi bi-dash-lg icon-minus"></i>
-                </span>
+            <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
+                <i class="bi bi-currency-dollar mx-2"></i>Loan application
+            </h5>
             </button>
-
-            <div class="collapse text-shadow-small rounded shadow mt-2" id="application">
-                <iframe src="https://www.700dealer.com/QuickQualify/43783416bf5141ff8b8d1a40387ee700-20181212" width="100%" height="385px" scrolling="auto"></iframe>
-            </div>        </div>
     </div>
 </div>
 @*May Like*@
@@ -357,34 +341,39 @@
 </div>
 
 <script type="text/javascript">
+    $("#shorts").removeClass("d-xl-flex d-md-flex d-sm-flex"); // removing it hides the shortcuts
+
     var stock = "@Model.CurrentVehicle.VehicleDetails.Stock";
     var make = "@Model.CurrentVehicle.VehicleDetails.Make.Replace(' ', '-')";
     var vehicle = "@ViewBag.Title";
     var makeImg = `/GTXImages/makes/${make}.png`;
-    var title = `<img src="${makeImg}" alt="${make} logo" class="img-fluid gradient mx-3 rounded-5 px-2 shadow" style="height: 30px;">@ViewBag.Title`;
+    var title = `
+            <img src="${makeImg}" alt="${make} logo" class="img-fluid gradient mx-3 rounded-5 px-2 shadow" style="height: 30px;">@ViewBag.Title</image>
+            <button class="mx-3 btn btn-gradient-grey border-black shadow rounded-4 text-dark"><strong>@ViewBag.Price</strong></button>
+    `;
     let startX = 0;
     let scrollLeft = 0;
     const scrollContainer = document.getElementById('suggestionScroll');
-
-
     const request = `Subject: Test Drive Request — ${vehicle}\n\nDear GTX Crew!\nI have an unbearable interest in test driving this ${vehicle} [${stock}].`;
     const schedule = `I will be extremely happy to schedule the test drive for:`;
 
-    if (scrollContainer) {
-        scrollContainer.addEventListener('touchstart', (e) => {
-            startX = e.touches[0].pageX - scrollContainer.offsetLeft;
-            scrollLeft = scrollContainer.scrollLeft;
-        });
-
-        scrollContainer.addEventListener('touchmove', (e) => {
-            e.preventDefault();  // Optional: Prevent vertical scrolling
-            const x = e.touches[0].pageX - scrollContainer.offsetLeft;
-            const walk = (startX - x);
-            scrollContainer.scrollLeft = scrollLeft + walk;
-        }, { passive: false });
-    }
-
     $(function () {
+        $("#btnLoanApplication, #btnContactForm").on("click", function () {
+            var url = `${$(this).data("url")}`;
+            var title = `${$(this).data("title")}`;
+
+            $.get(`${root}${url}`)
+                .done(function (result) {
+                    $("#messageBody").html(result);
+                    $("#titleModal").html(`${title}`);
+                    $("#dynamicModal").modal("show");
+                })
+                .fail(function () {
+                })
+                .always(function () {
+                })
+            });
+
         $("#Comment").val(request);
         $(".fancy").html(title);
 

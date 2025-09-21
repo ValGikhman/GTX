@@ -13,7 +13,7 @@
         var words = input.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries)
                          .Select(w => char.ToUpperInvariant(w[0]) + w.Substring(1).ToLower());
         return string.Concat(words);
-}
+    }
 }
 
 @if (Model?.Groups == null || !Model.Groups.Any()) {
