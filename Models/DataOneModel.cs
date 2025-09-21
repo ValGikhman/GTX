@@ -341,6 +341,8 @@ namespace GTX.Models {
         public ExteriorColors Exterior { get; set; }
         [XmlElement("interior_colors")]
         public InteriorColors Interior { get; set; }
+
+        [XmlIgnore]
         [XmlElement("roof_colors")]
         public string RoofColors { get; set; } // empty in sample
     }
