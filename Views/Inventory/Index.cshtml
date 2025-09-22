@@ -23,6 +23,7 @@
 <script type="text/javascript">
     $(function () {
         $(window).on('pageshow', function (event) {
+            loadLastCars();
             loadLikedCars();
             refreshCarLikes();
         });
