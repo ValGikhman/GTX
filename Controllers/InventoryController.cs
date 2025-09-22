@@ -215,6 +215,10 @@ namespace GTX.Controllers {
         public JsonResult ApplyFilter(Filters model) {
             Log($"Applying filter: {SerializeModel(model)}");
 
+            if (model.Transmissions != null) {
+                model.Transmissions = model.Transmissions.Select(word => word.Substring(0, 1).ToUpper()).ToArray();
+            }
+
             var filteredVehicles = ApplyFilters(model);
 
             Model.CurrentFilter = model;
@@ -298,6 +302,28 @@ namespace GTX.Controllers {
                 }
                 else {
                     return Json(SessionData?.Filters?.Engines, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception ex) {
+                base.Log(ex);
+            }
+            finally {
+            }
+            return null;
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public JsonResult GetTransmissions(string makes) {
+            try {
+                if (!string.IsNullOrEmpty(makes)) {
+                    string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
+                    var rs = SessionData?.Inventory.All?.Where(m => request.Contains(m.Make));
+
+                    return Json(rs.Select(m => WordIt(m.Transmission)).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
+                }
+                else {
+                    return Json(SessionData?.Filters?.Transmissions, JsonRequestBehavior.AllowGet);
                 }
             }
             catch (Exception ex) {
@@ -465,6 +491,10 @@ namespace GTX.Controllers {
                 query = query.Where(m => filter.Engines.Contains(m.Engine)).Distinct().ToArray();
             }
 
+            if (query.Any() && filter.Transmissions != null) {
+                query = query.Where(m => filter.Transmissions.Contains(m.Transmission)).Distinct().ToArray();
+            }
+
             if (query.Any() && filter.DriveTrains != null) {
                 query = query.Where(m => filter.DriveTrains.Contains(m.DriveTrain)).Distinct().ToArray();
             }
@@ -522,6 +552,5 @@ namespace GTX.Controllers {
                 return ("PARSE", "Invalid XML from decoder");
             }
         }
-
     }
 }

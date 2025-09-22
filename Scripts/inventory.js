@@ -38,6 +38,7 @@ function applyFilterTerm(term) {
         const model = $(vehicle).data("model") || "";
         const style = $(vehicle).data("style") || "";
         const type = $(vehicle).data("type") || "";
+        const transmission = $(vehicle).data("transmission") || "";
         const year = $(vehicle).data("year") || "";
         const color = $(vehicle).data("color") || "";
         const color2 = $(vehicle).data("color2") || "";
@@ -64,7 +65,7 @@ function applyFilterTerm(term) {
         else {
             // Normal search
             $("#filterTerm").removeClass("text-info").removeClass("border-info");
-            combined = `${stock} ${vin} ${make} ${model} ${style} ${type} ${year} ${color} ${color2}`;
+            combined = `${stock} ${vin} ${make} ${model} ${style} ${type} ${transmission} ${year} ${color} ${color2}`;
         }
 
         if (combined.includes(filter)) {

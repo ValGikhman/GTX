@@ -151,7 +151,7 @@ namespace GTX.Controllers {
 
         [HttpGet]
         public JsonResult GetUpdatedItems() {
-            Model.Inventory.Vehicles = ApplyImagesAndStories(Model.Inventory.Vehicles);
+            Model.Inventory.Vehicles = ApplyExtended(Model.Inventory.Vehicles);
             return Json(Model.Inventory.Vehicles, JsonRequestBehavior.AllowGet);
         }
 
@@ -327,7 +327,7 @@ namespace GTX.Controllers {
                 }
 
                 InventoryService.DeleteImages(stock);
-                Model.Inventory.Vehicles = ApplyImagesAndStories(Model.Inventory.Vehicles);
+                Model.Inventory.Vehicles = ApplyExtended(Model.Inventory.Vehicles);
                 return Json(new { success = true, message = "All files deleted successfully." });
             }
 
