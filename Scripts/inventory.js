@@ -101,6 +101,25 @@ function applyFilterLiked() {
     });
 }
 
+function applyFilterLast() {
+    updateFilterLast();
+    const items = document.querySelectorAll("#inventory > li");
+    items.forEach(item => {
+        if ($("#filterLast").hasClass("bi-journal-album")) {
+            const stock = $(item).data("stock") || "";
+            if (isCarLast(stock)) {
+                item.style.display = "";
+            }
+            else {
+                item.style.display = "none";
+            }
+        }
+        else {
+            item.style.display = "";
+        }
+    });
+}
+
 function getInterestRate(creditScore) {
     if (creditScore >= 750) return 5.0;
     if (creditScore >= 700) return 6.5;

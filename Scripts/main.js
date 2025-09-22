@@ -78,6 +78,10 @@
         applyFilterLiked();
     });
 
+    $("#filterLast").on("click", function () {
+        applyFilterLast();
+    });
+
 
     const placeholders = ['Click here to search... ','Then type something to search inventory like bmw', 'toyota', 'tes for tesla', 'civi for civics', 'or year like 2015'];
     let currentText = '';
@@ -116,12 +120,12 @@
 
 
 function loadLikedCars() {
-    var cookieValue = Cookies.get(cookieName);
+    var cookieValue = Cookies.get(cookieLike);
     likedCars = cookieValue ? cookieValue.split(',') : [];
 }
 
 function saveLikedCars() {
-    Cookies.set(cookieName, likedCars.join(','), { expires: 21 });
+    Cookies.set(cookieLike, likedCars.join(','), { expires: 30 });
 }
 
 function isCarLiked(stock) {
@@ -141,6 +145,27 @@ function updateFilterLiked() {
         $("#filterLiked").removeClass("bi-heart").addClass("bi-heart-fill").show();
     } else {
         $("#filterLiked").removeClass("bi-heart-fill").addClass("bi-heart").show();
+    }
+}
+
+function loadLastCars() {
+    var cookieValue = Cookies.get(cookieLast);
+    lastCars = cookieValue ? cookieValue.split(',') : [];
+}
+
+function saveLastCars() {
+    Cookies.set(cookieLast, lastCars.join(','), { expires: 30 });
+}
+
+function isCarLast(stock) {
+    return lastCars.includes(stock);
+}
+
+function updateFilterLast() {
+    if ($("#filterLast").hasClass("bi-journal")) {
+        $("#filterLast").removeClass("bi-journal").addClass("bi-journal-album").show();
+    } else {
+        $("#filterLast").removeClass("bi-journal-album").addClass("bi-journal").show();
     }
 }
 

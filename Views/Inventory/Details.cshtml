@@ -358,6 +358,8 @@
     const schedule = `I will be extremely happy to schedule the test drive for:`;
 
     $(function () {
+        updateLastCars(stock);
+
         $("#btnLoanApplication, #btnContactForm").on("click", function () {
             var url = `${$(this).data("url")}`;
             var title = `${$(this).data("title")}`;
@@ -462,6 +464,15 @@
         container.scrollBy({ left: amount, behavior: 'smooth' });
     }
 
+    function updateLastCars(stock) {
+        if (!isCarLast(stock)) {
+            lastCars.unshift(stock);
+            if (lastCars.length > 5) {
+                lastCars.pop();         // remove last element if too long
+            }
+            saveLastCars();
+        }
+    }
 </script>
 
 
