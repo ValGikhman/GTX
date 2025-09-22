@@ -64,6 +64,15 @@
             $("#allEngines").prop({ checked: setValue, disabled: setValue });
         });
 
+        $("#transmissions").chosen({
+            placeholder_text_multiple: "All transmissions(s)...",
+            no_results_text: "No transmission for search criteria"
+        }).on("change", function () {
+            const selected = $(this).val();
+            const setValue = (selected && selected.length === 0);
+            $("#allTransmissions").prop({ checked: setValue, disabled: setValue });
+        });
+
         $("#fuelTypes").chosen({
             placeholder_text_multiple: "All fuel type(s)...",
             no_results_text: "No fuel type for search criteria"
@@ -133,6 +142,17 @@
             }
         });
 
+        $("#allTransmissions").prop({ disabled: true }).on("change", function () {
+            $(this).prop("disabled", this.checked);
+
+            if (this.checked) {
+                $("#transmissions").chosen({ placeholder_text_multiple: "All transmission(s)..." }).val([]).trigger('chosen:updated');
+            }
+            else {
+                $("#transmissions").chosen({ placeholder_text_multiple: "Click to select transmission(s)..." }).trigger('chosen:updated');;
+            }
+        });
+
         $("#allDrives").prop({ disabled: true }).on("change", function () {
             $(this).prop("disabled", this.checked);
 
@@ -188,6 +208,7 @@
                 Makes: $("#makes").val(),
                 Models: $("#models").val(),
                 Engines: $("#engines").val(),
+                Transmissions: $("#transmissions").val(),
                 FuelTypes: $("#fuelTypes").val(),
                 VehicleTypes: $("#vehicleTypes").val(),
                 DriveTrains: $("#drives").val(),
@@ -245,6 +266,20 @@
                     $("#engines").append(new Option(opt));
                 })
                 $("#engines").trigger("chosen:updated");
+            })
+            .fail(function (xhr, status, error) {
+                hideSpinner($("#filterOverlay"));
+                console.error("Error applying term:", error);
+            });
+    }
+
+    getTransmissions = function (makes) {
+        $.get(`${root}Inventory/GetTransmissions`, { "makes": JSON.stringify(makes) })
+            .done(function (result) {
+                result.forEach(function (opt) {
+                    $("#transmissions").append(new Option(opt));
+                })
+                $("#transmissions").trigger("chosen:updated");
             })
             .fail(function (xhr, status, error) {
                 hideSpinner($("#filterOverlay"));
@@ -417,6 +452,8 @@
         clearData();
         getModels(selected);
         getEngines(selected);
+        getTransmissions(selected);
+        
         getFuelTypes(selected);
         getPriceRange(selected);
         getDrives(selected);
@@ -431,6 +468,7 @@
     function clearData() {
         $("#models").val([]).empty().trigger("chosen:updated");
         $("#engines").val([]).empty().trigger("chosen:updated");
+        $("#transmissions").val([]).empty().trigger("chosen:updated");
         $("#fuelTypes").val([]).empty().trigger("chosen:updated");
         $("#vehicleTypes").val([]).empty().trigger("chosen:updated");
         $("#drives").val([]).empty().trigger("chosen:updated");
@@ -439,6 +477,7 @@
 
     function showOthers(disabled) {
         $("#engines").prop({ disabled: disabled }).trigger("chosen:updated");
+        $("#transmissions").prop({ disabled: disabled }).trigger("chosen:updated");
         $("#fuelTypes").prop({ disabled: disabled }).trigger("chosen:updated");
         $("#vehicleTypes").prop({ disabled: disabled }).trigger("chosen:updated");
         $("#drives").prop({ disabled: disabled }).trigger("chosen:updated");

@@ -93,5 +93,7 @@ namespace GTX.Models {
 		public string Image { get; set; }
 
 		public Story Story { get; set; }
+
+		public string TransmissionWord { get; set; }
 	}
 }

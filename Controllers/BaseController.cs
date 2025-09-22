@@ -155,7 +155,7 @@ namespace GTX.Controllers {
                 var emptyArray = Array.Empty<Models.GTX>();
 
                 model.Current = await Utility.XMLHelpers.XmlRepository.GetInventory();
-                model.Current = ApplyImagesAndStories(model.Current);
+                model.Current = ApplyExtended(model.Current);
 
                 model.All = model.Current
                     .Where(m => m.SetToUpload == "Y" && !string.IsNullOrWhiteSpace(m.PurchaseDate))
@@ -244,10 +244,11 @@ namespace GTX.Controllers {
             }
         }
 
-        public Models.GTX[] ApplyImagesAndStories(Models.GTX[] vehicles) {
+        public Models.GTX[] ApplyExtended(Models.GTX[] vehicles) {
             foreach (var vehicle in vehicles) {
                 vehicle.Story = InventoryService.GetStory(vehicle.Stock);
                 vehicle.Images = InventoryService.GetImages(vehicle.Stock);
+                vehicle.TransmissionWord = WordIt(vehicle.Transmission);
 
                 vehicle.Image = $"{imageFolder}no-image-{Version()}.jpg";
                 if (vehicle.Images != null && vehicle.Images.Length > 0) {
@@ -272,6 +273,7 @@ namespace GTX.Controllers {
                     || m.VIN.ToUpper().Contains(term)
                     || m.Year.ToString() == term
                     || m.Make.ToUpper().Contains(term)
+                    || m.TransmissionWord.ToUpper().Contains(term)
                     || m.Model.ToUpper().Contains(term)
                     || m.VehicleStyle.ToUpper().Contains(term))
                 .Distinct().ToArray();
@@ -285,6 +287,35 @@ namespace GTX.Controllers {
             Session.RemoveAll();
             Session.Abandon();
         }
+
+        public static string WordIt(string? transmission) {
+            try {
+                string res = string.Empty;
+                if (transmission != null) {
+                    switch (transmission) {
+                        case "A":
+                            return "Automatic";
+
+                        case "M":
+                            return "Manual";
+
+                        case "T":
+                            return "Transverse";
+
+                        case "C":
+                            return "Continuously variable";
+
+                        default:
+                            return transmission;
+                    }
+                }
+
+                return transmission;
+            }
+            catch {
+                return "N/A";
+            }
+        }
         #endregion Public Methods
 
 
@@ -296,6 +327,7 @@ namespace GTX.Controllers {
                 Makes = all.Select(x => x.Make).Distinct().OrderBy(x => x).ToArray(),
                 Models = all.Select(x => x.Model).Distinct().OrderBy(x => x).ToArray(),
                 Engines = all.Select(x => x.Engine).Distinct().OrderBy(x => x).ToArray(),
+                Transmissions = all.Select(x => WordIt(x.Transmission)).Distinct().OrderBy(x => x).ToArray(),
                 FuelTypes = all.Select(x => x.FuelType).Distinct().OrderBy(x => x).ToArray(),
                 DriveTrains = all.Select(x => x.DriveTrain).Distinct().OrderBy(x => x).ToArray(),
                 BodyTypes = all.Select(x => x.Body).Distinct().OrderBy(x => x).ToArray(),
@@ -311,8 +343,6 @@ namespace GTX.Controllers {
             if (dict.TryGetValue(key, out arr)) return arr;
             return empty;
         }
-
-
         #endregion
     }
 }

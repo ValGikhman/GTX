@@ -57,6 +57,8 @@
 
         public string[] Engines { get; set; }
 
+        public string[] Transmissions { get; set; }
+
         public string[] FuelTypes { get; set; }
 
         public string[] DriveTrains { get; set; }
