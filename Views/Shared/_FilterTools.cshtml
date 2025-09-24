@@ -1,15 +1,15 @@
 ﻿@*Makes*@
-<div class="col-lg-3 col-sm-6 p-2 well" title="Click on dropdown and type to search for a Makes.">
+<div class="col-lg-3 col-sm-6 p-2 well" title="Click on dropdown and type to search for Makes.">
     <small class="form-check form-switch text-dark">
         @Html.CheckBox("allMakes", true, new { @class = "form-check-input", id = "allMakes" })
         @Html.Label("AllMakes", "All makes(s)", new { @class = "form-check-label text-shadow", @for = "allMakes" })
     </small>
     <select multiple class="chosen-select shadow w-25" id="makes" tabindex="1">
-    </select>
+   </select>
 </div>
 
 @*Models*@
-<div class="col-lg-3 col-sm-6 p-2 well" title="Click on dropdown and type to search for a Models.">
+<div class="col-lg-3 col-sm-6 p-2 well" title="Click on dropdown and type to search for Models.">
     <small class="form-check form-switch text-dark">
         @Html.CheckBox("allModels", true, new { @class = "form-check-input", id = "allModels", disabled = "true" })
         @Html.Label("AllModels", "All models(s)", new { @class = "form-check-label text-shadow", @for = "allModels" })
@@ -19,7 +19,7 @@
 </div>
 
 @*Drive*@
-<div class="col-lg-3 col-sm-6 p-2 well" title="Click on dropdown and type to search for a Drive Trains.">
+<div class="col-lg-3 col-sm-6 p-2 well" title="Click on dropdown and type to search for Drive Trains.">
     <small class="form-check form-switch text-dark">
         @Html.CheckBox("allDrives", true, new { @class = "form-check-input", id = "allDrives", disabled = "true" })
         @Html.Label("AllDrives", "All drive train(s)", new { @class = "form-check-label text-shadow", @for = "allDrives" })
@@ -29,7 +29,7 @@
 </div>
 
 @*Body*@
-<div class="col-lg-3 col-sm-6 p-2 well" title="Click on dropdown and type to search for a Body types.">
+<div class="col-lg-3 col-sm-6 p-2 well" title="Click on dropdown and type to search for Body types.">
     <small class="form-check form-switch text-dark">
         @Html.CheckBox("allBodyTypes", true, new { @class = "form-check-input", id = "allBodyTypes", disabled = "true" })
         @Html.Label("AllBodyTypes", "All body type(s)", new { @class = "form-check-label text-shadow", @for = "allBodyTypes" })
@@ -38,18 +38,18 @@
     </select>
 </div>
 
-@*Engines*@
-<div class="col-lg-3 col-sm-6 p-2 well" title="Click on dropdown and type to search for a Engines.">
+@*Cylinders*@
+<div class="col-lg-3 col-sm-6 p-2 well" title="Click on dropdown and type to search for Cylinders.">
     <small class="form-check form-switch text-dark">
-        @Html.CheckBox("allEngines", true, new { @class = "form-check-input", id = "allEngines" })
-        @Html.Label("AllEngines", "All engines(s)", new { @class = "form-check-label text-shadow", @for = "allEngines" })
+        @Html.CheckBox("allCylinders", true, new { @class = "form-check-input", id = "allCylinders" })
+        @Html.Label("AllCylinders", "All cylinders", new { @class = "form-check-label text-shadow", @for = "allCylinders" })
     </small>
-    <select multiple class="chosen-select shadow w-25" id="engines" tabindex="5">
+    <select multiple class="chosen-select shadow w-25" id="cylinders" tabindex="5">
     </select>
 </div>
 
 @*Transmission*@
-<div class="col-lg-3 col-sm-6 p-2 well" title="Click on dropdown and type to search for a Transmissions.">
+<div class="col-lg-3 col-sm-6 p-2 well" title="Click on dropdown and type to search for Transmissions.">
     <small class="form-check form-switch text-dark">
         @Html.CheckBox("allTransmissions", true, new { @class = "form-check-input", id = "allTransmissions" })
         @Html.Label("AllTransmissions", "All transmission(s)", new { @class = "form-check-label text-shadow", @for = "allTransmissions" })
@@ -59,7 +59,7 @@
 </div>
 
 @*Fuels*@
-<div class="col-lg-3 col-sm-6 p-2 well" title="Click on dropdown and type to search for a Fuels.">
+<div class="col-lg-3 col-sm-6 p-2 well" title="Click on dropdown and type to search for Fuel types.">
     <small class="form-check form-switch text-dark">
         @Html.CheckBox("allFuelTypes", true, new { @class = "form-check-input", id = "allFuelTypes" })
         @Html.Label("AllFuelTypes", "All Fuel types(s)", new { @class = "form-check-label text-shadow", @for = "allFuelTypes" })
@@ -69,7 +69,7 @@
 </div>
 
 @*Vehicle types*@
-<div class="col-lg-3 col-sm-6 p-2 well" title="Click on dropdown and type to search for a Fuels.">
+<div class="col-lg-3 col-sm-6 p-2 well" title="Click on dropdown and type to search for Fuels.">
     <small class="form-check form-switch text-dark">
         @Html.CheckBox("allVehicleTypes", true, new { @class = "form-check-input", id = "allVehicleTypes" })
         @Html.Label("allVehicleTypes", "All vehicle types(s)", new { @class = "form-check-label text-shadow", @for = "allVehicleTypes" })

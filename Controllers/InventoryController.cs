@@ -82,7 +82,7 @@ namespace GTX.Controllers {
             }
             else {
                 var style = Model.CurrentVehicle.VehicleDataOneDetails.QueryResponses.Items[0].UsMarketData.UsStyles.Styles[0].Name.ToUpper();
-                ViewBag.Title = $"{vehicle.Year} - {vehicle.Make} - {vehicle.Model} {style}";
+                ViewBag.Title = $"{vehicle.Year} - {vehicle.Make} - {style}";
             }
             ViewBag.Price = $"{vehicle.RetailPrice.ToString("C")}";
 
@@ -292,16 +292,16 @@ namespace GTX.Controllers {
 
         [HttpGet]
         [AllowAnonymous]
-        public JsonResult GetEngines(string makes) {
+        public JsonResult GetCylinders(string makes) {
             try {
                 if (!string.IsNullOrEmpty(makes)) {
                     string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    var rs = SessionData?.Inventory.All?.Where(m => request.Contains(m.Make));
+                    var rs = SessionData?.Inventory.All?.Where(m => request.Contains(m.Make) && m.Cylinders > 0);
 
-                    return Json(rs.Select(m => m.Engine).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
+                    return Json(rs.Select(m => m.Cylinders).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
                 }
                 else {
-                    return Json(SessionData?.Filters?.Engines, JsonRequestBehavior.AllowGet);
+                    return Json(SessionData?.Filters?.Cylinders, JsonRequestBehavior.AllowGet);
                 }
             }
             catch (Exception ex) {
@@ -487,8 +487,8 @@ namespace GTX.Controllers {
                 query = query.Where(m => filter.Models.Contains(m.Model)).Distinct().ToArray();
             }
 
-            if (query.Any() && filter.Engines != null) {
-                query = query.Where(m => filter.Engines.Contains(m.Engine)).Distinct().ToArray();
+            if (query.Any() && filter.Cylinders != null) {
+                query = query.Where(m => filter.Cylinders.Contains(m.Cylinders.ToString())).Distinct().ToArray();
             }
 
             if (query.Any() && filter.Transmissions != null) {

@@ -55,13 +55,13 @@
             $("#allModels").prop({ checked: setValue, disabled: setValue });
         });
 
-        $("#engines").chosen({
-            placeholder_text_multiple: "All engines(s)...",
-            no_results_text: "No engine for search criteria"
+        $("#cylinders").chosen({
+            placeholder_text_multiple: "All cylinders...",
+            no_results_text: "No cylinders for search criteria"
         }).on("change", function () {
             const selected = $(this).val();
             const setValue = (selected && selected.length === 0);
-            $("#allEngines").prop({ checked: setValue, disabled: setValue });
+            $("#allCylinders").prop({ checked: setValue, disabled: setValue });
         });
 
         $("#transmissions").chosen({
@@ -131,14 +131,14 @@
             }
         });
 
-        $("#allEngines").prop({ disabled: true }).on("change", function () {
+        $("#allCylinders").prop({ disabled: true }).on("change", function () {
             $(this).prop("disabled", this.checked);
 
             if (this.checked) {
-                $("#engines").chosen({ placeholder_text_multiple: "All engine(s)..." }).val([]).trigger('chosen:updated');
+                $("#cylinders").chosen({ placeholder_text_multiple: "All cylinders..." }).val([]).trigger('chosen:updated');
             }
             else {
-                $("#engines").chosen({ placeholder_text_multiple: "Click to select engine(s)..." }).trigger('chosen:updated');;
+                $("#cylinders").chosen({ placeholder_text_multiple: "Click to select cylinders..." }).trigger('chosen:updated');;
             }
         });
 
@@ -207,7 +207,7 @@
             var model = {
                 Makes: $("#makes").val(),
                 Models: $("#models").val(),
-                Engines: $("#engines").val(),
+                Cylinders: $("#cylinders").val(),
                 Transmissions: $("#transmissions").val(),
                 FuelTypes: $("#fuelTypes").val(),
                 VehicleTypes: $("#vehicleTypes").val(),
@@ -234,10 +234,8 @@
     getMakes = function () {
         $.get(`${root}Inventory/GetMakes`)
             .done(function (result) {
-                result.forEach(function (opt) {
-                    $("#makes").append(new Option(opt));
-                })
-                $("#makes").trigger("chosen:updated");
+                const $selector = $("#makes");
+                updateChosen(result, $selector);
             })
             .fail(function (xhr, status, error) {
                 hideSpinner($("#filterOverlay"));
@@ -248,10 +246,8 @@
     getModels = function (makes) {
         $.get(`${root}Inventory/GetModels`, { "makes": JSON.stringify(makes) })
             .done(function (result) {
-                result.forEach(function (opt) {
-                    $("#models").append(new Option(opt));
-                })
-                $("#models").trigger("chosen:updated");
+                const $selector = $("#models");
+                updateChosen(result, $selector);
             })
             .fail(function (xhr, status, error) {
                 hideSpinner($("#filterOverlay"));
@@ -259,13 +255,11 @@
             });
     }
 
-    getEngines = function (makes) {
-        $.get(`${root}Inventory/GetEngines`, { "makes": JSON.stringify(makes) })
+    getCylinders = function (makes) {
+        $.get(`${root}Inventory/GetCylinders`, { "makes": JSON.stringify(makes) })
             .done(function (result) {
-                result.forEach(function (opt) {
-                    $("#engines").append(new Option(opt));
-                })
-                $("#engines").trigger("chosen:updated");
+                const $selector = $("#cylinders");
+                updateChosen(result, $selector);
             })
             .fail(function (xhr, status, error) {
                 hideSpinner($("#filterOverlay"));
@@ -276,10 +270,8 @@
     getTransmissions = function (makes) {
         $.get(`${root}Inventory/GetTransmissions`, { "makes": JSON.stringify(makes) })
             .done(function (result) {
-                result.forEach(function (opt) {
-                    $("#transmissions").append(new Option(opt));
-                })
-                $("#transmissions").trigger("chosen:updated");
+                const $selector = $("#transmissions");
+                updateChosen(result, $selector);
             })
             .fail(function (xhr, status, error) {
                 hideSpinner($("#filterOverlay"));
@@ -290,10 +282,8 @@
     getFuelTypes = function (makes) {
         $.get(`${root}Inventory/GetFuelTypes`, { "makes": JSON.stringify(makes) })
             .done(function (result) {
-                result.forEach(function (opt) {
-                    $("#fuelTypes").append(new Option(opt));
-                })
-                $("#fuelTypes").trigger("chosen:updated");
+                const $selector = $("#fuelTypes");
+                updateChosen(result, $selector);
             })
             .fail(function (xhr, status, error) {
                 hideSpinner($("#filterOverlay"));
@@ -304,10 +294,8 @@
     getDrives = function (makes) {
         $.get(`${root}Inventory/GetDrives`, { "makes": JSON.stringify(makes) })
             .done(function (result) {
-                result.forEach(function (opt) {
-                    $("#drives").append(new Option(opt));
-                })
-                $("#drives").trigger("chosen:updated");
+                const $selector = $("#drives");
+                updateChosen(result, $selector);
             })
             .fail(function (xhr, status, error) {
                 hideSpinner($("#filterOverlay"));
@@ -318,10 +306,8 @@
     getBodyTypes = function (makes) {
         $.get(`${root}Inventory/GetBodyTypes`, { "makes": JSON.stringify(makes) })
             .done(function (result) {
-                result.forEach(function (opt) {
-                    $("#bodyTypes").append(new Option(opt));
-                })
-                $("#bodyTypes").trigger("chosen:updated");
+                const $selector = $("#bodyTypes");
+                updateChosen(result, $selector);
             })
             .fail(function (xhr, status, error) {
                 hideSpinner($("#filterOverlay"));
@@ -333,10 +319,8 @@
     getVehicleTypes = function (makes) {
         $.get(`${root}Inventory/GetVehicleTypes`, { "makes": JSON.stringify(makes) })
             .done(function (result) {
-                result.forEach(function (opt) {
-                    $("#vehicleTypes").append(new Option(opt));
-                })
-                $("#vehicleTypes").trigger("chosen:updated");
+                const $selector = $("#vehicleTypes");
+                updateChosen(result, $selector);
             })
             .fail(function (xhr, status, error) {
                 hideSpinner($("#filterOverlay"));
@@ -451,7 +435,7 @@
     function updateData(selected) {
         clearData();
         getModels(selected);
-        getEngines(selected);
+        getCylinders(selected);
         getTransmissions(selected);
         
         getFuelTypes(selected);
@@ -467,7 +451,7 @@
 
     function clearData() {
         $("#models").val([]).empty().trigger("chosen:updated");
-        $("#engines").val([]).empty().trigger("chosen:updated");
+        $("#cylinders").val([]).empty().trigger("chosen:updated");
         $("#transmissions").val([]).empty().trigger("chosen:updated");
         $("#fuelTypes").val([]).empty().trigger("chosen:updated");
         $("#vehicleTypes").val([]).empty().trigger("chosen:updated");
@@ -476,11 +460,21 @@
     }
 
     function showOthers(disabled) {
-        $("#engines").prop({ disabled: disabled }).trigger("chosen:updated");
+        $("#cylinders").prop({ disabled: disabled }).trigger("chosen:updated");
         $("#transmissions").prop({ disabled: disabled }).trigger("chosen:updated");
         $("#fuelTypes").prop({ disabled: disabled }).trigger("chosen:updated");
         $("#vehicleTypes").prop({ disabled: disabled }).trigger("chosen:updated");
         $("#drives").prop({ disabled: disabled }).trigger("chosen:updated");
         $("#bodyTypes").prop({ disabled: disabled }).trigger("chosen:updated");
     }
+
+    function updateChosen(result, selector) {
+        result.forEach(function (opt) {
+            $(selector).append(new Option(opt, opt));
+        });
+
+        $(selector).trigger("chosen:updated");
+    }
+
+
 </script>
