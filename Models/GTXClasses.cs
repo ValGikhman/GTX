@@ -55,7 +55,7 @@
 
         public string[] Models { get; set; }
 
-        public string[] Engines { get; set; }
+        public string[] Cylinders { get; set; }
 
         public string[] Transmissions { get; set; }
 

@@ -467,9 +467,10 @@
     function updateLastCars(stock) {
         if (!isCarLast(stock)) {
             lastCars.unshift(stock);
-            if (lastCars.length > 5) {
-                lastCars.pop();         // remove last element if too long
+            if (lastCars.length > 10) {
+                lastCars.pop();     // remove last element if too long
             }
+
             saveLastCars();
         }
     }

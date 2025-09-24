@@ -195,6 +195,17 @@
                                                 <td class="fw-bold">Front airbags</td>
                                                 <td>@Stands(style.StandardGenericEquipment.Groups, "Safety and Security", "Airbags", "Front airbags")</td>
                                             </tr>
+                                            <tr>
+                                                <td class="fw-bold">External color (@Model.CurrentVehicle.VehicleDetails.Color)</td>
+                                                <td><span style="width:36px;height:36px;border-radius:4px;border:1px solid #ccc; display:inline-block; background-color:@Model.CurrentVehicle.VehicleDetails.Color"></span></td>
+                                                @if (!string.IsNullOrWhiteSpace(Model.CurrentVehicle.VehicleDetails.Color2)) {
+                                                    <td class="fw-bold">Internal color (@Model.CurrentVehicle.VehicleDetails.Color2)</td>
+                                                    <td><span style="width:36px;height:36px;border-radius:4px;border:1px solid #ccc; display:inline-block; background-color:@Model.CurrentVehicle.VehicleDetails.Color2"></span></td>
+                                                }
+                                                else {
+                                                    <td colspan="2"></td>
+                                                }
+                                            </tr>
                                         </tbody>
                                     </table>
                                 }
@@ -365,7 +376,7 @@
                                     type="button"
                                     data-bs-toggle="collapse"
                                     data-bs-target="#@trId"
-                                    aria-expanded="false"
+                                    aria-expanded="true"
                                     aria-controls="@trId">
 
                                 <span class="d-flex justify-content-center text-shadow">
@@ -378,7 +389,7 @@
                                 </span>
                             </button>
 
-                            <div id="@trId" class="collapse mt-2">
+                            <div id="@trId" class="collapse mt-2 show">
                                 @if (style?.Transmissions?.Items == null || !style.Transmissions.Items.Any()) {<div class="muted">No transmissions</div> }
                                 else {
                                     var ti = 0;

@@ -326,7 +326,7 @@ namespace GTX.Controllers {
             return new Filters {
                 Makes = all.Select(x => x.Make).Distinct().OrderBy(x => x).ToArray(),
                 Models = all.Select(x => x.Model).Distinct().OrderBy(x => x).ToArray(),
-                Engines = all.Select(x => x.Engine).Distinct().OrderBy(x => x).ToArray(),
+                Cylinders = all.Select(x => x.Cylinders.ToString()).Distinct().OrderBy(x => x).ToArray(),
                 Transmissions = all.Select(x => WordIt(x.Transmission)).Distinct().OrderBy(x => x).ToArray(),
                 FuelTypes = all.Select(x => x.FuelType).Distinct().OrderBy(x => x).ToArray(),
                 DriveTrains = all.Select(x => x.DriveTrain).Distinct().OrderBy(x => x).ToArray(),
