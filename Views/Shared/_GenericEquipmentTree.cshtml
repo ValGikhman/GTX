@@ -2,7 +2,6 @@
 @using System.Linq
 
 <style>
-
 </style>
 
 @functions{
@@ -14,6 +13,19 @@
                          .Select(w => char.ToUpperInvariant(w[0]) + w.Substring(1).ToLower());
         return string.Concat(words);
     }
+}
+
+@{
+    // Define the pairs you want to skip
+    var skipPairs = new List<(string GName, string CName)>
+    {
+        ("Exterior", "Exterior Features"),
+        ("Exterior", "Wheels and Tires"),
+        ("Interior", "Air Conditioning"),
+        ("Interior", "Comfort Features"),
+        ("Interior", "Instrumentation"),
+        ("Interior", "Convenience Features")
+    };
 }
 
 @if (Model?.Groups == null || !Model.Groups.Any()) {
@@ -36,6 +48,9 @@ else {
                 else {
                     var ci = 0;
                     foreach (var c in g.Categories) {
+                        if (skipPairs.Contains((g.Name, c.Name))) {
+                            continue;
+                        }
                         var cId = Id("gec", gId, ci++);
                         <div class="mb-1">
                             <a class="toggle" data-bs-toggle="collapse" href="#@cId" aria-expanded="false">

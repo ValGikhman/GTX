@@ -141,7 +141,7 @@
                                aria-controls="@bdId">
 
                                 <span class="d-flex justify-content-center text-shadow">
-                                    <strong>@Safe(style.BasicData.Year) @Safe(style.BasicData.Make) @Safe(style.Name) - @Model.CurrentVehicle.VehicleDetails.RetailPrice.ToString("C0")</strong>
+                                    <strong>@Safe(style.BasicData.Year) @Safe(style.BasicData.Make) @Safe(style.BasicData.Model) @Safe(style.Name) - @Model.CurrentVehicle.VehicleDetails.RetailPrice.ToString("C0")</strong>
                                 </span>
 
                                 <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
@@ -156,14 +156,16 @@
                                     <table class="table table-sm kv mt-3">
                                         <tbody>
                                             <tr>
-                                                <td class="fw-bold w-25">Miles: </td>
-                                                <td colspan="3" class="w-25">@Model.CurrentVehicle.VehicleDetails.Mileage.ToString("N0")</td>
-                                            </tr>
-                                            <tr>
                                                 <td class="fw-bold w-25">VIN#: </td>
                                                 <td class="w-25 copyable">@Model.CurrentVehicle.VehicleDetails.VIN</td>
                                                 <td class="fw-bold w-25">Stock#</td>
                                                 <td class="w-25 copyable">@Model.CurrentVehicle.VehicleDetails.Stock</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Miles: </td>
+                                                <td>@Model.CurrentVehicle.VehicleDetails.Mileage.ToString("N0")</td>
+                                                <td class="fw-bold">MSRP</td>
+                                                <td>@Safe(Money(style.Pricing.Msrp))</td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-bold">Vehicle Type</td>
@@ -178,10 +180,10 @@
                                                 <td>@Safe(style.BasicData.DriveType)</td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold">Brake System</td>
-                                                <td>@Safe(style.BasicData.BrakeSystem)</td>
-                                                <td class="fw-bold">Restraint Type</td>
-                                                <td>@Safe(style.BasicData.RestraintType)</td>
+                                                <td class="fw-bold">Engine</td>
+                                                <td>@Safe(style.Engines.Items[0].IceDisplacement)L @Safe(style.Engines.Items[0].IceBlockType)@Safe(style.Engines.Items[0].IceCylinders)</td>
+                                                <td class="fw-bold">Fuel efficency (combined)</td>
+                                                <td>@Safe(style.EpaFuelEfficiency.Records[0].Combined) mpg</td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-bold">Seats</td>
@@ -190,16 +192,10 @@
                                                 <td>@Specs(style.StandardSpecifications.Categories, "Seating", "Seating Rows")</td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold">Fuel tank capacity</td>
-                                                <td>@Specs(style.StandardSpecifications.Categories, "Weights and Capacities", "Fuel Tank Capacity") gal</td>
-                                                <td class="fw-bold">Front airbags</td>
-                                                <td>@Stands(style.StandardGenericEquipment.Groups, "Safety and Security", "Airbags", "Front airbags")</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-bold">External color (@Model.CurrentVehicle.VehicleDetails.Color)</td>
+                                                <td class="fw-bold">Exterior color (@Model.CurrentVehicle.VehicleDetails.Color)</td>
                                                 <td><span style="width:36px;height:36px;border-radius:4px;border:1px solid #ccc; display:inline-block; background-color:@Model.CurrentVehicle.VehicleDetails.Color"></span></td>
                                                 @if (!string.IsNullOrWhiteSpace(Model.CurrentVehicle.VehicleDetails.Color2)) {
-                                                    <td class="fw-bold">Internal color (@Model.CurrentVehicle.VehicleDetails.Color2)</td>
+                                                    <td class="fw-bold">Interior color (@Model.CurrentVehicle.VehicleDetails.Color2)</td>
                                                     <td><span style="width:36px;height:36px;border-radius:4px;border:1px solid #ccc; display:inline-block; background-color:@Model.CurrentVehicle.VehicleDetails.Color2"></span></td>
                                                 }
                                                 else {
@@ -235,10 +231,13 @@
                                 @if (style?.EpaFuelEfficiency?.Records == null || !style.EpaFuelEfficiency.Records.Any()) {<div class="muted">No records</div> }
                                 else {
                                     <table class="table align-middle mb-0">
-                                        <thead><tr><th>Engine</th><th>Trans</th><th>Fuel</th><th>Grade</th><th>City</th><th>Hwy</th><th>Comb</th></tr></thead>
+                                        <thead>
+                                            <tr>
+                                            <th>Fuel</th><th>Grade</th><th>City</th><th>Hwy</th><th>Comb</th></tr></thead>
                                         <tbody>
                                             @foreach (var r in style.EpaFuelEfficiency.Records) {
-                                                <tr><td class="text-muted">@Safe(r?.EngineId)</td><td class="text-muted">@Safe(r?.TransmissionId)</td><td>@Safe(r?.FuelType)</td><td>@Safe(r?.FuelGrade)</td><td>@Safe(r?.City)</td><td>@Safe(r?.Highway)</td><td>@Safe(r?.Combined)</td></tr>
+                                                <tr>
+                                            <td>@Safe(r?.FuelType)</td><td>@Safe(r?.FuelGrade)</td><td>@Safe(r?.City)</td><td>@Safe(r?.Highway)</td><td>@Safe(r?.Combined)</td></tr>
                                             }
                                         </tbody>
                                     </table>
@@ -365,6 +364,7 @@
                                             </table>
                                         </div>
                                         ei++;
+                                        break;
                                     }
                                 }
                             </div>
@@ -488,127 +488,6 @@
                                 @Html.Partial("_GenericEquipmentTree", style?.StandardGenericEquipment)
                             </div>
                         </div>
-
-                        <!-- Equipment (Optional) -->
-                        <div class="section">
-                            <button class="w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
-                                    type="button"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target="#@geOptId"
-                                    aria-expanded="false"
-                                    aria-controls="@geOptId">
-
-                                <span class="d-flex justify-content-center text-shadow">
-                                    Optional Equipment
-                                </span>
-
-                                <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
-                                    <i class="bi bi-plus-lg icon-plus"></i>
-                                    <i class="bi bi-dash-lg icon-minus"></i>
-                                </span>
-                            </button>
-                            <div id="@geOptId" class="collapse mt-2">
-                                @Html.Partial("_GenericEquipmentTree", style?.OptionalGenericEquipment)
-                            </div>
-                        </div>
-
-                        <!-- Colors -->
-                        <div class="section">
-                            <button class="w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
-                                    type="button"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target="#@colId"
-                                    aria-expanded="false"
-                                    aria-controls="@colId">
-
-                                <span class="d-flex justify-content-center text-shadow">
-                                    Colors
-                                </span>
-
-                                <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
-                                    <i class="bi bi-plus-lg icon-plus"></i>
-                                    <i class="bi bi-dash-lg icon-minus"></i>
-                                </span>
-                            </button>
-
-                            <div id="@colId" class="collapse mt-2">
-                                @if (style?.Colors == null) {<div class="muted">No colors</div> }
-                                else {
-                                    <div class="row g-2">
-                                        <div class="col-12 col-md-6">
-                                            <div class="fw-semibold mb-1">Exterior</div>
-                                            @if (style.Colors.Exterior?.Colors == null || !style.Colors.Exterior.Colors.Any()) {<div class="muted">None</div> }
-                                            else {
-                                                <ul class="list-group list-group-flush">
-                                                    @foreach (var c in style.Colors.Exterior.Colors) {
-                                                        var hex = Safe(c?.PrimaryRgbCode?.Hex);
-                                                        <li class="list-group-item d-flex align-items-center py-2">
-                                                            <span class="me-2" style="width:36px;height:36px;border-radius:4px;border:1px solid #ccc; display:inline-block; background-color:@(string.IsNullOrWhiteSpace(hex) ? "#ddd" : "#"+hex)"></span>
-                                                            <div>
-                                                                <div class="fw-semibold">@Safe(c?.MfrColorName)</div>
-                                                                <div class="muted">@Safe(c?.GenericColorName) @if (!string.IsNullOrWhiteSpace(hex)) {<text>(#@hex)</text>}</div>
-                                                            </div>
-                                                        </li>
-                                                    }
-                                                </ul>
-                                            }
-                                        </div>
-                                        <div class="col-12 col-md-6">
-                                            <div class="fw-semibold mb-1">Interior</div>
-                                            @if (style.Colors.Interior?.Colors == null || !style.Colors.Interior.Colors.Any()) {<div class="muted">None</div> }
-                                            else {
-                                                <ul class="list-group list-group-flush">
-                                                    @foreach (var c in style.Colors.Interior.Colors) {
-                                                        var hex = Safe(c?.PrimaryRgbCode?.Hex);
-                                                        <li class="list-group-item d-flex align-items-center py-2">
-                                                            <span class="me-2" style="width:36px;height:36px;border-radius:4px;border:1px solid #ccc; display:inline-block; background-color:@(string.IsNullOrWhiteSpace(hex) ? "#ddd" : "#"+hex)"></span>
-                                                            <div>
-                                                                <div class="fw-semibold">@Safe(c?.MfrColorName)</div>
-                                                                <div class="muted">@Safe(c?.GenericColorName) @if (!string.IsNullOrWhiteSpace(hex)) {<text>(#@hex)</text>}</div>
-                                                            </div>
-                                                        </li>
-                                                    }
-                                                </ul>
-                                            }
-                                        </div>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-
-                        <!-- Pricing -->
-                        <div class="section">
-                            <button class="w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
-                                    type="button"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target="#@prId"
-                                    aria-expanded="false"
-                                    aria-controls="@prId">
-
-                                <span class="d-flex justify-content-center text-shadow">
-                                    Pricing
-                                </span>
-
-                                <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
-                                    <i class="bi bi-plus-lg icon-plus"></i>
-                                    <i class="bi bi-dash-lg icon-minus"></i>
-                                </span>
-                            </button>
-                            <div id="@prId" class="collapse mt-2">
-                                @if (style?.Pricing == null) {<div class="muted">No data</div> }
-                                else {
-                                    <table class="table table-sm kv mb-0">
-                                        <tbody>
-                                            <tr><td class="fw-bold w-50">MSRP</td><td>@Safe(Money(style.Pricing.Msrp))</td></tr>
-                                            <tr><td class="fw-bold">Invoice</td><td>@Safe(Money(style.Pricing.InvoicePrice))</td></tr>
-                                            <tr><td class="fw-bold">Destination</td><td>@Safe(style.Pricing.DestinationCharge)</td></tr>
-                                            <tr><td class="fw-bold">Gas Guzzler</td><td>@Safe(style.Pricing.GasGuzzlerTax)</td></tr>
-                                        </tbody>
-                                    </table>
-                                }
-                            </div>
-                        </div>
-
                         @* Only the first style *@
                         break;
                     }
