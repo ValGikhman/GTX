@@ -24,7 +24,8 @@
         ("Interior", "Air Conditioning"),
         ("Interior", "Comfort Features"),
         ("Interior", "Instrumentation"),
-        ("Interior", "Convenience Features")
+        ("Interior", "Convenience Features"),
+        ("Safety and Security", "Stability and Traction")
     };
 }
 
@@ -63,43 +64,21 @@ else {
                                     </div>
                                 }
                                 else {
-                                    var ei = 0;
                                     foreach (var e in c.Equipments) {
-                                        var eId = Id("gee", cId, ei++);
-                                        <div class="mb-1">
-                                            <table class="table table-sm kv mb-0 mt-1">
+                                        if (!e.Values.Any(m => m.Value != null)) {
+                                            continue;
+                                        }
+                                        <div class="ms-3">
+                                            <table class="table table-sm kv mb-0">
                                                 <tr>
-                                                    <td class="w-40">
-                                                        <a class="toggle" data-bs-toggle="collapse" href="#@eId" aria-expanded="false">
-                                                            <span class="pm"></span>@Safe(e?.Name)
-                                                        </a>
+                                                    <td class="fw-bold w-40">
+                                                        @Safe(e?.Name)
                                                     </td>
                                                     <td>
-                                                        <span>@string.Join(", ", e.Values.Select(m => ToCamelCase(m.Value)))</span>
-                                                    </td>
-                                                    <td>
+                                                        @string.Join(", ", e.Values.Select(m => ToCamelCase(m.Value)))
                                                     </td>
                                                 </tr>
                                             </table>
-                                            <div id="@eId" class="collapse">
-                                                @if (e?.Values == null || !e.Values.Any(m => m.Value != null)) {
-                                                    <div class="text-center">
-                                                        <code>No valid data to show</code>
-                                                    </div>
-                                                }
-                                                else {
-                                                    <ul class="list-group list-group-flush">
-                                                        @foreach (var v in e.Values) {
-                                                            if (v?.Value != null) {
-                                                                <li class="list-group-item py-2 d-flex justify-content-between align-items-center small mx-5">
-                                                                    <code>@Safe(v?.Value)</code>
-                                                                    @if (!string.IsNullOrWhiteSpace(v?.Installed)) {<span class="badge shadow rounded-pill bg-info text-dark">@v.Installed</span>}
-                                                                </li>
-                                                            }
-                                                        }
-                                                    </ul>
-                                                }
-                                            </div>
                                         </div>
                                     }
                                 }
