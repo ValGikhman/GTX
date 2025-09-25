@@ -82,7 +82,7 @@ namespace GTX.Controllers {
             }
             else {
                 var style = Model.CurrentVehicle.VehicleDataOneDetails.QueryResponses.Items[0].UsMarketData.UsStyles.Styles[0].Name.ToUpper();
-                ViewBag.Title = $"{vehicle.Year} - {vehicle.Make} - {style}";
+                ViewBag.Title = $"{vehicle.Year} - {vehicle.Make} - {vehicle.Model} - {style}";
             }
             ViewBag.Price = $"{vehicle.RetailPrice.ToString("C")}";
 
