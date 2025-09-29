@@ -74,36 +74,38 @@
         </div>
     </div>
 
-    @* Date & Time *@
-    <div class="mb-2">
-        <div class="input-group">
-            <span class="input-group-text shadow"><i class="bi bi-calendar"></i></span>
-            @Html.TextBoxFor(m => m.PreferredDate, new { @type = "text", @name = "PreferredDate", @class = "form-control shadow", placeholder = "Preferred date and time" })
-            @Html.TextBoxFor(m => m.PreferredTime, new { @type = "time", @class = "form-control shadow", step = "900", min = "09:00", max = "18:30", list = "timeOptions", placeholder = "Preferred time" })
+    @if (Model.IsTestDrive) {
+        @* Date & Time *@
+        <div class="mb-2">
+            <div class="input-group">
+                <span class="input-group-text shadow"><i class="bi bi-calendar"></i></span>
+                @Html.TextBoxFor(m => m.PreferredDate, new { @type = "text", @name = "PreferredDate", @class = "form-control shadow", placeholder = "Preferred date and time" })
+                @Html.TextBoxFor(m => m.PreferredTime, new { @type = "time", @class = "form-control shadow", step = "900", min = "09:00", max = "18:30", list = "timeOptions", placeholder = "Preferred time" })
+            </div>
+            <datalist id="timeOptions">
+                <option value="09:00"></option>
+                <option value="09:30"></option>
+                <option value="10:00"></option>
+                <option value="10:30"></option>
+                <option value="11:00"></option>
+                <option value="11:30"></option>
+                <option value="12:00"></option>
+                <option value="12:30"></option>
+                <option value="13:00"></option>
+                <option value="13:30"></option>
+                <option value="14:00"></option>
+                <option value="14:30"></option>
+                <option value="15:00"></option>
+                <option value="15:30"></option>
+                <option value="16:00"></option>
+                <option value="16:30"></option>
+                <option value="17:00"></option>
+                <option value="17:30"></option>
+                <option value="18:00"></option>
+                <option value="18:30"></option>
+            </datalist>
         </div>
-        <datalist id="timeOptions">
-            <option value="09:00"></option>
-            <option value="09:30"></option>
-            <option value="10:00"></option>
-            <option value="10:30"></option>
-            <option value="11:00"></option>
-            <option value="11:30"></option>
-            <option value="12:00"></option>
-            <option value="12:30"></option>
-            <option value="13:00"></option>
-            <option value="13:30"></option>
-            <option value="14:00"></option>
-            <option value="14:30"></option>
-            <option value="15:00"></option>
-            <option value="15:30"></option>
-            <option value="16:00"></option>
-            <option value="16:30"></option>
-            <option value="17:00"></option>
-            <option value="17:30"></option>
-            <option value="18:00"></option>
-            <option value="18:30"></option>
-        </datalist>
-    </div>
+    }
 
     @* Comments *@
     <div class="mb-2">
@@ -119,6 +121,7 @@
             var stock = Model.CurrentVehicle.VehicleDetails.Stock;
             <input type="hidden" id="Stock" value="@stock" />
         }
+        <input type="hidden" id="IsTestDrive" value="@Model.IsTestDrive.ToString()" />
     }
 </form>
 
@@ -174,6 +177,16 @@
             .addField('#Comment', [
                 { rule: 'required', errorMessage: 'Comment is required' }
             ]);
+
+        if ($("#IsTestDrive").val() === "True") {
+            validator
+                .addField('#PreferredDate', [
+                    { rule: 'required', errorMessage: 'Date required' }
+                ])
+                .addField('#PreferredTime', [
+                    { rule: 'required', errorMessage: 'Time required' }
+                ])
+        }
 
         $("#btnSent").on("click", function () {
             if (validator.isValid) {
