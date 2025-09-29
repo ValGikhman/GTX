@@ -3,7 +3,12 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace GTX.Models {
-    public class ContactModel: BaseModel { 
+    public class ContactModel : BaseModel {
+
+        public ContactModel() { }
+        public ContactModel(Boolean isTestDrive) {
+            IsTestDrive = isTestDrive;
+        }
 
         public int EmployerId { get; set; }
 
@@ -38,5 +43,8 @@ namespace GTX.Models {
         public String PreferredDate { get; set; }
 
         public String PreferredTime { get; set; }
+
+        public Boolean IsTestDrive { get; set; }
+
     }
 }

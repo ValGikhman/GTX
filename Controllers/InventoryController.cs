@@ -43,6 +43,11 @@ namespace GTX.Controllers {
         }
 
         [HttpGet]
+        public ActionResult TestDriveModal() {
+            return PartialView("_ContactForm", new GTX.Models.ContactModel(true));
+        }
+
+        [HttpGet]
         public ActionResult ApplicationModal() {
             return PartialView("_LoanApplication");
         }
