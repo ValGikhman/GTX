@@ -269,100 +269,98 @@
                                 else {
                                     var ei = 0;
                                     foreach (var e in style.Engines.Items) {
-                                        <div class="border rounded p-2 mb-2">
-                                            <table class="table table-sm kv mb-0 mt-1">
-                                                <tbody>
-                                                    <!-- Elements -->
+                                        <table class="table table-sm kv mb-0 mt-1">
+                                            <tbody>
+                                                <!-- Elements -->
+                                                <tr>
+                                                    <td class="fw-bold w-25">Aspiration</td>
+                                                    <td class="w-25">@Safe(e.IceAspiration)</td>
+                                                    <td class="fw-bold w-25">Block Type</td>
+                                                    <td class="w-25">@Safe(e.IceBlockType)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Cam Type</td>
+                                                    <td>@Safe(e.IceCamType)</td>
+                                                    <td class="fw-bold">Fuel Type</td>
+                                                    <td>@Safe(e.FuelType)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Compression</td>
+                                                    <td>@Safe(e.IceCompression)</td>
+                                                    <td class="fw-bold">Cylinders</td>
+                                                    <td>@Safe(e.IceCylinders)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Displacement</td>
+                                                    <td>@Safe(e.IceDisplacement)</td>
+                                                    <td class="fw-bold">Type</td>
+                                                    <td>@Safe(e.EngineType)</td>
+                                                </tr>
+                                                @if (e.ElectricMaxHp != "0") {
                                                     <tr>
-                                                        <td class="fw-bold w-25">Aspiration</td>
-                                                        <td class="w-25">@Safe(e.IceAspiration)</td>
-                                                        <td class="fw-bold w-25">Block Type</td>
-                                                        <td class="w-25">@Safe(e.IceBlockType)</td>
+                                                        <td class="fw-bold">Electric Max HP</td>
+                                                        <td>@Safe(e.ElectricMaxHp)</td>
+                                                        <td class="fw-bold">Electric Max kW</td>
+                                                        <td>@Safe(e.ElectricMaxKw)</td>
                                                     </tr>
                                                     <tr>
-                                                        <td class="fw-bold">Cam Type</td>
-                                                        <td>@Safe(e.IceCamType)</td>
-                                                        <td class="fw-bold">Fuel Type</td>
-                                                        <td>@Safe(e.FuelType)</td>
+                                                        <td class="fw-bold">Electric Motor Configuration</td>
+                                                        <td>@Safe(e.ElectricMotorConfiguration)</td>
+                                                        <td class="fw-bold">Electric Max Torque</td>
+                                                        <td>@Safe(e.ElectricMaxTorque)</td>
                                                     </tr>
                                                     <tr>
-                                                        <td class="fw-bold">Compression</td>
-                                                        <td>@Safe(e.IceCompression)</td>
-                                                        <td class="fw-bold">Cylinders</td>
-                                                        <td>@Safe(e.IceCylinders)</td>
+                                                        <td class="fw-bold">Generator Description</td>
+                                                        <td>@Safe(e.GeneratorDescription)</td>
+                                                        <td class="fw-bold">Generator Max HP</td>
+                                                        <td>@Safe(e.GeneratorMaxHp)</td>
                                                     </tr>
-                                                    <tr>
-                                                        <td class="fw-bold">Displacement</td>
-                                                        <td>@Safe(e.IceDisplacement)</td>
-                                                        <td class="fw-bold">Type</td>
-                                                        <td>@Safe(e.EngineType)</td>
-                                                    </tr>
-                                                    @if (e.ElectricMaxHp != "0") {
-                                                        <tr>
-                                                            <td class="fw-bold">Electric Max HP</td>
-                                                            <td>@Safe(e.ElectricMaxHp)</td>
-                                                            <td class="fw-bold">Electric Max kW</td>
-                                                            <td>@Safe(e.ElectricMaxKw)</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td class="fw-bold">Electric Motor Configuration</td>
-                                                            <td>@Safe(e.ElectricMotorConfiguration)</td>
-                                                            <td class="fw-bold">Electric Max Torque</td>
-                                                            <td>@Safe(e.ElectricMaxTorque)</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td class="fw-bold">Generator Description</td>
-                                                            <td>@Safe(e.GeneratorDescription)</td>
-                                                            <td class="fw-bold">Generator Max HP</td>
-                                                            <td>@Safe(e.GeneratorMaxHp)</td>
-                                                        </tr>
-                                                    }
-                                                    <tr>
-                                                        <td class="fw-bold">Fuel Induction</td>
-                                                        <td>@Safe(e.IceFuelInduction)</td>
-                                                        <td class="fw-bold">Fuel Quality</td>
-                                                        <td>@Safe(e.FuelQuality)</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="fw-bold">Max HP</td>
-                                                        <td>@Safe(e.IceMaxHp)</td>
-                                                        <td class="fw-bold">Max HP @@</td>
-                                                        <td>@Safe(e.IceMaxHpAt)</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="fw-bold">Max Torque</td>
-                                                        <td>@Safe(e.IceMaxTorque)</td>
-                                                        <td class="fw-bold">Max Torque @@</td>
-                                                        <td>@Safe(e.IceMaxTorqueAt)</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="fw-bold">Oil Capacity</td>
-                                                        <td>@Safe(e.OilCapacity)</td>
-                                                        <td class="fw-bold">Stroke</td>
-                                                        <td>@Safe(e.IceStroke)</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="fw-bold">Total Max HP</td>
-                                                        <td>@Safe(e.TotalMaxHp)</td>
-                                                        <td class="fw-bold">Total Max HP @@</td>
-                                                        <td>@Safe(e.TotalMaxHpAt)</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="fw-bold">Total Max Torque</td>
-                                                        <td>@Safe(e.TotalMaxTorque)</td>
-                                                        <td class="fw-bold">Total Max Torque @@</td>
-                                                        <td>@Safe(e.TotalMaxTorqueAt)</td>
+                                                }
+                                                <tr>
+                                                    <td class="fw-bold">Fuel Induction</td>
+                                                    <td>@Safe(e.IceFuelInduction)</td>
+                                                    <td class="fw-bold">Fuel Quality</td>
+                                                    <td>@Safe(e.FuelQuality)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Max HP</td>
+                                                    <td>@Safe(e.IceMaxHp)</td>
+                                                    <td class="fw-bold">Max HP @@</td>
+                                                    <td>@Safe(e.IceMaxHpAt)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Max Torque</td>
+                                                    <td>@Safe(e.IceMaxTorque)</td>
+                                                    <td class="fw-bold">Max Torque @@</td>
+                                                    <td>@Safe(e.IceMaxTorqueAt)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Oil Capacity</td>
+                                                    <td>@Safe(e.OilCapacity)</td>
+                                                    <td class="fw-bold">Stroke</td>
+                                                    <td>@Safe(e.IceStroke)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Total Max HP</td>
+                                                    <td>@Safe(e.TotalMaxHp)</td>
+                                                    <td class="fw-bold">Total Max HP @@</td>
+                                                    <td>@Safe(e.TotalMaxHpAt)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Total Max Torque</td>
+                                                    <td>@Safe(e.TotalMaxTorque)</td>
+                                                    <td class="fw-bold">Total Max Torque @@</td>
+                                                    <td>@Safe(e.TotalMaxTorqueAt)</td>
 
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="fw-bold">Valve Timing</td>
-                                                        <td>@Safe(e.IceValveTiming)</td>
-                                                        <td class="fw-bold">Valves</td>
-                                                        <td>@Safe(e.IceValves)</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Valve Timing</td>
+                                                    <td>@Safe(e.IceValveTiming)</td>
+                                                    <td class="fw-bold">Valves</td>
+                                                    <td>@Safe(e.IceValves)</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                         ei++;
                                         break;
                                     }
@@ -394,25 +392,23 @@
                                 else {
                                     var ti = 0;
                                     foreach (var t in style.Transmissions.Items) {
-                                        <div class="border rounded p-2 mb-2">
-                                            <table class="table table-sm kv mb-0 mt-1">
-                                                <tbody>
-                                                    <!-- Elements -->
-                                                    <tr>
-                                                        <td class="fw-bold w-25">Type</td>
-                                                        <td class=" w-25">@Safe(t.Type)</td>
-                                                        <td class="fw-bold w-25">Detail Type</td>
-                                                        <td class=" w-25">@Safe(t.DetailType)</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="fw-bold">Gears</td>
-                                                        <td>@Safe(t.Gears)</td>
-                                                        <td class="fw-bold">Order Code</td>
-                                                        <td>@Safe(t.OrderCode)</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                        <table class="table table-sm kv mb-0 mt-1">
+                                            <tbody>
+                                                <!-- Elements -->
+                                                <tr>
+                                                    <td class="fw-bold w-25">Type</td>
+                                                    <td class=" w-25">@Safe(t.Type)</td>
+                                                    <td class="fw-bold w-25">Detail Type</td>
+                                                    <td class=" w-25">@Safe(t.DetailType)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Gears</td>
+                                                    <td>@Safe(t.Gears)</td>
+                                                    <td class="fw-bold">Order Code</td>
+                                                    <td>@Safe(t.OrderCode)</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                         ti++;
                                     }
                                 }

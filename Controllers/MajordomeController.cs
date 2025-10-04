@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Xml.Linq;
+using System.Xml.Serialization;
 using Utility.XMLHelpers;
 
 namespace GTX.Controllers {
@@ -49,6 +50,7 @@ namespace GTX.Controllers {
             Parallel.ForEach(vehicles, vehicle =>
             {
                 vehicle.Story = InventoryService.GetStory(vehicle.Stock);
+                vehicle.DataOne = GetDecodedData(vehicle.Stock);
             });
 
             Model.Inventory.Vehicles = vehicles.OrderByDescending(m => DateTime.TryParse(m.PurchaseDate, out var date) ? date : DateTime.MinValue).ToArray();
@@ -517,6 +519,37 @@ namespace GTX.Controllers {
 
             Font font = new Font(fontFamily, size, fontStyle);
             return (font, color);
+        }
+
+        private DecodedData GetDecodedData(string stock) {
+            string dataOne = InventoryService.GetDataOneDetails(stock);
+
+            var (errCode, errMsg) = ParseDecoderError(dataOne);
+
+            if (errCode != null) {
+                return null;
+            }
+
+            var serializer = new XmlSerializer(typeof(DecodedData));
+            using (TextReader reader = new StringReader(dataOne)) {
+                return (DecodedData)serializer.Deserialize(reader);
+            }
+        }
+
+        private static (string? code, string? message) ParseDecoderError(string xml) {
+            try {
+                var doc = System.Xml.Linq.XDocument.Parse(xml);
+                var err = doc.Descendants("decoder_errors").Descendants("error").FirstOrDefault();
+                if (err == null) return (null, null);
+
+                var code = (string?)err.Element("code");
+                var msg = (string?)err.Element("message");
+                return (code, msg);
+            }
+            catch {
+                // If it isn't valid XML, treat as a body/format error
+                return ("PARSE", "Invalid XML from decoder");
+            }
         }
     }
 }
