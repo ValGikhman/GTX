@@ -94,6 +94,8 @@ namespace GTX.Models {
 
 		public Story Story { get; set; }
 
+		public DecodedData DataOne { get; set; }
+
 		public string TransmissionWord { get; set; }
 	}
 }

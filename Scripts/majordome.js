@@ -129,13 +129,15 @@ function actionsRenderer(params) {
         }
     });
 
-    container.appendChild(reStoryIconRenderer(params));
-    container.appendChild(deleteStoryIconRenderer(params));
     container.appendChild(icon);
     container.appendChild(fileInput);
     if (params.data.Images && params.data.Images.length > 0) {
         container.appendChild(deleteIconRenderer(params));
     }
+    container.appendChild(reStoryIconRenderer(params));
+    container.appendChild(deleteStoryIconRenderer(params));
+    container.appendChild(dataOneIconRenderer(params));
+    container.appendChild(deleteDataOneIconRenderer(params));
     return container;
 }
 

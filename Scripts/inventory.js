@@ -45,7 +45,6 @@ function applyFilterTerm(term) {
         const location = $(vehicle).data("location-code") || "";
         const story = $(vehicle).data("story") || "";
         const images = $(vehicle).data("images") || "";
-        const features = $(vehicle).data("features") || "";
 
         if (filter.startsWith("@@")) {
             if (filter === "@@ADMIN" || filter === "@@MAJORDOME") {
@@ -66,7 +65,7 @@ function applyFilterTerm(term) {
         else {
             // Normal search
             $("#filterTerm").removeClass("text-info").removeClass("border-info");
-            combined = `${stock} ${vin} ${make} ${model} ${style} ${type} ${transmission} ${year} ${color} ${color2} ${features}`;
+            combined = `${stock} ${vin} ${make} ${model} ${style} ${type} ${transmission} ${year} ${color} ${color2}`;
         }
 
         if (combined.includes(filter)) {

@@ -6,7 +6,7 @@
 
     <style>
 
-        #filterLiked, .sort {
+        #filterLiked, #filterLast, .sort {
             display: none !important;
         }
 
@@ -112,7 +112,7 @@
                 </div>
                 <!-- Grid shell gets a dynamic height -->
                 <div id="gridShell" class="mx-auto row row-cols-3">
-                    <div id="myGrid" class="ag-theme-alpine w-100"></div>
+                    <div id="myGrid" class="ag-theme-alpine"></div>
                 </div>
             </div>
         </div>
@@ -426,15 +426,15 @@
         });
     });
 
-    $('#story').tinymce({
+    $("#story").tinymce({
         height: 560,
-        license_key: 'gpl',
+        license_key: "gpl",
         resize: true,
         autosave_ask_before_unload: false,
         powerpaste_allow_local_images: true,
-        menubar: 'file edit view insert format customMenu', // add your custom menu here
+        menubar: "file edit view insert format customMenu", // add your custom menu here
         setup: function (editor) {
-            editor.on('init', function () {
+            editor.on("init", function () {
                 editor.setContent(selectedVehicle.Story?.HtmlContent || '');
             });
         },
@@ -443,7 +443,7 @@
             'image', 'lists', 'link', 'media', 'preview',
             'searchreplace', 'table', 'visualblocks'
         ],
-        toolbar: 'insertfile a11ycheck undo redo | fontfamily fontsize | bold italic underline | forecolor backcolor | link image | alignleft aligncenter alignright alignjustify',
+        toolbar: "insertfile a11ycheck undo redo | fontfamily fontsize | bold italic underline | forecolor backcolor | link image | alignleft aligncenter alignright alignjustify",
         spellchecker_dialog: true
     });
 
@@ -596,8 +596,26 @@
         },
     },
     {
+        headerName: 'Data One',
+        field: 'DataOne',
+        colId: 'DataOne',
+        width: 80,
+        cellRenderer: (params) => {
+            const dataOne = params.data?.DataOne; // optional chaining
+            return dataOne ? "✔" : "";
+        },
+        filter: false,
+        sortable: true,
+        comparator: (a, b) => {
+            // a & b are the raw Story objects
+            const aDatOne = a  ? 1 : 0;
+            const bDataOne = b ? 1 : 0;
+            return aDatOne - bDataOne;
+        },
+    },
+    {
         headerName: '',
-        width: 180,
+        width: 200,
         field: 'action',
         colId: 'action',
         suppressSizeToFit: true, // don't let "fit" shrink this
@@ -744,6 +762,42 @@
         wrapper.appendChild(image)
 
         return wrapper;
+    }
+
+    // Data One Icon renderer
+    function dataOneIconRenderer(params) {
+        const icon = document.createElement('span');
+        icon.className = 'bi bi-car-front fs-5 px-2';
+        icon.style.cursor = 'pointer';
+        icon.title = `Decode for VIN# ${JSON.stringify(params.data.VIN)}`;
+
+        icon.onclick = () => {
+            const vin = params.data.VIN;
+            if (confirm(`Do you want to decode VIN# ${vin}`)) {
+                decodeVin(vin);
+            }
+        };
+        params.api.applyTransaction({ update: [params.node.data] });
+
+        return icon;
+    }
+
+    // Delete DataOne Icon renderer
+    function deleteDataOneIconRenderer(params) {
+        const icon = document.createElement('span');
+        icon.className = 'bi bi-car-front-fill fs-5 px-2';
+        icon.style.cursor = 'pointer';
+        icon.title = `Delete DataOne for Stock# ${JSON.stringify(params.data.Stock)}`;
+
+        icon.onclick = () => {
+            const stock = params.data.Stock;
+            if (confirm(`Do you want to delete DataOne  for Stock# ${stock}`)) {
+                deleteDataOne(stock);
+            }
+            params.api.applyTransaction({ update: [params.node.data] });
+        };
+
+        return icon;
     }
 
     // Show Bootstrap modal with images
