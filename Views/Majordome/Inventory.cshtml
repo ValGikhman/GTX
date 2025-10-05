@@ -774,7 +774,7 @@
         icon.onclick = () => {
             const vin = params.data.VIN;
             if (confirm(`Do you want to decode VIN# ${vin}`)) {
-                decodeVin(vin);
+                decodeDataOne(vin);
             }
         };
         params.api.applyTransaction({ update: [params.node.data] });

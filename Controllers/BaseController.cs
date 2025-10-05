@@ -8,6 +8,8 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using System.Xml.Linq;
+using System.Xml.Serialization;
 
 namespace GTX.Controllers {
 
@@ -158,7 +160,7 @@ namespace GTX.Controllers {
                 model.Current = ApplyExtended(model.Current);
 
                 model.All = model.Current
-                    .Where(m => m.SetToUpload == "Y" && !string.IsNullOrWhiteSpace(m.PurchaseDate))
+                    .Where(m => m.SetToUpload == "Y")
                     .OrderBy(m => m.Make).ThenBy(m => m.Model)
                     .ToArray();
                 
@@ -195,22 +197,9 @@ namespace GTX.Controllers {
         [HttpGet]
         public JsonResult GetNow() {
             try {
-                string returnValue;
-                string currentDay = DateTime.Now.DayOfWeek.ToString();
-                int currentHour = DateTime.Now.Hour;
-
-                var today = Model.OpenHours.FirstOrDefault(m => m.Day == currentDay);
-                bool isOpened = (currentHour >= today.From && currentHour <= today.To);
-                string openClose = isOpened ? "Now open" : "Closed";
-/*                if (today.From == 0 && today.To == 0) {
-                    returnValue = $"{today.Day}: {today.Description}";
-                }
-                else {
-                    returnValue = $"{today.Day}: {today.Description} - {openClose}";
-                }*/
-
-                returnValue = $"{openClose}";
-
+                string returnValue = Model.OpenHours.FirstOrDefault(m => m.Day == DateTime.Now.DayOfWeek.ToString()) is { } today &&  DateTime.Now.Hour >= today.From && DateTime.Now.Hour <= today.To
+                    ? "Now open"
+                    : "Closed";
                 return Json(new { Now = returnValue }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex) {
@@ -247,6 +236,7 @@ namespace GTX.Controllers {
         public Models.GTX[] ApplyExtended(Models.GTX[] vehicles) {
             foreach (var vehicle in vehicles) {
                 vehicle.Story = InventoryService.GetStory(vehicle.Stock);
+                vehicle.DataOne = GetDecodedData(vehicle.Stock);
                 vehicle.Images = InventoryService.GetImages(vehicle.Stock);
                 vehicle.TransmissionWord = WordIt(vehicle.Transmission);
 
@@ -316,6 +306,22 @@ namespace GTX.Controllers {
                 return "N/A";
             }
         }
+
+        public DecodedData GetDecodedData(string stock) {
+            string dataOne = InventoryService.GetDataOneDetails(stock);
+
+            var (errCode, errMsg) = ParseDecoderError(dataOne);
+
+            if (errCode != null) {
+                return null;
+            }
+
+            var serializer = new XmlSerializer(typeof(DecodedData));
+            using (TextReader reader = new StringReader(dataOne)) {
+                return (DecodedData)serializer.Deserialize(reader);
+            }
+        }
+
         #endregion Public Methods
 
 
@@ -342,6 +348,22 @@ namespace GTX.Controllers {
             Models.GTX[] arr;
             if (dict.TryGetValue(key, out arr)) return arr;
             return empty;
+        }
+
+        private static (string? code, string? message) ParseDecoderError(string xml) {
+            try {
+                var doc = System.Xml.Linq.XDocument.Parse(xml);
+                var err = doc.Descendants("decoder_errors").Descendants("error").FirstOrDefault();
+                if (err == null) return (null, null);
+
+                var code = (string?)err.Element("code");
+                var msg = (string?)err.Element("message");
+                return (code, msg);
+            }
+            catch {
+                // If it isn't valid XML, treat as a body/format error
+                return ("PARSE", "Invalid XML from decoder");
+            }
         }
         #endregion
     }
