@@ -280,6 +280,46 @@ function decodeAll() {
         });
 }
 
+function decodeDataOne(vin) {
+    showSpinner($("#inventoryOverlay"));
+
+    fetch('/Majordome/DecodeDataOne', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vin: vin })
+    })
+        .then(response => {
+            if (response.ok) {
+                fetch('/Majordome/GetUpdatedItems')
+                    .then(res => res.json())
+                    .then(data => {
+                        updateRow(data);
+                    });
+            } else {
+                alert("Decoding failed.");
+            }
+        })
+        .catch(error => {
+            alert(error);
+        });
+}
+
+
+function deleteDataOne(stock) {
+    showSpinner($("#inventoryOverlay"));
+    $.post(`${root}Majordome/DeleteDataOne`, { stock })
+        .done(function (response) {
+            if (response.success) {
+                const editor = tinymce.get("story");
+                fetch('/Majordome/GetUpdatedItems')
+                    .then(res => res.json())
+                    .then(data => {
+                        updateRow(data);
+                    });
+            }
+        })
+};
+
 function deleteImages(stock) {
     showSpinner($("#inventoryOverlay"));
     $.post(`${root}Majordome/DeleteImages`, { stock })

@@ -53,7 +53,7 @@ namespace GTX.Controllers {
                 vehicle.DataOne = GetDecodedData(vehicle.Stock);
             });
 
-            Model.Inventory.Vehicles = vehicles.OrderByDescending(m => DateTime.TryParse(m.PurchaseDate, out var date) ? date : DateTime.MinValue).ToArray();
+            Model.Inventory.Vehicles = vehicles.OrderBy(m => m.Make).ThenBy(m => m.Model).ToArray();
 
             return View(Model);
         }
@@ -138,14 +138,44 @@ namespace GTX.Controllers {
                 Model.Inventory.Vehicles = Model.Inventory.All;
 
                 foreach (var vehicle in Model.Inventory.Vehicles) {
-                    if (InventoryService.AnyDataOneDetails(vehicle.Stock)) {
+                    if (!InventoryService.AnyDataOneDetails(vehicle.Stock)) {
                         var details = VinDecoderService.DecodeVin(vehicle.VIN, dataOneApiKey, dataOneSecretApiKey);
                         InventoryService.SaveDataOneDetails(vehicle.Stock, details);
                     }
                 }
 
-                return Json(new { success = true, message = "Story created successfully." });
+                return Json(new { success = true, message = "DataOne decoded successfully." });
             }
+            catch (Exception ex) {
+                return Json(new { success = false, message = "Error: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public ActionResult DecodeDataOne(string vin) {
+            try {
+                string stock = Model.Inventory.All.Where(m => m.VIN == vin).FirstOrDefault()?.Stock;
+
+                    if (!InventoryService.AnyDataOneDetails(stock)) {
+                        var details = VinDecoderService.DecodeVin(vin, dataOneApiKey, dataOneSecretApiKey);
+                        InventoryService.SaveDataOneDetails(stock, details);
+                    }
+
+                return Json(new { success = true, message = "DataOne decoded  successfully." });
+            }
+            catch (Exception ex) {
+                return Json(new { success = false, message = "Error: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public JsonResult DeleteDataOne(string stock) {
+            try {
+                var vehicle = Model.Inventory.Vehicles.FirstOrDefault(m => m.Stock == stock);
+                VinDecoderService.DeleteDataOneDetails(stock);
+                return Json(new { success = true, message = "DataOne details were deleted successfully." });
+            }
+
             catch (Exception ex) {
                 return Json(new { success = false, message = "Error: " + ex.Message });
             }
@@ -519,37 +549,6 @@ namespace GTX.Controllers {
 
             Font font = new Font(fontFamily, size, fontStyle);
             return (font, color);
-        }
-
-        private DecodedData GetDecodedData(string stock) {
-            string dataOne = InventoryService.GetDataOneDetails(stock);
-
-            var (errCode, errMsg) = ParseDecoderError(dataOne);
-
-            if (errCode != null) {
-                return null;
-            }
-
-            var serializer = new XmlSerializer(typeof(DecodedData));
-            using (TextReader reader = new StringReader(dataOne)) {
-                return (DecodedData)serializer.Deserialize(reader);
-            }
-        }
-
-        private static (string? code, string? message) ParseDecoderError(string xml) {
-            try {
-                var doc = System.Xml.Linq.XDocument.Parse(xml);
-                var err = doc.Descendants("decoder_errors").Descendants("error").FirstOrDefault();
-                if (err == null) return (null, null);
-
-                var code = (string?)err.Element("code");
-                var msg = (string?)err.Element("message");
-                return (code, msg);
-            }
-            catch {
-                // If it isn't valid XML, treat as a body/format error
-                return ("PARSE", "Invalid XML from decoder");
-            }
         }
     }
 }
