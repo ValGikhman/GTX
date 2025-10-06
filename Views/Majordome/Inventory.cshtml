@@ -5,6 +5,10 @@
     <script src="~/Scripts/majordome.js"></script>
 
     <style>
+        #dataOneContainer {
+            overflow-y:auto;
+            height: 31.5rem;
+        }
 
         #filterLiked, #filterLast, .sort {
             display: none !important;
@@ -85,20 +89,20 @@
 
 <div class="this-container container-fluid">
     <nav class="nav nav-tabs no-wrap-group" id="myTab" role="tablist">
-        <button class="nav-item btn btn-gradient-grey text-shadow-small active" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#inventory" type="button" role="tab">
+        <button class="nav-item btn btn-gradient-grey text-shadow-small active" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#tab-inventory" type="button" role="tab">
             Inventory
         </button>
-        <button class="nav-item btn btn-gradient-grey text-shadow-small" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" type="button" role="tab">
+        <button class="nav-item btn btn-gradient-grey text-shadow-small" id="details-tab" data-bs-toggle="tab" data-bs-target="#tab-details" type="button" role="tab">
             Details
         </button>
-        <button class="nav-item btn btn-gradient-grey text-shadow-small" id="gallery-tab" data-bs-toggle="tab" data-bs-target="#gallery" type="button" role="tab">
+        <button class="nav-item btn btn-gradient-grey text-shadow-small" id="gallery-tab" data-bs-toggle="tab" data-bs-target="#tab-gallery" type="button" role="tab">
             Photos
         </button>
     </nav>
 
     <div class="tab-content border border-top-0 well " id="myTabContent">
         <!-- Inventory Tab -->
-        <div class="tab-pane fade show active py-2" id="inventory" role="tabpanel">
+        <div class="tab-pane fade show active py-2" id="tab-inventory" role="tabpanel">
             <div class="container-fluid">
                 <div class="row row-cols-3">
                     <div class="col">
@@ -117,59 +121,21 @@
             </div>
         </div>
         <!-- Details Tab -->
-        <div class="tab-pane fade" id="details" role="tabpanel">
+        <div class="tab-pane fade" id="tab-details" role="tabpanel">
             <div class="row">
                 <!-- Left Column: Form -->
-                <div class="col-lg-6">
-                    <div class="row col-lg-5 mt-3">
+                <div class="col-lg-7">
+                    <div class="row col-lg-6 mt-3">
                         @Html.Label("VIN", new { @class = "text-shadow" })
                         <div class="input-group mb-2">
                             <input id="vin" class="form-control shadow" placeholder="VIN" aria-label="VIN" aria-describedby="vin" />
                             <button id="decode" class="btn btn-light bi bi-search input-group-text "></button>
                         </div>
                     </div>
-                    <div class="row mt-3 d-flex justify-content-center">
-                        <div class="mb-2 col-lg-3">
-                            @Html.Label("Stock", new { @class = "text-shadow" })
-                            <input id="stock" class="form-control shadow" placeholder="Style" />
-                        </div>
-                        <div class="mb-2 col-lg-3">
-                            @Html.Label("Year", new { @class = "text-shadow" })
-                            <input id="year" class="form-control shadow" placeholder="Year" />
-                        </div>
-                        <div class="mb-2 col-lg-3">
-                            @Html.Label("Make", new { @class = "text-shadow" })
-                            <input id="make" class="form-control shadow" placeholder="Make" />
-                        </div>
-                        <div class="mb-2 col-lg-3">
-                            @Html.Label("Model", new { @class = "text-shadow" })
-                            @Html.Label("Model", new { @class = "text-shadow" })
-                            <input id="model" class="form-control shadow" placeholder="Model" />
-                        </div>
-                    </div>
-                    <div class="row mt-3 d-flex justify-content-center">
-                        <div class="mb-2 col-lg-3">
-                            @Html.Label("Style", new { @class = "text-shadow" })
-                            <input id="style" class="form-control shadow" placeholder="Style" />
-                        </div>
-                        <div class="mb-2 col-lg-3">
-                            @Html.Label("Type", new { @class = "text-shadow" })
-                            <input id="type" class="form-control shadow" placeholder="Type" />
-                        </div>
-                        <div class="mb-2 col-lg-3">
-                            @Html.Label("Mileage", new { @class = "text-shadow" })
-                            <input id="mileage" class="form-control shadow" placeholder="Mileage" />
-                        </div>
-                        <div class="mb-2 col-lg-3">
-                            @Html.Label("Price", new { @class = "text-shadow" })
-                            <input id="retailPrice" class="form-control shadow" placeholder="Price" />
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-center pt-5">
-                        <button id="saveDetails" type="submit" class="btn btn-gradient-grey border-dark rounded-4 shadow w-25"><i class="bi bi-save mx-2"></i>Save</button>
+                    <div id="dataOneDetails" class="row mt-3 d-flex justify-content-center">
                     </div>
                 </div>
-                <div class="col-md-5 text-shadow-small">
+                <div class="col-lg-5 text-shadow-small">
                     <div class="row">
                         @Html.Label("Title", new { @class = "text-shadow" })
                         <div class="input-group mb-3">
@@ -182,14 +148,14 @@
                     <div class="row mt-2">
                         @Html.Label("Story", new { @class = "text-shadow" })
                         <textarea id="story" class="form-control shadow">
-                    </textarea>
+                        </textarea>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Gallery Tab -->
-        <div class="tab-pane fade d-flex flex-column align-items-center" id="gallery" role="tabpanel">
+        <div class="tab-pane fade d-flex flex-column align-items-center" id="tab-gallery" role="tabpanel">
             <div class="d-flex justify-content-center w-100 p-3">
                 <button id="upload" class="btn btn-light shadow mx-2 bi bi-upload">&nbsp;Upload images</button>
                 <button id="deleteAll" class="btn btn-light shadow bi bi-trash">&nbsp;Delete all images</button>
@@ -815,17 +781,21 @@
 
     function showVehicleDetails(vehicle) {
         $('#vin').val(vehicle.VIN);
-        $('#year').val(vehicle.Year);
-        $('#make').val(vehicle.Make);
-        $('#model').val(vehicle.Model);
-        $('#year').val(vehicle.Year);
-        $('#retailPrice').val(vehicle.RetailPrice);
-        $('#mileage').val(vehicle.Mileage);
-        $('#style').val(vehicle.VehicleStyle);
-        $('#type').val(vehicle.VehicleType);
-        $('#stock').val(vehicle.Stock);
-        $('#title').val(vehicle.Story?.Title);
 
+        if (vehicle.Stock) {
+            $.ajax({
+                url: '/Majordome/GetDataOneDetails',
+                type: 'GET',
+                data: { stock: vehicle.Stock },
+                success: function (html) {
+                    // Replace or inject the partial view HTML
+                    $('#dataOneDetails').html(html);
+                },
+                error: function () {
+                    alert("Error loading vehicle details");
+                }
+            });
+        }
 
         const editor = tinymce.get("story");
         if (editor) {
@@ -854,3 +824,4 @@
     }
 
 </script>
++
