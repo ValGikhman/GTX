@@ -91,6 +91,21 @@ namespace GTX.Controllers {
             }
         }
 
+        [HttpGet]
+        public ActionResult GetDataOneDetails(string stock) {
+            var vehicle = Model.Inventory.Vehicles.FirstOrDefault(m => m.Stock == stock);
+
+            if (vehicle == null)
+                return HttpNotFound();
+
+            Model.CurrentVehicle.VehicleDetails = vehicle;
+            Model.CurrentVehicle.VehicleDataOneDetails = GetDecodedData(stock);
+            Model.CurrentVehicle.VehicleImages = GetImages(stock);
+
+            SessionData.CurrentVehicle = Model.CurrentVehicle;
+            return PartialView("_DetailsDataOne", Model);
+        }
+
         [HttpPost]
         public JsonResult SaveStory(string stock, string story, string title) {
             try {

@@ -101,7 +101,7 @@
     </button>
 
     <div class="text-shadow-small show" id="details">
-        <div class="mt-2  px-5 ">
+        <div class="mt-2  px-5" id="dataOneContainer">
             @if (Model.CurrentVehicle.VehicleDataOneDetails?.QueryResponses?.Items == null || !Model.CurrentVehicle.VehicleDataOneDetails.QueryResponses.Items.Any()) {
                 <div class="alert alert-warning">No query responses.</div>
             }
