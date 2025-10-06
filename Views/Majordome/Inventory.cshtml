@@ -781,6 +781,11 @@
 
     function showVehicleDetails(vehicle) {
         $('#vin').val(vehicle.VIN);
+        $('#title').val(vehicle.Story?.Title);
+        const editor = tinymce.get("story");
+        if (editor) {
+            editor.setContent(vehicle?.Story?.HtmlContent || "");
+        }
 
         if (vehicle.Stock) {
             $.ajax({
@@ -795,11 +800,6 @@
                     alert("Error loading vehicle details");
                 }
             });
-        }
-
-        const editor = tinymce.get("story");
-        if (editor) {
-            editor.setContent(vehicle?.Story?.HtmlContent || "");
         }
 
         $("#gallery-tab").text(`Photos (${vehicle.Images.length})`);
