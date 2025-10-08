@@ -61,11 +61,15 @@ namespace GTX.Controllers {
             return View(model);
         }
 
-        public ActionResult Contact() {
-            ViewBag.Message = "Contact";
-            ViewBag.Title = "Contact us";
+        [HttpGet]
+        [Route("test-drive")]
+        public ActionResult TestDrive() => Contact(testDrive: true);
 
-            return View(new ContactModel());
+        public ActionResult Contact(bool testDrive = false) {
+            ViewBag.Message = "Contact";
+            ViewBag.Title = testDrive ? "Schedule test drive" : "Contact us";
+
+            return View(new ContactModel(testDrive));
         }
 
         public ActionResult Application() {

@@ -9,17 +9,22 @@ namespace GTX {
     public class RouteConfig {
         public static void RegisterRoutes(RouteCollection routes) {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
-
             routes.MapRoute(
-                name: "Inventory",
-                url: "Majordome/Inventory/{stock}",
-                defaults: new { controller = "Majordome", action = "Inventory", stock = UrlParameter.Optional }
+                name: "TestDriveContact",
+                url: "test-drive",
+                defaults: new { controller = "Home", action = "Contact", testDrive = true }
             );
 
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+            );
+
+            routes.MapRoute(
+                name: "Inventory",
+                url: "Majordome/Inventory/{stock}",
+                defaults: new { controller = "Majordome", action = "Inventory", stock = UrlParameter.Optional }
             );
         }
     }
