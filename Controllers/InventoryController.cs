@@ -1,16 +1,11 @@
 ﻿using GTX.Models;
-using Newtonsoft.Json;
 using Services;
 using System;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
-using System.Xml.Linq;
-using System.Xml.Serialization;
 
 namespace GTX.Controllers {
 

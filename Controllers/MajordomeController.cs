@@ -16,7 +16,6 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Xml.Linq;
-using System.Xml.Serialization;
 using Utility.XMLHelpers;
 
 namespace GTX.Controllers {
