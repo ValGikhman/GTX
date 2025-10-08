@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 using System.Web.Routing;
 
 namespace GTX {
@@ -11,7 +7,7 @@ namespace GTX {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
             routes.MapRoute(
                 name: "TestDriveContact",
-                url: "test-drive",
+                url: "Test-Drive",
                 defaults: new { controller = "Home", action = "Contact", testDrive = true }
             );
 

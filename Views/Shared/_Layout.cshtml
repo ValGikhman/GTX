@@ -91,7 +91,7 @@
                             <a href="#">About us</a>
                             <ul class="dropdown rounded">
                                 <li>@Html.ActionLink("About us", "About", "Home")</li>
-                                <li>@Html.ActionLink("Contact us", "Contact", "Home")</li>
+                                <li><a href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })">Contact us</a></li>
                                 <li>@Html.ActionLink("Our staff", "Staff", "Home")</li>
                                 <li>@Html.ActionLink("Testimonials", "Testimonials", "Home")</li>
                             </ul>
