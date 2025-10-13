@@ -4,8 +4,19 @@
     /*------------------
         Preloader
     --------------------*/
+    $(document).on("click", ".card.V, #btnPrev, #btnNext", function (e) {
+        showSpinner("#loadingOverlay");
+    });
+
     $(window).on("load", function () {
         $(".main-menu li ").removeClass("active");
+        hideSpinner("#loadingOverlay");
+    });
+
+    $(window).on("pageshow", function (event) {
+        if (event.originalEvent.persisted) {
+            hideSpinner("#loadingOverlay");
+        }
     });
 
     $(".copyable").on("dblclick", function () {
@@ -117,7 +128,6 @@
 
     typePlaceholder();
 })(jQuery);
-
 
 function loadLikedCars() {
     var cookieValue = Cookies.get(cookieLike);

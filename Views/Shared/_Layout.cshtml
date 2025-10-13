@@ -85,8 +85,6 @@
                             </ul>
                         </li>
                         <li>@Html.ActionLink("Loan application", "Application", "Home")</li>
-@*                        <li>@Html.ActionLink("Blog", "Blog", "Home")</li>*@
-                        <li>@Html.ActionLink("Testimonials", "Testimonials", "Home")</li>
                         <li>
                             <a href="#">About us</a>
                             <ul class="dropdown rounded">
@@ -120,22 +118,35 @@
                                 <span id="telephone" class="d-none d-xxl-inline m-sm-1">(513) 489-2886</span>
                             </a>
                         </li>
+                        <li class="mx-sm-1">
+                            <a class="btn gradient shadow border-dark rounded-4" href="https://www.facebook.com/GTXAutoGroup" target="_blank" title="GTX Facebook page">
+                                <i class="fa fa-facebook px-2"></i>
+                            </a>
+                        </li>
+                        <li class="mx-sm-1">
+                            <a class="btn gradient shadow border-dark rounded-4" href="https://www.twitter.com/GTXAutoGroup" target="_blank" title="GTX Meta page">
+                                <i class="fa fa-twitter px-1"></i>
+                            </a>
+                        </li>
                     </ul>
                 </nav>
             </div>
         </div>
-
         @{
             if (ViewBag.Title != null && !ViewBag.Title.Contains("Home") && !ViewBag.Title.Contains("Inventory management")) {
                 @Html.Partial("_CategoryFilter")
                 @Html.Partial("_PageTitle")
             }
         }
-
     </header>
     <!-- Header Section End -->
     <!-- MAIN WRAPPER -->
     <div class="d-flex flex-column flex-grow-1">
+        <!-- Loading...  overlay -->
+        <div id="loadingOverlay" class="spinner-overlay spinner-hidden">
+            <div class="spinner-border text-danger" role="status">
+            </div>
+        </div>
         <main class="body-content overflow-y-auto overflow-x-hidden flex-grow-1 min-h-0">
             @RenderBody()
         </main>
