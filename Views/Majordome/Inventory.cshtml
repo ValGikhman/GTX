@@ -768,6 +768,7 @@
 
     // Show Bootstrap modal with images
     function showOverlayModal(id) {
+        const stock = selectedVehicle.Stock;
         if (stock) {
             showSpinner($("#inventoryOverlay"));
             $.get(`${root}Majordome/OverlayModal`, { id })

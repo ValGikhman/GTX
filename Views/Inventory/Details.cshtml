@@ -70,7 +70,12 @@
         </div>
     </div>
 </div>
-<div class="details-container d-flex flex-column flex-lg-row justify-content-center gap-5 mt-5">
+
+<!-- Centered directly below the input -->
+<div class="position-absolute start-50 translate-middle-x text-center w-100">
+    <h7 id="status"></h7>
+</div>
+<div class="details-container d-flex flex-column flex-lg-row justify-content-center gap-5">
     <div class="col-lg-9 col-md-4 col-sm-12">
         <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
@@ -80,8 +85,8 @@
                         <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small" id="nav-pictures-tab" data-bs-toggle="tab" data-bs-target="#nav-pictures" type="button" role="tab" aria-controls="nav-pictures" aria-selected="false"><i class="bi bi-camera"></i>&nbsp; Photos ( @Model.CurrentVehicle.VehicleDetails.Images.Count())</button>
                     }
                 }
-                @*            <button class="nav-item btn btn-gradient-grey text-shadow-small" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="true"><i class="bi bi-calendar3"></i>&nbsp; Test drive</button>
-                *@            <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small" id="nav-location-tab" data-bs-toggle="tab" data-bs-target="#nav-location" type="button" role="tab" aria-controls="nav-location" aria-selected="true"><i class="bi bi-geo-fill"></i>&nbsp; Location</button>
+                @*<button class="nav-item btn btn-gradient-grey text-shadow-small" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="true"><i class="bi bi-calendar3"></i>&nbsp; Test drive</button>*@
+                <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small" id="nav-location-tab" data-bs-toggle="tab" data-bs-target="#nav-location" type="button" role="tab" aria-controls="nav-location" aria-selected="true"><i class="bi bi-geo-fill"></i>&nbsp; Location</button>
                 <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small" id="nav-payment-tab" data-bs-toggle="tab" data-bs-target="#nav-payment" type="button" role="tab" aria-controls="nav-payment" aria-selected="true"><strong><i class="bi bi-calculator"></i>&nbsp; Pay $<span id="monthlyAmount"></span>/mo</strong></button>
             </div>
         </nav>
@@ -354,6 +359,7 @@
 
 <script type="text/javascript">
     $("#shorts").removeClass("d-xl-flex d-md-flex d-sm-flex"); // removing it hides the shortcuts
+    $("#btnPrev, #btnNext").removeClass("d-none");
 
     var stock = "@Model.CurrentVehicle.VehicleDetails.Stock";
     var make = "@Model.CurrentVehicle.VehicleDetails.Make.Replace(' ', '-')";
@@ -363,6 +369,7 @@
             <img src="${makeImg}" alt="${make} logo" class="img-fluid gradient mx-3 rounded-5 px-2 shadow" style="height: 30px;">@ViewBag.Title</image>
             <button class="mx-3 btn btn-gradient-grey border-black shadow rounded-4 text-dark"><strong>@ViewBag.Price</strong></button>
     `;
+
     let startX = 0;
     let scrollLeft = 0;
     const scrollContainer = document.getElementById('suggestionScroll');
@@ -370,6 +377,9 @@
     const schedule = `I will be extremely happy to schedule the test drive for:`;
 
     $(function () {
+        setNavigationButtons();
+        $(".fancy").html(title);
+
         updateLastCars(stock);
 
         $("#btnLoanApplication, #btnTestDriveForm, #btnContactForm").on("click", function () {
@@ -389,7 +399,6 @@
         });
 
         $("#Comment").val(request);
-        $(".fancy").html(title);
 
         $("#like-btn").on("click", function () {
             var index = likedCars.indexOf(stock);
@@ -484,6 +493,32 @@
             }
 
             saveLastCars();
+        }
+    }
+
+    function setNavigationButtons() {
+        const savedStocks = JSON.parse(localStorage.getItem("matchedStocks") || "[]");
+        if (savedStocks.length === 0) {
+            $("#btnPrev, #btnNext, #status").hide();
+        }
+
+        // Find its index
+        const index = savedStocks.indexOf(stock);
+        if (index !== -1) {
+            const prevStock = index > 0 ? savedStocks[index - 1] : null;
+            if (prevStock === null) {
+                $("#btnPrev").hide();
+            }
+            else {
+                $("#btnPrev").attr("href", `/Inventory/Details?stock=${prevStock}`);
+            }
+
+            const nextStock = index < savedStocks.length - 1 ? savedStocks[index + 1] : null;
+            if (nextStock === null) {
+                $("#btnNext").hide();
+            }
+            $("#btnNext").attr("href", `/Inventory/Details?stock=${nextStock}`);
+            $("#status").html(`${index + 1} from ${savedStocks.length} filtered vehicles`)
         }
     }
 </script>

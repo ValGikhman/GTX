@@ -5,6 +5,7 @@
         height: 55px;
     }
 </style>
+
 <!-- Scrollable wrapper -->
 <div class="inventory-wrapper mx-4">
     @if (Model.Inventory.Vehicles.Count() > 0) {
@@ -28,6 +29,17 @@
 
 <script type="text/javascript">
     $(function () {
+        // For navivation on details page
+        let stocks = $(".card:visible").map(function () {
+            return $(this).data("stock");
+        }).get();
+
+        if (stocks.length > 0) {
+            localStorage.setItem("matchedStocks", JSON.stringify(stocks));
+        } else {
+            localStorage.removeItem("matchedStocks"); // Clear old if none matched
+        }
+
         $(window).on('pageshow', function (event) {
             loadLastCars();
             loadLikedCars();
@@ -48,7 +60,6 @@
         refreshCarLikes();
 
         $('#sortField, #sortDirection').on('change', sortInventory);
-      
     })
 
     function refreshCarLikes() {

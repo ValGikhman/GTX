@@ -27,7 +27,7 @@ function applyFilterTerm(term) {
 
     if (filter == "@") return;
 
-    const vehicles = document.querySelectorAll("#inventory > li");
+    const vehicles = document.querySelectorAll(".card");
     let combined;
 
     let i = 0;
@@ -74,7 +74,6 @@ function applyFilterTerm(term) {
         } else {
             vehicle.style.display = "none";
         }
-
     });
 
     if (filter === "") {
@@ -82,6 +81,16 @@ function applyFilterTerm(term) {
     }
     else {
         $("#filterResults").empty().html(`${i} record(s) found.`);
+    }
+
+    let stocks = $(".card:visible").map(function () {
+        return $(this).data("stock");
+    }).get();
+
+    if (stocks.length > 0) {
+        localStorage.setItem("matchedStocks", JSON.stringify(stocks));
+    } else {
+        localStorage.removeItem("matchedStocks"); // Clear old if none matched
     }
 }
 
