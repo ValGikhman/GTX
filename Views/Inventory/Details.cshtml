@@ -72,8 +72,8 @@
 </div>
 
 <!-- Centered directly below the input -->
-<div class="position-absolute start-50 translate-middle-x text-center w-100">
-    <h7 id="status"></h7>
+<div class="position-relative d-flex justify-content-center">
+    <h8 id="status"></h8>
 </div>
 <div class="details-container d-flex flex-column flex-lg-row justify-content-center gap-5">
     <div class="col-lg-9 col-md-4 col-sm-12">
@@ -518,7 +518,7 @@
                 $("#btnNext").hide();
             }
             $("#btnNext").attr("href", `/Inventory/Details?stock=${nextStock}`);
-            $("#status").html(`${index + 1} from ${savedStocks.length} filtered vehicles`)
+            $("#status").html(`Current <strong class="text-danger">#${index + 1}</strong> from <strong class="text-danger">${savedStocks.length}</strong> filtered vehicles`)
         }
     }
 </script>
