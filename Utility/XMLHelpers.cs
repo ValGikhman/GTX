@@ -50,7 +50,7 @@ namespace Utility.XMLHelpers {
         public async static Task<GTX.Models.GTX[]> GetInventory() {
             string path = $"{xmlFilePath}\\Inventory\\Current\\GTX-Inventory.xml";
             GTXInventory inventory = await ReadXmlFile(path);
-            inventory.Vehicles = inventory.Vehicles.Where(m => m.RetailPrice > 0 && !string.IsNullOrEmpty(m.VIN)).ToArray();
+            inventory.Vehicles = inventory.Vehicles.Where(m => !string.IsNullOrEmpty(m.VIN)).ToArray();
 
             return inventory.Vehicles;
         }
