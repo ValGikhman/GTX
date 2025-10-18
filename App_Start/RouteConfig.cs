@@ -12,16 +12,17 @@ namespace GTX {
             );
 
             routes.MapRoute(
+                name: "Inventory",
+                url: "Majordome/Inventory/{stock}",
+                defaults: new { controller = "Majordome", action = "Inventory", stock = UrlParameter.Optional }
+            );
+
+            routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
             );
 
-            routes.MapRoute(
-                name: "Inventory",
-                url: "Majordome/Inventory/{stock}",
-                defaults: new { controller = "Majordome", action = "Inventory", stock = UrlParameter.Optional }
-            );
         }
     }
 }

@@ -45,9 +45,10 @@ function applyFilterTerm(term) {
         const location = $(vehicle).data("location-code") || "";
         const story = $(vehicle).data("story") || "";
         const images = $(vehicle).data("images") || "";
+        const cylinders = $(vehicle).data("cylinders") || "";
 
         if (filter.startsWith("@@")) {
-            if (filter === "@@ADMIN" || filter === "@@MAJORDOME") {
+            if (filter === "@@ADMIN" || filter === "@@BOSS") {
                 $("#MajordomeLink").removeClass("d-none");
                 $.post(`${root}Majordome/ShowAdmin`)
                     .done(function (response) {
@@ -58,9 +59,27 @@ function applyFilterTerm(term) {
                     });
                 return;
             }
+
             // Hidden  features
             $("#filterTerm").addClass("text-info").addClass("border-info");
+
+            // Map prefix to data
+            const prefixMap = {
+                "@@Y": `@@Y ${year}`,
+                "@@M": `@@M ${make} @@M ${model}`,
+                "@@T": `@@T ${transmission}`,
+                "@@C": `@@C ${cylinders}`
+            };
+
             combined = `@@${location} @@${story} @@${images}`;
+
+            // Override combined if matching a special prefix
+            for (const key in prefixMap) {
+                if (filter.startsWith(key)) {
+                    combined = prefixMap[key];
+                    break;
+                }
+            }
         }
         else {
             // Normal search
