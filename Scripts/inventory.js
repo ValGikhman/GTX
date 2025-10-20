@@ -25,6 +25,10 @@ function applyTerm(term) {
 function applyFilterTerm(term) {
     const filter = term.trim().toUpperCase();
 
+    if (filter === undefined || filter === "" || filter === null) {
+        sessionStorage.removeItem("term");
+    }
+
     if (filter == "@") return;
 
     const vehicles = document.querySelectorAll(".card");
@@ -111,6 +115,8 @@ function applyFilterTerm(term) {
     } else {
         localStorage.removeItem("matchedStocks"); // Clear old if none matched
     }
+
+    sessionStorage.setItem("term", term);
 }
 
 function applyFilterLiked() {

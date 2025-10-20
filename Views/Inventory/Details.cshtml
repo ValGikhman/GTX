@@ -359,7 +359,7 @@
 
 <script type="text/javascript">
     $("#shorts").removeClass("d-xl-flex d-md-flex d-sm-flex"); // removing it hides the shortcuts
-    $("#btnPrev, #btnNext").removeClass("d-none");
+    $("#btnPrev, #btnNext, #btnUp").removeClass("d-none");
 
     var stock = "@Model.CurrentVehicle.VehicleDetails.Stock";
     var make = "@Model.CurrentVehicle.VehicleDetails.Make.Replace(' ', '-')";
@@ -517,7 +517,10 @@
             if (nextStock === null) {
                 $("#btnNext").hide();
             }
-            $("#btnNext").attr("href", `/Inventory/Details?stock=${nextStock}`);
+            else {
+                $("#btnNext").attr("href", `/Inventory/Details?stock=${nextStock}`);
+            }
+
             $("#status").html(`Current <strong class="text-danger">#${index + 1}</strong> from <strong class="text-danger">${savedStocks.length}</strong> filtered vehicles`)
         }
     }
