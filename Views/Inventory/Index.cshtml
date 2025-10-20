@@ -29,6 +29,15 @@
 
 <script type="text/javascript">
     $(function () {
+        const term = sessionStorage.getItem("term");
+        if (term === undefined || term === "" || term === null) {
+            sessionStorage.removeItem("term");
+        }
+        else {
+            $("#filterTerm").val(term);
+            applyFilterTerm(term);
+        }
+
         // For navivation on details page
         let stocks = $(".card:visible").map(function () {
             return $(this).data("stock");
@@ -36,8 +45,11 @@
 
         if (stocks.length > 0) {
             localStorage.setItem("matchedStocks", JSON.stringify(stocks));
+            sessionStorage.setItem("lastVisitedPage", window.location.href);
         } else {
             localStorage.removeItem("matchedStocks"); // Clear old if none matched
+            sessionStorage.removeItem("lastVisitedPage");
+
         }
 
         $(window).on('pageshow', function (event) {
