@@ -93,11 +93,14 @@
         applyFilterLast();
     });
 
-
-    const placeholders = ['Click here to search... ','Then type something to search inventory like bmw', 'toyota', 'tes for tesla', 'civi for civics', 'or year like 2015'];
-    let currentText = '';
+    const filterResuls = ['Search within results... ', 'Then type something to search whithin result', 'year, make or model', '@@C 4/6/8 to filter by # of cilynders', '@@T Manual/Auto/Cont for transmission type'];
+    const placeholders = ['Click here to search... ','Then type something to search inventory like bmw', 'toyota', 'tes for tesla', 'civi for civics', '2015 for year'];
+    let currentText = "";
+    let currentFilterText = "";
     let currentIndex = 0;
+    let currentFilterIndex = 0;
     let charIndex = 0;
+    let charFilterIndex = 0;
 
     function typePlaceholder() {
         const fullText = placeholders[currentIndex];
@@ -117,6 +120,24 @@
         }
     }
 
+    function typeFilterPlaceholder() {
+        const filterText = filterResuls[currentFilterIndex];
+
+        if (charFilterIndex < filterText.length) {
+            currentFilterText += filterText.charAt(charFilterIndex);
+            $('#filterTerm').attr('placeholder', currentFilterText);
+            charFilterIndex++;
+            setTimeout(typeFilterPlaceholder, 80); // typing speed
+        } else {
+            setTimeout(() => {
+                currentFilterText = '';
+                charFilterIndex = 0;
+                currentFilterIndex = (currentFilterIndex + 1) % filterResuls.length;
+                typeFilterPlaceholder();
+            }, 1000); // pause before next string
+        }
+    }
+
     window.addEventListener("scroll", function () {
         var filter = document.getElementById("filter-container");
         if (window.scrollY > 100) {
@@ -127,6 +148,7 @@
     });
 
     typePlaceholder();
+    typeFilterPlaceholder();
 })(jQuery);
 
 function loadLikedCars() {
