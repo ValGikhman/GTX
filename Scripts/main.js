@@ -93,7 +93,7 @@
         applyFilterLast();
     });
 
-    const filterResuls = ['Search within results... ', 'Then type something to search whithin result', 'year, make or model', '@@C 4/6/8 to filter by # of cilynders', '@@T Manual/Auto/Cont for transmission type'];
+    const filterResuls = ['Search within results... ', 'Then type year, make or model', '@@C 4/6/8 to filter by # of cilynders', '@@T Manual/Auto/Cont for transmission type'];
     const placeholders = ['Click here to search... ','Then type something to search inventory like bmw', 'toyota', 'tes for tesla', 'civi for civics', '2015 for year'];
     let currentText = "";
     let currentFilterText = "";
