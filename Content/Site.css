@@ -347,7 +347,6 @@
     }
 
     .video-background {
-        position: fixed;
         inset: 0; /* shorthand for top/right/bottom/left: 0 */
         width: 100vw;
         height: 100svh; /* better on mobile; falls back below */
@@ -563,7 +562,7 @@
     background: #155A96;
     background: linear-gradient(180deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1) 94%);
     border-bottom: 2px solid darkred;
-    border-top: 1px solid #d54d29;
+    border-top: 1px solid #ffc107;
 }
 
 .footer-strip {
@@ -574,7 +573,7 @@
 
 .page-title {
     height: 55px;
-    border-top: 1px solid #d54d29;
+    border-top: 1px solid #ffc107;
     border-bottom: 2px solid darkred;
     background-image: url('../img/Backgrounds/bg-6-1.png');
     background: linear-gradient(35deg, #353535, #8d8d8d);
@@ -619,11 +618,12 @@
         margin-left: 0;
     }
 
-    .body-content {
-        margin-top: 14rem;
-        height: 41rem;
-        padding-bottom: calc(64px + env(safe-area-inset-bottom)); /* tweak 64px if needed */
-    }
+.body-content {
+    margin-top: 13.2rem;
+    height: 41rem;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom)); /* tweak 64px if needed */
+    background: ghostwhite!important;
+}
 
     li.search-field {
         padding: 0.2rem !important;
