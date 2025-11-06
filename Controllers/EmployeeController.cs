@@ -10,8 +10,8 @@ namespace GTX.Controllers {
 
         private readonly IEmployeesService _employeesService;
 
-        public EmployeesController(ISessionData sessionData, IEmployeesService employeesService, IInventoryService inventoryService, IVinDecoderService vinDecoderService, ILogService logService) :
-            base(sessionData, inventoryService, vinDecoderService, logService)  {
+        public EmployeesController(ISessionData sessionData, IEmployeesService employeesService, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service eZ360Service,  ILogService logService) :
+            base(sessionData, inventoryService, vinDecoderService, eZ360Service, logService)  {
             _employeesService = employeesService;
         }
 

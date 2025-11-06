@@ -20,7 +20,22 @@ namespace GTX.Models {
         [XmlElement("decoder_version")]
         public string DecoderVersion { get; set; }
         [XmlElement("decoder_errors")]
-        public string DecoderErrors { get; set; } // empty in sample
+        public DecoderErrors DecoderErrors { get; set; } // empty in sample
+    }
+
+    public class DecoderErrors
+    {
+        [XmlElement("error")]
+        public DecoderError[] Errors { get; set; }
+    }
+
+    public class DecoderError
+    {
+        [XmlElement("code")]
+        public string Code { get; set; }
+
+        [XmlElement("message")]
+        public string Message { get; set; }
     }
 
     // ---------- RESPONSES ----------

@@ -28,8 +28,8 @@ namespace GTX.Controllers {
         private static byte[] _cachedHeaderBytes;
         private static readonly object _headerLock = new object();
 
-        public MajordomeController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, ILogService logService)
-            : base(sessionData, inventoryService, vinDecoderService, logService) {
+        public MajordomeController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service _ez360Service, ILogService logService)
+            : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService) {
             if (Model == null) {
                 Model = new BaseModel();
                 Model.Inventory = new Inventory();
@@ -448,7 +448,7 @@ namespace GTX.Controllers {
                 image.Save(filename, ImageFormat.Png);
             }
 
-            InventoryService.SaveImage(stock, Path.GetFileName(filename));
+            InventoryService.SaveImage(stock, filename);
         }
 
         private async Task<string> GetChatGptResponse(string prompt) {

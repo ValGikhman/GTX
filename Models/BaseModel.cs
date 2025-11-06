@@ -32,6 +32,10 @@ namespace GTX.Models {
 
         public bool IsMajordome { get; set; }
 
+        public bool IsEZ360 { get; set; }
+
+        public bool IsDataOne { get; set; }
+
         public bool IsDevelopment { get; set; }
 
         public Inventory Inventory { get; set; }
