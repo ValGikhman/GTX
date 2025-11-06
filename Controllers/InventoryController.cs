@@ -11,16 +11,18 @@ namespace GTX.Controllers {
 
     public class InventoryController : BaseController {
         private readonly HttpClient httpClient = new();
-        public InventoryController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, ILogService LogService)
-            : base(sessionData, inventoryService, vinDecoderService, LogService) {
+        public InventoryController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service _ez360Service, ILogService logService)
+            : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService) {
         }
 
         [HttpGet]
-        public ActionResult Index(BaseModel model) {
+        public async Task<ActionResult> Index(BaseModel model) {
             var vehicles = Model.Inventory.Vehicles ?? Array.Empty<Models.GTX>();
             Model.Inventory.Title = "Found";
             ViewBag.Title = $"{Model.Inventory.Title.ToUpper()} {vehicles.Length} vehicles";
             Log($"{Model.Inventory.Title} inventory");
+
+            var res = await EZ360Service.GetDetailsPics(ez360ProjectId, "TEST_1023153916");
 
             return View(model);
         }

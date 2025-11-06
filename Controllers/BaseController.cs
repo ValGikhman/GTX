@@ -16,12 +16,13 @@ namespace GTX.Controllers {
     public abstract class BaseController : Controller {
 
         #region Properties
-        public readonly String devComputer = "VALS-PC";
+        public readonly string devComputer = "VALS-PC";
 
         public readonly string imageFolder = "/GTXImages/Inventory/";
         public readonly string openAiApiKey = ConfigurationManager.AppSettings["OpenAI:ApiKey"];
         public readonly string dataOneApiKey = ConfigurationManager.AppSettings["DataOne:AccessKey"];
         public readonly string dataOneSecretApiKey = ConfigurationManager.AppSettings["DataOne:SecretAccessKey"];
+        public readonly string ez360ProjectId = ConfigurationManager.AppSettings["EZ360:ProjectId"];
 
         private static readonly object _sync = new object();
         private static readonly Random _rand = new Random();
@@ -35,17 +36,20 @@ namespace GTX.Controllers {
 
         public ISessionData SessionData { get; private set; }
 
+        public IEZ360Service EZ360Service { get; private set; }
+
         public BaseModel Model { get; set; }
 
         #endregion Properties
 
         #region Construtors
 
-        public BaseController(ISessionData _sessionData, IInventoryService _invntoryService, IVinDecoderService _vinDecoderService, ILogService _logService) {
+        public BaseController(ISessionData _sessionData, IInventoryService _invntoryService, IVinDecoderService _vinDecoderService, IEZ360Service _ez360Service, ILogService _logService) {
             SessionData = _sessionData;
             LogService = _logService;
             InventoryService = _invntoryService;
             VinDecoderService = _vinDecoderService;
+            EZ360Service = _ez360Service;
         }
 
         #endregion Construtors
@@ -63,6 +67,9 @@ namespace GTX.Controllers {
                 Model = new BaseModel();
 
                 Model.IsDevelopment = (Environment.GetEnvironmentVariable("COMPUTERNAME") == devComputer);
+                Model.IsEZ360 = ConfigurationManager.AppSettings["isEZ360"] == "true";
+                Model.IsDataOne = ConfigurationManager.AppSettings["isDataOne"] == "true";
+
                 SessionData.SetSession(Constants.SESSION_ENVIRONMENT, Model.IsDevelopment ? "Development" : "Production");
                 ViewBag.Environment = SessionData.Environment;
 
@@ -242,7 +249,7 @@ namespace GTX.Controllers {
 
                 vehicle.Image = $"{imageFolder}no-image-{Version()}.jpg";
                 if (vehicle.Images != null && vehicle.Images.Length > 0) {
-                    vehicle.Image = $"{imageFolder}{vehicle.Stock}/{vehicle.Images[0].Name}"; ;
+                    vehicle.Image = $"{imageFolder}{vehicle.Images[0].Source}"; ;
                 }
             }
 
@@ -312,13 +319,20 @@ namespace GTX.Controllers {
 
             var (errCode, errMsg) = ParseDecoderError(dataOne);
 
-            if (errCode != null) {
+            if (errCode != null && errCode != "RI") {
+                Console.WriteLine(errMsg);
                 return null;
             }
 
-            var serializer = new XmlSerializer(typeof(DecodedData));
-            using (TextReader reader = new StringReader(dataOne)) {
-                return (DecodedData)serializer.Deserialize(reader);
+            try {
+                var serializer = new XmlSerializer(typeof(DecodedData));
+                using (TextReader reader = new StringReader(dataOne))
+                {
+                    return (DecodedData)serializer.Deserialize(reader);
+                }
+            }
+            catch(Exception ex) {
+                return null;
             }
         }
 
@@ -358,6 +372,9 @@ namespace GTX.Controllers {
 
                 var code = (string?)err.Element("code");
                 var msg = (string?)err.Element("message");
+
+                if (code == "RI") return (null, null);
+
                 return (code, msg);
             }
             catch {
