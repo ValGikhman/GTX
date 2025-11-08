@@ -60,7 +60,9 @@
 
     <!-- ASSETS -->
     <script src="~/Scripts/AlloyFinger/alloy_finger.min.js" type="text/javascript"></script>
-    <script src="https://sdk.sister.tv/integrations/cvdp/live/injectEZ360PlayerScript.min.js" id="ez360-cvdp" vin="GTX146379" integration_id="gtx-auto-cincinnati" page_type="VDP"></script>
+    @if(Model.CurrentVehicle.DisplayEZ360Player && Model.IsEZ360) { 
+        <script src="https://sdk.sister.tv/integrations/cvdp/live/injectEZ360PlayerScript.min.js" id="ez360-cvdp" vin="@Model.CurrentVehicle.VehicleDetails.VIN" integration_id="gtx-auto-cincinnati" page_type="VDP"></script>
+    }
 
 </head>
 <!-- Modal -->
