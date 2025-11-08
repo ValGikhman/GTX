@@ -68,22 +68,27 @@ namespace GTX.Controllers {
             }
 
             Model.CurrentVehicle.VehicleDetails = vehicle;
-            Model.CurrentVehicle.VehicleDataOneDetails = GetDecodedData(stock);
             Model.CurrentVehicle.VehicleDetails.Story = InventoryService.GetStory(vehicle.Stock);
 
-            if (!InventoryService.AnyDataOneDetails(stock))
+            // If there is no DataOne get it
+            if (Model.IsDataOne)
             {
-                var details = VinDecoderService.DecodeVin(vehicle.VIN, dataOneApiKey, dataOneSecretApiKey);
-                InventoryService.SaveDataOneDetails(stock, details);
+                if (!InventoryService.AnyDataOneDetails(stock)) {
+                    var details = VinDecoderService.DecodeVin(vehicle.VIN, dataOneApiKey, dataOneSecretApiKey);
+                    InventoryService.SaveDataOneDetails(stock, details);
+                }
+
                 Model.CurrentVehicle.VehicleDataOneDetails = GetDecodedData(stock);
             }
 
-            //var ez360Pictures = await EZ360Service.GetDetailsPics(ez360ProjectId, "GTX146379");
-            //var ez360Pictures = await EZ360Service.GetDetailsPics(ez360ProjectId, "TEST_1023153916");
+            if (Model.IsEZ360) {
+                //var ez360Pictures = await EZ360Service.GetDetailsPics(ez360ProjectId, "GTX146379");
+                //var ez360Pictures = await EZ360Service.GetDetailsPics(ez360ProjectId, "TEST_1023153916");
 
-            var ez360Pictures = await EZ360Service.GetDetailsPics(ez360ProjectId, vehicle.VIN);
+                var ez360Pictures = await EZ360Service.GetDetailsPics(ez360ProjectId, vehicle.VIN);
+                Model.CurrentVehicle.DisplayEZ360Player = (ez360Pictures.Length > 0);
+            }
 
-            Model.CurrentVehicle.DisplayEZ360Player = (ez360Pictures.Length > 0);
             Model.CurrentVehicle.VehicleImages = GetImages(stock);
             SessionData.CurrentVehicle = Model.CurrentVehicle;
 

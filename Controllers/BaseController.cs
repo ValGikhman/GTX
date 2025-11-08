@@ -81,11 +81,15 @@ namespace GTX.Controllers
                 Model.IsMajordome = (bool)SessionData.IsMajordome;
                 ViewBag.IsMajordome = Model.IsMajordome;
 
-                if (SessionData == null || SessionData?.EZ360Inventory == null) {
-                    Model.EZ360Inventory = EZ360Service.GetInventory(ez360ProjectId);
-                    SessionData.SetSession(Constants.SESSION_EZ360_INVENTORY, Model.EZ360Inventory);
+                if (Model.IsEZ360)
+                {
+                    if (SessionData == null || SessionData?.EZ360Inventory == null)
+                    {
+                        Model.EZ360Inventory = EZ360Service.GetInventory(ez360ProjectId);
+                        SessionData.SetSession(Constants.SESSION_EZ360_INVENTORY, Model.EZ360Inventory);
+                    }
+                    Model.EZ360Inventory = SessionData.EZ360Inventory;
                 }
-                Model.EZ360Inventory = SessionData.EZ360Inventory;
 
                 if (SessionData == null || SessionData?.Inventory == null)
                 {
