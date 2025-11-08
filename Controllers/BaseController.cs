@@ -6,12 +6,12 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 
-namespace GTX.Controllers {
+namespace GTX.Controllers
+{
 
     public abstract class BaseController : Controller {
 
@@ -60,7 +60,7 @@ namespace GTX.Controllers {
             base.Initialize(requestContext);
         }
 
-        protected async override void OnActionExecuting(ActionExecutingContext filterContext) {
+        protected override void OnActionExecuting(ActionExecutingContext filterContext) {
             base.OnActionExecuting(filterContext);
 
             try {
@@ -81,11 +81,17 @@ namespace GTX.Controllers {
                 Model.IsMajordome = (bool)SessionData.IsMajordome;
                 ViewBag.IsMajordome = Model.IsMajordome;
 
-                if (SessionData == null || SessionData?.Inventory == null) {
-                    Model.Inventory = await SetModel(Model.Inventory);
+                if (SessionData == null || SessionData?.EZ360Inventory == null) {
+                    Model.EZ360Inventory = EZ360Service.GetInventory(ez360ProjectId);
+                    SessionData.SetSession(Constants.SESSION_EZ360_INVENTORY, Model.EZ360Inventory);
+                }
+                Model.EZ360Inventory = SessionData.EZ360Inventory;
+
+                if (SessionData == null || SessionData?.Inventory == null)
+                {
+                    Model.Inventory = SetModel(Model.Inventory);
                     SessionData.SetSession(Constants.SESSION_INVENTORY, Model.Inventory);
                 }
-
                 Model.Inventory = SessionData.Inventory;
 
                 if (SessionData == null || SessionData?.Employers == null) {
@@ -159,11 +165,18 @@ namespace GTX.Controllers {
             }
         }
 
-        private async Task<Inventory> SetModel(Inventory model) {
+        private Inventory SetModel(Inventory model) {
             if (SessionData?.Inventory == null) {
                 var emptyArray = Array.Empty<Models.GTX>();
 
-                model.Current = await Utility.XMLHelpers.XmlRepository.GetInventory();
+                if (Model.IsEZ360)
+                {
+                    model.Current = VehicleMapper.ToGTXInventory(Model.EZ360Inventory);
+                }
+                else {
+                    model.Current = Utility.XMLHelpers.XmlRepository.GetInventory();
+                }
+
                 model.Current = ApplyExtended(model.Current);
 
                 model.All = model.Current
@@ -218,6 +231,10 @@ namespace GTX.Controllers {
         }
 
         public Image[] GetImages(string stock) {
+            if (!Model.CurrentVehicle.DisplayEZ360Player && Model.IsEZ360) {
+                var currentVehicle = Model.EZ360Inventory.FirstOrDefault(m => m.StockNo == stock);
+                return currentVehicle.ThirdPartyPics.Select(m => new Image() { Id = Guid.Empty, Stock = currentVehicle.StockNo, DateCreated = DateTime.Now, Order = 0, Source = m }).ToArray();
+            }
             return InventoryService.GetImages(stock);
         }
 
@@ -242,17 +259,20 @@ namespace GTX.Controllers {
 
         public Models.GTX[] ApplyExtended(Models.GTX[] vehicles) {
             foreach (var vehicle in vehicles) {
-                vehicle.Story = InventoryService.GetStory(vehicle.Stock);
-                vehicle.DataOne = GetDecodedData(vehicle.Stock);
-                vehicle.Images = InventoryService.GetImages(vehicle.Stock);
+                // vehicle.Story = InventoryService.GetStory(vehicle.Stock);
+                // vehicle.DataOne = GetDecodedData(vehicle.Stock);
                 vehicle.TransmissionWord = WordIt(vehicle.Transmission);
 
                 vehicle.Image = $"{imageFolder}no-image-{Version()}.jpg";
-                if (vehicle.Images != null && vehicle.Images.Length > 0) {
-                    vehicle.Image = $"{imageFolder}{vehicle.Images[0].Source}"; ;
+
+                if (!Model.IsEZ360) {
+                    vehicle.Images = InventoryService.GetImages(vehicle.Stock);
+                    if (vehicle.Images != null && vehicle.Images.Length > 0)
+                    {
+                        vehicle.Image = $"{imageFolder}{vehicle.Images[0].Source}"; ;
+                    }
                 }
             }
-
             return vehicles;
         }
 

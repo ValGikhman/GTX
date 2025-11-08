@@ -40,6 +40,8 @@ namespace GTX.Models {
 
         public Inventory Inventory { get; set; }
 
+        public EZ360.Vehicle[] EZ360Inventory{ get; set; }
+
         public Employer[] Employers { get; set; }
 
         public Filters CurrentFilter { get; set; }
@@ -51,8 +53,13 @@ namespace GTX.Models {
 
     public class Vehicle { 
         public GTX VehicleDetails { get; set; }
+
         public DecodedData VehicleDataOneDetails { get; set; }
+
+        public bool DisplayEZ360Player { get; set; }
+
         public Image[] VehicleImages { get; set; }
+
         public GTX[] VehicleSuggesion { get; set; }
     }
 }

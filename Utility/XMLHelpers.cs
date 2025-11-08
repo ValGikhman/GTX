@@ -47,15 +47,15 @@ namespace Utility.XMLHelpers {
                 .ToArray();
         }
 
-        public async static Task<GTX.Models.GTX[]> GetInventory() {
+        public static GTX.Models.GTX[] GetInventory() {
             string path = $"{xmlFilePath}\\Inventory\\Current\\GTX-Inventory.xml";
-            GTXInventory inventory = await ReadXmlFile(path);
+            GTXInventory inventory = ReadXmlFile(path);
             inventory.Vehicles = inventory.Vehicles.Where(m => !string.IsNullOrEmpty(m.VIN)).ToArray();
 
             return inventory.Vehicles;
         }
 
-        public async static Task<GTXInventory> ReadXmlFile(string filePath) {
+        public static GTXInventory ReadXmlFile(string filePath) {
             XmlSerializer serializer = new XmlSerializer(typeof(GTXInventory));
 
             using (StreamReader reader = new StreamReader(filePath)) {

@@ -3,6 +3,7 @@ using Services;
 using System;
 using System.Linq;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
@@ -16,13 +17,12 @@ namespace GTX.Controllers {
         }
 
         [HttpGet]
-        public async Task<ActionResult> Index(BaseModel model) {
+        public ActionResult Index(BaseModel model) {
             var vehicles = Model.Inventory.Vehicles ?? Array.Empty<Models.GTX>();
             Model.Inventory.Title = "Found";
             ViewBag.Title = $"{Model.Inventory.Title.ToUpper()} {vehicles.Length} vehicles";
             Log($"{Model.Inventory.Title} inventory");
-
-            var res = await EZ360Service.GetDetailsPics(ez360ProjectId, "TEST_1023153916");
+            model.EZ360Inventory = Model.EZ360Inventory;
 
             return View(model);
         }
@@ -50,7 +50,7 @@ namespace GTX.Controllers {
         }
 
         [HttpGet]
-        public ActionResult Details(string stock) {
+        public async Task<ActionResult> Details(string stock) {
             stock = stock?.Trim().ToUpper();
 
             if (string.IsNullOrEmpty(stock)) {
@@ -69,8 +69,21 @@ namespace GTX.Controllers {
 
             Model.CurrentVehicle.VehicleDetails = vehicle;
             Model.CurrentVehicle.VehicleDataOneDetails = GetDecodedData(stock);
-            Model.CurrentVehicle.VehicleImages = GetImages(stock);
+            Model.CurrentVehicle.VehicleDetails.Story = InventoryService.GetStory(vehicle.Stock);
 
+            if (!InventoryService.AnyDataOneDetails(stock))
+            {
+                var details = VinDecoderService.DecodeVin(vehicle.VIN, dataOneApiKey, dataOneSecretApiKey);
+                InventoryService.SaveDataOneDetails(stock, details);
+            }
+
+            //var ez360Pictures = await EZ360Service.GetDetailsPics(ez360ProjectId, "GTX146379");
+            //var ez360Pictures = await EZ360Service.GetDetailsPics(ez360ProjectId, "TEST_1023153916");
+
+            var ez360Pictures = await EZ360Service.GetDetailsPics(ez360ProjectId, vehicle.VIN);
+
+            Model.CurrentVehicle.DisplayEZ360Player = (ez360Pictures.Length > 0);
+            Model.CurrentVehicle.VehicleImages = GetImages(stock);
             SessionData.CurrentVehicle = Model.CurrentVehicle;
 
             // Suggest similar vehicles (within $3000 range, excluding the current one)

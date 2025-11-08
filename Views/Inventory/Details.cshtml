@@ -2,6 +2,18 @@
 @model GTX.Models.BaseModel
 
 <style>
+    #infoIcon {
+        display: none;
+    }
+
+    #EZ360-left-part-container {
+        height: 78.5%!important;
+    }
+
+    #EZ360-Player-Div {
+        border: 0px !important;
+    }
+
     .img-carousel {
         width: 800px;
         height: 525px;
@@ -40,7 +52,6 @@
     <meta property="og:site_name" content="GTX Auto Group" />
 
     <script src="~/Scripts/Lightbox/lc_lightbox.lite.min.js" type="text/javascript"></script>
-    <script src="https://sdk.sister.tv/integrations/cvdp/live/injectEZ360PlayerScript.min.js" id="ez360-cvdp" vin="TEST_1023153916" integration_id="gtx-auto-cincinnati" page_type="VDP"></script>
 
     <link href="~/Content/Lightbox/lc_lightbox.min.css" rel="stylesheet" />
 
@@ -49,6 +60,8 @@
 
     <!-- ASSETS -->
     <script src="~/Scripts/AlloyFinger/alloy_finger.min.js" type="text/javascript"></script>
+    <script src="https://sdk.sister.tv/integrations/cvdp/live/injectEZ360PlayerScript.min.js" id="ez360-cvdp" vin="GTX146379" integration_id="gtx-auto-cincinnati" page_type="VDP"></script>
+
 </head>
 <!-- Modal -->
 <div id="dynamicModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -89,8 +102,9 @@
             <div class="tab-pane fade show active" id="nav-details" role="tabpanel" aria-labelledby="nav-details-tab">
                 <div class="row well">
                     @{
-                        if (Model.IsEZ360)
+                        if (Model.CurrentVehicle.DisplayEZ360Player && Model.IsEZ360)
                         {
+                            @*<div id="EZ360-media-player"></div>*@
                             <div id="EZ360_CVDP"></div>
                         }
                         else
@@ -176,18 +190,18 @@
             <div class="tab-pane fade well" id="nav-pictures" role="tabpanel" aria-labelledby="nav-picture-tab">
                 <div class="d-flex flex-wrap justify-content-center overflow-auto">
                     @foreach (Image image in Model.CurrentVehicle.VehicleDetails.Images) {
-                        string imagePath = $"/GTXImages/Inventory/{image.Source}";
+                        string imagePath = $"{image.Source}";
                         <a class="elem three-d w-30" href="@imagePath" data-lcl-thumb="@imagePath">
                             <span class="shadow rounded" style="background-image: url(..@imagePath);"></span>
                         </a>
                     }
                 </div>
             </div>
-            @*            <div class="tab-pane fade well" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
-                    <div id="contactTab" class="mx-auto w-75 mt-4">
-                        @{ Html.RenderPartial("_ContactForm", new GTX.Models.ContactModel()); }
-                    </div>
-                </div>*@
+            @*<div class="tab-pane fade well" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+                <div id="contactTab" class="mx-auto w-75 mt-4">
+                    @{ Html.RenderPartial("_ContactForm", new GTX.Models.ContactModel()); }
+                </div>
+            </div>*@
             <div class="tab-pane fade well" id="nav-location" role="tabpanel" aria-labelledby="nav-location-tab">
                 <div class="d-flex justify-content-evenly mt-4">
                     @{

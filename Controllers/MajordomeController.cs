@@ -373,7 +373,7 @@ namespace GTX.Controllers {
                 }
 
                 InventoryService.DeleteImages(stock);
-                Model.Inventory.Vehicles = ApplyExtended(Model.Inventory.Vehicles);
+                Model.Inventory.Vehicles = ApplyExtended (Model.Inventory.Vehicles);
                 return Json(new { success = true, message = "All files deleted successfully." });
             }
 
