@@ -86,16 +86,16 @@
     <h8 id="status"></h8>
 </div>
 <div class="details-container d-flex flex-column flex-lg-row justify-content-center gap-5">
-    <div class="col-lg-9 col-md-4 col-sm-12">
+    <div class="col-lg-7 col-md-4 col-sm-12">
         <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
                 <button class="nav-item active btn btn-gradient-grey border-dark text-shadow-small" id="nav-details-tab" data-bs-toggle="tab" data-bs-target="#nav-details" type="button" role="tab" aria-controls="nav-details" aria-selected="true"><i class="bi bi-car-front"></i>&nbsp; Details</button>
                 @{
-                    if (Model.CurrentVehicle.VehicleImages.Count() > 0) {
+                    if (Model.CurrentVehicle.VehicleImages.Count() > 0)
+                    {
                         <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small" id="nav-pictures-tab" data-bs-toggle="tab" data-bs-target="#nav-pictures" type="button" role="tab" aria-controls="nav-pictures" aria-selected="false"><i class="bi bi-camera"></i>&nbsp; Photos ( @Model.CurrentVehicle.VehicleDetails.Images.Count())</button>
                     }
                 }
-                @*<button class="nav-item btn btn-gradient-grey text-shadow-small" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="true"><i class="bi bi-calendar3"></i>&nbsp; Test drive</button>*@
                 <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small" id="nav-location-tab" data-bs-toggle="tab" data-bs-target="#nav-location" type="button" role="tab" aria-controls="nav-location" aria-selected="true"><i class="bi bi-geo-fill"></i>&nbsp; Location</button>
                 <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small" id="nav-payment-tab" data-bs-toggle="tab" data-bs-target="#nav-payment" type="button" role="tab" aria-controls="nav-payment" aria-selected="true"><strong><i class="bi bi-calculator"></i>&nbsp; Pay $<span id="monthlyAmount"></span>/mo</strong></button>
             </div>
@@ -134,34 +134,21 @@
                     }
                 </div>
 
-                @*Dudes*@
-                <div class="d-flex justify-content-center align-items-center gap-2 flex-nowrap my-2">
-                    <span>
-                        <i id="like-btn" class="btn btn-gradient-grey border-dark rounded shadow bi bi-heart-fill text-danger" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"></i>
-                    </span>
-                    <span>
-                        <a id="shareToFacebook" class="btn btn-gradient-grey border-dark rounded shadow" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"><i class="bi bi-facebook"></i></a>
-                    </span>
-                    <span>
-                        <a id="shareToTwitter" class="btn btn-gradient-grey border-dark rounded shadow" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"><i class="bi bi-twitter"></i></a>
-                    </span>
-                    <a href="http://www.carfax.com/VehicleHistory/p/Report.cfx?partner=DVW_1&vin=@Model.CurrentVehicle.VehicleDetails.VIN" target="_blank">
-                        <img src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report">
-                    </a>
-                </div>
-
                 @*Details*@
                 @{
-                    if (Model.CurrentVehicle.VehicleDataOneDetails == null) {
+                    if (Model.CurrentVehicle.VehicleDataOneDetails == null)
+                    {
                         Html.RenderPartial("_Details");
                     }
-                    else {
+                    else
+                    {
                         Html.RenderPartial("_DetailsDataOne");
                     }
                 }
 
                 @*Story*@
-                @if (@Model.CurrentVehicle.VehicleDetails.Story != null) {
+                @if (@Model.CurrentVehicle.VehicleDetails.Story != null)
+                {
                     <div class="row justify-content-center well mb-3">
                         <button class="w-100 btn btn-gradient position-relative collapse-toggle"
                                 type="button"
@@ -191,25 +178,23 @@
             </div>
             <div class="tab-pane fade well" id="nav-pictures" role="tabpanel" aria-labelledby="nav-picture-tab">
                 <div class="d-flex flex-wrap justify-content-center overflow-auto">
-                    @foreach (Image image in Model.CurrentVehicle.VehicleDetails.Images) {
+                    @foreach (Image image in Model.CurrentVehicle.VehicleDetails.Images)
+                    {
                         string imagePath = $"{image.Source}";
                         <a class="elem three-d w-30" href="@imagePath" data-lcl-thumb="@imagePath">
-                            <span class="shadow rounded" style="background-image: url(..@imagePath);"></span>
+                            <span class="shadow rounded" style="background-image: url(@imagePath);"></span>
                         </a>
                     }
                 </div>
             </div>
-            @*<div class="tab-pane fade well" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
-                <div id="contactTab" class="mx-auto w-75 mt-4">
-                    @{ Html.RenderPartial("_ContactForm", new GTX.Models.ContactModel()); }
-                </div>
-            </div>*@
             <div class="tab-pane fade well" id="nav-location" role="tabpanel" aria-labelledby="nav-location-tab">
                 <div class="d-flex justify-content-evenly mt-4">
                     @{
                         GTX.Models.OpenHours[] openHours = Utility.XMLHelpers.XmlRepository.GetOpenHours();
-                        if (openHours != null) {
-                            foreach (var open in openHours) {
+                        if (openHours != null)
+                        {
+                            foreach (var open in openHours)
+                            {
                                 <span class="btn btn-outline-secondary shadow position-relative details">
                                     <span class="medium-small-text">@open.Description</span>
                                     <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
@@ -304,8 +289,17 @@
             </div>
         </div>
     </div>
+    <div class="col-lg-3 col-md-4 col-sm-12 pt-4 mt-3">
+        @*Carfax*@
+        <a class="w-100 btn btn-gradient mb-3"
+           type="button"
+           id="btnCarfax"
+           href="http://www.carfax.com/VehicleHistory/p/Report.cfx?partner=DVW_1&vin=@Model.CurrentVehicle.VehicleDetails.VIN" target="_blank">
+            <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
+                <img src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report">
+            </h5>
+        </a>
 
-    <div class="col-lg-2 col-md-4 col-sm-12 pt-4 mt-3">
         @*Test drive*@
         <button class="w-100 btn btn-gradient mb-3"
                 type="button"
@@ -341,6 +335,19 @@
                 <i class="bi bi-currency-dollar mx-2"></i>Loan application
             </h5>
         </button>
+
+        @*Dudes*@
+        <div class="d-flex justify-content-center align-items-center gap-3 flex-nowrap my-2">
+            <span>
+                <i id="like-btn" class="btn btn-gradient-grey border-dark rounded shadow bi bi-heart-fill text-danger" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"></i>
+            </span>
+            <span>
+                <a id="shareToFacebook" class="btn btn-gradient-grey border-dark rounded shadow" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"><i class="bi bi-facebook"></i></a>
+            </span>
+            <span>
+                <a id="shareToTwitter" class="btn btn-gradient-grey border-dark rounded shadow" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"><i class="bi bi-twitter"></i></a>
+            </span>
+        </div>
     </div>
 </div>
 @*May Like*@
