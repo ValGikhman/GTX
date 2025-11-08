@@ -1,8 +1,15 @@
 ﻿@model GTX.Models.GTX
+<style>
+    .text-truncate {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>
 <li id="@Model.Stock" class="card rounded-3 col-12 col-sm-6 col-md-4 col-lg-3 V @Model.LocationCode" title="Click here to see details."
     data-location-code="@Model.LocationCode"
     data-story="@(Model.Story is not null && !Model.Story.HtmlContent.ToUpper().Contains("ERROR") ? "STORY" : "NOSTORY")"
-    data-images="@(Model.Image.Contains("no-image") ? "NOIMAGE" : "IMAGE")"
+    data-images="@(Model.Image is not null && Model.Image.Contains("no-image") ? "NOIMAGE" : "IMAGE")"
     data-year="@Model.Year"
     data-stock="@Model.Stock.ToUpper()"
     data-vin="@Model.VIN.ToUpper()"
@@ -30,12 +37,12 @@
                     <div class="fw-bold fs-6 text-shadow">@Model.Year @Model.Make
                         <i class="liked bi bi-heart-fill text-danger position-absolute top-0 end-0 mt-2 me-2" style="display:none;"></i>
                     </div>
-                    <div class="fw-bold fs-7 text-shadow">@Model.Model - @Model.VehicleStyle</div>
+                    <div class="fw-bold fs-7 text-shadow text-truncate" style="max-width: 230px;">@Model.Model - @Model.VehicleStyle</div>
                 </div>
             </div>
         </div>
         <div class="card-body p-0 well ez360-srp-pic" data-vin="@Model.VIN">
-            <img class="img-fluid w-100" src="@Model.Image" alt="@($"{Model.Year} {Model.Make} {Model.Model}")" loading="lazy" decoding="async">
+            <img class="img-fluid w-100" src="@Model.Image" alt="@($"{Model.Year} {Model.Make} {Model.Model}")" loading="lazy" decoding="async" >
         </div>
 
         <div class="card-footer gradient">

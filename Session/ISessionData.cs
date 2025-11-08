@@ -13,6 +13,8 @@ namespace GTX {
 
         Inventory Inventory { get; set; }
 
+        EZ360.Vehicle[] EZ360Inventory { get; set; }
+
         Employer[] Employers { get; set; }
 
         Filters Filters { get; set; }

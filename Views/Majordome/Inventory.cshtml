@@ -1,4 +1,5 @@
-﻿@model GTX.Models.BaseModel
+﻿@using Newtonsoft.Json
+@model GTX.Models.BaseModel
 <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
     <script src="~/Scripts/just-validate/just-validate.production.min.js"></script>
@@ -6,7 +7,7 @@
 
     <style>
         #dataOneContainer {
-            overflow-y:auto;
+            overflow-y: auto;
             height: 31.5rem;
         }
 
@@ -405,7 +406,7 @@
             });
         },
         plugins: [
-            'advlist', 'anchor', 'autolink', 'codesample', 'fullscreen', 
+            'advlist', 'anchor', 'autolink', 'codesample', 'fullscreen',
             'image', 'lists', 'link', 'media', 'preview',
             'searchreplace', 'table', 'visualblocks'
         ],
@@ -592,7 +593,7 @@
     ]
 
     const gridOptions = {
-        rowData: @Html.Raw(Json.Encode(Model.Inventory.Vehicles)),
+        rowData: @Html.Raw(JsonConvert.SerializeObject(Model.Inventory.Vehicles)),
         onGridReady: (params) => {
             gridApi = params.api; // ✅ store reference globally
             gridColumnApi = params.columnApi;

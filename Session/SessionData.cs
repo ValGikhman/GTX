@@ -1,4 +1,5 @@
-﻿using GTX.Models;
+﻿using GTX.EZ360;
+using GTX.Models;
 using Services;
 using System;
 
@@ -8,9 +9,10 @@ namespace GTX.Session {
         #region Private Fields
 
         private readonly Inventory _inventory = null;
+        private readonly EZ360.Vehicle[] _ez360_inventory = null;
         private readonly Employer[] _employers = null;
         private readonly Filters _currentFilter = null;
-        private readonly Vehicle _currentVehicle = null;
+        private readonly Models.Vehicle _currentVehicle = null;
         private readonly Filters _filters = null;
         private readonly Log _logHeader = null;
         private readonly OpenHours[] _openHours = null;
@@ -59,12 +61,19 @@ namespace GTX.Session {
             set => SetSession(Constants.SESSION_INVENTORY, value);
         }
 
+        public EZ360.Vehicle[] EZ360Inventory
+        {
+            get => GetSession(Constants.SESSION_EZ360_INVENTORY, _ez360_inventory);
+            set => SetSession(Constants.SESSION_EZ360_INVENTORY, value);
+        }
+
+
         public Filters CurrentFilter {
             get => GetSession(Constants.SESSION_CURRENT_FILTER, _currentFilter);
             set => SetSession(Constants.SESSION_CURRENT_FILTER, value);
         }
 
-        public Vehicle CurrentVehicle {
+        public Models.Vehicle CurrentVehicle {
             get => GetSession(Constants.SESSION_CURRENT_VEHICLE, _currentVehicle);
             set => SetSession(Constants.SESSION_CURRENT_VEHICLE, value);
         }

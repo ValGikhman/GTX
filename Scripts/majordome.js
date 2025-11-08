@@ -70,7 +70,9 @@ function loadGallery(vehicle) {
             imageIcon = "bi bi-image-fill";
         }
 
-        var imagePath = `${images}/${img.Source}`;
+        //var imagePath = `${images}/${img.Source}`;
+        var imagePath = `${img.Source}`;
+
         var item = `
         <li id="${img.Id}" class="col-lg-2 col-md-3 col-sm-4 pt-2 shadow" data-filename="${img.Source}" style="width:245px!important;height:245px !important;">
             <a href="${imagePath}" data-lightbox="gallery">

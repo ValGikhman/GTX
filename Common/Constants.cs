@@ -6,6 +6,7 @@ public static class Constants {
 
     public const string SESSION = "SessionData";
     public const string SESSION_INVENTORY = "SessionInventory";
+    public const string SESSION_EZ360_INVENTORY = "SessionEZ360Inventory";
     public const string SESSION_EMPLOYERS = "SessionEmployers";
     public const string SESSION_CURRENT_VEHICLE = "SessionCurrentVehicle";
     public const string SESSION_CURRENT_FILTER = "SessionCurrentFilter";

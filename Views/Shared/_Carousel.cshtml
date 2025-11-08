@@ -5,7 +5,7 @@
             var i = 0;
         }
         @foreach (var image in Model.VehicleImages) {
-            var imagePath = $"/GTXImages/Inventory/{image.Source}";
+            var imagePath = $"{image.Source}";
             <div class="carousel-item @(i == 0 ? "active" : "")">
                 <div class="slide-box">
                     <img src="@imagePath" alt="Vehicle image @i" loading="@(i == 0 ? "eager" : "lazy")" decoding="async" />
