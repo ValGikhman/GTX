@@ -75,6 +75,7 @@ namespace GTX.Controllers {
             {
                 var details = VinDecoderService.DecodeVin(vehicle.VIN, dataOneApiKey, dataOneSecretApiKey);
                 InventoryService.SaveDataOneDetails(stock, details);
+                Model.CurrentVehicle.VehicleDataOneDetails = GetDecodedData(stock);
             }
 
             //var ez360Pictures = await EZ360Service.GetDetailsPics(ez360ProjectId, "GTX146379");
