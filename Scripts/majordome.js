@@ -298,7 +298,7 @@ function decodeDataOneDetails(vin) {
     showSpinner($("#inventoryOverlay"));
     $.get(`${root}Majordome/JustDecodeDataOne`, { "vin": vin })
         .done(function (result) {
-            $("#dataOneDetails").html(result);
+            $("#dataOneVinDecoder").html(result);
             hideSpinner($("#inventoryOverlay"));
         })
         .fail(function () {

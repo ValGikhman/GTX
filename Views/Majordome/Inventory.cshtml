@@ -8,7 +8,7 @@
     <style>
         #dataOneContainer {
             overflow-y: auto;
-            height: 31.5rem;
+            height: 37rem;
         }
 
         #filterLiked, #filterLast, .sort {
@@ -96,9 +96,19 @@
         <button class="nav-item btn btn-gradient-grey text-shadow-small" id="details-tab" data-bs-toggle="tab" data-bs-target="#tab-details" type="button" role="tab">
             Details
         </button>
-        <button class="nav-item btn btn-gradient-grey text-shadow-small" id="gallery-tab" data-bs-toggle="tab" data-bs-target="#tab-gallery" type="button" role="tab">
-            Photos
-        </button>
+        @if (!@Model.IsEZ360)
+        {
+            <button class="nav-item btn btn-gradient-grey text-shadow-small" id="gallery-tab" data-bs-toggle="tab" data-bs-target="#tab-gallery" type="button" role="tab">
+                Photos
+            </button>
+        }
+
+        @if (@Model.IsDataOne)
+        {
+            <button class="nav-item btn btn-gradient-grey text-shadow-small" id="vin-decoder-tab" data-bs-toggle="tab" data-bs-target="#tab-vin-decoder" type="button" role="tab">
+                Vin decoder
+            </button>
+        }
     </nav>
 
     <div class="tab-content border border-top-0 well " id="myTabContent">
@@ -121,18 +131,12 @@
                 </div>
             </div>
         </div>
+
         <!-- Details Tab -->
         <div class="tab-pane fade" id="tab-details" role="tabpanel">
             <div class="row">
                 <!-- Left Column: Form -->
                 <div class="col-lg-7">
-                    <div class="row col-lg-6 mt-3">
-                        @Html.Label("VIN", new { @class = "text-shadow" })
-                        <div class="input-group mb-2">
-                            <input id="vin" class="form-control shadow" placeholder="VIN" aria-label="VIN" aria-describedby="vin" />
-                            <button id="decode" class="btn btn-light bi bi-search input-group-text "></button>
-                        </div>
-                    </div>
                     <div id="dataOneDetails" class="row mt-3 d-flex justify-content-center">
                     </div>
                 </div>
@@ -155,22 +159,43 @@
             </div>
         </div>
 
-        <!-- Gallery Tab -->
-        <div class="tab-pane fade d-flex flex-column align-items-center" id="tab-gallery" role="tabpanel">
-            <div class="d-flex justify-content-center w-100 p-3">
-                <button id="upload" class="btn btn-light shadow mx-2 bi bi-upload">&nbsp;Upload images</button>
-                <button id="deleteAll" class="btn btn-light shadow bi bi-trash">&nbsp;Delete all images</button>
-                <input type="file" id="fileInput" class="d-none" multiple accept="image/*">
-            </div>
-            <div id="dropzone" class="dropzone w-100">
-                <div id="gallery-content" class="flex-grow-1 w-100 px-3 pb-3">
-                    <ul id="sortable-gallery" class="row justify-content-center">
-                    </ul>
+        @if (!@Model.IsEZ360)
+        {
+            <!-- Gallery Tab -->
+            <div class="tab-pane fade d-flex flex-column align-items-center" id="tab-gallery" role="tabpanel">
+                <div class="d-flex justify-content-center w-100 p-3">
+                    <button id="upload" class="btn btn-light shadow mx-2 bi bi-upload">&nbsp;Upload images</button>
+                    <button id="deleteAll" class="btn btn-light shadow bi bi-trash">&nbsp;Delete all images</button>
+                    <input type="file" id="fileInput" class="d-none" multiple accept="image/*">
+                </div>
+                <div id="dropzone" class="dropzone w-100">
+                    <div id="gallery-content" class="flex-grow-1 w-100 px-3 pb-3">
+                        <ul id="sortable-gallery" class="row justify-content-center">
+                        </ul>
+                    </div>
                 </div>
             </div>
-        </div>
+        }
+        @if (@Model.IsDataOne)
+        {
+            <!-- Vin decoder Tab -->
+            <div class="tab-pane fade" id="tab-vin-decoder" role="tabpanel">
+                <div class="row">
+                    <!-- Left Column: Form -->
+                        <div class="row col-lg-6 mt-3">
+                            @Html.Label("VIN", new { @class = "text-shadow" })
+                            <div class="input-group mb-2">
+                                <input id="vin" class="form-control shadow" placeholder="VIN" aria-label="VIN" aria-describedby="vin" />
+                                <button id="decode" class="btn btn-light bi bi-search input-group-text "></button>
+                            </div>
+                        </div>
+                        <div id="dataOneVinDecoder" class="row mt-3 d-flex justify-content-center">
+                        </div>
+                </div>
+            </div>
+        }
+
     </div>
-</div>
 
 <template id="actions">
     <button type="button" id="btnDecodeAll" class="btn btn-gradient shadow">Decode all</button>
@@ -833,4 +858,3 @@
     }
 
 </script>
-+
