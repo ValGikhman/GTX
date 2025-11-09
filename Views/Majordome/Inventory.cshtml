@@ -392,22 +392,15 @@
             }
         });
 
-        $("#vin")
-            .on("blur", function () {
+        $("#vin").on("keydown", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
                 const vin = $(this).val();
                 if (vin.length > 0) {
                     decodeDataOneDetails(vin);
                 }
-            })
-            .on("keydown", function (e) {
-                if (e.key === "Enter") {
-                    e.preventDefault();
-                    const vin = $(this).val();
-                    if (vin.length > 0) {
-                        decodeDataOneDetails(vin);
-                    }
-                }
-            }).focus();
+            }
+        }).focus();
 
         $("#decode").on("click", function () {
             const vin = $("#vin").val();
