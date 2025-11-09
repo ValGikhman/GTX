@@ -371,7 +371,7 @@
             .on("blur", function () {
                 const vin = $(this).val();
                 if (vin.length > 0) {
-                    decodeVin(vin);
+                    decodeDataOneDetails(vin);
                 }
             })
             .on("keydown", function (e) {
@@ -379,10 +379,17 @@
                     e.preventDefault();
                     const vin = $(this).val();
                     if (vin.length > 0) {
-                        decodeVin(vin);
+                        decodeDataOneDetails(vin);
                     }
                 }
             }).focus();
+
+        $("#decode").on("click", function () {
+            const vin = $("#vin").val();
+            if (vin.length > 0) {
+                decodeDataOneDetails(vin);
+            }
+        })
 
         $("#myGrid").on("dblclick", ".details", function () {
             $("#details-tab").tab("show");
@@ -582,7 +589,7 @@
     },
     {
         headerName: '',
-        width: 200,
+        width: 250,
         field: 'action',
         colId: 'action',
         suppressSizeToFit: true, // don't let "fit" shrink this

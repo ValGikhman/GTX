@@ -83,7 +83,7 @@
             aria-expanded="true"
             aria-controls="details">
         <div class="bg-lighter py-2 px-3 text-center hand-pointer">
-            @if (ViewBag.IsMajordome) {
+            @if (ViewBag.IsMajordome != null && ViewBag.IsMajordome) {
                 <h5 class="fw-bold text-uppercase text-white" onclick="window.open('/Majordome/Inventory/@(Uri.EscapeDataString(Model.CurrentVehicle.VehicleDetails.Stock))', '_blank')">
                     <i class="bi bi-car-front mx-2"></i>Details
                 </h5>
@@ -141,7 +141,7 @@
                                aria-controls="@bdId">
 
                                 <span class="d-flex justify-content-center text-shadow">
-                                    <strong>@Safe(style.BasicData.Year) @Safe(style.BasicData.Make) @Safe(style.BasicData.Model) @Safe(style.Name) - @Model.CurrentVehicle.VehicleDetails.RetailPrice.ToString("C0")</strong>
+                                    <strong>@Safe(style.BasicData.Year) @Safe(style.BasicData.Make) @Safe(style.BasicData.Model) @Safe(style.Name) - @(Model?.CurrentVehicle?.VehicleDetails?.RetailPrice.ToString("C0"))</strong>
                                 </span>
 
                                 <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
@@ -157,31 +157,31 @@
                                         <tbody>
                                             <tr>
                                                 <td class="fw-bold w-25">VIN#: </td>
-                                                <td class="w-25 copyable">@Model.CurrentVehicle.VehicleDetails.VIN</td>
+                                                <td class="w-25 copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.VIN)</td>
                                                 <td class="fw-bold w-25">Stock#</td>
-                                                <td class="w-25 copyable">@Model.CurrentVehicle.VehicleDetails.Stock</td>
+                                                <td class="w-25 copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.Stock)</td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-bold">Miles: </td>
-                                                <td>@Model.CurrentVehicle.VehicleDetails.Mileage.ToString("N0")</td>
+                                                <td>@(Model?.CurrentVehicle?.VehicleDetails?.Mileage.ToString("N0"))</td>
                                                 <td class="fw-bold">MSRP</td>
                                                 <td>@Safe(Money(style.Pricing.Msrp))</td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold">Vehicle Type</td>
-                                                <td>@Safe(style.BasicData.VehicleType)</td>
+                                                <td class="fw-bold">Doors</td>
+                                                <td>@Safe(style.BasicData.Doors)</td>
                                                 <td class="fw-bold">Body Type</td>
                                                 <td>@Safe(style.BasicData.BodyType)</td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold">Doors</td>
-                                                <td>@Safe(style.BasicData.Doors)</td>
+                                                <td class="fw-bold">Cylinders</td>
+                                                <td>@Safe(style.Engines.Items[0].IceCylinders)</td>
                                                 <td class="fw-bold">Drive Type</td>
                                                 <td>@Safe(style.BasicData.DriveType)</td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-bold">Engine</td>
-                                                <td>@Safe(style.Engines.Items[0].IceDisplacement)L @Safe(style.Engines.Items[0].IceBlockType)@Safe(style.Engines.Items[0].IceCylinders)</td>
+                                                <td>@Safe(style.Engines.Items[0].IceDisplacement)L @Safe(style.Engines.Items[0].IceBlockType)-@Safe(style.Engines.Items[0].IceCylinders)</td>
                                                 <td class="fw-bold">Fuel efficency (combined)</td>
                                                 <td>@Safe(style.EpaFuelEfficiency?.Records[0].Combined) mpg</td>
                                             </tr>
@@ -192,13 +192,29 @@
                                                 <td>@Specs(style.StandardSpecifications.Categories, "Seating", "Seating Rows")</td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold">Exterior color (@Model.CurrentVehicle.VehicleDetails.Color)</td>
-                                                <td><span style="width:36px;height:36px;border-radius:4px;border:1px solid #ccc; display:inline-block; background-color:@Model.CurrentVehicle.VehicleDetails.Color"></span></td>
-                                                @if (!string.IsNullOrWhiteSpace(Model.CurrentVehicle.VehicleDetails.Color2)) {
-                                                    <td class="fw-bold">Interior color (@Model.CurrentVehicle.VehicleDetails.Color2)</td>
-                                                    <td><span style="width:36px;height:36px;border-radius:4px;border:1px solid #ccc; display:inline-block; background-color:@Model.CurrentVehicle.VehicleDetails.Color2"></span></td>
+                                                <td class="fw-bold">Front tires</td>
+                                                <td>@Specs(style.StandardSpecifications.Categories, "Wheels and Tires", "Front Tire Description")</td>
+                                                <td class="fw-bold">Rear tires</td>
+                                                <td>@Specs(style.StandardSpecifications.Categories, "Wheels and Tires", "Rear Tire Description")</td>
+                                            </tr>
+                                            <tr>
+                                                @if (!string.IsNullOrWhiteSpace(Model?.CurrentVehicle?.VehicleDetails?.Color))
+                                                {
+                                                    <td class="fw-bold">Exterior color (@(Model?.CurrentVehicle?.VehicleDetails?.Color))</td>
+                                                    <td><span style="width:36px;height:36px;border-radius:4px;border:1px solid #ccc; display:inline-block; background-color:@(Model?.CurrentVehicle?.VehicleDetails?.Color)"></span></td>
                                                 }
-                                                else {
+                                                else
+                                                {
+                                                    <td colspan="2"></td>
+                                                }
+
+                                                @if (!string.IsNullOrWhiteSpace(Model?.CurrentVehicle?.VehicleDetails?.Color2))
+                                                {
+                                                    <td class="fw-bold">Interior color (@(Model?.CurrentVehicle?.VehicleDetails?.Color2))</td>
+                                                    <td><span style="width:36px;height:36px;border-radius:4px;border:1px solid #ccc; display:inline-block; background-color:@(Model?   .CurrentVehicle?.VehicleDetails?.Color2)"></span></td>
+                                                }
+                                                else
+                                                {
                                                     <td colspan="2"></td>
                                                 }
                                             </tr>

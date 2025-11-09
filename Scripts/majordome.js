@@ -212,18 +212,6 @@ function uploadInventory(input) {
     });
 }
 
-function decodeVin(vin) {
-    fetch('/Api/DecodeVin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ vin: vin })
-    })
-    .then(res => res.json())
-    .then(data => {
-        console.log(data);
-    });
-}
-
 function setDetails(stock) {
     fetch('/Majordome/SetDetails', {
         method: 'POST',
@@ -304,6 +292,19 @@ function decodeDataOne(vin) {
         .catch(error => {
             alert(error);
         });
+}
+
+function decodeDataOneDetails(vin) {
+    showSpinner($("#inventoryOverlay"));
+    $.get(`${root}Majordome/JustDecodeDataOne`, { "vin": vin })
+        .done(function (result) {
+            $("#dataOneDetails").html(result);
+            hideSpinner($("#inventoryOverlay"));
+        })
+        .fail(function () {
+        })
+        .always(function () {
+        })
 }
 
 

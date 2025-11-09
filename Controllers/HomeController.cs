@@ -94,7 +94,7 @@ namespace GTX.Controllers {
         }
 
         [HttpGet]
-        public String ContactForm(int id) {
+        public string ContactForm(int id) {
             try {
                 ContactModel model = new ContactModel();
                 if (id != 0) {

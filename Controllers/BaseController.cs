@@ -199,10 +199,7 @@ namespace GTX.Controllers
                 string COUPE = CommonUnit.VehicleType.COUPE.ToString();
                 string WAGON = CommonUnit.VehicleType.WAGON.ToString();
 
-                var byType = model.All
-                    .GroupBy(v => v.VehicleType == null ? "" : v.VehicleType.Trim(), StringComparer.OrdinalIgnoreCase)
-                    .ToDictionary(g => g.Key, g => g.ToArray(), StringComparer.OrdinalIgnoreCase);
-
+                var byType = model.All.GroupBy(v => v.VehicleType == null ? "" : v.VehicleType.Trim(), StringComparer.OrdinalIgnoreCase).ToDictionary(g => g.Key, g => g.ToArray(), StringComparer.OrdinalIgnoreCase);
                 model.Suvs = GetOrEmpty(byType, SUV, emptyArray);
                 model.Trucks = GetOrEmpty(byType, TRUCK, emptyArray);
                 model.Vans = GetOrEmpty(byType, VAN, emptyArray);
@@ -263,8 +260,8 @@ namespace GTX.Controllers
 
         public Models.GTX[] ApplyExtended(Models.GTX[] vehicles) {
             foreach (var vehicle in vehicles) {
-                // vehicle.Story = InventoryService.GetStory(vehicle.Stock);
-                // vehicle.DataOne = GetDecodedData(vehicle.Stock);
+                vehicle.Story = InventoryService.GetStory(vehicle.Stock);
+                vehicle.DataOne = GetDecodedData(vehicle.Stock);
                 vehicle.TransmissionWord = WordIt(vehicle.Transmission);
 
                 vehicle.Image = $"{imageFolder}no-image-{Version()}.jpg";
@@ -341,21 +338,29 @@ namespace GTX.Controllers
         public DecodedData GetDecodedData(string stock) {
             string dataOne = InventoryService.GetDataOneDetails(stock);
 
+            return SetDecodedData(dataOne);
+        }
+
+        public DecodedData SetDecodedData(string dataOne)
+        {
             var (errCode, errMsg) = ParseDecoderError(dataOne);
 
-            if (errCode != null && errCode != "RI") {
+            if (errCode != null && errCode != "RI")
+            {
                 Console.WriteLine(errMsg);
                 return null;
             }
 
-            try {
+            try
+            {
                 var serializer = new XmlSerializer(typeof(DecodedData));
                 using (TextReader reader = new StringReader(dataOne))
                 {
                     return (DecodedData)serializer.Deserialize(reader);
                 }
             }
-            catch(Exception ex) {
+            catch (Exception ex)
+            {
                 return null;
             }
         }
