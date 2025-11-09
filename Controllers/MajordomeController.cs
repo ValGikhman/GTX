@@ -182,6 +182,25 @@ namespace GTX.Controllers {
             }
         }
 
+        [HttpGet]
+        public string JustDecodeDataOne(string vin)
+        {
+            try
+            {
+                var details = VinDecoderService.DecodeVin(vin, dataOneApiKey, dataOneSecretApiKey);
+                ViewBag.IsMajordome = Model.IsMajordome;
+                var vehicle = Model.Inventory.All?.FirstOrDefault(m => m.VIN == vin);
+                Model.CurrentVehicle.VehicleDetails = vehicle;
+                Model.CurrentVehicle.VehicleDataOneDetails = SetDecodedData(details);
+                var res = RenderViewToString(ControllerContext, "_DetailsDataOne", Model);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                return "Error: " + ex.Message;
+            }
+        }
+
         [HttpPost]
         public JsonResult DeleteDataOne(string stock) {
             try {

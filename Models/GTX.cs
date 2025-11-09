@@ -127,7 +127,7 @@ namespace GTX.Models {
                     LocationCode = v.ProjectId,
                     Body = v.Body.ToUpper(),
                     Engine = v.Engine,
-                    Transmission = v.Transmission,
+                    Transmission = ExtractTransmissionType(v.Transmission),
                     PurchaseDate = v.CreatedOn.ToString("yyyy-MM-dd"),
                     ArrivalDate = v.CreatedOn.ToString("yyyy-MM-dd"),
                     FuelType = v.FuelType,
@@ -173,5 +173,11 @@ namespace GTX.Models {
                         return speed;
                 return 0;
             }
-        }
+
+            private static string ExtractTransmissionType(string transmission)
+            {
+                if (string.IsNullOrEmpty(transmission)) return "A";
+                return transmission.Trim().Substring(0,1);
+            }
+    }
 }
