@@ -99,7 +99,6 @@ namespace GTX.Controllers {
 
             Model.CurrentVehicle.VehicleDetails = vehicle;
             Model.CurrentVehicle.VehicleDataOneDetails = GetDecodedData(stock);
-            Model.CurrentVehicle.VehicleImages = GetImages(stock);
 
             SessionData.CurrentVehicle = Model.CurrentVehicle;
             return PartialView("_DetailsDataOne", Model);
@@ -273,7 +272,6 @@ namespace GTX.Controllers {
         public void SetDetails(string stock) {
             stock = stock?.Trim().ToUpper();
             Model.CurrentVehicle.VehicleDetails = Model.Inventory.All.FirstOrDefault(m => m.Stock == stock);
-            Model.CurrentVehicle.VehicleImages = GetImages(stock);
             SessionData.CurrentVehicle = Model.CurrentVehicle;
         }
 

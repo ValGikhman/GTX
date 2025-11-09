@@ -50,7 +50,7 @@ namespace GTX.Controllers {
         }
 
         [HttpGet]
-        public async Task<ActionResult> Details(string stock) {
+        public ActionResult Details(string stock) {
             stock = stock?.Trim().ToUpper();
 
             if (string.IsNullOrEmpty(stock)) {
@@ -81,15 +81,12 @@ namespace GTX.Controllers {
                 Model.CurrentVehicle.VehicleDataOneDetails = GetDecodedData(stock);
             }
 
-            if (Model.IsEZ360) {
-                //var ez360Pictures = await EZ360Service.GetDetailsPics(ez360ProjectId, "GTX146379");
-                //var ez360Pictures = await EZ360Service.GetDetailsPics(ez360ProjectId, "TEST_1023153916");
+            if (Model.IsEZ360)
+            {
 
-                var ez360Pictures = await EZ360Service.GetDetailsPics(ez360ProjectId, vehicle.VIN);
-                Model.CurrentVehicle.DisplayEZ360Player = (ez360Pictures.Length > 0);
+                var ez360 = Model.EZ360Inventory.FirstOrDefault(m => m.StockNo == stock);
+                Model.CurrentVehicle.DisplayEZ360Player = (ez360.DetailPics.Length > 0 && ez360.IsPublishable);
             }
-
-            Model.CurrentVehicle.VehicleImages = GetImages(stock);
             SessionData.CurrentVehicle = Model.CurrentVehicle;
 
             // Suggest similar vehicles (within $3000 range, excluding the current one)
