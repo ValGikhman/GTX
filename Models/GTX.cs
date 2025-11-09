@@ -124,7 +124,7 @@ namespace GTX.Models {
                     RetailPrice = v.PriceWeb,
                     InternetPrice = v.PriceWeb,
                     DriveTrain = v.Drivetrain,
-                    LocationCode = v.ProjectId,
+                    LocationCode = "X",
                     Body = v.Body.ToUpper(),
                     Engine = v.Engine,
                     Transmission = ExtractTransmissionType(v.Transmission),

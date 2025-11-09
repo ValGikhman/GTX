@@ -262,15 +262,30 @@ namespace GTX.Controllers
             foreach (var vehicle in vehicles) {
                 vehicle.Story = InventoryService.GetStory(vehicle.Stock);
                 vehicle.DataOne = GetDecodedData(vehicle.Stock);
+
                 vehicle.TransmissionWord = WordIt(vehicle.Transmission);
 
                 vehicle.Image = $"{imageFolder}no-image-{Version()}.jpg";
 
-                if (!Model.IsEZ360) {
+                if (!Model.IsEZ360)
+                {
                     vehicle.Images = InventoryService.GetImages(vehicle.Stock);
                     if (vehicle.Images != null && vehicle.Images.Length > 0)
                     {
                         vehicle.Image = $"{imageFolder}{vehicle.Images[0].Source}"; ;
+                    }
+                }
+                else {
+                    if (Model.EZ360Inventory != null)
+                    {
+                        var ez360 = Model.EZ360Inventory.FirstOrDefault(m => m.Vin == vehicle.VIN);
+                        vehicle.Images = PickPrimaryImages(ez360);
+
+                        var chosen = PickPrimaryImage(ez360, 200);
+                        if (!string.IsNullOrWhiteSpace(chosen))
+                        {
+                            vehicle.Image = chosen;
+                        }
                     }
                 }
             }
@@ -410,6 +425,34 @@ namespace GTX.Controllers
                 // If it isn't valid XML, treat as a body/format error
                 return ("PARSE", "Invalid XML from decoder");
             }
+        }
+
+        private static string? PickPrimaryImage(EZ360.Vehicle? ez, int height = 200)
+        {
+            if (ez == null) return null;
+
+            var display = ez.DisplayPics?.FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(display)) return $"{display}&h={height}";
+
+            var third = ez.ThirdPartyPics?.FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(third)) return third;
+
+            return null;
+        }
+        private Image[] PickPrimaryImages(EZ360.Vehicle? ez)
+        {
+            if (ez == null) return null;
+            
+            if (ez.DetailPics.Any())
+            {
+                return ez.DetailPics.Select(m => new Image() { Id = Guid.Empty, Stock = ez.StockNo, DateCreated = DateTime.Now, Order = 0, Source = m }).ToArray();
+            }
+
+            if (ez.ThirdPartyPics.Any()) {
+                return ez.ThirdPartyPics.Select(m => new Image() { Id = Guid.Empty, Stock = ez.StockNo, DateCreated = DateTime.Now, Order = 0, Source = m }).ToArray();
+            }
+
+            return null;
         }
         #endregion
     }

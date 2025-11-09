@@ -58,8 +58,6 @@ namespace GTX.Models {
 
         public bool DisplayEZ360Player { get; set; }
 
-        public Image[] VehicleImages { get; set; }
-
         public GTX[] VehicleSuggesion { get; set; }
     }
 }
