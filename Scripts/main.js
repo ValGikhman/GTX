@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 (function ($) {
     /*------------------
@@ -94,7 +94,7 @@
     });
 
     const filterResuls = ['Search within results... ', 'Then type year, make or model', '@@C 4/6/8 to filter by # of cilynders', '@@T Manual/Auto/Cont for transmission type'];
-    const placeholders = ['Click here to search inventory... '];
+    const placeholders = ['🔍 Click here to search inventory... '];
     let currentText = "";
     let currentFilterText = "";
     let currentIndex = 0;
