@@ -61,7 +61,7 @@
         </div>
         <div class="menu-strip container-fluid">
             <div class="d-flex justify-content-between">
-                <nav class="header__top header__menu">
+                <nav class="header__top header__menu w-100">
                     <ul class="main-menu">
                         <li>@Html.ActionLink("Home", "", "Home")</li>
                         <li>
@@ -94,7 +94,7 @@
                                 <li>@Html.ActionLink("Testimonials", "Testimonials", "Home")</li>
                             </ul>
                         </li>
-                        <li class="fake-input hand-pointer d-none d-xxl-inline-block" data-bs-toggle="modal" data-bs-target="#filtersModal">
+                        <li id="fakeSearch" class="fake-input hand-pointer d-none d-xxl-inline-block w-35" data-bs-toggle="modal" data-bs-target="#filtersModal">
                             @Html.Partial("_SearchByTerm")
                         </li>
                         <li class="d-xxl-none">

@@ -20,7 +20,7 @@ namespace GTX.Controllers {
         public ActionResult Index(BaseModel model) {
             var vehicles = Model.Inventory.Vehicles ?? Array.Empty<Models.GTX>();
             Model.Inventory.Title = "Found";
-            ViewBag.Title = $"{Model.Inventory.Title.ToUpper()} {vehicles.Length} vehicles";
+            ViewBag.Title = $"{Model.Inventory.Title.ToUpper()} {vehicles.Length} vehicle(s)";
             Log($"{Model.Inventory.Title} inventory");
             model.EZ360Inventory = Model.EZ360Inventory;
 
