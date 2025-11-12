@@ -10,6 +10,10 @@
         height: 78.5%!important;
     }
 
+    #EZ360-controls {
+        height: 5%!important;
+    }
+
     #EZ360-Player-Div {
         border: 0px !important;
     }
@@ -91,7 +95,7 @@
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
                 <button class="nav-item active btn btn-gradient-grey border-dark text-shadow-small" id="nav-details-tab" data-bs-toggle="tab" data-bs-target="#nav-details" type="button" role="tab" aria-controls="nav-details" aria-selected="true"><i class="bi bi-car-front"></i>&nbsp; Details</button>
                 @{
-                    if (Model.CurrentVehicle.VehicleDetails.Images.Count() > 0)
+                    if (!(Model.CurrentVehicle.DisplayEZ360Player && Model.IsEZ360) && Model.CurrentVehicle.VehicleDetails.Images.Count() > 0)
                     {
                         <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small" id="nav-pictures-tab" data-bs-toggle="tab" data-bs-target="#nav-pictures" type="button" role="tab" aria-controls="nav-pictures" aria-selected="false"><i class="bi bi-camera"></i>&nbsp; Photos ( @Model.CurrentVehicle.VehicleDetails.Images.Count())</button>
                     }
@@ -106,8 +110,8 @@
                     @{
                         if (Model.CurrentVehicle.DisplayEZ360Player && Model.IsEZ360)
                         {
-@*                            <div id="EZ360-media-player"></div>*@
-                            <div id="EZ360_CVDP"></div>
+@*                            <div id="EZ360-media-player"></div>
+*@                            <div id="EZ360_CVDP"></div>
                         }
                         else
                         {
@@ -176,18 +180,20 @@
                     <img src="https://velocity-vdp-prod-attachments.s3.amazonaws.com/Velocity+Automotive+Solutions/WindowSticker_v2.png" alt="Velocity Window Sticker" class="" style="max-height: 100px">
                 </div>
             </div>
-            <div class="tab-pane fade well" id="nav-pictures" role="tabpanel" aria-labelledby="nav-picture-tab">
-                <div class="d-flex flex-wrap justify-content-center overflow-auto">
-                    @foreach (Image image in Model.CurrentVehicle.VehicleDetails.Images)
-                    {
-                        string imageBig = $"{image.Source}";
-                        string imagePath = $"{image.Source}?h=200";
-                        <a class="elem three-d w-30" href="@imageBig" data-lcl-thumb="@imagePath">
-                            <span class="shadow rounded" style="background-image: url(@imagePath);"></span>
-                        </a>
-                    }
+            @if (!(Model.CurrentVehicle.DisplayEZ360Player && Model.IsEZ360) && Model.CurrentVehicle.VehicleDetails.Images.Count() > 0) {
+                <div class="tab-pane fade well" id="nav-pictures" role="tabpanel" aria-labelledby="nav-picture-tab">
+                    <div class="d-flex flex-wrap justify-content-center overflow-auto">
+                        @foreach (Image image in Model.CurrentVehicle.VehicleDetails.Images)
+                        {
+                            string imageBig = $"{image.Source}";
+                            string imagePath = $"{image.Source}?h=200";
+                            <a class="elem three-d w-30" href="@imageBig" data-lcl-thumb="@imagePath">
+                                <span class="shadow rounded" style="background-image: url(@imagePath);"></span>
+                            </a>
+                        }
+                    </div>
                 </div>
-            </div>
+            }
             <div class="tab-pane fade well" id="nav-location" role="tabpanel" aria-labelledby="nav-location-tab">
                 <div class="d-flex justify-content-evenly mt-4">
                     @{

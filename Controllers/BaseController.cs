@@ -442,13 +442,13 @@ namespace GTX.Controllers
         private Image[] PickPrimaryImages(EZ360.Vehicle? ez)
         {
             if (ez == null) return null;
-            
-            if (ez.DetailPics.Any())
+
+            if (ez.DetailPics != null && ez.DetailPics.Any())
             {
                 return ez.DetailPics.Select(m => new Image() { Id = Guid.Empty, Stock = ez.StockNo, DateCreated = DateTime.Now, Order = 0, Source = m }).ToArray();
             }
 
-            if (ez.ThirdPartyPics.Any()) {
+            if (ez.ThirdPartyPics != null && ez.ThirdPartyPics.Any()) {
                 return ez.ThirdPartyPics.Select(m => new Image() { Id = Guid.Empty, Stock = ez.StockNo, DateCreated = DateTime.Now, Order = 0, Source = m }).ToArray();
             }
 
