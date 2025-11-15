@@ -246,174 +246,340 @@ function reStoryAll() {
     });
 }
 
-function decodeAll() {
-    showSpinner($("#inventoryOverlay"));
+async function decodeAll() {
+    const $overlay = $("#inventoryOverlay");
+    showSpinner($overlay);
 
-    fetch('/Majordome/DecodeAll', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-    })
-        .then(response => {
-            if (response.ok) {
-                fetch('/Majordome/GetUpdatedItems')
-                    .then(res => res.json())
-                    .then(data => {
-                        updateRow(data);
-                    });
-                alert(`Decoding is done`);
-            } else {
-                alert("Decoding failed.");
-            }
-        })
-        .catch(error => {
-            alert(error);
+    try {
+        const decodeResponse = await fetch('/Majordome/DecodeAll', {
+            method: 'POST'
         });
+
+        if (!decodeResponse.ok) {
+            throw new Error(`DecodeAll failed: ${decodeResponse.status} ${decodeResponse.statusText}`);
+        }
+
+        // Reuse the shared helper
+        const data = await getUpdatedItems();
+        updateRow(data);
+
+        alert('Decoding is done');
+    }
+
+    catch (error) {
+        console.error('Error in decodeAll:', error);
+        alert('Decoding failed while getting updated items.');
+    }
+
+    finally {
+        if (typeof hideSpinner === 'function') {
+            hideSpinner($overlay);
+        }
+    }
 }
 
-function decodeDataOne(vin) {
-    showSpinner($("#inventoryOverlay"));
+async function decodeDataOne(vin) {
+    const $overlay = $("#inventoryOverlay");
+    showSpinner($overlay);
 
-    fetch('/Majordome/DecodeDataOne', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ vin: vin })
-    })
-        .then(response => {
-            if (response.ok) {
-                fetch('/Majordome/GetUpdatedItems')
-                    .then(res => res.json())
-                    .then(data => {
-                        updateRow(data);
-                    });
-            } else {
-                alert("Decoding failed.");
-            }
-        })
-        .catch(error => {
-            alert(error);
+    try {
+        const decodeResponse = await fetch('/Majordome/DecodeDataOne', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ vin })
         });
+
+        if (!decodeResponse.ok) {
+            throw new Error(`DecodeDataOne failed: ${decodeResponse.status} ${decodeResponse.statusText}`);
+        }
+
+        const data = await getUpdatedItems(); // reused helper
+        updateRow(data);
+    }
+
+    catch (error) {
+        console.error('Error in decodeDataOne:', error);
+        alert('Decoding failed while getting updated items.');
+    }
+
+    finally {
+        if (typeof hideSpinner === 'function') {
+            hideSpinner($overlay);
+        }
+    }
 }
 
-function decodeDataOneDetails(vin) {
-    showSpinner($("#inventoryOverlay"));
-    $.get(`${root}Majordome/JustDecodeDataOne`, { "vin": vin })
-        .done(function (result) {
-            $("#dataOneVinDecoder").html(result);
-            hideSpinner($("#inventoryOverlay"));
-        })
-        .fail(function () {
-        })
-        .always(function () {
-        })
+async function decodeDataOneByAnyVin(vin) {
+    const $overlay = $("#inventoryOverlay");
+    showSpinner($overlay);
+
+    try {
+        const res = await fetch(`${root}Majordome/DecodeDataOneByAnyVin?vin=${encodeURIComponent(vin)}`);
+
+        if (!res.ok) {
+            throw new Error(`Server returned ${res.status}`);
+        }
+
+        const html = await res.text();
+        $("#dataOneVinDecoder").html(html);
+
+    }
+
+    catch (err) {
+        console.error("DecodeDataOneByAnyVin failed:", err);
+        alert("Failed to decode VIN.");
+    }
+
+    finally {
+        hideSpinner($overlay);
+    }
 }
 
+async function deleteDataOne(stock) {
+    const $overlay = $("#inventoryOverlay");
+    showSpinner($overlay);
 
-function deleteDataOne(stock) {
-    showSpinner($("#inventoryOverlay"));
-    $.post(`${root}Majordome/DeleteDataOne`, { stock })
-        .done(function (response) {
-            if (response.success) {
-                const editor = tinymce.get("story");
-                fetch('/Majordome/GetUpdatedItems')
-                    .then(res => res.json())
-                    .then(data => {
-                        updateRow(data);
-                    });
-            }
-        })
-};
+    try {
+        const res = await fetch(`${root}Majordome/DeleteDataOne`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ stock })
+        });
 
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error('DeleteDataOne error body:', errorText);
+            throw new Error(`DeleteDataOne failed: ${res.status} ${res.statusText}`);
+        }
+
+        const response = await res.json();
+
+        if (!response.success) {
+            throw new Error(response.message || 'Delete failed.');
+        }
+
+        const data = await getUpdatedItems();
+        updateRow(data);
+    }
+
+    catch (err) {
+        console.error('Error in deleteDataOne:', err);
+        alert(err.message || 'Delete failed.');
+    }
+
+    finally {
+        if (typeof hideSpinner === 'function') {
+            hideSpinner($overlay);
+        }
+    }
+}
 function deleteImages(stock) {
-    showSpinner($("#inventoryOverlay"));
+    const $overlay = $("#inventoryOverlay");
+    showSpinner($overlay);
+
     $.post(`${root}Majordome/DeleteImages`, { stock })
         .done(function (response) {
-            if (response.success) {
-                fetch('/Majordome/GetUpdatedItems')
-                    .then(res => res.json())
+            if (response && response.success) {
+
+                getUpdatedItems()
                     .then(data => {
                         const vehicle = data.find(v => v.Stock === stock);
-                        loadGallery(vehicle);
+
+                        if (vehicle) {
+                            loadGallery(vehicle);
+                        } else {
+                            console.warn(`Vehicle with stock ${stock} not found in updated items.`);
+                        }
+
                         updateRow(data);
-                });
+                    })
+                    .catch(err => {
+                        console.error('Error refreshing updated items after deleteImages:', err);
+                        alert('Images deleted, but failed to refresh items.');
+                    });
+            } else {
+                alert((response && response.message) || 'Failed to delete images.');
             }
         })
-};
+
+        .fail(function (xhr, status, error) {
+            console.error('DeleteImages failed:', status, error, xhr.responseText);
+            alert('Failed to delete images on the server.');
+        })
+
+        .always(function () {
+            if (typeof hideSpinner === 'function') {
+                hideSpinner($overlay);
+            }
+        });
+}
 
 function deleteImage(id, file, object) {
-    showSpinner($("#inventoryOverlay"));
+    const $overlay = $("#inventoryOverlay");
+    showSpinner($overlay);
+
     const stock = selectedVehicle.Stock;
-    var item = $(object).closest('.gallery-item');
-    $.post(`${root}Majordome/DeleteImage`, { id: id, file: file, stock: stock })
+    const $item = $(object).closest('.gallery-item');
+
+    $.post(`${root}Majordome/DeleteImage`, { id, file, stock })
         .done(function (response) {
-            if (response.success) {
-                item.fadeOut(300, function () { item.remove(); });
-                fetch('/Majordome/GetUpdatedItems')
-                    .then(res => res.json())
+            if (response && response.success) {
+                // Remove the image from the DOM first
+                $item.fadeOut(300, function () { $item.remove(); });
+
+                getUpdatedItems()
                     .then(data => {
                         const vehicle = data.find(v => v.Stock === stock);
-                        loadGallery(vehicle);
+
+                        if (vehicle) {
+                            loadGallery(vehicle);
+                        } else {
+                            console.warn(`Vehicle with stock ${stock} not found in updated items.`);
+                        }
+
                         updateRow(data);
-                        hideSpinner($("#inventoryOverlay"));
                         $("#close").click();
-                });
-            }   
-    })
-};
+                    })
+                    .catch(err => {
+                        console.error('Error refreshing updated items after deleteImage:', err);
+                        alert('Image deleted, but failed to refresh items.');
+                    });
+            } else {
+                alert((response && response.message) || 'Failed to delete image.');
+            }
+        })
+        .fail(function (xhr, status, error) {
+            console.error('DeleteImage failed:', status, error, xhr.responseText);
+            alert('Failed to delete image on the server.');
+        })
+        .always(function () {
+            if (typeof hideSpinner === 'function') {
+                hideSpinner($overlay);
+            }
+        });
+}
 
 function createStory(stock) {
-    showSpinner($("#inventoryOverlay"));
+    const $overlay = $("#inventoryOverlay");
+    showSpinner($overlay);
+
     $.post(`${root}Majordome/CreateStory`, { stock })
         .done(function (response) {
-            if (response.success) {
+            if (response && response.success) {
                 const editor = tinymce.get("story");
 
                 if (editor) {
                     editor.setContent(response.Story || "");
                 }
-                $("#title").val(response.Title);
 
-                fetch('/Majordome/GetUpdatedItems')
-                    .then(res => res.json())
+                $("#title").val(response.Title || "");
+
+                getUpdatedItems()
                     .then(data => {
                         updateRow(data);
-                });
-        }
-    })
-};
+                    })
+                    .catch(err => {
+                        console.error('Error refreshing updated items after createStory:', err);
+                        alert('Story created, but failed to refresh items.');
+                    });
+            } else {
+                alert((response && response.message) || 'Failed to create story.');
+            }
+        })
+
+        .fail(function (xhr, status, error) {
+            console.error('CreateStory failed:', status, error, xhr.responseText);
+            alert('Failed to create story on the server.');
+        })
+
+        .always(function () {
+            if (typeof hideSpinner === 'function') {
+                hideSpinner($overlay);
+            }
+        });
+}
 
 function deleteStory(stock) {
-    showSpinner($("#inventoryOverlay"));
+    const $overlay = $("#inventoryOverlay");
+    showSpinner($overlay);
+
     $.post(`${root}Majordome/DeleteStory`, { stock })
         .done(function (response) {
-            if (response.success) {
+            if (response && response.success) {
                 const editor = tinymce.get("story");
 
                 if (editor) {
                     editor.setContent("");
                 }
+
                 $("#title").val("");
 
-                fetch('/Majordome/GetUpdatedItems')
-                    .then(res => res.json())
+                getUpdatedItems()
                     .then(data => {
                         updateRow(data);
+                    })
+                    .catch(err => {
+                        console.error('Error refreshing updated items after deleteStory:', err);
+                        alert('Story deleted, but failed to refresh items.');
                     });
+            } else {
+                alert((response && response.message) || 'Failed to delete story.');
             }
         })
-};
+        .fail(function (xhr, status, error) {
+            console.error('DeleteStory failed:', status, error, xhr.responseText);
+            alert('Failed to delete story on the server.');
+        })
+        .always(function () {
+            if (typeof hideSpinner === 'function') {
+                hideSpinner($overlay);
+            }
+        });
+}
 
 function saveOrder(sorted) {
-    showSpinner($("#inventoryOverlay"));
-    $.post(`${root}Majordome/SaveOrder`, { sorted  })
+    const $overlay = $("#inventoryOverlay");
+    showSpinner($overlay);
+
+    $.post(`${root}Majordome/SaveOrder`, { sorted })
         .done(function (response) {
-            if (response.success) {
-                fetch('/Majordome/GetUpdatedItems')
-                .then(res => res.json())
+            if (response && response.success) {
+                getUpdatedItems()
                     .then(data => {
                         updateRow(data);
-                });
+                    })
+                    .catch(err => {
+                        console.error('Error refreshing updated items after saveOrder:', err);
+                        alert('Order saved, but failed to refresh items.');
+                    });
+
+            } else {
+                alert((response && response.message) || 'Failed to save order.');
             }
         })
+        .fail(function (xhr, status, error) {
+            console.error('SaveOrder failed:', status, error, xhr.responseText);
+            alert('Failed to save order on the server.');
+        })
+        .always(function () {
+            if (typeof hideSpinner === 'function') {
+                hideSpinner($overlay);
+            }
+        });
+}
+
+async function getUpdatedItems() {
+    const res = await fetch('/Majordome/GetUpdatedItems', {
+        method: 'GET'
+    });
+
+    if (!res.ok) {
+        const errorText = await res.text();
+        console.error('GetUpdatedItems error body:', errorText);
+        throw new Error(`GetUpdatedItems failed: ${res.status} ${res.statusText}`);
+    }
+
+    return res.json();
 }
 
 function updateRow(data) {
@@ -425,7 +591,6 @@ function updateRow(data) {
             $("#gallery-tab").text(`Photos (${vehicle.Images.length})`);
         }
     });
-
     hideSpinner($("#inventoryOverlay"));
 }
 

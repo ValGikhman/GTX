@@ -164,8 +164,8 @@
             <!-- Gallery Tab -->
             <div class="tab-pane fade d-flex flex-column align-items-center" id="tab-gallery" role="tabpanel">
                 <div class="d-flex justify-content-center w-100 p-3">
-                    <button id="upload" class="btn btn-light shadow mx-2 bi bi-upload">&nbsp;Upload images</button>
-                    <button id="deleteAll" class="btn btn-light shadow bi bi-trash">&nbsp;Delete all images</button>
+                    <button id="upload" class="btn btn-light shadow mx-2 bi bi-upload">&nbsp;Upload stock images</button>
+                    <button id="deleteAll" class="btn btn-light shadow bi bi-trash">&nbsp;Delete stock all images</button>
                     <input type="file" id="fileInput" class="d-none" multiple accept="image/*">
                 </div>
                 <div id="dropzone" class="dropzone w-100">
@@ -302,7 +302,7 @@
         });
 
         $("#btnDecodeAll").on("click", function () {
-            if (confirm("Decode all undecoded VINs")) {
+            if (confirm("Decode and override all VINs")) {
                 decodeAll();
             }
         });
@@ -397,7 +397,7 @@
                 e.preventDefault();
                 const vin = $(this).val();
                 if (vin.length > 0) {
-                    decodeDataOneDetails(vin);
+                    decodeDataOneByAnyVin(vin);
                 }
             }
         }).focus();
@@ -405,7 +405,7 @@
         $("#decode").on("click", function () {
             const vin = $("#vin").val();
             if (vin.length > 0) {
-                decodeDataOneDetails(vin);
+                decodeDataOneByAnyVin(vin);
             }
         })
 
@@ -761,11 +761,11 @@
         const icon = document.createElement('span');
         icon.className = 'bi bi-car-front fs-5 px-2';
         icon.style.cursor = 'pointer';
-        icon.title = `Decode for VIN# ${JSON.stringify(params.data.VIN)}`;
+        icon.title = `Decode and override for VIN# ${JSON.stringify(params.data.VIN)}`;
 
         icon.onclick = () => {
             const vin = params.data.VIN;
-            if (confirm(`Do you want to decode VIN# ${vin}`)) {
+            if (confirm(`Do you want to decode and override DataOne details for VIN# ${vin}`)) {
                 decodeDataOne(vin);
             }
         };
@@ -779,7 +779,7 @@
         const icon = document.createElement('span');
         icon.className = 'bi bi-car-front-fill fs-5 px-2';
         icon.style.cursor = 'pointer';
-        icon.title = `Delete DataOne for Stock# ${JSON.stringify(params.data.Stock)}`;
+        icon.title = `Delete DataOne for stock# ${JSON.stringify(params.data.Stock)}`;
 
         icon.onclick = () => {
             const stock = params.data.Stock;

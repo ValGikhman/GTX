@@ -6,6 +6,11 @@
         }
         @foreach (var image in Model.VehicleDetails.Images) {
             var imagePath = $"{image.Source}";
+
+            if (image.Source?.StartsWith("https:", StringComparison.OrdinalIgnoreCase) == false)
+            {
+                imagePath = $"/GTXImages/Inventory/{imagePath}";
+            }
             <div class="carousel-item @(i == 0 ? "active" : "")">
                 <div class="slide-box">
                     <img src="@imagePath" alt="Vehicle image @i" loading="@(i == 0 ? "eager" : "lazy")" decoding="async" />

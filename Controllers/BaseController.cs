@@ -279,7 +279,10 @@ namespace GTX.Controllers
                     if (Model.EZ360Inventory != null)
                     {
                         var ez360 = Model.EZ360Inventory.FirstOrDefault(m => m.Vin == vehicle.VIN);
-                        vehicle.Images = PickPrimaryImages(ez360);
+
+                        var ezImages = PickPrimaryImages(ez360) ?? Array.Empty<Image>();
+                        var stockImages = InventoryService.GetImages(vehicle.Stock) ?? Array.Empty<Image>();
+                        vehicle.Images = ezImages.Concat(stockImages).ToArray();
 
                         var chosen = PickPrimaryImage(ez360, 200);
                         if (!string.IsNullOrWhiteSpace(chosen))

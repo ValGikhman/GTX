@@ -110,8 +110,8 @@
                     @{
                         if (Model.CurrentVehicle.DisplayEZ360Player && Model.IsEZ360)
                         {
-@*                            <div id="EZ360-media-player"></div>
-*@                            <div id="EZ360_CVDP"></div>
+@*                              <div id="EZ360-media-player"></div>
+*@                              <div id="EZ360_CVDP"></div>
                         }
                         else
                         {
@@ -187,6 +187,13 @@
                         {
                             string imageBig = $"{image.Source}";
                             string imagePath = $"{image.Source}?h=200";
+                            if (image.Source?.StartsWith("https:", StringComparison.OrdinalIgnoreCase) == false)
+                            {
+                                imageBig = $"/GTXImages/Inventory/{image.Source}";
+                                imagePath = $"{imageBig}?h=200";
+                            }
+
+
                             <a class="elem three-d w-30" href="@imageBig" data-lcl-thumb="@imagePath">
                                 <span class="shadow rounded" style="background-image: url(@imagePath);"></span>
                             </a>
