@@ -151,10 +151,10 @@ namespace GTX.Controllers {
                 Model.Inventory.Vehicles = Model.Inventory.All;
 
                 foreach (var vehicle in Model.Inventory.Vehicles) {
-                    if (!InventoryService.AnyDataOneDetails(vehicle.Stock)) {
-                        var details = VinDecoderService.DecodeVin(vehicle.VIN, dataOneApiKey, dataOneSecretApiKey);
-                        InventoryService.SaveDataOneDetails(vehicle.Stock, details);
-                    }
+                    //if (!InventoryService.AnyDataOneDetails(vehicle.Stock)) { }
+                    var details = VinDecoderService.DecodeVin(vehicle.VIN, dataOneApiKey, dataOneSecretApiKey);
+                    InventoryService.SaveDataOneDetails(vehicle.Stock, details);
+
                 }
 
                 return Json(new { success = true, message = "DataOne decoded successfully." });
@@ -169,10 +169,10 @@ namespace GTX.Controllers {
             try {
                 string stock = Model.Inventory.All.Where(m => m.VIN == vin).FirstOrDefault()?.Stock;
 
-                    if (!InventoryService.AnyDataOneDetails(stock)) {
-                        var details = VinDecoderService.DecodeVin(vin, dataOneApiKey, dataOneSecretApiKey);
-                        InventoryService.SaveDataOneDetails(stock, details);
-                    }
+                // if (!InventoryService.AnyDataOneDetails(stock)) { }
+                var details = VinDecoderService.DecodeVin(vin, dataOneApiKey, dataOneSecretApiKey);
+                InventoryService.SaveDataOneDetails(stock, details);
+
 
                 return Json(new { success = true, message = "DataOne decoded  successfully." });
             }
@@ -182,7 +182,7 @@ namespace GTX.Controllers {
         }
 
         [HttpGet]
-        public string JustDecodeDataOne(string vin)
+        public string DecodeDataOneByAnyVin(string vin)
         {
             try
             {
@@ -216,7 +216,13 @@ namespace GTX.Controllers {
         [HttpGet]
         public JsonResult GetUpdatedItems() {
             Model.Inventory.Vehicles = ApplyExtended(Model.Inventory.Vehicles);
-            return Json(Model.Inventory.Vehicles, JsonRequestBehavior.AllowGet);
+
+            return new JsonResult
+            {
+                Data = Model.Inventory.Vehicles,
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                MaxJsonLength = int.MaxValue   // or a big number you’re comfortable with
+            };
         }
 
         [HttpPost]
