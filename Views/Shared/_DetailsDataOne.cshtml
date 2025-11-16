@@ -254,6 +254,7 @@
                                             @foreach (var r in style.EpaFuelEfficiency.Records) {
                                                 <tr>
                                             <td>@Safe(r?.FuelType)</td><td>@Safe(r?.FuelGrade)</td><td>@Safe(r?.City)</td><td>@Safe(r?.Highway)</td><td>@Safe(r?.Combined)</td></tr>
+                                                break;
                                             }
                                         </tbody>
                                     </table>
