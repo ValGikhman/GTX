@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Xml.Linq;
+using QRCoder;
 using Utility.XMLHelpers;
 
 namespace GTX.Controllers {
@@ -586,6 +587,22 @@ namespace GTX.Controllers {
 
             Font font = new Font(fontFamily, size, fontStyle);
             return (font, color);
+        }
+
+        [OutputCache(Duration = 86400, VaryByParam = "text")] // cache for speed
+        public ActionResult Qr(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return new HttpStatusCodeResult(400, "QR text is required");
+
+            using (var qrGenerator = new QRCodeGenerator())
+            using (var qrData = qrGenerator.CreateQrCode(text, QRCodeGenerator.ECCLevel.Q))
+            using (var qrCode = new PngByteQRCode(qrData))
+            {
+                // 10 = pixels per module, tweak for size
+                var bytes = qrCode.GetGraphic(10);
+                return File(bytes, "image/png");
+            }
         }
     }
 }

@@ -6,6 +6,21 @@
     <script src="~/Scripts/majordome.js"></script>
 
     <style>
+        @@media print {
+            body * {
+                display: none !important;
+            }
+
+            #qrPrintArea, #qrPrintArea * {
+                display: block !important;
+            }
+
+            #qrPrintArea {
+                margin: 40px auto;
+                text-align: center;
+            }
+        }
+
         #dataOneContainer {
             overflow-y: auto;
             height: 37rem;
@@ -109,6 +124,9 @@
                 Vin decoder
             </button>
         }
+        <button class="nav-item btn btn-gradient-grey text-shadow-small" id="QR-code-tab" data-bs-toggle="tab" data-bs-target="#tab-qr-code" type="button" role="tab">
+            QR Code
+        </button>
     </nav>
 
     <div class="tab-content border border-top-0 well " id="myTabContent">
@@ -182,19 +200,33 @@
             <div class="tab-pane fade" id="tab-vin-decoder" role="tabpanel">
                 <div class="row">
                     <!-- Left Column: Form -->
-                        <div class="row col-lg-6 mt-3">
-                            @Html.Label("VIN", new { @class = "text-shadow" })
-                            <div class="input-group mb-2">
-                                <input id="vin" class="form-control shadow" placeholder="VIN" aria-label="VIN" aria-describedby="vin" />
-                                <button id="decode" class="btn btn-light bi bi-search input-group-text "></button>
-                            </div>
+                    <div class="row col-lg-6 mt-3">
+                        @Html.Label("VIN", new { @class = "text-shadow" })
+                        <div class="input-group mb-2">
+                            <input id="vin" class="form-control shadow" placeholder="VIN" aria-label="VIN" aria-describedby="vin" />
+                            <button id="decode" class="btn btn-light bi bi-search input-group-text "></button>
                         </div>
-                        <div id="dataOneVinDecoder" class="row mt-3 d-flex justify-content-center">
-                        </div>
+                    </div>
+                    <div id="dataOneVinDecoder" class="row mt-3 d-flex justify-content-center">
+                    </div>
                 </div>
             </div>
         }
 
+        <!-- QR Code Tab -->
+        <div class="tab-pane fade" id="tab-qr-code" role="tabpanel">
+            <div class="row">
+                <div class="col-lg-2 d-flex flex-column align-items-center text-center">
+                    <div id="qrPrintArea" class="m-3">
+                        <h3>Scan for Details</h3>
+                        <img id="qrImg" src="" alt="QR Code" style="width:200px;height:200px;" />
+                    </div>
+                    <div class="m-3">
+                        <button type="button" class="btn btn-gradient shadow" onclick="printQrArea()">Print QR</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
 <template id="actions">
@@ -664,6 +696,7 @@
             showVehicleDetails(selectedVehicle);
             loadGallery(selectedVehicle);
             setDetails(selectedVehicle.Stock);
+            setQrCode(selectedVehicle.Stock);
         },
         onFilterChanged: params => {
             const count = gridApi.getDisplayedRowCount();
@@ -850,4 +883,35 @@
         uploadDroppedFiles(stock, files);
     }
 
+    function printQrArea() {
+        var src = $("#qrImg").attr("src");
+        if (!src) {
+            alert("QR not ready yet.");
+            return;
+        }
+
+        var w = window.open("", "_blank");
+
+        w.document.write("<html><head><title></title></head><body style='text-align:center;'>");
+        w.document.write("<h3>Scan for Details</h3>");
+        w.document.write("<img id='pqr' src='" + src + "' style='width:200px;height:200px;' />");
+        w.document.write("</body></html>");
+        w.document.close();
+
+        // Wait for the QR image to load in the new window before printing
+        w.onload = function () {
+            var img = w.document.getElementById("pqr");
+            if (img.complete) {
+                w.focus();
+                w.print();
+                w.close();
+            } else {
+                img.onload = function () {
+                    w.focus();
+                    w.print();
+                    w.close();
+                };
+            }
+        };
+    }
 </script>
