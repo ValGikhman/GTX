@@ -84,8 +84,13 @@ namespace GTX.Controllers {
             if (Model.IsEZ360)
             {
 
+                Model.CurrentVehicle.DisplayEZ360Player = false;
                 var ez360 = Model.EZ360Inventory.FirstOrDefault(m => m.StockNo == stock);
-                Model.CurrentVehicle.DisplayEZ360Player = (ez360.DetailPics.Length > 0 && ez360.IsPublishable);
+
+                if (ez360 != null)
+                {
+                    Model.CurrentVehicle.DisplayEZ360Player = (ez360.DetailPics.Length > 0 && ez360.IsPublishable);
+                }
             }
             SessionData.CurrentVehicle = Model.CurrentVehicle;
 
