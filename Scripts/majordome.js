@@ -222,6 +222,12 @@ function setDetails(stock) {
     });
 }
 
+function setQrCode(stock) {
+    var qrText = "https://usedcarscincinnati.com/Inventory/Details?stock=" + stock;
+    var qrUrl = "/Majordome/Qr?text=" + encodeURIComponent(qrText);
+    $("#qrImg").attr("src", qrUrl);
+}
+
 function reStoryAll() {
     showSpinner($("#inventoryOverlay"));
 
