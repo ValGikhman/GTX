@@ -100,13 +100,16 @@ namespace GTX.Controllers {
                 .Take(10)
                 .ToArray() ?? Array.Empty<Models.GTX>();
 
-            if (Model.CurrentVehicle.VehicleDataOneDetails == null) {
+            // Lets show the tile from fraser details
+            ViewBag.Title = $"{vehicle.Year} - {vehicle.Make} - {vehicle.Model} {vehicle.VehicleStyle}";
+
+/*            if (Model.CurrentVehicle.VehicleDataOneDetails == null) {
                 ViewBag.Title = $"{vehicle.Year} - {vehicle.Make} - {vehicle.Model} {vehicle.VehicleStyle}";
             }
             else {
                 var style = Model.CurrentVehicle.VehicleDataOneDetails.QueryResponses.Items[0].UsMarketData.UsStyles.Styles[0].Name.ToUpper();
                 ViewBag.Title = $"{vehicle.Year} - {vehicle.Make} - {vehicle.Model} - {style}";
-            }
+            }*/
             ViewBag.Price = $"{vehicle.RetailPrice.ToString("C")}";
 
             return View("Details", Model);
