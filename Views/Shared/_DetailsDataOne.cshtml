@@ -134,14 +134,14 @@
 
                         <!-- Basic -->
                         <div class="section">
-                            <button class="w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
+                            <button class="article w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
                                data-bs-toggle="collapse"
                                data-bs-target="#@bdId"
                                aria-expanded="true"
                                aria-controls="@bdId">
 
                                 <span class="d-flex justify-content-center text-shadow">
-                                    <strong>@Safe(style.BasicData.Year) @Safe(style.BasicData.Make) @Safe(style.BasicData.Model) @Safe(style.Name) - @(Model?.CurrentVehicle?.VehicleDetails?.InternetPrice.ToString("C0"))</strong>
+                                    <strong>@Safe(style.BasicData.Year) @Safe(style.BasicData.Make) @Safe(style.BasicData.Model) @Safe(style.Name)</strong>
                                 </span>
 
                                 <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
@@ -156,16 +156,31 @@
                                     <table class="table table-sm kv mt-3">
                                         <tbody>
                                             <tr>
-                                                <td class="fw-bold">VIN#: </td>
-                                                <td class="copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.VIN)</td>
-                                                <td class="fw-bold">Stock#</td>
-                                                <td class="copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.Stock)</td>
+                                                <td class="w-15">
+                                                    <span class="text-decoration-line-through">Retail price</span><br />
+                                                    <span class="fw-bold text-danger">Internet price</span>
+                                                </td>
+                                                <td class="w-15">
+                                                    <span class="text-decoration-line-through">
+                                                        @(Model?.CurrentVehicle?.VehicleDetails?.RetailPrice.ToString("C0"))
+                                                    </span><br />
+                                                    <span class="fw-bold text-danger">@(Model?.CurrentVehicle?.VehicleDetails?.InternetPrice.ToString("C0"))</span>
+                                                </td>
+                                                <td class="fw-bold">MSRP</td>
+                                                <td>@Safe(Money(style.Pricing.Msrp))</td>
                                             </tr>
+                                            <tr>
                                             <tr>
                                                 <td class="fw-bold">Miles: </td>
                                                 <td>@(Model?.CurrentVehicle?.VehicleDetails?.Mileage.ToString("N0"))</td>
-                                                <td class="fw-bold">MSRP</td>
-                                                <td>@Safe(Money(style.Pricing.Msrp))</td>
+                                                <td class="fw-bold w-15">VIN#: </td>
+                                                <td class="copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.VIN)</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Seats (Rows)</td>
+                                                <td>@Specs(style.StandardSpecifications.Categories, "Seating", "Max Seating") (@Specs(style.StandardSpecifications.Categories, "Seating", "Seating Rows"))</td>
+                                                <td class="fw-bold w-15">Stock#</td>
+                                                <td class="copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.Stock)</td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-bold">Doors</td>
@@ -184,12 +199,6 @@
                                                 <td>@Safe(style.Engines.Items[0].IceDisplacement)L @Safe(style.Engines.Items[0].IceBlockType)-@Safe(style.Engines.Items[0].IceCylinders)</td>
                                                 <td class="fw-bold">Fuel efficency (combined)</td>
                                                 <td>@Safe(style.EpaFuelEfficiency?.Records?.FirstOrDefault()?.Combined) mpg</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-bold">Seats</td>
-                                                <td>@Specs(style.StandardSpecifications.Categories, "Seating", "Max Seating")</td>
-                                                <td class="fw-bold">Rows</td>
-                                                <td>@Specs(style.StandardSpecifications.Categories, "Seating", "Seating Rows")</td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-bold">Front tires</td>
@@ -226,7 +235,7 @@
 
                         <!-- EPA MPG -->
                         <div class="section">
-                            <button class="w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
+                            <button class="article w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
                                     type="button"
                                     data-bs-toggle="collapse"
                                     data-bs-target="#@epaId"
@@ -387,7 +396,7 @@
 
                         <!-- Transmissions -->
                         <div class="section">
-                            <button class="w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
+                            <button class="article w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
                                     type="button"
                                     data-bs-toggle="collapse"
                                     data-bs-target="#@trId"
@@ -434,7 +443,7 @@
 
                         <!-- Standard Specifications -->
                         <div class="section">
-                            <button class="w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
+                            <button class="article w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
                                     type="button"
                                     data-bs-toggle="collapse"
                                     data-bs-target="#@ssId"
@@ -481,7 +490,7 @@
 
                         <!-- Equipment (Standard) -->
                         <div class="section">
-                            <button class="w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
+                            <button class="article w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
                                     type="button"
                                     data-bs-toggle="collapse"
                                     data-bs-target="#@geStdId"
