@@ -274,7 +274,7 @@ namespace GTX.Controllers
                     vehicle.Images = InventoryService.GetImages(vehicle.Stock);
                     if (vehicle.Images != null && vehicle.Images.Length > 0)
                     {
-                        vehicle.Image = $"{imageFolder}{vehicle.Images[0].Source}"; ;
+                        vehicle.Image = $"{imageFolder}{vehicle.Images[0].Source}";
                     }
                 }
                 else {
