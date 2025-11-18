@@ -113,10 +113,10 @@
             $(this).prop("disabled", this.checked);
 
             if (this.checked) {
-                $("#makes").chosen({ placeholder_text_multiple: "All make(s)..." }).val([]).trigger('chosen:updated');
+                $("#makes").data({ placeholder_text_multiple: "All make(s)..." }).val([]).trigger('chosen:updated');
             }
             else {
-                $("#makes").chosen({ placeholder_text_multiple: "Click to select make(s)..." }).trigger('chosen:updated');
+                $("#makes").data({ placeholder_text_multiple: "Click to select make(s)..." }).trigger('chosen:updated');
             }
         });
 
@@ -124,10 +124,10 @@
             $(this).prop("disabled", this.checked);
 
             if (this.checked) {
-                $("#models").chosen({ placeholder_text_multiple: "All model(s)..." }).val([]).trigger('chosen:updated');
+                $("#models").data({ placeholder_text_multiple: "All model(s)..." }).val([]).trigger('chosen:updated');
             }
             else {
-                $("#models").chosen({ placeholder_text_multiple: "Click to select model(s)..." }).trigger('chosen:updated');;
+                $("#models").data({ placeholder_text_multiple: "Click to select model(s)..." }).trigger('chosen:updated');;
             }
         });
 
@@ -135,10 +135,10 @@
             $(this).prop("disabled", this.checked);
 
             if (this.checked) {
-                $("#cylinders").chosen({ placeholder_text_multiple: "All cylinders..." }).val([]).trigger('chosen:updated');
+                $("#cylinders").data({ placeholder_text_multiple: "All cylinders..." }).val([]).trigger('chosen:updated');
             }
             else {
-                $("#cylinders").chosen({ placeholder_text_multiple: "Click to select cylinders..." }).trigger('chosen:updated');;
+                $("#cylinders").data({ placeholder_text_multiple: "Click to select cylinders..." }).trigger('chosen:updated');;
             }
         });
 
@@ -146,10 +146,10 @@
             $(this).prop("disabled", this.checked);
 
             if (this.checked) {
-                $("#transmissions").chosen({ placeholder_text_multiple: "All transmission(s)..." }).val([]).trigger('chosen:updated');
+                $("#transmissions").data({ placeholder_text_multiple: "All transmission(s)..." }).val([]).trigger('chosen:updated');
             }
             else {
-                $("#transmissions").chosen({ placeholder_text_multiple: "Click to select transmission(s)..." }).trigger('chosen:updated');;
+                $("#transmissions").data({ placeholder_text_multiple: "Click to select transmission(s)..." }).trigger('chosen:updated');;
             }
         });
 
@@ -157,10 +157,10 @@
             $(this).prop("disabled", this.checked);
 
             if (this.checked) {
-                $("#drives").chosen({ placeholder_text_multiple: "All drive trains(s)..." }).val([]).trigger('chosen:updated');
+                $("#drives").data({ placeholder_text_multiple: "All drive trains(s)..." }).val([]).trigger('chosen:updated');
             }
             else {
-                $("#drives").chosen({ placeholder_text_multiple: "Click to select drive trains(s)..." }).trigger('chosen:updated');;
+                $("#drives").data({ placeholder_text_multiple: "Click to select drive trains(s)..." }).trigger('chosen:updated');;
             }
         });
 
@@ -168,20 +168,20 @@
             $(this).prop("disabled", this.checked);
 
             if (this.checked) {
-                $("#bodyTypes").chosen({ placeholder_text_multiple: "All body type(s)..." }).val([]).trigger('chosen:updated');
+                $("#bodyTypes").data({ placeholder_text_multiple: "All body type(s)..." }).val([]).trigger('chosen:updated');
             }
             else {
-                $("#bodyTypes").chosen({ placeholder_text_multiple: "Click to select body types(s)..." }).trigger('chosen:updated');;
+                $("#bodyTypes").data({ placeholder_text_multiple: "Click to select body types(s)..." }).trigger('chosen:updated');;
             }
         });
 
         $("#allFuelTypes").prop({ disabled: true }).on("change", function () {
             $(this).prop("disabled", this.checked);
             if (this.checked) {
-                $("#fuelTypes").chosen({ placeholder_text_multiple: "All fuel type(s)..." }).val([]).trigger('chosen:updated');
+                $("#fuelTypes").data({ placeholder_text_multiple: "All fuel type(s)..." }).val([]).trigger('chosen:updated');
             }
             else {
-                $("#fuelTypes").chosen({ placeholder_text_multiple: "Click to select fuel type(s)..." }).trigger('chosen:updated');;
+                $("#fuelTypes").data({ placeholder_text_multiple: "Click to select fuel type(s)..." }).trigger('chosen:updated');;
             }
         });
 
@@ -189,10 +189,10 @@
             $(this).prop("disabled", this.checked);
 
             if (this.checked) {
-                $("#vehicleTypes").chosen({ placeholder_text_multiple: "All vehicle type(s)..." }).val([]).trigger('chosen:updated');
+                $("#vehicleTypes").data({ placeholder_text_multiple: "All vehicle type(s)..." }).val([]).trigger('chosen:updated');
             }
             else {
-                $("#vehicleTypes").chosen({ placeholder_text_multiple: "Click to select vehicle types(s)..." }).trigger('chosen:updated');;
+                $("#vehicleTypes").data({ placeholder_text_multiple: "Click to select vehicle types(s)..." }).trigger('chosen:updated');;
             }
         });
 

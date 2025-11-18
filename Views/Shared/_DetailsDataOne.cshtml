@@ -101,7 +101,7 @@
     </button>
 
     <div class="text-shadow-small show" id="details">
-        <div class="mt-2  px-5" id="dataOneContainer">
+        <div class="mt-2  px-3" id="dataOneContainer">
             @if (Model.CurrentVehicle.VehicleDataOneDetails?.QueryResponses?.Items == null || !Model.CurrentVehicle.VehicleDataOneDetails.QueryResponses.Items.Any()) {
                 <div class="alert alert-warning">No query responses.</div>
             }
@@ -141,7 +141,7 @@
                                aria-controls="@bdId">
 
                                 <span class="d-flex justify-content-center text-shadow">
-                                    <strong>@Safe(style.BasicData.Year) @Safe(style.BasicData.Make) @Safe(style.BasicData.Model) @Safe(style.Name) - @(Model?.CurrentVehicle?.VehicleDetails?.RetailPrice.ToString("C0"))</strong>
+                                    <strong>@Safe(style.BasicData.Year) @Safe(style.BasicData.Make) @Safe(style.BasicData.Model) @Safe(style.Name) - @(Model?.CurrentVehicle?.VehicleDetails?.InternetPrice.ToString("C0"))</strong>
                                 </span>
 
                                 <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">

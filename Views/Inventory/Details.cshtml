@@ -176,9 +176,9 @@
                 }
 
                 @*Stickers placeholder*@
-                <div class="d-flex justify-content-center align-items-center gap-2 flex-nowrap ">
+@*                <div class="d-flex justify-content-center align-items-center gap-2 flex-nowrap ">
                     <img src="https://velocity-vdp-prod-attachments.s3.amazonaws.com/Velocity+Automotive+Solutions/WindowSticker_v2.png" alt="Velocity Window Sticker" class="" style="max-height: 100px">
-                </div>
+                </div>*@
             </div>
             @if (!(Model.CurrentVehicle.DisplayEZ360Player && Model.IsEZ360) && Model.CurrentVehicle.VehicleDetails.Images.Count() > 0) {
                 <div class="tab-pane fade well" id="nav-pictures" role="tabpanel" aria-labelledby="nav-picture-tab">
@@ -249,7 +249,7 @@
                         <div class="col-md-4 col-6">
                             <div class="mb-3 mb-md-4">
                                 <label class="text-shadow">Amount down (20%)</label>
-                                <input id="downPayment" class="form-control" placeholder="Enter adount down" max="1000000" required="" type="number" value="@(Math.Round(Math.Ceiling(Model.CurrentVehicle.VehicleDetails.RetailPrice * 0.2 / 500) * 500))">
+                                <input id="downPayment" class="form-control" placeholder="Enter adount down" max="1000000" required="" type="number" value="@(Math.Round(Math.Ceiling(Model.CurrentVehicle.VehicleDetails.InternetPrice * 0.2 / 500) * 500))">
                             </div>
                         </div>
                         <div class="col-md-4 col-6">
@@ -510,7 +510,7 @@
 
     function calculate() {
         const score = $("input[name='scores']:checked").val();
-        const amount = @Model.CurrentVehicle.VehicleDetails.RetailPrice - $("#downPayment").val() - $("#tradeIn").val();
+        const amount = @Model.CurrentVehicle.VehicleDetails.InternetPrice - $("#downPayment").val() - $("#tradeIn").val();
         const term = $("#month").val();
 
         $("#monthTerms").html(term);

@@ -4,7 +4,8 @@ using System.Web.Optimization;
 namespace GTX {
     public class BundleConfig {
         // For more information on bundling, visit https://go.microsoft.com/fwlink/?LinkId=301862
-        public static void RegisterBundles(BundleCollection bundles) {
+        public static void RegisterBundles(BundleCollection bundles)
+        {
             bundles.Add(new ScriptBundle("~/Scripts/jquery").Include(
                         "~/Scripts/jquery/jquery.magnific-popup.min.js",
                         "~/Scripts/jquery/jquery.slicknav.js",

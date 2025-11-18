@@ -4,7 +4,7 @@
     </video>
 </div>
 
-<div class="position-absolute w-25 top-50 start-50 translate-middle">
+<div id="homeSearch" class="position-absolute w-25 top-50 start-50 translate-middle">
     <a class="fake-input hand-pointer my-5" data-bs-toggle="modal" data-bs-target="#filtersModal">
         <div class="input-group no-wrap-group">
             <input type="search" class="term form-control no-click rounded-start-4 rounded-end-4 border-start-0 shadow"
@@ -19,7 +19,8 @@
         <a href="/Home/Application" class="btn btn-big-gradient shadow" type="button">Get pre-approval</a>
         @*        <a data-bs-toggle="modal" class="btn btn-big-gradient shadow" data-bs-target="#filtersModal">Search inventory</a>
             <a href="/Inventory/Index" class="btn btn-big-gradient shadow" type="button">All inventory</a>
-        *@        <a href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })" class="btn btn-big-gradient shadow" type="button">Contact us</a>
+        *@        
+        <a href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })" class="btn btn-big-gradient shadow" type="button">Contact us</a>
         <a href="@Url.RouteUrl("TestDriveContact")" class="btn btn-big-gradient shadow" type="button">Schedule test drive</a>
     </div>
 </div>

@@ -401,8 +401,8 @@ namespace GTX.Controllers
                 DriveTrains = all.Select(x => x.DriveTrain).Distinct().OrderBy(x => x).ToArray(),
                 BodyTypes = all.Select(x => x.Body).Distinct().OrderBy(x => x).ToArray(),
                 VehicleTypes = all.Select(x => x.VehicleType).Distinct().OrderBy(x => x).ToArray(),
-                MaxPrice = all.Max(x => x.RetailPrice),
-                MinPrice = all.Min(x => x.RetailPrice)
+                MaxPrice = all.Max(x => x.InternetPrice),
+                MinPrice = all.Min(x => x.InternetPrice)
             };
         }
 
