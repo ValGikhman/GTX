@@ -18,7 +18,7 @@
     data-style="@Model.VehicleStyle.ToUpper()"
     data-type="@Model.VehicleType.ToUpper()"
     data-miles="@Model.Mileage"
-    data-price="@Model.RetailPrice"
+    data-price="@Model.InternetPrice"
     data-cylinders="@Model.Cylinders"
     data-color="@Model.Color.ToUpper()"
     data-color2="@Model.Color2.ToUpper()">
@@ -45,21 +45,21 @@
         </div>
 
         <div class="card-footer gradient">
-            <h7 class="no-click">
+            <h5>
                 <div class="d-flex flex-wrap justify-content-between">
-                    <span>Yours for: @Model.RetailPrice.ToString("C0")</span>
+                    <span>Price: @Model.InternetPrice.ToString("C0")</span>
                     <span>Miles: @Model.Mileage.ToString("N0")</span>
                 </div>
                 <div class="d-flex flex-wrap justify-content-between very-small-text">
-                    <span class="copyable">@Model.VIN</span>
-                    <span class="copyable">@Model.Stock</span>
+                    <span class="no-click copyable">@Model.VIN</span>
+                    <span class="no-click copyable">@Model.Stock</span>
                 </div>
                 <div class="d-flex justify-content-center">
                     <a href="http://www.carfax.com/VehicleHistory/p/Report.cfx?partner=DVW_1&vin=@Model.VIN" target="_blank">
                         <img width="100" src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report">
                     </a>
                 </div>
-            </h7>
+            </h5>
         </div>
     </div>
 </li>

@@ -96,7 +96,7 @@ namespace GTX.Controllers {
 
             // Suggest similar vehicles (within $3000 range, excluding the current one)
             Model.CurrentVehicle.VehicleSuggesion = Model.Inventory.All?
-                .Where(m => m.Stock != stock && Math.Abs(m.RetailPrice - vehicle.RetailPrice) < 3000)
+                .Where(m => m.Stock != stock && Math.Abs(m.InternetPrice - vehicle.InternetPrice) < 3000)
                 .Take(10)
                 .ToArray() ?? Array.Empty<Models.GTX>();
 
@@ -110,7 +110,7 @@ namespace GTX.Controllers {
                 var style = Model.CurrentVehicle.VehicleDataOneDetails.QueryResponses.Items[0].UsMarketData.UsStyles.Styles[0].Name.ToUpper();
                 ViewBag.Title = $"{vehicle.Year} - {vehicle.Make} - {vehicle.Model} - {style}";
             }*/
-            ViewBag.Price = $"{vehicle.RetailPrice.ToString("C")}";
+            ViewBag.Price = $"{vehicle.InternetPrice.ToString("C")}";
 
             return View("Details", Model);
         }
@@ -458,12 +458,12 @@ namespace GTX.Controllers {
                     string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
                     var rs = SessionData?.Inventory.All?.Where(m => request.Contains(m.Make));
 
-                    priceMax = rs?.Max(m => m.RetailPrice);
-                    priceMin = rs?.Min(m => m.RetailPrice);
+                    priceMax = rs?.Max(m => m.InternetPrice);
+                    priceMin = rs?.Min(m => m.InternetPrice);
                 }
                 else {
-                    priceMax = SessionData?.Inventory?.All?.Max(m => m.RetailPrice);
-                    priceMin = SessionData?.Inventory?.All?.Min(m => m.RetailPrice);
+                    priceMax = SessionData?.Inventory?.All?.Max(m => m.InternetPrice);
+                    priceMin = SessionData?.Inventory?.All?.Min(m => m.InternetPrice);
                 }
                 return Json(new { PriceMax = priceMax, PriceMin = priceMin }, JsonRequestBehavior.AllowGet);
             }
@@ -534,7 +534,7 @@ namespace GTX.Controllers {
             }
 
             if (query.Any() && filter.MinPrice > 0 && filter.MaxPrice > 0) {
-                query = query.Where(m => m.RetailPrice >= filter.MinPrice && m.RetailPrice <= filter.MaxPrice).Distinct().ToArray();
+                query = query.Where(m => m.InternetPrice >= filter.MinPrice && m.InternetPrice <= filter.MaxPrice).Distinct().ToArray();
             }
 
             if (query.Any() && filter.FuelTypes != null) {
