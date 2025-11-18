@@ -156,10 +156,10 @@
                                     <table class="table table-sm kv mt-3">
                                         <tbody>
                                             <tr>
-                                                <td class="fw-bold w-25">VIN#: </td>
-                                                <td class="w-25 copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.VIN)</td>
-                                                <td class="fw-bold w-25">Stock#</td>
-                                                <td class="w-25 copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.Stock)</td>
+                                                <td class="fw-bold">VIN#: </td>
+                                                <td class="copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.VIN)</td>
+                                                <td class="fw-bold">Stock#</td>
+                                                <td class="copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.Stock)</td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-bold">Miles: </td>
@@ -200,7 +200,7 @@
                                             <tr>
                                                 @if (!string.IsNullOrWhiteSpace(Model?.CurrentVehicle?.VehicleDetails?.Color))
                                                 {
-                                                    <td class="fw-bold">Exterior color (@(Model?.CurrentVehicle?.VehicleDetails?.Color))</td>
+                                                    <td class="fw-bold">Exterior color</td>
                                                     <td><span style="width:36px;height:36px;border-radius:4px;border:1px solid #ccc; display:inline-block; background-color:@(Model?.CurrentVehicle?.VehicleDetails?.Color)"></span></td>
                                                 }
                                                 else
@@ -210,8 +210,8 @@
 
                                                 @if (!string.IsNullOrWhiteSpace(Model?.CurrentVehicle?.VehicleDetails?.Color2))
                                                 {
-                                                    <td class="fw-bold">Interior color (@(Model?.CurrentVehicle?.VehicleDetails?.Color2))</td>
-                                                    <td><span style="width:36px;height:36px;border-radius:4px;border:1px solid #ccc; display:inline-block; background-color:@(Model?   .CurrentVehicle?.VehicleDetails?.Color2)"></span></td>
+                                                    <td class="fw-bold">Interior color</td>
+                                                    <td><span style="width:36px;height:36px;border-radius:4px;border:1px solid #ccc; display:inline-block; background-color:@(Model?.CurrentVehicle?.VehicleDetails?.Color2)"></span></td>
                                                 }
                                                 else
                                                 {
