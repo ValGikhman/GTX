@@ -32,19 +32,35 @@
     }
 
     @@media only screen and (max-width: 479px) {
-        .canvas__open {
-            top: 54px;
-
+        #nav-payment-tab {
+            display: none;
         }
+
+        h5 {
+            font-size: 12px;
+        }
+
+        #btnPrev, #btnUp {
+            margin-top: 90px;
+        }
+
+        #btnNext {
+            margin-top: 45px;
+        }
+    }
 
     @@media only screen and (max-width: 767px) {
         .body-content {
-            margin-top: 5vh;
+            margin-top: 10vh;
             height: 54rem;
         }
 
         .details-container {
-            margin-top: 2vh;
+            margin-top: 0vh;
+        }
+
+        .EZ360-controls {
+            display: none;
         }
     }
 </style>
@@ -88,7 +104,7 @@
 </div>
 
 <!-- Centered directly below the input -->
-<div class="position-relative d-flex justify-content-center my-2">
+<div class="position-relative d-flex justify-content-center my-2 z-1">
     <h8 id="status"></h8>
 </div>
 <div class="details-container d-flex flex-column flex-lg-row justify-content-center gap-5">
@@ -112,8 +128,8 @@
                     @{
                         if (Model.CurrentVehicle.DisplayEZ360Player && Model.IsEZ360)
                         {
-@*                              <div id="EZ360-media-player"></div>*@
-                              <div id="EZ360_CVDP"></div>
+                            var playerId = Model.IsDevelopment ? "EZ360-media-player" : "EZ360_CVDP";
+                            <div id="@playerId"></div>
                         }
                         else
                         {
@@ -565,7 +581,7 @@
                 $("#btnNext").attr("href", `/Inventory/Details?stock=${nextStock}`);
             }
 
-            $("#status").html(`Current <strong class="text-danger">#${index + 1}</strong> from <strong class="text-danger">${savedStocks.length}</strong> filtered vehicles`)
+            $("#status").html(`<strong class="text-danger">#${index + 1}</strong> from <strong class="text-danger">${savedStocks.length}</strong> filtered vehicles`)
         }
     }
 </script>

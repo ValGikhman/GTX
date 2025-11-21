@@ -14,16 +14,22 @@
     </a>
 </div>
 
-<div class="d-flex justify-content-center align-items-center" style="height: 550px">
-    <div class="btn-container d-flex justify-content-center gap-xxl-3 gap-xl-3 gap-lg-2 flex-wrap">
+<div class="d-flex justify-content-center align-items-center w-100">
+    <div class="btn-container d-flex justify-content-center align-items-center gap-2 flex-wrap w-100">
+        @*
+        <a data-bs-toggle="modal" class="btn btn-big-gradient shadow" data-bs-target="#filtersModal">Search inventory</a>
+        <a href="/Inventory/Index" class="btn btn-big-gradient shadow" type="button">All inventory</a>
+        *@
         <a href="/Home/Application" class="btn btn-big-gradient shadow" type="button">Get pre-approval</a>
-        @*        <a data-bs-toggle="modal" class="btn btn-big-gradient shadow" data-bs-target="#filtersModal">Search inventory</a>
-            <a href="/Inventory/Index" class="btn btn-big-gradient shadow" type="button">All inventory</a>
-        *@        
-        <a href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })" class="btn btn-big-gradient shadow" type="button">Contact us</a>
-        <a href="@Url.RouteUrl("TestDriveContact")" class="btn btn-big-gradient shadow" type="button">Schedule test drive</a>
+
+        <a href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })"
+           class="btn btn-big-gradient shadow" type="button">Contact us</a>
+
+        <a href="@Url.RouteUrl("TestDriveContact")"
+           class="btn btn-big-gradient shadow" type="button">Schedule test drive</a>
     </div>
 </div>
+
 
 
 <script>
