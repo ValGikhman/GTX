@@ -9,7 +9,7 @@ namespace GTX.Models {
 
 		[XmlElement(ElementName = "vehicle")]
 		public GTX[] Vehicles { get; set; }
-	}
+    }
 
 
 	[XmlRoot(ElementName = "vehicle")]
