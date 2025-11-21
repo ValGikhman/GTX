@@ -1,4 +1,6 @@
-﻿namespace GTX.Models {
+﻿using System;
+
+namespace GTX.Models {
     public class Employer {
         public int id { get; set; }
 
@@ -22,6 +24,8 @@
     }
 
     public class Inventory {
+        public DateTime Published { get; set; }
+
         public string Title { get; set; }
 
         public GTX[] Current { get; set; }

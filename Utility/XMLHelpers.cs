@@ -47,12 +47,15 @@ namespace Utility.XMLHelpers {
                 .ToArray();
         }
 
-        public static GTX.Models.GTX[] GetInventory() {
+        public static (GTX.Models.GTX[] Vehicles, DateTime InventoryDate) GetInventory() {
             string path = $"{xmlFilePath}\\Inventory\\Current\\GTX-Inventory.xml";
+            var fileInfo = new FileInfo(path);
+            DateTime inventoryDate = fileInfo.LastWriteTime;
+
             GTXInventory inventory = ReadXmlFile(path);
             inventory.Vehicles = inventory.Vehicles.Where(m => !string.IsNullOrEmpty(m.VIN)).ToArray();
 
-            return inventory.Vehicles;
+            return (inventory.Vehicles, inventoryDate);
         }
 
         public static GTXInventory ReadXmlFile(string filePath) {

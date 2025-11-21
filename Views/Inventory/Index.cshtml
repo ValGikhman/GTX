@@ -26,6 +26,11 @@
 
 <script type="text/javascript">
     $(function () {
+        let days = ((new Date("@DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss")") - new Date("@Model.Inventory.Published.ToString("yyyy-MM-ddTHH:mm:ss")")) / 86400000).toFixed(0);
+
+        const status = `status-${days}`;
+        $("#inventoryStatus").attr('title', `The inventory is ${days} days old`).removeClass().addClass(`status-circle ${status}`);
+
         const term = sessionStorage.getItem("term");
         if (term === undefined || term === "" || term === null) {
             sessionStorage.removeItem("term");

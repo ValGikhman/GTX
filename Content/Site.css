@@ -1,4 +1,24 @@
 ﻿/*Custom*/
+.status-circle {
+    width: 12px;
+    height: 12px;
+    border-radius: 50% !important;
+    display: inline-block;
+}
+
+/* Three possible colors */
+.status-0, .status-1 {
+    background-color: #28a745; /* green */
+}
+
+.status-2, .status-3 {
+    background-color: #ffc107; /* yellow */
+}
+
+.status-4, .status-5 {
+    background-color: #dc3545; /* red */
+}
+
 .collapse-toggle .icon-minus {
     display: none;
 }
