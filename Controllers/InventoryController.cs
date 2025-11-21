@@ -83,7 +83,6 @@ namespace GTX.Controllers {
 
             if (Model.IsEZ360)
             {
-
                 Model.CurrentVehicle.DisplayEZ360Player = false;
                 var ez360 = Model.EZ360Inventory.FirstOrDefault(m => m.StockNo == stock);
 
@@ -95,21 +94,11 @@ namespace GTX.Controllers {
             SessionData.CurrentVehicle = Model.CurrentVehicle;
 
             // Suggest similar vehicles (within $3000 range, excluding the current one)
-            Model.CurrentVehicle.VehicleSuggesion = Model.Inventory.All?
-                .Where(m => m.Stock != stock && Math.Abs(m.InternetPrice - vehicle.InternetPrice) < 3000)
-                .Take(10)
+            Model.CurrentVehicle.VehicleSuggesion = Model.Inventory.All?.Where(m => m.Stock != stock && Math.Abs(m.InternetPrice - vehicle.InternetPrice) < 3000) .Take(10)
                 .ToArray() ?? Array.Empty<Models.GTX>();
 
             // Lets show the tile from fraser details
             ViewBag.Title = $"{vehicle.Year} - {vehicle.Make} - {vehicle.Model} {vehicle.VehicleStyle}";
-
-/*            if (Model.CurrentVehicle.VehicleDataOneDetails == null) {
-                ViewBag.Title = $"{vehicle.Year} - {vehicle.Make} - {vehicle.Model} {vehicle.VehicleStyle}";
-            }
-            else {
-                var style = Model.CurrentVehicle.VehicleDataOneDetails.QueryResponses.Items[0].UsMarketData.UsStyles.Styles[0].Name.ToUpper();
-                ViewBag.Title = $"{vehicle.Year} - {vehicle.Make} - {vehicle.Model} - {style}";
-            }*/
             ViewBag.Price = $"{vehicle.InternetPrice.ToString("C")}";
 
             return View("Details", Model);
