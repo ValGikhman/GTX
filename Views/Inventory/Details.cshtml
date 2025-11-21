@@ -31,18 +31,36 @@
         margin-left: 65% !important;
     }
 
-    #smallCanvas {
-        width: 15rem !important;
+    @@media only screen and (max-width: 479px) {
+        #nav-payment-tab {
+            display: none;
+        }
+
+        h5 {
+            font-size: 12px;
+        }
+
+        #btnPrev, #btnUp {
+            margin-top: 90px;
+        }
+
+        #btnNext {
+            margin-top: 45px;
+        }
     }
 
     @@media only screen and (max-width: 767px) {
         .body-content {
-            margin-top: 5vh;
+            margin-top: 10vh;
             height: 54rem;
         }
 
         .details-container {
-            margin-top: 1vh;
+            margin-top: 0vh;
+        }
+
+        .EZ360-controls {
+            display: none;
         }
     }
 </style>
@@ -86,7 +104,7 @@
 </div>
 
 <!-- Centered directly below the input -->
-<div class="position-relative d-flex justify-content-center my-2">
+<div class="position-relative d-flex justify-content-center my-2 z-1">
     <h8 id="status"></h8>
 </div>
 <div class="details-container d-flex flex-column flex-lg-row justify-content-center gap-5">
@@ -110,8 +128,8 @@
                     @{
                         if (Model.CurrentVehicle.DisplayEZ360Player && Model.IsEZ360)
                         {
-@*                              <div id="EZ360-media-player"></div>*@
-                              <div id="EZ360_CVDP"></div>
+                            var playerId = Model.IsDevelopment ? "EZ360-media-player" : "EZ360_CVDP";
+                            <div id="@playerId"></div>
                         }
                         else
                         {
@@ -409,7 +427,7 @@
     var makeImg = `/GTXImages/makes/${make}.png`;
     var title = `
             <img src="${makeImg}" alt="${make} logo" class="make img-fluid gradient mx-3 rounded-5 px-2 shadow" style="height: 30px;">@ViewBag.Title</image>
-            <button class="article mx-3 btn btn-gradient-grey border-black shadow rounded-4 text-dark"><strong>@ViewBag.Price</strong></button>
+            <button class="make mx-3 btn btn-gradient-grey border-black shadow rounded-4 text-dark"><strong>@ViewBag.Price</strong></button>
     `;
 
     let startX = 0;
@@ -563,7 +581,7 @@
                 $("#btnNext").attr("href", `/Inventory/Details?stock=${nextStock}`);
             }
 
-            $("#status").html(`Current <strong class="text-danger">#${index + 1}</strong> from <strong class="text-danger">${savedStocks.length}</strong> filtered vehicles`)
+            $("#status").html(`<strong class="text-danger">#${index + 1}</strong> from <strong class="text-danger">${savedStocks.length}</strong> filtered vehicles`)
         }
     }
 </script>
