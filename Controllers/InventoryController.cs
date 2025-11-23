@@ -51,6 +51,8 @@ namespace GTX.Controllers {
 
         [HttpGet]
         public ActionResult Details(string stock) {
+            var fromQR = Request.QueryString["QR"];
+
             stock = stock?.Trim().ToUpper();
 
             if (string.IsNullOrEmpty(stock)) {
@@ -100,6 +102,10 @@ namespace GTX.Controllers {
             // Lets show the tile from fraser details
             ViewBag.Title = $"{vehicle.Year} - {vehicle.Make} - {vehicle.Model} {vehicle.VehicleStyle}";
             ViewBag.Price = $"{vehicle.InternetPrice.ToString("C")}";
+
+            if (fromQR != null && fromQR == vehicle.VIN) {
+                return View("DetailsQR", Model);
+            }
 
             return View("Details", Model);
         }
