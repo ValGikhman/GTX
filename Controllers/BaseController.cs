@@ -173,13 +173,15 @@ namespace GTX.Controllers
             if (SessionData?.Inventory == null) {
                 var emptyArray = Array.Empty<Models.GTX>();
 
-                /*                if (Model.IsEZ360)
-                                {
-                                    model.Current = VehicleMapper.ToGTXInventory(Model.EZ360Inventory);
-                                }
-                                else {
-                                    model.Current = Utility.XMLHelpers.XmlRepository.GetInventory();
-                                }*/
+                /*
+                    if (Model.IsEZ360)
+                    {
+                        model.Current = VehicleMapper.ToGTXInventory(Model.EZ360Inventory);
+                    }
+                    else {
+                        model.Current = Utility.XMLHelpers.XmlRepository.GetInventory();
+                    }
+                */
 
                 // Decided to go by stock inventory
                 var result = Utility.XMLHelpers.XmlRepository.GetInventory();
@@ -188,11 +190,7 @@ namespace GTX.Controllers
 
                 model.Current = ApplyExtended(model.Current);
 
-                model.All = model.Current
-                    .Where(m => m.SetToUpload == "Y")
-                    .OrderBy(m => m.Make).ThenBy(m => m.Model)
-                    .ToArray();
-                
+                model.All = model.Current.Where(m => m.SetToUpload == "Y").OrderBy(m => m.Make).ThenBy(m => m.Model).ToArray();  
                 model.Vehicles = model.All;
 
                 string SUV = CommonUnit.VehicleType.SUV.ToString();

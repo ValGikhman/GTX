@@ -599,8 +599,15 @@ namespace GTX.Controllers {
             using (var qrData = qrGenerator.CreateQrCode(text, QRCodeGenerator.ECCLevel.Q))
             using (var qrCode = new PngByteQRCode(qrData))
             {
-                // 10 = pixels per module, tweak for size
-                var bytes = qrCode.GetGraphic(10);
+                var foreground = System.Drawing.ColorTranslator.FromHtml("#000000"); // dark
+                var background = System.Drawing.ColorTranslator.FromHtml("#FFFFFF"); // light
+
+                byte[] bytes = qrCode.GetGraphic(
+                    pixelsPerModule: 10,
+                    darkColor: foreground,
+                    lightColor: background,
+                    drawQuietZones: true
+                );
                 return File(bytes, "image/png");
             }
         }

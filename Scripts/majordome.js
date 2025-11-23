@@ -222,10 +222,12 @@ function setDetails(stock) {
     });
 }
 
-function setQrCode(stock) {
-    var qrText = "https://usedcarscincinnati.com/Inventory/Details?stock=" + stock;
+function setQrCode(vehicle) {
+    var qrText = "https://usedcarscincinnati.com/Inventory/Details?stock=" + vehicle.Stock;
     var qrUrl = "/Majordome/Qr?text=" + encodeURIComponent(qrText);
     $("#qrImg").attr("src", qrUrl);
+    $("#qrText").html(`<div>${vehicle.Year} ${vehicle.Make} ${vehicle.Model} Stock# ${vehicle.Stock}</div>`);
+    $("#QR-code-tab").removeClass("d-none");
 }
 
 function reStoryAll() {

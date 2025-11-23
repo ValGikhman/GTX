@@ -83,16 +83,9 @@
             aria-expanded="true"
             aria-controls="details">
         <div class="bg-lighter py-2 px-3 text-center hand-pointer">
-            @if (ViewBag.IsMajordome != null && ViewBag.IsMajordome) {
-                <h5 class="fw-bold text-uppercase text-white" onclick="window.open('/Majordome/Inventory/@(Uri.EscapeDataString(Model.CurrentVehicle.VehicleDetails.Stock))', '_blank')">
-                    <i class="bi bi-car-front mx-2"></i>Details
-                </h5>
-            }
-            else {
-                <h5 class="fw-bold text-uppercase text-white">
-                    <i class="bi bi-car-front mx-2"></i>Details
-                </h5>
-            }
+            <h5 class="fw-bold text-uppercase text-white">
+                <i class="bi bi-car-front mx-2"></i>Details
+            </h5>
         </div>
         <span class="toggle-icons position-absolute end-0 top-50 translate-middle-y pe-3" aria-hidden="true">
             <i class="bi bi-plus-lg icon-plus"></i>
