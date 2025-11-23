@@ -6,21 +6,6 @@
     <script src="~/Scripts/majordome.js"></script>
 
     <style>
-        @@media print {
-            body * {
-                display: none !important;
-            }
-
-            #qrPrintArea, #qrPrintArea * {
-                display: block !important;
-            }
-
-            #qrPrintArea {
-                margin: 40px auto;
-                text-align: center;
-            }
-        }
-
         #dataOneContainer {
             overflow-y: auto;
             height: 37rem;
@@ -216,10 +201,13 @@
         <!-- QR Code Tab -->
         <div class="tab-pane fade" id="tab-qr-code" role="tabpanel">
             <div class="row">
-                <div class="col-lg-2 d-flex flex-column align-items-center text-center">
-                    <div id="qrPrintArea" class="m-3">
-                        <h3>Scan for Details</h3>
-                        <img id="qrImg" src="" alt="QR Code" style="width:200px;height:200px;" />
+                <div class="col-3 d-flex flex-column align-items-center text-center">
+                    <div id="qrPrintArea" class="m-3"  style="width:400px;">
+                        <h3>ATTENTION</h3>
+                        <h3>Car shoppers!</h3>
+                        <div>Scan the code  with your mobile phone's camera app for more information about this vehicle</div>
+                        <img id="qrImg" src="" alt="QR Code" style="width:300px;height:300px;" />
+                        <div id="qrText" class="very-small-text"></div>
                     </div>
                     <div class="m-3">
                         <button type="button" class="btn btn-gradient shadow" onclick="printQrArea()">Print QR</button>
@@ -696,7 +684,7 @@
             showVehicleDetails(selectedVehicle);
             loadGallery(selectedVehicle);
             setDetails(selectedVehicle.Stock);
-            setQrCode(selectedVehicle.Stock);
+            setQrCode(selectedVehicle);
         },
         onFilterChanged: params => {
             const count = gridApi.getDisplayedRowCount();
@@ -884,34 +872,50 @@
     }
 
     function printQrArea() {
-        var src = $("#qrImg").attr("src");
-        if (!src) {
-            alert("QR not ready yet.");
-            return;
-        }
+        var printContents = $("#qrPrintArea").html();
 
-        var w = window.open("", "_blank");
+        // Create hidden iframe
+        var iframe = $('<iframe>', {
+            id: 'qrPrintFrame',
+            style: 'position:absolute; top:-10000px; left:-10000px;'
+        }).appendTo('body')[0];
 
-        w.document.write("<html><head><title></title></head><body style='text-align:center;'>");
-        w.document.write("<h3>Scan for Details</h3>");
-        w.document.write("<img id='pqr' src='" + src + "' style='width:200px;height:200px;' />");
-        w.document.write("</body></html>");
-        w.document.close();
+        var doc = iframe.contentWindow || iframe.contentDocument;
+        if (doc.document) doc = doc.document;
 
-        // Wait for the QR image to load in the new window before printing
-        w.onload = function () {
-            var img = w.document.getElementById("pqr");
-            if (img.complete) {
-                w.focus();
-                w.print();
-                w.close();
-            } else {
-                img.onload = function () {
-                    w.focus();
-                    w.print();
-                    w.close();
-                };
-            }
-        };
+        // Write HTML + copy all CSS links
+        doc.open();
+        doc.write(`
+            <html>
+                <head>
+                    ${$("link[rel='stylesheet']").map(function () {return '<link rel="stylesheet" href="' + this.href + '">';}).get().join('')}
+
+                    <style>
+                        body {
+                            display: flex;
+                            justify-content: center;   /* horizontal center */
+                            align-items: flex-start;   /* vertical top */
+                        }
+                        #qrPrintArea {
+                            text-align: center;
+                        }
+                    </style>
+
+                </head>
+                <body>
+                    <div id="qrPrintArea" class="col-6">${printContents}</div>
+                </body>
+            </html>
+        `);
+        doc.close();
+
+        // Wait to ensure images (QR) load correctly
+        $(iframe).on('load', function () {
+            setTimeout(function () {
+                iframe.contentWindow.focus();
+                iframe.contentWindow.print();
+                $(iframe).remove(); // cleanup
+            }, 300);
+        });
     }
 </script>

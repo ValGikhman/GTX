@@ -124,7 +124,7 @@
         </nav>
         <div class="tab-content" id="nav-tabContent">
             <div class="tab-pane fade show active" id="nav-details" role="tabpanel" aria-labelledby="nav-details-tab">
-                <div class="row well mb-5">
+                <div class="row well mb-1">
                     @{
                         if (Model.CurrentVehicle.DisplayEZ360Player && Model.IsEZ360)
                         {
@@ -155,6 +155,27 @@
                         }
                     }
                 </div>
+
+                @*Dudes*@
+            <div class="d-flex justify-content-center align-items-center gap-3 flex-nowrap my-2">
+                @if (ViewBag.IsMajordome)
+                {
+                    <span class="fw-bold text-uppercase text-white" onclick="window.open('/Majordome/Inventory/@(Uri.EscapeDataString(Model.CurrentVehicle.VehicleDetails.Stock))', '_blank')">
+                        <i class="btn btn-gradient-grey border-dark rounded shadow bi bi-pen mx-2"></i>
+                    </span>
+                }
+                <span>
+                    <i id="like-btn" class="btn btn-gradient-grey border-dark rounded shadow bi bi-heart-fill text-danger" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"></i>
+                </span>
+                <span>
+                    <a id="shareToFacebook" class="btn btn-gradient-grey border-dark rounded shadow" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"><i class="bi bi-facebook"></i></a>
+                </span>
+                <span>
+                    <a id="shareToTwitter" class="btn btn-gradient-grey border-dark rounded shadow" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"><i class="bi bi-twitter"></i></a>
+                </span>
+                <h5 class="fw-bold text-uppercase text-white" onclick="window.open('/Majordome/Inventory/@(Uri.EscapeDataString(Model.CurrentVehicle.VehicleDetails.Stock))', '_blank')">
+            </div>
+
 
                 @*Details*@
                 @{
@@ -194,9 +215,9 @@
                 }
 
                 @*Stickers placeholder*@
-@*                <div class="d-flex justify-content-center align-items-center gap-2 flex-nowrap ">
-                    <img src="https://velocity-vdp-prod-attachments.s3.amazonaws.com/Velocity+Automotive+Solutions/WindowSticker_v2.png" alt="Velocity Window Sticker" class="" style="max-height: 100px">
-                </div>*@
+                @*                <div class="d-flex justify-content-center align-items-center gap-2 flex-nowrap ">
+            <img src="https://velocity-vdp-prod-attachments.s3.amazonaws.com/Velocity+Automotive+Solutions/WindowSticker_v2.png" alt="Velocity Window Sticker" class="" style="max-height: 100px">
+        </div>*@
             </div>
             @if (!(Model.CurrentVehicle.DisplayEZ360Player && Model.IsEZ360) && Model.CurrentVehicle.VehicleDetails.Images.Count() > 0) {
                 <div class="tab-pane fade well" id="nav-pictures" role="tabpanel" aria-labelledby="nav-picture-tab">
@@ -321,7 +342,7 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-3 col-md-4 col-sm-12 pt-4 mt-3">
+    <div class="col-lg-3 col-md-4 col-sm-12">
         @*Carfax*@
         <a class="w-100 btn btn-gradient mb-3"
            type="button"
@@ -367,19 +388,6 @@
                 <i class="bi bi-currency-dollar mx-2"></i>Loan application
             </h5>
         </button>
-
-        @*Dudes*@
-        <div class="d-flex justify-content-center align-items-center gap-3 flex-nowrap my-2">
-            <span>
-                <i id="like-btn" class="btn btn-gradient-grey border-dark rounded shadow bi bi-heart-fill text-danger" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"></i>
-            </span>
-            <span>
-                <a id="shareToFacebook" class="btn btn-gradient-grey border-dark rounded shadow" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"><i class="bi bi-facebook"></i></a>
-            </span>
-            <span>
-                <a id="shareToTwitter" class="btn btn-gradient-grey border-dark rounded shadow" data-stock="@Model.CurrentVehicle.VehicleDetails.Stock"><i class="bi bi-twitter"></i></a>
-            </span>
-        </div>
     </div>
 </div>
 @*May Like*@
