@@ -1,0 +1,167 @@
+﻿@using Services;
+@model GTX.Models.BaseModel
+
+<style>
+    #infoIcon {
+        display: none;
+    }
+
+    #EZ360-left-part-container {
+        height: 78.5%!important;
+    }
+
+    #EZ360-controls {
+        height: 5%!important;
+    }
+
+    #EZ360-Player-Div {
+        border: 0px !important;
+    }
+
+    .img-carousel {
+        width: 800px;
+        height: 525px;
+    }
+
+    .row {
+        --bs-gutter-x: 0rem;
+    }
+
+    .just-validate-error-label {
+        margin-left: 65% !important;
+    }
+
+    @@media only screen and (max-width: 479px) {
+        h5 {
+            font-size: 12px;
+        }
+    }
+
+    @@media only screen and (max-width: 767px) {
+        .body-content {
+            margin-top: 10vh;
+            height: 54rem;
+        }
+
+        .details-container {
+            margin-top: 0vh;
+        }
+
+        .EZ360-controls {
+            display: none;
+        }
+    }
+</style>
+
+<head>
+    <script src="~/Scripts/Lightbox/lc_lightbox.lite.min.js" type="text/javascript"></script>
+
+    <link href="~/Content/Lightbox/lc_lightbox.min.css" rel="stylesheet" />
+
+    <!-- SKINS -->
+    <link href="~/Content/Lightbox/dark.css" rel="stylesheet" />
+
+    <!-- ASSETS -->
+    <script src="~/Scripts/AlloyFinger/alloy_finger.min.js" type="text/javascript"></script>
+    @if(Model.CurrentVehicle.DisplayEZ360Player && Model.IsEZ360) { 
+        <script src="https://sdk.sister.tv/integrations/cvdp/live/injectEZ360PlayerScript.min.js" id="ez360-cvdp" vin="@Model.CurrentVehicle.VehicleDetails.VIN" integration_id="gtx-auto-cincinnati" page_type="VDP"></script>
+    }
+
+</head>
+
+<div class="details-container d-flex flex-column flex-lg-row justify-content-center gap-5">
+    <div class="col-lg-7 col-md-4 col-sm-12">
+        <div class="row well mb-1">
+            @{
+                if (Model.CurrentVehicle.DisplayEZ360Player && Model.IsEZ360)
+                {
+                    var playerId = Model.IsDevelopment ? "EZ360-media-player" : "EZ360_CVDP";
+                    <div id="@playerId"></div>
+                }
+                else
+                {
+                    if (Model.CurrentVehicle.VehicleDetails.Images.Count() > 0)
+                    {
+                        <div class="col-12 col-lg-12 col-md-12 col-sm-12">
+                            <div class="ratio ratio-carousel overflow-hidden">
+                                @Html.Partial("_Carousel", Model.CurrentVehicle)
+                            </div>
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="d-flex justify-content-center text-uppercase p-5">
+                            <h6>
+                                <img class="img-fluid d-block mx-auto" width="85" src="@Url.Content("~/GTXImages/gtx.png")" alt="GTX Autogroup">
+                                <br />
+                                is still working on images
+                            </h6>
+                        </div>
+                    }
+                    <div class="d-flex justify-content-center my-2">
+                        @*Carfax*@
+                        <a class="btn btn-gradient"
+                            type="button"
+                            id="btnCarfax"
+                            href="http://www.carfax.com/VehicleHistory/p/Report.cfx?partner=DVW_1&vin=@Model.CurrentVehicle.VehicleDetails.VIN" target="_blank">
+                            <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
+                                <img src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report">
+                            </h5>
+                        </a>
+                    </div>
+                }
+            }
+        </div>
+
+        @*Details*@
+        @{
+            if (Model.CurrentVehicle.VehicleDataOneDetails == null)
+            {
+                Html.RenderPartial("_Details");
+            }
+            else
+            {
+                Html.RenderPartial("_DetailsDataOne");
+            }
+        }
+    </div>
+</div>
+
+<script type="text/javascript">
+    $("#shorts").removeClass("d-xl-flex d-md-flex d-sm-flex"); // removing it hides the shortcuts
+
+    var stock = "@Model.CurrentVehicle.VehicleDetails.Stock";
+    var make = "@Model.CurrentVehicle.VehicleDetails.Make.Replace(' ', '-')";
+    var vehicle = "@ViewBag.Title";
+    var makeImg = `/GTXImages/makes/${make}.png`;
+    var title = `
+            <img src="${makeImg}" alt="${make} logo" class="make img-fluid gradient mx-3 rounded-5 px-2 shadow" style="height: 30px;">@ViewBag.Title</image>
+            <button class="make mx-3 btn btn-gradient-grey border-black shadow rounded-4 text-dark"><strong>@ViewBag.Price</strong></button>
+    `;
+
+    $(function () {
+        $(".fancy").html(title);
+
+        lc_lightbox(".elem", {
+            wrap_class: "lcl_fade_oc",
+            gallery: true,
+            thumb_attr: "data-lcl-thumb",
+            skin: "light",
+            radius: 4,
+            padding: 0,
+            border_w: 1
+        });
+
+        $(".hover-bw").on("click", function () {
+            const stock = $(this).data("stock");
+            if (stock) {
+                window.location.href = `${root}Inventory/Details?stock=${stock}`
+            }
+        });
+    });
+</script>
+
+
+
+
