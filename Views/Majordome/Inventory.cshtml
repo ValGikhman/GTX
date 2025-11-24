@@ -419,27 +419,27 @@
         $("#myGrid").on("dblclick", ".grid-image", function () {
             $("#gallery-tab").tab("show");
         });
-    });
 
-    $("#story").tinymce({
-        height: 560,
-        license_key: "gpl",
-        resize: true,
-        autosave_ask_before_unload: false,
-        powerpaste_allow_local_images: true,
-        menubar: "file edit view insert format customMenu", // add your custom menu here
-        setup: function (editor) {
-            editor.on("init", function () {
-                editor.setContent(selectedVehicle.Story?.HtmlContent || '');
-            });
-        },
-        plugins: [
-            'advlist', 'anchor', 'autolink', 'codesample', 'fullscreen',
-            'image', 'lists', 'link', 'media', 'preview',
-            'searchreplace', 'table', 'visualblocks'
-        ],
-        toolbar: "insertfile a11ycheck undo redo | fontfamily fontsize | bold italic underline | forecolor backcolor | link image | alignleft aligncenter alignright alignjustify",
-        spellchecker_dialog: true
+        $("#story").tinymce({
+            height: 560,
+            license_key: "gpl",
+            resize: true,
+            autosave_ask_before_unload: false,
+            powerpaste_allow_local_images: true,
+            menubar: "file edit view insert format customMenu", // add your custom menu here
+            setup: function (editor) {
+                editor.on("init", function () {
+                    editor.setContent(selectedVehicle.Story?.HtmlContent || '');
+                });
+            },
+            plugins: [
+                'advlist', 'anchor', 'autolink', 'codesample', 'fullscreen',
+                'image', 'lists', 'link', 'media', 'preview',
+                'searchreplace', 'table', 'visualblocks'
+            ],
+            toolbar: "insertfile a11ycheck undo redo | fontfamily fontsize | bold italic underline | forecolor backcolor | link image | alignleft aligncenter alignright alignjustify",
+            spellchecker_dialog: true
+        });
     });
 
     function getSortedIds() {
@@ -616,7 +616,7 @@
             $("#filterResults").html(`${count} record(s) found.`);
         },
         columnDefs: columnDefs,
-        rowSelection: "single", // or 'multiple'
+        rowSelection: "single",
         rowHeight: 150, // Set fixed row height in pixels
         suppressRowClickSelection: false, // Allow clicking anywhere in the row
         suppressCellFocus: true, // 🔥 Disable cell selection focus
@@ -847,22 +847,7 @@
 
         // Scroll it into view (optional)
         gridApi.ensureIndexVisible(firstNode.rowIndex, 'top');
-
-        // Physically click the DOM row element
-        const rowElement = document.querySelector(
-            `.ag-center-cols-container [row-index="${firstNode.rowIndex}"]`
-        );
-
-        if (rowElement) {
-            rowElement.dispatchEvent(new MouseEvent('click', {
-                bubbles: true,
-                cancelable: true,
-                view: window
-            }));
-        } else if (gridOptions.onRowClicked) {
-            // Fallback: manually call the row-click logic
-            gridOptions.onRowClicked({ data: firstNode.data, node: firstNode });
-        }
+        gridOptions.onRowClicked({ data: firstNode.data, node: firstNode });
     }
 
     function printQrArea() {
