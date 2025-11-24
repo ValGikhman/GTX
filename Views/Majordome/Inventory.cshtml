@@ -109,7 +109,7 @@
                 Vin decoder
             </button>
         }
-        <button class="nav-item btn btn-gradient-grey text-shadow-small" id="QR-code-tab" data-bs-toggle="tab" data-bs-target="#tab-qr-code" type="button" role="tab">
+        <button class="nav-item btn btn-gradient-grey text-shadow-small d-none" id="QR-code-tab" data-bs-toggle="tab" data-bs-target="#tab-qr-code" type="button" role="tab">
             QR Code
         </button>
     </nav>
@@ -230,12 +230,6 @@
     const $dropzone = $("#dropzone");
     let gridApi, gridColumnApi = null;
 
-    const hiddenByBP = {
-        xs: ["PurchaseDate", "LocationCode", "Stock", "Story", "SetToUpload", "Actions"],
-        sm: ["PurchaseDate", "LocationCode", "Stock", "Story", "SetToUpload", "action"],
-        md: ["PurchaseDate", "LocationCode", "Story"]
-    };
-
     $(function () {
         var grid = document.querySelector("#myGrid");
         agGrid.createGrid(grid, gridOptions);
@@ -252,6 +246,7 @@
             const dt = e.originalEvent.dataTransfer;
             if (dt && dt.files) handleFiles(dt.files);
         });
+
         $dropzone.on('paste', function (e) {
             const oe = e.originalEvent;
             const dt = oe.clipboardData;
@@ -275,18 +270,6 @@
                 handleFiles(items);
             }
         });
-
-        const onResize = debounce(function () {
-            const bp = currentBp();
-            // Only re-apply if breakpoint actually changed
-            if (window.__lastBp !== bp) {
-                window.__lastBp = bp;
-                applyResponsiveColumns(bp);
-            }
-        }, 120);
-
-        window.__lastBp = currentBp();
-        $(window).on('resize orientationchange', onResize);
 
         $(document).on("click", ".delete-image", function () {
             var file = $(this).data("filename");
@@ -400,7 +383,7 @@
         });
 
         $("#btnUploadInventory").on("click", function () {
-                $("#dataCsv").click();
+            $("#dataCsv").click();
         });
 
         $("#dataCsv").on("change", function () {
@@ -463,35 +446,6 @@
         return $("#sortable-gallery li").map(function () {
             return $(this).attr("id");
         }).get();
-    }
-
-    function currentBp() {
-        if (window.matchMedia('(max-width: 575.98px)').matches) return 'xs';
-        if (window.matchMedia('(max-width: 767.98px)').matches) return 'sm';
-        if (window.matchMedia('(max-width: 991.98px)').matches) return 'md';
-        return 'lg';
-    }
-
-    function debounce(fn, wait) {
-        let t;
-        return function () {
-            clearTimeout(t);
-            t = setTimeout(() => fn.apply(this, arguments), wait);
-        };
-    }
-
-    function applyResponsiveColumns(bp) {
-        if (!gridColumnApi) return;
-
-        // Build a list of all column ids (prefer colId, fallback to field)
-        const allColIds = (columnDefs || []).map(c => c.colId || c.field).filter(Boolean);
-
-        // Show everything first…
-        gridApi.setColumnsVisible(allColIds, true);
-
-        // …then hide only what this breakpoint dictates
-        const toHide = hiddenByBP[bp] || [];
-        if (toHide.length) gridApi.setColumnsVisible(toHide, false);
     }
 
     const nfUSD = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
@@ -643,12 +597,6 @@
             gridApi = params.api; // ✅ store reference globally
             gridColumnApi = params.columnApi;
 
-            const $stock = "@ViewBag.Stock";
-            if ($stock !== null && $stock !== "") {
-                $("#filterTerm").val($stock);
-                applyFilterTerm($stock);
-            }
-
             gridApi.forEachNode(function (node, index) {
                 if (index === 0) {
                     node.setSelected(true);
@@ -656,11 +604,16 @@
                 }
             });
 
+            const $stock = "@ViewBag.Stock";
+            if ($stock !== null && $stock !== "") {
+                $("#filterTerm").val($stock);
+                applyFilterTerm($stock);
+            }
+
+            setTimeout(selectAndClickFirstDisplayedRow, 700);
+
             const count = gridApi.getDisplayedRowCount();
             $("#filterResults").html(`${count} record(s) found.`);
-
-            const bp = currentBp();
-            applyResponsiveColumns(bp);
         },
         columnDefs: columnDefs,
         rowSelection: "single", // or 'multiple'
@@ -851,6 +804,7 @@
         }
 
         $("#gallery-tab").text(`Photos (${vehicle.Images.length})`);
+        $("#QR-code-tab").removeClass("d-none");
     }
 
     function vehicleDetailsCellRenderer(params) {
@@ -869,6 +823,46 @@
         const stock = selectedVehicle.Stock;
         if (!files.length) return;
         uploadDroppedFiles(stock, files);
+    }
+
+    function selectFirstRow(params) {
+        params.api.forEachNode(function (node) {
+            if (node.rowIndex === 0) {
+                node.setSelected(true);
+            }
+        });
+    }
+
+    function selectAndClickFirstDisplayedRow() {
+        if (!gridApi) return;
+
+        const firstNode = gridApi.getDisplayedRowAtIndex(0);
+        if (!firstNode) return; // no rows (empty after filter)
+
+        // Clear any previous selection
+        gridApi.deselectAll();
+
+        // Select the row in AG Grid
+        firstNode.setSelected(true);
+
+        // Scroll it into view (optional)
+        gridApi.ensureIndexVisible(firstNode.rowIndex, 'top');
+
+        // Physically click the DOM row element
+        const rowElement = document.querySelector(
+            `.ag-center-cols-container [row-index="${firstNode.rowIndex}"]`
+        );
+
+        if (rowElement) {
+            rowElement.dispatchEvent(new MouseEvent('click', {
+                bubbles: true,
+                cancelable: true,
+                view: window
+            }));
+        } else if (gridOptions.onRowClicked) {
+            // Fallback: manually call the row-click logic
+            gridOptions.onRowClicked({ data: firstNode.data, node: firstNode });
+        }
     }
 
     function printQrArea() {

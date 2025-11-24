@@ -188,9 +188,9 @@ namespace GTX.Controllers
                 model.Current = result.Vehicles;
                 model.Published = result.InventoryDate;
 
-                model.Current = ApplyExtended(model.Current);
-
                 model.All = model.Current.Where(m => m.SetToUpload == "Y").OrderBy(m => m.Make).ThenBy(m => m.Model).ToArray();  
+                model.All = ApplyExtended(model.All);
+
                 model.Vehicles = model.All;
 
                 string SUV = CommonUnit.VehicleType.SUV.ToString();
