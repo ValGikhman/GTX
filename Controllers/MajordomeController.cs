@@ -45,7 +45,7 @@ namespace GTX.Controllers {
             ViewBag.Title = "Inventory management";
             ViewBag.Stock = stock;
 
-            var vehicles = Model.Inventory.Current ?? Array.Empty<Models.GTX>();
+            var vehicles = Model.Inventory.Vehicles ?? Array.Empty<Models.GTX>();
 
             Parallel.ForEach(vehicles, vehicle =>
             {
