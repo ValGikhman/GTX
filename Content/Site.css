@@ -118,12 +118,25 @@
 }
 
 #filterByTerm {
+    min-height: 70px;
     padding-right: 8rem !important;
     padding-left: 8rem !important;
+    position: fixed !important;
+    z-index: 1050; /* sits above grid */
+    background: white; /* important so grid isn’t visible through it */
+    padding: 15px 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+#inventory {
+    margin-top: 90px;
+    max-height: 65vh; /* adjust depending on your header/filter bar height */
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 #gridShell {
-    height: 70vh; /* initial (works even before JS runs) */
+    height: 65vh; /* initial (works even before JS runs) */
     width: 92rem;
     margin-top: 15px;
 }
@@ -554,6 +567,10 @@
 
     .start-75 {
         left: 75% !important;
+    }
+
+    .top-90 {
+        top: 90% !important;
     }
 
     .form-control:focus {
@@ -1646,7 +1663,8 @@
     }
 
     #inventory {
-        margin-top: 3rem;
+        margin-top: 6rem;
+        max-height: 80vh;
     }
 
     .hero {

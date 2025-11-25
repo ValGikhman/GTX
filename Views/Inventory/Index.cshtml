@@ -1,10 +1,11 @@
 ﻿@model GTX.Models.BaseModel
+
+@if (Model.Inventory?.Vehicles.Count() > 0)
+{
+    @Html.Partial("_FilterByTerm");
+}
 <!-- Scrollable wrapper -->
-<div class="inventory-wrapper mx-4">
-    @if (Model.Inventory?.Vehicles.Count() > 0)
-    {
-        @Html.Partial("_FilterByTerm");
-    }
+<div class="inventory-wrapper">
     <ul id="inventory" class="d-flex flex-wrap justify-content-center gap-3">
         @{
             if (Model.Inventory?.Vehicles != null)
