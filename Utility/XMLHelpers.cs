@@ -83,7 +83,7 @@ namespace Utility.XMLHelpers {
                 xmlDoc.SelectSingleNode("//email")!.InnerText = model.Email;
                 xmlDoc.SelectSingleNode("//phone")!.InnerText = model.Phone;
 
-                if (model.CurrentVehicle.VehicleDetails != null) {
+                if (model.CurrentVehicle?.VehicleDetails != null) {
                     // Set vehicle info
                     xmlDoc.SelectSingleNode("//prospect/vehicle/stock")!.InnerText = model.CurrentVehicle.VehicleDetails.Stock;
                     xmlDoc.SelectSingleNode("//prospect/vehicle/year")!.InnerText = model.CurrentVehicle.VehicleDetails.Year.ToString();
