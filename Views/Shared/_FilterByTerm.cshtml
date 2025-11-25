@@ -1,17 +1,25 @@
 ﻿<div id="filterByTerm" class="d-flex align-items-center position-relative w-100 mt-1 pb-4">
     <!-- Centered search -->
-    <div class="position-absolute start-50 translate-middle-x d-flex align-items-center gap-3">
-        <input type="search" id="filterTerm" class="form-control shadow rounded-4" placeholder="Search within results..." aria-label="Search inventory">
-        <h5 class="mb-0">
-            <i id="filterLiked" class="bi bi-heart text-danger" title="Show liked"></i>
-        </h5>
-        <h5 class="mb-0">
-            <i id="filterLast" class="bi bi-journal link-primary" title="10 last seen cars"></i>
-        </h5>
-        <!-- Centered directly below the input -->
-        <div class="position-fixed top-90 start-50 translate-middle-x text-center w-100">
-            <h8 id="filterResults"></h8>
+    <div class="position-absolute start-50 translate-middle-x w-100 d-flex justify-content-center">
+        <div id="filterWrapper" class="input-group shadow rounded-4" style="max-width: 480px;">
+            <!-- Search box -->
+            <input type="search" id="filterTerm" class="form-control rounded-start-4 rounded-end-4" placeholder="Search within results..." aria-label="Search inventory">
+
+            <!-- Like -->
+            <button class="filterLiked input-group-text btn btn-gradient-grey border-start-1 rounded-0 border-dark-subtle">
+                <i id="filterLiked" class="bi bi-heart text-danger" title="Show liked" style="cursor:pointer;"></i>
+            </button>
+
+            <!-- Last Seen -->
+            <button class="filterLast input-group-text btn btn-gradient-grey border-start-0 rounded-end-4 border-dark-subtle" style="margin-left:-3px;">
+                <i id="filterLast" class="bi bi-journal text-primary" title="10 last seen cars" style="cursor:pointer;"></i>
+            </button>
         </div>
+    </div>
+
+    <!-- Filter results (absolute center, one row below) -->
+    <div class="position-absolute start-50 translate-middle-x text-center" style="top: 40px;">
+        <h8 id="filterResults" class="m-0"></h8>
     </div>
 
     <!-- RIGHT: Sort (pushed right with ms-auto) -->
