@@ -13,14 +13,18 @@
         <name part="first"></name>
         <name part="last"></name>
         <email></email>
-        <phone></phone>
+        <phone type="phone" time="nopreference" preferredcontact="1"></phone>
       </contact>
       <comments></comments>
     </customer>
     <vendor>
-      <contact>
-        <name part="full">usedcarscincinnati.com</name>
-      </contact>
+     <id sequence="1" source="AUTO RAPTOR">website-source-1</id>
+     <vendorname>usedcarscincinnati.com</vendorname>
     </vendor>
+    <provider>
+      <name part="full">Website</name>
+      <service>Website Lead Submission</service>
+      <email>no-reply@usedcarscincinnati.com</email>
+    </provider>
   </prospect>
 </adf>
