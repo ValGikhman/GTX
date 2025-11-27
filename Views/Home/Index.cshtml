@@ -20,13 +20,11 @@
         <a data-bs-toggle="modal" class="btn btn-big-gradient shadow" data-bs-target="#filtersModal">Search inventory</a>
         <a href="/Inventory/Index" class="btn btn-big-gradient shadow" type="button">All inventory</a>
         *@
-        <a href="/Home/Application" class="btn btn-big-gradient shadow" type="button">Get pre-approval</a>
+        <a href="/Home/Application" class="btn btn-big-gradient-green shadow" type="button"><span class="bi bi-currency-dollar"/><span class="mx-3">Get prequalified</span></a>
 
-        <a href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })"
-           class="btn btn-big-gradient shadow" type="button">Contact us</a>
+        <a href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })" class="btn btn-big-gradient shadow" type="button"><span class="bi bi-person-vcard"/><span class="mx-3">Contact us</span></a>
 
-        <a href="@Url.RouteUrl("TestDriveContact")"
-           class="btn btn-big-gradient shadow" type="button">Schedule test drive</a>
+        <a href="@Url.RouteUrl("TestDriveContact")" class="btn btn-big-gradient-yellow shadow" type="button"><span class="bi bi-calendar3"/><span class="mx-3">Schedule test drive</span></a>
     </div>
 </div>
 

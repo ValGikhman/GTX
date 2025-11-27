@@ -92,7 +92,10 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div id="header" class="modal-header shadow">
-                <h5 id="titleModal" class="modal-title test-shadow">Contact</h5>
+                <img src="~/GTXImages/GTX-White.png" width="60" />
+                <h5 id="titleModal" class="modal-title test-shadow mx-3">
+                    Contact
+                </h5>
             </div>
             <div id="messageBody" class="modal-body well">
             </div>
@@ -119,7 +122,7 @@
                     }
                 }
                 <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small" id="nav-location-tab" data-bs-toggle="tab" data-bs-target="#nav-location" type="button" role="tab" aria-controls="nav-location" aria-selected="true"><i class="bi bi-geo-fill"></i>&nbsp; Location</button>
-                <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small" id="nav-payment-tab" data-bs-toggle="tab" data-bs-target="#nav-payment" type="button" role="tab" aria-controls="nav-payment" aria-selected="true"><strong><i class="bi bi-calculator"></i>&nbsp; Pay $<span id="monthlyAmount"></span>/mo</strong></button>
+                <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small d-none" id="nav-payment-tab" data-bs-toggle="tab" data-bs-target="#nav-payment" type="button" role="tab" aria-controls="nav-payment" aria-selected="true"><strong><i class="bi bi-calculator"></i>&nbsp; Pay $<span id="monthlyAmount"></span>/mo</strong></button>
             </div>
         </nav>
         <div class="tab-content" id="nav-tabContent">
@@ -272,7 +275,7 @@
                         height="360">
                 </iframe>
             </div>
-            <div class="tab-pane fade well" id="nav-payment" role="tabpanel" aria-labelledby="nav-payment-tab">
+            <div class="tab-pane fade well d-none" id="nav-payment" role="tabpanel" aria-labelledby="nav-payment-tab">
                 <div class="text-shadow-small rounded shadow" id="calculator">
                     <div class="text-center border-bottom p-3 my-auto">
                         <h6 class="text-uppercase fw-bold">@Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model @Model.CurrentVehicle.VehicleDetails.VehicleType @Model.CurrentVehicle.VehicleDetails.VehicleStyle</h6>
@@ -354,7 +357,7 @@
         </a>
 
         @*Test drive*@
-        <button class="w-100 btn btn-gradient mb-3"
+        <button class="w-100 btn btn-gradient-yellow mb-3"
                 type="button"
                 id="btnTestDriveForm"
                 data-url="Inventory/TestDriveModal/"
@@ -378,14 +381,14 @@
         </button>
 
         @*Loan app*@
-        <button class="w-100 btn btn-gradient mb-3"
+        <button class="w-100 btn btn-gradient-green mb-3"
                 type="button"
                 id="btnLoanApplication"
                 data-url="Inventory/ApplicationModal"
-                data-title="Loan Application">
+                data-title="Get prequalified">
 
             <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
-                <i class="bi bi-currency-dollar mx-2"></i>Loan application
+                <i class="bi bi-currency-dollar mx-2"></i>Get prequalified
             </h5>
         </button>
     </div>
@@ -435,7 +438,7 @@
     var makeImg = `/GTXImages/makes/${make}.png`;
     var title = `
             <img src="${makeImg}" alt="${make} logo" class="make img-fluid gradient mx-3 rounded-5 px-2 shadow" style="height: 30px;">@ViewBag.Title</image>
-            <button class="make mx-3 btn btn-gradient-grey border-black shadow rounded-4 text-dark"><strong>@ViewBag.Price</strong></button>
+            <button class="make mx-3 btn btn-gradient-grey border-black shadow rounded-4 text-danger"><strong>@ViewBag.Price</strong></button>
     `;
 
     let startX = 0;

@@ -63,7 +63,8 @@
             <div class="d-flex justify-content-between">
                 <nav class="header__top header__menu w-100">
                     <ul class="main-menu">
-                        <li>@Html.ActionLink("Home", "", "Home")</li>
+                        <li><a href="~/Home/Index"><img src="~/GTXImages/GTX-White.png" width="60" /></a></li>
+
                         <li>
                             <a href="#">Inventory</a>
                             <ul class="dropdown rounded">
@@ -77,14 +78,15 @@
                                 <li>@Html.ActionLink("Convertibles", "Convertibles", "Inventory")</li>
                                 @{
                                     var _class = "d-none";
-                                    if (ViewBag.IsMajordome) {
+                                    if (ViewBag.IsMajordome)
+                                    {
                                         _class = string.Empty;
                                     }
                                     <li id="MajordomeLink" class=@_class>@Html.ActionLink("Majordome", "Inventory", "Majordome")</li>
                                 }
                             </ul>
                         </li>
-                        <li>@Html.ActionLink("Loan application", "Application", "Home")</li>
+                        <li>@Html.ActionLink("Get prequalified", "Application", "Home")</li>
                         <li>
                             <a href="#">About us</a>
                             <ul class="dropdown rounded">
