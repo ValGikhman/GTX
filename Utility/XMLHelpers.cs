@@ -18,7 +18,7 @@ namespace Utility.XMLHelpers {
         private static string xmlFilePath = HostingEnvironment.MapPath("~/App_Data/");
 
         public static Employer[] GetEmployers() {
-            string path = $"{xmlFilePath}GTX-Staff.xml";
+            string path = $"{xmlFilePath}GTX-Configuration.xml";
 
             XDocument doc = XDocument.Load(path);
             return doc.Descendants("employer")
@@ -34,7 +34,7 @@ namespace Utility.XMLHelpers {
         }
 
         public static OpenHours[] GetOpenHours() {
-            string path = $"{xmlFilePath}GTX-Open.xml";
+            string path = $"{xmlFilePath}GTX-Configuration.xml";
 
             XDocument doc = XDocument.Load(path);
             return

@@ -220,18 +220,24 @@ namespace GTX.Controllers
 
         [HttpGet]
         public JsonResult GetNow() {
-            try {
-                string returnValue = Model.OpenHours.FirstOrDefault(m => m.Day == DateTime.Now.DayOfWeek.ToString()) is { } today &&  DateTime.Now.Hour >= today.From && DateTime.Now.Hour <= today.To
-                    ? "Now open"
-                    : "Closed";
+            try
+            {
+                var now = DateTime.Now;
+                var todayName = now.DayOfWeek.ToString();
+
+                var today = Model.OpenHours?.FirstOrDefault(m => m.Day == todayName);
+
+                var isOpen =  today != null && now.Hour >= today.From && now.Hour <= today.To;
+
+                var returnValue = isOpen ? "Now open" : "Closed";
+
                 return Json(new { Now = returnValue }, JsonRequestBehavior.AllowGet);
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 Log(ex);
+                return Json(new { Now = "Closed" }, JsonRequestBehavior.AllowGet);
             }
-            finally {
-            }
-            return null;
         }
 
         public Image[] GetImages(string stock) {

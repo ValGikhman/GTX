@@ -57,10 +57,7 @@
     });
 
     // Layout blues
-    $.get(`${root}Inventory/GetNow`)
-        .done(function (html) {
-            $("#schedule").text(html.Now);
-        });
+    getNow();
 
     $("#term")
         .on("blur", function () {
@@ -93,7 +90,7 @@
         applyFilterLast();
     });
 
-    const filterResuls = ['Search within results... ', 'Then type year, make or model', '@@C 4/6/8 to filter by # of cilynders', '@@T Manual/Auto/Cont for transmission type'];
+    const filterResuls = ['🚗 Search within results... ', '⛽ Then type year, make or model', '🚛 @@C 4/6/8 to filter by # of cilynders', '🚘 @@T Manual/Auto/Cont for transmission type'];
     const placeholders = ['🔍 Click here to search inventory... '];
     let currentText = "";
     let currentFilterText = "";
@@ -223,4 +220,11 @@ function showSpinner(object) {
 
 function hideSpinner(object) {
     $(object).addClass("spinner-hidden");
+}
+
+function getNow() {
+    $.get(`${root}Inventory/GetNow`)
+        .done(function (html) {
+            $("#schedule").text(html.Now);
+        });
 }

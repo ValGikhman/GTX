@@ -1,6 +1,6 @@
 ﻿<div id="filterByTerm" class="d-flex align-items-center position-relative w-100 mt-1 pb-4">
     <!-- Centered search -->
-    <div class="position-absolute start-50 translate-middle-x w-100 d-flex justify-content-center">
+    <div class="position-absolute start-50 translate-middle-x w-100 d-flex justify-content-center mt-3">
         <div id="filterWrapper" class="input-group shadow rounded-4" style="max-width: 480px;">
             <!-- Search box -->
             <input type="search" id="filterTerm" class="form-control rounded-start-4 rounded-end-4" placeholder="Search within results..." aria-label="Search inventory">
@@ -11,19 +11,19 @@
             </button>
 
             <!-- Last Seen -->
-            <button class="filterLast input-group-text btn btn-gradient-grey border-start-0 rounded-end-4 border-dark-subtle" style="margin-left:-3px;">
+            <button class="filterLast input-group-text btn btn-gradient-grey border-start-0 rounded-end-4 border-dark-subtle" style="margin-left:-5px;">
                 <i id="filterLast" class="bi bi-journal text-primary" title="10 last seen cars" style="cursor:pointer;"></i>
             </button>
         </div>
     </div>
 
     <!-- Filter results (absolute center, one row below) -->
-    <div class="position-absolute start-50 translate-middle-x text-center" style="top: 40px;">
+    <div class="position-absolute start-50 translate-middle-x text-center" style="top: 50px;">
         <h8 id="filterResults" class="m-0"></h8>
     </div>
 
     <!-- RIGHT: Sort (pushed right with ms-auto) -->
-    <div class="sort d-none d-lg-inline ms-auto d-flex align-items-center gap-2 z-3">
+    <div class="sort d-none d-xl-inline ms-auto d-flex align-items-center gap-2 z-3 mt-3">
         <label for="sortField" class="fw-bold mb-0">Sort By:</label>
         <select id="sortField" class="form-select d-inline-block w-auto">
             <option value="make">Make</option>
