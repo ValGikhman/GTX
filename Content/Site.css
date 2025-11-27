@@ -1,4 +1,9 @@
 ﻿/*Custom*/
+#filterTerm::placeholder, .term::placeholder {
+    color: rgba(255, 0, 0, 0.75);
+    font-weight: bold;
+}
+
 .status-circle {
     width: 12px;
     height: 12px;
@@ -1308,7 +1313,7 @@
   Hero
 -----------------------*/
 .hero {
-    background-position-y: center;
+    background-position-y: -100px;
     background-size: cover; /* Stretch to cover entire area */
     height: 93vh; /* Viewport height: no scrolling */
     display: flex;
@@ -1624,7 +1629,7 @@
         margin-top: 2rem;
     }
 
-    .btn-big-gradient {
+    .btn-big-gradient, .btn-big-gradient-red, .btn-big-gradient-yellow, .btn-big-gradient-green {
         transform: scale(0.80);
     }
 
@@ -1658,13 +1663,29 @@
 
 /* Wide Mobile = 480px-767px */
 @media only screen and (max-width: 767px) {
+    .very-top {
+        background: linear-gradient(270deg, rgba(21, 90, 150, 1) 20%, rgba(30, 115, 190, 1) 80%);
+    }
+
     #shorts .btn {
         transform: scale(0.80);
         margin-inline-end: -1.5rem;
     }
 
-    .btn-big-gradient {
+    .btn-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+        .btn-container a {
+            width: 100%;
+            text-align: center;
+        }
+
+    .btn-big-gradient, .btn-big-gradient-red, .btn-big-gradient-yellow, .btn-big-gradient-green {
         transform: scale(0.80);
+        font-size: 1.4rem;
+        padding: 1rem 1rem;
     }
 
     .carousel-inner {
@@ -1692,17 +1713,11 @@
         margin-bottom: 3rem !important;
     }
 
-    #filterTerm {
-        width: 20vw;
-        margin-bottom: 10px;
-    }
-
     .page-title {
         position: fixed;
         top: 0rem;
         border-bottom: none;
         border-top: none;
-        background: linear-gradient(180deg, #8d8d8d 20%, #353535 80%);
         background: linear-gradient(0deg, rgba(21, 90, 150, 1) 20%, rgba(30, 115, 190, 1) 80%);
     }
 
@@ -1763,11 +1778,6 @@
         z-index: 555;
     }
 
-    .btn-big-gradient {
-        font-size: 1.4rem;
-        padding: 1rem 1rem;
-    }
-
     .menu-strip {
         background: #155A96;
         background: linear-gradient(180deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1) 94%);
@@ -1776,7 +1786,13 @@
     }
 
     .hero .slogan-big {
-        color: white;
+        font-size: 1.7rem;
+        top: 4.3rem;
+    }
+
+    .hero .slogan-small {
+        font-size: 1rem;
+        top: 6.5rem;
     }
 
     .offcanvas-menu-overlay {
@@ -1929,7 +1945,6 @@
 }
 
 /* Small Device = 320px */
-
 @media only screen and (max-width: 479px) {
     .body-content {
         margin-top: 4rem;
@@ -1948,7 +1963,7 @@
         width: 75% !important;
     }
 
-    .btn-big-gradient {
+    .btn-big-gradient, .btn-big-gradient-red, .btn-big-gradient-yellow, .btn-big-gradient-green {
         font-size: 1.2rem;
     }
 
