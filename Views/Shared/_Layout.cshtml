@@ -85,7 +85,7 @@
                             }
                             <li id="MajordomeLink" class=@_class>@Html.ActionLink("Majordome", "Inventory", "Majordome")</li>
                         }
-                        <li>@Html.ActionLink("Get prequalified", "Application", "Home")</li>
+                        <li>@Html.ActionLink("💲Get prequalified", "Application", "Home")</li>
                         <li>
                             <a href="#">About us</a>
                             <ul class="dropdown rounded">
@@ -94,6 +94,14 @@
                                 <li>@Html.ActionLink("Our staff", "Staff", "Home")</li>
                                 <li>@Html.ActionLink("Testimonials", "Testimonials", "Home")</li>
                             </ul>
+                        </li>
+                        <li id="fakeSearch" class="fake-input hand-pointer d-none d-xxl-inline-block w-25" data-bs-toggle="modal" data-bs-target="#filtersModal">
+                            @Html.Partial("_SearchByTerm")
+                        </li>
+                        <li class="d-xxl-none">
+                            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#filtersModal">
+                                <i class="bi bi-search"></i>
+                            </a>
                         </li>
                     </ul>
                 </nav>
