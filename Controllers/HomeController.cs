@@ -136,8 +136,8 @@ namespace GTX.Controllers {
 
                     contact.Comment = model.Comment;
 
-/*                    _contactService.SaveContact(contact);
-                    await Utility.XMLHelpers.XmlRepository.SendAdfLeadAsync(model);*/
+                    _contactService.SaveContact(contact);
+                    await Utility.XMLHelpers.XmlRepository.SendAdfLeadAsync(model);
                     return Json(new {data = contact });
                 }
             }

@@ -1315,27 +1315,25 @@
     background-position-y: -100px;
     background-size: cover; /* Stretch to cover entire area */
     height: 93vh; /* Viewport height: no scrolling */
-    display: flex;
-    justify-content: center;
-    align-items: center;
     transition: background-image 1s ease-in-out;
 }
     .hero .slogan-big {
         text-transform: uppercase;
-        position: fixed;
-        top: 4rem;
-        left: 1rem;
+        position: absolute;
+        top: 2.5rem;
+        right: 1.5rem; /* Move to the right */
+        left: auto; /* Cancel left positioning */
         font-size: 3rem;
         font-weight: bold;
         color: #155A96;
-        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6); /* Optional: makes text readable on any background */
+        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
     }
 
     .hero .slogan-small {
         text-transform: uppercase;
         position: fixed;
-        top: 7.5rem;
-        left: 1rem;
+        top: 6.3rem;
+        left: 20.5rem;
         font-size: 1.5rem;
         font-weight: bold;
         color: #d54d29;
