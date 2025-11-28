@@ -48,6 +48,11 @@
         $(".offcanvas-menu-overlay").removeClass("active");
     });
 
+    // Checking for Open and Close every minute
+    setInterval(() => { getNow();}, 60000);
+
+    // Layout blues
+    getNow();
     /*------------------
 		Navigation
 	--------------------*/
@@ -55,9 +60,6 @@
         prependTo: '#mobile-menu-wrap',
         allowParentLinks: true
     });
-
-    // Layout blues
-    getNow();
 
     $("#term")
         .on("blur", function () {
