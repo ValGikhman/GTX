@@ -223,8 +223,10 @@ function hideSpinner(object) {
 }
 
 function getNow() {
-    $.get(`${root}Inventory/GetNow`)
-        .done(function (html) {
-            $("#schedule").text(html.Now);
-        });
+    $.get(`${root}Inventory/GetNow`, {
+        offset: new Date().getTimezoneOffset() 
+    })
+    .done(function (html) {
+        $("#schedule").text(html.Now);
+    });
 }
