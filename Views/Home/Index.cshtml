@@ -1,8 +1,8 @@
-﻿@*<div class="video-background" aria="true">
+﻿<div class="video-background" aria="true">
     <video class="video-background-video" autoplay muted loop playsinline webkit-playsinline preload="auto" poster="~/GTXImages/GTX-poster.jpg">
         <source src="~/GTXImages/video/GTX.MP4" type="video/mp4" />
     </video>
-</div>*@
+</div>
 <style>
     .body-content {
         margin-top: 10rem;
@@ -11,8 +11,8 @@
 
     .slogan-container {
         position: absolute;
-        top: 4rem;
-        height: 6rem;
+        top: 3rem;
+        height: 9rem;
         width: 100%;
         z-index: 10;
     }
@@ -20,8 +20,11 @@
 
 <section class="hero set-bg" data-setbg="@Url.Content("~/img/hero/cin5.jpg")">
     <div class="slogan-container btn-gradient-grey">
-        <div class="slogan-big">Your car, your style, your way</div>
-        <div class="slogan-small">Top rated dealer in Cincinnati</div>
+        <div id="GTX-image">
+            <img src="~/GTXImages/gtx-autogroup.png" width="600" />
+        </div>
+        <div class="slogan-big end-0 mx-5">Your car, your style, your way</div>
+        <div class="slogan-small position-absolute">Top rated dealer in Cincinnati</div>
     </div>
 
     <div id="homeSearch" class="position-absolute w-25 top-50 start-50 translate-middle">
@@ -46,6 +49,7 @@
 <script>
     $(function () {
         $("#fakeSearch").css("visibility", "hidden");
+        $("#GTX-image").removeClass("d-md-inline-block");
 
         const backgrounds = [
             'url("../img/hero/cin2.jpg")',
