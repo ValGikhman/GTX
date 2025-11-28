@@ -219,16 +219,18 @@ namespace GTX.Controllers
         }
 
         [HttpGet]
-        public JsonResult GetNow() {
+        public JsonResult GetNow(int offset) // offset in minutes from JS
+        {
             try
             {
-                var now = DateTime.Now;
-                var todayName = now.DayOfWeek.ToString();
+                // Server time in UTC
+                var utcNow = DateTime.UtcNow;
 
+                // Convert to user local time
+                var userNow = utcNow.AddMinutes(-offset);
+                var todayName = userNow.DayOfWeek.ToString();
                 var today = Model.OpenHours?.FirstOrDefault(m => m.Day == todayName);
-
-                var isOpen =  today != null && now.Hour >= today.From && now.Hour <= today.To;
-
+                bool isOpen = today != null && userNow.Hour >= today.From && userNow.Hour <= today.To;
                 var returnValue = isOpen ? "Now open" : "Closed";
 
                 return Json(new { Now = returnValue }, JsonRequestBehavior.AllowGet);
@@ -239,6 +241,7 @@ namespace GTX.Controllers
                 return Json(new { Now = "Closed" }, JsonRequestBehavior.AllowGet);
             }
         }
+
 
         public Image[] GetImages(string stock) {
             if (!Model.CurrentVehicle.DisplayEZ360Player && Model.IsEZ360) {
