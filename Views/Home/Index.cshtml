@@ -1,9 +1,4 @@
-﻿<div class="video-background" aria="true">
-    <video class="video-background-video" autoplay muted loop playsinline webkit-playsinline preload="auto" poster="~/GTXImages/GTX-poster.jpg">
-        <source src="~/GTXImages/video/GTX.MP4" type="video/mp4" />
-    </video>
-</div>
-<style>
+﻿<style>
     .body-content {
         margin-top: 10rem;
         height: 70rem;
@@ -16,14 +11,34 @@
         width: 100%;
         z-index: 10;
     }
+    @@media only screen and (max-width: 479px) {
+        #GTX-image img {
+            width: 180px;
+            margin-left: 12%;
+        }
+
+        .slogan-container {
+            top: 0rem;
+            height: 4rem;
+        }
+    }
+
+    @@media only screen and (max-width: 767px) {
+    }
+
+
 </style>
 
-<section class="hero set-bg" data-setbg="@Url.Content("~/img/hero/cin5.jpg")">
+<section class="hero">
+    <video class="video-background-video" autoplay muted loop playsinline webkit-playsinline preload="auto">
+        <source src="~/GTXImages/video/GTX.MP4" type="video/mp4" />
+    </video>
+
     <div class="slogan-container btn-gradient-grey">
         <div id="GTX-image">
             <img src="~/GTXImages/gtx-autogroup.png" width="600" />
         </div>
-        <div class="slogan-big end-0 mx-5">Your car, your style, your way</div>
+        <div class="slogan-big end-0 mx-lg-5">Your car, your style, your way</div>
         <div class="slogan-small position-absolute">Top rated dealer in Cincinnati</div>
     </div>
 
@@ -51,7 +66,7 @@
         $("#fakeSearch").css("visibility", "hidden");
         $("#GTX-image").removeClass("d-md-inline-block");
 
-        const backgrounds = [
+@*        const backgrounds = [
             'url("../img/hero/cin2.jpg")',
             'url("../img/hero/cin3.jpg")',
             'url("../img/hero/cin4.jpg")',
@@ -71,6 +86,6 @@
         function makeChange() {
             $(".hero").css("background-image", backgrounds[bgIndex]);
             bgIndex = (bgIndex + 1) % backgrounds.length;
-        }
+        }*@
     });
 </script>

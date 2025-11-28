@@ -442,38 +442,16 @@
         color: black;
     }
 
-    .video-background {
-        inset: 0; /* shorthand for top/right/bottom/left: 0 */
-        width: 100vw;
-        height: 100svh; /* better on mobile; falls back below */
-        object-fit: cover; /* cover the whole area */
-        object-position: center; /* crop from the center */
-        z-index: -1;
-        pointer-events: none; /* don't block clicks on content */
-    }
-
     .video-background-video {
-        position: absolute;
+        position: fixed;
         top: 50%;
         left: 50%;
-        /* Make sure it covers in both axes */
-        min-width: 100vw;
-        min-height: 100svh;
-        width: auto;
-        height: auto;
         transform: translate(-50%, -50%); /* true centering */
         object-fit: cover; /* harmless on browsers that behave */
         object-position: center center;
         /* iOS/WebKit sometimes needs this to avoid weird compositing offsets */
         transform-origin: center center;
         will-change: transform;
-    }
-
-    /* Fallback for browsers without svh */
-    @supports (height: 100dvh) {
-        .video-background {
-            height: 100dvh;
-        }
     }
 
     #filterTerm {
@@ -1783,13 +1761,15 @@
     }
 
     .hero .slogan-big {
-        font-size: 1.7rem;
-        top: 4.3rem;
+        top: 0.15rem;
+        font-size: 1rem;
+        margin-right: 2.5rem;
     }
 
     .hero .slogan-small {
-        font-size: 1rem;
-        top: 6.5rem;
+        font-size: 0.7rem;
+        top: 2.5rem;
+        left: 12rem;
     }
 
     .offcanvas-menu-overlay {
