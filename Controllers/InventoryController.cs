@@ -105,7 +105,10 @@ namespace GTX.Controllers
             SessionData.CurrentVehicle = Model.CurrentVehicle;
 
             // Suggest similar vehicles (within $3000 range, excluding the current one)
-            Model.CurrentVehicle.VehicleSuggesion = Model.Inventory.All?.Where(m => m.Stock != stock && Math.Abs(m.InternetPrice - vehicle.InternetPrice) < 3000) .Take(10)
+            Model.CurrentVehicle.VehicleSuggesion = Model.Inventory.All?.Where(m => m.Stock != stock 
+                            && m.VehicleType == vehicle.VehicleType 
+                            && Math.Abs(m.InternetPrice - vehicle.InternetPrice) < 3000) 
+                .Take(10)
                 .ToArray() ?? Array.Empty<Models.GTX>();
 
             // Lets show the tile from fraser details
