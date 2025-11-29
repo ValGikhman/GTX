@@ -38,6 +38,7 @@ function applyFilterTerm(term) {
     vehicles.forEach(vehicle => {
         const stock = $(vehicle).data("stock") || "";
         const vin = $(vehicle).data("vin") || "";
+        const dataone = $(vehicle).data("dataone") || "";
         const make = $(vehicle).data("make") || "";
         const model = $(vehicle).data("model") || "";
         const style = $(vehicle).data("style") || "";
@@ -69,13 +70,15 @@ function applyFilterTerm(term) {
 
             // Map prefix to data
             const prefixMap = {
-                "@@Y": `@@Y ${year}`,
-                "@@M": `@@M ${make} @@M ${model}`,
-                "@@T": `@@T ${transmission}`,
-                "@@C": `@@C ${cylinders}`
+                "@@YR": `@@YR ${year}`,
+                "@@MK": `@@MK ${make}`,
+                "@@MD": `@@MD ${model}`,
+                "@@TR": `@@TR ${transmission}`,
+                "@@CY": `@@CY ${cylinders}`,
+                "@@OW": `@@OW ${location}`
             };
 
-            combined = `@@${location} @@${story} @@${images}`;
+            combined = `@@${story} @@${images} @@${dataone}`;
 
             // Override combined if matching a special prefix
             for (const key in prefixMap) {
