@@ -192,26 +192,6 @@ namespace GTX.Controllers
                 model.All = ApplyExtended(model.All);
 
                 model.Vehicles = model.All;
-
-                string SUV = CommonUnit.VehicleType.SUV.ToString();
-                string TRUCK = CommonUnit.VehicleType.TRUCK.ToString();
-                string VAN = CommonUnit.VehicleType.VAN.ToString();
-                string HATCHBACK = CommonUnit.VehicleType.HATCHBACK.ToString();
-                string CONVERTIBLE = CommonUnit.VehicleType.CONVERTIBLE.ToString();
-                string SEDAN = CommonUnit.VehicleType.SEDAN.ToString();
-                string COUPE = CommonUnit.VehicleType.COUPE.ToString();
-                string WAGON = CommonUnit.VehicleType.WAGON.ToString();
-
-                var byType = model.All.GroupBy(v => v.VehicleType == null ? "" : v.VehicleType.Trim(), StringComparer.OrdinalIgnoreCase).ToDictionary(g => g.Key, g => g.ToArray(), StringComparer.OrdinalIgnoreCase);
-                model.Suvs = GetOrEmpty(byType, SUV, emptyArray);
-                model.Trucks = GetOrEmpty(byType, TRUCK, emptyArray);
-                model.Vans = GetOrEmpty(byType, VAN, emptyArray);
-                model.Hatchbacks = GetOrEmpty(byType, HATCHBACK, emptyArray);
-                model.Convertibles = GetOrEmpty(byType, CONVERTIBLE, emptyArray);
-                model.Sedans = GetOrEmpty(byType, SEDAN, emptyArray);
-                model.Coupe = GetOrEmpty(byType, COUPE, emptyArray);
-                model.Wagons = GetOrEmpty(byType, WAGON, emptyArray);
-
                 return model;
             }
 
@@ -417,7 +397,7 @@ namespace GTX.Controllers
         }
 
         // Helper (regular method, no expression-bodied, no 'out var')
-        private static Models.GTX[] GetOrEmpty(Dictionary<string, Models.GTX[]> dict, string key, Models.GTX[] empty) {
+        public static Models.GTX[] GetOrEmpty(Dictionary<string, Models.GTX[]> dict, string key, Models.GTX[] empty) {
             Models.GTX[] arr;
             if (dict.TryGetValue(key, out arr)) return arr;
             return empty;

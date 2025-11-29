@@ -8,6 +8,8 @@
 </style>
 <li id="@Model.Stock" class="card rounded-3 col-12 col-sm-6 col-md-4 col-lg-3 V @Model.LocationCode" title="Click here to see details."
     data-location-code="@Model.LocationCode"
+    data-story="@(Model.Story is not null && !Model.Story.HtmlContent.ToUpper().Contains("ERROR") ? "STORY" : "NOSTORY")"
+    data-dataone="@(Model.DataOne is not null ? "DATAONE" : "NODATAONE")"
     data-images="@(Model.Image is not null && Model.Image.Contains("no-image") ? "NOIMAGE" : "IMAGE")"
     data-year="@Model.Year"
     data-stock="@Model.Stock.ToUpper()"

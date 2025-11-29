@@ -1,20 +1,29 @@
 ﻿using GTX.Models;
 using Services;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text.Json;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
 
-namespace GTX.Controllers {
+namespace GTX.Controllers
+{
 
     public class InventoryController : BaseController {
         private readonly HttpClient httpClient = new();
-        public InventoryController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service _ez360Service, ILogService logService)
+        private readonly Dictionary<string, Models.GTX[]> Categories;
+
+
+
+    public InventoryController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service _ez360Service, ILogService logService)
             : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService) {
+
+            Categories = SessionData?.Inventory?.All.GroupBy(v => v.VehicleType == null ? "" : v.VehicleType.Trim(), StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.ToArray(), StringComparer.OrdinalIgnoreCase);
         }
+
 
         [HttpGet]
         public ActionResult Index(BaseModel model) {
@@ -144,6 +153,12 @@ namespace GTX.Controllers {
 
         [HttpGet]
         public ActionResult Suvs() {
+            if (SessionData?.Inventory?.Suvs == null) {
+                string body = CommonUnit.VehicleType.SUV.ToString();
+                Model.Inventory.Suvs = GetOrEmpty(Categories, body, Array.Empty<Models.GTX>());
+                SessionData.SetSession(Constants.SESSION_INVENTORY, Model.Inventory);
+            }            
+
             Model.Inventory.Vehicles = SessionData?.Inventory?.Suvs ?? Array.Empty<Models.GTX>();
 
             Model.Inventory.Title = "Suv(s)";
@@ -154,6 +169,12 @@ namespace GTX.Controllers {
 
         [HttpGet]
         public ActionResult Sedans() {
+            if (SessionData?.Inventory?.Sedans == null) {
+                string body = CommonUnit.VehicleType.SEDAN.ToString();
+                Model.Inventory.Sedans = GetOrEmpty(Categories, body, Array.Empty<Models.GTX>());
+                SessionData.SetSession(Constants.SESSION_INVENTORY, Model.Inventory);
+            }
+
             Model.Inventory.Vehicles = SessionData?.Inventory?.Sedans ?? Array.Empty<Models.GTX>();
 
             Model.Inventory.Title = "Sedan(s)";
@@ -164,6 +185,13 @@ namespace GTX.Controllers {
 
         [HttpGet]
         public ActionResult Wagons() {
+            if (SessionData?.Inventory?.Wagons == null)
+            {
+                string body = CommonUnit.VehicleType.WAGON.ToString();
+                Model.Inventory.Wagons = GetOrEmpty(Categories, body, Array.Empty<Models.GTX>());
+                SessionData.SetSession(Constants.SESSION_INVENTORY, Model.Inventory);
+            }
+
             Model.Inventory.Vehicles = SessionData?.Inventory?.Wagons ?? Array.Empty<Models.GTX>();
 
             Model.Inventory.Title = "Wagon(s)";
@@ -174,6 +202,13 @@ namespace GTX.Controllers {
 
         [HttpGet]
         public ActionResult Trucks() {
+            if (SessionData?.Inventory?.Trucks == null)
+            {
+                string body = CommonUnit.VehicleType.TRUCK.ToString();
+                Model.Inventory.Trucks = GetOrEmpty(Categories, body, Array.Empty<Models.GTX>());
+                SessionData.SetSession(Constants.SESSION_INVENTORY, Model.Inventory);
+            }
+
             Model.Inventory.Vehicles = SessionData?.Inventory?.Trucks ?? Array.Empty<Models.GTX>();
 
             Model.Inventory.Title = "Truck(s)";
@@ -184,6 +219,12 @@ namespace GTX.Controllers {
 
         [HttpGet]
         public ActionResult Vans() {
+            if (SessionData?.Inventory?.Vans == null)
+            {
+                string body = CommonUnit.VehicleType.VAN.ToString();
+                Model.Inventory.Vans = GetOrEmpty(Categories, body, Array.Empty<Models.GTX>());
+                SessionData.SetSession(Constants.SESSION_INVENTORY, Model.Inventory);
+            }
             Model.Inventory.Vehicles = SessionData?.Inventory?.Vans ?? Array.Empty<Models.GTX>();
 
             Model.Inventory.Title = "Van(s)";
@@ -193,17 +234,13 @@ namespace GTX.Controllers {
         }
 
         [HttpGet]
-        public ActionResult Cargo() {
-            Model.Inventory.Vehicles = SessionData?.Inventory?.Cargo ?? Array.Empty<Models.GTX>();
-
-            Model.Inventory.Title = "Cargo(s)";
-            ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
-
-            return View("Index", Model);
-        }
-
-        [HttpGet]
         public ActionResult Convertibles() {
+            if (SessionData?.Inventory?.Convertibles == null)
+            {
+                string body = CommonUnit.VehicleType.CONVERTIBLE.ToString();
+                Model.Inventory.Convertibles = GetOrEmpty(Categories, body, Array.Empty<Models.GTX>());
+                SessionData.SetSession(Constants.SESSION_INVENTORY, Model.Inventory);
+            }
             Model.Inventory.Vehicles = SessionData?.Inventory?.Convertibles ?? Array.Empty<Models.GTX>();
 
             Model.Inventory.Title = "Convertible(s)";
@@ -214,6 +251,12 @@ namespace GTX.Controllers {
 
         [HttpGet]
         public ActionResult Hatchbacks() {
+            if (SessionData?.Inventory?.Hatchbacks == null)
+            {
+                string body = CommonUnit.VehicleType.HATCHBACK.ToString();
+                Model.Inventory.Hatchbacks = GetOrEmpty(Categories, body, Array.Empty<Models.GTX>());
+                SessionData.SetSession(Constants.SESSION_INVENTORY, Model.Inventory);
+            }
             Model.Inventory.Vehicles = SessionData?.Inventory?.Hatchbacks ?? Array.Empty<Models.GTX>();
 
             Model.Inventory.Title = "Hatchback(s)";
@@ -224,6 +267,12 @@ namespace GTX.Controllers {
 
         [HttpGet]
         public ActionResult Coupes() {
+            if (SessionData?.Inventory?.Coupe == null)
+            {
+                string body = CommonUnit.VehicleType.COUPE.ToString();
+                Model.Inventory.Coupe = GetOrEmpty(Categories, body, Array.Empty<Models.GTX>());
+                SessionData.SetSession(Constants.SESSION_INVENTORY, Model.Inventory);
+            }
             Model.Inventory.Vehicles = SessionData?.Inventory?.Coupe ?? Array.Empty<Models.GTX>();
 
             Model.Inventory.Title = "Coupe(s)";
