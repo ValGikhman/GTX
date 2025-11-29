@@ -1,4 +1,11 @@
 ﻿/*Custom*/
+#gtxDevelopment {
+    top: 50% !important;
+    height: 18rem !important;
+    border-radius: 0.5rem;
+    width: 25%;
+}
+
 .no-click {
     cursor: default;
 }
@@ -118,12 +125,6 @@
 
 .fs-8 {
     font-size: 0.55rem !important;
-}
-
-#gtxDevelopment {
-    top: 50% !important;
-    height: 10rem !important;
-    border-radius: 0.5rem;
 }
 
 #filterByTerm {
@@ -1642,6 +1643,10 @@
 
 /* Wide Mobile = 480px-767px */
 @media only screen and (max-width: 767px) {
+    #gtxDevelopment {
+        width: 75%
+    }
+
     .very-top {
         background: linear-gradient(0deg, rgba(21, 90, 150, 1) 50%, rgba(30, 115, 190, 1) 50%);
     }
