@@ -13,6 +13,9 @@ namespace GTX.Controllers
 
     public class InventoryController : BaseController {
         private readonly HttpClient httpClient = new();
+        private readonly Dictionary<string, Models.GTX[]> Categories;
+
+
 
     public InventoryController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service _ez360Service, ILogService logService)
             : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService) {
@@ -92,7 +95,7 @@ namespace GTX.Controllers
             if (Model.IsEZ360)
             {
                 Model.CurrentVehicle.DisplayEZ360Player = false;
-                var ez360 = Model.EZ360Inventory[stock];
+                var ez360 = Model.EZ360Inventory.FirstOrDefault(m => m.StockNo == stock);
 
                 if (ez360 != null)
                 {
