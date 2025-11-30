@@ -18,7 +18,6 @@ namespace GTX.Controllers
         #region Properties
         public readonly string devComputer = "VALS-PC";
 
-        public Dictionary<string, Models.GTX[]> Categories;
         public readonly string imageFolder = "/GTXImages/Inventory/";
         public readonly string openAiApiKey = ConfigurationManager.AppSettings["OpenAI:ApiKey"];
         public readonly string dataOneApiKey = ConfigurationManager.AppSettings["DataOne:AccessKey"];
@@ -226,7 +225,7 @@ namespace GTX.Controllers
 
         public Image[] GetImages(string stock) {
             if (!Model.CurrentVehicle.DisplayEZ360Player && Model.IsEZ360) {
-                var currentVehicle = Model.EZ360Inventory[stock];
+                var currentVehicle = Model.EZ360Inventory.FirstOrDefault(m => m.StockNo == stock);
                 return currentVehicle.ThirdPartyPics.Select(m => new Image() { Id = Guid.Empty, Stock = currentVehicle.StockNo, DateCreated = DateTime.Now, Order = 0, Source = m }).ToArray();
             }
             return InventoryService.GetImages(stock);
@@ -271,7 +270,7 @@ namespace GTX.Controllers
                 else {
                     if (Model.EZ360Inventory != null)
                     {
-                        var ez360 = Model.EZ360Inventory[vehicle.Stock];
+                        var ez360 = Model.EZ360Inventory.FirstOrDefault(m => m.Vin == vehicle.VIN);
 
                         var ezImages = PickPrimaryImages(ez360) ?? Array.Empty<Image>();
                         var stockImages = InventoryService.GetImages(vehicle.Stock) ?? Array.Empty<Image>();
@@ -380,8 +379,8 @@ namespace GTX.Controllers
 
 
         #region private methods
-        private static Filters BuildFilters(Inventory inventory) {
-            var all = inventory.All;
+        private static Filters BuildFilters(Inventory inv) {
+            var all = inv.All;
 
             return new Filters {
                 Makes = all.Select(x => x.Make).Distinct().OrderBy(x => x).ToArray(),
