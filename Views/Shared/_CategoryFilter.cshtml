@@ -1,5 +1,5 @@
-﻿<div class="d-none d-lg-flex flex-row justify-content-evenly bg-white py-2">
-    <div class="knopka p-1 col-3 col-md-2 col-lg-1 text-center">
+﻿<div class="d-none d-md-flex flex-row justify-content-evenly bg-white py-2">
+    <div class="knopka p-1 col-3 col-md-1 col-lg-1 text-center">
         <a class="cursor-pointer hover-bw text-center" title="All inventory at GTX dealership" href="/inventory/all">
             <img class="img-fluid d-block mx-auto" width="85" src="@Url.Content("~/img/category/ai.png")" alt="All GTX inventory">
             <h6 class="mt-1">All</h6>
@@ -7,7 +7,7 @@
     </div>
 
     @foreach (var item in Enum.GetValues(typeof(CommonUnit.VehicleType)).Cast<CommonUnit.VehicleType>()) {
-        <div class="knopka p-1 col-3 col-md-2 col-lg-1 text-center">
+        <div class="knopka p-md-1 col-3 col-md-1 col-lg-1 text-center">
             <a class="cursor-pointer hover-bw text-center" title="@item.GetDisplayName() at GTX dealership" href="/inventory/@item.GetDisplayName()">
                 <img alt="@item.GetDisplayName()" class="img-fluid d-block mx-auto object-fit-contain" width="90" src="@Url.Content($"~/img/Category/{item.ToString()}.png")">
                 <h6 class="mt-1">@item.GetDisplayName()</h6>

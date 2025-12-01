@@ -231,11 +231,11 @@
                         @foreach (Image image in Model.CurrentVehicle.VehicleDetails.Images)
                         {
                             string imageBig = $"{image.Source}";
-                            string imagePath = $"{image.Source}?h=200";
+                            string imagePath = $"{image.Source}";
                             if (image.Source?.StartsWith("https:", StringComparison.OrdinalIgnoreCase) == false)
                             {
                                 imageBig = $"/GTXImages/Inventory/{image.Source}";
-                                imagePath = $"{imageBig}?h=200";
+                                imagePath = $"{imageBig}";
                             }
 
 
