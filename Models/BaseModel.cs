@@ -1,4 +1,5 @@
 ﻿using Services;
+using System.Collections.Generic;
 using System.Web;
 
 namespace GTX.Models {
@@ -40,7 +41,7 @@ namespace GTX.Models {
 
         public Inventory Inventory { get; set; }
 
-        public EZ360.Vehicle[] EZ360Inventory{ get; set; }
+        public Dictionary<string, EZ360.Vehicle> EZ360Inventory{ get; set; }
 
         public Employer[] Employers { get; set; }
 

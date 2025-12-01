@@ -16,6 +16,7 @@ namespace GTX.Controllers
     public abstract class BaseController : Controller {
 
         #region Properties
+        public Dictionary<string, Models.GTX[]> Categories;
         public readonly string devComputer = "VALS-PC";
 
         public readonly string imageFolder = "/GTXImages/Inventory/";
@@ -85,7 +86,7 @@ namespace GTX.Controllers
                 {
                     if (SessionData == null || SessionData?.EZ360Inventory == null)
                     {
-                        Model.EZ360Inventory = EZ360Service.GetInventory(ez360ProjectId);
+                        Model.EZ360Inventory = EZ360Service.GetInventoryDict(ez360ProjectId);
                         SessionData.SetSession(Constants.SESSION_EZ360_INVENTORY, Model.EZ360Inventory);
                     }
                     Model.EZ360Inventory = SessionData.EZ360Inventory;
@@ -225,7 +226,7 @@ namespace GTX.Controllers
 
         public Image[] GetImages(string stock) {
             if (!Model.CurrentVehicle.DisplayEZ360Player && Model.IsEZ360) {
-                var currentVehicle = Model.EZ360Inventory.FirstOrDefault(m => m.StockNo == stock);
+                var currentVehicle = Model.EZ360Inventory[stock];
                 return currentVehicle.ThirdPartyPics.Select(m => new Image() { Id = Guid.Empty, Stock = currentVehicle.StockNo, DateCreated = DateTime.Now, Order = 0, Source = m }).ToArray();
             }
             return InventoryService.GetImages(stock);
@@ -265,13 +266,12 @@ namespace GTX.Controllers
                     if (vehicle.Images != null && vehicle.Images.Length > 0)
                     {
                         vehicle.Image = $"{imageFolder}{vehicle.Images[0].Source}";
-                    }
+                    };
                 }
                 else {
                     if (Model.EZ360Inventory != null)
                     {
-                        var ez360 = Model.EZ360Inventory.FirstOrDefault(m => m.Vin == vehicle.VIN);
-
+                        var ez360 = Model.EZ360Inventory[vehicle.Stock];
                         var ezImages = PickPrimaryImages(ez360) ?? Array.Empty<Image>();
                         var stockImages = InventoryService.GetImages(vehicle.Stock) ?? Array.Empty<Image>();
                         vehicle.Images = ezImages.Concat(stockImages).ToArray();
