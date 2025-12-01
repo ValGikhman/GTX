@@ -269,9 +269,9 @@ namespace GTX.Controllers
                     };
                 }
                 else {
-                    if (Model.EZ360Inventory != null)
+                    if (Model.EZ360Inventory != null && !string.IsNullOrEmpty(vehicle.Stock) && Model.EZ360Inventory.TryGetValue(vehicle.Stock, out var item))
                     {
-                        var ez360 = Model.EZ360Inventory[vehicle.Stock];
+                        var ez360 = item;
                         var ezImages = PickPrimaryImages(ez360) ?? Array.Empty<Image>();
                         var stockImages = InventoryService.GetImages(vehicle.Stock) ?? Array.Empty<Image>();
                         vehicle.Images = ezImages.Concat(stockImages).ToArray();
@@ -427,7 +427,12 @@ namespace GTX.Controllers
             if (ez == null) return null;
 
             var display = ez.DisplayPics?.FirstOrDefault();
-            if (!string.IsNullOrWhiteSpace(display)) return $"{display}&h={height}";
+            if (!string.IsNullOrWhiteSpace(display)) {
+                var finalUrl = display.Contains("?")
+                    ? display + "&h=200"
+                    : display + "?h=200";
+                return finalUrl;
+            }
 
             var third = ez.ThirdPartyPics?.FirstOrDefault();
             if (!string.IsNullOrWhiteSpace(third)) return third;
