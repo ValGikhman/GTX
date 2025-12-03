@@ -76,6 +76,7 @@ namespace Utility.XMLHelpers {
                 xmlDoc.Load(filePath);
 
                 // Update XML Nodes (Example)
+                xmlDoc.SelectSingleNode("//id")!.InnerText = $"Website lead {DateTime.Now.ToString("yyyy-MM-ddTHH:mm:sszzz")}";
                 xmlDoc.SelectSingleNode("//requestdate")!.InnerText = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:sszzz");
 
                 xmlDoc.SelectSingleNode("//name[@part='first']")!.InnerText = model.FirstName;
