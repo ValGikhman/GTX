@@ -50,6 +50,10 @@
         #btnNext {
             margin-top: 45px;
         }
+
+        #modalShortcuts {
+            height: 15rem;
+        }
     }
 
     @@media only screen and (max-width: 767px) {
@@ -59,11 +63,15 @@
         }
 
         .details-container {
-            margin-top: 0vh;
+            margin-top: 5vh;
         }
 
         .EZ360-controls {
             display: none;
+        }
+
+        #modalShortcuts {
+            height: 30rem;
         }
     }
 </style>
@@ -348,7 +356,7 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-3 col-md-12 col-sm-12">
+    <div id="modalShortcuts" class="col-lg-3 col-md-12 col-sm-12">
         @*Carfax*@
         <a class="w-100 btn btn-gradient mb-3"
            type="button"
