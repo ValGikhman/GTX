@@ -232,3 +232,59 @@ function getNow() {
         $("#schedule").text(html.Now);
     });
 }
+
+function printQrArea() {
+    var printContents = $("#qrPrintArea").html();
+
+    // Create hidden iframe
+    var iframe = $('<iframe>', {
+        id: 'qrPrintFrame',
+        style: 'position:absolute; top:-10000px; left:-10000px;'
+    }).appendTo('body')[0];
+
+    var doc = iframe.contentWindow || iframe.contentDocument;
+    if (doc.document) doc = doc.document;
+
+    // Write HTML + copy all CSS links
+    doc.open();
+    doc.write(`
+            <html>
+                <head>
+                    ${$("link[rel='stylesheet']").map(function () { return '<link rel="stylesheet" href="' + this.href + '">'; }).get().join('')}
+
+                    <style>
+                        body {
+                            display: flex;
+                            justify-content: center;   /* horizontal center */
+                            align-items: flex-start;   /* vertical top */
+                        }
+                        #qrPrintArea {
+                            text-align: center;
+                        }
+                    </style>
+
+                </head>
+                <body>
+                    <div id="qrPrintArea" class="col-6">${printContents}</div>
+                </body>
+            </html>
+        `);
+    doc.close();
+
+    // Wait to ensure images (QR) load correctly
+    $(iframe).on('load', function () {
+        setTimeout(function () {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+            $(iframe).remove(); // cleanup
+        }, 300);
+    });
+}
+
+function setQrCode(vehicle) {
+    var qrText = `https://usedcarscincinnati.com/Inventory/Details?stock=${vehicle.Stock}&QR=${encodeURIComponent(vehicle.VIN)}`;
+    var qrUrl = "/Majordome/Qr?text=" + encodeURIComponent(qrText);
+    $("#qrImg").attr("src", qrUrl);
+    $("#qrText").html(`<div>${vehicle.Year} ${vehicle.Make} ${vehicle.Model} Stock# ${vehicle.Stock}</div>`);
+    $("#QR-code-tab").removeClass("d-none");
+}
