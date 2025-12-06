@@ -1,17 +1,13 @@
 ﻿using GTX.Models;
 using Services;
 using System;
-using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
-using System.Xml;
-using Utility;
 
-namespace GTX.Controllers {
+namespace GTX.Controllers
+{
 
     public class HomeController : BaseController {
 
@@ -25,7 +21,6 @@ namespace GTX.Controllers {
         public ActionResult Index() {
             ViewBag.Message = "Home";
             ViewBag.Title = "Home";
-
             return View();
         }
 

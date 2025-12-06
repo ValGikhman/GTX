@@ -118,6 +118,7 @@ namespace GTX.Controllers
                 }
 
                 Model.OpenHours = SessionData.OpenHours;
+                ViewBag.Published = Model.Inventory.Published;
             }
             catch (Exception ex) {
             }
