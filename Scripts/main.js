@@ -286,5 +286,4 @@ function setQrCode(vehicle) {
     var qrUrl = "/Majordome/Qr?text=" + encodeURIComponent(qrText);
     $("#qrImg").attr("src", qrUrl);
     $("#qrText").html(`<div>${vehicle.Year} ${vehicle.Make} ${vehicle.Model} Stock# ${vehicle.Stock}</div>`);
-    $("#QR-code-tab").removeClass("d-none");
 }

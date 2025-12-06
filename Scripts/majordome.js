@@ -222,6 +222,11 @@ function setDetails(stock) {
     });
 }
 
+function setQrCode(vehicle) {
+    setQrCode(vehicle);
+    $("#QR-code-tab").removeClass("d-none");
+}
+
 function reStoryAll() {
     showSpinner($("#inventoryOverlay"));
 
