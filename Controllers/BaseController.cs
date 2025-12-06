@@ -118,7 +118,7 @@ namespace GTX.Controllers
                 }
 
                 Model.OpenHours = SessionData.OpenHours;
-                ViewBag.Published = Model.IsDevelopment ? Model.Inventory.Published : Model.Inventory.Published.AddHours(-4);
+                ViewBag.Published = Model.IsDevelopment ? Model.Inventory.Published : Model.Inventory.Published.AddHours(-5);
             }
             catch (Exception ex) {
             }
