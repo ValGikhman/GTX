@@ -158,7 +158,7 @@
             <!-- LEFT: Status Circle -->
             <div class="col-auto d-flex align-items-center">
                 <span id="inventoryStatus" class="status-circle" title="Very old"></span>
-                <span class="text-muted text-shadow very-small-text mx-2">@ViewBag.Published</span>
+                <span class="text-muted text-shadow very-small-text mx-2">@ViewBag.Published.ToString("yyyy-MM-dd HH:mm")</span>
             </div>
             <!-- CENTER: Copyright Text -->
             <div class="col text-center">
@@ -210,7 +210,7 @@
     var lastCars = [];
     loadLastCars();
 
-    let days = ((new Date("@DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss")") - new Date("@ViewBag.Published.ToString("yyyy-MM-ddTHH:mm:ss")")) / 86400000).toFixed(0);
+    let days = ((new Date("@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")") - new Date("@ViewBag.Published.ToString("yyyy-MM-ddTHH:mm")")) / 86400000).toFixed(0);
     const status = `status-${days}`;
     $("#inventoryStatus").attr('title', `The inventory is ${days} days old`).removeClass().addClass(`status-circle ${status}`);
 </script>
