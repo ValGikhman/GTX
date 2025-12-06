@@ -118,9 +118,7 @@ namespace GTX.Controllers
                 }
 
                 Model.OpenHours = SessionData.OpenHours;
-
-                var localTime = DateTime.SpecifyKind(Model.Inventory.Published, DateTimeKind.Utc).ToLocalTime();
-                ViewBag.Published = localTime;
+                ViewBag.Published = Model.IsDevelopment ? Model.Inventory.Published : Model.Inventory.Published.AddHours(-4);
             }
             catch (Exception ex) {
             }
