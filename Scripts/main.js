@@ -265,7 +265,7 @@ function printQrArea() {
 
                 </head>
                 <body>
-                    <div id="qrPrintArea" class="col-6">${printContents}</div>
+                    <div id="qrPrintArea">${printContents}</div>
                 </body>
             </html>
         `);
