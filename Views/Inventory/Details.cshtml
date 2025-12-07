@@ -365,9 +365,10 @@
                         <div id="qrPrintArea" class="m-3" style="width:300px;">
                             <h3>ATTENTION</h3>
                             <h3>Car shoppers!</h3>
-                            <div>Scan the code  with your mobile phone's camera app for more information about this vehicle</div>
+                            <h6 class="px-5">Scan the code  with your mobile phone's camera app for more information about this vehicle</h6>
                             <img id="qrImg" src="" alt="QR Code" style="width:300px;height:300px;" />
                             <div id="qrText" class="very-small-text"></div>
+
                         </div>
                         <div class="m-3">
                             <button type="button" class="btn btn-gradient shadow" onclick="printQrArea()">Print QR</button>
@@ -473,7 +474,7 @@
     var makeImg = `/GTXImages/makes/${make}.png`;
     var title = `
             <img src="${makeImg}" alt="${make} logo" class="make img-fluid gradient mx-3 rounded-5 px-2 shadow" style="height: 30px;">@ViewBag.Title</image>
-            <button class="p-1 mx-3 btn btn-gradient-grey border-black shadow rounded-4 text-danger"><strong class="fs-4">@ViewBag.Price</strong></button>
+            <button class="p-1 mx-3 btn btn-gradient-grey border-black shadow rounded-4 text-danger"><strong class="fs-5">@ViewBag.Price</strong></button>
     `;
 
     let startX = 0;
