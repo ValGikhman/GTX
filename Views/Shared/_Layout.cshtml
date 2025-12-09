@@ -158,13 +158,13 @@
             <!-- LEFT: Status Circle -->
             <div class="col-auto d-flex align-items-center">
                 <span id="inventoryStatus" class="status-circle" title="Very old"></span>
-                <span class="text-muted text-shadow very-small-text mx-2">@ViewBag.Published.ToString("yyyy-MM-dd HH:mm")</span>
+                <span class="text-muted text-shadow very-small-text mx-2">@ViewBag.Published.ToString("MM-dd HH:mm")</span>
             </div>
             <!-- CENTER: Copyright Text -->
             <div class="col text-center">
                 <a class="text-muted text-shadow" data-bs-toggle="offcanvas" href="#gtxDevelopment" role="button" aria-controls="gtxDevelopment">
                     <i class="fa fa-clock-o"></i>
-                    <span>Copyright &copy; @DateTime.Now.Year | Made by</span>
+                    <span class="d-none d-lg-inline">Copyright &copy; @DateTime.Now.Year | Made by</span>
                     <span class="badge bg-primary">GTX</span>
                     <span>&nbsp;@ViewBag.Environment</span>
                 </a>
