@@ -21,21 +21,20 @@ public static class SitemapWriter
 
         if (!File.Exists(invPath)) return;
 
-        var invLastWriteUtc = File.GetLastWriteTimeUtc(invPath);
-        var lastmod = invLastWriteUtc.ToString("yyyy-MM-dd");
+        var lastmod = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
 
         var inv = XDocument.Load(invPath);
+        if (inv.Root == null) return;
 
         XNamespace ns = "http://www.sitemaps.org/schemas/sitemap/0.9";
+
         var urlset = new XElement(ns + "urlset",
             Url(ns, $"{BaseUrl}/", lastmod, "daily", "1.0"),
             Url(ns, $"{BaseUrl}/Inventory/All", lastmod, "daily", "0.95"),
-
             Url(ns, $"{BaseUrl}/Inventory/Suvs", lastmod, "daily", "0.8"),
             Url(ns, $"{BaseUrl}/Inventory/Trucks", lastmod, "daily", "0.8"),
             Url(ns, $"{BaseUrl}/Inventory/Vans", lastmod, "daily", "0.75"),
             Url(ns, $"{BaseUrl}/Inventory/Sedans", lastmod, "daily", "0.75"),
-
             Url(ns, $"{BaseUrl}/Home/About", lastmod, "monthly", "0.5"),
             Url(ns, $"{BaseUrl}/Home/Contact", lastmod, "yearly", "0.4"),
             Url(ns, $"{BaseUrl}/Home/Application", lastmod, "monthly", "0.6")
@@ -48,14 +47,22 @@ public static class SitemapWriter
             var stock = ((string)v.Element("Stock"))?.Trim();
             if (string.IsNullOrWhiteSpace(stock)) continue;
 
+            // optional: skip weird stocks that might produce odd URLs
+            // if (!System.Text.RegularExpressions.Regex.IsMatch(stock, @"^[A-Za-z0-9]+$")) continue;
+
             var loc = $"{BaseUrl}/Inventory/Details?stock={Uri.EscapeDataString(stock)}";
             urlset.Add(Url(ns, loc, lastmod, "daily", "0.9"));
         }
 
         var sitemap = new XDocument(new XDeclaration("1.0", "UTF-8", "yes"), urlset);
 
-        // Ensure folder exists and write
-        File.WriteAllText(outPath, sitemap.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+        // ✅ Atomic write to prevent partial reads by Googlebot
+        var tmpPath = outPath + ".tmp";
+        var xml = sitemap.ToString(SaveOptions.DisableFormatting);
+
+        File.WriteAllText(tmpPath, xml, new UTF8Encoding(false));
+        File.Copy(tmpPath, outPath, true);
+        File.Delete(tmpPath);
     }
 
     private static XElement Url(XNamespace ns, string loc, string lastmod, string changefreq, string priority) =>
