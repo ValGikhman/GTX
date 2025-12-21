@@ -361,7 +361,10 @@ namespace GTX.Controllers {
 
             CsvToXmlHelper.SaveXmlToFile(doc, fullPath);
             CsvToXmlHelper.SaveXmlToFile(doc, inventoryFullPath);
-            
+
+            // Generates/updates physical /sitemap.xml at startup
+            SitemapWriter.Write();
+
             TerminateSession();
             return RedirectToAction("Index", "Home"); 
         }
