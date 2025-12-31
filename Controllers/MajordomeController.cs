@@ -336,12 +336,10 @@ namespace GTX.Controllers {
 
             XDocument doc;
             using (var headerStream = GetHeaderStream()) {
-                doc = CsvToXmlHelper.BuildXmlFromCsv(
-                    dataCsv.InputStream,
-                    headerStream,
-                    new CsvXmlOptions()
-                );
+                doc = CsvToXmlHelper.BuildXmlFromCsv(dataCsv.InputStream, headerStream, new CsvXmlOptions());
             }
+
+            string[] stocks = doc.Descendants("vehicle").Where(v => (string)v.Element("SetToUpload") == "Y").Select(v => ((string)v.Element("Stock")).Trim()).Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToArray();
 
             var saveDir = Server.MapPath("~/App_Data/Inventory/");
             var inventoryDir = saveDir + "Current";
@@ -364,6 +362,7 @@ namespace GTX.Controllers {
 
             // Generates/updates physical /sitemap.xml at startup
             SitemapWriter.Write();
+            InventoryService.AddInventory(stocks);
 
             TerminateSession();
             return RedirectToAction("Index", "Home"); 

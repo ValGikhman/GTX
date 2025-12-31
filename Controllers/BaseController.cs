@@ -175,16 +175,6 @@ namespace GTX.Controllers
             if (SessionData?.Inventory == null) {
                 var emptyArray = Array.Empty<Models.GTX>();
 
-                /*
-                    if (Model.IsEZ360)
-                    {
-                        model.Current = VehicleMapper.ToGTXInventory(Model.EZ360Inventory);
-                    }
-                    else {
-                        model.Current = Utility.XMLHelpers.XmlRepository.GetInventory();
-                    }
-                */
-
                 // Decided to go by stock inventory
                 var result = Utility.XMLHelpers.XmlRepository.GetInventory();
                 model.Current = result.Vehicles;
