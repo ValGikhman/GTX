@@ -47,13 +47,13 @@ namespace GTX.Controllers {
             ViewBag.Stock = stock;
 
             var vehicles = Model.Inventory.Vehicles ?? Array.Empty<Models.GTX>();
-
+/*
             Parallel.ForEach(vehicles, vehicle =>
             {
                 vehicle.Story = InventoryService.GetStory(vehicle.Stock);
                 vehicle.DataOne = GetDecodedData(vehicle.Stock);
             });
-
+*/
             Model.Inventory.Vehicles = vehicles.OrderBy(m => m.Make).ThenBy(m => m.Model).ToArray();
 
             return View(Model);
@@ -349,7 +349,6 @@ namespace GTX.Controllers {
             }
 
             var vehicles = inventory.Vehicles.Where(m => m.SetToUpload == "Y").ToArray();
-            string[] stocks = vehicles.Select(m => m.Stock).Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToArray();
 
             var saveDir = Server.MapPath("~/App_Data/Inventory/");
             var inventoryDir = saveDir + "Current";
@@ -370,9 +369,9 @@ namespace GTX.Controllers {
             CsvToXmlHelper.SaveXmlToFile(doc, fullPath);
             CsvToXmlHelper.SaveXmlToFile(doc, inventoryFullPath);
 
-            // Generates/updates physical /sitemap.xml at startup
+            // Generates/updates physical /sitemap.xml
             SitemapWriter.Write();
-            InventoryService.AddInventory(stocks);
+
             InventoryService.AddInventory(Models.GTX.ToDTOs(vehicles));
 
             TerminateSession();

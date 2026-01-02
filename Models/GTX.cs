@@ -1,12 +1,14 @@
 ﻿using Common;
 using Services;
 using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 
-namespace GTX.Models {
-	[XmlRoot(ElementName = "GTX-Inventory")]
+namespace GTX.Models
+{
+    [XmlRoot(ElementName = "GTX-Inventory")]
 	public class GTXInventory {
 
 		[XmlElement(ElementName = "vehicle")]
@@ -99,6 +101,8 @@ namespace GTX.Models {
 
 		public DecodedData DataOne { get; set; }
 
+		public Services.EZ360 EZ360 { get; set; }
+
 		public string TransmissionWord { get; set; }
 
 		public static GTXDTO ToDTO(GTX g)
@@ -140,6 +144,123 @@ namespace GTX.Models {
 			if (vehicles == null) return Array.Empty<GTXDTO>();
 
 			return vehicles.Select(ToDTO).ToArray();
+		}
+
+		public static Models.GTX[] ToGTX(GTXDTO[] source)
+		{
+			if (source == null)	return Array.Empty<Models.GTX>();
+
+			return source.Select(m => new Models.GTX
+				{
+					Stock = m.Stock,
+					Year = m.Year,
+					Make = m.Make,
+					Model = m.Model,
+					VIN = m.VIN,
+					Mileage = m.Mileage,
+					Cylinders = m.Cylinders,
+					Weight = m.Weight,
+					Color = m.Color,
+					Color2 = m.Color2,
+					Features = m.Features,
+					RetailPrice = m.RetailPrice,
+					InternetPrice = m.InternetPrice,
+					DriveTrain = m.DriveTrain,
+					LocationCode = m.LocationCode,
+					Body = m.Body,
+					Engine = m.Engine,
+					Transmission = m.Transmission,
+					PurchaseDate = m.PurchaseDate,
+					ArrivalDate = m.ArrivalDate,
+					FuelType = m.FuelType,
+					TransmissionSpeed = m.TransmissionSpeed,
+					TransmissionWord = WordIt(m.Transmission),
+					VehicleType = m.VehicleType,
+					VehicleStyle = m.VehicleStyle,
+					SetToUpload = m.SetToUpload,
+					Story = m.Story == null ? null : new Story { Id = m.Story.Id, HtmlContent = m.Story.HtmlContent, Title = m.Story.Title }, 
+					DataOne = m.DataOne == null ? null : SetDecodedData(m.DataOne.DataOneContent),
+					EZ360 = m.EZ360 == null ? null : new Services.EZ360 { Id = m.EZ360.Id, Ez360 = m.EZ360.EZ360 }
+			}).ToArray();
+		}
+
+		static string WordIt(string? transmission)
+		{
+			try
+			{
+				string res = string.Empty;
+				if (transmission != null)
+				{
+					switch (transmission)
+					{
+						case "A":
+							return "Automatic";
+
+						case "M":
+							return "Manual";
+
+						case "T":
+							return "Transverse";
+
+						case "C":
+							return "Continuously variable";
+
+						default:
+							return transmission;
+					}
+				}
+
+				return transmission;
+			}
+			catch
+			{
+				return "N/A";
+			}
+		}
+		static DecodedData SetDecodedData(string dataOne)
+		{
+			var (errCode, errMsg) = ParseDecoderError(dataOne);
+
+			if (errCode != null && errCode != "RI")
+			{
+				Console.WriteLine(errMsg);
+				return null;
+			}
+
+			try
+			{
+				var serializer = new XmlSerializer(typeof(DecodedData));
+				using (TextReader reader = new StringReader(dataOne))
+				{
+					return (DecodedData)serializer.Deserialize(reader);
+				}
+			}
+			catch (Exception ex)
+			{
+				return null;
+			}
+		}
+
+		static (string? code, string? message) ParseDecoderError(string xml)
+		{
+			try
+			{
+				var doc = System.Xml.Linq.XDocument.Parse(xml);
+				var err = doc.Descendants("decoder_errors").Descendants("error").FirstOrDefault();
+				if (err == null) return (null, null);
+
+				var code = (string?)err.Element("code");
+				var msg = (string?)err.Element("message");
+
+				if (code == "RI") return (null, null);
+
+				return (code, msg);
+			}
+			catch
+			{
+				// If it isn't valid XML, treat as a body/format error
+				return ("PARSE", "Invalid XML from decoder");
+			}
 		}
 	}
 }

@@ -176,9 +176,14 @@ namespace GTX.Controllers
                 var emptyArray = Array.Empty<Models.GTX>();
 
                 // Decided to go by stock inventory
-                var result = Utility.XMLHelpers.XmlRepository.GetInventory();
+/*                var result = Utility.XMLHelpers.XmlRepository.GetInventory();
                 model.Current = result.Vehicles;
-                model.Published = result.InventoryDate;
+                model.Published = result.InventoryDate;*/
+
+                var dto = InventoryService.GetInventory();
+                var vehicles = Models.GTX.ToGTX(dto.vehicles);
+                model.Current = vehicles;
+                model.Published = dto.InventoryDate;
 
                 model.All = model.Current.Where(m => m.SetToUpload == "Y").OrderBy(m => m.Make).ThenBy(m => m.Model).ToArray();  
                 model.All = ApplyExtended(model.All);
@@ -244,8 +249,8 @@ namespace GTX.Controllers
 
         public Models.GTX[] ApplyExtended(Models.GTX[] vehicles) {
             foreach (var vehicle in vehicles) {
-                vehicle.Story = InventoryService.GetStory(vehicle.Stock);
-                vehicle.DataOne = GetDecodedData(vehicle.Stock);
+                //vehicle.Story = InventoryService.GetStory(vehicle.Stock);
+                //vehicle.DataOne = GetDecodedData(vehicle.Stock);
 
                 vehicle.TransmissionWord = WordIt(vehicle.Transmission);
 
@@ -365,7 +370,6 @@ namespace GTX.Controllers
                 return null;
             }
         }
-
         #endregion Public Methods
 
 
