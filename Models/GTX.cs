@@ -1,5 +1,7 @@
-﻿using Services;
+﻿using Common;
+using Services;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
 
@@ -98,86 +100,46 @@ namespace GTX.Models {
 		public DecodedData DataOne { get; set; }
 
 		public string TransmissionWord { get; set; }
-    }
 
+		public static GTXDTO ToDTO(GTX g)
+		{
+			if (g == null) return null;
 
-    public static class VehicleMapper
-        {
-            public static GTX[] ToGTXInventory(EZ360.Vehicle[] vehicles)
-            {
-                if (vehicles == null || vehicles.Length == 0)
-                    return Array.Empty<GTX>();
+			return new GTXDTO
+			{
+				Stock = g.Stock,
+				Year = g.Year,
+				Make = g.Make,
+				Model = g.Model,
+				VIN = g.VIN,
+				Mileage = g.Mileage,
+				Cylinders = g.Cylinders,
+				Weight = g.Weight,
+				Color = g.Color,
+				Color2 = g.Color2,
+				Features = g.Features,
+				RetailPrice = g.RetailPrice,
+				InternetPrice = g.InternetPrice,
+				DriveTrain = g.DriveTrain,
+				LocationCode = g.LocationCode,
+				Body = g.Body,
+				Engine = g.Engine,
+				Transmission = g.Transmission,
+				PurchaseDate = g.PurchaseDate,
+				ArrivalDate = g.ArrivalDate,
+				FuelType = g.FuelType,
+				TransmissionSpeed = g.TransmissionSpeed,
+				VehicleType = g.VehicleType,
+				VehicleStyle = g.VehicleStyle,
+				SetToUpload = g.SetToUpload
+			};
+		}
 
-                var mapped = vehicles.Select(v => new GTX
-                {
-                    Stock = v.StockNo,
-                    Year = v.Year,
-                    Make = v.Make.ToUpper(),
-                    Model = v.Model.ToUpper(),
-                    VIN = v.Vin,
-                    Mileage = TryParseInt(v.Miles),
-                    Cylinders = ExtractCylinders(v.Engine),
-                    Weight = 0, // no equivalent property — fill with default
-                    Color = v.ExtColor,
-                    Color2 = v.IntColor,
-                    Features = v.Options,
-                    RetailPrice = v.PriceWeb,
-                    InternetPrice = v.PriceWeb,
-                    DriveTrain = v.Drivetrain,
-                    LocationCode = "X",
-                    Body = v.Body.ToUpper(),
-                    Engine = v.Engine,
-                    Transmission = ExtractTransmissionType(v.Transmission),
-                    PurchaseDate = v.CreatedOn.ToString("yyyy-MM-dd"),
-                    ArrivalDate = v.CreatedOn.ToString("yyyy-MM-dd"),
-                    FuelType = v.FuelType,
-                    TransmissionSpeed = ExtractTransmissionSpeed(v.Transmission),
-                    VehicleType = v.Body.ToUpper(),
-                    VehicleStyle = v.Trim.ToUpper(),
-                    SetToUpload = v.Active ? "Y" : "N",
-                    Image = v.ThirdPartyPics.FirstOrDefault(),
-                    Images = v.ThirdPartyPics.Select(m => new Image() { Id=Guid.Empty, Stock=v.StockNo, DateCreated=DateTime.Now, Order=0, Source=m}).ToArray(),
-                    TransmissionWord = v.Transmission,
-                    Story = null,
-                    DataOne = null
-                }).Where(m => m.Mileage > 0).OrderBy(m => m.Make).ToArray();
+		public static GTXDTO[] ToDTOs(GTX[] vehicles)
+		{
+			if (vehicles == null) return Array.Empty<GTXDTO>();
 
-
-                return mapped;
-            }
-
-            private static int TryParseInt(string value)
-            {
-                if (int.TryParse(value?.Replace(",", ""), out int result))
-                    return result;
-                return 0;
-            }
-
-            private static int ExtractCylinders(string engine)
-            {
-                // crude example: looks for "V6" or "4CYL"
-                if (string.IsNullOrEmpty(engine)) return 0;
-                if (engine.ToUpper().Contains("V6")) return 6;
-                if (engine.ToUpper().Contains("V8")) return 8;
-                if (engine.Contains("4")) return 4;
-                return 0;
-            }
-
-            private static int ExtractTransmissionSpeed(string transmission)
-            {
-                // crude parser for "6-Speed Automatic" or "8-Spd"
-                if (string.IsNullOrEmpty(transmission)) return 0;
-                var parts = transmission.Split(' ', '-', (char)StringSplitOptions.RemoveEmptyEntries);
-                foreach (var part in parts)
-                    if (int.TryParse(part.Replace("Spd", ""), out int speed))
-                        return speed;
-                return 0;
-            }
-
-            private static string ExtractTransmissionType(string transmission)
-            {
-                if (string.IsNullOrEmpty(transmission)) return "A";
-                return transmission.Trim().Substring(0,1);
-            }
-    }
+			return vehicles.Select(ToDTO).ToArray();
+		}
+	}
 }

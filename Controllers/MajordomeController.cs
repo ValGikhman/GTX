@@ -18,6 +18,7 @@ using System.Web.Mvc;
 using System.Xml.Linq;
 using QRCoder;
 using Utility.XMLHelpers;
+using System.Xml.Serialization;
 
 namespace GTX.Controllers {
 
@@ -339,7 +340,16 @@ namespace GTX.Controllers {
                 doc = CsvToXmlHelper.BuildXmlFromCsv(dataCsv.InputStream, headerStream, new CsvXmlOptions());
             }
 
-            string[] stocks = doc.Descendants("vehicle").Where(v => (string)v.Element("SetToUpload") == "Y").Select(v => ((string)v.Element("Stock")).Trim()).Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToArray();
+            GTXInventory inventory;
+            var serializer = new XmlSerializer(typeof(GTXInventory));
+
+            using (var reader = doc.CreateReader())
+            {
+                inventory = (GTXInventory)serializer.Deserialize(reader);
+            }
+
+            var vehicles = inventory.Vehicles.Where(m => m.SetToUpload == "Y").ToArray();
+            string[] stocks = vehicles.Select(m => m.Stock).Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToArray();
 
             var saveDir = Server.MapPath("~/App_Data/Inventory/");
             var inventoryDir = saveDir + "Current";
@@ -363,6 +373,7 @@ namespace GTX.Controllers {
             // Generates/updates physical /sitemap.xml at startup
             SitemapWriter.Write();
             InventoryService.AddInventory(stocks);
+            InventoryService.AddInventory(Models.GTX.ToDTOs(vehicles));
 
             TerminateSession();
             return RedirectToAction("Index", "Home"); 
