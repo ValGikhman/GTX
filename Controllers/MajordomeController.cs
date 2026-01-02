@@ -18,6 +18,7 @@ using System.Web.Mvc;
 using System.Xml.Linq;
 using QRCoder;
 using Utility.XMLHelpers;
+using System.Xml.Serialization;
 
 namespace GTX.Controllers {
 
@@ -46,13 +47,13 @@ namespace GTX.Controllers {
             ViewBag.Stock = stock;
 
             var vehicles = Model.Inventory.Vehicles ?? Array.Empty<Models.GTX>();
-
+/*
             Parallel.ForEach(vehicles, vehicle =>
             {
                 vehicle.Story = InventoryService.GetStory(vehicle.Stock);
                 vehicle.DataOne = GetDecodedData(vehicle.Stock);
             });
-
+*/
             Model.Inventory.Vehicles = vehicles.OrderBy(m => m.Make).ThenBy(m => m.Model).ToArray();
 
             return View(Model);
@@ -336,12 +337,18 @@ namespace GTX.Controllers {
 
             XDocument doc;
             using (var headerStream = GetHeaderStream()) {
-                doc = CsvToXmlHelper.BuildXmlFromCsv(
-                    dataCsv.InputStream,
-                    headerStream,
-                    new CsvXmlOptions()
-                );
+                doc = CsvToXmlHelper.BuildXmlFromCsv(dataCsv.InputStream, headerStream, new CsvXmlOptions());
             }
+
+            GTXInventory inventory;
+            var serializer = new XmlSerializer(typeof(GTXInventory));
+
+            using (var reader = doc.CreateReader())
+            {
+                inventory = (GTXInventory)serializer.Deserialize(reader);
+            }
+
+            var vehicles = inventory.Vehicles.Where(m => m.SetToUpload == "Y").ToArray();
 
             var saveDir = Server.MapPath("~/App_Data/Inventory/");
             var inventoryDir = saveDir + "Current";
@@ -362,8 +369,10 @@ namespace GTX.Controllers {
             CsvToXmlHelper.SaveXmlToFile(doc, fullPath);
             CsvToXmlHelper.SaveXmlToFile(doc, inventoryFullPath);
 
-            // Generates/updates physical /sitemap.xml at startup
+            // Generates/updates physical /sitemap.xml
             SitemapWriter.Write();
+
+            InventoryService.AddInventory(Models.GTX.ToDTOs(vehicles));
 
             TerminateSession();
             return RedirectToAction("Index", "Home"); 

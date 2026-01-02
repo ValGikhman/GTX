@@ -1,10 +1,14 @@
-﻿using Services;
+﻿using Common;
+using Services;
 using System;
+using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 
-namespace GTX.Models {
-	[XmlRoot(ElementName = "GTX-Inventory")]
+namespace GTX.Models
+{
+    [XmlRoot(ElementName = "GTX-Inventory")]
 	public class GTXInventory {
 
 		[XmlElement(ElementName = "vehicle")]
@@ -97,87 +101,166 @@ namespace GTX.Models {
 
 		public DecodedData DataOne { get; set; }
 
+		public Services.EZ360 EZ360 { get; set; }
+
 		public string TransmissionWord { get; set; }
-    }
 
+		public static GTXDTO ToDTO(GTX g)
+		{
+			if (g == null) return null;
 
-    public static class VehicleMapper
-        {
-            public static GTX[] ToGTXInventory(EZ360.Vehicle[] vehicles)
-            {
-                if (vehicles == null || vehicles.Length == 0)
-                    return Array.Empty<GTX>();
+			return new GTXDTO
+			{
+				Stock = g.Stock,
+				Year = g.Year,
+				Make = g.Make,
+				Model = g.Model,
+				VIN = g.VIN,
+				Mileage = g.Mileage,
+				Cylinders = g.Cylinders,
+				Weight = g.Weight,
+				Color = g.Color,
+				Color2 = g.Color2,
+				Features = g.Features,
+				RetailPrice = g.RetailPrice,
+				InternetPrice = g.InternetPrice,
+				DriveTrain = g.DriveTrain,
+				LocationCode = g.LocationCode,
+				Body = g.Body,
+				Engine = g.Engine,
+				Transmission = g.Transmission,
+				PurchaseDate = g.PurchaseDate,
+				ArrivalDate = g.ArrivalDate,
+				FuelType = g.FuelType,
+				TransmissionSpeed = g.TransmissionSpeed,
+				VehicleType = g.VehicleType,
+				VehicleStyle = g.VehicleStyle,
+				SetToUpload = g.SetToUpload
+			};
+		}
 
-                var mapped = vehicles.Select(v => new GTX
-                {
-                    Stock = v.StockNo,
-                    Year = v.Year,
-                    Make = v.Make.ToUpper(),
-                    Model = v.Model.ToUpper(),
-                    VIN = v.Vin,
-                    Mileage = TryParseInt(v.Miles),
-                    Cylinders = ExtractCylinders(v.Engine),
-                    Weight = 0, // no equivalent property — fill with default
-                    Color = v.ExtColor,
-                    Color2 = v.IntColor,
-                    Features = v.Options,
-                    RetailPrice = v.PriceWeb,
-                    InternetPrice = v.PriceWeb,
-                    DriveTrain = v.Drivetrain,
-                    LocationCode = "X",
-                    Body = v.Body.ToUpper(),
-                    Engine = v.Engine,
-                    Transmission = ExtractTransmissionType(v.Transmission),
-                    PurchaseDate = v.CreatedOn.ToString("yyyy-MM-dd"),
-                    ArrivalDate = v.CreatedOn.ToString("yyyy-MM-dd"),
-                    FuelType = v.FuelType,
-                    TransmissionSpeed = ExtractTransmissionSpeed(v.Transmission),
-                    VehicleType = v.Body.ToUpper(),
-                    VehicleStyle = v.Trim.ToUpper(),
-                    SetToUpload = v.Active ? "Y" : "N",
-                    Image = v.ThirdPartyPics.FirstOrDefault(),
-                    Images = v.ThirdPartyPics.Select(m => new Image() { Id=Guid.Empty, Stock=v.StockNo, DateCreated=DateTime.Now, Order=0, Source=m}).ToArray(),
-                    TransmissionWord = v.Transmission,
-                    Story = null,
-                    DataOne = null
-                }).Where(m => m.Mileage > 0).OrderBy(m => m.Make).ToArray();
+		public static GTXDTO[] ToDTOs(GTX[] vehicles)
+		{
+			if (vehicles == null) return Array.Empty<GTXDTO>();
 
+			return vehicles.Select(ToDTO).ToArray();
+		}
 
-                return mapped;
-            }
+		public static Models.GTX[] ToGTX(GTXDTO[] source)
+		{
+			if (source == null)	return Array.Empty<Models.GTX>();
 
-            private static int TryParseInt(string value)
-            {
-                if (int.TryParse(value?.Replace(",", ""), out int result))
-                    return result;
-                return 0;
-            }
+			return source.Select(m => new Models.GTX
+				{
+					Stock = m.Stock,
+					Year = m.Year,
+					Make = m.Make,
+					Model = m.Model,
+					VIN = m.VIN,
+					Mileage = m.Mileage,
+					Cylinders = m.Cylinders,
+					Weight = m.Weight,
+					Color = m.Color,
+					Color2 = m.Color2,
+					Features = m.Features,
+					RetailPrice = m.RetailPrice,
+					InternetPrice = m.InternetPrice,
+					DriveTrain = m.DriveTrain,
+					LocationCode = m.LocationCode,
+					Body = m.Body,
+					Engine = m.Engine,
+					Transmission = m.Transmission,
+					PurchaseDate = m.PurchaseDate,
+					ArrivalDate = m.ArrivalDate,
+					FuelType = m.FuelType,
+					TransmissionSpeed = m.TransmissionSpeed,
+					TransmissionWord = WordIt(m.Transmission),
+					VehicleType = m.VehicleType,
+					VehicleStyle = m.VehicleStyle,
+					SetToUpload = m.SetToUpload,
+					Story = m.Story == null ? null : new Story { Id = m.Story.Id, HtmlContent = m.Story.HtmlContent, Title = m.Story.Title }, 
+					DataOne = m.DataOne == null ? null : SetDecodedData(m.DataOne.DataOneContent),
+					EZ360 = m.EZ360 == null ? null : new Services.EZ360 { Id = m.EZ360.Id, Ez360 = m.EZ360.EZ360 }
+			}).ToArray();
+		}
 
-            private static int ExtractCylinders(string engine)
-            {
-                // crude example: looks for "V6" or "4CYL"
-                if (string.IsNullOrEmpty(engine)) return 0;
-                if (engine.ToUpper().Contains("V6")) return 6;
-                if (engine.ToUpper().Contains("V8")) return 8;
-                if (engine.Contains("4")) return 4;
-                return 0;
-            }
+		static string WordIt(string? transmission)
+		{
+			try
+			{
+				string res = string.Empty;
+				if (transmission != null)
+				{
+					switch (transmission)
+					{
+						case "A":
+							return "Automatic";
 
-            private static int ExtractTransmissionSpeed(string transmission)
-            {
-                // crude parser for "6-Speed Automatic" or "8-Spd"
-                if (string.IsNullOrEmpty(transmission)) return 0;
-                var parts = transmission.Split(' ', '-', (char)StringSplitOptions.RemoveEmptyEntries);
-                foreach (var part in parts)
-                    if (int.TryParse(part.Replace("Spd", ""), out int speed))
-                        return speed;
-                return 0;
-            }
+						case "M":
+							return "Manual";
 
-            private static string ExtractTransmissionType(string transmission)
-            {
-                if (string.IsNullOrEmpty(transmission)) return "A";
-                return transmission.Trim().Substring(0,1);
-            }
-    }
+						case "T":
+							return "Transverse";
+
+						case "C":
+							return "Continuously variable";
+
+						default:
+							return transmission;
+					}
+				}
+
+				return transmission;
+			}
+			catch
+			{
+				return "N/A";
+			}
+		}
+		static DecodedData SetDecodedData(string dataOne)
+		{
+			var (errCode, errMsg) = ParseDecoderError(dataOne);
+
+			if (errCode != null && errCode != "RI")
+			{
+				Console.WriteLine(errMsg);
+				return null;
+			}
+
+			try
+			{
+				var serializer = new XmlSerializer(typeof(DecodedData));
+				using (TextReader reader = new StringReader(dataOne))
+				{
+					return (DecodedData)serializer.Deserialize(reader);
+				}
+			}
+			catch (Exception ex)
+			{
+				return null;
+			}
+		}
+
+		static (string? code, string? message) ParseDecoderError(string xml)
+		{
+			try
+			{
+				var doc = System.Xml.Linq.XDocument.Parse(xml);
+				var err = doc.Descendants("decoder_errors").Descendants("error").FirstOrDefault();
+				if (err == null) return (null, null);
+
+				var code = (string?)err.Element("code");
+				var msg = (string?)err.Element("message");
+
+				if (code == "RI") return (null, null);
+
+				return (code, msg);
+			}
+			catch
+			{
+				// If it isn't valid XML, treat as a body/format error
+				return ("PARSE", "Invalid XML from decoder");
+			}
+		}
+	}
 }
