@@ -65,6 +65,7 @@ namespace GTX.Controllers
 
                 return View("Index", Model);
             }
+
             Model.Inventory.Title = "Details";
 
             var vehicle = Model.Inventory.All?.FirstOrDefault(m => m.Stock == stock);
@@ -73,17 +74,20 @@ namespace GTX.Controllers
             }
 
             Model.CurrentVehicle.VehicleDetails = vehicle;
-            Model.CurrentVehicle.VehicleDetails.Story = InventoryService.GetStory(vehicle.Stock);
+            Model.CurrentVehicle.VehicleDetails.Story = vehicle.Story;
 
             // If there is no DataOne get it
             if (Model.IsDataOne)
             {
-                if (!InventoryService.AnyDataOneDetails(stock)) {
+                if (vehicle.DataOne == null)
+                {
                     var details = VinDecoderService.DecodeVin(vehicle.VIN, dataOneApiKey, dataOneSecretApiKey);
                     InventoryService.SaveDataOneDetails(stock, details);
+                    Model.CurrentVehicle.VehicleDataOneDetails = GetDecodedData(stock);
                 }
-
-                Model.CurrentVehicle.VehicleDataOneDetails = GetDecodedData(stock);
+                else {
+                    Model.CurrentVehicle.VehicleDataOneDetails = vehicle.DataOne;
+                }
             }
 
             if (Model.IsEZ360)
@@ -386,7 +390,7 @@ namespace GTX.Controllers
                     string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
                     var rs = SessionData?.Inventory.All?.Where(m => request.Contains(m.Make));
 
-                    return Json(rs.Select(m => WordIt(m.Transmission)).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
+                    return Json(rs.Select(m => Models.GTX.WordIt(m.Transmission)).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
                 }
                 else {
                     return Json(SessionData?.Filters?.Transmissions, JsonRequestBehavior.AllowGet);

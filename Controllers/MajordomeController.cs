@@ -33,10 +33,6 @@ namespace GTX.Controllers
 
         public MajordomeController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service _ez360Service, ILogService logService)
             : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService) {
-            if (Model == null) {
-                Model = new BaseModel();
-                Model.Inventory = new Inventory();
-            }
         }
 
         [HttpGet]
@@ -181,7 +177,7 @@ namespace GTX.Controllers
                 ViewBag.IsMajordome = Model.IsMajordome;
                 var vehicle = Model.Inventory.All?.FirstOrDefault(m => m.VIN == vin);
                 Model.CurrentVehicle.VehicleDetails = vehicle;
-                Model.CurrentVehicle.VehicleDataOneDetails = SetDecodedData(details);
+                Model.CurrentVehicle.VehicleDataOneDetails = Models.GTX.SetDecodedData(details);
                 var res = RenderViewToString(ControllerContext, "_DetailsDataOne", Model);
                 return res;
             }
@@ -319,13 +315,16 @@ namespace GTX.Controllers
         }
 
         [HttpPost]
-        public ActionResult ReplaceHeaderAndConvertToXml(HttpPostedFileBase dataCsv) {
-            if (dataCsv == null) {
+        public ActionResult ReplaceHeaderAndConvertToXml(HttpPostedFileBase dataCsv)
+        {
+            if (dataCsv == null)
+            {
                 return new HttpStatusCodeResult(400, "Upload the data CSV.");
             }
 
             XDocument doc;
-            using (var headerStream = GetHeaderStream()) {
+            using (var headerStream = GetHeaderStream())
+            {
                 doc = CsvToXmlHelper.BuildXmlFromCsv(dataCsv.InputStream, headerStream, new CsvXmlOptions());
             }
 
@@ -345,12 +344,13 @@ namespace GTX.Controllers
             Directory.CreateDirectory(saveDir);
 
             var fileName = "GTX-Inventory-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss") + ".xml";
-            var backup = Path.Combine(inventoryDir,"GTX-Inventory.bak");
+            var backup = Path.Combine(inventoryDir, "GTX-Inventory.bak");
             var inventoryFleName = "GTX-Inventory.xml";
             var fullPath = Path.Combine(saveDir, fileName);
             var inventoryFullPath = Path.Combine(inventoryDir, inventoryFleName);
 
-            if (System.IO.File.Exists(backup)) {
+            if (System.IO.File.Exists(backup))
+            {
                 System.IO.File.Delete(backup);
             }
             System.IO.File.Copy(inventoryFullPath, backup);
@@ -364,8 +364,21 @@ namespace GTX.Controllers
             InventoryService.AddInventory(Models.GTX.ToDTOs(vehicles));
 
             TerminateSession();
-            return RedirectToAction("Index", "Home"); 
+            return RedirectToAction("Index", "Home");
         }
+
+        [HttpPost]
+        public ActionResult RestoreBackUpInventory()
+        {
+            var result = Utility.XMLHelpers.XmlRepository.GetInventory();
+            var vehicles = result.Vehicles.Where(m => m.SetToUpload == "Y").OrderBy(m => m.Make).ThenBy(m => m.Model).ToArray();
+
+            InventoryService.AddInventory(Models.GTX.ToDTOs(vehicles));
+
+            TerminateSession();
+            return RedirectToAction("Index", "Home");
+        }
+
 
         private Stream GetHeaderStream() {
             if (_cachedHeaderBytes == null) {

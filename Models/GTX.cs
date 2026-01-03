@@ -189,7 +189,7 @@ namespace GTX.Models
 			}).ToArray();
 		}
 
-		static string WordIt(string? transmission)
+		public static string WordIt(string? transmission)
 		{
 			try
 			{
@@ -222,7 +222,8 @@ namespace GTX.Models
 				return "N/A";
 			}
 		}
-		static DecodedData SetDecodedData(string dataOne)
+
+		public static DecodedData SetDecodedData(string dataOne)
 		{
 			var (errCode, errMsg) = ParseDecoderError(dataOne);
 
@@ -246,7 +247,7 @@ namespace GTX.Models
 			}
 		}
 
-		static (string? code, string? message) ParseDecoderError(string xml)
+		public static (string code, string? message) ParseDecoderError(string xml)
 		{
 			try
 			{

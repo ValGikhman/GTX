@@ -63,7 +63,7 @@
             border-radius: .5rem;
         }
         #specials {
-            margin-top: -20px;
+            margin-top: 0px;
         }
 
         #filterByTerm {
@@ -101,7 +101,7 @@
     </div>
 </div>
 
-<div class="this-container container-fluid">
+<div class="this-container container-fluid px-5">
     <nav class="nav nav-tabs no-wrap-group" id="myTab" role="tablist">
         <button class="nav-item btn btn-gradient-grey text-shadow-small active" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#tab-inventory" type="button" role="tab">
             Inventory
@@ -125,20 +125,17 @@
         <button class="nav-item btn btn-gradient-grey text-shadow-small d-none" id="QR-code-tab" data-bs-toggle="tab" data-bs-target="#tab-qr-code" type="button" role="tab">
             QR Code
         </button>
+        <div id="specials" class="d-none d-lg-block d-flex ms-auto">
+        </div>
     </nav>
 
     <div class="tab-content border border-top-0 well " id="myTabContent">
         <!-- Inventory Tab -->
         <div class="tab-pane fade show active py-2" id="tab-inventory" role="tabpanel">
             <div class="container-fluid">
-                <div class="row row-cols-3 align-items-center">
-                    <div class="col">
-                    </div>
-                    <!-- Filters -->
-                    <div id="filtersWrap" class="col">
+                <div class="row align-items-center justify-content-center">
+                    <div id="filtersWrap" class="col-auto w-35">
                         @{ Html.RenderPartial("_FilterByTerm"); }
-                    </div>
-                    <div id="specials" class="d-none d-lg-block col pull-right">
                     </div>
                 </div>
                 <!-- Grid shell gets a dynamic height -->
@@ -232,8 +229,9 @@
 </div>
 <template id="actions">
     <button type="button" id="btnDecodeAll" class="btn btn-gradient shadow">Decode all</button>
-    <button type="button" id="btnReStoryAll" class="btn btn-gradient shadow">Restory all</button>
-    <button type="button" id="btnUploadInventory" class="btn btn-gradient mx-2 shadow">Upload inventory</button>
+    <button type="button" id="btnReStoryAll" class="btn btn-gradient shadow">Re-story all</button>
+    <button type="button" id="btnUploadInventory" class="btn btn-gradient shadow">Upload inventory</button>
+    <button type="button" id="btnRestoreBackUpInventory" class="btn btn-gradient shadow">Restore back up</button>
     <input type="file" name="dataCsv" id="dataCsv" class="d-none" accept=".csv,text/csv" />
 </template>
 
@@ -392,6 +390,12 @@
 
             if (files.length > 0) {
                 uploadFiles(stock, fileInput);
+            }
+        });
+
+        $("#btnRestoreBackUpInventory").on("click", function () {
+            if (confirm("Do you want to restore backup an inventory?")) {
+                restoreBackUpInventory();
             }
         });
 

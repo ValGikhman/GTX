@@ -212,6 +212,22 @@ function uploadInventory(input) {
     });
 }
 
+function restoreBackUpInventory() {
+    showSpinner($("#inventoryOverlay"));
+    fetch("/Majordome/RestoreBackUpInventory", { method: "POST" })
+    .then(response => {
+        if (response.ok) {
+            hideSpinner($("#inventoryOverlay"));
+            window.location.href = "/Home";
+        } else {
+            alert("Restore backup failed.");
+        }
+    })
+    .catch(error => {
+        alert(error);
+    });
+}
+
 function setDetails(stock) {
     fetch('/Majordome/SetDetails', {
         method: 'POST',
