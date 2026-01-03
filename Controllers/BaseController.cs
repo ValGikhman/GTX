@@ -282,63 +282,10 @@ namespace GTX.Controllers
             Session.Abandon();
         }
 
-        public static string WordIt(string? transmission) {
-            try {
-                string res = string.Empty;
-                if (transmission != null) {
-                    switch (transmission) {
-                        case "A":
-                            return "Automatic";
-
-                        case "M":
-                            return "Manual";
-
-                        case "T":
-                            return "Transverse";
-
-                        case "C":
-                            return "Continuously variable";
-
-                        default:
-                            return transmission;
-                    }
-                }
-
-                return transmission;
-            }
-            catch {
-                return "N/A";
-            }
-        }
-
         public DecodedData GetDecodedData(string stock) {
             string dataOne = InventoryService.GetDataOneDetails(stock);
 
-            return SetDecodedData(dataOne);
-        }
-
-        public DecodedData SetDecodedData(string dataOne)
-        {
-            var (errCode, errMsg) = ParseDecoderError(dataOne);
-
-            if (errCode != null && errCode != "RI")
-            {
-                Console.WriteLine(errMsg);
-                return null;
-            }
-
-            try
-            {
-                var serializer = new XmlSerializer(typeof(DecodedData));
-                using (TextReader reader = new StringReader(dataOne))
-                {
-                    return (DecodedData)serializer.Deserialize(reader);
-                }
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
+            return Models.GTX.SetDecodedData(dataOne);
         }
         #endregion Public Methods
 
@@ -351,7 +298,7 @@ namespace GTX.Controllers
                 Makes = all.Select(x => x.Make).Distinct().OrderBy(x => x).ToArray(),
                 Models = all.Select(x => x.Model).Distinct().OrderBy(x => x).ToArray(),
                 Cylinders = all.Select(x => x.Cylinders.ToString()).Distinct().OrderBy(x => x).ToArray(),
-                Transmissions = all.Select(x => WordIt(x.Transmission)).Distinct().OrderBy(x => x).ToArray(),
+                Transmissions = all.Select(x => Models.GTX.WordIt(x.Transmission)).Distinct().OrderBy(x => x).ToArray(),
                 FuelTypes = all.Select(x => x.FuelType).Distinct().OrderBy(x => x).ToArray(),
                 DriveTrains = all.Select(x => x.DriveTrain).Distinct().OrderBy(x => x).ToArray(),
                 BodyTypes = all.Select(x => x.Body).Distinct().OrderBy(x => x).ToArray(),

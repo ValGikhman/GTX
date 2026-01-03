@@ -386,7 +386,7 @@ namespace GTX.Controllers
                     string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
                     var rs = SessionData?.Inventory.All?.Where(m => request.Contains(m.Make));
 
-                    return Json(rs.Select(m => WordIt(m.Transmission)).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
+                    return Json(rs.Select(m => Models.GTX.WordIt(m.Transmission)).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
                 }
                 else {
                     return Json(SessionData?.Filters?.Transmissions, JsonRequestBehavior.AllowGet);

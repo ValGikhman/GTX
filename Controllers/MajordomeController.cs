@@ -47,7 +47,7 @@ namespace GTX.Controllers
             ViewBag.Title = "Inventory management";
             ViewBag.Stock = stock;
 
-            Model.Inventory.Vehicles = Model.Inventory.All;
+            //Model.Inventory.Vehicles = Model.Inventory.All;
             return View(Model);
         }
 
@@ -181,7 +181,7 @@ namespace GTX.Controllers
                 ViewBag.IsMajordome = Model.IsMajordome;
                 var vehicle = Model.Inventory.All?.FirstOrDefault(m => m.VIN == vin);
                 Model.CurrentVehicle.VehicleDetails = vehicle;
-                Model.CurrentVehicle.VehicleDataOneDetails = SetDecodedData(details);
+                Model.CurrentVehicle.VehicleDataOneDetails = Models.GTX.SetDecodedData(details);
                 var res = RenderViewToString(ControllerContext, "_DetailsDataOne", Model);
                 return res;
             }
