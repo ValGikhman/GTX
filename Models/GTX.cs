@@ -3,6 +3,7 @@ using Services;
 using System;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 
@@ -101,7 +102,7 @@ namespace GTX.Models
 
 		public DecodedData DataOne { get; set; }
 
-		public Services.EZ360 EZ360 { get; set; }
+		public EZ360.Vehicle EZ360 { get; set; }
 
 		public string TransmissionWord { get; set; }
 
@@ -149,6 +150,10 @@ namespace GTX.Models
 		public static Models.GTX[] ToGTX(GTXDTO[] source)
 		{
 			if (source == null)	return Array.Empty<Models.GTX>();
+			var options = new JsonSerializerOptions
+			{
+				PropertyNameCaseInsensitive = true
+			};
 
 			return source.Select(m => new Models.GTX
 				{
@@ -180,7 +185,7 @@ namespace GTX.Models
 					SetToUpload = m.SetToUpload,
 					Story = m.Story == null ? null : new Story { Id = m.Story.Id, HtmlContent = m.Story.HtmlContent, Title = m.Story.Title }, 
 					DataOne = m.DataOne == null ? null : SetDecodedData(m.DataOne.DataOneContent),
-					EZ360 = m.EZ360 == null ? null : new Services.EZ360 { Id = m.EZ360.Id, Ez360 = m.EZ360.EZ360 }
+					EZ360 = m.EZ360 == null ? null : JsonSerializer.Deserialize<EZ360.Vehicle>(m.EZ360.EZ360, options)
 			}).ToArray();
 		}
 

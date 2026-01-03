@@ -82,16 +82,6 @@ namespace GTX.Controllers
                 Model.IsMajordome = (bool)SessionData.IsMajordome;
                 ViewBag.IsMajordome = Model.IsMajordome;
 
-                if (Model.IsEZ360)
-                {
-                    if (SessionData == null || SessionData?.EZ360Inventory == null)
-                    {
-                        Model.EZ360Inventory = EZ360Service.GetInventoryDict(ez360ProjectId);
-                        SessionData.SetSession(Constants.SESSION_EZ360_INVENTORY, Model.EZ360Inventory);
-                    }
-                    Model.EZ360Inventory = SessionData.EZ360Inventory;
-                }
-
                 if (SessionData == null || SessionData?.Inventory == null)
                 {
                     Model.Inventory = SetModel(Model.Inventory);
@@ -118,11 +108,10 @@ namespace GTX.Controllers
                 }
 
                 Model.OpenHours = SessionData.OpenHours;
-                if (Model.Inventory == null)
+
+                ViewBag.Published = DateTime.Now;
+                if (Model.Inventory != null)
                 {
-                    ViewBag.Published = DateTime.Now;
-                }
-                else {
                     ViewBag.Published = Model.IsDevelopment ? Model.Inventory.Published : Model.Inventory.Published.AddHours(-5);
                 }
             }
@@ -179,20 +168,11 @@ namespace GTX.Controllers
 
         private Inventory SetModel(Inventory model) {
             if (SessionData?.Inventory == null) {
-                var emptyArray = Array.Empty<Models.GTX>();
-
-                // Decided to go by stock inventory
-/*                var result = Utility.XMLHelpers.XmlRepository.GetInventory();
-                model.Current = result.Vehicles;
-                model.Published = result.InventoryDate;*/
-
                 var dto = InventoryService.GetInventory();
                 var vehicles = Models.GTX.ToGTX(dto.vehicles);
                 model.Current = vehicles;
                 model.Published = dto.InventoryDate;
-
-                model.All = model.Current.Where(m => m.SetToUpload == "Y").OrderBy(m => m.Make).ThenBy(m => m.Model).ToArray();  
-                model.All = ApplyExtended(model.All);
+                model.All = ApplyExtended(vehicles);
 
                 model.Vehicles = model.All;
                 return model;
@@ -225,15 +205,6 @@ namespace GTX.Controllers
             }
         }
 
-
-        public Image[] GetImages(string stock) {
-            if (!Model.CurrentVehicle.DisplayEZ360Player && Model.IsEZ360) {
-                var currentVehicle = Model.EZ360Inventory[stock];
-                return currentVehicle.ThirdPartyPics.Select(m => new Image() { Id = Guid.Empty, Stock = currentVehicle.StockNo, DateCreated = DateTime.Now, Order = 0, Source = m }).ToArray();
-            }
-            return InventoryService.GetImages(stock);
-        }
-
         public static string SerializeModel(object model) {
             try {
                 if (model == null) {
@@ -255,11 +226,6 @@ namespace GTX.Controllers
 
         public Models.GTX[] ApplyExtended(Models.GTX[] vehicles) {
             foreach (var vehicle in vehicles) {
-                //vehicle.Story = InventoryService.GetStory(vehicle.Stock);
-                //vehicle.DataOne = GetDecodedData(vehicle.Stock);
-
-                vehicle.TransmissionWord = WordIt(vehicle.Transmission);
-
                 vehicle.Image = $"{imageFolder}no-image-{Version()}.jpg";
 
                 if (!Model.IsEZ360)
@@ -271,21 +237,19 @@ namespace GTX.Controllers
                     };
                 }
                 else {
-                    if (Model.EZ360Inventory != null && !string.IsNullOrEmpty(vehicle.Stock) && Model.EZ360Inventory.TryGetValue(vehicle.Stock, out var item))
-                    {
-                        var ez360 = item;
-                        var ezImages = PickPrimaryImages(ez360) ?? Array.Empty<Image>();
-                        var stockImages = InventoryService.GetImages(vehicle.Stock) ?? Array.Empty<Image>();
-                        vehicle.Images = ezImages.Concat(stockImages).ToArray();
+                    var ez360 = vehicle.EZ360;
+                    var ezImages = PickPrimaryImages(ez360) ?? Array.Empty<Image>();
+                    var stockImages = InventoryService.GetImages(vehicle.Stock) ?? Array.Empty<Image>();
+                    vehicle.Images = ezImages.Concat(stockImages).ToArray();
 
-                        var chosen = PickPrimaryImage(ez360, 200);
-                        if (!string.IsNullOrWhiteSpace(chosen))
-                        {
-                            vehicle.Image = chosen;
-                        }
+                    var chosen = PickPrimaryImage(ez360, 200);
+                    if (!string.IsNullOrWhiteSpace(chosen))
+                    {
+                        vehicle.Image = chosen;
                     }
                 }
             }
+
             return vehicles;
         }
 

@@ -26,7 +26,6 @@ namespace GTX.Controllers
             Model.Inventory.Title = "Found";
             ViewBag.Title = $"{Model.Inventory.Title.ToUpper()} {vehicles.Length} vehicle(s)";
             Log($"{Model.Inventory.Title} inventory");
-            model.EZ360Inventory = Model.EZ360Inventory;
 
             return View(model);
         }
@@ -89,14 +88,11 @@ namespace GTX.Controllers
 
             if (Model.IsEZ360)
             {
-                if (Model.EZ360Inventory != null && !string.IsNullOrEmpty(vehicle.Stock) && Model.EZ360Inventory.TryGetValue(vehicle.Stock, out var item))
+                Model.CurrentVehicle.DisplayEZ360Player = false;
+                var ez360 = vehicle.EZ360;
+                if (ez360 != null)
                 {
-                    Model.CurrentVehicle.DisplayEZ360Player = false;
-                    var ez360 = item;
-                    if (ez360 != null)
-                    {
-                        Model.CurrentVehicle.DisplayEZ360Player = (ez360.DetailPics.Length > 0 && ez360.IsPublishable);
-                    }
+                    Model.CurrentVehicle.DisplayEZ360Player = (ez360.DetailPics.Length > 0 && ez360.IsPublishable);
                 }
             }
             SessionData.CurrentVehicle = Model.CurrentVehicle;

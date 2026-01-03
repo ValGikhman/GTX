@@ -41,8 +41,6 @@ namespace GTX.Models {
 
         public Inventory Inventory { get; set; }
 
-        public Dictionary<string, EZ360.Vehicle> EZ360Inventory{ get; set; }
-
         public Employer[] Employers { get; set; }
 
         public Filters CurrentFilter { get; set; }

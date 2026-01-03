@@ -14,8 +14,6 @@ namespace GTX {
 
         Inventory Inventory { get; set; }
 
-        Dictionary<string, EZ360.Vehicle> EZ360Inventory { get; set; }
-
         Employer[] Employers { get; set; }
 
         Filters Filters { get; set; }
@@ -32,11 +30,11 @@ namespace GTX {
 
         #region Public Methods
 
-        T GetSession<T>(String key);
+        T GetSession<T>(string key);
 
-        T GetSession<T>(String key, T defaultValue);
+        T GetSession<T>(string key, T defaultValue);
 
-        void SetSession(String key, Object data);
+        void SetSession(string key, Object data);
 
         #endregion Public Methods
     }
