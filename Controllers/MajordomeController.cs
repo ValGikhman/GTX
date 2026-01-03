@@ -33,10 +33,6 @@ namespace GTX.Controllers
 
         public MajordomeController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service _ez360Service, ILogService logService)
             : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService) {
-            if (Model == null) {
-                Model = new BaseModel();
-                Model.Inventory = new Inventory();
-            }
         }
 
         [HttpGet]
@@ -47,7 +43,7 @@ namespace GTX.Controllers
             ViewBag.Title = "Inventory management";
             ViewBag.Stock = stock;
 
-            //Model.Inventory.Vehicles = Model.Inventory.All;
+            Model.Inventory.Vehicles = Model.Inventory.Current;
             return View(Model);
         }
 

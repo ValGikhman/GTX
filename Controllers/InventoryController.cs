@@ -65,6 +65,7 @@ namespace GTX.Controllers
 
                 return View("Index", Model);
             }
+
             Model.Inventory.Title = "Details";
 
             var vehicle = Model.Inventory.All?.FirstOrDefault(m => m.Stock == stock);
@@ -73,17 +74,20 @@ namespace GTX.Controllers
             }
 
             Model.CurrentVehicle.VehicleDetails = vehicle;
-            Model.CurrentVehicle.VehicleDetails.Story = InventoryService.GetStory(vehicle.Stock);
+            Model.CurrentVehicle.VehicleDetails.Story = vehicle.Story;
 
             // If there is no DataOne get it
             if (Model.IsDataOne)
             {
-                if (!InventoryService.AnyDataOneDetails(stock)) {
+                if (vehicle.DataOne == null)
+                {
                     var details = VinDecoderService.DecodeVin(vehicle.VIN, dataOneApiKey, dataOneSecretApiKey);
                     InventoryService.SaveDataOneDetails(stock, details);
+                    Model.CurrentVehicle.VehicleDataOneDetails = GetDecodedData(stock);
                 }
-
-                Model.CurrentVehicle.VehicleDataOneDetails = GetDecodedData(stock);
+                else {
+                    Model.CurrentVehicle.VehicleDataOneDetails = vehicle.DataOne;
+                }
             }
 
             if (Model.IsEZ360)
