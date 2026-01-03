@@ -84,6 +84,7 @@ namespace GTX.Controllers
 
                 if (SessionData == null || SessionData?.Inventory == null)
                 {
+                    // Getting Inventory
                     Model.Inventory = SetModel(Model.Inventory);
                     SessionData.SetSession(Constants.SESSION_INVENTORY, Model.Inventory);
                 }
@@ -110,7 +111,7 @@ namespace GTX.Controllers
                 Model.OpenHours = SessionData.OpenHours;
 
                 ViewBag.Published = DateTime.Now;
-                if (Model.Inventory != null)
+                if (Model.Inventory?.Published != null)
                 {
                     ViewBag.Published = Model.IsDevelopment ? Model.Inventory.Published : Model.Inventory.Published.AddHours(-5);
                 }
@@ -170,7 +171,6 @@ namespace GTX.Controllers
             if (SessionData?.Inventory == null) {
                 var dto = InventoryService.GetInventory();
                 var vehicles = Models.GTX.ToGTX(dto.vehicles);
-                model.Current = vehicles;
                 model.Published = dto.InventoryDate;
                 model.All = ApplyExtended(vehicles);
 

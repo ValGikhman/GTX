@@ -43,8 +43,7 @@ namespace Utility.XMLHelpers {
                     From = int.TryParse(x.Element("from")?.Value, out int fromVal) ? fromVal : 0,
                     To = int.TryParse(x.Element("to")?.Value, out int toVal) ? toVal : 0,
                     Description = x.Element("description").Value
-                })
-                .ToArray();
+                }).ToArray();
         }
 
         public static (GTX.Models.GTX[] Vehicles, DateTime InventoryDate) GetInventory() {
