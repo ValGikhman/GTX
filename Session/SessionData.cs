@@ -10,7 +10,6 @@ namespace GTX.Session {
         #region Private Fields
 
         private readonly Inventory _inventory = null;
-        private readonly Dictionary<string, EZ360.Vehicle> _ez360_inventory = null;
         private readonly Employer[] _employers = null;
         private readonly Filters _currentFilter = null;
         private readonly Models.Vehicle _currentVehicle = null;
@@ -61,13 +60,6 @@ namespace GTX.Session {
             get => GetSession(Constants.SESSION_INVENTORY, _inventory);
             set => SetSession(Constants.SESSION_INVENTORY, value);
         }
-
-        public Dictionary<string, EZ360.Vehicle> EZ360Inventory
-        {
-            get => GetSession(Constants.SESSION_EZ360_INVENTORY, _ez360_inventory);
-            set => SetSession(Constants.SESSION_EZ360_INVENTORY, value);
-        }
-
 
         public Filters CurrentFilter {
             get => GetSession(Constants.SESSION_CURRENT_FILTER, _currentFilter);

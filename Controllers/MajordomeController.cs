@@ -2,6 +2,7 @@
 using ImageMagick;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using QRCoder;
 using Services;
 using System;
 using System.Collections.Generic;
@@ -16,11 +17,11 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Xml.Linq;
-using QRCoder;
-using Utility.XMLHelpers;
 using System.Xml.Serialization;
+using Utility.XMLHelpers;
 
-namespace GTX.Controllers {
+namespace GTX.Controllers
+{
 
     public class MajordomeController : BaseController {
 
@@ -46,16 +47,7 @@ namespace GTX.Controllers {
             ViewBag.Title = "Inventory management";
             ViewBag.Stock = stock;
 
-            var vehicles = Model.Inventory.Vehicles ?? Array.Empty<Models.GTX>();
-/*
-            Parallel.ForEach(vehicles, vehicle =>
-            {
-                vehicle.Story = InventoryService.GetStory(vehicle.Stock);
-                vehicle.DataOne = GetDecodedData(vehicle.Stock);
-            });
-*/
-            Model.Inventory.Vehicles = vehicles.OrderBy(m => m.Make).ThenBy(m => m.Model).ToArray();
-
+            Model.Inventory.Vehicles = Model.Inventory.All;
             return View(Model);
         }
 
@@ -153,7 +145,6 @@ namespace GTX.Controllers {
                 Model.Inventory.Vehicles = Model.Inventory.All;
 
                 foreach (var vehicle in Model.Inventory.Vehicles) {
-                    //if (!InventoryService.AnyDataOneDetails(vehicle.Stock)) { }
                     var details = VinDecoderService.DecodeVin(vehicle.VIN, dataOneApiKey, dataOneSecretApiKey);
                     InventoryService.SaveDataOneDetails(vehicle.Stock, details);
 
@@ -170,8 +161,6 @@ namespace GTX.Controllers {
         public ActionResult DecodeDataOne(string vin) {
             try {
                 string stock = Model.Inventory.All.Where(m => m.VIN == vin).FirstOrDefault()?.Stock;
-
-                // if (!InventoryService.AnyDataOneDetails(stock)) { }
                 var details = VinDecoderService.DecodeVin(vin, dataOneApiKey, dataOneSecretApiKey);
                 InventoryService.SaveDataOneDetails(stock, details);
 
