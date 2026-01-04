@@ -291,22 +291,25 @@ namespace GTX.Controllers
 
 
         #region private methods
-        private static Filters BuildFilters(Inventory inv) {
-            var all = inv.All;
+        private static Filters BuildFilters(Inventory inventory)
+        {
+            var all = inventory.All;
 
-            return new Filters {
-                Makes = all.Select(x => x.Make).Distinct().OrderBy(x => x).ToArray(),
-                Models = all.Select(x => x.Model).Distinct().OrderBy(x => x).ToArray(),
-                Cylinders = all.Select(x => x.Cylinders.ToString()).Distinct().OrderBy(x => x).ToArray(),
-                Transmissions = all.Select(x => Models.GTX.WordIt(x.Transmission)).Distinct().OrderBy(x => x).ToArray(),
-                FuelTypes = all.Select(x => x.FuelType).Distinct().OrderBy(x => x).ToArray(),
-                DriveTrains = all.Select(x => x.DriveTrain).Distinct().OrderBy(x => x).ToArray(),
-                BodyTypes = all.Select(x => x.Body).Distinct().OrderBy(x => x).ToArray(),
-                VehicleTypes = all.Select(x => x.VehicleType).Distinct().OrderBy(x => x).ToArray(),
-                MaxPrice = all.Max(x => x.InternetPrice),
-                MinPrice = all.Min(x => x.InternetPrice)
+            return new Filters
+            {
+                Makes = BuildFilter(all, m => m.Make),
+                Models = BuildFilter(all, m => m.Model),
+                Cylinders = BuildFilter(all, m => m.Cylinders.ToString(), ignoreNullOrWhiteSpace: false),
+                Transmissions = BuildFilter(all, m => Models.GTX.WordIt(m.Transmission)),
+                FuelTypes = BuildFilter(all, m => m.FuelType),
+                DriveTrains = BuildFilter(all, m => m.DriveTrain),
+                BodyTypes = BuildFilter(all, m => m.Body),
+                VehicleTypes = BuildFilter(all, m => m.VehicleType),
+                MaxPrice = all.Max(m => m.InternetPrice),
+                MinPrice = all.Min(m => m.InternetPrice)
             };
         }
+
 
         // Helper (regular method, no expression-bodied, no 'out var')
         public static Models.GTX[] GetOrEmpty(Dictionary<string, Models.GTX[]> dict, string key, Models.GTX[] empty) {
@@ -366,6 +369,15 @@ namespace GTX.Controllers
 
             return null;
         }
+        private static string[] BuildFilter<T>(IEnumerable<T> source, Func<T, string> selector, bool ignoreNullOrWhiteSpace = true)
+        {
+            var query = source.Select(selector);
+
+            if (ignoreNullOrWhiteSpace) query = query.Where(s => !string.IsNullOrWhiteSpace(s));
+
+            return query.Distinct().OrderBy(s => s).ToArray();
+        }
+
         #endregion
     }
 }
