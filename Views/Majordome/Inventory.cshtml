@@ -62,6 +62,7 @@
             height: 160px;
             border-radius: .5rem;
         }
+
         #specials {
             margin-top: 0px;
         }
@@ -626,24 +627,22 @@
     const gridOptions = {
         rowData: @Html.Raw(JsonConvert.SerializeObject(Model.Inventory.Vehicles)),
         onGridReady: (params) => {
+            const $stock = "@ViewBag.Stock";
+
             gridApi = params.api; // ✅ store reference globally
             gridColumnApi = params.columnApi;
 
-            gridApi.forEachNode(function (node, index) {
-                if (index === 0) {
-                    node.setSelected(true);
-                    gridOptions.onRowClicked({ data: node.data, node: node });
-                }
-            });
+            const firstNode = gridApi.getDisplayedRowAtIndex(0);
+            if (firstNode) {
+                firstNode.setSelected(true);
+            }
 
-            const $stock = "@ViewBag.Stock";
             if ($stock !== null && $stock !== "") {
                 $("#filterTerm").val($stock);
                 applyFilterTerm($stock);
             }
 
             setTimeout(selectAndClickFirstDisplayedRow, 700);
-
             const count = gridApi.getDisplayedRowCount();
             $("#filterResults").html(`${count} record(s) found.`);
         },
