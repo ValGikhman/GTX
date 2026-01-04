@@ -394,6 +394,34 @@ async function deleteDataOne(stock) {
         }
     }
 }
+
+async function showEZ360(stock) {
+    const $overlay = $("#inventoryOverlay");
+    showSpinner($overlay);
+
+    try {
+        const res = await fetch(`${root}Majordome/GetEZ360Vehicle?stock=${encodeURIComponent(stock)}`);
+
+        if (!res.ok) {
+            throw new Error(`Server returned ${res.status}`);
+        }
+
+        const html = await res.text();
+
+        $("#tab-ez360").html(html);
+
+    }
+
+    catch (err) {
+        console.error("Show EZ360 vehicle details failed:", err);
+        alert("Failed to get details.");
+    }
+
+    finally {
+        hideSpinner($overlay);
+    }
+}
+
 function deleteImages(stock) {
     const $overlay = $("#inventoryOverlay");
     showSpinner($overlay);

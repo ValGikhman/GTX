@@ -202,7 +202,7 @@ namespace GTX.Controllers
 
         [HttpGet]
         public JsonResult GetUpdatedItems() {
-            Model.Inventory.Vehicles = ApplyExtended(Model.Inventory.Vehicles);
+            Model.Inventory.Vehicles = DecideImages(Model.Inventory.Vehicles);
 
             return new JsonResult
             {
@@ -210,6 +210,21 @@ namespace GTX.Controllers
                 JsonRequestBehavior = JsonRequestBehavior.AllowGet,
                 MaxJsonLength = int.MaxValue   // or a big number you’re comfortable with
             };
+        }
+
+        [HttpGet]
+        public string GetEZ360Vehicle(string stock)
+        {
+            try
+            {
+                var details = EZ360Service.GetVehicle(ez360ProjectId, stock);
+                var res = RenderViewToString(ControllerContext, "_EZ360VehiclePartials", details);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                return "Error: " + ex.Message;
+            }
         }
 
         [HttpPost]
@@ -411,7 +426,7 @@ namespace GTX.Controllers
                 }
 
                 InventoryService.DeleteImages(stock);
-                Model.Inventory.Vehicles = ApplyExtended (Model.Inventory.Vehicles);
+                Model.Inventory.Vehicles = DecideImages(Model.Inventory.Vehicles);
                 return Json(new { success = true, message = "All files deleted successfully." });
             }
 

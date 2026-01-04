@@ -7,8 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Web.Mvc;
-using System.Xml.Linq;
-using System.Xml.Serialization;
 
 namespace GTX.Controllers
 {
@@ -172,7 +170,7 @@ namespace GTX.Controllers
                 var dto = InventoryService.GetInventory();
                 var vehicles = Models.GTX.ToGTX(dto.vehicles);
                 model.Published = dto.InventoryDate;
-                model.All = ApplyExtended(vehicles);
+                model.All = DecideImages(vehicles);
 
                 model.Vehicles = model.All;
                 return model;
@@ -224,23 +222,61 @@ namespace GTX.Controllers
             }
         }
 
-        public Models.GTX[] ApplyExtended(Models.GTX[] vehicles) {
-            foreach (var vehicle in vehicles) {
-                vehicle.Image = $"{imageFolder}no-image-{Version()}.jpg";
+        public Models.GTX[] DecideImages(Models.GTX[] vehicles)
+        {
+            if (vehicles == null || vehicles.Length == 0)
+                return vehicles ?? Array.Empty<Models.GTX>();
 
-                if (!Model.IsEZ360)
+            // Compute once instead of per vehicle
+            var defaultImage = $"{imageFolder}no-image-{Version()}.jpg";
+            var isEz360 = Model.IsEZ360;
+
+            foreach (var vehicle in vehicles)
+            {
+                vehicle.Image = defaultImage;
+                var stockImages = InventoryService.GetImages(vehicle.Stock);
+
+                if (!isEz360)
                 {
-                    vehicle.Images = InventoryService.GetImages(vehicle.Stock);
-                    if (vehicle.Images != null && vehicle.Images.Length > 0)
+                    if (stockImages != null && stockImages.Length > 0)
                     {
-                        vehicle.Image = $"{imageFolder}{vehicle.Images[0].Source}";
-                    };
+                        vehicle.Images = stockImages;
+                        vehicle.Image = $"{imageFolder}{stockImages[0].Source}";
+                    }
+                    else
+                    {
+                        vehicle.Images = Array.Empty<Image>();
+                    }
                 }
-                else {
+                else
+                {
                     var ez360 = vehicle.EZ360;
-                    var ezImages = PickPrimaryImages(ez360) ?? Array.Empty<Image>();
-                    var stockImages = InventoryService.GetImages(vehicle.Stock) ?? Array.Empty<Image>();
-                    vehicle.Images = ezImages.Concat(stockImages).ToArray();
+                    var ezImages = PickPrimaryImages(ez360);
+
+                    // Normalize to avoid repeated null checks
+                    var hasEz = ezImages is { Length: > 0 };
+                    var hasStock = stockImages is { Length: > 0 };
+
+                    if (!hasEz && !hasStock)
+                    {
+                        vehicle.Images = Array.Empty<Image>();
+                    }
+                    else if (hasEz && !hasStock)
+                    {
+                        vehicle.Images = ezImages;
+                    }
+                    else if (!hasEz && hasStock)
+                    {
+                        vehicle.Images = stockImages;
+                    }
+                    else
+                    {
+                        // both have values: ez + stock
+                        var merged = new Image[ezImages.Length + stockImages.Length];
+                        Array.Copy(ezImages, 0, merged, 0, ezImages.Length);
+                        Array.Copy(stockImages, 0, merged, ezImages.Length, stockImages.Length);
+                        vehicle.Images = merged;
+                    }
 
                     var chosen = PickPrimaryImage(ez360, 200);
                     if (!string.IsNullOrWhiteSpace(chosen))
@@ -259,21 +295,42 @@ namespace GTX.Controllers
             return Json(new { redirectUrl = Url.Action("All") });
         }
 
-        public Models.GTX[] ApplyTerms(string term) {
-            Models.GTX[] query = Model.Inventory.All;
+        public Models.GTX[] ApplyTerms(string term)
+        {
+            var all = Model.Inventory.All ?? Array.Empty<Models.GTX>();
 
-            if (query.Any() && term != null) {
-                query = query.Where(m => m.Stock.ToUpper().Contains(term)
-                    || m.VIN.ToUpper().Contains(term)
-                    || m.Year.ToString() == term
-                    || m.Make.ToUpper().Contains(term)
-                    || m.TransmissionWord.ToUpper().Contains(term)
-                    || m.Model.ToUpper().Contains(term)
-                    || m.VehicleStyle.ToUpper().Contains(term))
-                .Distinct().ToArray();
-            }
+            // If no term, just return everything ordered
+            if (string.IsNullOrWhiteSpace(term) || all.Length == 0)
+                return all.OrderBy(m => m.Make).ToArray();
 
-            return query.OrderBy(m => m.Make).ToArray();
+            term = term.Trim();
+            var isYear = int.TryParse(term, out var year);
+
+            var termUpper = term.ToUpperInvariant();
+
+            var filtered = all.Where(m =>
+                (!string.IsNullOrEmpty(m.Stock) &&
+                    m.Stock.ToUpperInvariant().Contains(termUpper)) ||
+
+                (!string.IsNullOrEmpty(m.VIN) &&
+                    m.VIN.ToUpperInvariant().Contains(termUpper)) ||
+
+                (isYear && m.Year == year) ||
+
+                (!string.IsNullOrEmpty(m.Make) &&
+                    m.Make.ToUpperInvariant().Contains(termUpper)) ||
+
+                (!string.IsNullOrEmpty(m.TransmissionWord) &&
+                    m.TransmissionWord.ToUpperInvariant().Contains(termUpper)) ||
+
+                (!string.IsNullOrEmpty(m.Model) &&
+                    m.Model.ToUpperInvariant().Contains(termUpper)) ||
+
+                (!string.IsNullOrEmpty(m.VehicleStyle) &&
+                    m.VehicleStyle.ToUpperInvariant().Contains(termUpper))
+            );
+
+            return filtered.OrderBy(m => m.Make).ToArray();
         }
 
         public void TerminateSession() {
@@ -288,7 +345,6 @@ namespace GTX.Controllers
             return Models.GTX.SetDecodedData(dataOne);
         }
         #endregion Public Methods
-
 
         #region private methods
         private static Filters BuildFilters(Inventory inventory)
@@ -310,31 +366,10 @@ namespace GTX.Controllers
             };
         }
 
-
-        // Helper (regular method, no expression-bodied, no 'out var')
         public static Models.GTX[] GetOrEmpty(Dictionary<string, Models.GTX[]> dict, string key, Models.GTX[] empty) {
             Models.GTX[] arr;
             if (dict.TryGetValue(key, out arr)) return arr;
             return empty;
-        }
-
-        private static (string? code, string? message) ParseDecoderError(string xml) {
-            try {
-                var doc = System.Xml.Linq.XDocument.Parse(xml);
-                var err = doc.Descendants("decoder_errors").Descendants("error").FirstOrDefault();
-                if (err == null) return (null, null);
-
-                var code = (string?)err.Element("code");
-                var msg = (string?)err.Element("message");
-
-                if (code == "RI") return (null, null);
-
-                return (code, msg);
-            }
-            catch {
-                // If it isn't valid XML, treat as a body/format error
-                return ("PARSE", "Invalid XML from decoder");
-            }
         }
 
         private static string? PickPrimaryImage(EZ360.Vehicle? ez, int height = 200)
@@ -354,6 +389,7 @@ namespace GTX.Controllers
 
             return null;
         }
+
         private Image[] PickPrimaryImages(EZ360.Vehicle? ez)
         {
             if (ez == null) return null;
@@ -369,6 +405,7 @@ namespace GTX.Controllers
 
             return null;
         }
+
         private static string[] BuildFilter<T>(IEnumerable<T> source, Func<T, string> selector, bool ignoreNullOrWhiteSpace = true)
         {
             var query = source.Select(selector);

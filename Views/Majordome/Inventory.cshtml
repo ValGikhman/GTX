@@ -125,6 +125,9 @@
         <button class="nav-item btn btn-gradient-grey text-shadow-small d-none" id="QR-code-tab" data-bs-toggle="tab" data-bs-target="#tab-qr-code" type="button" role="tab">
             QR Code
         </button>
+        <button class="nav-item btn btn-gradient-grey text-shadow-small" id="EZ360-tab" data-bs-toggle="tab" data-bs-target="#tab-ez360" type="button" role="tab">
+            EZ360 Vehicle info
+        </button>
         <div id="specials" class="d-none d-lg-block d-flex ms-auto">
         </div>
     </nav>
@@ -172,9 +175,9 @@
             </div>
         </div>
 
+        <!-- Gallery Tab -->
         @if (!@Model.IsEZ360)
         {
-            <!-- Gallery Tab -->
             <div class="tab-pane fade d-flex flex-column align-items-center" id="tab-gallery" role="tabpanel">
                 <div class="d-flex justify-content-center w-100 p-3">
                     <button id="upload" class="btn btn-light shadow mx-2 bi bi-upload">&nbsp;Upload stock images</button>
@@ -189,9 +192,10 @@
                 </div>
             </div>
         }
+
+        <!-- Vin decoder Tab -->
         @if (@Model.IsDataOne)
         {
-            <!-- Vin decoder Tab -->
             <div class="tab-pane fade" id="tab-vin-decoder" role="tabpanel">
                 <div class="row">
                     <!-- Left Column: Form -->
@@ -212,7 +216,7 @@
         <div class="tab-pane fade" id="tab-qr-code" role="tabpanel">
             <div class="row">
                 <div class="col-3 d-flex flex-column align-items-center text-center">
-                    <div id="qrPrintArea" class="m-3"  style="width:400px;">
+                    <div id="qrPrintArea" class="m-3" style="width:400px;">
                         <h3>ATTENTION</h3>
                         <h3>Car shoppers!</h3>
                         <div>Scan the code  with your mobile phone's camera app for more information about this vehicle</div>
@@ -224,6 +228,10 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- EZ360 info -->
+        <div class="tab-pane fade" id="tab-ez360" role="tabpanel">
         </div>
     </div>
 </div>
@@ -426,6 +434,13 @@
             const vin = $("#vin").val();
             if (vin.length > 0) {
                 decodeDataOneByAnyVin(vin);
+            }
+        })
+
+        $("#EZ360-tab").on("click", function () {
+            const stock = selectedVehicle.Stock;
+            if (stock.length > 0) {
+                showEZ360(stock);
             }
         })
 
