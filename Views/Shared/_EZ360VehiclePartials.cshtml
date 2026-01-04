@@ -1,0 +1,192 @@
+﻿@model dynamic
+@using System.Linq
+@* Adjust model name/namespace to your project *@
+
+@{
+    var stockNo = Model.StockNo ?? Model.stock_no ?? "item";
+
+    Func<string, string> collapseId = name => $"{name}_{stockNo}";
+
+    var mainPhoto = (Model.DisplayPics != null && Model.DisplayPics.Length > 0) ? Model.DisplayPics[0] : (Model.ThirdPartyPics != null && Model.ThirdPartyPics.Length > 0) ? Model.ThirdPartyPics[0] : "/images/placeholder-car.jpg";
+
+    var price = (Model.PriceWeb > 0) ? Model.PriceWeb.ToString("C0") : "Call for Price";
+
+    var title = $"{Model.Year} {Model.Make} {Model.Model} {Model.Trim}";
+}
+
+@helper ImageGallerySection(string title, IEnumerable<string> urls, string collapseId)
+{
+    var size = "&h=100";
+
+    if (title == "Detail Photos") {
+        size = "?h=100";
+    }
+
+    if (urls == null || !urls.Any())
+    {
+        return;
+    }
+
+    <div class="image-section mb-2">
+        <button class="btn btn-light btn-sm d-flex justify-content-between align-items-center w-100 image-toggle collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#@collapseId"
+                aria-expanded="false"
+                aria-controls="@collapseId">
+            <span>@title (@urls.Count())</span>
+            <span class="toggle-icon">+</span>
+        </button>
+
+        <div class="collapse mt-2" id="@collapseId">
+            <div class="d-flex flex-wrap gap-2">
+                @foreach (var url in urls)
+                {
+                    if (string.IsNullOrWhiteSpace(url)) { continue; }
+
+                    <a href="@url" target="_blank" class="image-thumb-link">
+                        <img src="@url@size" loading="lazy" class="img-thumbnail image-thumb" alt="@title image" />
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+<div class="vehicle-card shadow-sm rounded-3 overflow-hidden mb-4 w-50">
+    <div class="vehicle-card-image position-relative">
+        <img src="@mainPhoto" alt="@title" />
+
+        @if (Model.Active)
+        {
+            <span class="badge bg-success position-absolute top-0 start-0 m-2 px-3 py-2">
+                Available
+            </span>
+        }
+        else
+        {
+            <span class="badge bg-secondary position-absolute top-0 start-0 m-2 px-3 py-2">
+                Sold
+            </span>
+        }
+    </div>
+
+    <div class="p-3 p-md-4">
+        <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
+            <div>
+                <h5 class="fw-bold mb-1">@title</h5>
+
+                <div class="text-muted small">
+                    Stock: <strong>@(Model.StockNo ?? Model.StockNo)</strong>
+                    &middot;
+                    VIN: <strong>@Model.Vin</strong>
+                </div>
+            </div>
+
+            <div class="text-end">
+                <div class="h4 text-primary mb-0">@price</div>
+                <a href="/Inventory/Details?stock=@Model.StockNo" class="text-muted small" target="_blank">View details</a>
+            </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-3 small mb-3">
+            <div><i class="bi bi-speedometer2 me-1"></i>@Model.Miles miles</div>
+            <div><i class="bi bi-car-front me-1"></i>@Model.Body</div>
+            <div><i class="bi bi-gear me-1"></i>@Model.Transmission</div>
+            <div><i class="bi bi-diagram-3 me-1"></i>@Model.Drivetrain</div>
+            <div><i class="bi bi-droplet-half me-1"></i>@Model.Engine</div>
+            @if (!string.IsNullOrWhiteSpace(Model.ExtColor))
+            {
+                <div><i class="bi bi-palette me-1"></i>@Model.ExtColor exterior</div>
+            }
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 small mb-3">
+            <span class="badge bg-light text-dark border shadow">
+                @(Model.IsPublishable ? "🔵Publishable" : "🔴 Not publishable")
+            </span>
+            <span class="badge bg-light text-dark border shadow">
+                <i class="bi bi-fuel-pump me-1"></i>Fuel: @(string.IsNullOrWhiteSpace(Model.FuelType) ? "Not provided" : Model.FuelType)
+            </span>
+
+            <span class="badge bg-light text-dark border shadow">
+                <i class="bi bi-calendar3 me-1"></i>Expires: @Model.ExpireOn.ToString("yyyy-MM-dd")
+            </span>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="text-muted small">
+                Created: @Model.CreatedOn.ToString("yyyy-MM-dd HH:mm")
+            </div>
+        </div>
+
+        <div class="media mt-3 border-top pt-3">
+            <h6 class="mb-2 text-muted">Media</h6>
+
+            @ImageGallerySection("Third-Party Photos", Model.ThirdPartyPics, collapseId("thirdParty"))
+            @ImageGallerySection("Detail Photos", Model.DetailPics, collapseId("detail"))
+            @ImageGallerySection("Display Photos", Model.DisplayPics, collapseId("display"))
+            @ImageGallerySection("Stock Photos", Model.StockPics, collapseId("stock"))
+        </div>
+    </div>
+</div>
+
+<style>
+    .media {
+        max-height: 250px; /* choose height you like */
+        overflow-y: auto; /* enables vertical scroll */
+    }
+
+    .vehicle-card {
+        background: linear-gradient(135deg, #f8f9fb, #ffffff);
+        border: 1px solid #e1e5ee;
+    }
+
+    .vehicle-card-image {
+        background: #111;
+    }
+
+        .vehicle-card-image img {
+            height: 240px;
+            width: 100%;
+            object-fit: cover;
+            transition: transform .25s ease, filter .25s ease;
+            display: block;
+        }
+
+    .vehicle-card:hover .vehicle-card-image img {
+        transform: scale(1.03);
+        filter: brightness(1.05);
+    }
+
+    .vehicle-description {
+        max-height: 150px;
+        overflow: auto;
+    }
+
+    .image-section .image-thumb {
+        width: 90px;
+        height: 70px;
+        object-fit: cover;
+    }
+
+    .image-thumb-link {
+        display: inline-block;
+    }
+
+    .image-toggle {
+        border-radius: 0.5rem;
+        font-weight: 500;
+        border: 1px solid #dee2e6;
+        box-shadow: none;
+    }
+
+        .image-toggle .toggle-icon {
+            transition: transform .2s ease;
+            font-weight: 700;
+        }
+
+        .image-toggle[aria-expanded="true"] .toggle-icon {
+            transform: rotate(45deg); /* + becomes x-ish */
+        }
+</style>
