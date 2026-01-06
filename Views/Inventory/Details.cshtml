@@ -97,7 +97,7 @@
     <meta name="description"
           content="@Model.CurrentVehicle.VehicleDetails.Year  @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model @Model.CurrentVehicle.VehicleDetails.VehicleStyle @Model.CurrentVehicle.VehicleDetails.Mileage miles @Model.CurrentVehicle.VehicleDetails.Features. Clean, inspected, and ready to drive. Schedule a test drive today!" />
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://usedcarscincinnati.com/Inventory/Details?stock=@Model.CurrentVehicle.VehicleDetails.Stock" />
+    <link rel="canonical" href="https://usedcarscincinnati.com/Inventory/@Model.CurrentVehicle.VehicleDetails.Year-@Model.CurrentVehicle.VehicleDetails.Make-@Model.CurrentVehicle.VehicleDetails.VehicleStyle-@Model.CurrentVehicle.VehicleDetails.Stock" />
 
     <!-- OpenGraph (Facebook, Messenger, etc.) -->
     <meta property="og:title" content="@Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model @Model.CurrentVehicle.VehicleDetails.VehicleStyle" />
@@ -127,6 +127,33 @@
     }
     <script id="cfx-script" src="https://ratings.carfax.com/top-rated/v1/js/cfx-loader.js" type="module"></script>
 
+    <script type="application/ld+json">
+    {
+      "@@context": "https://schema.org",
+      "@@type": "Vehicle",
+      "name": "@Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model @Model.CurrentVehicle.VehicleDetails.VehicleStyle",
+      "brand": "@Model.CurrentVehicle.VehicleDetails.Make",
+      "model": "@Model.CurrentVehicle.VehicleDetails.Model",
+      "vehicleModelDate": "@Model.CurrentVehicle.VehicleDetails.Year",
+      "vehicleIdentificationNumber": "@Model.CurrentVehicle.VehicleDetails.VIN",
+      "bodyType": "@Model.CurrentVehicle.VehicleDetails.Body",
+      "vehicleTransmission": "@Model.CurrentVehicle.VehicleDetails.TransmissionWord @Model.CurrentVehicle.VehicleDetails.TransmissionSpeed",
+      "driveWheelConfiguration": "@Model.CurrentVehicle.VehicleDetails.DriveTrain",
+      "fuelType": "@Model.CurrentVehicle.VehicleDetails.FuelType",
+      "mileageFromOdometer": {
+        "@@type": "QuantitativeValue",
+        "value": @Model.CurrentVehicle.VehicleDetails.Mileage,
+        "unitCode": "SMI"
+      },
+      "offers": {
+        "@@type": "Offer",
+        "priceCurrency": "USD",
+        "price": @Model.CurrentVehicle.VehicleDetails.InternetPrice,
+        "availability": "https://schema.org/InStock",
+        "url": "https://usedcarscincinnati.com/inventory/@Model.CurrentVehicle.VehicleDetails.Year-@Model.CurrentVehicle.VehicleDetails.Make-@Model.CurrentVehicle.VehicleDetails.VehicleStyle-@Model.CurrentVehicle.VehicleDetails.Stock"
+      }
+    }
+    </script>
 </head>
 <!-- Modal -->
 <div id="dynamicModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
