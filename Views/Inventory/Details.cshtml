@@ -104,8 +104,9 @@
     <meta property="og:description" content="@Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model @Model.CurrentVehicle.VehicleDetails.VehicleStyle inspected and ready. Financing available — view photos & details." />
     <meta property="og:image" content="@Model.CurrentVehicle.VehicleDetails.Image" />
     <meta property="og:url" content="https://usedcarscincinnati.com/inventory/Details?stock=@Model.CurrentVehicle.VehicleDetails.Stock">
-    <meta property="og:type" content="article" />
-    <meta property="og:site_name" content="usedcarscincinnati.com" />
+    <meta property="og:type" content="product" />
+    <meta property="product:price:amount" content="@Model.CurrentVehicle.VehicleDetails.InternetPrice" />
+    <meta property="product:price:currency" content="USD" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="@Model.CurrentVehicle.VehicleDetails.Image" />
