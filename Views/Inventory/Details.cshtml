@@ -90,12 +90,28 @@
 </style>
 
 <head>
+    <meta charset="utf-8" />
+
+    <!-- Title (unique + keywords) -->
+    <title>@Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model @Model.CurrentVehicle.VehicleDetails.VehicleStyle for Sale in Cincinnati | Used Cars Cincinnati | GTX Auto group</title>
+    <meta name="description"
+          content="@Model.CurrentVehicle.VehicleDetails.Year  @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model @Model.CurrentVehicle.VehicleDetails.VehicleStyle @Model.CurrentVehicle.VehicleDetails.Mileage miles @Model.CurrentVehicle.VehicleDetails.Features. Clean, inspected, and ready to drive. Schedule a test drive today!" />
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://usedcarscincinnati.com/Inventory/Details?stock=@Model.CurrentVehicle.VehicleDetails.Stock" />
+
+    <!-- OpenGraph (Facebook, Messenger, etc.) -->
     <meta property="og:title" content="@Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model @Model.CurrentVehicle.VehicleDetails.VehicleStyle" />
-    <meta property="og:description" content="GTX Autogroup @Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model @Model.CurrentVehicle.VehicleDetails.VehicleStyle" />
-    <meta property="og:image" content="https://usedcarscincinnati.com/@Model.CurrentVehicle.VehicleDetails.Image" />
-    <meta property="og:url" content="https://usedcarscincinnati.com/inventory/DetailsCard?stock=@Model.CurrentVehicle.VehicleDetails.Stock">
+    <meta property="og:description" content="@Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model @Model.CurrentVehicle.VehicleDetails.VehicleStyle inspected and ready. Financing available — view photos & details." />
+    <meta property="og:image" content="@Model.CurrentVehicle.VehicleDetails.Image" />
+    <meta property="og:url" content="https://usedcarscincinnati.com/inventory/Details?stock=@Model.CurrentVehicle.VehicleDetails.Stock">
     <meta property="og:type" content="article" />
-    <meta property="og:site_name" content="GTX Auto Group" />
+    <meta property="og:site_name" content="usedcarscincinnati.com" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="@Model.CurrentVehicle.VehicleDetails.Image" />
+    <meta name="twitter:title" content=">@Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model @Model.CurrentVehicle.VehicleDetails.VehicleStyle for Sale in Cincinnati | Used Cars Cincinnati | GTX Auto group" />
+    <meta name="twitter:description" content="Low-priced @Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model @Model.CurrentVehicle.VehicleDetails.VehicleStyle clean, inspected and ready. Financing available — view photos & details. Check it out!" />
+    <meta name="twitter:image" content="@Model.CurrentVehicle.VehicleDetails.Image" />
 
     <script src="~/Scripts/Lightbox/lc_lightbox.lite.min.js" type="text/javascript"></script>
     <link href="~/Content/Lightbox/lc_lightbox.min.css" rel="stylesheet" />
@@ -137,6 +153,7 @@
 </div>
 <div class="details-container d-flex flex-column flex-lg-row justify-content-center gap-5">
     <div class="col-lg-7 col-md-12 col-sm-12 ">
+        <h1 class="d-sm-none">@Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model @Model.CurrentVehicle.VehicleDetails.VehicleStyle</h1>
         <!-- Buttons -->
         <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
@@ -483,6 +500,7 @@
 </div>
 
 <script type="text/javascript">
+    $("h1").hide();
     $("#shorts").removeClass("d-xl-flex d-md-flex d-sm-flex"); // removing it hides the shortcuts
     $("#btnPrev, #btnNext, #btnUp").removeClass("d-none");
 
