@@ -44,13 +44,16 @@ public static class SitemapWriter
 
         foreach (var v in vehicles)
         {
-            var stock = ((string)v.Element("Stock"))?.Trim();
+            var stock = (string)v.Element("Stock") ?? string.Empty;
+            var year = (string)v.Element("Year") ?? string.Empty;
+            var make = (string)v.Element("Make") ?? string.Empty;
+            var model = (string)v.Element("Model") ?? string.Empty;
+            var vehicleStyle = (string)v.Element("VehicleStyle") ?? string.Empty;
+
             if (string.IsNullOrWhiteSpace(stock)) continue;
 
-            // optional: skip weird stocks that might produce odd URLs
-            // if (!System.Text.RegularExpressions.Regex.IsMatch(stock, @"^[A-Za-z0-9]+$")) continue;
-
-            var loc = $"{BaseUrl}/Inventory/Details?stock={Uri.EscapeDataString(stock)}";
+            //var loc = $"{BaseUrl}/Inventory/Details?stock={Uri.EscapeDataString(stock)}";
+            var loc = $"{BaseUrl}/Inventory/{string.Join("-", new[] { year, make, model, vehicleStyle, stock }.Where(s => !string.IsNullOrWhiteSpace(s)))}";
             urlset.Add(Url(ns, loc, lastmod, "daily", "0.9"));
         }
 
