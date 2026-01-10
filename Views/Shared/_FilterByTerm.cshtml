@@ -5,13 +5,18 @@
             <!-- Search box -->
             <input type="search" id="filterTerm" class="form-control rounded-start-4 rounded-end-4" placeholder="Search within results..." aria-label="Search inventory">
 
+            <!-- Help -->
+            <button class="filterHelp input-group-text btn btn-gradient-grey border-start-0 rounded-0 border-dark-subtle" data-bs-toggle="modal" data-bs-target="#searchHelpModal">
+                <i id="filterHelp" class="bi-question-circle" title="Help" style="cursor:pointer;"></i>
+            </button>
+
             <!-- Like -->
-            <button class="filterLiked input-group-text btn btn-gradient-grey border-start-1 rounded-0 border-dark-subtle">
+            <button class="filterLiked input-group-text btn btn-gradient-grey border-start-0 rounded-0 border-dark-subtle" style="margin-left:-3px;">
                 <i id="filterLiked" class="bi bi-heart text-danger" title="Show liked" style="cursor:pointer;"></i>
             </button>
 
             <!-- Last Seen -->
-            <button class="filterLast input-group-text btn btn-gradient-grey border-start-0 rounded-end-4 border-dark-subtle" style="margin-left:-5px;">
+            <button class="filterLast input-group-text btn btn-gradient-grey border-start-0 rounded-end-4 border-dark-subtle" style="margin-left:-4px;">
                 <i id="filterLast" class="bi bi-journal text-primary" title="10 last seen cars" style="cursor:pointer;"></i>
             </button>
         </div>
@@ -38,3 +43,27 @@
         </span>
     </div>
 </div>
+<div class="modal fade" id="searchHelpModal" tabindex="-1" aria-labelledby="searchHelpModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header">
+                <h5>
+                    <span class="bg-light d-flex align-items-center gap-2">
+                        <i class="bi bi-question-circle-fill text-primary fs-5 text-white"></i>
+                        <span class="text-white">Available search tokens</span>
+                    </span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                @Html.Partial("_SearchHelp")
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+

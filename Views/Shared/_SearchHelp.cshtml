@@ -1,0 +1,61 @@
+﻿<div class="border-0 shadow-sm rounded-3 w-100">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Token</th>
+                        <th>Description</th>
+                        <th>Sample Usage</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>@@@@YR</code></td>
+                        <td>Vehicle year</td>
+                        <td><code>@@@@YR 2020</code></td>
+                        <td class="text-muted">All cars made in 2021</td>
+                    </tr>
+                    <tr>
+                        <td><code>@@@@MK</code></td>
+                        <td>Vehicle make</td>
+                        <td><code>@@@@MK honda</code></td>
+                        <td class="text-muted">All cars built by Honda</td>
+                    </tr>
+                    <tr>
+                        <td><code>@@@@MD</code></td>
+                        <td>Vehicle model</td>
+                        <td><code>@@@@MD civ(ic)</code></td>
+                        <td class="text-muted">All Civic models</td>
+                    </tr>
+                    <tr>
+                        <td><code>@@@@TR</code></td>
+                        <td>Transmission type</td>
+                        <td><code>@@@@TR man(ual)/aut(omatic)/con(tinuous)</code></td>
+                        <td class="text-muted">All cars with man(ual)/aut(omatic)/con(tinuous) transmission</td>
+                    </tr>
+                    <tr>
+                        <td><code>@@@@CY</code></td>
+                        <td>Number of cylinders</td>
+                        <td><code>@@@@CY 4, 5,6,8...</code></td>
+                        <td class="text-muted">All cars with 4, 5, 6, 8... cyl engine</td>
+                    </tr>
+                    @if (Model.IsMajordome)
+                    {
+                        <tr>
+                            <td><code>@@@@OW</code></td>
+                            <td>Ownership</td>
+                            <td><code>@@@@OW G, T, X</code></td>
+                            <td class="text-muted">All cars with location code G, T, X</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="alert alert-info mt-3 mb-0 small">
+            <div><i class="bi bi-lightbulb-fill me-1"></i>All makes, model and transmission can be shorten to 3-4 characters</div>
+            <div><i class="bi bi-lightbulb-fill me-1"></i>All words are case insensitive'</div>
+        </div>
+    </div>
+</div>
