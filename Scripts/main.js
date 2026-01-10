@@ -92,8 +92,8 @@
         applyFilterLast();
     });
 
-    const filterResuls = ['🚗 Search within results... ', '⛽ Then type year, make or model', '🚛 @@CY 4/6/8 to filter by # of cilynders', '🚘 @@TR Manual/Auto/Cont for transmission type'];
-    const placeholders = ['🔍 Click here to search inventory... '];
+    const filterResuls = ['🚗 Search within results...'];
+    const placeholders = ['🔍 Click here to search inventory...'];
     let currentText = "";
     let currentFilterText = "";
     let currentIndex = 0;
