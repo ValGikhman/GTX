@@ -515,11 +515,9 @@ function createStory(stock) {
     $.post(`${root}Majordome/CreateStory`, { stock })
         .done(function (response) {
             if (response && response.success) {
-                const editor = tinymce.get("story");
 
-                if (editor) {
-                    editor.setContent(response.Story || "");
-                }
+                quill.setContents([]);
+                quill.clipboard.dangerouslyPasteHTML(0, response?.Story || "", 'api');
 
                 $("#title").val(response.Title || "");
 
@@ -555,12 +553,7 @@ function deleteStory(stock) {
     $.post(`${root}Majordome/DeleteStory`, { stock })
         .done(function (response) {
             if (response && response.success) {
-                const editor = tinymce.get("story");
-
-                if (editor) {
-                    editor.setContent("");
-                }
-
+                quill.clipboard.dangerouslyPasteHTML(0, "");
                 $("#title").val("");
 
                 getUpdatedItems()
