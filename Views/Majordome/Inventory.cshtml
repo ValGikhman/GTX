@@ -73,6 +73,43 @@
             padding: unset;
             box-shadow: none
         }
+
+        #story .ql-editor {
+            min-height: 480px;
+            max-height: 480px;
+            overflow-y: auto;
+        }
+
+
+        #story .ql-editor p {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            padding: 0;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            text-align: justify;
+        }
+
+        /*So I need to override them for Quill*/
+        #story .ql-editor strong {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            padding: 0;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            text-align: justify;
+        }
+
+        /*Quill strips away p-story and strong-story classes*/
+        .p-story {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            padding: 0;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            text-align: justify;
+        }
+
+        .strong-story {
+            color: black;
+        }
     </style>
 
     <!-- Includes all JS & CSS for the JavaScript Data Grid -->
@@ -82,10 +119,12 @@
     <link href="https://cdn.jsdelivr.net/npm/lightbox2@2/dist/css/lightbox.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/lightbox2@2/dist/js/lightbox.min.js"></script>
 
-    <script src="~/Scripts/tinymce/tinymce.min.js"></script>
-    <script src="~/Scripts/tinymce-jquery/dist/tinymce-jquery.min.js"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+    <!-- Include stylesheet -->
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+    <!-- Include the Quill library -->
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 </head>
 
 <div id="inventoryOverlay" class="spinner-overlay spinner-hidden">
@@ -169,8 +208,7 @@
                     </div>
                     <div class="row mt-2">
                         @Html.Label("Story", new { @class = "text-shadow" })
-                        <textarea id="story" class="form-control shadow">
-                        </textarea>
+                        <div id="story" class="form-control shadow"></div>
                     </div>
                 </div>
             </div>
@@ -249,6 +287,34 @@
 <script type="text/javascript">
     const $dropzone = $("#dropzone");
     let gridApi, gridColumnApi = null;
+
+    const toolbarOptions = [
+        ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+        //['blockquote', 'code-block'],
+        ['link', 'image', 'video'],
+
+        //[{ 'header': 1 }, { 'header': 2 }],               // custom button values
+        //[{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'list': 'check' }],
+        //[{ 'script': 'sub' }, { 'script': 'super' }],      // superscript/subscript
+        [{ 'indent': '-1' }, { 'indent': '+1' }],          // outdent/indent
+        //[{ 'direction': 'rtl' }],                         // text direction
+
+        [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+
+        [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+        [{ 'font': [] }],
+        [{ 'align': [] }]
+
+        //['clean']                                         // remove formatting button
+    ];
+
+    const quill = new Quill('#story', {
+        modules: {
+            toolbar: toolbarOptions
+        },
+        theme: 'snow'
+    });
 
     $(function () {
         var grid = document.querySelector("#myGrid");
@@ -355,8 +421,9 @@
 
         $("#saveStory").on("click", function () {
             const stock = selectedVehicle.Stock;
-            var story = tinymce.get('story').getContent();
+            var story = quill.root.innerHTML;
             const title = $("#title").val();
+
             if (confirm(`Do you want to save story for Stock# ${stock}`)) {
                 showSpinner($("#inventoryOverlay"));
 
@@ -452,27 +519,6 @@
         $("#myGrid").on("dblclick", ".grid-image", function () {
             $("#gallery-tab").tab("show");
         });
-    });
-
-    $("#story").tinymce({
-        height: 560,
-        license_key: "gpl",
-        resize: true,
-        autosave_ask_before_unload: false,
-        powerpaste_allow_local_images: true,
-        menubar: "file edit view insert format customMenu", // add your custom menu here
-        setup: function (editor) {
-            editor.on("init", function () {
-                editor.setContent(selectedVehicle.Story?.HtmlContent || '');
-            });
-        },
-        plugins: [
-            'advlist', 'anchor', 'autolink', 'codesample', 'fullscreen',
-            'image', 'lists', 'link', 'media', 'preview',
-            'searchreplace', 'table', 'visualblocks'
-        ],
-        toolbar: "insertfile a11ycheck undo redo | fontfamily fontsize | bold italic underline | forecolor backcolor | link image | alignleft aligncenter alignright alignjustify",
-        spellchecker_dialog: true
     });
 
     function getSortedIds() {
@@ -814,10 +860,7 @@
     function showVehicleDetails(vehicle) {
         $('#vin').val(vehicle.VIN);
         $('#title').val(vehicle.Story?.Title);
-        const editor = tinymce.get("story");
-        if (editor) {
-            editor.setContent(vehicle?.Story?.HtmlContent || "");
-        }
+        quill.clipboard.dangerouslyPasteHTML(0, vehicle?.Story?.HtmlContent || "");
 
         if (vehicle.Stock) {
             $.ajax({
