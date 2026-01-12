@@ -244,7 +244,8 @@ function setQrCode(vehicle) {
 }
 
 function reStoryAll() {
-    showSpinner($("#inventoryOverlay"));
+    const $overlay = $("#inventoryOverlay");
+    showSpinner($overlay);
 
     fetch('/Majordome/ReStoryAll', {
         method: 'POST',
@@ -264,6 +265,11 @@ function reStoryAll() {
     })
     .catch(error => {
         alert(error);
+    })
+    .finally(() => {
+        if (typeof hideSpinner === 'function') {
+            hideSpinner($overlay);
+        }
     });
 }
 
@@ -291,7 +297,6 @@ async function decodeAll() {
         console.error('Error in decodeAll:', error);
         alert('Decoding failed while getting updated items.');
     }
-
     finally {
         if (typeof hideSpinner === 'function') {
             hideSpinner($overlay);
