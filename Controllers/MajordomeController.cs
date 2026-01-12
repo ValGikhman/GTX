@@ -141,9 +141,10 @@ namespace GTX.Controllers
                 Model.Inventory.Vehicles = Model.Inventory.All;
 
                 foreach (var vehicle in Model.Inventory.Vehicles) {
-                    var details = VinDecoderService.DecodeVin(vehicle.VIN, dataOneApiKey, dataOneSecretApiKey);
-                    InventoryService.SaveDataOneDetails(vehicle.Stock, details);
-
+                    if (vehicle.DataOne == null) {
+                        var details = VinDecoderService.DecodeVin(vehicle.VIN, dataOneApiKey, dataOneSecretApiKey);
+                        InventoryService.SaveDataOneDetails(vehicle.Stock, details);
+                    }
                 }
 
                 return Json(new { success = true, message = "DataOne decoded successfully." });
