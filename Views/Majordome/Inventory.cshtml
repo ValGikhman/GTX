@@ -11,7 +11,7 @@
             height: 37rem;
         }
 
-        .filterLiked, .filterLast, #filterLiked, #filterLast, .sort {
+        .filterLiked, .filterLast, .filterLiked, .filterHelp, .sort {
             display: none !important;
         }
 
@@ -395,8 +395,6 @@
                 decodeAll();
             }
         });
-
-        $("#filterLiked, .sort, #socials").hide();
 
         $("#deleteAll").on("click", function () {
             const stock = selectedVehicle.Stock;
