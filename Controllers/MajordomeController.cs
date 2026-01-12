@@ -202,7 +202,7 @@ namespace GTX.Controllers
 
         [HttpGet]
         public JsonResult GetUpdatedItems() {
-            Model.Inventory.Vehicles = DecideImages(Model.Inventory.Vehicles);
+            RefreshModel();
 
             return new JsonResult
             {

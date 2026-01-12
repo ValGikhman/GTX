@@ -83,7 +83,7 @@ namespace GTX.Controllers
                 if (SessionData == null || SessionData?.Inventory == null)
                 {
                     // Getting Inventory
-                    Model.Inventory = SetModel(Model.Inventory);
+                    Model.Inventory = SetModel();
                     SessionData.SetSession(Constants.SESSION_INVENTORY, Model.Inventory);
                 }
                 Model.Inventory = SessionData.Inventory;
@@ -165,18 +165,29 @@ namespace GTX.Controllers
             }
         }
 
-        private Inventory SetModel(Inventory model) {
+        public Inventory SetModel() {
             if (SessionData?.Inventory == null) {
                 var dto = InventoryService.GetInventory();
                 var vehicles = Models.GTX.ToGTX(dto.vehicles);
-                model.Published = dto.InventoryDate;
-                model.All = DecideImages(vehicles);
+                Model.Inventory.Published = dto.InventoryDate;
+                Model.Inventory.All = DecideImages(vehicles);
 
-                model.Vehicles = model.All;
-                return model;
+                Model.Inventory.Vehicles = Model.Inventory.All;
+                return Model.Inventory;
             }
 
             return SessionData.Inventory;
+        }
+
+        public Inventory RefreshModel()
+        {
+            var dto = InventoryService.GetInventory();
+            var vehicles = Models.GTX.ToGTX(dto.vehicles);
+            Model.Inventory.Published = dto.InventoryDate;
+            Model.Inventory.All = DecideImages(vehicles);
+
+            Model.Inventory.Vehicles = Model.Inventory.All;
+            return Model.Inventory;
         }
 
         [HttpGet]
