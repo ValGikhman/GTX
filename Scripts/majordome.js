@@ -244,7 +244,8 @@ function setQrCode(vehicle) {
 }
 
 function reStoryAll() {
-    showSpinner($("#inventoryOverlay"));
+    const $overlay = $("#inventoryOverlay");
+    showSpinner($overlay);
 
     fetch('/Majordome/ReStoryAll', {
         method: 'POST',
