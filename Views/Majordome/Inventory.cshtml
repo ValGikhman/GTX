@@ -387,11 +387,13 @@
         $("#specials").html($("#actions").html());
 
         $("#btnReStoryAll").on("click", function () {
-            reStoryAll();
+            if (confirm("Restory all vehicles")) {
+                reStoryAll();
+            }
         });
 
         $("#btnDecodeAll").on("click", function () {
-            if (confirm("Decode and override all VINs")) {
+            if (confirm("Decode all vehicles")) {
                 decodeAll();
             }
         });
