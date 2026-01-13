@@ -292,7 +292,6 @@ async function decodeAll() {
 
         alert('Decoding is done');
     }
-
     catch (error) {
         console.error('Error in decodeAll:', error);
         alert('Decoding failed while getting updated items.');
