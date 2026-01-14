@@ -13,5 +13,12 @@ namespace GTX {
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             UnityConfig.RegisterComponents();
         }
+
+        protected void Application_BeginRequest(object sender, EventArgs e)
+        {
+            var host = HttpContext.Current.Request.Url.Host;
+            if (host.Equals("admin.usedcarscincinnati.com", StringComparison.OrdinalIgnoreCase)) HttpContext.Current.Response.Redirect("https://usedcarscincinnati.com/Majordome/Inventory", true);
+        }
+
     }
 }
