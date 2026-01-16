@@ -13,8 +13,8 @@ namespace GTX.Controllers
 
         private readonly IContactService _contactService;
 
-        public HomeController(ISessionData sessionData, ContactService contactService, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service eZ360Service, ILogService logService) :
-            base(sessionData, inventoryService, vinDecoderService, eZ360Service, logService)  {
+        public HomeController(ISessionData sessionData, ContactService contactService, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service eZ360Service, ILogService logService, IBlogPostService blogPostService) :
+            base(sessionData, inventoryService, vinDecoderService, eZ360Service, logService, blogPostService)  {
             _contactService = contactService;
         }
 

@@ -1,0 +1,67 @@
+﻿@* Bootstrap modal + AJAX loader for BlogPosts Create/Edit *@
+
+<div class="modal fade" id="blogModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header">
+                <h5 class="modal-title" id="blogModalTitle">Blog</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body" id="blogModalBody">
+                <div class="text-muted">Loading...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(function () {
+    function openModal(url, title) {
+        $("#blogModalTitle").text(title || "Blog Post");
+        $("#blogModalBody").html('<div class="text-muted">Loading...</div>');
+
+        $("#blogModalBody").load(url, function (response, status, xhr) {
+            if (status === "error") {
+                $("#blogModalBody").html(
+                    '<div class="alert alert-danger mb-0">Could not load form. ' +
+                    'Status: ' + xhr.status + '</div>'
+                );
+                return;
+            }
+
+            bootstrap.Modal.getOrCreateInstance(document.getElementById("blogModal")).show();
+        });
+    }
+
+    // Click handler: any link with data-blog-modal="true" opens modal
+    $(document).on("click", "a[data-blog-modal='true']", function (e) {
+        e.preventDefault();
+        openModal($(this).attr("href"), $(this).data("title"));
+    });
+
+    $(document).on("submit", "form[data-blog-ajax='true']", function (e) {
+        e.preventDefault();
+
+        const $form = $(this);
+        const url = $form.attr("action");
+        const data = $form.serialize();
+
+        $.post(url, data)
+            .done(function (res) {
+                // success payload
+                if (res && res.ok === true) {
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById("blogModal")).hide();
+                    refreshList();
+                    return;
+                }
+
+                // validation errors -> server returns partial html
+                $("#blogModalBody").html(res);
+            })
+            .fail(function (xhr) {
+                $("#blogModalBody").html(`<div class="alert alert-danger mb-0">Save failed. Status: ${xhr.status}</div>`);
+            });
+    });
+});
+</script>

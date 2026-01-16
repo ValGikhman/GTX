@@ -14,6 +14,7 @@ public static class Constants {
     public const string SESSION_OPEN_HOURS = "SessionOpenHours";
     public const string SESSION_ENVIRONMENT = "SessionENVIRONMENT";
     public const string SESSION_MAJORDOME = "SessionMAJORDOME";
+    public const string SESSION_BLOGS = "SessionBlogs";
 
     #endregion Public Fields
 }

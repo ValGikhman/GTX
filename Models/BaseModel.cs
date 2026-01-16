@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Web;
 
-namespace GTX.Models {
+namespace GTX.Models
+{
     public class BaseModel {
         #region Public Constructors
 
@@ -48,6 +49,8 @@ namespace GTX.Models {
         public Vehicle CurrentVehicle { get; set; }
 
         public OpenHours[] OpenHours { get; set; }
+
+        public List<BlogPostModel> Blogs { get; set; }
     }
 
     public class Vehicle { 

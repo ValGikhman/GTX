@@ -31,6 +31,8 @@ namespace GTX.Controllers
 
         public IInventoryService InventoryService { get; set; }
 
+        public IBlogPostService BlogPostService { get; set; }
+
         public IVinDecoderService VinDecoderService { get; set; }
 
         public ISessionData SessionData { get; private set; }
@@ -43,12 +45,13 @@ namespace GTX.Controllers
 
         #region Construtors
 
-        public BaseController(ISessionData _sessionData, IInventoryService _invntoryService, IVinDecoderService _vinDecoderService, IEZ360Service _ez360Service, ILogService _logService) {
+        public BaseController(ISessionData _sessionData, IInventoryService _invntoryService, IVinDecoderService _vinDecoderService, IEZ360Service _ez360Service, ILogService _logService, IBlogPostService _blogPostService) {
             SessionData = _sessionData;
             LogService = _logService;
             InventoryService = _invntoryService;
             VinDecoderService = _vinDecoderService;
             EZ360Service = _ez360Service;
+            BlogPostService = _blogPostService;
         }
 
         #endregion Construtors
@@ -105,7 +108,6 @@ namespace GTX.Controllers
                     SessionData.SetSession(Constants.SESSION_OPEN_HOURS, openHours);
                     Model.OpenHours = openHours;                
                 }
-
                 Model.OpenHours = SessionData.OpenHours;
 
                 ViewBag.Published = DateTime.Now;

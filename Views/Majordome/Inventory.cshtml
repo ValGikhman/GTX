@@ -81,22 +81,22 @@
         }
 
 
-        #story .ql-editor p {
-            margin-top: 10px;
-            margin-bottom: 10px;
-            padding: 0;
-            font-size: clamp(0.9rem, 2vw, 1rem);
-            text-align: justify;
-        }
+            #story .ql-editor p {
+                margin-top: 10px;
+                margin-bottom: 10px;
+                padding: 0;
+                font-size: clamp(0.9rem, 2vw, 1rem);
+                text-align: justify;
+            }
 
-        /*So I need to override them for Quill*/
-        #story .ql-editor strong {
-            margin-top: 10px;
-            margin-bottom: 10px;
-            padding: 0;
-            font-size: clamp(0.9rem, 2vw, 1rem);
-            text-align: justify;
-        }
+            /*So I need to override them for Quill*/
+            #story .ql-editor strong {
+                margin-top: 10px;
+                margin-bottom: 10px;
+                padding: 0;
+                font-size: clamp(0.9rem, 2vw, 1rem);
+                text-align: justify;
+            }
 
         /*Quill strips away p-story and strong-story classes*/
         .p-story {
@@ -140,36 +140,40 @@
         </div>
     </div>
 </div>
+@Html.Partial("_BlogPostModal")
 
 <div class="this-container container-fluid px-5">
     <nav class="nav nav-tabs no-wrap-group" id="myTab" role="tablist">
-        <button class="nav-item btn btn-gradient-grey text-shadow-small active" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#tab-inventory" type="button" role="tab">
+        <button class="btn btn-gradient-grey text-shadow-small active" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#tab-inventory" type="button" role="tab">
             Inventory
         </button>
-        <button class="nav-item btn btn-gradient-grey text-shadow-small" id="details-tab" data-bs-toggle="tab" data-bs-target="#tab-details" type="button" role="tab">
+        <button class="btn btn-gradient-grey text-shadow-small" id="details-tab" data-bs-toggle="tab" data-bs-target="#tab-details" type="button" role="tab">
             Details
         </button>
         @if (!@Model.IsEZ360)
         {
-            <button class="nav-item btn btn-gradient-grey text-shadow-small" id="gallery-tab" data-bs-toggle="tab" data-bs-target="#tab-gallery" type="button" role="tab">
+            <button class="btn btn-gradient-grey text-shadow-small" id="gallery-tab" data-bs-toggle="tab" data-bs-target="#tab-gallery" type="button" role="tab">
                 Photos
             </button>
         }
 
         @if (@Model.IsDataOne)
         {
-            <button class="nav-item btn btn-gradient-grey text-shadow-small" id="vin-decoder-tab" data-bs-toggle="tab" data-bs-target="#tab-vin-decoder" type="button" role="tab">
+            <button class="btn btn-gradient-grey text-shadow-small" id="vin-decoder-tab" data-bs-toggle="tab" data-bs-target="#tab-vin-decoder" type="button" role="tab">
                 Vin decoder
             </button>
         }
-        <button class="nav-item btn btn-gradient-grey text-shadow-small d-none" id="QR-code-tab" data-bs-toggle="tab" data-bs-target="#tab-qr-code" type="button" role="tab">
+        <button class="btn btn-gradient-grey text-shadow-small d-none" id="QR-code-tab" data-bs-toggle="tab" data-bs-target="#tab-qr-code" type="button" role="tab">
             QR Code
         </button>
-        <button class="nav-item btn btn-gradient-grey text-shadow-small" id="EZ360-tab" data-bs-toggle="tab" data-bs-target="#tab-ez360" type="button" role="tab">
+        <button class="btn btn-gradient-grey text-shadow-small" id="EZ360-tab" data-bs-toggle="tab" data-bs-target="#tab-ez360" type="button" role="tab">
             EZ360 Vehicle info
         </button>
-        <div id="specials" class="d-none d-lg-block d-flex ms-auto">
-        </div>
+        <button class="btn btn-gradient-grey text-shadow-small" id="blog-tab" data-bs-toggle="tab" data-bs-target="#tab-blog" type="button" role="tab">
+            Blogs
+        </button>
+
+        <div id="specials" class="d-none d-lg-block d-flex ms-auto"></div>
     </nav>
 
     <div class="tab-content border border-top-0 well " id="myTabContent">
@@ -271,6 +275,11 @@
 
         <!-- EZ360 info -->
         <div class="tab-pane fade" id="tab-ez360" role="tabpanel">
+        </div>
+
+        <!-- Blog -->
+        <div class="tab-pane fade py-1" id="tab-blog" role="tabpanel">
+            @{ Html.RenderPartial("_BlogPost", Model.Blogs); }
         </div>
     </div>
 </div>
