@@ -22,7 +22,7 @@ namespace GTX
         public ActionResult Blogs()
         {
             Model.Blogs = BlogPostService.GetAll().Where(x => x.IsPublished).OrderByDescending(x => x.CreatedAt).Select(BlogPostModel.FromEntity).ToList();
-            return View(Model.Blogs);
+            return View(Model.Blogs.Where(m => m.IsPublished).ToList());
         }
 
         public ActionResult List()

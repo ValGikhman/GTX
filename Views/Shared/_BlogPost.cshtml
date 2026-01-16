@@ -98,10 +98,13 @@
 </div>
 
 <script>
-    const search = document.getElementById('bpSearch');
-    const filter = document.getElementById('bpFilter');
-    const table = document.getElementById('bpTable');
-
+    function getEls() {
+        return {
+            search: document.getElementById('bpSearch'),
+            filter: document.getElementById('bpFilter'),
+            table: document.getElementById('bpTable')
+        };
+    }
 
     function deleteBlog(id) {
         if (!id) return;
@@ -120,19 +123,26 @@
                 alert("Delete failed. Status: " + xhr.status);
             });
     };
-
     function apply() {
+        const { search, filter, table } = getEls();
+        if (!search || !filter || !table) return;
+
         const term = (search.value || '').toLowerCase().trim();
         const mode = filter.value;
 
         const rows = table.querySelectorAll('tbody tr');
         rows.forEach(r => {
+            // Skip "No posts yet..." row (colspan row)
             if (r.children.length === 1) return;
 
             const published = r.getAttribute('data-published') === '1';
-            const text = r.innerText.toLowerCase();
 
-            const matchText = !term || text.includes(term);
+            // Only search Title + Author columns (more accurate than innerText)
+            const title = (r.querySelector('td:nth-child(1)')?.innerText || '').toLowerCase();
+            const author = (r.querySelector('td:nth-child(2)')?.innerText || '').toLowerCase();
+            const hay = (title + ' ' + author).trim();
+
+            const matchText = !term || hay.includes(term);
             const matchPub =
                 mode === 'all' ||
                 (mode === 'published' && published) ||
@@ -142,7 +152,8 @@
         });
     }
 
-    search.addEventListener('input', apply);
-    filter.addEventListener('change', apply);
+    $(document).on('input', '#bpSearch', apply);
+    $(document).on('change', '#bpFilter', apply);
 
+    $(apply);
 </script>
