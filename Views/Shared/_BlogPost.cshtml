@@ -19,7 +19,7 @@
                 <option value="unpublished">Unpublished</option>
             </select>
 
-            <a class="btn btn-primary" data-blog-modal="true" data-title="New Blog Post" href="@Url.Action("Create", "BlogPosts")">
+            <a id="newBlog"class="btn btn-primary" data-blog-modal="true" data-title="New Blog Post" href="@Url.Action("Create", "BlogPosts")">
                 <i class="bi bi-plus-lg me-1"></i> New
             </a>
         </div>
@@ -31,7 +31,8 @@
         <table class="table table-hover align-middle m-0" id="bpTable">
             <thead class="table-light">
                 <tr>
-                    <th style="min-width:260px;">Title</th>
+                    <th style="min-width:90px;">Image</th>
+                    <th style="min-width:160px;">Title</th>
                     <th style="min-width:160px;">Author</th>
                     <th style="width:120px;">Published</th>
                     <th style="min-width:170px;">Created</th>
@@ -53,6 +54,9 @@
                     {
                         <tr data-published="@(p.IsPublished ? "1" : "0")">
                             <td>
+                                <img width="90" height="60" src="@p.MediaURL?h=20"/>
+                            </td>
+                            <td>
                                 <div class="fw-semibold">@p.Title</div>
                             </td>
 
@@ -61,7 +65,7 @@
                             <td>
                                 @if (p.IsPublished)
                                 {
-                                    <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle">
+                                    <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle shadow">
                                         Published
                                     </span>
                                 }
@@ -79,7 +83,7 @@
 
                             <td class="text-end">
                                 <div class="btn-group">
-                                    <a class="btn btn btn-gradient-grey btn-sm btn-outline-primary py=2" data-blog-modal="true" data-title="Edit Blog Post" href="@Url.Action("Edit", "BlogPosts", new { id = p.Id })">
+                                    <a class="btn btn btn-gradient-grey btn-sm btn-outline-primary" data-blog-modal="true" data-title="Edit Blog Post" href="@Url.Action("Edit", "BlogPosts", new { id = p.Id })">
                                         <i class="bi bi-pencil-square me-1"></i>
                                     </a>
 
