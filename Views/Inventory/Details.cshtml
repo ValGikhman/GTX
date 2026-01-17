@@ -218,6 +218,7 @@
             </div>
         </nav>
         <div class="tab-content" id="nav-tabContent">
+            <!-- Content Tab -->
             <div class="tab-pane fade show active" id="nav-details" role="tabpanel" aria-labelledby="nav-details-tab">
                 <div class="row well mb-1">
                     @{
@@ -311,9 +312,10 @@
 
                 @*Stickers placeholder*@
                 @*                <div class="d-flex justify-content-center align-items-center gap-2 flex-nowrap ">
-                        <img src="https://velocity-vdp-prod-attachments.s3.amazonaws.com/Velocity+Automotive+Solutions/WindowSticker_v2.png" alt="Velocity Window Sticker" class="" style="max-height: 100px">
-                    </div>*@
+                <img src="https://velocity-vdp-prod-attachments.s3.amazonaws.com/Velocity+Automotive+Solutions/WindowSticker_v2.png" alt="Velocity Window Sticker" class="" style="max-height: 100px">
+            </div>*@
             </div>
+            <!-- Pictures Tab -->
             @if (!(Model.CurrentVehicle.DisplayEZ360Player && Model.IsEZ360) && Model.CurrentVehicle.VehicleDetails.Images?.Count() > 0)
             {
                 <div class="tab-pane fade well" id="nav-pictures" role="tabpanel" aria-labelledby="nav-picture-tab">
@@ -368,6 +370,7 @@
                         height="360">
                 </iframe>
             </div>
+            <!-- Payment Tab -->
             <div class="tab-pane fade well d-none" id="nav-payment" role="tabpanel" aria-labelledby="nav-payment-tab">
                 <div class="text-shadow-small rounded shadow" id="calculator">
                     <div class="text-center border-bottom p-3 my-auto">
@@ -455,9 +458,43 @@
                 </div>
             </div>
         </div>
+        @*May also like*@
+        <div class="row mb-5 d-none d-lg-inline">
+            <button class="btn btn-gradient position-relative collapse-toggle"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#suggestion"
+                    aria-expanded="true"
+                    aria-controls="suggestion">
+                <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
+                    <i class="bi bi-hand-thumbs-up mx-2"></i>You may also like
+                </h5>
+
+                <!-- right-side +/–, stays out of the flow so the H5 can center -->
+                <span class="toggle-icons position-absolute end-0 top-50 translate-middle-y pe-3" aria-hidden="true">
+                    <i class="bi bi-plus-lg icon-plus"></i>
+                    <i class="bi bi-dash-lg icon-minus"></i>
+                </span>
+            </button>
+            <div class="collapse show p-0" id="suggestion">
+                <div class="d-flex justify-content-evenly">
+                    <button class="btn btn-gradient-grey scroll-button bi bi-arrow-left-circle" onclick="scrollSuggestions(-300)"></button>
+                    <div class="scroll-container well shadow" id="suggestionScroll">
+                        <div class="d-flex justify-content-evenly">
+                            @foreach (var suggestion in Model.CurrentVehicle.VehicleSuggesion)
+                            {
+                                <div class="card-wrapper">
+                                    @Html.Partial("_AdCard", suggestion)
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <button class="btn btn-gradient-grey scroll-button bi bi-arrow-right-circle" onclick="scrollSuggestions(300)"></button>
+                </div>
+            </div>
+        </div>
     </div>
     <div id="modalShortcuts" class="col-lg-3 col-md-12 col-sm-12">
-
         @*Carfax reviews*@
         <a class="w-100 d-none" id="btnCarfaxReview" href="https://www.carfax.com/Reviews-GTX-Auto-Group-Inc-Hamilton-OH_KBPIWOM66I?partner=RRW_1#reviews" target="_blank">
             <div data-cfx-widget data-compcode="BKIPWOM66I" data-orientation="horizontal" version="2"></div>
@@ -508,41 +545,6 @@
                 <i class="bi bi-currency-dollar mx-2"></i>Get prequalified
             </h5>
         </button>
-    </div>
-</div>
-@*May Like*@
-<div class="row mb-5 d-none d-lg-inline">
-    <button class="btn btn-gradient position-relative collapse-toggle"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#suggestion"
-            aria-expanded="true"
-            aria-controls="suggestion">
-        <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
-            <i class="bi bi-hand-thumbs-up mx-2"></i>You may also like
-        </h5>
-
-        <!-- right-side +/–, stays out of the flow so the H5 can center -->
-        <span class="toggle-icons position-absolute end-0 top-50 translate-middle-y pe-3" aria-hidden="true">
-            <i class="bi bi-plus-lg icon-plus"></i>
-            <i class="bi bi-dash-lg icon-minus"></i>
-        </span>
-    </button>
-    <div class="collapse show p-0" id="suggestion">
-        <div class="d-flex justify-content-evenly">
-            <button class="btn btn-gradient-grey scroll-button bi bi-arrow-left-circle" onclick="scrollSuggestions(-300)"></button>
-            <div class="scroll-container well shadow" id="suggestionScroll">
-                <div class="d-flex justify-content-evenly">
-                    @foreach (var suggestion in Model.CurrentVehicle.VehicleSuggesion)
-                    {
-                        <div class="card-wrapper">
-                            @Html.Partial("_AdCard", suggestion)
-                        </div>
-                    }
-                </div>
-            </div>
-            <button class="btn btn-gradient-grey scroll-button bi bi-arrow-right-circle" onclick="scrollSuggestions(300)"></button>
-        </div>
     </div>
 </div>
 
