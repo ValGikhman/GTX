@@ -1,18 +1,31 @@
 ﻿@using Services;
+@using System.Text.RegularExpressions
 @model GTX.Models.BaseModel
 @{
-    var v = Model.CurrentVehicle?.VehicleDetails;
+    var vehicle = Model.CurrentVehicle?.VehicleDetails;
 
-    // Basic safety checks / fallbacks
-    var title = string.Join(" ", new[] { v?.Year.ToString(), v?.Make, v?.Model, v?.VehicleStyle }.Where(s => !string.IsNullOrWhiteSpace(s)));
-    var canonicalURL = $"https://usedcarscincinnati.com/Inventory/{string.Join("-", new[] { v?.Year.ToString(), v?.Make, v?.Model, v?.VehicleStyle, v?.Stock }.Where(s => !string.IsNullOrWhiteSpace(s)))}";
+    string JoinClean(params string?[] parts)
+    {
+        // join only non-empty pieces with a single dash
+        var raw = string.Join("-", parts.Where(p => !string.IsNullOrWhiteSpace(p)).Select(p => p!.Trim()));
+
+        // normalize: collapse multiple dashes + trim edges (prevents "--")
+        raw = Regex.Replace(raw, @"-+", "-").Trim('-');
+
+        return raw;
+    }
+
+    var title = string.Join(" ", new[] { vehicle?.Year.ToString(), vehicle?.Make, vehicle?.Model, vehicle?.VehicleStyle }.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s!.Trim()));
 
     if (string.IsNullOrWhiteSpace(title))
     {
         title = "Used vehicle for sale in Cincinnati";
     }
 
-    var price = v?.InternetPrice;
+    var slug = JoinClean(vehicle?.Year.ToString(), vehicle?.Make, vehicle?.Model, vehicle?.VehicleStyle, vehicle?.Stock);
+
+    var canonicalURL = $"https://usedcarscincinnati.com/Inventory/{slug}";
+    var price = vehicle?.InternetPrice;
 }
 
 
@@ -169,7 +182,7 @@
         "priceCurrency": "USD",
         "price": @Model.CurrentVehicle.VehicleDetails.InternetPrice,
         "availability": "https://schema.org/InStock",
-        "url": "https://usedcarscincinnati.com/inventory/@Model.CurrentVehicle.VehicleDetails.Year-@Model.CurrentVehicle.VehicleDetails.Make-@Model.CurrentVehicle.VehicleDetails.VehicleStyle-@Model.CurrentVehicle.VehicleDetails.Stock"
+        "url": "@canonicalURL"
       }
     }
     </script>
@@ -312,8 +325,8 @@
 
                 @*Stickers placeholder*@
                 @*                <div class="d-flex justify-content-center align-items-center gap-2 flex-nowrap ">
-                <img src="https://velocity-vdp-prod-attachments.s3.amazonaws.com/Velocity+Automotive+Solutions/WindowSticker_v2.png" alt="Velocity Window Sticker" class="" style="max-height: 100px">
-            </div>*@
+                        <img src="https://velocity-vdp-prod-attachments.s3.amazonaws.com/Velocity+Automotive+Solutions/WindowSticker_v2.png" alt="Velocity Window Sticker" class="" style="max-height: 100px">
+                    </div>*@
             </div>
             <!-- Pictures Tab -->
             @if (!(Model.CurrentVehicle.DisplayEZ360Player && Model.IsEZ360) && Model.CurrentVehicle.VehicleDetails.Images?.Count() > 0)
