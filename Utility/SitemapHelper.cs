@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using System.Xml.Linq;
+using System.Text.RegularExpressions;
 
 public static class SitemapWriter
 {
@@ -53,7 +54,10 @@ public static class SitemapWriter
             if (string.IsNullOrWhiteSpace(stock)) continue;
 
             //var loc = $"{BaseUrl}/Inventory/Details?stock={Uri.EscapeDataString(stock)}";
-            var loc = $"{BaseUrl}/Inventory/{string.Join("-", new[] { year, make, model, vehicleStyle, stock }.Where(s => !string.IsNullOrWhiteSpace(s)))}";
+            //var loc = $"{BaseUrl}/Inventory/{string.Join("-", new[] { year, make, model, vehicleStyle, stock }.Where(s => !string.IsNullOrWhiteSpace(s)))}";
+            var loc = $"{BaseUrl}/Inventory/{Regex.Replace(string.Join("-", new[] { year, make, model, vehicleStyle, stock }.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim())), @"-+", "-").Trim('-')}";
+
+
             urlset.Add(Url(ns, loc, lastmod, "daily", "0.9"));
         }
 
