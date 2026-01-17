@@ -34,8 +34,8 @@ namespace GTX
 
         public ActionResult Create()
         {
-            var vm = new BlogPostModel { IsPublished = true, CreatedAt = DateTime.Now };
-            return PartialView("_BlogPostEdit", vm);
+            var model = new BlogPostModel { IsPublished = true, CreatedAt = DateTime.Now };
+            return PartialView("_BlogPostEdit", model);
         }
 
         public ActionResult Edit(int id)
@@ -43,27 +43,37 @@ namespace GTX
             var entity = BlogPostService.GetById(id);
             if (entity == null) return HttpNotFound();
 
-            var vm = BlogPostModel.FromEntity(entity);
-            return PartialView("_BlogPostEdit", vm);
+            var model = BlogPostModel.FromEntity(entity);
+            return PartialView("_BlogPostEdit", model);
+        }
+
+        [HttpGet]
+        public ActionResult Blog(int id)
+        {
+            var entity = BlogPostService.GetById(id);
+            if (entity == null) return HttpNotFound();
+
+            var model = BlogPostModel.FromEntity(entity);
+            return View("BlogDetails", model);
         }
 
         [HttpPost]
-        public ActionResult Save(BlogPostModel vm)
+        public ActionResult Save(BlogPostModel model)
         {
-            if (!ModelState.IsValid) return PartialView("_BlogPostEdit", vm);
+            if (!ModelState.IsValid) return PartialView("_BlogPostEdit", model);
 
-            var ok = BlogPostService.Update(BlogPostModel.ToEntity(vm));
+            var ok = BlogPostService.Update(BlogPostModel.ToEntity(model));
             if (!ok) return HttpNotFound();
 
             return Json(new { ok = true });
         }
 
         [HttpPost]
-        public ActionResult Create(BlogPostModel vm)
+        public ActionResult Create(BlogPostModel model)
         {
-            if (!ModelState.IsValid) return PartialView("_BlogPostEdit", vm);
+            if (!ModelState.IsValid) return PartialView("_BlogPostEdit", model);
 
-            var ok = BlogPostService.Create(BlogPostModel.ToEntity(vm));
+            var ok = BlogPostService.Create(BlogPostModel.ToEntity(model));
             if (!ok) return HttpNotFound();
 
             return Json(new { ok = true });

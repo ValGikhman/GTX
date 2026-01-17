@@ -1,0 +1,215 @@
+﻿@model GTX.Models.BlogPostModel
+
+@{
+    ViewBag.Title = string.IsNullOrWhiteSpace(Model?.Title) ? "Blog Post" : Model.Title;
+
+    bool hasImg = !string.IsNullOrWhiteSpace(Model?.MediaURL);
+    string safeAuthor = string.IsNullOrWhiteSpace(Model?.Author) ? "Staff" : Model.Author;
+    string safeTitle = string.IsNullOrWhiteSpace(Model?.Title) ? "Untitled" : Model.Title;
+
+    // Safe-ish date formatting
+    string dateText = (Model != null && Model.CreatedAt != default(DateTime))
+        ? Model.CreatedAt.ToString("MMMM d, yyyy")
+        : "";
+}
+
+<section class="container-fluid d-flex justify-content-center">
+    <div class="row col-12 col-lg-9 col-xl-8 my-5 px-3">
+
+        @if (Model == null)
+        {
+            <div class="alert alert-secondary rounded-4 shadow-sm w-100">
+                Post not found.
+            </div>
+        }
+        else
+        {
+            <article class="bg-white rounded-4 shadow-lg overflow-hidden p-0">
+
+                <!-- Hero -->
+                <div class="blog-hero position-relative">
+                    @if (hasImg)
+                    {
+                        <img src="@Model.MediaURL"
+                             alt="@safeTitle"
+                             class="w-100 blog-hero-img" />
+                        <div class="blog-hero-overlay"></div>
+                    }
+                    else
+                    {
+                        <div class="blog-hero-fallback d-flex align-items-center justify-content-center">
+                            <div class="text-center">
+                                <div class="blog-hero-icon mb-2">📰</div>
+                                <div class="text-muted">No image</div>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="blog-hero-content">
+                        <h1 class="blog-title mb-3">@safeTitle</h1>
+                        <div class="blog-meta d-flex flex-wrap gap-2 align-items-center">
+                            <div class="d-flex flex-column">
+                                <div class="fw-semibold">@safeAuthor</div>
+                                @if (!string.IsNullOrWhiteSpace(dateText))
+                                {
+                                    <span class="badge rounded-pill bg-dark-subtle text-dark border my-1">@dateText</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Body -->
+                <div class="p-4 p-md-5">
+                    <div class="blog-content">
+                        @Html.Raw(Model.Content)
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
+                        @if (!string.IsNullOrWhiteSpace(Model.ArticleURL))
+                        {
+                            <a href="@Model.ArticleURL"  target="_blank" rel="noopener" class="btn btn-gradient-grey border-dark rounded-4 text-shadow-small">
+                                Open Original →
+                            </a>
+                        }
+                    </div>
+                </div>
+
+            </article>
+        }
+    </div>
+</section>
+
+<style>
+    /* Layout */
+    .blog-hero {
+        min-height: 360px;
+        max-height: 520px;
+        overflow: hidden;
+        background: #f6f7f8;
+    }
+
+    .blog-hero-img {
+        height: 520px;
+        object-fit: cover;
+        filter: saturate(1.05) contrast(1.02);
+        transform: scale(1.01);
+    }
+
+    .blog-hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0.78) 100%);
+    }
+
+    .blog-hero-fallback {
+        height: 420px;
+        background: radial-gradient(circle at 30% 30%, #ffffff 0%, #f2f4f7 45%, #e9edf3 100%);
+    }
+
+    .blog-hero-icon {
+        font-size: 2.2rem;
+        line-height: 1;
+    }
+
+    .blog-hero-content {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 2rem 2rem 1.75rem 2rem;
+        color: #fff;
+    }
+
+    .blog-title {
+        font-size: clamp(1.6rem, 3.3vw, 2.4rem);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        text-shadow: 0 2px 12px rgba(0,0,0,0.35);
+        margin: 0;
+    }
+
+    .blog-badges .badge {
+        padding: .55rem .8rem;
+        font-weight: 600;
+    }
+
+    .blog-meta {
+        margin-top: .25rem;
+    }
+
+    .blog-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255,255,255,0.16);
+        border: 1px solid rgba(255,255,255,0.28);
+        color: #fff;
+        font-weight: 800;
+        text-transform: uppercase;
+        backdrop-filter: blur(8px);
+    }
+
+    /* Content typography */
+    .blog-content {
+        font-size: 1.05rem;
+        line-height: 1.85;
+        color: #1f2937;
+    }
+
+        .blog-content p {
+            margin: 0 0 1rem 0;
+        }
+
+        .blog-content h2, .blog-content h3, .blog-content h4 {
+            margin: 1.75rem 0 0.8rem 0;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            color: #111827;
+        }
+
+        .blog-content a {
+            text-decoration: none;
+            border-bottom: 1px solid rgba(0,0,0,0.25);
+        }
+
+            .blog-content a:hover {
+                border-bottom-color: rgba(0,0,0,0.6);
+            }
+
+        .blog-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 14px;
+            margin: 1rem 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+        }
+
+        .blog-content blockquote {
+            margin: 1.25rem 0;
+            padding: 1rem 1.1rem;
+            border-left: 4px solid rgba(0,0,0,0.15);
+            background: rgba(0,0,0,0.03);
+            border-radius: 12px;
+        }
+
+        .blog-content ul, .blog-content ol {
+            margin: 0 0 1rem 1.25rem;
+        }
+
+    /* Responsive tweaks */
+    @@media (max-width: 576px) {
+        .blog-hero-content {
+            padding: 1.25rem 1.25rem 1.1rem 1.25rem;
+        }
+
+        .blog-hero-img {
+            height: 460px;
+        }
+    }
+</style>
