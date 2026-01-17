@@ -18,6 +18,7 @@ namespace GTX.Session {
         private readonly OpenHours[] _openHours = null;
         private readonly string _environment = null;
         private readonly bool? _isMajordome = false;
+        private readonly List<BlogPostModel> _blogs = null;
 
         private readonly HttpContextProvider _httpContext;
 
@@ -83,6 +84,12 @@ namespace GTX.Session {
         public OpenHours[] OpenHours {
             get => GetSession(Constants.SESSION_OPEN_HOURS, _openHours);
             set => SetSession(Constants.SESSION_OPEN_HOURS, value);
+        }
+
+        public List<BlogPostModel> Blogs
+        {
+            get => GetSession(Constants.SESSION_BLOGS, _blogs);
+            set => SetSession(Constants.SESSION_BLOGS, value);
         }
 
         #endregion Public Properties

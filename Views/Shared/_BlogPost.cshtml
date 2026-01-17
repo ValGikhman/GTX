@@ -1,0 +1,159 @@
+﻿@model List<GTX.Models.BlogPostModel>
+
+<div class="card-header bg-white p-3 m-3 rounded-3 shadow">
+    <h4 class="py-3">Blog management</h4>
+    <div class="d-flex align-items-center justify-content-between flex-nowrap">
+        <!-- Search (left) -->
+        <div class="input-group flex-grow-1" style="max-width: 520px;">
+            <span class="input-group-text bg-white">
+                <i class="bi bi-search"></i>
+            </span>
+            <input id="bpSearch" type="text" class="form-control" placeholder="Search title / author..." />
+        </div>
+
+        <!-- Filter + New (right) -->
+        <div class="d-flex align-items-center gap-2 flex-shrink-0">
+            <select id="bpFilter" class="form-select" style="width: 170px;">
+                <option value="all" selected>All</option>
+                <option value="published">Published</option>
+                <option value="unpublished">Unpublished</option>
+            </select>
+
+            <a class="btn btn-primary" data-blog-modal="true" data-title="New Blog Post" href="@Url.Action("Create", "BlogPosts")">
+                <i class="bi bi-plus-lg me-1"></i> New
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card-body p-3">
+    <div class="table-responsive rounded-3 shadow">
+        <table class="table table-hover align-middle m-0" id="bpTable">
+            <thead class="table-light">
+                <tr>
+                    <th style="min-width:260px;">Title</th>
+                    <th style="min-width:160px;">Author</th>
+                    <th style="width:120px;">Published</th>
+                    <th style="min-width:170px;">Created</th>
+                    <th class="text-end" style="width:260px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model == null || !Model.Any())
+                {
+                    <tr>
+                        <td colspan="5" class="text-center p-4 text-muted">
+                            No posts yet. Click <strong>New</strong> to create one.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var p in Model)
+                    {
+                        <tr data-published="@(p.IsPublished ? "1" : "0")">
+                            <td>
+                                <div class="fw-semibold">@p.Title</div>
+                            </td>
+
+                            <td>@(string.IsNullOrWhiteSpace(p.Author) ? "N/A" : p.Author)</td>
+
+                            <td>
+                                @if (p.IsPublished)
+                                {
+                                    <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle">
+                                        Published
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary-subtle">
+                                        Draft
+                                    </span>
+                                }
+                            </td>
+
+                            <td class="text-muted">
+                                @p.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+                            </td>
+
+                            <td class="text-end">
+                                <div class="btn-group">
+                                    <a class="btn btn btn-gradient-grey btn-sm btn-outline-primary py=2" data-blog-modal="true" data-title="Edit Blog Post" href="@Url.Action("Edit", "BlogPosts", new { id = p.Id })">
+                                        <i class="bi bi-pencil-square me-1"></i>
+                                    </a>
+
+                                    <!-- DELETE normal navigation -->
+                                    <button id="btnDelete-@p.Id" type="button" class="btn btn btn-gradient-grey btn-sm btn-outline-danger" onclick="deleteBlog(@p.Id)" data-id="@p.Id" title="Delete">
+                                        <i class="bi bi-trash me-1"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function getEls() {
+        return {
+            search: document.getElementById('bpSearch'),
+            filter: document.getElementById('bpFilter'),
+            table: document.getElementById('bpTable')
+        };
+    }
+
+    function deleteBlog(id) {
+        if (!id) return;
+
+        if (!confirm("Delete this blog post? This cannot be undone.")) return;
+        $.post(`${root}BlogPosts/Delete`, { id: id })
+            .done(function (res) {
+                if (res && res.ok === true) {
+                    console.log("Deleted");
+                    refreshList();
+                    return;
+                }
+                alert("Delete failed.");
+            })
+            .fail(function (xhr) {
+                alert("Delete failed. Status: " + xhr.status);
+            });
+    };
+    function apply() {
+        const { search, filter, table } = getEls();
+        if (!search || !filter || !table) return;
+
+        const term = (search.value || '').toLowerCase().trim();
+        const mode = filter.value;
+
+        const rows = table.querySelectorAll('tbody tr');
+        rows.forEach(r => {
+            // Skip "No posts yet..." row (colspan row)
+            if (r.children.length === 1) return;
+
+            const published = r.getAttribute('data-published') === '1';
+
+            // Only search Title + Author columns (more accurate than innerText)
+            const title = (r.querySelector('td:nth-child(1)')?.innerText || '').toLowerCase();
+            const author = (r.querySelector('td:nth-child(2)')?.innerText || '').toLowerCase();
+            const hay = (title + ' ' + author).trim();
+
+            const matchText = !term || hay.includes(term);
+            const matchPub =
+                mode === 'all' ||
+                (mode === 'published' && published) ||
+                (mode === 'unpublished' && !published);
+
+            r.style.display = (matchText && matchPub) ? '' : 'none';
+        });
+    }
+
+    $(document).on('input', '#bpSearch', apply);
+    $(document).on('change', '#bpFilter', apply);
+
+    $(apply);
+</script>

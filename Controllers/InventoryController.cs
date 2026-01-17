@@ -13,8 +13,8 @@ namespace GTX.Controllers
     public class InventoryController : BaseController {
         private readonly HttpClient httpClient = new();
 
-    public InventoryController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service _ez360Service, ILogService logService)
-            : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService) {
+    public InventoryController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service _ez360Service, ILogService logService, IBlogPostService blogPostService)
+            : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService, blogPostService) {
 
             Categories = SessionData?.Inventory?.All.GroupBy(v => v.VehicleType == null ? "" : v.VehicleType.Trim(), StringComparer.OrdinalIgnoreCase).ToDictionary(g => g.Key, g => g.ToArray(), StringComparer.OrdinalIgnoreCase);
         }
@@ -573,11 +573,11 @@ namespace GTX.Controllers
                 query = query.Where(m => filter.BodyTypes.Contains(m.Body)).Distinct().ToArray();
             }
 
-            if (query.Any() && filter.MinMilege > 0 && filter.MaxMilege > 0) {
+            if (query.Any() && filter.MinMilege >= 0 && filter.MaxMilege > 0) {
                 query = query.Where(m => m.Mileage >= filter.MinMilege && m.Mileage <= filter.MaxMilege).Distinct().ToArray();
             }
 
-            if (query.Any() && filter.MinPrice > 0 && filter.MaxPrice > 0) {
+            if (query.Any() && filter.MinPrice >= 0 && filter.MaxPrice > 0) {
                 query = query.Where(m => m.InternetPrice >= filter.MinPrice && m.InternetPrice <= filter.MaxPrice).Distinct().ToArray();
             }
 

@@ -1,0 +1,79 @@
+﻿@model IEnumerable<GTX.Models.BlogPostModel>
+
+@{
+    ViewBag.Title = "Blog";
+    string StripHtml(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return "";
+        return System.Text.RegularExpressions.Regex.Replace(input, "<.*?>", string.Empty);
+    }
+
+    string Truncate(string input, int max)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return "";
+        var s = input.Trim();
+        return s.Length <= max ? s : s.Substring(0, max).TrimEnd() + "…";
+    }
+}
+
+<section class="container-fluid d-flex justify-content-center">
+    <div class="well row col-lg-8 m-5 p-3 shadow">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="alert alert-secondary rounded-3">
+                No blog posts yet.
+            </div>
+        }
+        else
+        {
+            <div class="row g-4">
+                @foreach (var post in Model)
+                {
+                    var safeAuthor = string.IsNullOrWhiteSpace(post.Author) ? "Staff" : post.Author;
+                    var preview = Truncate(StripHtml(post.Content), 180);
+                    var hasImg = !string.IsNullOrWhiteSpace(post.MediaURL);
+
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card h-100 shadow-sm rounded-4 overflow-hidden">
+                            @if (hasImg)
+                            {
+                                <a href="@post.ArticleURL" class="text-decoration-none" target="_blank">
+                                    <img src="@post.MediaURL" class="w-100" style="height: 200px; object-fit: cover;" alt="@post.Title"/>
+                                </a>
+                            }
+                            else
+                            {
+                                <div class="w-100 bg-light d-flex align-items-center justify-content-center"
+                                     style="height: 200px;">
+                                    <span class="text-muted">No image</span>
+                                </div>
+                            }
+
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title mb-2">
+                                    <a class="text-decoration-none" href="@post.ArticleURL" target="_blank">
+                                        @post.Title
+                                    </a>
+                                </h5>
+
+                                <div class="text-muted small mb-3">
+                                    <span>By @safeAuthor</span>
+                                    <span class="mx-2">•</span>
+                                    <span>@post.CreatedAt.ToString("MMM d, yyyy")</span>
+                                </div>
+
+                                <p class="card-text text-muted flex-grow-1">@preview</p>
+
+                                <div class="mt-3">
+                                    <a class="btn btn-gradient-grey border-dark rounded-4 text-shadow-small" href="Blog/@post.Id" target="_blank">
+                                        Read more
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</section>

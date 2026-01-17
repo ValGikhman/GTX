@@ -26,6 +26,8 @@ namespace GTX {
 
         Log LogHeader { get; set; }
 
+        List<BlogPostModel> Blogs { get; set; }
+
         #endregion Public Properties
 
         #region Public Methods

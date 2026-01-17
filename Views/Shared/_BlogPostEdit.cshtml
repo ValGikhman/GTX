@@ -1,0 +1,179 @@
+﻿@model GTX.Models.BlogPostModel
+@{
+    var isEdit = Model != null && Model.Id > 0;
+    var action = isEdit ? "Save" : "Create";
+    var htmlAttrs = new Dictionary<string, object>
+{
+        { "data-blog-ajax", "true" }
+    };
+}
+@using (Html.BeginForm(action, "BlogPosts", FormMethod.Post, htmlAttrs))
+{
+    @Html.HiddenFor(m => m.Id)
+    @Html.HiddenFor(m => m.CreatedAt)
+
+    <div class="container-fluid p-0">
+        <div class="row g-3">
+            <!-- Row 1: Published + Image URL -->
+            <div class="col-md-3">
+                <div class="form-check">
+                    @Html.CheckBoxFor(m => m.IsPublished, new { @class = "form-check-input", id = "IsPublished" })
+                    <label class="form-check-label text-shadow-small" for="IsPublished"><strong>Published</strong></label>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <label class="form-label text-shadow-small"><strong>Article URL (optional)</strong></label>
+                @Html.TextBoxFor(m => m.ArticleURL, new { @class = "form-control shadow", type = "url", id = "ArticleUrl", placeholder = "https://example.com/article.html" })
+                <div class="form-text">Paste a direct article link.</div>
+            </div>
+
+            <div class="col-md-12">
+                <label class="form-label text-shadow-small"><strong>Image URL (optional)</strong></label>
+                @Html.TextBoxFor(m => m.MediaURL, new { @class = "form-control shadow", type = "url", id = "MediaUrl", placeholder = "https://example.com/photo.jpg" })
+                <div class="form-text">Paste a direct image link (jpg/png/webp/gif).</div>
+            </div>
+
+            <!-- Row 2: Preview (always visible, always stretched) -->
+            <div class="col-12">
+                <label class="form-label text-shadow-small"><strong>Image Preview</strong></label>
+                <div class="border rounded-3 bg-light shadow-sm" style="height:260px; overflow:hidden;">
+                    <img id="imagePreview" alt="Image preview" style="width:100%; height:100%; object-fit:cover;" src="/images/placeholder-car.jpg" />
+                </div>
+            </div>
+
+            <!-- Row 3: Title + Author -->
+            <div class="col-md-6">
+                <label class="form-label text-shadow-small"><strong>Title</strong></label>
+                @Html.TextBoxFor(m => m.Title, new { @class = "form-control shadow", maxlength = "200", placeholder = "Post title..." })
+                @Html.ValidationMessageFor(m => m.Title, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label text-shadow-small"><strong>Author</strong></label>
+                @Html.TextBoxFor(m => m.Author, new { @class = "form-control shadow", placeholder = "Optional" })
+            </div>
+
+            <!-- Row 4: Content spans 2 cols -->
+            <div class="col-12">
+                <label class="form-label text-shadow-small"><strong>Content</strong></label>
+                @Html.HiddenFor(m => m.Content, new { id = "Content" })
+                <div id="contentEditor" class="form-control shadow" style="height:260px"></div>
+                @Html.ValidationMessageFor(m => m.Content, "", new { @class = "text-danger" })
+            </div>
+
+            @Html.ValidationSummary(false, "", new { @class = "text-danger mt-2" })
+
+            <div class="col-12 d-flex justify-content-end gap-2 mt-2">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary">@(isEdit ? "Save Changes" : "Create Post")</button>
+            </div>
+
+        </div>
+    </div>
+}
+
+<script>
+    $(function () {
+        var $form = $('form[data-blog-ajax="true"]');
+        if (!$form.length) $form = $('form').first();
+
+        // -----------------------------
+        // Quill
+        // -----------------------------
+        var quill = new Quill('#contentEditor', {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    [{ header: [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ list: 'ordered' }, { list: 'bullet' }],
+                    ['link', 'image'],
+                    ['clean']
+                ]
+            }
+        });
+
+        function normalizeEmpty(html) {
+            var h = $.trim(html || '');
+            return (h === '<p><br></p>' || h === '<div><br></div>') ? '' : h;
+        }
+
+        function syncContent() {
+            var html = normalizeEmpty(quill.root.innerHTML);
+            $('#Content', $form).val(html);
+        }
+
+        // Load existing content (Edit mode)
+        var initialHtml = $('#Content', $form).val();
+        if (initialHtml) quill.clipboard.dangerouslyPasteHTML(initialHtml);
+
+        // Sync on any submit (delegated helps if form is injected)
+        $(document).on('submit', 'form[data-blog-ajax="true"]', function () {
+            syncContent();
+        });
+
+        // Extra safety: sync on click (some AJAX serializers grab values on click)
+        $form.on('click', 'button[type=submit], input[type=submit]', function () {
+            syncContent();
+        });
+
+        // -----------------------------
+        // Media URL -> Image Preview
+        // -----------------------------
+        const allowed = ["jpg", "jpeg", "png", "gif", "webp", "bmp", "svg"];
+
+        function isValidUrl(s) {
+            try { new URL(s); return true; } catch (e) { return false; }
+        }
+
+        function getExt(url) {
+            try {
+                const u = new URL(url);
+                const path = (u.pathname || "").toLowerCase();
+                const m = path.match(/\.([a-z0-9]+)$/);
+                return m ? m[1] : "";
+            } catch (e) { return ""; }
+        }
+
+        function setPreview(url) {
+            const img = document.getElementById("imagePreview");
+            if (!img) return;
+
+            if (!url) {
+                img.removeAttribute("src");
+                img.style.display = "none"; // keep the box visible, hide only the img
+                return;
+            }
+
+            // Cache-bust so changes always refresh
+            const bust = (url.indexOf('?') >= 0 ? '&' : '?') + '_=' + Date.now();
+
+            img.style.display = "";
+            img.onerror = function () {
+                img.removeAttribute("src");
+                img.style.display = "none";
+            };
+            img.src = url + bust;
+        }
+
+        function renderPreviewFromInputValue(value) {
+            const url = (value || "").trim();
+            if (!url || !isValidUrl(url)) return setPreview('');
+
+            const ext = getExt(url);
+            if (!allowed.includes(ext)) return setPreview(''); // image-only
+
+            setPreview(url);
+        }
+
+        // Use delegated events so it works even when partial is loaded into a modal later
+        $(document).on('input change paste', '#MediaUrl', function () {
+            renderPreviewFromInputValue(this.value);
+        });
+
+        // Initial render (edit mode)
+        renderPreviewFromInputValue($('#MediaUrl').val());
+        syncContent();
+    });
+</script>
