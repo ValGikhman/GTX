@@ -9,7 +9,9 @@ namespace GTX.Controllers
 {
 
     public class InventoryController : BaseController {
-        public InventoryController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service _ez360Service, ILogService logService, IBlogPostService blogPostService)
+        private readonly HttpClient httpClient = new();
+
+    public InventoryController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service _ez360Service, ILogService logService, IBlogPostService blogPostService)
             : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService, blogPostService) {
 
         }
@@ -115,6 +117,21 @@ namespace GTX.Controllers
         public ActionResult ShareVehicle(string stock) {
             Models.GTX model = Model.Inventory.All.FirstOrDefault(m => m.Stock == stock);
             return PartialView("_AdCard", model);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> GetReport(string vin) {
+            string url = $"https://www.carfax.com/VehicleHistory/p/Report.cfx?vin={vin}";
+
+            using (var client = new HttpClient()) {
+                try {
+                    var html = await client.GetStringAsync(url);
+                    return Content(html, "text/html"); // Send raw HTML
+                }
+                catch (Exception ex) {
+                    return Content("Unable to fetch Carfax report.");
+                }
+            }
         }
 
         [HttpGet]
