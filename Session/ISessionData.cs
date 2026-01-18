@@ -12,7 +12,21 @@ namespace GTX {
 
         bool? IsMajordome { get; set; }
 
+        Inventory Inventory { get; set; }
+
+        Employer[] Employers { get; set; }
+
+        Filters Filters { get; set; }
+
+        Filters CurrentFilter { get; set; }
+
+        Vehicle CurrentVehicle { get; set; }
+
+        OpenHours[] OpenHours { get; set; }
+
         Log LogHeader { get; set; }
+
+        List<BlogPostModel> Blogs { get; set; }
 
         #endregion Public Properties
 

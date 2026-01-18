@@ -2,6 +2,8 @@
 using Services;
 using System;
 using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
 
@@ -9,18 +11,18 @@ namespace GTX.Controllers
 {
 
     public class InventoryController : BaseController {
-        public InventoryController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service _ez360Service, ILogService logService, IBlogPostService blogPostService)
-            : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService, blogPostService) {
 
+    public InventoryController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service _ez360Service, ILogService logService, IBlogPostService blogPostService)
+            : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService, blogPostService) {
         }
+
 
         [HttpGet]
         public ActionResult Index() {
-
             Model.Inventory.Title = "Found";
-            ViewBag.Title = $"{Model.Inventory.Title.ToUpper()} { Model.Inventory.Vehicles.Length} vehicle(s)";
-
+            ViewBag.Title = $"{Model.Inventory.Title.ToUpper()} {Model.Inventory.Vehicles.Length} vehicle(s)";
             Log($"{Model.Inventory.Title} inventory");
+
             return View(Model);
         }
 
@@ -95,7 +97,8 @@ namespace GTX.Controllers
             }
 
             // Suggest similar vehicles (within $3000 range, excluding the current one)
-            Model.CurrentVehicle.VehicleSuggesion = Model.Inventory.All?.Where(m => m.Stock != stock && m.VehicleType == vehicle.VehicleType 
+            Model.CurrentVehicle.VehicleSuggesion = Model.Inventory.All?.Where(m => m.Stock != stock 
+                            && m.VehicleType == vehicle.VehicleType 
                             && Math.Abs(m.InternetPrice - vehicle.InternetPrice) < 3000) 
                 .Take(10)
                 .ToArray() ?? Array.Empty<Models.GTX>();
@@ -119,8 +122,7 @@ namespace GTX.Controllers
 
         [HttpGet]
         public ActionResult All() {
-            Model.Inventory.Vehicles = Model.Inventory?.All ?? Array.Empty<Models.GTX>();
-
+            Model.Inventory.Vehicles = Model?.Inventory?.All ?? Array.Empty<Models.GTX>(); ;
             Model.Inventory.Title = "All";
             ViewBag.Title = $"{Model.Inventory.Vehicles.Length} vehicles";
 
@@ -129,12 +131,10 @@ namespace GTX.Controllers
 
         [HttpGet]
         public ActionResult Suvs() {
-            if (Model.Inventory.Suvs == null) {
-                string body = CommonUnit.VehicleType.SUV.ToString();
-                Model.Inventory.Suvs = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
-            }
+            string body = CommonUnit.VehicleType.SUV.ToString();
+            Model.Inventory.Suvs = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
+            Model.Inventory.Vehicles = Model?.Inventory?.Suvs ?? Array.Empty<Models.GTX>();
 
-            Model.Inventory.Vehicles = Model.Inventory?.Suvs ?? Array.Empty<Models.GTX>();
             Model.Inventory.Title = "Suv(s)";
             ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
 
@@ -143,12 +143,10 @@ namespace GTX.Controllers
 
         [HttpGet]
         public ActionResult Sedans() {
-            if (Model.Inventory.Sedans == null) {
-                string body = CommonUnit.VehicleType.SEDAN.ToString();
-                Model.Inventory.Sedans = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
-            }
-            
+            string body = CommonUnit.VehicleType.SEDAN.ToString();
+            Model.Inventory.Sedans = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
             Model.Inventory.Vehicles = Model?.Inventory?.Sedans ?? Array.Empty<Models.GTX>();
+
             Model.Inventory.Title = "Sedan(s)";
             ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
 
@@ -157,13 +155,10 @@ namespace GTX.Controllers
 
         [HttpGet]
         public ActionResult Wagons() {
-            if (Model?.Inventory?.Wagons == null)
-            {
-                string body = CommonUnit.VehicleType.WAGON.ToString();
-                Model.Inventory.Wagons = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
-            }
-
+            string body = CommonUnit.VehicleType.WAGON.ToString();
+            Model.Inventory.Wagons = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
             Model.Inventory.Vehicles = Model?.Inventory?.Wagons ?? Array.Empty<Models.GTX>();
+
             Model.Inventory.Title = "Wagon(s)";
             ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
 
@@ -172,13 +167,10 @@ namespace GTX.Controllers
 
         [HttpGet]
         public ActionResult Trucks() {
-            if (Model?.Inventory?.Trucks == null)
-            {
-                string body = CommonUnit.VehicleType.TRUCK.ToString();
-                Model.Inventory.Trucks = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
-            }
-
+            string body = CommonUnit.VehicleType.TRUCK.ToString();
+            Model.Inventory.Trucks = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
             Model.Inventory.Vehicles = Model?.Inventory?.Trucks ?? Array.Empty<Models.GTX>();
+
             Model.Inventory.Title = "Truck(s)";
             ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
 
@@ -187,13 +179,10 @@ namespace GTX.Controllers
 
         [HttpGet]
         public ActionResult Vans() {
-            if (Model?.Inventory?.Vans == null)
-            {
-                string body = CommonUnit.VehicleType.VAN.ToString();
-                Model.Inventory.Vans = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
-            }
-
+            string body = CommonUnit.VehicleType.VAN.ToString();
+            Model.Inventory.Vans = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
             Model.Inventory.Vehicles = Model?.Inventory?.Vans ?? Array.Empty<Models.GTX>();
+
             Model.Inventory.Title = "Van(s)";
             ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
 
@@ -202,13 +191,10 @@ namespace GTX.Controllers
 
         [HttpGet]
         public ActionResult Convertibles() {
-            if (Model?.Inventory?.Convertibles == null)
-            {
-                string body = CommonUnit.VehicleType.CONVERTIBLE.ToString();
-                Model.Inventory.Convertibles = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
-            }
-
+            string body = CommonUnit.VehicleType.CONVERTIBLE.ToString();
+            Model.Inventory.Convertibles = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
             Model.Inventory.Vehicles = Model?.Inventory?.Convertibles ?? Array.Empty<Models.GTX>();
+
             Model.Inventory.Title = "Convertible(s)";
             ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
 
@@ -217,13 +203,10 @@ namespace GTX.Controllers
 
         [HttpGet]
         public ActionResult Hatchbacks() {
-            if (Model?.Inventory?.Hatchbacks == null)
-            {
-                string body = CommonUnit.VehicleType.HATCHBACK.ToString();
-                Model.Inventory.Hatchbacks = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
-            }
-
+            string body = CommonUnit.VehicleType.HATCHBACK.ToString();
+            Model.Inventory.Hatchbacks = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
             Model.Inventory.Vehicles = Model?.Inventory?.Hatchbacks ?? Array.Empty<Models.GTX>();
+
             Model.Inventory.Title = "Hatchback(s)";
             ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
 
@@ -231,14 +214,11 @@ namespace GTX.Controllers
         }
 
         [HttpGet]
-        public ActionResult Coupes() {
-            if (Model?.Inventory?.Coupe == null)
-            {
-                string body = CommonUnit.VehicleType.COUPE.ToString();
-                Model.Inventory.Coupe = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
-            }
-
+    public ActionResult Coupes() {
+            string body = CommonUnit.VehicleType.COUPE.ToString();
+            Model.Inventory.Coupe = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
             Model.Inventory.Vehicles = Model?.Inventory?.Coupe ?? Array.Empty<Models.GTX>();
+
             Model.Inventory.Title = "Coupe(s)";
             ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
 
@@ -255,6 +235,7 @@ namespace GTX.Controllers
 
             var filteredVehicles = ApplyFilters(model);
 
+            Model.CurrentFilter = model;
             Model.Inventory.Vehicles = filteredVehicles;
             Model.Inventory.Title = "Search";
 
@@ -267,9 +248,9 @@ namespace GTX.Controllers
 
             term = term.Trim().ToUpper();
 
+            Model.CurrentFilter = null;
             Model.Inventory.Vehicles = ApplyTerms(term);
             Model.Inventory.Title = "Search";
-
             return Json(new { redirectUrl = Url.Action("Index") });
         }
 

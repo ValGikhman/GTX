@@ -74,7 +74,8 @@ namespace GTX.Controllers
                 SessionData.SetSession(Constants.SESSION_ENVIRONMENT, Model.IsDevelopment ? "Development" : "Production");
                 ViewBag.Environment = SessionData.Environment;
 
-                if (SessionData == null || SessionData?.IsMajordome == null) {
+                if (SessionData == null || SessionData?.IsMajordome == null)
+                {
                     Model.IsMajordome = false;
                     SessionData.SetSession(Constants.SESSION_MAJORDOME, Model.IsMajordome);
                 }
@@ -151,20 +152,18 @@ namespace GTX.Controllers
             }
         }
 
-        public Dictionary<string, Models.GTX[]> GetCategories() {
-            return Model?.Inventory?.All.GroupBy(v => v.VehicleType == null ? "" : v.VehicleType.Trim(), StringComparer.OrdinalIgnoreCase).ToDictionary(g => g.Key, g => g.ToArray(), StringComparer.OrdinalIgnoreCase);
-        }
-
         public Inventory SetModel() {
+            if (SessionData?.Inventory == null) {
+                var dto = InventoryService.GetInventory();
+                var vehicles = Models.GTX.ToGTX(dto.vehicles);
+                Model.Inventory.Published = dto.InventoryDate;
+                Model.Inventory.All = DecideImages(vehicles);
 
-            var dto = InventoryService.GetInventory();
-            var vehicles = Models.GTX.ToGTX(dto.vehicles);
-            Model.Inventory.Published = dto.InventoryDate;
-            Model.Inventory.All = DecideImages(vehicles);
+                Model.Inventory.Vehicles = Model.Inventory.All;
+                return Model.Inventory;
+            }
 
-            Model.Inventory.Vehicles = Model.Inventory.All;
-
-            return Model.Inventory;
+            return SessionData.Inventory;
         }
 
         public Inventory RefreshModel()
@@ -333,7 +332,6 @@ namespace GTX.Controllers
         }
 
         public void TerminateSession() {
-            AppCache.ClearAll();
             Session.Clear();
             Session.RemoveAll();
             Session.Abandon();
@@ -347,6 +345,12 @@ namespace GTX.Controllers
         #endregion Public Methods
 
         #region private methods
+        private Dictionary<string, Models.GTX[]> GetCategories() {
+
+            return Model?.Inventory?.All.GroupBy(v => v.VehicleType == null ? "" : v.VehicleType.Trim(), StringComparer.OrdinalIgnoreCase).ToDictionary(g => g.Key, g => g.ToArray(), StringComparer.OrdinalIgnoreCase);
+
+        }
+
         private static Filters BuildFilters(Inventory inventory)
         {
             var all = inventory.All;
