@@ -68,11 +68,6 @@ namespace GTX.Controllers
                 Model = new BaseModel();
 
                 Model.IsDevelopment = (Environment.GetEnvironmentVariable("COMPUTERNAME") == devComputer);
-                ViewBag.Published = DateTime.Now;
-                if (Model.Inventory?.Published != null)
-                {
-                    ViewBag.Published = Model.IsDevelopment ? Model.Inventory.Published : Model.Inventory.Published.AddHours(-5);
-                }
                 Model.IsEZ360 = ConfigurationManager.AppSettings["isEZ360"] == "true";
                 Model.IsDataOne = ConfigurationManager.AppSettings["isDataOne"] == "true";
 
@@ -99,8 +94,13 @@ namespace GTX.Controllers
                 Model.OpenHours = AppCache.GetOrCreate(openHoursKey, () => Utility.XMLHelpers.XmlRepository.GetOpenHours(), minutes: 60);
                 Model.Filters = AppCache.GetOrCreate(filtersKey, () => BuildFilters(Model.Inventory), minutes: 60);
                 Model.Categories = AppCache.GetOrCreate(categoriesKey, () => GetCategories(), minutes: 60);
+
+                var published = Model.Inventory?.Published ?? DateTime.Now;
+                ViewBag.Published = Model.IsDevelopment ? published : published.AddHours(-5);
+
             }
             catch (Exception ex) {
+                Log($"OnActionExecuting error: {ex.Message}");
             }
         }
 
