@@ -14,6 +14,7 @@ namespace GTX.Controllers
     public abstract class BaseController : Controller {
 
         #region Properties
+        public Dictionary<string, Models.GTX[]> Categories;
         public readonly string devComputer = "VALS-PC";
 
         public readonly string imageFolder = "/GTXImages/Inventory/";
@@ -68,11 +69,6 @@ namespace GTX.Controllers
                 Model = new BaseModel();
 
                 Model.IsDevelopment = (Environment.GetEnvironmentVariable("COMPUTERNAME") == devComputer);
-                ViewBag.Published = DateTime.Now;
-                if (Model.Inventory?.Published != null)
-                {
-                    ViewBag.Published = Model.IsDevelopment ? Model.Inventory.Published : Model.Inventory.Published.AddHours(-5);
-                }
                 Model.IsEZ360 = ConfigurationManager.AppSettings["isEZ360"] == "true";
                 Model.IsDataOne = ConfigurationManager.AppSettings["isDataOne"] == "true";
 
@@ -87,18 +83,38 @@ namespace GTX.Controllers
                 Model.IsMajordome = (bool)SessionData.IsMajordome;
                 ViewBag.IsMajordome = Model.IsMajordome;
 
-                // Cache keys - you can include tenant/store id etc. if needed
-                const string invKey = "GTX:Inventory";
-                const string employersKey = "GTX:Employers";
-                const string openHoursKey = "GTX:OpenHours";
-                const string filtersKey = "GTX:Filters";
-                const string categoriesKey = "GTX:Categories";
+                if (SessionData == null || SessionData?.Inventory == null)
+                {
+                    // Getting Inventory
+                    Model.Inventory = SetModel();
+                    SessionData.SetSession(Constants.SESSION_INVENTORY, Model.Inventory);
+                }
+                Model.Inventory = SessionData.Inventory;
 
-                Model.Inventory = AppCache.GetOrCreate(invKey, () => SetModel(), minutes: 60);
-                Model.Employers = AppCache.GetOrCreate(employersKey, () => Utility.XMLHelpers.XmlRepository.GetEmployers(), minutes: 60);
-                Model.OpenHours = AppCache.GetOrCreate(openHoursKey, () => Utility.XMLHelpers.XmlRepository.GetOpenHours(), minutes: 60);
-                Model.Filters = AppCache.GetOrCreate(filtersKey, () => BuildFilters(Model.Inventory), minutes: 60);
-                Model.Categories = AppCache.GetOrCreate(categoriesKey, () => GetCategories(), minutes: 60);
+                if (SessionData == null || SessionData?.Employers == null) {
+                    Employer[] employers = Utility.XMLHelpers.XmlRepository.GetEmployers();
+                    SessionData.SetSession(Constants.SESSION_EMPLOYERS, employers);
+                }
+
+                Model.Employers = SessionData.Employers;
+
+                if (SessionData == null || SessionData?.Filters == null) {
+                    Filters filters = BuildFilters(Model.Inventory);
+                    SessionData.SetSession(Constants.SESSION_FILTERS, filters);
+                }
+
+                if (SessionData == null ||  SessionData?.OpenHours == null) {
+                    OpenHours[] openHours = Utility.XMLHelpers.XmlRepository.GetOpenHours();
+                    SessionData.SetSession(Constants.SESSION_OPEN_HOURS, openHours);
+                    Model.OpenHours = openHours;                
+                }
+                Model.OpenHours = SessionData.OpenHours;
+
+                ViewBag.Published = DateTime.Now;
+                if (Model.Inventory?.Published != null)
+                {
+                    ViewBag.Published = Model.IsDevelopment ? Model.Inventory.Published : Model.Inventory.Published.AddHours(-5);
+                }
             }
             catch (Exception ex) {
             }
@@ -151,20 +167,18 @@ namespace GTX.Controllers
             }
         }
 
-        public Dictionary<string, Models.GTX[]> GetCategories() {
-            return Model?.Inventory?.All.GroupBy(v => v.VehicleType == null ? "" : v.VehicleType.Trim(), StringComparer.OrdinalIgnoreCase).ToDictionary(g => g.Key, g => g.ToArray(), StringComparer.OrdinalIgnoreCase);
-        }
-
         public Inventory SetModel() {
+            if (SessionData?.Inventory == null) {
+                var dto = InventoryService.GetInventory();
+                var vehicles = Models.GTX.ToGTX(dto.vehicles);
+                Model.Inventory.Published = dto.InventoryDate;
+                Model.Inventory.All = DecideImages(vehicles);
 
-            var dto = InventoryService.GetInventory();
-            var vehicles = Models.GTX.ToGTX(dto.vehicles);
-            Model.Inventory.Published = dto.InventoryDate;
-            Model.Inventory.All = DecideImages(vehicles);
+                Model.Inventory.Vehicles = Model.Inventory.All;
+                return Model.Inventory;
+            }
 
-            Model.Inventory.Vehicles = Model.Inventory.All;
-
-            return Model.Inventory;
+            return SessionData.Inventory;
         }
 
         public Inventory RefreshModel()
@@ -333,7 +347,6 @@ namespace GTX.Controllers
         }
 
         public void TerminateSession() {
-            AppCache.ClearAll();
             Session.Clear();
             Session.RemoveAll();
             Session.Abandon();

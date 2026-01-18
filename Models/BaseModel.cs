@@ -8,13 +8,29 @@ namespace GTX.Models
         #region Public Constructors
 
         public BaseModel() {
+
             Inventory = new Inventory();
+            CurrentFilter = new Filters();
             CurrentVehicle = new Vehicle();
+
+            if (HttpContext.Current.Session[Constants.SESSION_INVENTORY] != null) {
+                Inventory = (Inventory)HttpContext.Current.Session[Constants.SESSION_INVENTORY];
+            }
+
+            if (HttpContext.Current.Session[Constants.SESSION_EMPLOYERS] != null) {
+                Employers = (Employer[])HttpContext.Current.Session[Constants.SESSION_EMPLOYERS];
+            }
+
+            if (HttpContext.Current.Session[Constants.SESSION_CURRENT_FILTER] != null) {
+                CurrentFilter = (Filters)HttpContext.Current.Session[Constants.SESSION_CURRENT_FILTER];
+            }
+
+            if (HttpContext.Current.Session[Constants.SESSION_OPEN_HOURS] != null) {
+                OpenHours = (OpenHours[])HttpContext.Current.Session[Constants.SESSION_OPEN_HOURS];
+            }
         }
 
         #endregion Public Constructors
-
-        public Dictionary<string, GTX[]> Categories { get; set; }
 
         public bool IsMajordome { get; set; }
 
@@ -28,7 +44,7 @@ namespace GTX.Models
 
         public Employer[] Employers { get; set; }
 
-        public Filters Filters { get; set; }
+        public Filters CurrentFilter { get; set; }
 
         public Vehicle CurrentVehicle { get; set; }
 
