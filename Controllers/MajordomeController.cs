@@ -94,7 +94,7 @@ namespace GTX.Controllers
             Model.CurrentVehicle.VehicleDetails = vehicle;
             Model.CurrentVehicle.VehicleDataOneDetails = GetDecodedData(stock);
 
-            SessionData.CurrentVehicle = Model.CurrentVehicle;
+            Model.CurrentVehicle = Model.CurrentVehicle;
             return PartialView("_DetailsDataOne", Model);
         }
 
@@ -285,7 +285,7 @@ namespace GTX.Controllers
         public void SetDetails(string stock) {
             stock = stock?.Trim().ToUpper();
             Model.CurrentVehicle.VehicleDetails = Model.Inventory.All.FirstOrDefault(m => m.Stock == stock);
-            SessionData.CurrentVehicle = Model.CurrentVehicle;
+            Model.CurrentVehicle = Model.CurrentVehicle;
         }
 
         public ActionResult OverlayModal(Guid id) {
@@ -314,7 +314,6 @@ namespace GTX.Controllers
 
         [HttpPost]
         public JsonResult ApplyTerm(string term) {
-            Model.CurrentFilter = null;
             Model.Inventory.Vehicles = ApplyTerms(term.Trim().ToUpper());
             Model.Inventory.Title = "Search";
             return Json(new { redirectUrl = Url.Action("Inventory") });

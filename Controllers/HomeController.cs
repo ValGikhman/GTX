@@ -39,13 +39,10 @@ namespace GTX.Controllers
             ViewBag.Message = "Staff";
             ViewBag.Title = "Our staff";
 
-            BaseModel model = new BaseModel();
             try {
-                if (SessionData?.Employers == null) {
-                    Employer[] employers = Utility.XMLHelpers.XmlRepository.GetEmployers();
+                if (Model?.Employers == null) {
+                    Model.Employers = Utility.XMLHelpers.XmlRepository.GetEmployers();
                 }
-
-                model.Employers = SessionData.Employers;
             }
             catch (Exception ex) {
                 base.Log(ex);
@@ -53,7 +50,7 @@ namespace GTX.Controllers
             finally {
             }
 
-            return View(model);
+            return View(Model);
         }
 
         [HttpGet]
@@ -110,7 +107,7 @@ namespace GTX.Controllers
             Log($"Sending contact: {SerializeModel(model)}");
             try {
                 if (ModelState.IsValid) {
-                    model.CurrentVehicle = SessionData.CurrentVehicle;
+                    model.CurrentVehicle = Model.CurrentVehicle;
 
                     Contact contact = new Contact();
                     contact.FirstName = model.FirstName;
