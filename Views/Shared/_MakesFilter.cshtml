@@ -24,7 +24,7 @@
                             showSpinner($("#filterOverlay"));
                             var model = { Makes: [make] };
 
-                            $.post(`${root}Inventory/ApplyFilter`, { model: model }, null,"json")
+                            $.post(`${root}Inventory/ApplyFilter`, { model: model }, "json")
                                 .done(function (response) {
                                     hideSpinner($("#filterOverlay"));
                                     window.location.href = response.redirectUrl; // ✅ Now navigate to that controller action
