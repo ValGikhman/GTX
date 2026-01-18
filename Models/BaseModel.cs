@@ -12,22 +12,6 @@ namespace GTX.Models
             Inventory = new Inventory();
             CurrentFilter = new Filters();
             CurrentVehicle = new Vehicle();
-
-            if (HttpContext.Current.Session[Constants.SESSION_INVENTORY] != null) {
-                Inventory = (Inventory)HttpContext.Current.Session[Constants.SESSION_INVENTORY];
-            }
-
-            if (HttpContext.Current.Session[Constants.SESSION_EMPLOYERS] != null) {
-                Employers = (Employer[])HttpContext.Current.Session[Constants.SESSION_EMPLOYERS];
-            }
-
-            if (HttpContext.Current.Session[Constants.SESSION_CURRENT_FILTER] != null) {
-                CurrentFilter = (Filters)HttpContext.Current.Session[Constants.SESSION_CURRENT_FILTER];
-            }
-
-            if (HttpContext.Current.Session[Constants.SESSION_OPEN_HOURS] != null) {
-                OpenHours = (OpenHours[])HttpContext.Current.Session[Constants.SESSION_OPEN_HOURS];
-            }
         }
 
         #endregion Public Constructors

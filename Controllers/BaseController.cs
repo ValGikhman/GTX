@@ -83,18 +83,11 @@ namespace GTX.Controllers
                 Model.IsMajordome = (bool)SessionData.IsMajordome;
                 ViewBag.IsMajordome = Model.IsMajordome;
 
-                // Cache keys - you can include tenant/store id etc. if needed
-                const string invKey = "GTX:Inventory";
-                const string employersKey = "GTX:Employers";
-                const string openHoursKey = "GTX:OpenHours";
-                const string filtersKey = "GTX:Filters";
-                const string categoriesKey = "GTX:Categories";
-
-                Model.Inventory = AppCache.GetOrCreate(invKey, () => SetModel(), minutes: 60);
-                Model.Employers = AppCache.GetOrCreate(employersKey, () => Utility.XMLHelpers.XmlRepository.GetEmployers(), minutes: 60);
-                Model.OpenHours = AppCache.GetOrCreate(openHoursKey, () => Utility.XMLHelpers.XmlRepository.GetOpenHours(), minutes: 60);
-                Model.Filters = AppCache.GetOrCreate(filtersKey, () => BuildFilters(Model.Inventory), minutes: 60);
-                Model.Categories = AppCache.GetOrCreate(categoriesKey, () => GetCategories(), minutes: 60);
+                Model.Inventory = AppCache.GetOrCreate(Constants.INVENTORY_CACHE, () => SetModel(), minutes: 60);
+                Model.Employers = AppCache.GetOrCreate(Constants.EMPLOYERS_CACHE, () => Utility.XMLHelpers.XmlRepository.GetEmployers(), minutes: 60);
+                Model.OpenHours = AppCache.GetOrCreate(Constants.OPENHOURS_CACHE, () => Utility.XMLHelpers.XmlRepository.GetOpenHours(), minutes: 60);
+                Model.Filters = AppCache.GetOrCreate(Constants.FILTERS_CACHE, () => BuildFilters(Model.Inventory), minutes: 60);
+                Model.Categories = AppCache.GetOrCreate(Constants.CATEGORIES_CACHE, () => GetCategories(), minutes: 60);
 
                 var published = Model.Inventory?.Published ?? DateTime.Now;
                 ViewBag.Published = Model.IsDevelopment ? published : published.AddHours(-5);
@@ -153,17 +146,13 @@ namespace GTX.Controllers
         }
 
         public Inventory SetModel() {
-            if (SessionData?.Inventory == null) {
-                var dto = InventoryService.GetInventory();
-                var vehicles = Models.GTX.ToGTX(dto.vehicles);
-                Model.Inventory.Published = dto.InventoryDate;
-                Model.Inventory.All = DecideImages(vehicles);
+            var dto = InventoryService.GetInventory();
+            var vehicles = Models.GTX.ToGTX(dto.vehicles);
+            Model.Inventory.Published = dto.InventoryDate;
+            Model.Inventory.All = DecideImages(vehicles);
 
-                Model.Inventory.Vehicles = Model.Inventory.All;
-                return Model.Inventory;
-            }
-
-            return SessionData.Inventory;
+            Model.Inventory.Vehicles = Model.Inventory.All;
+            return Model.Inventory;
         }
 
         public Inventory RefreshModel()

@@ -227,15 +227,12 @@ namespace GTX.Controllers
 
         [HttpPost]
         public JsonResult ApplyFilter(Filters model) {
-            Log($"Applying filter: {SerializeModel(model)}");
-
             if (model.Transmissions != null) {
                 model.Transmissions = model.Transmissions.Select(word => word.Substring(0, 1).ToUpper()).ToArray();
             }
 
             var filteredVehicles = ApplyFilters(model);
 
-            Model.CurrentFilter = model;
             Model.Inventory.Vehicles = filteredVehicles;
             Model.Inventory.Title = "Search";
 
@@ -244,11 +241,8 @@ namespace GTX.Controllers
 
         [HttpPost]
         public JsonResult ApplyTerm(string term) {
-            Log($"Applying term: {term}");
-
             term = term.Trim().ToUpper();
 
-            Model.CurrentFilter = null;
             Model.Inventory.Vehicles = ApplyTerms(term);
             Model.Inventory.Title = "Search";
             return Json(new { redirectUrl = Url.Action("Index") });
