@@ -96,8 +96,6 @@ namespace GTX.Controllers
             Log($"Sending contact: {SerializeModel(model)}");
             try {
                 if (ModelState.IsValid) {
-                    model.CurrentVehicle = SessionData.CurrentVehicle;
-
                     Contact contact = new Contact();
                     contact.FirstName = model.FirstName;
                     contact.LastName = model.LastName;

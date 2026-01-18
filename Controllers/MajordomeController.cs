@@ -94,7 +94,6 @@ namespace GTX.Controllers
             Model.CurrentVehicle.VehicleDetails = vehicle;
             Model.CurrentVehicle.VehicleDataOneDetails = GetDecodedData(stock);
 
-            SessionData.CurrentVehicle = Model.CurrentVehicle;
             return PartialView("_DetailsDataOne", Model);
         }
 
@@ -179,7 +178,6 @@ namespace GTX.Controllers
             try
             {
                 var details = VinDecoderService.DecodeVin(vin, dataOneApiKey, dataOneSecretApiKey);
-                ViewBag.IsMajordome = Model.IsMajordome;
                 var vehicle = Model.Inventory.All?.FirstOrDefault(m => m.VIN == vin);
                 Model.CurrentVehicle.VehicleDetails = vehicle;
                 Model.CurrentVehicle.VehicleDataOneDetails = Models.GTX.SetDecodedData(details);
@@ -285,7 +283,6 @@ namespace GTX.Controllers
         public void SetDetails(string stock) {
             stock = stock?.Trim().ToUpper();
             Model.CurrentVehicle.VehicleDetails = Model.Inventory.All.FirstOrDefault(m => m.Stock == stock);
-            SessionData.CurrentVehicle = Model.CurrentVehicle;
         }
 
         public ActionResult OverlayModal(Guid id) {
