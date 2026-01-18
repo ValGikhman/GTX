@@ -2,8 +2,6 @@
 using Services;
 using System;
 using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
 
@@ -14,18 +12,16 @@ namespace GTX.Controllers
         public InventoryController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service _ez360Service, ILogService logService, IBlogPostService blogPostService)
             : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService, blogPostService) {
 
-            Categories = SessionData?.Inventory?.All.GroupBy(v => v.VehicleType == null ? "" : v.VehicleType.Trim(), StringComparer.OrdinalIgnoreCase).ToDictionary(g => g.Key, g => g.ToArray(), StringComparer.OrdinalIgnoreCase);
         }
 
-
         [HttpGet]
-        public ActionResult Index(BaseModel model) {
-            var vehicles = Model.Inventory.Vehicles ?? Array.Empty<Models.GTX>();
-            Model.Inventory.Title = "Found";
-            ViewBag.Title = $"{Model.Inventory.Title.ToUpper()} {vehicles.Length} vehicle(s)";
-            Log($"{Model.Inventory.Title} inventory");
+        public ActionResult Index() {
 
-            return View(model);
+            Model.Inventory.Title = "Found";
+            ViewBag.Title = $"{Model.Inventory.Title.ToUpper()} { Model.Inventory.Vehicles.Length} vehicle(s)";
+
+            Log($"{Model.Inventory.Title} inventory");
+            return View(Model);
         }
 
         [HttpGet]
@@ -58,7 +54,7 @@ namespace GTX.Controllers
 
             if (string.IsNullOrEmpty(stock)) {
                 Model.Inventory.Title = "All";
-                Model.Inventory.Vehicles = SessionData?.Inventory?.All as Models.GTX[] ?? Array.Empty<Models.GTX>();
+                Model.Inventory.Vehicles = Model?.Inventory?.All as Models.GTX[] ?? Array.Empty<Models.GTX>();
                 ViewBag.Title = $"{Model.Inventory.Vehicles.Length} vehicles";
 
                 return View("Index", Model);
@@ -97,11 +93,9 @@ namespace GTX.Controllers
                     Model.CurrentVehicle.DisplayEZ360Player = (ez360.DetailPics.Length > 0 && ez360.IsPublishable);
                 }
             }
-            SessionData.CurrentVehicle = Model.CurrentVehicle;
 
             // Suggest similar vehicles (within $3000 range, excluding the current one)
-            Model.CurrentVehicle.VehicleSuggesion = Model.Inventory.All?.Where(m => m.Stock != stock 
-                            && m.VehicleType == vehicle.VehicleType 
+            Model.CurrentVehicle.VehicleSuggesion = Model.Inventory.All?.Where(m => m.Stock != stock && m.VehicleType == vehicle.VehicleType 
                             && Math.Abs(m.InternetPrice - vehicle.InternetPrice) < 3000) 
                 .Take(10)
                 .ToArray() ?? Array.Empty<Models.GTX>();
@@ -125,25 +119,22 @@ namespace GTX.Controllers
 
         [HttpGet]
         public ActionResult All() {
-            var vehicles = SessionData?.Inventory?.All ?? Array.Empty<Models.GTX>();
+            Model.Inventory.Vehicles = Model.Inventory?.All ?? Array.Empty<Models.GTX>();
 
-            Model.Inventory.Vehicles = vehicles;
             Model.Inventory.Title = "All";
-            ViewBag.Title = $"{vehicles.Length} vehicles";
+            ViewBag.Title = $"{Model.Inventory.Vehicles.Length} vehicles";
 
             return View("Index", Model);
         }
 
         [HttpGet]
         public ActionResult Suvs() {
-            if (SessionData?.Inventory?.Suvs == null) {
+            if (Model.Inventory.Suvs == null) {
                 string body = CommonUnit.VehicleType.SUV.ToString();
-                Model.Inventory.Suvs = GetOrEmpty(Categories, body, Array.Empty<Models.GTX>());
-                SessionData.SetSession(Constants.SESSION_INVENTORY, Model.Inventory);
-            }            
+                Model.Inventory.Suvs = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
+            }
 
-            Model.Inventory.Vehicles = SessionData?.Inventory?.Suvs ?? Array.Empty<Models.GTX>();
-
+            Model.Inventory.Vehicles = Model.Inventory?.Suvs ?? Array.Empty<Models.GTX>();
             Model.Inventory.Title = "Suv(s)";
             ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
 
@@ -152,14 +143,12 @@ namespace GTX.Controllers
 
         [HttpGet]
         public ActionResult Sedans() {
-            if (SessionData?.Inventory?.Sedans == null) {
+            if (Model.Inventory.Sedans == null) {
                 string body = CommonUnit.VehicleType.SEDAN.ToString();
-                Model.Inventory.Sedans = GetOrEmpty(Categories, body, Array.Empty<Models.GTX>());
-                SessionData.SetSession(Constants.SESSION_INVENTORY, Model.Inventory);
+                Model.Inventory.Sedans = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
             }
-
-            Model.Inventory.Vehicles = SessionData?.Inventory?.Sedans ?? Array.Empty<Models.GTX>();
-
+            
+            Model.Inventory.Vehicles = Model?.Inventory?.Sedans ?? Array.Empty<Models.GTX>();
             Model.Inventory.Title = "Sedan(s)";
             ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
 
@@ -168,15 +157,13 @@ namespace GTX.Controllers
 
         [HttpGet]
         public ActionResult Wagons() {
-            if (SessionData?.Inventory?.Wagons == null)
+            if (Model?.Inventory?.Wagons == null)
             {
                 string body = CommonUnit.VehicleType.WAGON.ToString();
-                Model.Inventory.Wagons = GetOrEmpty(Categories, body, Array.Empty<Models.GTX>());
-                SessionData.SetSession(Constants.SESSION_INVENTORY, Model.Inventory);
+                Model.Inventory.Wagons = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
             }
 
-            Model.Inventory.Vehicles = SessionData?.Inventory?.Wagons ?? Array.Empty<Models.GTX>();
-
+            Model.Inventory.Vehicles = Model?.Inventory?.Wagons ?? Array.Empty<Models.GTX>();
             Model.Inventory.Title = "Wagon(s)";
             ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
 
@@ -185,15 +172,13 @@ namespace GTX.Controllers
 
         [HttpGet]
         public ActionResult Trucks() {
-            if (SessionData?.Inventory?.Trucks == null)
+            if (Model?.Inventory?.Trucks == null)
             {
                 string body = CommonUnit.VehicleType.TRUCK.ToString();
-                Model.Inventory.Trucks = GetOrEmpty(Categories, body, Array.Empty<Models.GTX>());
-                SessionData.SetSession(Constants.SESSION_INVENTORY, Model.Inventory);
+                Model.Inventory.Trucks = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
             }
 
-            Model.Inventory.Vehicles = SessionData?.Inventory?.Trucks ?? Array.Empty<Models.GTX>();
-
+            Model.Inventory.Vehicles = Model?.Inventory?.Trucks ?? Array.Empty<Models.GTX>();
             Model.Inventory.Title = "Truck(s)";
             ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
 
@@ -202,14 +187,13 @@ namespace GTX.Controllers
 
         [HttpGet]
         public ActionResult Vans() {
-            if (SessionData?.Inventory?.Vans == null)
+            if (Model?.Inventory?.Vans == null)
             {
                 string body = CommonUnit.VehicleType.VAN.ToString();
-                Model.Inventory.Vans = GetOrEmpty(Categories, body, Array.Empty<Models.GTX>());
-                SessionData.SetSession(Constants.SESSION_INVENTORY, Model.Inventory);
+                Model.Inventory.Vans = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
             }
-            Model.Inventory.Vehicles = SessionData?.Inventory?.Vans ?? Array.Empty<Models.GTX>();
 
+            Model.Inventory.Vehicles = Model?.Inventory?.Vans ?? Array.Empty<Models.GTX>();
             Model.Inventory.Title = "Van(s)";
             ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
 
@@ -218,14 +202,13 @@ namespace GTX.Controllers
 
         [HttpGet]
         public ActionResult Convertibles() {
-            if (SessionData?.Inventory?.Convertibles == null)
+            if (Model?.Inventory?.Convertibles == null)
             {
                 string body = CommonUnit.VehicleType.CONVERTIBLE.ToString();
-                Model.Inventory.Convertibles = GetOrEmpty(Categories, body, Array.Empty<Models.GTX>());
-                SessionData.SetSession(Constants.SESSION_INVENTORY, Model.Inventory);
+                Model.Inventory.Convertibles = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
             }
-            Model.Inventory.Vehicles = SessionData?.Inventory?.Convertibles ?? Array.Empty<Models.GTX>();
 
+            Model.Inventory.Vehicles = Model?.Inventory?.Convertibles ?? Array.Empty<Models.GTX>();
             Model.Inventory.Title = "Convertible(s)";
             ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
 
@@ -234,14 +217,13 @@ namespace GTX.Controllers
 
         [HttpGet]
         public ActionResult Hatchbacks() {
-            if (SessionData?.Inventory?.Hatchbacks == null)
+            if (Model?.Inventory?.Hatchbacks == null)
             {
                 string body = CommonUnit.VehicleType.HATCHBACK.ToString();
-                Model.Inventory.Hatchbacks = GetOrEmpty(Categories, body, Array.Empty<Models.GTX>());
-                SessionData.SetSession(Constants.SESSION_INVENTORY, Model.Inventory);
+                Model.Inventory.Hatchbacks = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
             }
-            Model.Inventory.Vehicles = SessionData?.Inventory?.Hatchbacks ?? Array.Empty<Models.GTX>();
 
+            Model.Inventory.Vehicles = Model?.Inventory?.Hatchbacks ?? Array.Empty<Models.GTX>();
             Model.Inventory.Title = "Hatchback(s)";
             ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
 
@@ -250,14 +232,13 @@ namespace GTX.Controllers
 
         [HttpGet]
         public ActionResult Coupes() {
-            if (SessionData?.Inventory?.Coupe == null)
+            if (Model?.Inventory?.Coupe == null)
             {
                 string body = CommonUnit.VehicleType.COUPE.ToString();
-                Model.Inventory.Coupe = GetOrEmpty(Categories, body, Array.Empty<Models.GTX>());
-                SessionData.SetSession(Constants.SESSION_INVENTORY, Model.Inventory);
+                Model.Inventory.Coupe = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
             }
-            Model.Inventory.Vehicles = SessionData?.Inventory?.Coupe ?? Array.Empty<Models.GTX>();
 
+            Model.Inventory.Vehicles = Model?.Inventory?.Coupe ?? Array.Empty<Models.GTX>();
             Model.Inventory.Title = "Coupe(s)";
             ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
 
@@ -274,7 +255,6 @@ namespace GTX.Controllers
 
             var filteredVehicles = ApplyFilters(model);
 
-            Model.CurrentFilter = model;
             Model.Inventory.Vehicles = filteredVehicles;
             Model.Inventory.Title = "Search";
 
@@ -287,9 +267,9 @@ namespace GTX.Controllers
 
             term = term.Trim().ToUpper();
 
-            Model.CurrentFilter = null;
             Model.Inventory.Vehicles = ApplyTerms(term);
             Model.Inventory.Title = "Search";
+
             return Json(new { redirectUrl = Url.Action("Index") });
         }
 
@@ -297,7 +277,7 @@ namespace GTX.Controllers
         [AllowAnonymous]
         public JsonResult GetMakes() {
             try {
-                return Json(SessionData?.Filters?.Makes, JsonRequestBehavior.AllowGet);
+                return Json(Model?.Filters?.Makes, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex) {
                 base.Log(ex);
@@ -311,7 +291,7 @@ namespace GTX.Controllers
         [AllowAnonymous]
         public JsonResult GetMakesImages() {
             try {
-                return Json(SessionData?.Filters?.Makes, JsonRequestBehavior.AllowGet);
+                return Json(Model?.Filters?.Makes, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex) {
                 base.Log(ex);
@@ -327,12 +307,12 @@ namespace GTX.Controllers
             try {
                 if (!string.IsNullOrEmpty(makes)) {
                     string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    var rs = SessionData?.Inventory.All?.Where(m => request.Contains(m.Make));
+                    var rs = Model?.Inventory.All?.Where(m => request.Contains(m.Make));
 
                     return Json(rs.Select(m => m.Model).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
                 }
                 else {
-                    return Json(SessionData?.Filters?.Models, JsonRequestBehavior.AllowGet);
+                    return Json(Model?.Filters?.Models, JsonRequestBehavior.AllowGet);
                 }
             }
             catch (Exception ex) {
@@ -349,12 +329,12 @@ namespace GTX.Controllers
             try {
                 if (!string.IsNullOrEmpty(makes)) {
                     string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    var rs = SessionData?.Inventory.All?.Where(m => request.Contains(m.Make) && m.Cylinders > 0);
+                    var rs = Model?.Inventory.All?.Where(m => request.Contains(m.Make) && m.Cylinders > 0);
 
                     return Json(rs.Select(m => m.Cylinders).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
                 }
                 else {
-                    return Json(SessionData?.Filters?.Cylinders, JsonRequestBehavior.AllowGet);
+                    return Json(Model?.Filters?.Cylinders, JsonRequestBehavior.AllowGet);
                 }
             }
             catch (Exception ex) {
@@ -371,12 +351,12 @@ namespace GTX.Controllers
             try {
                 if (!string.IsNullOrEmpty(makes)) {
                     string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    var rs = SessionData?.Inventory.All?.Where(m => request.Contains(m.Make));
+                    var rs = Model?.Inventory.All?.Where(m => request.Contains(m.Make));
 
                     return Json(rs.Select(m => Models.GTX.WordIt(m.Transmission)).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
                 }
                 else {
-                    return Json(SessionData?.Filters?.Transmissions, JsonRequestBehavior.AllowGet);
+                    return Json(Model?.Filters?.Transmissions, JsonRequestBehavior.AllowGet);
                 }
             }
             catch (Exception ex) {
@@ -393,12 +373,12 @@ namespace GTX.Controllers
             try {
                 if (!string.IsNullOrEmpty(makes)) {
                     string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    var rs = SessionData?.Inventory.All?.Where(m => request.Contains(m.Make));
+                    var rs = Model?.Inventory.All?.Where(m => request.Contains(m.Make));
 
                     return Json(rs.Select(m => m.FuelType).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
                 }
                 else {
-                    return Json(SessionData?.Filters?.FuelTypes, JsonRequestBehavior.AllowGet);
+                    return Json(Model?.Filters?.FuelTypes, JsonRequestBehavior.AllowGet);
                 }
             }
             catch (Exception ex) {
@@ -415,12 +395,12 @@ namespace GTX.Controllers
             try {
                 if (!string.IsNullOrEmpty(makes)) {
                     string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    var rs = SessionData?.Inventory.All?.Where(m => request.Contains(m.Make));
+                    var rs = Model?.Inventory.All?.Where(m => request.Contains(m.Make));
 
                     return Json(rs.Select(m => m.VehicleType).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
                 }
                 else {
-                    return Json(SessionData?.Filters?.VehicleTypes, JsonRequestBehavior.AllowGet);
+                    return Json(Model?.Filters?.VehicleTypes, JsonRequestBehavior.AllowGet);
                 }
             }
             catch (Exception ex) {
@@ -437,12 +417,12 @@ namespace GTX.Controllers
             try {
                 if (!string.IsNullOrEmpty(makes)) {
                     string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    var rs = SessionData?.Inventory.All?.Where(m => request.Contains(m.Make));
+                    var rs = Model?.Inventory.All?.Where(m => request.Contains(m.Make));
 
                     return Json(rs.Select(m => m.DriveTrain).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
                 }
                 else {
-                    return Json(SessionData?.Filters?.DriveTrains, JsonRequestBehavior.AllowGet);
+                    return Json(Model?.Filters?.DriveTrains, JsonRequestBehavior.AllowGet);
                 }
             }
             catch (Exception ex) {
@@ -459,12 +439,12 @@ namespace GTX.Controllers
             try {
                 if (!string.IsNullOrEmpty(makes)) {
                     string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    var rs = SessionData?.Inventory.All?.Where(m => request.Contains(m.Make));
+                    var rs = Model?.Inventory.All?.Where(m => request.Contains(m.Make));
 
                     return Json(rs.Select(m => m.Body).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
                 }
                 else {
-                    return Json(SessionData?.Filters?.BodyTypes, JsonRequestBehavior.AllowGet);
+                    return Json(Model?.Filters?.BodyTypes, JsonRequestBehavior.AllowGet);
                 }
             }
             catch (Exception ex) {
@@ -483,14 +463,14 @@ namespace GTX.Controllers
                 int? priceMax;
                 if (!string.IsNullOrEmpty(makes)) {
                     string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    var rs = SessionData?.Inventory.All?.Where(m => request.Contains(m.Make));
+                    var rs = Model?.Inventory.All?.Where(m => request.Contains(m.Make));
 
                     priceMax = rs?.Max(m => m.InternetPrice);
                     priceMin = rs?.Min(m => m.InternetPrice);
                 }
                 else {
-                    priceMax = SessionData?.Inventory?.All?.Max(m => m.InternetPrice);
-                    priceMin = SessionData?.Inventory?.All?.Min(m => m.InternetPrice);
+                    priceMax = Model?.Inventory?.All?.Max(m => m.InternetPrice);
+                    priceMin = Model?.Inventory?.All?.Min(m => m.InternetPrice);
                 }
                 return Json(new { PriceMax = priceMax, PriceMin = priceMin }, JsonRequestBehavior.AllowGet);
             }
@@ -510,14 +490,14 @@ namespace GTX.Controllers
                 int? milesMax;
                 if (!string.IsNullOrEmpty(makes)) {
                     string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    var rs = SessionData?.Inventory.All?.Where(m => request.Contains(m.Make));
+                    var rs = Model?.Inventory.All?.Where(m => request.Contains(m.Make));
 
                     milesMax = rs?.Max(m => m.Mileage);
                     milesMin = rs?.Min(m => m.Mileage);
                 }
                 else {
-                    milesMax = SessionData?.Inventory?.All?.Max(m => m.Mileage);
-                    milesMin = SessionData?.Inventory?.All?.Min(m => m.Mileage);
+                    milesMax = Model?.Inventory?.All?.Max(m => m.Mileage);
+                    milesMin = Model?.Inventory?.All?.Min(m => m.Mileage);
                 }
                 return Json(new { MilesMax = milesMax, MilesMin = milesMin }, JsonRequestBehavior.AllowGet);
             }
