@@ -39,21 +39,7 @@ namespace GTX.Controllers
             ViewBag.Message = "Staff";
             ViewBag.Title = "Our staff";
 
-            BaseModel model = new BaseModel();
-            try {
-                if (SessionData?.Employers == null) {
-                    Employer[] employers = Utility.XMLHelpers.XmlRepository.GetEmployers();
-                }
-
-                model.Employers = SessionData.Employers;
-            }
-            catch (Exception ex) {
-                base.Log(ex);
-            }
-            finally {
-            }
-
-            return View(model);
+            return View(Model);
         }
 
         [HttpGet]

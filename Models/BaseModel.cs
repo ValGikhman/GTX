@@ -46,6 +46,10 @@ namespace GTX.Models
 
         public Filters CurrentFilter { get; set; }
 
+        public Filters Filters { get; set; }
+
+        public Dictionary<string, Models.GTX[]> Categories { get; set; }
+
         public Vehicle CurrentVehicle { get; set; }
 
         public OpenHours[] OpenHours { get; set; }
