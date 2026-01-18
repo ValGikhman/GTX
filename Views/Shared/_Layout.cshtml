@@ -81,7 +81,7 @@
                         </li>
                         @{
                             var _class = "d-none";
-                            if (ViewBag.IsMajordome)
+                            if ((ViewBag.IsMajordome as bool?) == true)
                             {
                                 _class = string.Empty;
                             }
