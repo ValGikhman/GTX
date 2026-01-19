@@ -24,6 +24,8 @@
                             showSpinner($("#filterOverlay"));
                             var model = { Makes: [make] };
 
+                            $("#filtersModal [data-bs-dismiss='modal']").trigger("click");
+
                             $.ajax({
                                 url: `${root}Inventory/ApplyFilter`,
                                 type: "POST",

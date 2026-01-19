@@ -229,9 +229,7 @@ namespace GTX.Controllers
         public JsonResult ApplyFilter(Filters model) {
             if (model == null) return Json(new { error = "Model was null" });
 
-            if (model.Transmissions != null) {
-                model.Transmissions = model.Transmissions.Select(word => word.Substring(0, 1).ToUpper()).ToArray();
-            }
+            if (model.Transmissions != null) model.Transmissions = model.Transmissions.Select(word => word.Substring(0, 1).ToUpper()).ToArray();
 
             var filteredVehicles = ApplyFilters(model);
 
