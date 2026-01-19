@@ -24,15 +24,21 @@
                             showSpinner($("#filterOverlay"));
                             var model = { Makes: [make] };
 
-                            $.post(`${root}Inventory/ApplyFilter`, { model: model }, "json")
-                                .done(function (response) {
-                                    hideSpinner($("#filterOverlay"));
-                                    window.location.href = response.redirectUrl; // ✅ Now navigate to that controller action
-                                })
-                                .fail(function (xhr, status, error) {
-                                    hideSpinner($("#filterOverlay"));
-                                    console.error("Error applying term:", error);
-                                });
+                            $.ajax({
+                                url: `${root}Inventory/ApplyFilter`,
+                                type: "POST",
+                                contentType: "application/json; charset=utf-8",
+                                dataType: "json",
+                                data: JSON.stringify(model)   // ✅ send the model itself, not { model: model }
+                            })
+                            .done(function (response) {
+                                hideSpinner($("#filterOverlay"));
+                                window.location.href = response.redirectUrl;
+                            })
+                            .fail(function (xhr, status, error) {
+                                hideSpinner($("#filterOverlay"));
+                                console.error("Error applying term:", error, xhr.responseText);
+                            });
                         });
 
                     $container.append($img);
