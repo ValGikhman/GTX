@@ -227,6 +227,8 @@ namespace GTX.Controllers
 
         [HttpPost]
         public JsonResult ApplyFilter(Filters model) {
+            if (model == null) return Json(new { error = "Model was null" });
+
             if (model.Transmissions != null) {
                 model.Transmissions = model.Transmissions.Select(word => word.Substring(0, 1).ToUpper()).ToArray();
             }
@@ -278,11 +280,11 @@ namespace GTX.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public JsonResult GetModels(string makes) {
+        public JsonResult GetModels(string[] makes) {
             try {
-                if (!string.IsNullOrEmpty(makes)) {
-                    string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    var rs = Model?.Inventory.All?.Where(m => request.Contains(m.Make));
+                if (makes != null && makes.Length > 0)
+                {
+                    var rs = Model?.Inventory.All?.Where(m => makes.Contains(m.Make));
 
                     return Json(rs.Select(m => m.Model).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
                 }
@@ -300,12 +302,11 @@ namespace GTX.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public JsonResult GetCylinders(string makes) {
+        public JsonResult GetCylinders(string[] makes) {
             try {
-                if (!string.IsNullOrEmpty(makes)) {
-                    string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    var rs = Model?.Inventory.All?.Where(m => request.Contains(m.Make) && m.Cylinders > 0);
-
+                if (makes != null && makes.Length > 0)
+                {
+                    var rs = Model?.Inventory.All?.Where(m => makes.Contains(m.Make) && m.Cylinders > 0);
                     return Json(rs.Select(m => m.Cylinders).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
                 }
                 else {
@@ -322,12 +323,11 @@ namespace GTX.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public JsonResult GetTransmissions(string makes) {
+        public JsonResult GetTransmissions(string[] makes) {
             try {
-                if (!string.IsNullOrEmpty(makes)) {
-                    string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    var rs = Model?.Inventory.All?.Where(m => request.Contains(m.Make));
-
+                if (makes != null && makes.Length > 0)
+                {
+                    var rs = Model?.Inventory.All?.Where(m => makes.Contains(m.Make));
                     return Json(rs.Select(m => Models.GTX.WordIt(m.Transmission)).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
                 }
                 else {
@@ -344,11 +344,11 @@ namespace GTX.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public JsonResult GetFuelTypes(string makes) {
+        public JsonResult GetFuelTypes(string[] makes) {
             try {
-                if (!string.IsNullOrEmpty(makes)) {
-                    string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    var rs = Model?.Inventory.All?.Where(m => request.Contains(m.Make));
+                if (makes != null && makes.Length > 0)
+                {
+                    var rs = Model?.Inventory.All?.Where(m => makes.Contains(m.Make));
 
                     return Json(rs.Select(m => m.FuelType).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
                 }
@@ -366,11 +366,11 @@ namespace GTX.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public JsonResult GetVehicleTypes(string makes) {
+        public JsonResult GetVehicleTypes(string[] makes) {
             try {
-                if (!string.IsNullOrEmpty(makes)) {
-                    string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    var rs = Model?.Inventory.All?.Where(m => request.Contains(m.Make));
+                if (makes != null && makes.Length > 0)
+                {
+                    var rs = Model?.Inventory.All?.Where(m => makes.Contains(m.Make));
 
                     return Json(rs.Select(m => m.VehicleType).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
                 }
@@ -388,11 +388,11 @@ namespace GTX.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public JsonResult GetDrives(string makes) {
+        public JsonResult GetDrives(string[] makes) {
             try {
-                if (!string.IsNullOrEmpty(makes)) {
-                    string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    var rs = Model?.Inventory.All?.Where(m => request.Contains(m.Make));
+                if (makes != null && makes.Length > 0)
+                {
+                    var rs = Model?.Inventory.All?.Where(m => makes.Contains(m.Make));
 
                     return Json(rs.Select(m => m.DriveTrain).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
                 }
@@ -410,11 +410,11 @@ namespace GTX.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public JsonResult GetBodyTypes(string makes) {
+        public JsonResult GetBodyTypes(string[] makes) {
             try {
-                if (!string.IsNullOrEmpty(makes)) {
-                    string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    var rs = Model?.Inventory.All?.Where(m => request.Contains(m.Make));
+                if (makes != null && makes.Length > 0)
+                {
+                    var rs = Model?.Inventory.All?.Where(m => makes.Contains(m.Make));
 
                     return Json(rs.Select(m => m.Body).Distinct().OrderBy(m => m).ToArray(), JsonRequestBehavior.AllowGet);
                 }
@@ -432,13 +432,14 @@ namespace GTX.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public JsonResult GetPriceRange(string makes) {
+        public JsonResult GetPriceRange(string[] makes) {
             try {
                 int? priceMin;
                 int? priceMax;
-                if (!string.IsNullOrEmpty(makes)) {
-                    string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    var rs = Model?.Inventory.All?.Where(m => request.Contains(m.Make));
+                if (makes != null && makes.Length > 0)
+                {
+
+                    var rs = Model?.Inventory.All?.Where(m => makes.Contains(m.Make));
 
                     priceMax = rs?.Max(m => m.InternetPrice);
                     priceMin = rs?.Min(m => m.InternetPrice);
@@ -459,13 +460,14 @@ namespace GTX.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public JsonResult GetMilegeRange(string makes) {
+        public JsonResult GetMilegeRange(string[] makes) {
             try {
                 int? milesMin;
                 int? milesMax;
-                if (!string.IsNullOrEmpty(makes)) {
-                    string[] request = new JavaScriptSerializer().Deserialize<string[]>(makes);
-                    var rs = Model?.Inventory.All?.Where(m => request.Contains(m.Make));
+                if (makes != null && makes.Length > 0)
+                {
+
+                    var rs = Model?.Inventory.All?.Where(m => makes.Contains(m.Make));
 
                     milesMax = rs?.Max(m => m.Mileage);
                     milesMin = rs?.Min(m => m.Mileage);

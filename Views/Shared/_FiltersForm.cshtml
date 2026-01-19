@@ -219,15 +219,21 @@
                 MinPrice: $("#price").slider("values", 0)
             };
 
-            $.post(`${root}Inventory/ApplyFilter`, { model: model }, "json")
-                .done(function (response) {
-                    hideSpinner($("#filterOverlay"));
-                    window.location.href = response.redirectUrl; // ✅ Now navigate to that controller action
-                })
-                .fail(function (xhr, status, error) {
-                    hideSpinner($("#filterOverlay"));
-                    console.error("Error applying term:", error);
-                });
+            $.ajax({
+                url: `${root}Inventory/ApplyFilter`,
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                data: JSON.stringify(model)   // ✅ send the model itself, not { model: model }
+            })
+            .done(function (response) {
+                hideSpinner($("#filterOverlay"));
+                window.location.href = response.redirectUrl;
+            })
+            .fail(function (xhr, status, error) {
+                hideSpinner($("#filterOverlay"));
+                console.error("Error applying term:", error, xhr.responseText);
+            });
         })
     })
 
@@ -244,7 +250,8 @@
     }
 
     getModels = function (makes) {
-        $.get(`${root}Inventory/GetModels`, { "makes": JSON.stringify(makes) })
+        $.ajaxSettings.traditional = true;
+        $.get(`${root}Inventory/GetModels`, { makes: makes })
             .done(function (result) {
                 const $selector = $("#models");
                 updateChosen(result, $selector);
@@ -256,7 +263,8 @@
     }
 
     getCylinders = function (makes) {
-        $.get(`${root}Inventory/GetCylinders`, { "makes": JSON.stringify(makes) })
+        $.ajaxSettings.traditional = true;
+        $.get(`${root}Inventory/GetCylinders`, { makes: makes })
             .done(function (result) {
                 const $selector = $("#cylinders");
                 updateChosen(result, $selector);
@@ -268,7 +276,8 @@
     }
 
     getTransmissions = function (makes) {
-        $.get(`${root}Inventory/GetTransmissions`, { "makes": JSON.stringify(makes) })
+        $.ajaxSettings.traditional = true;
+        $.get(`${root}Inventory/GetTransmissions`, { makes: makes })
             .done(function (result) {
                 const $selector = $("#transmissions");
                 updateChosen(result, $selector);
@@ -280,7 +289,8 @@
     }
 
     getFuelTypes = function (makes) {
-        $.get(`${root}Inventory/GetFuelTypes`, { "makes": JSON.stringify(makes) })
+        $.ajaxSettings.traditional = true;
+        $.get(`${root}Inventory/GetFuelTypes`, { makes: makes })
             .done(function (result) {
                 const $selector = $("#fuelTypes");
                 updateChosen(result, $selector);
@@ -292,7 +302,8 @@
     }
 
     getDrives = function (makes) {
-        $.get(`${root}Inventory/GetDrives`, { "makes": JSON.stringify(makes) })
+        $.ajaxSettings.traditional = true;
+        $.get(`${root}Inventory/GetDrives`, { makes: makes })
             .done(function (result) {
                 const $selector = $("#drives");
                 updateChosen(result, $selector);
@@ -304,7 +315,8 @@
     }
 
     getBodyTypes = function (makes) {
-        $.get(`${root}Inventory/GetBodyTypes`, { "makes": JSON.stringify(makes) })
+        $.ajaxSettings.traditional = true;
+        $.get(`${root}Inventory/GetBodyTypes`, { makes: makes })
             .done(function (result) {
                 const $selector = $("#bodyTypes");
                 updateChosen(result, $selector);
@@ -317,7 +329,8 @@
     }
 
     getVehicleTypes = function (makes) {
-        $.get(`${root}Inventory/GetVehicleTypes`, { "makes": JSON.stringify(makes) })
+        $.ajaxSettings.traditional = true;
+        $.get(`${root}Inventory/GetVehicleTypes`, { makes: makes })
             .done(function (result) {
                 const $selector = $("#vehicleTypes");
                 updateChosen(result, $selector);
@@ -330,9 +343,10 @@
     }
 
     getPriceRange = function (makes) {
+        $.ajaxSettings.traditional = true;
         showSpinner($("#filterOverlay"));
 
-        $.get(`${root}Inventory/GetPriceRange`, { "makes": JSON.stringify(makes) })
+        $.get(`${root}Inventory/GetPriceRange`, { makes: makes })
             .done(function (result) {
                 if (result != null) {
                     const roundedMin = Math.round(Math.floor(result.PriceMin / 1000)) * 1000;
@@ -387,7 +401,8 @@
     }
 
     getMilege = function (makes) {
-        $.get(`${root}Inventory/GetMilegeRange`, { "makes": JSON.stringify(makes) })
+        $.ajaxSettings.traditional = true;
+        $.get(`${root}Inventory/GetMilegeRange`, { makes: makes })
             .done(function (result) {
                 if (result != null) {
                     const roundedMin = Math.round(Math.floor(result.MilesMin / 1000)) * 1000;
@@ -434,6 +449,7 @@
 
     function updateData(selected) {
         clearData();
+
         getModels(selected);
         getCylinders(selected);
         getTransmissions(selected);
