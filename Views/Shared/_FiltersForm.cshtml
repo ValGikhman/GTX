@@ -219,6 +219,8 @@
                 MinPrice: $("#price").slider("values", 0)
             };
 
+            $("#filtersModal [data-bs-dismiss='modal']").trigger("click");
+
             $.ajax({
                 url: `${root}Inventory/ApplyFilter`,
                 type: "POST",
@@ -227,7 +229,8 @@
                 data: JSON.stringify(model)   // ✅ send the model itself, not { model: model }
             })
             .done(function (response) {
-                hideSpinner($("#filterOverlay"));
+                //hideSpinner($("#filterOverlay"));
+   
                 window.location.href = response.redirectUrl;
             })
             .fail(function (xhr, status, error) {
@@ -491,6 +494,4 @@
 
         $(selector).trigger("chosen:updated");
     }
-
-
 </script>
