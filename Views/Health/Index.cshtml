@@ -221,7 +221,8 @@ function bytesToMb2(bytes) {
 }
 function pctMb(pctVal, bytesVal) {
     if (pctVal === null || pctVal === undefined || isNaN(pctVal)) return "—";
-    return Number(pctVal).toFixed(1) + "% (" + bytesToMb2(bytesVal) + ")";
+    // return Number(pctVal).toFixed(1) + "% (" + bytesToMb2(bytesVal) + ")";
+    return Number(pctVal).toFixed(1) + "%" ;
 }
 
 function fmtBytes(b) {
@@ -333,7 +334,6 @@ function refreshNow() {
 
             // SQL
             const sql = safeGet(data, "SqlServer", null);
-            var sqlWsBytes = safeGet(sql, "WorkingSetBytes", null);
             if (!sql) {
                 $("#sqlPid").text("—");
                 $("#sqlCpu").text("—");
