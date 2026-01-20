@@ -256,6 +256,7 @@
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\BlogPostsController.cs" />
     <Compile Include="Controllers\EmployeeController.cs" />
+    <Compile Include="Controllers\HealthController.cs" />
     <Compile Include="Controllers\MajordomeController.cs" />
     <Compile Include="Controllers\InventoryController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -269,6 +270,7 @@
     <Compile Include="Models\ContactModel.cs" />
     <Compile Include="Models\GTX.cs" />
     <Compile Include="Models\GTXClasses.cs" />
+    <Compile Include="Models\HealthModel.cs" />
     <Compile Include="Session\HttpContextProvider.cs" />
     <Compile Include="Session\IHttpContextProvider.cs" />
     <Compile Include="Session\ISessionData.cs" />
@@ -601,6 +603,7 @@
     <Content Include="Views\Shared\_BlogPostModal.cshtml" />
     <Content Include="Views\BlogPosts\Blogs.cshtml" />
     <Content Include="Views\BlogPosts\BlogDetails.cshtml" />
+    <Content Include="Views\Health\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
