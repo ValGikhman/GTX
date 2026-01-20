@@ -96,102 +96,89 @@
                 <h2 class="mb-0" style="font-weight:850; letter-spacing:-.03em;">Health</h2>
                 <span id="statusBadge" class="badge text-bg-secondary pill">Idle</span>
             </div>
+            <div class="text-secondary small">
+                Updated: <span class="mono" id="updated">—</span>
+            </div>
         </div>
     </div>
 
-    <!-- FULL ROW: Processes -->
+    <!-- ROW: Processes -->
     <div class="shadow well rounded-5 p-3 mb-3">
-        <div class="card-body">
-            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-2">
-                <div>
-                    <div class="fw-bold" style="letter-spacing:-.01em;">Processes</div>
-                    <div class="text-secondary small">
-                        IIS: <span class="mono" id="iisName">w3wp</span> (PID <span class="mono" id="iisPidHdr">—</span>)
-                        &nbsp;•&nbsp;
-                        SQL: <span class="mono">sqlservr</span> (PID <span class="mono" id="sqlPidHdr">—</span>)
-                    </div>
-                </div>
-                <div class="text-secondary small">
-                    Updated: <span class="mono" id="updated">—</span>
-                </div>
-            </div>
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th style="width:22%;">Property</th>
+                        <th style="width:39%;"><span class="badge-xxl text-bg-info rounded-3 p-2 shadow">IIS</span></th>
+                        <th style="width:39%;"><span class="badge-xxl text-bg-primary rounded-3 p-2 shadow">SQL</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="text-secondary">CPU</td>
+                        <td>
+                            <div class="cell-metric">
+                                <span class="val" id="iisCpu">—</span>
+                                <span class="unit">%</span>
+                            </div>
+                            <div class="progress mt-2">
+                                <div id="iisCpuBar" class="progress-bar" style="width:0%"></div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-metric">
+                                <span class="val" id="sqlCpu">—</span>
+                                <span class="unit">%</span>
+                            </div>
+                            <div class="progress mt-2">
+                                <div id="sqlCpuBar" class="progress-bar" style="width:0%"></div>
+                            </div>
+                        </td>
+                    </tr>
 
-            <div class="table-responsive">
-                <table class="table align-middle mb-0">
-                    <thead>
-                        <tr>
-                            <th style="width:22%;">Property</th>
-                            <th style="width:39%;"><span class="badge-xxl text-bg-info rounded-3 p-2 shadow">IIS</span></th>
-                            <th style="width:39%;"><span class="badge-xxl text-bg-primary rounded-3 p-2 shadow">SQL</span></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="text-secondary">CPU</td>
-                            <td>
-                                <div class="cell-metric">
-                                    <span class="val" id="iisCpu">—</span>
-                                    <span class="unit">%</span>
-                                </div>
-                                <div class="progress mt-2">
-                                    <div id="iisCpuBar" class="progress-bar" style="width:0%"></div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="cell-metric">
-                                    <span class="val" id="sqlCpu">—</span>
-                                    <span class="unit">%</span>
-                                </div>
-                                <div class="progress mt-2">
-                                    <div id="sqlCpuBar" class="progress-bar" style="width:0%"></div>
-                                </div>
-                            </td>
-                        </tr>
+                    <tr>
+                        <td class="text-secondary">Memory</td>
+                        <td>
+                            <div class="cell-metric">
+                                <span class="val" id="iisMem">—</span>
+                                <span class="unit">%</span>
+                            </div>
+                            <div class="progress mt-2">
+                                <div id="iisMemBar" class="progress-bar" style="width:0%"></div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-metric">
+                                <span class="val" id="sqlMem">—</span>
+                                <span class="unit">%</span>
+                            </div>
+                            <div class="progress mt-2">
+                                <div id="sqlMemBar" class="progress-bar" style="width:0%"></div>
+                            </div>
+                        </td>
+                    </tr>
 
-                        <tr>
-                            <td class="text-secondary">Memory</td>
-                            <td>
-                                <div class="cell-metric">
-                                    <span class="val" id="iisMem">—</span>
-                                    <span class="unit">%</span>
-                                </div>
-                                <div class="progress mt-2">
-                                    <div id="iisMemBar" class="progress-bar" style="width:0%"></div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="cell-metric">
-                                    <span class="val" id="sqlMem">—</span>
-                                    <span class="unit">%</span>
-                                </div>
-                                <div class="progress mt-2">
-                                    <div id="sqlMemBar" class="progress-bar" style="width:0%"></div>
-                                </div>
-                            </td>
-                        </tr>
+                    <tr>
+                        <td class="text-secondary">Working Set</td>
+                        <td class="fw-semibold" id="iisWs">—</td>
+                        <td class="fw-semibold" id="sqlWs">—</td>
+                    </tr>
 
-                        <tr>
-                            <td class="text-secondary">Working Set</td>
-                            <td class="fw-semibold" id="iisWs">—</td>
-                            <td class="fw-semibold" id="sqlWs">—</td>
-                        </tr>
+                    <tr>
+                        <td class="text-secondary">PID</td>
+                        <td class="mono" id="iisPid">—</td>
+                        <td class="mono" id="sqlPid">—</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
-                        <tr>
-                            <td class="text-secondary">PID</td>
-                            <td class="mono" id="iisPid">—</td>
-                            <td class="mono" id="sqlPid">—</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="alert alert-secondary mt-3 mb-0 py-2 small" id="sqlAlert" style="display:none;">
-                SQL process not found or access denied.
-            </div>
+        <div class="alert alert-secondary mt-3 mb-0 py-2 small" id="sqlAlert" style="display:none;">
+            SQL process not found or access denied.
         </div>
     </div>
 
-    <!-- NEXT ROW: Totals 2 columns -->
+    <!-- ROW: Totals 2 columns -->
     <div class="row g-3">
         <!-- Total CPU -->
         <div class="col-12 col-lg-6">
@@ -299,7 +286,7 @@
     $.ajax({
       url: url,
       method: "GET",
-      cache: false, // helps a bit; server/proxy may still cache
+      cache: false,
       dataType: "json",
       success: function (data) {
 
@@ -334,7 +321,6 @@
         const iis = safeGet(data, "IIS", null);
         $("#iisName").text(safeGet(iis, "Name", "w3wp"));
         $("#iisPid").text(safeGet(iis, "Pid", "—"));
-        $("#iisPidHdr").text(safeGet(iis, "Pid", "—"));
         $("#iisCpu").text(fmtPct(safeGet(iis, "CpuPercent", null)));
         $("#iisMem").text(fmtPct(safeGet(iis, "MemoryPercent", null)));
         $("#iisWs").text(fmtBytes(safeGet(iis, "WorkingSetBytes", null)));
@@ -345,7 +331,6 @@
         const sql = safeGet(data, "SqlServer", null);
         if (!sql) {
           $("#sqlPid").text("—");
-          $("#sqlPidHdr").text("—");
           $("#sqlCpu").text("—");
           $("#sqlMem").text("—");
           $("#sqlWs").text("—");
@@ -354,7 +339,6 @@
           $("#sqlAlert").show();
         } else {
           $("#sqlPid").text(safeGet(sql, "Pid", "—"));
-          $("#sqlPidHdr").text(safeGet(sql, "Pid", "—"));
           $("#sqlCpu").text(fmtPct(safeGet(sql, "CpuPercent", null)));
           $("#sqlMem").text(fmtPct(safeGet(sql, "MemoryPercent", null)));
           $("#sqlWs").text(fmtBytes(safeGet(sql, "WorkingSetBytes", null)));
@@ -376,7 +360,7 @@
 
   $(function () {
     refreshNow();
-    setInterval(refreshNow, 2000);
+    setInterval(refreshNow, 5000);
   });
 </script>
 

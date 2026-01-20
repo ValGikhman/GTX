@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-public static class CpuSampler
+public static class __CpuSampler
 {
     private class Sample
     {
