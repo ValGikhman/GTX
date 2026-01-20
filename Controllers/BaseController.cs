@@ -52,6 +52,10 @@ namespace GTX.Controllers
             EZ360Service = _ez360Service;
             BlogPostService = _blogPostService;
         }
+        public BaseController(ISessionData _sessionData)
+        {
+            SessionData = _sessionData;
+        }
 
         #endregion Construtors
 

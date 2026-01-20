@@ -1,142 +1,366 @@
-﻿@model GTX.Models.HealthModel
-@{
+﻿@{
     ViewBag.Title = "Health";
-    Layout = null; // or your layout
+    // Layout = null; // or: Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<!doctype html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <title>Health</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<style>
+    body {
+        background: #f6f7fb;
+    }
 
-    <style>
-        .metric {
-            font-size: 1.6rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
+    .wrap {
+        max-width: 1400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .card-elev {
+        border: 0;
+        border-radius: 18px;
+        box-shadow: 0 10px 30px rgba(0,0,0,.06);
+    }
+
+    .kpi-label {
+        font-size: .8rem;
+        color: rgba(33,37,41,.65);
+        letter-spacing: .02em;
+    }
+
+    .kpi-value {
+        font-size: 2rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+    }
+
+    .kpi-sub {
+        font-size: .85rem;
+        color: rgba(33,37,41,.65);
+    }
+
+    .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .pill {
+        border-radius: 999px;
+    }
+
+    .progress {
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(0,0,0,.06);
+    }
+
+    .progress-bar {
+        border-radius: 999px;
+    }
+
+    .table thead th {
+        font-size: .8rem;
+        color: rgba(33,37,41,.65);
+        font-weight: 700;
+        border-bottom: 1px solid rgba(0,0,0,.06);
+        white-space: nowrap;
+    }
+
+    .table td {
+        padding-top: 14px;
+        padding-bottom: 14px;
+    }
+
+    .cell-metric {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+        .cell-metric .val {
+            font-weight: 800;
+            letter-spacing: -0.01em;
         }
 
-        .subtle {
-            font-size: .875rem;
-            color: var(--bs-secondary-color);
+        .cell-metric .unit {
+            font-size: .8rem;
+            color: rgba(33,37,41,.6);
         }
+</style>
 
-        .mono {
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-        }
-    </style>
-</head>
-<body class="bg-light">
-    <div class="container py-4">
+<div class="container py-4 wrap">
 
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
-            <div>
-                <h3 class="mb-0">Health</h3>
-                <div class="subtle">
-                    Server time:
-                    <span class="mono">@Model.ServerTime.ToString("yyyy-MM-dd HH:mm:ss zzz")</span>
-                </div>
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-3">
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <h2 class="mb-0" style="font-weight:850; letter-spacing:-.03em;">Health</h2>
+                <span id="statusBadge" class="badge text-bg-secondary pill">Idle</span>
             </div>
-
-            <div class="d-flex gap-2">
-                <a class="btn btn-outline-primary btn-sm" href="@Url.Action("Index","Health")">Refresh</a>
+            <div class="text-secondary small">
+                Updated: <span class="mono" id="updated">—</span>
             </div>
-        </div>
-
-        <div class="row g-3">
-            <div class="col-12 col-md-6">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <div class="subtle">Process</div>
-                        <div class="metric">@Model.ProcessName <span class="fs-6 text-secondary">(PID @Model.Pid)</span></div>
-                        <div class="subtle mt-2">Current IIS worker process hosting this app</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-md-6">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <div class="subtle">Working Set (physical)</div>
-                        <div class="metric">@FmtBytes(Model.WorkingSetBytes)</div>
-                        <div class="subtle mt-2">w3wp “in use” physical memory</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-md-6">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <div class="subtle">Private Bytes</div>
-                        <div class="metric">@FmtBytes(Model.PrivateBytes)</div>
-                        <div class="subtle mt-2">Private memory owned by the process</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-md-6">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <div class="subtle">Paged Bytes</div>
-                        <div class="metric">@FmtBytes(Model.PagedBytes)</div>
-                        <div class="subtle mt-2">Paged memory used by the process</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-md-6">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <div class="subtle">.NET Managed Heap</div>
-                        <div class="metric">@FmtBytes(Model.ManagedBytes)</div>
-                        <div class="subtle mt-2">GC.GetTotalMemory(false)</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-md-6">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <div class="subtle">Machine Available Memory</div>
-                        <div class="metric">@FmtBytes(Model.AvailableBytes)</div>
-                        <div class="subtle mt-2">May be null if perf counters are blocked</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <div class="subtle">Machine Committed Bytes</div>
-                        <div class="metric">@FmtBytes(Model.CommittedBytes)</div>
-                        <div class="subtle mt-2">Committed virtual memory (not “total RAM”)</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="alert alert-secondary mt-3 mb-0">
-            <div class="subtle mb-1">Notes</div>
-            <ul class="mb-0">
-                <li><span class="mono">Committed Bytes</span> is not total physical RAM; it’s committed virtual memory.</li>
-                <li>If counters return null, run the app pool with sufficient permissions or enable perf counters.</li>
-            </ul>
         </div>
     </div>
-</body>
-</html>
 
-@functions {
-    public static string FmtBytes(long? bytes)
-    {
-        if (bytes == null) return "—";
-        double n = bytes.Value;
-        string[] u = { "B", "KB", "MB", "GB", "TB" };
-        int i = 0;
-        while (n >= 1024 && i < u.Length - 1) { n /= 1024; i++; }
-        return i == 0 ? $"{n:0} {u[i]}" : $"{n:0.00} {u[i]}";
+    <!-- ROW: Processes -->
+    <div class="shadow well rounded-5 p-3 mb-3">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th style="width:22%;">Property</th>
+                        <th style="width:39%;"><span class="badge-xxl text-bg-info rounded-3 p-2 shadow">IIS</span></th>
+                        <th style="width:39%;"><span class="badge-xxl text-bg-primary rounded-3 p-2 shadow">SQL</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="text-secondary">CPU</td>
+                        <td>
+                            <div class="cell-metric">
+                                <span class="val" id="iisCpu">—</span>
+                                <span class="unit">%</span>
+                            </div>
+                            <div class="progress mt-2">
+                                <div id="iisCpuBar" class="progress-bar" style="width:0%"></div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-metric">
+                                <span class="val" id="sqlCpu">—</span>
+                                <span class="unit">%</span>
+                            </div>
+                            <div class="progress mt-2">
+                                <div id="sqlCpuBar" class="progress-bar" style="width:0%"></div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="text-secondary">Memory</td>
+                        <td>
+                            <div class="cell-metric">
+                                <span class="val" id="iisMem">—</span>
+                                <span class="unit">%</span>
+                            </div>
+                            <div class="progress mt-2">
+                                <div id="iisMemBar" class="progress-bar" style="width:0%"></div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-metric">
+                                <span class="val" id="sqlMem">—</span>
+                                <span class="unit">%</span>
+                            </div>
+                            <div class="progress mt-2">
+                                <div id="sqlMemBar" class="progress-bar" style="width:0%"></div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="text-secondary">Working Set</td>
+                        <td class="fw-semibold" id="iisWs">—</td>
+                        <td class="fw-semibold" id="sqlWs">—</td>
+                    </tr>
+
+                    <tr>
+                        <td class="text-secondary">PID</td>
+                        <td class="mono" id="iisPid">—</td>
+                        <td class="mono" id="sqlPid">—</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="alert alert-secondary mt-3 mb-0 py-2 small" id="sqlAlert" style="display:none;">
+            SQL process not found or access denied.
+        </div>
+    </div>
+
+    <!-- ROW: Totals 2 columns -->
+    <div class="row g-3">
+        <!-- Total CPU -->
+        <div class="col-12 col-lg-6">
+            <div class="h-100 shadow well rounded-5 p-5">
+                <div class="card-body">
+                    <div class="kpi-label">Total CPU</div>
+                    <div class="d-flex align-items-end justify-content-between mt-1">
+                        <div class="kpi-value" id="totCpu">—</div>
+                        <div class="kpi-sub" id="statusText">Polling every 2 seconds</div>
+                    </div>
+                    <div class="progress mt-2">
+                        <div id="totCpuBar" class="progress-bar" style="width:0%"></div>
+                    </div>
+                    <div class="kpi-sub mt-2">System-wide usage</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Memory -->
+        <div class="col-12 col-lg-6">
+            <div class="h-100 shadow well rounded-5 p-5">
+                <div class="card-body">
+                    <div class="kpi-label">Total Memory Used</div>
+                    <div class="d-flex align-items-end justify-content-between mt-1">
+                        <div class="kpi-value" id="totMem">—</div>
+                        <div class="kpi-sub mono" id="updated2">—</div>
+                    </div>
+                    <div class="progress mt-2">
+                        <div id="totMemBar" class="progress-bar" style="width:0%"></div>
+                    </div>
+                    <div class="kpi-sub mt-2" id="totRam">—</div>
+                    <div class="kpi-sub mt-1" id="totMemLoad" style="display:none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+  const url = '@Url.Action("HealthJson", "Health")';
+
+  function fmtBytes(b) {
+    if (b === null || b === undefined) return "—";
+    const u = ["B", "KB", "MB", "GB", "TB"];
+    let i = 0, n = Number(b);
+    while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; }
+    return (i === 0 ? n.toFixed(0) : n.toFixed(2)) + " " + u[i];
+  }
+
+  function fmtPct(v) {
+    if (v === null || v === undefined || isNaN(v)) return "—";
+    return Number(v).toFixed(1);
+  }
+
+  function clampPct(v) {
+    v = Number(v);
+    if (isNaN(v)) return 0;
+    if (v < 0) return 0;
+    if (v > 100) return 100;
+    return v;
+  }
+
+  function setBar(id, pct) {
+    $("#" + id).css("width", clampPct(pct).toFixed(1) + "%");
+  }
+
+  function setStatus(state, text) {
+    const $badge = $("#statusBadge");
+    const $statusText = $("#statusText");
+
+    $badge.removeClass("text-bg-secondary text-bg-success text-bg-warning text-bg-danger");
+
+    if (state === "ok") { $badge.addClass("text-bg-success").text("OK"); }
+    else if (state === "loading") { $badge.addClass("text-bg-warning").text("Loading"); }
+    else if (state === "error") { $badge.addClass("text-bg-danger").text("Error"); }
+    else { $badge.addClass("text-bg-secondary").text("Idle"); }
+
+    $statusText.text(text || "");
+  }
+
+  function safeGet(obj, path, fallback) {
+    try {
+      return path.split(".").reduce((o, k) => o && o[k], obj) ?? fallback;
+    } catch {
+      return fallback;
     }
-}
+  }
+
+  function parseNetDate(v) {
+    if (!v) return null;
+
+    const iso = new Date(v);
+    if (!isNaN(iso)) return iso;
+
+    const m = /\/Date\((\d+)(?:[+-]\d+)?\)\//.exec(v);
+    if (m) return new Date(parseInt(m[1], 10));
+
+    return null;
+  }
+
+  function refreshNow() {
+    setStatus("loading", "Refreshing…");
+
+    $.ajax({
+      url: url,
+      method: "GET",
+      cache: false,
+      dataType: "json",
+      success: function (data) {
+
+        // Totals
+        const totCpu = safeGet(data, "Totals.CpuPercentTotal", 0);
+        const totMem = safeGet(data, "Totals.MemoryPercentTotal", 0);
+        const totalPhys = safeGet(data, "Totals.TotalPhysBytes", null);
+        const availPhys = safeGet(data, "Totals.AvailPhysBytes", null);
+
+        $("#totCpu").text(fmtPct(totCpu) + "%");
+        $("#totMem").text(fmtPct(totMem) + "%");
+        setBar("totCpuBar", totCpu);
+        setBar("totMemBar", totMem);
+
+        $("#totRam").text(`${fmtBytes(totalPhys)} total / ${fmtBytes(availPhys)} free`);
+
+        const memLoad = safeGet(data, "Totals.MemoryLoadPercent", null);
+        if (memLoad !== null && memLoad !== undefined) {
+          $("#totMemLoad").show().text(`Windows MemoryLoad: ${memLoad}%`);
+        } else {
+          $("#totMemLoad").hide();
+        }
+
+        // Updated time (shown in 2 spots)
+        const stRaw = safeGet(data, "ServerTime", null);
+        const st = parseNetDate(stRaw);
+        const timeText = st ? st.toLocaleTimeString() : "—";
+        $("#updated").text(timeText);
+        $("#updated2").text(timeText);
+
+        // IIS
+        const iis = safeGet(data, "IIS", null);
+        $("#iisName").text(safeGet(iis, "Name", "w3wp"));
+        $("#iisPid").text(safeGet(iis, "Pid", "—"));
+        $("#iisCpu").text(fmtPct(safeGet(iis, "CpuPercent", null)));
+        $("#iisMem").text(fmtPct(safeGet(iis, "MemoryPercent", null)));
+        $("#iisWs").text(fmtBytes(safeGet(iis, "WorkingSetBytes", null)));
+        setBar("iisCpuBar", safeGet(iis, "CpuPercent", 0));
+        setBar("iisMemBar", safeGet(iis, "MemoryPercent", 0));
+
+        // SQL
+        const sql = safeGet(data, "SqlServer", null);
+        if (!sql) {
+          $("#sqlPid").text("—");
+          $("#sqlCpu").text("—");
+          $("#sqlMem").text("—");
+          $("#sqlWs").text("—");
+          setBar("sqlCpuBar", 0);
+          setBar("sqlMemBar", 0);
+          $("#sqlAlert").show();
+        } else {
+          $("#sqlPid").text(safeGet(sql, "Pid", "—"));
+          $("#sqlCpu").text(fmtPct(safeGet(sql, "CpuPercent", null)));
+          $("#sqlMem").text(fmtPct(safeGet(sql, "MemoryPercent", null)));
+          $("#sqlWs").text(fmtBytes(safeGet(sql, "WorkingSetBytes", null)));
+          setBar("sqlCpuBar", safeGet(sql, "CpuPercent", 0));
+          setBar("sqlMemBar", safeGet(sql, "MemoryPercent", 0));
+          $("#sqlAlert").hide();
+        }
+
+        setStatus("ok", "Live");
+      },
+      error: function (xhr) {
+        setStatus("error", "HTTP " + (xhr && xhr.status ? xhr.status : "error"));
+      }
+    });
+  }
+
+  // If you want to avoid caching aggressively:
+  // $.ajaxSetup({ cache: false });
+
+  $(function () {
+    refreshNow();
+    setInterval(refreshNow, 5000);
+  });
+</script>
+

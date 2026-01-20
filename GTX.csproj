@@ -115,6 +115,7 @@
     <Reference Include="System.IO.Pipelines, Version=9.0.0.8, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\System.IO.Pipelines.9.0.8\lib\net462\System.IO.Pipelines.dll</HintPath>
     </Reference>
+    <Reference Include="System.Management" />
     <Reference Include="System.Memory, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\System.Memory.4.6.3\lib\net462\System.Memory.dll</HintPath>
     </Reference>
@@ -270,6 +271,7 @@
     <Compile Include="Models\ContactModel.cs" />
     <Compile Include="Models\GTX.cs" />
     <Compile Include="Models\GTXClasses.cs" />
+    <Compile Include="Models\HealthHelper.cs" />
     <Compile Include="Models\HealthModel.cs" />
     <Compile Include="Session\HttpContextProvider.cs" />
     <Compile Include="Session\IHttpContextProvider.cs" />

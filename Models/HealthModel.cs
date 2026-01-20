@@ -1,22 +1,26 @@
 ﻿using System;
 
-namespace GTX.Models
+public class ProcMetrics
 {
-    public class HealthModel: BaseModel
-    {
-        public DateTimeOffset ServerTime { get; set; }
+    public string Name { get; set; }
+    public int Pid { get; set; }
+    public double CpuPercent { get; set; }      // 0..100 (all cores combined -> 0..100)
+    public long WorkingSetBytes { get; set; }
+    public double MemoryPercent { get; set; }   // 0..100 of total physical RAM
+}
 
-        // process
-        public string ProcessName { get; set; }
-        public int Pid { get; set; }
-        public long WorkingSetBytes { get; set; }
-        public long PrivateBytes { get; set; }
-        public long PagedBytes { get; set; }
-        public long ManagedBytes { get; set; }
+public class HealthTotals
+{
+    public double CpuPercentTotal { get; set; }     // overall CPU %
+    public long TotalPhysBytes { get; set; }
+    public long AvailPhysBytes { get; set; }
+    public double MemoryPercentTotal { get; set; }  // overall used physical %
+}
 
-        // machine
-        public long? AvailableBytes { get; set; }
-        public long? CommittedBytes { get; set; } // committed virtual memory
-
-    }
+public class HealthModel
+{
+    public string ServerTime { get; set; }
+    public ProcMetrics IIS { get; set; }
+    public ProcMetrics SqlServer { get; set; }
+    public HealthTotals Totals { get; set; }
 }
