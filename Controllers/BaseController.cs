@@ -325,6 +325,7 @@ namespace GTX.Controllers
         }
 
         public void TerminateSession() {
+            AppCache.ClearAll();
             Session.Clear();
             Session.RemoveAll();
             Session.Abandon();

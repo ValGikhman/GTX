@@ -151,7 +151,6 @@ public class HealthController : BaseController
     {
         var (totalPhys, availPhys, memLoadPct) = GetMemory();
 
-        // IIS (current app pool worker hosting this app)
         var iisProc = Process.GetCurrentProcess();
         var iisWs = SafeWorkingSet(iisProc);
         var iisPriv = SafePrivateBytes(iisProc);
@@ -160,45 +159,11 @@ public class HealthController : BaseController
         {
             Name = iisProc.ProcessName,
             Pid = iisProc.Id,
-
             CpuPercent = GetProcessCpuPercent(iisProc),
-
-            // memory "real values"
-            WorkingSetBytes = iisWs,        // good for "RAM in use" display
-            PrivateBytes = iisPriv,         // good for "private" display
-
-            // percent of machine physical RAM (based on Working Set)
+            WorkingSetBytes = iisWs,
+            PrivateBytes = iisPriv,
             MemoryPercent = totalPhys > 0 ? Math.Round((iisWs / (double)totalPhys) * 100.0, 1) : 0.0
         };
-
-        // SQL Server (local) - optional
-        object sqlObj = null;
-        try
-        {
-            var sqlProc = Process.GetProcessesByName("sqlservr").FirstOrDefault();
-            if (sqlProc != null)
-            {
-                var sqlWs = SafeWorkingSet(sqlProc);
-                var sqlPriv = SafePrivateBytes(sqlProc);
-
-                sqlObj = new
-                {
-                    Name = "SQL Server (sqlservr)",
-                    Pid = sqlProc.Id,
-
-                    CpuPercent = GetProcessCpuPercent(sqlProc),
-
-                    WorkingSetBytes = sqlWs,
-                    PrivateBytes = sqlPriv,
-
-                    MemoryPercent = totalPhys > 0 ? Math.Round((sqlWs / (double)totalPhys) * 100.0, 1) : 0.0
-                };
-            }
-        }
-        catch
-        {
-            sqlObj = null; // access denied, etc.
-        }
 
         var totals = new
         {
@@ -211,10 +176,9 @@ public class HealthController : BaseController
 
         return Json(new
         {
-            ServerTime = DateTimeOffset.Now, // MVC /Date(...)/
+            ServerTime = DateTimeOffset.Now,
             Totals = totals,
-            IIS = iisObj,
-            SqlServer = sqlObj
+            IIS = iisObj
         }, JsonRequestBehavior.AllowGet);
     }
 }
