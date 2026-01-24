@@ -102,114 +102,73 @@
     </div>
 
     <!-- ROW: Processes -->
-    <div class="shadow well rounded-5 p-3 mb-3">
-        <div class="table-responsive">
-            <table class="table align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th style="width:22%;">Property</th>
-                        <th style="width:39%;"><span class="badge-xxl text-bg-info rounded-3 p-2 shadow">IIS</span></th>
-                        <th style="width:39%;"><span class="badge-xxl text-bg-primary rounded-3 p-2 shadow">SQL</span></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="text-secondary">CPU</td>
-                        <td>
-                            <div class="cell-metric">
-                                <span class="val" id="iisCpu">—</span>
-                            </div>
-                            <div class="progress mt-2">
-                                <div id="iisCpuBar" class="progress-bar" style="width:0%"></div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="cell-metric">
-                                <span class="val" id="sqlCpu">—</span>
-                            </div>
-                            <div class="progress mt-2">
-                                <div id="sqlCpuBar" class="progress-bar" style="width:0%"></div>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="text-secondary">Memory</td>
-                        <td>
-                            <div class="cell-metric">
-                                <span class="val" id="iisMem">—</span>
-                            </div>
-                            <div class="progress mt-2">
-                                <div id="iisMemBar" class="progress-bar" style="width:0%"></div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="cell-metric">
-                                <span class="val" id="sqlMem">—</span>
-                            </div>
-                            <div class="progress mt-2">
-                                <div id="sqlMemBar" class="progress-bar" style="width:0%"></div>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="text-secondary">Working Set</td>
-                        <td class="fw-semibold" id="iisWs">—</td>
-                        <td class="fw-semibold" id="sqlWs">—</td>
-                    </tr>
-
-                    <tr>
-                        <td class="text-secondary">PID</td>
-                        <td class="mono" id="iisPid">—</td>
-                        <td class="mono" id="sqlPid">—</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="alert alert-secondary mt-3 mb-0 py-2 small" id="sqlAlert" style="display:none;">
-            SQL process not found or access denied.
-        </div>
-    </div>
-
-    <!-- ROW: Totals 2 columns -->
     <div class="row g-3">
-        <!-- Total CPU -->
-        <div class="col-12 col-lg-6">
+
+        <!-- IIS Card -->
+        <div class="col-12 col-lg-4">
             <div class="h-100 shadow well rounded-5 p-5">
-                <div class="card-body">
-                    <div class="kpi-label">Total CPU</div>
-                    <div class="d-flex align-items-end justify-content-between mt-1">
-                        <div class="kpi-value" id="totCpu">—</div>
-                        <div class="kpi-sub" id="statusText">Polling every 2 seconds</div>
+                <div class="kpi-label">IIS</div>
+
+                <div class="mt-3">
+                    <div class="d-flex align-items-end justify-content-between">
+                        <div class="kpi-value" id="iisCpu">—</div>
+                        <div class="kpi-sub">CPU</div>
                     </div>
                     <div class="progress mt-2">
-                        <div id="totCpuBar" class="progress-bar" style="width:0%"></div>
+                        <div id="iisCpuBar" class="progress-bar" style="width:0%"></div>
                     </div>
-                    <div class="kpi-sub mt-2">System-wide usage</div>
+                </div>
+
+                <div class="mt-4">
+                    <div class="d-flex align-items-end justify-content-between">
+                        <div class="kpi-value" id="iisMem">—</div>
+                        <div class="kpi-sub">Memory</div>
+                    </div>
+                    <div class="progress mt-2">
+                        <div id="iisMemBar" class="progress-bar" style="width:0%"></div>
+                    </div>
+                </div>
+
+                <div class="kpi-sub mt-4">
+                    PID: <span class="mono" id="iisPid">—</span><br />
+                    Working Set: <span class="mono" id="iisWs">—</span>
                 </div>
             </div>
         </div>
 
-        <!-- Total Memory -->
-        <div class="col-12 col-lg-6">
+        <!-- Total CPU Card -->
+        <div class="col-12 col-lg-4">
             <div class="h-100 shadow well rounded-5 p-5">
-                <div class="card-body">
-                    <div class="kpi-label">Total Memory Used</div>
-                    <div class="d-flex align-items-end justify-content-between mt-1">
-                        <div class="kpi-value" id="totMem">—</div>
-                        <div class="kpi-sub mono" id="updated2">—</div>
-                    </div>
-                    <div class="progress mt-2">
-                        <div id="totMemBar" class="progress-bar" style="width:0%"></div>
-                    </div>
-                    <div class="kpi-sub mt-2" id="totRam">—</div>
-                    <div class="kpi-sub mt-1" id="totMemLoad" style="display:none;"></div>
+                <div class="kpi-label">Total CPU</div>
+                <div class="d-flex align-items-end justify-content-between mt-1">
+                    <div class="kpi-value" id="totCpu">—</div>
+                    <div class="kpi-sub" id="statusText">Polling every 2 seconds</div>
                 </div>
+                <div class="progress mt-2">
+                    <div id="totCpuBar" class="progress-bar" style="width:0%"></div>
+                </div>
+                <div class="kpi-sub mt-2">System-wide usage</div>
             </div>
         </div>
+
+        <!-- Total Memory Card -->
+        <div class="col-12 col-lg-4">
+            <div class="h-100 shadow well rounded-5 p-5">
+                <div class="kpi-label">Total Memory Used</div>
+                <div class="d-flex align-items-end justify-content-between mt-1">
+                    <div class="kpi-value" id="totMem">—</div>
+                    <div class="kpi-sub mono" id="updated2">—</div>
+                </div>
+                <div class="progress mt-2">
+                    <div id="totMemBar" class="progress-bar" style="width:0%"></div>
+                </div>
+                <div class="kpi-sub mt-2" id="totRam">—</div>
+                <div class="kpi-sub mt-1" id="totMemLoad" style="display:none;"></div>
+            </div>
+        </div>
+
     </div>
+
 
 </div>
 
