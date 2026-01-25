@@ -1,4 +1,24 @@
 ﻿/*Custom*/
+/* line 1 can stay single-line */
+.addr-line1 {
+    font-weight: 600;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* allow 2 lines BUT clamp inside fixed header height */
+.addr-line2 {
+    line-height: 1.1;
+    font-size: .9rem;
+    opacity: .85;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
 #gtxDevelopment {
     top: 50% !important;
     height: 18rem !important;
@@ -1276,6 +1296,131 @@ a, u {
 .canvas__open {
     display: none;
     color: white;
+}
+
+
+/* new offcanvas nenu */
+/* ===== Offcanvas menu base ===== */
+.offcanvas-menu-wrapper {
+    padding: .75rem;
+}
+
+    .offcanvas-menu-wrapper .main-menu {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: .35rem;
+    }
+
+        /* each top-level row */
+        .offcanvas-menu-wrapper .main-menu > li {
+            border-radius: 1rem;
+        }
+
+    /* logo + phone row */
+    .offcanvas-menu-wrapper #GTX-image {
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        padding: .35rem .25rem;
+    }
+
+        .offcanvas-menu-wrapper #GTX-image img {
+            display: block;
+        }
+
+        .offcanvas-menu-wrapper #GTX-image .btn {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+        }
+
+/* ===== Toggle rows (Inventory/About/Schedule) ===== */
+.menu-acc-toggle {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    width: 100%;
+    padding: .75rem .95rem;
+    border-radius: 1rem;
+    text-decoration: none;
+    font-weight: 600;
+    line-height: 1;
+    user-select: none;
+}
+
+    .menu-acc-toggle:hover {
+        filter: brightness(1.05);
+    }
+
+    .menu-acc-toggle .bi-chevron-down {
+        margin-left: auto;
+        transition: transform .18s ease;
+    }
+
+    .menu-acc-toggle[aria-expanded="true"] .bi-chevron-down {
+        transform: rotate(180deg);
+    }
+
+/* ===== Simple links (non-collapsible) ===== */
+.offcanvas-menu-wrapper .main-menu > li > a:not(.menu-acc-toggle) {
+    display: block;
+    padding: .7rem .95rem;
+    border-radius: 1rem;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+    .offcanvas-menu-wrapper .main-menu > li > a:not(.menu-acc-toggle):hover {
+        filter: brightness(1.05);
+    }
+
+/* ===== Submenus (indent + nice container) ===== */
+.offcanvas-menu-wrapper .dropdown,
+.offcanvas-menu-wrapper #menuSchedule {
+    margin-top: .35rem;
+    margin-left: 1.15rem; /* indent */
+    padding: .45rem .35rem .55rem; /* inner padding */
+    border-radius: 1rem;
+}
+
+/* optional subtle separation line on the left */
+.offcanvas-menu-wrapper .dropdown,
+.offcanvas-menu-wrapper #menuSchedule {
+    border-left: 2px solid rgba(255,255,255,.18);
+}
+
+    /* submenu items */
+    .offcanvas-menu-wrapper .dropdown li {
+        margin: .15rem 0;
+    }
+
+        .offcanvas-menu-wrapper .dropdown li a {
+            display: block;
+            padding: .55rem .75rem;
+            border-radius: .85rem;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+            /* hover for submenu links */
+            .offcanvas-menu-wrapper .dropdown li a:hover {
+                filter: brightness(1.06);
+                transform: translateX(2px);
+                transition: transform .12s ease;
+            }
+
+/* Schedule partial: give it some breathing room */
+.offcanvas-menu-wrapper #menuSchedule {
+    padding: .65rem .65rem .75rem;
+}
+
+/* Make collapse animation feel smoother */
+.offcanvas-menu-wrapper .collapse {
+    transition: height .2s ease;
 }
 
 /*---------------------

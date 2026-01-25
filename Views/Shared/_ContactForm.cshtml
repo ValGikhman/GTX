@@ -74,7 +74,8 @@
         </div>
     </div>
 
-    @if (Model.IsTestDrive) {
+    @if (Model.IsTestDrive)
+    {
         @* Date & Time *@
         <div class="mb-2">
             <div class="input-group">
@@ -113,11 +114,37 @@
     </div>
 
     <input type="hidden" id="EmployerId" value="@Model.EmployerId" />
-    <div class="d-flex justify-content-center p-3">
-        <button id="btnSent" type="submit" class="btn gradient rounded-5 border-dark shadow w-75"><i class="bi bi-send"></i> Send</button>
+    <div class="d-flex justify-content-center">
+        <div class="w-100 text-center">
+            <button id="btnSent" type="submit" class="btn gradient rounded-5 border-dark shadow w-100">
+                <i class="bi bi-send"></i> Send
+            </button>
+
+            <p class="mt-1 very-small-text text-start lh-sm"
+               style="text-align: justify; text-justify: inter-word;">
+                By clicking <strong>“Send”</strong>, I consent to be contacted by Carsforsale.com and the dealer selling this vehicle
+                at any telephone number I provide, including, without limitation, communications sent via text message to my cell phone
+                or communications sent using an autodialer or prerecorded message. This acknowledgment constitutes my written consent
+                to receive such communications. This site is protected by reCAPTCHA and the Google
+                <a class="link-primary text-decoration-underline"
+                   href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
+                    Privacy Policy
+                </a>
+                and
+                <a class="link-primary text-decoration-underline"
+                   href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">
+                    Terms of Service
+                </a>
+                apply.
+            </p>
+
+        </div>
     </div>
+
+
     @{
-        if (Model.CurrentVehicle != null && Model.CurrentVehicle.VehicleDetails != null) {
+        if (Model.CurrentVehicle != null && Model.CurrentVehicle.VehicleDetails != null)
+        {
             var stock = Model.CurrentVehicle.VehicleDetails.Stock;
             <input type="hidden" id="Stock" value="@stock" />
         }

@@ -32,25 +32,106 @@
 </head>
 
 <body class="overflow-hidden d-flex flex-column min-vh-100">
-    <!-- Offcanvas open hours -->
-    <div class="offcanvas-top-fixed-center" tabindex="-1" id="openHours">
-        <div class="offcanvas-body">
-            @Html.Partial("_Schedule")
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenuOffcanvas" aria-labelledby="mobileMenuLabel">
+        <div class="offcanvas-header">
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-    </div>
+        <div class="offcanvas-body p-0">
+            <!-- KEEP YOUR EXISTING WRAPPER EXACTLY AS IS -->
+            <div class="offcanvas-menu-wrapper p-2">
+                <ul class="main-menu list-unstyled mb-0">
+                    <!-- Top row: Logo + Phone (pill buttons) -->
+                    <li class="d-flex align-items-center justify-content-between gap-2 mb-2">
+                        <a href="~/Home/Index" class="d-flex align-items-center text-decoration-none">
+                            <img src="~/GTXImages/GTX-Black.png" width="100" />
+                        </a>
 
-    <!-- Offcanvas Menu Begin -->
-    <div class="offcanvas-menu-overlay"></div>
-    <div class="offcanvas-menu-wrapper gradient rounded-2 text-shadow">
-        <a href="./">
-            <img width="100" src="@Url.Content("~/GTXImages/GTX-Black.png")" alt="www.useccarscincinnati.com">
-        </a>
-        <a class="btn gradient shadow my-2 pull-right" href="tel:(513) 489-2886">
-            <i class="bi bi-telephone"></i>
-            (513) 489-2886
-        </a>
-        <div id="mobile-menu-wrap">
-            @Html.Partial("_ScheduleMobile")
+                        <a class="btn btn-gradient-grey rounded-3 d-flex align-items-center gap-2"
+                           href="tel:(513) 489-2886" data-bs-dismiss="offcanvas">
+                            <i class="bi bi-telephone"></i>
+                            <span class="fw-semibold">(513) 489-2886</span>
+                        </a>
+                    </li>
+
+                    <li><hr class="my-2"></li>
+
+                    <!-- Inventory (collapsible header = bold black pill) -->
+                    <li class="mb-2">
+                        <a class="btn btn-gradient-grey rounded-3 w-100 d-flex align-items-center justify-content-between text-dark fw-bold shadow" data-bs-toggle="collapse" href="#menuInventory" role="button" aria-expanded="false" aria-controls="menuInventory">
+                            <span><i class="bi bi-car-front me-2"></i>Inventory</span>
+                            <i class="bi bi-chevron-down"></i>
+                        </a>
+
+                        <!-- Submenu (indented list-group look) -->
+                        <ul id="menuInventory" class="collapse list-unstyled mt-2 ms-3" data-bs-parent="#mobileMenuOffcanvas">
+                            <li class="mb-1">@Html.ActionLink("All", "All", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1">@Html.ActionLink("Suvs", "Suvs", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1">@Html.ActionLink("Trucks", "Trucks", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1">@Html.ActionLink("Vans", "Vans", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1">@Html.ActionLink("Hatchbacks", "Hatchbacks", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1">@Html.ActionLink("Coupes", "Coupes", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1">@Html.ActionLink("Sedans", "Sedans", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1">@Html.ActionLink("Convertibles", "Convertibles", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                        </ul>
+                    </li>
+
+                    <!-- About (collapsible) -->
+                    <li class="mb-2">
+                        <a class="btn btn-gradient-grey rounded-3 w-100 d-flex align-items-center justify-content-between text-dark fw-bold shadow" data-bs-toggle="collapse" href="#menuAbout" role="button" aria-expanded="false" aria-controls="menuAbout">
+                            <span><i class="bi bi-info-circle me-2"></i>About us</span>
+                            <i class="bi bi-chevron-down"></i>
+                        </a>
+
+                        <ul id="menuAbout"
+                            class="collapse list-unstyled mt-2 ms-3"
+                            data-bs-parent="#mobileMenuOffcanvas">
+                            <li class="mb-1">@Html.ActionLink("About us", "About", "Home", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1">
+                                <a class="btn btn-outline-dark w-100 text-start rounded-3" data-bs-dismiss="offcanvas"
+                                   href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })">Contact us</a>
+                            </li>
+                            <li class="mb-1">@Html.ActionLink("Our staff", "Staff", "Home", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1">@Html.ActionLink("Testimonials", "Testimonials", "Home", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                        </ul>
+                    </li>
+
+                    <!-- Hours / Schedule (collapsible + centered address) -->
+                    <li class="mb-2">
+                        <a class="btn btn-gradient-grey rounded-3 w-100 d-flex align-items-center justify-content-between text-dark fw-bold shadow" data-bs-toggle="collapse" href="#menuSchedule" role="button" aria-expanded="false" aria-controls="menuSchedule">
+                            <span><i class="bi bi-stopwatch me-2"></i>Hours / Schedule</span>
+                            <i class="bi bi-chevron-down"></i>
+                        </a>
+
+                        <div id="menuSchedule" class="collapse mt-2" data-bs-parent="#mobileMenuOffcanvas">
+                            <div class="text-center py-2">
+                                <div class="fw-bold text-dark">9516 Princeton Glendale Rd</div>
+                                <div class="text-secondary small">West Chester Township, OH 45011</div>
+                            </div>
+
+                            <div class="border rounded-3 p-2 bg-light">
+                                @Html.Partial("_ScheduleMobile")
+                            </div>
+                        </div>
+                    </li>
+
+                    <!-- Search (primary style) -->
+                    <li class="mb-2">
+                        <a class="btn btn-dark w-100 rounded-3 d-flex align-items-center justify-content-center gap-2 shadow"
+                           href="#" onclick="openFiltersFromOffcanvas(event)">
+                            <i class="bi bi-search"></i>
+                            <span class="fw-semibold">Search inventory</span>
+                        </a>
+                    </li>
+
+                    <!-- Prequalified (success-ish outline) -->
+                    <li class="mb-2">
+                        @Html.ActionLink("💲 Get prequalified", "Application", "Home", null,
+                          new { @class = "btn btn-outline-success w-100 rounded-3 fw-semibold shadow" })
+                    </li>
+
+                </ul>
+            </div>
+
         </div>
     </div>
     <!-- Offcanvas Menu End -->
@@ -59,7 +140,7 @@
     <!-- Header Section Begin -->
     <header class="header fixed-top">
         <div class="canvas__open">
-            <span class="btn btn-gradient-grey bi bi-justify"></span>
+            <button class="btn btn-gradient-grey" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenuOffcanvas"><i class="bi bi-list"></i></button>
         </div>
         <div class="menu-strip container-fluid">
             <div class="d-flex justify-content-between">
@@ -110,6 +191,10 @@
                 </nav>
                 <nav class="header__top d-none d-xxl-flex">
                     <ul class="main-menu start-100 list-unstyled no-wrap-group">
+                        <li class="mx-sm-1 nav-addr-hours hand-pointer" data-bs-toggle="offcanvas" data-bs-target="#openHours" aria-controls="openHours">
+                            <div class="addr-line1">9516 Princeton Glendale Rd</div>
+                            <div class="addr-line2">West Chester Township, OH 45011</div>
+                        </li>
                         <li class="mx-sm-1">
                             <a class="btn btn-gradient-grey border-dark rounded-4" id="btnOpenHours" data-bs-toggle="offcanvas" data-bs-target="#openHours" aria-controls="openHours">
                                 <i class="bi bi-stopwatch"></i>
@@ -137,7 +222,8 @@
             </div>
         </div>
         @{
-            if (ViewBag.Title != null && !ViewBag.Title.Contains("Home") && !ViewBag.Title.Contains("Inventory management")) {
+            if (ViewBag.Title != null && !ViewBag.Title.Contains("Home") && !ViewBag.Title.Contains("Inventory management"))
+            {
                 @Html.Partial("_CategoryFilter")
                 @Html.Partial("_PageTitle")
             }
@@ -163,7 +249,8 @@
                 <span id="inventoryStatus" class="status-circle" title="Very old"></span>
                 <span class="text-muted text-shadow very-small-text mx-2">@ViewBag.Published.ToString("MM-dd HH:mm")</span>
             </div>
-            <!-- CENTER: Copyright Text -->
+
+            <!-- CENTER: Copyright + Terms line -->
             <div class="col text-center">
                 <a class="text-muted text-shadow" data-bs-toggle="offcanvas" href="#gtxDevelopment" role="button" aria-controls="gtxDevelopment">
                     <i class="fa fa-clock-o"></i>
@@ -171,36 +258,47 @@
                     <span class="badge bg-primary">GTX</span>
                     <span>&nbsp;@ViewBag.Environment</span>
                 </a>
+
+                <span class="text-muted text-shadow">
+                    | By placing calls to this dealership you agree to the
+                    <a href="@Url.Action("Terms", "Home")"
+                       class="link-primary text-decoration-underline"
+                       target="_blank" rel="noopener">
+                        Terms and Conditions of Use
+                    </a>
+                </span>
             </div>
+
         </div>
     </footer>
-    <!-- Footer Section End -->
 
-    @Scripts.Render("~/scripts/jquery")
-    @RenderSection("scripts", required: false)
+        <!-- Footer Section End -->
 
-    <div class="offcanvas offcanvas-bottom small-offcanvas centered rounded-5 text-white" tabindex="-1" id="gtxDevelopment" aria-labelledby="offcanvasBottomLabel">
-        <div class="offcanvas-header btn-big-gradient-yellow rounded-top-5 rounded-bottom-0" style="transform: none !important;">
-            <h5 class="offcanvas-title">GTX development</h5>
-            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body text-black-50">
-            <div class="offcanvas-body text-center">
-                <p class="fs-5 fw-semibold text-muted">
-                    For any questions<i class="bi bi-question-circle mx-1"></i>
-                    please <i class="bi bi-phone-vibrate mx-1"></i> call
-                </p>
+        @Scripts.Render("~/scripts/jquery")
+        @RenderSection("scripts", required: false)
 
-                <p class="fs-4 fw-bold text-muted">
-                    Valentin Gikhman
-                </p>
+        <div class="offcanvas offcanvas-bottom small-offcanvas centered rounded-5 text-white" tabindex="-1" id="gtxDevelopment" aria-labelledby="offcanvasBottomLabel">
+            <div class="offcanvas-header btn-big-gradient-yellow rounded-top-5 rounded-bottom-0" style="transform: none !important;">
+                <h5 class="offcanvas-title">GTX development</h5>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body text-black-50">
+                <div class="offcanvas-body text-center">
+                    <p class="fs-5 fw-semibold text-muted">
+                        For any questions<i class="bi bi-question-circle mx-1"></i>
+                        please <i class="bi bi-phone-vibrate mx-1"></i> call
+                    </p>
 
-                <a href="tel:+15136737887" class="text-decoration-none fs-5 text-primary">
-                    (513) 673-7887
-                </a>
+                    <p class="fs-4 fw-bold text-muted">
+                        Valentin Gikhman
+                    </p>
+
+                    <a href="tel:+15136737887" class="text-decoration-none fs-5 text-primary">
+                        (513) 673-7887
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
 </body>
 </html>
 
@@ -216,5 +314,27 @@
     let days = ((new Date("@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")") - new Date("@ViewBag.Published.ToString("yyyy-MM-ddTHH:mm")")) / 86400000).toFixed(0);
     const status = `status-${days}`;
     $("#inventoryStatus").attr('title', `The inventory is ${days} days old`).removeClass().addClass(`status-circle ${status}`);
+
+    function openFiltersFromOffcanvas(e) {
+        e.preventDefault();
+
+        const offEl = document.getElementById('mobileMenuOffcanvas'); // must exist + be .offcanvas
+        const modalEl = document.getElementById('filtersModal');
+
+        if (!offEl || !offEl.classList.contains('offcanvas')) {
+            // Offcanvas not found / wrong element -> just open the modal
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
+            return;
+        }
+
+        const off = bootstrap.Offcanvas.getOrCreateInstance(offEl);
+        off.hide();
+
+        offEl.addEventListener('hidden.bs.offcanvas', function once() {
+            offEl.removeEventListener('hidden.bs.offcanvas', once);
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
+        });
+    }
+
 </script>
- 
+
