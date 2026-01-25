@@ -1,106 +1,282 @@
-﻿<section class="container-fluid d-flex justify-content-center">
-    <div class="well row col-lg-8 m-5 p-3 shadow">
-        <div class="row">
-            <article>
-                <h4>Dont forget to ask Jesus! Jesus will help</h4>
-                <p>
-                    I first saw the White 2022 Volvo V60 Cross Country gleaming like fresh snowfall under the sky.
-                    At GTX Auto Group, its silhouette looked ready to slip between present and future with Scandinavian calm.
-                    Jesus met me with an easy smile and a key that felt like a small promise.
-                    The engine stirred to life in a quiet, confident hum, like a compass waking up.
-                </p>
-                <p>
-                    Streetlights pulled into sleek ribbons across the hood as we eased onto the road.
-                    In the cabin, clean lines and soft textures formed a sanctuary where every click, glow, and whisper seemed carefully designed.
-                    Cincinnati’s bridges became silver runes in the windshield, and the city felt newly mapped for possibility.
-                    The Volvo held to the curves with mountain-goat poise, urging me toward weekend gravel and weekday grace.
-                </p>
-                <p>
-                    Driver assists hovered like gentle constellations, never loud, always there, a guardrail of quiet intelligence.
-                    Jesus rode along for the first miles, narrating features, but really he was introducing me to a version of myself that travels farther.
-                    By the time we looped back to the lot, the V60 Cross Country had rewritten the distance between errands and escape.
-                    I signed, I smiled, and I pointed the white arrow toward the horizon, feeling joy at my back, adventure at the wheel, and a wide-open opportunity rising like dawn.
-                </p>
-            </article>
+﻿@{
+    ViewBag.Title = "Testimonials";
+}
 
+<style>
+    body {
+        background: #f6f7fb;
+    }
 
-            <div class="c-table testimonial-spacer">
-                <h4>When in Doubt, Ask for Jesus</h4>
-                <p>
-                    My oldest daughter had been looking for her first car for months. We test drove about 10 different vehicles before driving the 2008 Rav 4 that she ended up buying. I’ve worked in vehicles my entire life, and this vehicle has no issues that I could find, and I tried! Most importantly, the service was second to none that I’ve personally experienced in 39 years! Our sales rep was Jesus Rodriguez. Not only was he the best car salesperson I’ve ever dealt with, but I also had a chance to learn a little about him as a big brother and he is an amazing person. Could not be happier with our experience at this dealership and especially with Jesus!
-                </p>
+    .testimonials-wrap {
+        max-width: 1100px;
+    }
+
+    .t-card {
+        border: 0;
+        border-radius: 1.25rem;
+        box-shadow: 0 10px 28px rgba(0,0,0,.08);
+        background: rgba(255,255,255,.92);
+        backdrop-filter: blur(6px);
+    }
+
+        .t-card p {
+            margin-bottom: 0;
+            line-height: 1.65;
+        }
+
+        .t-card + .t-card {
+            margin-top: 1rem;
+        }
+
+    .t-title {
+        letter-spacing: -.02em;
+        font-weight: 800;
+        margin-bottom: .25rem;
+    }
+
+    .quote-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+    }
+
+    .soft-divider {
+        height: 1px;
+        background: rgba(0,0,0,.08);
+        margin: .9rem 0;
+    }
+</style>
+
+<section class="container-fluid py-4 py-md-5 d-flex justify-content-center">
+    <div class="testimonials-wrap w-100 px-2 px-md-0">
+
+        <!-- Header -->
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-3 px-1">
+            <div>
+                <h2 class="mb-0 fw-bold" style="letter-spacing:-.03em;">Testimonials</h2>
+                <div class="text-secondary small">Real stories from real customers</div>
             </div>
-            <div class="c-table testimonial-spacer">
-                <h4>Won't Lead you on...</h4>
-                <p>
-                    Friendly group to work with. Was able to test drive a few vehicles I was interested in. They had nice clean cars and good pricing.
-                    I ended up getting a vehicle at another dealer when the one I had my eye on sold, but that was my mistake as I told them not to put a hold on the car while I sold my current vehicle.
-                    Once it sold they let me know and even followed up when a new matching vehicle showed up in their inventory.
-                    It was nice having a dealership work with you in a no pressure sales format.
-                    Ask for Paul, he was great.
-                </p>
-            </div>
-            <div class="c-table testimonial-spacer">
-                <h4>Above and Beyond</h4>
-                <p>
-                    The salesman that sold us the car was genuine and not pushy he was juggling many hats when we were there he tried to go above and beyond to make the deal happen Jesus was very professional and respectful to me and my other half. We just wanted to say thank you for your professionalism.
-                </p>
-            </div>
-            <div class="c-table testimonial-spacer">
-                <h4>Easy to Work With</h4>
-                <p>
-                    We went in pretty much knowing we wanted a Camry (I’ve had a 2007 Camry and it hasn’t failed me), and we saw one online on their website. We drove an hour to see it and drive it and I can say I honestly fell in love with it. It had all the new features I wanted (new coming from a 2007 to a 2015). Bob made the experience easy and we didn’t feel pressured at all compared to the other places we went. Overall the experience and car (so far🤞🏼) are a 10/10 and would definitely buy from this place again. Thanks!!
-                </p>
-            </div>
-            <div class="c-table testimonial-spacer">
-                <h4>Great with Out of State</h4>
-                <p>
-                    I bought my 2017 Volvo S60 Cross country from them and I’m absolutely in love with it. I’m from Michigan so buying a car out of state can be a little daunting but Jesús made the process so much less stressful and offered really good advice regarding mechanical inspection and everything. The whole experience was definitely 10/10. I’ll be back when it’s time to buy another car.
-                </p>
-            </div>
-            <div class="c-table testimonial-spacer">
-                <h4>Friendly and Professional</h4>
-                <p>
-                    I have been looking for a new vehicle for over a month. I saw a couple cars that I was interested at GTX Auto Group. I called and was greeted by Paul he was very friendly and professional. I setup to come in and look at a couple cars. When I arrived from start to finish the entire process was easy and not as stressful as other places I went too. Paul pulled the car up that we wanted to test drive and he opened all the doors, truck, and hood. That made it easier for us to look over the car before test driving it. Paul even went through the rest of their car inventory and listened to what we were looking for and was very helpful. We decided to get a 2013 Hyundai Elantra picture attached. Also the loan officer was very friendly and professional and she was able to make the deal even better than what was originally agreed on. All the staff at GTX Thank you and God Bless!
-                </p>
-            </div>
-            <div class="c-table testimonial-spacer">
-                <h4>Excellent salesman!!!</h4>
-                <p>
-                    Jesus is an excellent salesman very helpful and knowledgeable I love my new ride
-                </p>
-            </div>
-            <div class="c-table testimonial-spacer">
-                <h4>Great experience!</h4>
-                <p>
-                    Had a great experience with Paul at GTX Auto Group. We test drove several cars and ended up buying an Audi A3. Paul checked in on us as we walked around and talked, but never once did we feel pressured to make a buying decision. Once we did, the process was very quick and clear. We were given multiple options for what we could purchase (warranty options) but never felt pressured to buy more than what we wanted. They also worked with us in our trade-in. We love the new-to-us Audi. It was clean, smelled great, and drives like a dream. We will absolutely go back to Paul and GTX for another car (we also got a Tundra while we were there) and are already telling our friends to go there.
-                    /p>
-            </div>
-            <div class="c-table testimonial-spacer">
-                <h4>Fantastic shopping experience.</h4>
-                <p>
-                    Fantastic shopping experience for our first time at GTX Auto Group!
-                    Originally coming over to see one specific Jeep - but Paul helped us every step of the way and we ended up heading home in 2 new-to-us vehicles! Very friendly staff and professional environment. Also big thanks to Finance team for running the numbers multiple times and helping get us the most affordable options! Highly recommend!
-                </p>
-            </div>
-            <div class="c-table testimonial-spacer">
-                <h4>I love my car!</h4>
-                <p>
-                    My experience with GTX has been a pleasure. There was no pressure from my salesman. Paul treated me like an equal. I never felt like I couldn't afford the car which I love!
-                </p>
-            </div>
-            <div class="c-table testimonial-spacer">
-                <h4>I will purchase here again</h4>
-                <p>
-                    Jesus and John are awesome. Great service, great car selection. I will purchase from here again. And so will my family! Best car buying experience, period!
-                </p>
-            </div>
-            <div class="c-table testimonial-spacer">
-                <h4>Terry was extremely helpful</h4>
-                <p>
-                    I bought a 1995 Mitsubishi SR from GTX Auto. I live in Florida and had a lot of questions about the vehicle prior to purchase. Terry was extremely helpful and great to work with even though he didn't get a large commission on the sale. He inspect and test drove the vehicle for me, hosted a Facebook live session so I could check out the car, and even picked me up at the airport when I flew in to check out the vehicle. It was a great experience all around. I would definitely do business with GTX Auto again and would recommend contacting Terry for any sales questions or help that you need.
-                </p>
+            <span class="badge rounded-pill text-bg-dark px-3 py-2">GTX Auto Group</span>
+        </div>
+
+        <!-- Highlight story as a testimonial (not an article) -->
+        <div class="t-card p-4 p-md-5">
+            <div class="d-flex align-items-start gap-3">
+                <div class="quote-icon bg-dark text-white">
+                    <i class="bi bi-stars fs-5"></i>
+                </div>
+                <div class="w-100">
+                    <div class="t-title h5 mb-1">Don’t forget to ask Jesus</div>
+                    <div class="text-secondary">Jesus will help</div>
+
+                    <div class="soft-divider"></div>
+
+                    <p class="text-secondary mb-3">
+                        I first saw the White 2022 Volvo V60 Cross Country gleaming like fresh snowfall under the sky.
+                        At GTX Auto Group, its silhouette looked ready to slip between present and future with Scandinavian calm.
+                        Jesus met me with an easy smile and a key that felt like a small promise.
+                        The engine stirred to life in a quiet, confident hum, like a compass waking up.
+                    </p>
+
+                    <p class="text-secondary mb-3">
+                        Streetlights pulled into sleek ribbons across the hood as we eased onto the road.
+                        In the cabin, clean lines and soft textures formed a sanctuary where every click, glow, and whisper seemed carefully designed.
+                        Cincinnati’s bridges became silver runes in the windshield, and the city felt newly mapped for possibility.
+                        The Volvo held to the curves with mountain-goat poise, urging me toward weekend gravel and weekday grace.
+                    </p>
+
+                    <p class="text-secondary mb-0">
+                        Driver assists hovered like gentle constellations, never loud, always there, a guardrail of quiet intelligence.
+                        Jesus rode along for the first miles, narrating features, but really he was introducing me to a version of myself that travels farther.
+                        By the time we looped back to the lot, the V60 Cross Country had rewritten the distance between errands and escape.
+                        I signed, I smiled, and I pointed the white arrow toward the horizon, feeling joy at my back, adventure at the wheel,
+                        and a wide-open opportunity rising like dawn.
+                    </p>
+                </div>
             </div>
         </div>
+
+        <!-- Testimonial cards -->
+        <div class="t-card p-4">
+            <div class="d-flex align-items-start gap-3">
+                <div class="quote-icon bg-primary text-white"><i class="bi bi-chat-quote-fill"></i></div>
+                <div>
+                    <div class="t-title">When in Doubt, Ask for Jesus</div>
+                    <p class="text-secondary">
+                        My oldest daughter had been looking for her first car for months. We test drove about 10 different vehicles before driving the 2008 Rav 4 that she ended up buying.
+                        I’ve worked in vehicles my entire life, and this vehicle has no issues that I could find, and I tried!
+                        Most importantly, the service was second to none that I’ve personally experienced in 39 years!
+                        Our sales rep was Jesus Rodriguez. Not only was he the best car salesperson I’ve ever dealt with, but I also had a chance to learn a little about him as a big brother and he is an amazing person.
+                        Could not be happier with our experience at this dealership and especially with Jesus!
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="t-card p-4">
+            <div class="d-flex align-items-start gap-3">
+                <div class="quote-icon bg-primary text-white"><i class="bi bi-chat-quote-fill"></i></div>
+                <div>
+                    <div class="t-title">Won't Lead you on...</div>
+                    <p class="text-secondary">
+                        Friendly group to work with. Was able to test drive a few vehicles I was interested in. They had nice clean cars and good pricing.
+                        I ended up getting a vehicle at another dealer when the one I had my eye on sold, but that was my mistake as I told them not to put a hold on the car while I sold my current vehicle.
+                        Once it sold they let me know and even followed up when a new matching vehicle showed up in their inventory.
+                        It was nice having a dealership work with you in a no pressure sales format. Ask for Paul, he was great.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="t-card p-4">
+            <div class="d-flex align-items-start gap-3">
+                <div class="quote-icon bg-primary text-white"><i class="bi bi-chat-quote-fill"></i></div>
+                <div>
+                    <div class="t-title">Above and Beyond</div>
+                    <p class="text-secondary">
+                        The salesman that sold us the car was genuine and not pushy he was juggling many hats when we were there he tried to go above and beyond to make the deal happen.
+                        Jesus was very professional and respectful to me and my other half. We just wanted to say thank you for your professionalism.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="t-card p-4">
+            <div class="d-flex align-items-start gap-3">
+                <div class="quote-icon bg-primary text-white"><i class="bi bi-chat-quote-fill"></i></div>
+                <div>
+                    <div class="t-title">Easy to Work With</div>
+                    <p class="text-secondary">
+                        We went in pretty much knowing we wanted a Camry (I’ve had a 2007 Camry and it hasn’t failed me), and we saw one online on their website.
+                        We drove an hour to see it and drive it and I can say I honestly fell in love with it. It had all the new features I wanted (new coming from a 2007 to a 2015).
+                        Bob made the experience easy and we didn’t feel pressured at all compared to the other places we went.
+                        Overall the experience and car (so far🤞🏼) are a 10/10 and would definitely buy from this place again. Thanks!!
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="t-card p-4">
+            <div class="d-flex align-items-start gap-3">
+                <div class="quote-icon bg-primary text-white"><i class="bi bi-chat-quote-fill"></i></div>
+                <div>
+                    <div class="t-title">Great with Out of State</div>
+                    <p class="text-secondary">
+                        I bought my 2017 Volvo S60 Cross country from them and I’m absolutely in love with it.
+                        I’m from Michigan so buying a car out of state can be a little daunting but Jesús made the process so much less stressful
+                        and offered really good advice regarding mechanical inspection and everything.
+                        The whole experience was definitely 10/10. I’ll be back when it’s time to buy another car.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="t-card p-4">
+            <div class="d-flex align-items-start gap-3">
+                <div class="quote-icon bg-primary text-white"><i class="bi bi-chat-quote-fill"></i></div>
+                <div>
+                    <div class="t-title">Friendly and Professional</div>
+                    <p class="text-secondary">
+                        I have been looking for a new vehicle for over a month. I saw a couple cars that I was interested at GTX Auto Group.
+                        I called and was greeted by Paul he was very friendly and professional. I setup to come in and look at a couple cars.
+                        When I arrived from start to finish the entire process was easy and not as stressful as other places I went too.
+                        Paul pulled the car up that we wanted to test drive and he opened all the doors, trunk, and hood.
+                        That made it easier for us to look over the car before test driving it. Paul even went through the rest of their car inventory and listened to what we were looking for and was very helpful.
+                        We decided to get a 2013 Hyundai Elantra. Also the loan officer was very friendly and professional and she was able to make the deal even better than what was originally agreed on.
+                        All the staff at GTX Thank you and God Bless!
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="t-card p-4">
+            <div class="d-flex align-items-start gap-3">
+                <div class="quote-icon bg-primary text-white"><i class="bi bi-chat-quote-fill"></i></div>
+                <div>
+                    <div class="t-title">Excellent salesman!!!</div>
+                    <p class="text-secondary">
+                        Jesus is an excellent salesman very helpful and knowledgeable I love my new ride
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="t-card p-4">
+            <div class="d-flex align-items-start gap-3">
+                <div class="quote-icon bg-primary text-white"><i class="bi bi-chat-quote-fill"></i></div>
+                <div>
+                    <div class="t-title">Great experience!</div>
+                    <p class="text-secondary">
+                        Had a great experience with Paul at GTX Auto Group. We test drove several cars and ended up buying an Audi A3.
+                        Paul checked in on us as we walked around and talked, but never once did we feel pressured to make a buying decision.
+                        Once we did, the process was very quick and clear. We were given multiple options for what we could purchase (warranty options)
+                        but never felt pressured to buy more than what we wanted. They also worked with us in our trade-in. We love the new-to-us Audi.
+                        It was clean, smelled great, and drives like a dream. We will absolutely go back to Paul and GTX for another car (we also got a Tundra while we were there)
+                        and are already telling our friends to go there.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="t-card p-4">
+            <div class="d-flex align-items-start gap-3">
+                <div class="quote-icon bg-primary text-white"><i class="bi bi-chat-quote-fill"></i></div>
+                <div>
+                    <div class="t-title">Fantastic shopping experience.</div>
+                    <p class="text-secondary">
+                        Fantastic shopping experience for our first time at GTX Auto Group! Originally coming over to see one specific Jeep - but Paul helped us every step of the way
+                        and we ended up heading home in 2 new-to-us vehicles! Very friendly staff and professional environment. Also big thanks to Finance team for running the numbers
+                        multiple times and helping get us the most affordable options! Highly recommend!
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="t-card p-4">
+            <div class="d-flex align-items-start gap-3">
+                <div class="quote-icon bg-primary text-white"><i class="bi bi-chat-quote-fill"></i></div>
+                <div>
+                    <div class="t-title">I love my car!</div>
+                    <p class="text-secondary">
+                        My experience with GTX has been a pleasure. There was no pressure from my salesman. Paul treated me like an equal.
+                        I never felt like I couldn't afford the car which I love!
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="t-card p-4">
+            <div class="d-flex align-items-start gap-3">
+                <div class="quote-icon bg-primary text-white"><i class="bi bi-chat-quote-fill"></i></div>
+                <div>
+                    <div class="t-title">I will purchase here again</div>
+                    <p class="text-secondary">
+                        Jesus and John are awesome. Great service, great car selection. I will purchase from here again. And so will my family!
+                        Best car buying experience, period!
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="t-card p-4">
+            <div class="d-flex align-items-start gap-3">
+                <div class="quote-icon bg-primary text-white"><i class="bi bi-chat-quote-fill"></i></div>
+                <div>
+                    <div class="t-title">Terry was extremely helpful</div>
+                    <p class="text-secondary">
+                        I bought a 1995 Mitsubishi SR from GTX Auto. I live in Florida and had a lot of questions about the vehicle prior to purchase.
+                        Terry was extremely helpful and great to work with even though he didn't get a large commission on the sale.
+                        He inspect and test drove the vehicle for me, hosted a Facebook live session so I could check out the car,
+                        and even picked me up at the airport when I flew in to check out the vehicle. It was a great experience all around.
+                        I would definitely do business with GTX Auto again and would recommend contacting Terry for any sales questions or help that you need.
+                    </p>
+                </div>
+            </div>
+        </div>
+
     </div>
 </section>
