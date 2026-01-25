@@ -79,6 +79,33 @@
     }
 
     /* ===== Sliders ===== */
+    /* Nice grey gradient for the selected (connected) range */
+    .noUi-connect {
+        background: gray;
+    }
+
+    /* Optional: make the base track look clean too */
+    .noUi-target {
+        background: #e9ecef;
+        border: 1px solid rgba(0,0,0,.08);
+        border-radius: 999px;
+        box-shadow: inset 0 1px 2px rgba(0,0,0,.06);
+    }
+
+    .noUi-handle {
+        width: 22px;
+        height: 22px;
+        top: -10px!important;
+        border-radius: 999px;
+        border: 1px solid rgba(0,0,0,.15);
+        background: linear-gradient(180deg, #ffffff 0%, #e9ecef 100%);
+        box-shadow: 0 2px 6px rgba(0,0,0,.18);
+    }
+
+    .noUi-horizontal {
+        height: 10px;
+    }
+
     .slider-card {
         background: #fff;
         border: 1px solid rgba(0,0,0,.075);
@@ -108,28 +135,6 @@
                 font-size: 1.05rem;
                 opacity: .85;
             }
-
-    #price, #milege {
-        height: 10px;
-        touch-action: pan-x;
-        border-radius: 999px;
-    }
-
-        #price .ui-slider-handle,
-        #milege .ui-slider-handle {
-            pointer-events: auto;
-            touch-action: none; /* handle drag */
-            -webkit-user-select: none;
-            user-select: none;
-            width: 28px;
-            height: 28px;
-            top: -10px;
-            border-radius: 999px;
-            border: 2px solid rgba(13,110,253,.35);
-            background: #fff;
-            box-shadow: 0 .35rem .9rem rgba(0,0,0,.18);
-            cursor: grab;
-        }
 
         #price .ui-slider-range,
         #milege .ui-slider-range {
@@ -281,12 +286,12 @@
 
     </div>
 
-    @* ===== Sliders ===== *@
+    @* ===== New Sliders ===== *@
     <div class="row g-1 mt-2">
         <div class="col-12 col-lg-6">
             <div class="slider-card p-1 p-md-2 shadow">
-                <div class="slider-head mb-3">
-                    <label class="form-label" for="price">
+                <div class="slider-head mb-3 d-flex align-items-center justify-content-between">
+                    <label class="form-label mb-0" for="price">
                         <i class="bi bi-currency-dollar"></i> Price range
                     </label>
                     <span class="badge text-bg-light border">
@@ -294,9 +299,12 @@
                     </span>
                 </div>
 
-                <div id="price" class="mx-2 slider"></div>
+                <!-- noUiSlider target -->
+                <div id="priceSlider" class="mx-4"></div>
+                <input type="hidden" id="minPrice">
+                <input type="hidden" id="maxPrice">
 
-                <div class="slider-meta small text-secondary">
+                <div class="slider-meta small text-secondary d-flex justify-content-between mt-2">
                     <span id="priceMin" class="fw-semibold"></span>
                     <span id="priceMax" class="fw-semibold"></span>
                 </div>
@@ -305,8 +313,8 @@
 
         <div class="col-12 col-lg-6">
             <div class="slider-card p-1 p-md-2 shadow">
-                <div class="slider-head mb-3">
-                    <label class="form-label" for="milege">
+                <div class="slider-head mb-3 d-flex align-items-center justify-content-between">
+                    <label class="form-label mb-0" for="milege">
                         <i class="bi bi-speedometer2"></i> Mileage
                     </label>
                     <span class="badge text-bg-light border">
@@ -314,13 +322,123 @@
                     </span>
                 </div>
 
-                <div id="milege" class="mx-2 slider"></div>
-
-                <div class="slider-meta small text-secondary">
+                <!-- noUiSlider target -->
+                <div id="milegeSlider" class="mx-4"></div>
+                <input type="hidden" id="minMiles">
+                <input type="hidden" id="maxMiles">
+                <div class="slider-meta small text-secondary d-flex justify-content-between mt-2">
                     <span id="milegeMin" class="fw-semibold"></span>
                     <span id="milegeMax" class="fw-semibold"></span>
                 </div>
             </div>
         </div>
     </div>
+
 </div>
+
+<script>
+    // ==========================================================
+    // Create sliders ONCE on load, then update their ranges later
+    // Call: setPriceRange(min,max) / setMilesRange(min,max)
+    // ==========================================================
+    $(function () {
+        // expose setters globally so your ajax functions can call them
+        window.setPriceRange = function (rawMin, rawMax) {
+            var $priceSlider = $("#priceSlider");
+            if (!$priceSlider.length || !$priceSlider[0].noUiSlider) return;
+
+            var min = floorTo(rawMin, 1000);
+            var max = ceilTo(rawMax, 1000);
+
+            // update allowed bounds
+            $priceSlider[0].noUiSlider.updateOptions({ range: { min: min, max: max } }, false);
+
+            // reset handles to the full available range (or change this to preserve selection)
+            $priceSlider[0].noUiSlider.set([min, max]);
+        };
+
+        window.setMilesRange = function (rawMin, rawMax) {
+            var $milegeSlider = $("#milegeSlider");
+            if (!$milegeSlider.length || !$milegeSlider[0].noUiSlider) return;
+
+            var min = floorTo(rawMin, 1000);
+            var max = ceilTo(rawMax, 1000);
+
+            $milegeSlider[0].noUiSlider.updateOptions({ range: { min: min, max: max } }, false);
+            $milegeSlider[0].noUiSlider.set([min, max]);
+        };
+
+        // =========================
+        // PRICE (range) - create once
+        // =========================
+        var $priceSlider = $("#priceSlider");
+        var $priceMin = $("#priceMin");
+        var $priceMax = $("#priceMax");
+
+        if ($priceSlider.length) {
+
+            // Create ONLY if not already created (supports partial reloads)
+            if (!$priceSlider[0].noUiSlider) {
+                noUiSlider.create($priceSlider[0], {
+                    start: [0, 0],
+                    connect: true,
+                    step: 1, // we round to 1000 ourselves
+                    range: { min: 0, max: 0 }
+                });
+
+                $priceSlider[0].noUiSlider.on("update", function (values) {
+                    var minVal = roundTo(toNum(values[0]), 1000);
+                    var maxVal = roundTo(toNum(values[1]), 1000);
+
+                    $("#minPrice").val(minVal);
+                    $("#maxPrice").val(maxVal);
+
+                    $priceMin.text("More than " + usd.format(minVal));
+                    $priceMax.text("Under " + usd.format(maxVal));
+                });
+
+                $priceSlider[0].noUiSlider.on("change", function (values) {
+                    var minVal = roundTo(toNum(values[0]), 1000);
+                    var maxVal = roundTo(toNum(values[1]), 1000);
+                    $priceSlider[0].noUiSlider.set([minVal, maxVal]);
+                });
+            }
+        }
+
+        // =========================
+        // MILEAGE (range) - create once
+        // =========================
+        var $milegeSlider = $("#milegeSlider");
+        var $milegeMin = $("#milegeMin");
+        var $milegeMax = $("#milegeMax");
+
+        if ($milegeSlider.length) {
+
+            if (!$milegeSlider[0].noUiSlider) {
+                noUiSlider.create($milegeSlider[0], {
+                    start: [0, 0],
+                    connect: true,
+                    step: 1, // we round to 1000 ourselves
+                    range: { min: 0, max: 0 }
+                });
+
+                $milegeSlider[0].noUiSlider.on("update", function (values) {
+                    var minVal = roundTo(toNum(values[0]), 1000);
+                    var maxVal = roundTo(toNum(values[1]), 1000);
+
+                    $("#minMiles").val(minVal);
+                    $("#maxMiles").val(maxVal);
+
+                    $milegeMin.text("More than " + minVal.toLocaleString() + " mi");
+                    $milegeMax.text("Under " + maxVal.toLocaleString() + " mi");
+                });
+
+                $milegeSlider[0].noUiSlider.on("change", function (values) {
+                    var minVal = roundTo(toNum(values[0]), 1000);
+                    var maxVal = roundTo(toNum(values[1]), 1000);
+                    $milegeSlider[0].noUiSlider.set([minVal, maxVal]);
+                });
+            }
+        }
+    });
+</script>

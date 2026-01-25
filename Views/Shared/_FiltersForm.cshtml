@@ -1,5 +1,8 @@
 ﻿@{ Html.RenderPartial("_CategoryFilter"); }
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider@15.8.1/dist/nouislider.min.css">
+<script src="https://cdn.jsdelivr.net/npm/nouislider@15.8.1/dist/nouislider.min.js"></script>
+
 @*Meat*@
 <div class="row container-fluid mt-2 col-12 justify-content-between">
     <div id="filterOverlay" class="spinner-overlay spinner-hidden">
@@ -20,6 +23,13 @@
 </div>
 
 <script type="text/javascript">
+    // ---------- helpers ----------
+    function roundTo(n, step) { return Math.round(n / step) * step; }
+    function floorTo(n, step) { return Math.floor(n / step) * step; }
+    function ceilTo(n, step) { return Math.ceil(n / step) * step; }
+    function toNum(v) { return parseFloat(v); }
+    var usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0, minimumFractionDigits: 0 });
+
     $(function () {
         $("#makes").chosen({
             placeholder_text_multiple: "All make(s)...",
@@ -214,11 +224,12 @@
                 VehicleTypes: $("#vehicleTypes").val(),
                 DriveTrains: $("#drives").val(),
                 BodyTypes: $("#bodyTypes").val(),
-                MaxMilege: $("#milege").slider("values", 1),
-                MinMilege: $("#milege").slider("values", 0),
-                MaxPrice: $("#price").slider("values", 1),
-                MinPrice: $("#price").slider("values", 0)
+                MaxMilege: $("#maxMiles").val(),
+                MinMilege: $("#minMiles").val(),
+                MaxPrice: $("#maxPrice").val(),
+                MinPrice: $("#minPrice").val()
             };
+            console.log("model", model)
 
             $("#filtersModal [data-bs-dismiss='modal']").trigger("click");
 
@@ -229,15 +240,13 @@
                 dataType: "json",
                 data: JSON.stringify(model)   // ✅ send the model itself, not { model: model }
             })
-            .done(function (response) {
-                //hideSpinner($("#filterOverlay"));
-   
-                window.location.href = response.redirectUrl;
-            })
-            .fail(function (xhr, status, error) {
-                hideSpinner($("#filterOverlay"));
-                console.error("Error applying term:", error, xhr.responseText);
-            });
+                .done(function (response) {
+                    window.location.href = response.redirectUrl;
+                })
+                .fail(function (xhr, status, error) {
+                    hideSpinner($("#filterOverlay"));
+                    console.error("Error applying term:", error, xhr.responseText);
+                });
         })
     })
 
@@ -353,49 +362,13 @@
         $.get(`${root}Inventory/GetPriceRange`, { makes: makes })
             .done(function (result) {
                 if (result != null) {
-                    const roundedMin = Math.round(Math.floor(result.PriceMin / 1000)) * 1000;
-                    const roundedMax = Math.round(Math.ceil(result.PriceMax / 1000)) * 1000;
+                    var minVal = roundTo(toNum(result.PriceMin), 1000);
+                    var maxVal = roundTo(toNum(result.PriceMax), 1000);
 
-                    const formattedMin = new Intl.NumberFormat('en-US', {
-                        maximumFractionDigits: 0,
-                        minimumFractionDigits: 0,
-                        style: 'currency',
-                        currency: 'USD'
-                    }).format(roundedMin);
+                    $("#minPrice").val(minVal);
+                    $("#maxPrice").val(maxVal);
 
-
-                    const formattedMax = new Intl.NumberFormat('en-US', {
-                        maximumFractionDigits: 0,
-                        minimumFractionDigits: 0,
-                        style: 'currency',
-                        currency: 'USD'
-                    }).format(roundedMax);
-
-                    $("#priceMin").text(formattedMin);
-                    $("#priceMax").text(formattedMax);
-                    $("#price").slider({
-                        range: true,
-                        min: roundedMin,
-                        max: roundedMax,
-                        values: [roundedMin, roundedMax],
-                        slide: function (event, ui) {
-                            const roundedMin = Math.round(ui.values[0] / 1000) * 1000;
-                            const roundedMax = Math.round(ui.values[1] / 1000) * 1000;
-                            const formattedMin = new Intl.NumberFormat('en-US', {
-                                style: 'currency',
-                                currency: 'USD'
-                            }).format(roundedMin);
-
-                            const formattedMax = new Intl.NumberFormat('en-US', {
-                                style: 'currency',
-                                currency: 'USD'
-                            }).format(roundedMax);
-
-                            $("#priceMin").text(`More than ${formattedMin}`);
-                            $("#priceMax").text(`Under ${formattedMax}`);
-                            return true;
-                        }
-                    });
+                    if (result) setPriceRange(minVal, maxVal);
                 }
                 hideSpinner($("#filterOverlay"));
             })
@@ -406,43 +379,13 @@
         $.get(`${root}Inventory/GetMilegeRange`, { makes: makes })
             .done(function (result) {
                 if (result != null) {
-                    const roundedMin = Math.round(Math.floor(result.MilesMin / 1000)) * 1000;
-                    const roundedMax = Math.round(Math.ceil(result.MilesMax / 1000)) * 1000;
-                    const formattedMin = new Intl.NumberFormat('en-US', {
-                        maximumFractionDigits: 0,
-                        minimumFractionDigits: 0,
-                    }).format(roundedMin);
+                    var minVal = roundTo(toNum(result.MilesMin), 1000);
+                    var maxVal = roundTo(toNum(result.MilesMax), 1000);
 
+                    $("#minMiles").val(minVal);
+                    $("#maxMiles").val(maxVal);
 
-                    const formattedMax = new Intl.NumberFormat('en-US', {
-                        maximumFractionDigits: 0,
-                        minimumFractionDigits: 0,
-                    }).format(roundedMax);
-
-                    $("#milegeMin").text(formattedMin);
-                    $("#milegeMax").text(formattedMax);
-                    $("#milege").slider({
-                        range: true,
-                        min: roundedMin,
-                        max: roundedMax,
-                        values: [roundedMin, roundedMax],
-                        slide: function (event, ui) {
-                            const roundedMin = Math.round(ui.values[0] / 1000) * 1000;
-                            const roundedMax = Math.round(ui.values[1] / 1000) * 1000;
-                            const formattedMin = new Intl.NumberFormat('en-US', {
-                                maximumFractionDigits: 0,
-                                minimumFractionDigits: 0,
-                            }).format(roundedMin);
-
-                            const formattedMax = new Intl.NumberFormat('en-US', {
-                                maximumFractionDigits: 0,
-                                minimumFractionDigits: 0,
-                            }).format(roundedMax);
-
-                            $("#milegeMin").text(`More than ${formattedMin}`);
-                            $("#milegeMax").text(`Under ${formattedMax}`);
-                        }
-                    });
+                    if (result) setMilesRange(minVal, maxVal);
                 }
                 hideSpinner($("#filterOverlay"));
             })
@@ -454,7 +397,7 @@
         getModels(selected);
         getCylinders(selected);
         getTransmissions(selected);
-        
+
         getFuelTypes(selected);
         getPriceRange(selected);
         getDrives(selected);
