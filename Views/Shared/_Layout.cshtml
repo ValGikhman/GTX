@@ -32,6 +32,12 @@
 </head>
 
 <body class="overflow-hidden d-flex flex-column min-vh-100">
+    <!-- Offcanvas open hours -->
+    <div class="offcanvas-top-fixed-center" tabindex="-1" id="openHours">
+        <div class="offcanvas-body">
+            @Html.Partial("_Schedule")
+        </div>
+    </div>
     <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenuOffcanvas" aria-labelledby="mobileMenuLabel">
         <div class="offcanvas-header">
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -266,33 +272,33 @@
         </div>
     </footer>
 
-        <!-- Footer Section End -->
+    <!-- Footer Section End -->
 
-        @Scripts.Render("~/scripts/jquery")
-        @RenderSection("scripts", required: false)
+    @Scripts.Render("~/scripts/jquery")
+    @RenderSection("scripts", required: false)
 
-        <div class="offcanvas offcanvas-bottom small-offcanvas centered rounded-5 text-white" tabindex="-1" id="gtxDevelopment" aria-labelledby="offcanvasBottomLabel">
-            <div class="offcanvas-header btn-big-gradient-yellow rounded-top-5 rounded-bottom-0" style="transform: none !important;">
-                <h5 class="offcanvas-title">GTX development</h5>
-                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-            </div>
-            <div class="offcanvas-body text-black-50">
-                <div class="offcanvas-body text-center">
-                    <p class="fs-5 fw-semibold text-muted">
-                        For any questions<i class="bi bi-question-circle mx-1"></i>
-                        please <i class="bi bi-phone-vibrate mx-1"></i> call
-                    </p>
+    <div class="offcanvas offcanvas-bottom small-offcanvas centered rounded-5 text-white" tabindex="-1" id="gtxDevelopment" aria-labelledby="offcanvasBottomLabel">
+        <div class="offcanvas-header btn-big-gradient-yellow rounded-top-5 rounded-bottom-0" style="transform: none !important;">
+            <h5 class="offcanvas-title">GTX development</h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body text-black-50">
+            <div class="offcanvas-body text-center">
+                <p class="fs-5 fw-semibold text-muted">
+                    For any questions<i class="bi bi-question-circle mx-1"></i>
+                    please <i class="bi bi-phone-vibrate mx-1"></i> call
+                </p>
 
-                    <p class="fs-4 fw-bold text-muted">
-                        Valentin Gikhman
-                    </p>
+                <p class="fs-4 fw-bold text-muted">
+                    Valentin Gikhman
+                </p>
 
-                    <a href="tel:+15136737887" class="text-decoration-none fs-5 text-primary">
-                        (513) 673-7887
-                    </a>
-                </div>
+                <a href="tel:+15136737887" class="text-decoration-none fs-5 text-primary">
+                    (513) 673-7887
+                </a>
             </div>
         </div>
+    </div>
 </body>
 </html>
 
