@@ -117,12 +117,16 @@
 
     #price, #milege {
         height: 10px;
-        touch-action: none;
+        touch-action: pan-x;
         border-radius: 999px;
     }
 
         #price .ui-slider-handle,
         #milege .ui-slider-handle {
+            touch-action: none; /* ok on handle */
+            -ms-touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
             width: 28px;
             height: 28px;
             top: -10px;
@@ -174,7 +178,7 @@
             <div class="filter-card p-1 p-md-2 shadow">
                 <div class="d-flex align-items-start justify-content-between mb-2">
                     <h6 class="filter-title">
-                        <i class="bi bi-car-front"></i> Models
+                        <i class="bi bi-car-front"></i>Models
                     </h6>
                     <div class="form-check form-switch">
                         @Html.CheckBox("allModels", true, new { @class = "form-check-input", id = "allModels", disabled = "true" })
@@ -190,7 +194,7 @@
             <div class="filter-card p-1 p-md-2 shadow">
                 <div class="d-flex align-items-start justify-content-between mb-2">
                     <h6 class="filter-title">
-                        <i class="bi bi-gear"></i> Drive
+                        <i class="bi bi-gear"></i>Drive
                     </h6>
                     <div class="form-check form-switch">
                         @Html.CheckBox("allDrives", true, new { @class = "form-check-input", id = "allDrives", disabled = "true" })
@@ -206,7 +210,7 @@
             <div class="filter-card p-1 p-md-2 shadow">
                 <div class="d-flex align-items-start justify-content-between mb-2">
                     <h6 class="filter-title">
-                        <i class="bi bi-truck-front"></i> Body
+                        <i class="bi bi-truck-front"></i>Body
                     </h6>
                     <div class="form-check form-switch">
                         @Html.CheckBox("allBodyTypes", true, new { @class = "form-check-input", id = "allBodyTypes", disabled = "true" })
@@ -222,7 +226,7 @@
             <div class="filter-card p-1 p-md-2 shadow">
                 <div class="d-flex align-items-start justify-content-between mb-2">
                     <h6 class="filter-title">
-                        <i class="bi bi-speedometer"></i> Cylinders
+                        <i class="bi bi-speedometer"></i>Cylinders
                     </h6>
                     <div class="form-check form-switch">
                         @Html.CheckBox("allCylinders", true, new { @class = "form-check-input", id = "allCylinders" })
@@ -238,7 +242,7 @@
             <div class="filter-card p-1 p-md-2 shadow">
                 <div class="d-flex align-items-start justify-content-between mb-2">
                     <h6 class="filter-title">
-                        <i class="bi bi-shuffle"></i> Transmission
+                        <i class="bi bi-shuffle"></i>Transm
                     </h6>
                     <div class="form-check form-switch">
                         @Html.CheckBox("allTransmissions", true, new { @class = "form-check-input", id = "allTransmissions" })
@@ -254,7 +258,7 @@
             <div class="filter-card p-1 p-md-2 shadow">
                 <div class="d-flex align-items-start justify-content-between mb-2">
                     <h6 class="filter-title">
-                        <i class="bi bi-fuel-pump"></i> Fuel
+                        <i class="bi bi-fuel-pump"></i>Fuel
                     </h6>
                     <div class="form-check form-switch">
                         @Html.CheckBox("allFuelTypes", true, new { @class = "form-check-input", id = "allFuelTypes" })
@@ -270,7 +274,7 @@
             <div class="filter-card p-1 p-md-2 shadow">
                 <div class="d-flex align-items-start justify-content-between mb-2">
                     <h6 class="filter-title">
-                        <i class="bi bi-car-front-fill"></i> Vehicle Type
+                        <i class="bi bi-car-front-fill"></i>Type
                     </h6>
                     <div class="form-check form-switch">
                         @Html.CheckBox("allVehicleTypes", true, new { @class = "form-check-input", id = "allVehicleTypes" })
