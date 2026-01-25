@@ -381,15 +381,11 @@
                             const roundedMin = Math.round(ui.values[0] / 1000) * 1000;
                             const roundedMax = Math.round(ui.values[1] / 1000) * 1000;
                             const formattedMin = new Intl.NumberFormat('en-US', {
-                                maximumFractionDigits: 0,
-                                minimumFractionDigits: 0,
                                 style: 'currency',
                                 currency: 'USD'
                             }).format(roundedMin);
 
                             const formattedMax = new Intl.NumberFormat('en-US', {
-                                maximumFractionDigits: 0,
-                                minimumFractionDigits: 0,
                                 style: 'currency',
                                 currency: 'USD'
                             }).format(roundedMax);
