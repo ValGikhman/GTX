@@ -250,23 +250,38 @@
             </div>
 
             <!-- CENTER: Copyright + Terms line -->
-            <div class="col text-center">
-                <a class="text-muted text-shadow" data-bs-toggle="offcanvas" href="#gtxDevelopment" role="button" aria-controls="gtxDevelopment">
-                    <i class="fa fa-clock-o"></i>
-                    <span class="d-none d-lg-inline">Copyright &copy; @DateTime.Now.Year ✧ Made by</span>
-                    <span class="badge bg-primary">GTX</span>
-                    <span>&nbsp;@ViewBag.Environment ✧ </span>
-                </a>
-                <a href="@Url.Action("PrivacyPolicy", "Home")" class="link-primary text-decoration-underline" target="_blank" rel="noopener">
-                    Privacy Policy
-                </a>
+            <div class="col">
+                <div class="d-flex flex-wrap flex-lg-nowrap align-items-center justify-content-center gap-2 gap-lg-3 text-center">
 
-                <span class="text-muted text-shadow d-none d-lg-inline">
-                    ✧ By placing calls to this dealership you agree to the ✧
-                    <a href="@Url.Action("TermsAndConditions", "Home")" class="link-primary text-decoration-underline" target="_blank" rel="noopener">
-                        Terms and Conditions of Use
+                    <!-- Left / brand + env (click opens offcanvas) -->
+                    <a class="text-muted text-shadow text-decoration-none d-inline-flex align-items-center gap-2" data-bs-toggle="offcanvas" href="#gtxDevelopment" role="button" aria-controls="gtxDevelopment">
+                        <span class="d-none d-lg-inline">
+                            Copyright &copy; @DateTime.Now.Year ✧ Made by
+                        </span>
+
+                        <span class="badge bg-primary">GTX</span>
+
+                        <span class="text-nowrap">
+                            @ViewBag.Environment
+                        </span>
+
+                        <span class="d-none d-lg-inline">✧</span>
                     </a>
-                </span>
+
+                    <!-- Privacy -->
+                    <a href="@Url.Action("PrivacyPolicy", "Home")" class="link-primary text-decoration-underline text-nowrap" target="_blank" rel="noopener">
+                        Privacy Policy
+                    </a>
+
+                    <!-- Terms sentence (desktop only) -->
+                    <span class="text-muted text-shadow d-none d-lg-inline">
+                        ✧ By placing calls to this dealership you agree to the ✧
+                        <a href="@Url.Action("TermsAndConditions", "Home")" class="link-primary text-decoration-underline" target="_blank" rel="noopener">
+                            Terms and Conditions of Use
+                        </a>
+                    </span>
+
+                </div>
             </div>
 
         </div>
