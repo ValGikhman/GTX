@@ -1,0 +1,499 @@
+﻿@{
+    ViewBag.Title = "Privacy Policy";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    a.link-secondary {
+        font-weight: 500;
+        transition: color .15s ease, font-weight .15s ease, transform .15s ease;
+    }
+
+        a.link-secondary:hover,
+        a.link-secondary:focus {
+            color: var(--bs-dark) !important; /* noticeably darker */
+            font-weight: 700; /* bolder */
+            text-decoration: none;
+            transform: translateX(2px); /* subtle “alive” feel */
+            outline: none;
+        }
+
+        /* Make the icon match the hover state too */
+        a.link-secondary i {
+            transition: color .15s ease, transform .15s ease;
+        }
+
+        a.link-secondary:hover i,
+        a.link-secondary:focus i {
+            color: var(--bs-dark) !important;
+            transform: translateY(-1px);
+        }
+</style>
+
+<section class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-11 col-xl-10 my-5 px-3">
+
+            <div class="bg-white shadow rounded-4 p-4 p-md-5">
+
+                <!-- Header -->
+                <div id="top" class="mb-3">
+                    <h1 class="h3 fw-bold mb-2">Privacy Policy</h1>
+                    <div class="text-muted small">
+                        Last updated: <span class="fw-semibold">January 25, 2026</span>
+                    </div>
+
+                    <!-- Top Navigation Links -->
+                    <div class="d-flex flex-wrap gap-2 mt-3">
+                        <a class="btn btn-outline-secondary btn-sm rounded-pill shadow" href="@Url.Action("TermsAndConditions","Home")">
+                            <i class="bi bi-file-text me-1"></i> Terms &amp; Conditions
+                        </a>
+
+                        <a class="btn btn-secondary btn-sm rounded-pill shadow" href="@Url.Action("PrivacyPolicy","Home")">
+                            <i class="bi bi-shield-lock me-1"></i> Privacy Policy
+                        </a>
+
+                        <a class="btn btn-outline-secondary btn-sm rounded-pill shadow" href="@Url.Action("Contact","Home")">
+                            <i class="bi bi-envelope me-1"></i> Contact
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+                <!-- Notice -->
+                <div class="alert alert-warning border-0 rounded-4 mb-4" role="alert">
+                    <div class="fw-bold mb-1">Please read carefully.</div>
+                    By accessing this website and any of its pages, you agree that you are bound by these Terms and Conditions of Use
+                    as they may be amended from time to time. If you do not agree, please exit this website immediately.
+                </div>
+                <!-- Two Column Layout -->
+                <div class="row g-4">
+
+                    <!-- LEFT: Fixed Table of Contents -->
+                    <div class="col-12 col-lg-4 col-xl-3">
+                        <div class="position-sticky" style="top: 50px;">
+                            <div class="border rounded-4 p-3 p-md-4 bg-light">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <div class="fw-semibold">
+                                        <i class="bi bi-list-ul me-2"></i>Table of Contents
+                                    </div>
+                                </div>
+
+                                <!-- Custom icon list -->
+                                <div class="d-flex flex-column gap-1">
+
+                                    <a class="d-flex align-items-start gap-2 link-secondary text-decoration-none" href="#intro">
+                                        <i class="bi bi-info-circle mt-1"></i>
+                                        <span>Introduction</span>
+                                    </a>
+
+                                    <a class="d-flex align-items-start gap-2 link-secondary text-decoration-none" href="#sms-policy">
+                                        <i class="bi bi-phone mt-1"></i>
+                                        <span>SMS / Mobile Policy</span>
+                                    </a>
+
+                                    <a class="d-flex align-items-start gap-2 link-secondary text-decoration-none" href="#definitions">
+                                        <i class="bi bi-book mt-1"></i>
+                                        <span>Definitions</span>
+                                    </a>
+
+                                    <a class="d-flex align-items-start gap-2 link-secondary text-decoration-none" href="#collecting">
+                                        <i class="bi bi-person-badge mt-1"></i>
+                                        <span>Collecting Data</span>
+                                    </a>
+
+                                    <a class="d-flex align-items-start gap-2 link-secondary text-decoration-none" href="#cookies">
+                                        <i class="bi bi-cookie mt-1"></i>
+                                        <span>Cookies</span>
+                                    </a>
+
+                                    <a class="d-flex align-items-start gap-2 link-secondary text-decoration-none" href="#use">
+                                        <i class="bi bi-gear mt-1"></i>
+                                        <span>Use of Data</span>
+                                    </a>
+
+                                    <a class="d-flex align-items-start gap-2 link-secondary text-decoration-none" href="#sms">
+                                        <i class="bi bi-chat-dots mt-1"></i>
+                                        <span>SMS</span>
+                                    </a>
+
+                                    <a class="d-flex align-items-start gap-2 link-secondary text-decoration-none" href="#retention">
+                                        <i class="bi bi-hourglass-split mt-1"></i>
+                                        <span>Retention</span>
+                                    </a>
+
+                                    <a class="d-flex align-items-start gap-2 link-secondary text-decoration-none" href="#transfer">
+                                        <i class="bi bi-arrow-left-right mt-1"></i>
+                                        <span>Transfer</span>
+                                    </a>
+
+                                    <a class="d-flex align-items-start gap-2 link-secondary text-decoration-none" href="#delete">
+                                        <i class="bi bi-trash mt-1"></i>
+                                        <span>Delete Data</span>
+                                    </a>
+
+                                    <a class="d-flex align-items-start gap-2 link-secondary text-decoration-none" href="#disclosure">
+                                        <i class="bi bi-share mt-1"></i>
+                                        <span>Disclosure</span>
+                                    </a>
+
+                                    <a class="d-flex align-items-start gap-2 link-secondary text-decoration-none" href="#security">
+                                        <i class="bi bi-shield-check mt-1"></i>
+                                        <span>Security</span>
+                                    </a>
+
+                                    <a class="d-flex align-items-start gap-2 link-secondary text-decoration-none" href="#details">
+                                        <i class="bi bi-diagram-3 mt-1"></i>
+                                        <span>Processing Details</span>
+                                    </a>
+
+                                    <a class="d-flex align-items-start gap-2 link-secondary text-decoration-none" href="#gdpr">
+                                        <i class="bi bi-globe2 mt-1"></i>
+                                        <span>GDPR</span>
+                                    </a>
+
+                                    <a class="d-flex align-items-start gap-2 link-secondary text-decoration-none" href="#facebook">
+                                        <i class="bi bi-facebook mt-1"></i>
+                                        <span>Facebook</span>
+                                    </a>
+
+                                    <a class="d-flex align-items-start gap-2 link-secondary text-decoration-none" href="#ccpa">
+                                        <i class="bi bi-file-earmark-text mt-1"></i>
+                                        <span>CCPA</span>
+                                    </a>
+
+                                    <a class="d-flex align-items-start gap-2 link-secondary text-decoration-none" href="#contact">
+                                        <i class="bi bi-envelope-paper mt-1"></i>
+                                        <span>Contact</span>
+                                    </a>
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- RIGHT: Content -->
+                    <div class="col-12 col-lg-8 col-xl-9">
+
+                        <!-- Intro -->
+                        <h2 id="intro" class="h4 fw-bold mb-3">Introduction</h2>
+                        <p class="mb-3">
+                            This Privacy Policy describes Our policies and procedures on the collection, use and disclosure of Your information when You use the Service and tells You about Your privacy rights and how the law protects You.
+                        </p>
+                        <p class="mb-4">
+                            We use Your Personal data to provide and improve the Service. By using the Service, You agree to the collection and use of information in accordance with this Privacy Policy.
+                        </p>
+
+                        <div id="sms-policy" class="alert alert-info rounded-4">
+                            <div class="fw-semibold mb-2"><i class="bi bi-phone me-2"></i>SMS / Mobile Information Policy</div>
+                            <div>
+                                GTX Auto Group does not share/buy/sell opt-in consent with third parties. No mobile information will be shared with third parties/affiliates for marketing/promotional purposes. All other categories exclude text messaging originator opt-in data and consent; this information will not be shared with any third parties.
+                            </div>
+                        </div>
+
+                        <!-- Definitions -->
+                        <h2 id="definitions" class="h4 fw-bold mt-5 mb-3">Interpretation and Definitions</h2>
+
+                        <h3 class="h5 fw-semibold mt-4 mb-2">Interpretation</h3>
+                        <p class="mb-3">
+                            The words of which the initial letter is capitalized have meanings defined under the following conditions. The following definitions shall have the same meaning regardless of whether they appear in singular or in plural.
+                        </p>
+
+                        <h3 class="h5 fw-semibold mt-4 mb-2">Definitions</h3>
+                        <p class="mb-2">For the purposes of this Privacy Policy:</p>
+
+                        <!-- Icon list instead of bullets -->
+                        <div class="d-flex flex-column gap-2 mb-4">
+                            <div class="d-flex gap-2">
+                                <i class="bi bi-person-circle mt-1 text-secondary"></i>
+                                <div><span class="fw-semibold">Account</span> means a unique account created for You to access our Service or parts of our Service.</div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <i class="bi bi-building mt-1 text-secondary"></i>
+                                <div><span class="fw-semibold">Business</span> (CCPA) refers to the legal entity that collects Consumers' personal information and determines the purposes and means of processing.</div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <i class="bi bi-geo-alt mt-1 text-secondary"></i>
+                                <div>
+                                    <span class="fw-semibold">Company</span> refers to GTX Auto Group, 9516 Princeton Glendale Rd,,West Chester Township, OH 45011. For GDPR, the Company is the Data Controller.
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <i class="bi bi-person-badge mt-1 text-secondary"></i>
+                                <div><span class="fw-semibold">Consumer</span> (CCPA) means a natural person who is a California resident.</div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <i class="bi bi-cookie mt-1 text-secondary"></i>
+                                <div><span class="fw-semibold">Cookies</span> are small files placed on Your device containing details of browsing history.</div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <i class="bi bi-shield-lock mt-1 text-secondary"></i>
+                                <div><span class="fw-semibold">Data Controller</span> (GDPR) determines the purposes and means of processing Personal Data.</div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <i class="bi bi-phone mt-1 text-secondary"></i>
+                                <div><span class="fw-semibold">Device</span> means any device that can access the Service (computer, cellphone, tablet).</div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <i class="bi bi-eye-slash mt-1 text-secondary"></i>
+                                <div><span class="fw-semibold">Do Not Track (DNT)</span> is a concept for allowing users to control tracking across websites.</div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <i class="bi bi-facebook mt-1 text-secondary"></i>
+                                <div><span class="fw-semibold">Facebook Fan Page</span> is accessible from <a href="https://www.facebook.com/GTXAutoGroup" target="_blank" rel="noopener">https://www.facebook.com/GTXAutoGroup</a>.</div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <i class="bi bi-fingerprint mt-1 text-secondary"></i>
+                                <div><span class="fw-semibold">Personal Data</span> is any information that relates to an identified or identifiable individual.</div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <i class="bi bi-cash-coin mt-1 text-secondary"></i>
+                                <div><span class="fw-semibold">Sale</span> (CCPA) means selling or communicating personal information for valuable consideration.</div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <i class="bi bi-window mt-1 text-secondary"></i>
+                                <div><span class="fw-semibold">Service</span> refers to the Website and any interactive chat, text messaging, or embedded communications.</div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <i class="bi bi-people mt-1 text-secondary"></i>
+                                <div><span class="fw-semibold">Service Provider</span> processes data on behalf of the Company.</div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <i class="bi bi-activity mt-1 text-secondary"></i>
+                                <div><span class="fw-semibold">Usage Data</span> is data collected automatically from use of the Service.</div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <i class="bi bi-globe mt-1 text-secondary"></i>
+                                <div><span class="fw-semibold">Website</span> refers to <a href="https://usedcarscincinnati.com" target="_blank" rel="noopener">https://usedcarscincinnati.com</a>.</div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <i class="bi bi-person-check mt-1 text-secondary"></i>
+                                <div><span class="fw-semibold">You</span> means the individual accessing or using the Service.</div>
+                            </div>
+                        </div>
+
+                        <!-- Collecting -->
+                        <h2 id="collecting" class="h4 fw-bold mt-5 mb-3">Collecting and Using Your Personal Data</h2>
+
+                        <h3 class="h5 fw-semibold mt-4 mb-2">Types of Data Collected</h3>
+
+                        <h4 class="h6 fw-bold mt-3 mb-2">Personal Data</h4>
+                        <p class="mb-2">
+                            While using Our Service, We may ask You to provide Us with certain personally identifiable information that can be used to contact or identify You. This may include:
+                        </p>
+
+                        <!-- Icon list -->
+                        <div class="d-flex flex-column gap-2 mb-4">
+                            <div class="d-flex gap-2"><i class="bi bi-person-lines-fill mt-1 text-secondary"></i><div>First name and last name</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-envelope-at mt-1 text-secondary"></i><div>Email addresses</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-telephone mt-1 text-secondary"></i><div>Phone numbers</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-sliders mt-1 text-secondary"></i><div>Contact preferences</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-house-door mt-1 text-secondary"></i><div>Address, state, province, zip/postal code, city</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-credit-card mt-1 text-secondary"></i><div>Credit/debit card details</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-crosshair mt-1 text-secondary"></i><div>GPS coordinates</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-graph-up mt-1 text-secondary"></i><div>Usage Data</div></div>
+                        </div>
+
+                        <h4 class="h6 fw-bold mt-3 mb-2">Sensitive Data</h4>
+                        <p class="mb-2">
+                            With Your consent or as otherwise permitted by law, we collect sensitive data which may include:
+                        </p>
+
+                        <div class="d-flex flex-column gap-2 mb-4">
+                            <div class="d-flex gap-2"><i class="bi bi-bank mt-1 text-secondary"></i><div>Data required to retrieve credit scores, used for determining interest rates and payment information</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-graph-up mt-1 text-secondary"></i><div>Usage Data</div></div>
+                        </div>
+
+                        <h4 class="h6 fw-bold mt-3 mb-2">Usage Data</h4>
+                        <p class="mb-4">
+                            Usage Data is collected automatically and may include IP address, device type, operating system, browser type, pages visited, visit time/date, time spent, unique device identifiers and diagnostic data.
+                        </p>
+
+                        <!-- Cookies -->
+                        <h2 id="cookies" class="h4 fw-bold mt-5 mb-3">Tracking Technologies and Cookies</h2>
+                        <p class="mb-3">
+                            We use Cookies and similar tracking technologies to track activity and store certain information.
+                        </p>
+
+                        <div class="d-flex flex-column gap-2 mb-4">
+                            <div class="d-flex gap-2"><i class="bi bi-cookie mt-1 text-secondary"></i><div><span class="fw-semibold">Cookies or Browser Cookies.</span> A cookie is a small file placed on Your Device. You can refuse cookies in browser settings, but some parts of the Service may not work.</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-bullseye mt-1 text-secondary"></i><div><span class="fw-semibold">Web Beacons.</span> Small electronic files that help count users who have visited pages or opened emails.</div></div>
+                        </div>
+
+                        <p class="mb-3">
+                            Cookies can be "Persistent" or "Session" Cookies.
+                        </p>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-12">
+                                <div class="border rounded-4 p-3">
+                                    <div class="fw-semibold"><i class="bi bi-shield-check me-2"></i>Necessary / Essential Cookies</div>
+                                    <div class="text-muted small mb-2">Type: Session • Administered by: Us</div>
+                                    <div>Purpose: Provide Website services and enable features.</div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="border rounded-4 p-3">
+                                    <div class="fw-semibold"><i class="bi bi-check2-circle me-2"></i>Cookies Policy / Notice Acceptance Cookies</div>
+                                    <div class="text-muted small mb-2">Type: Persistent • Administered by: Us</div>
+                                    <div>Purpose: Identifies if users accepted cookies.</div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="border rounded-4 p-3">
+                                    <div class="fw-semibold"><i class="bi bi-sliders me-2"></i>Functionality Cookies</div>
+                                    <div class="text-muted small mb-2">Type: Persistent • Administered by: Us</div>
+                                    <div>Purpose: Remembers preferences (login, language, etc.).</div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="border rounded-4 p-3">
+                                    <div class="fw-semibold"><i class="bi bi-speedometer2 me-2"></i>Tracking and Performance Cookies</div>
+                                    <div class="text-muted small mb-2">Type: Persistent • Administered by: Us and Third-Parties</div>
+                                    <div>Purpose: Tracks Website usage and performance.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Use -->
+                        <h2 id="use" class="h4 fw-bold mt-5 mb-3">Use of Your Personal Data</h2>
+                        <p class="mb-2">The Company may use Personal Data for the following purposes:</p>
+
+                        <div class="d-flex flex-column gap-2 mb-4">
+                            <div class="d-flex gap-2"><i class="bi bi-wrench-adjustable-circle mt-1 text-secondary"></i><div>To provide and maintain our Service.</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-person-gear mt-1 text-secondary"></i><div>To manage Your Account.</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-file-earmark-check mt-1 text-secondary"></i><div>For the performance of a contract.</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-telephone-outbound mt-1 text-secondary"></i><div>To contact You by email, phone, SMS, or other equivalent forms of communication.</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-megaphone mt-1 text-secondary"></i><div>To provide news, special offers and general information unless You opt out.</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-inboxes mt-1 text-secondary"></i><div>To manage Your requests.</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-bullseye mt-1 text-secondary"></i><div>To deliver targeted advertising.</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-arrow-repeat mt-1 text-secondary"></i><div>For business transfers.</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-graph-up-arrow mt-1 text-secondary"></i><div>For analytics and to improve our Service and marketing.</div></div>
+                        </div>
+
+                        <!-- SMS -->
+                        <div id="sms" class="border rounded-4 p-3 p-md-4 alert alert-info mb-4">
+                            <h3 class="h5 fw-semibold mb-2"><i class="bi bi-chat-dots me-2"></i>SMS</h3>
+                            <p class="mb-2">
+                                By providing a telephone number, You agree to receive informational messages (appointment reminders, account notifications, etc.) from GTX Auto Group. Message frequency varies. Message and data rates may apply. For help, reply HELP. You can opt out at any time by replying STOP.
+                            </p>
+                            <p class="mb-0">
+                                GTX Auto Group does not share/buy/sell opt-in consent with third parties. No mobile information will be shared with third parties/affiliates for marketing/promotional purposes. All other categories exclude text messaging originator opt-in data and consent; this information will not be shared with any third parties.
+                            </p>
+                            <p class="mb-0 mt-2">
+                                We are committed to maintaining the privacy and security of your personal information and comply with all applicable regulations, including the Telephone Consumer Protection Act (TCPA).
+                            </p>
+                        </div>
+
+                        <!-- Retention -->
+                        <h2 id="retention" class="h4 fw-bold mt-5 mb-3">Retention of Your Personal Data</h2>
+                        <p class="mb-4">
+                            The Company will retain Your Personal Data only for as long as is necessary for the purposes set out in this Privacy Policy, including legal compliance, dispute resolution, and enforcing agreements.
+                        </p>
+
+                        <!-- Transfer -->
+                        <h2 id="transfer" class="h4 fw-bold mt-5 mb-3">Transfer of Your Personal Data</h2>
+                        <p class="mb-4">
+                            Your information may be transferred to — and maintained on — computers located outside of Your jurisdiction where data protection laws may differ.
+                        </p>
+
+                        <!-- Delete -->
+                        <h2 id="delete" class="h4 fw-bold mt-5 mb-3">Delete Your Personal Data</h2>
+                        <p class="mb-4">
+                            You have the right to delete or request that We assist in deleting the Personal Data that We have collected about You. You may also contact Us to request access to, correct, or delete any personal information you provided.
+                        </p>
+
+                        <!-- Disclosure -->
+                        <h2 id="disclosure" class="h4 fw-bold mt-5 mb-3">Disclosure of Your Personal Data</h2>
+
+                        <div class="d-flex flex-column gap-2 mb-4">
+                            <div class="d-flex gap-2"><i class="bi bi-diagram-3 mt-1 text-secondary"></i><div><span class="fw-semibold">Business Transactions.</span> If the Company is involved in a merger, acquisition or asset sale, Your Personal Data may be transferred.</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-badge-cc mt-1 text-secondary"></i><div><span class="fw-semibold">Law enforcement.</span> We may disclose Your Personal Data if required by law or in response to valid public authority requests.</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-shield-exclamation mt-1 text-secondary"></i><div><span class="fw-semibold">Other legal requirements.</span> We may disclose data to comply with obligations and protect rights, safety, and legal liability.</div></div>
+                        </div>
+
+                        <!-- Security -->
+                        <h2 id="security" class="h4 fw-bold mt-5 mb-3">Security of Your Personal Data</h2>
+                        <p class="mb-4">
+                            The security of Your Personal Data is important, but no method of transmission or storage is 100% secure. While We use commercially acceptable means, We cannot guarantee absolute security.
+                        </p>
+
+                        <!-- Details -->
+                        <h2 id="details" class="h4 fw-bold mt-5 mb-3">Detailed Information on the Processing of Your Personal Data</h2>
+
+                        <div class="d-flex flex-column gap-2 mb-4">
+                            <div class="d-flex gap-2"><i class="bi bi-bar-chart mt-1 text-secondary"></i><div><span class="fw-semibold">Google Analytics</span> — <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">https://policies.google.com/privacy</a></div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-envelope-open mt-1 text-secondary"></i><div><span class="fw-semibold">Amazon Simple Email Service</span> — <a href="https://aws.amazon.com/privacy/" target="_blank" rel="noopener">https://aws.amazon.com/privacy/</a></div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-credit-card-2-front mt-1 text-secondary"></i><div><span class="fw-semibold">Stripe</span> — <a href="https://stripe.com/us/privacy" target="_blank" rel="noopener">https://stripe.com/us/privacy</a></div></div>
+                        </div>
+
+                        <!-- GDPR -->
+                        <h2 id="gdpr" class="h4 fw-bold mt-5 mb-3">GDPR Privacy</h2>
+
+                        <p class="mb-2">We may process Personal Data under the following conditions:</p>
+                        <div class="d-flex flex-column gap-2 mb-4">
+                            <div class="d-flex gap-2"><i class="bi bi-check2-circle mt-1 text-secondary"></i><div>Consent</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-file-earmark-text mt-1 text-secondary"></i><div>Performance of a contract</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-bank2 mt-1 text-secondary"></i><div>Legal obligations</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-heart-pulse mt-1 text-secondary"></i><div>Vital interests</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-building-gear mt-1 text-secondary"></i><div>Public interests</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-lightbulb mt-1 text-secondary"></i><div>Legitimate interests</div></div>
+                        </div>
+
+                        <p class="mb-2">You have the right to:</p>
+                        <div class="d-flex flex-column gap-2 mb-4">
+                            <div class="d-flex gap-2"><i class="bi bi-key mt-1 text-secondary"></i><div>Request access to Your Personal Data</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-pencil-square mt-1 text-secondary"></i><div>Request correction</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-hand-thumbs-down mt-1 text-secondary"></i><div>Object to processing</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-trash mt-1 text-secondary"></i><div>Request erasure</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-arrow-left-right mt-1 text-secondary"></i><div>Request transfer</div></div>
+                            <div class="d-flex gap-2"><i class="bi bi-x-circle mt-1 text-secondary"></i><div>Withdraw consent</div></div>
+                        </div>
+
+                        <!-- Facebook -->
+                        <h2 id="facebook" class="h4 fw-bold mt-5 mb-3">Facebook Fan Page</h2>
+                        <p class="mb-4">
+                            As operator of the Facebook Fan Page, the Company and Facebook may act as Joint Controllers.
+                        </p>
+
+                        <!-- CCPA -->
+                        <h2 id="ccpa" class="h4 fw-bold mt-5 mb-3">CCPA Privacy</h2>
+                        <p class="mb-4">
+                            This section applies to California residents and supplements the information contained in this Privacy Policy.
+                        </p>
+
+                        <!-- Contact -->
+                        <h2 id="contact" class="h4 fw-bold mt-5 mb-3">Contact Us</h2>
+                        <p class="mb-2">
+                            If you have any questions or concerns regarding your privacy or the handling of your data, You can contact us:
+                        </p>
+
+                        <div class="d-flex flex-column gap-2 mb-0">
+                            <div class="d-flex gap-2">
+                                <i class="bi bi-envelope-at mt-1 text-secondary"></i>
+                                <div>By email: <a href="mailto:gtxagroup@gmail.com">gtxagroup@gmail.com</a></div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <i class="bi bi-globe mt-1 text-secondary"></i>
+                                <div>By visiting this page on our website: <a href="https://usedcarscincinnati.com" target="_blank" rel="noopener">https://usedcarscincinnati.com</a></div>
+                            </div>
+                        </div>
+
+                        <!-- Back to top -->
+                        <a href="#top"
+                           class="btn btn-dark rounded-pill position-fixed bottom-0 end-0 m-3 shadow"
+                           style="z-index: 1050;">
+                            <i class="bi bi-arrow-up"></i>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</section>

@@ -245,17 +245,20 @@
 
             <!-- CENTER: Copyright + Terms line -->
             <div class="col text-center">
-                <a class="text-muted text-shadow" data-bs-toggle="offcanvas" href="#gtxDevelopment" role="button" aria-controls="gtxDevelopment">
+                <a class="text-muted text-shadow very-small-text" data-bs-toggle="offcanvas" href="#gtxDevelopment" role="button" aria-controls="gtxDevelopment">
                     <i class="fa fa-clock-o"></i>
                     <span class="d-none d-lg-inline">Copyright &copy; @DateTime.Now.Year | Made by</span>
                     <span class="badge bg-primary">GTX</span>
                     <span>&nbsp;@ViewBag.Environment</span>
                 </a>
+                <a href="@Url.Action("PrivacyPolicy", "Home")" class="link-primary text-decoration-underline very-small-text" target="_blank" rel="noopener">
+                    | Privacy Policy |
+                </a>
 
-                <span class="text-muted text-shadow d-none d-lg-inline">
+                <span class="text-muted text-shadow d-none d-lg-inline very-small-text">
                     | By placing calls to this dealership you agree to the
                 </span>
-                <a href="@Url.Action("TermsAndConditions", "Home")" class="link-primary text-decoration-underline" target="_blank" rel="noopener">
+                <a href="@Url.Action("TermsAndConditions", "Home")" class="link-primary text-decoration-underline very-small-text" target="_blank" rel="noopener">
                     Terms and Conditions of Use
                 </a>
             </div>
