@@ -84,6 +84,17 @@
             font-size: .8rem;
             color: rgba(33,37,41,.6);
         }
+
+    /* Optional: slightly tighter padding on very small screens */
+    @@media (max-width: 575.98px) {
+        .health-card {
+            padding: 1.25rem !important;
+        }
+        /* ~p-4 */
+        .kpi-value {
+            font-size: 1.75rem;
+        }
+    }
 </style>
 
 <div class="container py-4 wrap">
@@ -91,7 +102,7 @@
     <!-- Header -->
     <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-3">
         <div>
-            <div class="d-flex align-items-center gap-2">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
                 <h2 class="mb-0" style="font-weight:850; letter-spacing:-.03em;">Health</h2>
                 <span id="statusBadge" class="badge text-bg-secondary pill">Idle</span>
             </div>
@@ -101,12 +112,12 @@
         </div>
     </div>
 
-    <!-- ROW: Processes -->
+    <!-- ROW: Cards -->
     <div class="row g-3">
 
         <!-- IIS Card -->
-        <div class="col-12 col-lg-4 w-25">
-            <div class="h-100 shadow well rounded-5 p-5">
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="h-100 shadow well rounded-5 p-5 health-card">
                 <div class="kpi-label">IIS</div>
 
                 <div class="mt-3">
@@ -137,10 +148,10 @@
         </div>
 
         <!-- Total CPU Card -->
-        <div class="col-12 col-lg-4 w-25">
-            <div class="h-100 shadow well rounded-5 p-5">
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="h-100 shadow well rounded-5 p-5 health-card">
                 <div class="kpi-label">Total CPU</div>
-                <div class="d-flex align-items-end justify-content-between mt-1">
+                <div class="d-flex align-items-end justify-content-between mt-1 flex-wrap gap-2">
                     <div class="kpi-value" id="totCpu">—</div>
                     <div class="kpi-sub" id="statusText">Polling every 2 seconds</div>
                 </div>
@@ -152,10 +163,10 @@
         </div>
 
         <!-- Total Memory Card -->
-        <div class="col-12 col-lg-4 w-25">
-            <div class="h-100 shadow well rounded-5 p-5">
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="h-100 shadow well rounded-5 p-5 health-card">
                 <div class="kpi-label">Total Memory Used</div>
-                <div class="d-flex align-items-end justify-content-between mt-1">
+                <div class="d-flex align-items-end justify-content-between mt-1 flex-wrap gap-2">
                     <div class="kpi-value" id="totMem">—</div>
                     <div class="kpi-sub mono" id="updated2">—</div>
                 </div>
@@ -168,8 +179,8 @@
         </div>
 
         <!-- Active Sessions Card -->
-        <div class="col-12 col-lg-4 w-25">
-            <div class="h-100 shadow well rounded-5 p-5">
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="h-100 shadow well rounded-5 p-5 health-card">
                 <div class="kpi-label">Active Sessions</div>
 
                 <div class="d-flex align-items-end justify-content-between mt-1">
@@ -182,24 +193,20 @@
             </div>
         </div>
 
-
     </div>
-
-
 </div>
 
 <script>
 const url = '@Url.Action("HealthJson", "Health")';
+
 function bytesToMb2(bytes) {
     if (bytes === null || bytes === undefined || isNaN(bytes)) return "—";
     return (Number(bytes) / (1024 * 1024)).toFixed(2) + " MB";
 }
 function pctMb(pctVal, bytesVal) {
     if (pctVal === null || pctVal === undefined || isNaN(pctVal)) return "—";
-    // return Number(pctVal).toFixed(1) + "% (" + bytesToMb2(bytesVal) + ")";
-    return Number(pctVal).toFixed(1) + "%" ;
+    return Number(pctVal).toFixed(1) + "%";
 }
-
 function fmtBytes(b) {
     if (b === null || b === undefined) return "—";
     const u = ["B", "KB", "MB", "GB", "TB"];
@@ -207,12 +214,10 @@ function fmtBytes(b) {
     while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; }
     return (i === 0 ? n.toFixed(0) : n.toFixed(2)) + " " + u[i];
 }
-
 function fmtPct(v) {
     if (v === null || v === undefined || isNaN(v)) return "—";
     return Number(v).toFixed(1);
 }
-
 function clampPct(v) {
     v = Number(v);
     if (isNaN(v)) return 0;
@@ -220,11 +225,9 @@ function clampPct(v) {
     if (v > 100) return 100;
     return v;
 }
-
 function setBar(id, pct) {
     $("#" + id).css("width", clampPct(pct).toFixed(1) + "%");
 }
-
 function setStatus(state, text) {
     const $badge = $("#statusBadge");
     const $statusText = $("#statusText");
@@ -238,24 +241,16 @@ function setStatus(state, text) {
 
     $statusText.text(text || "");
 }
-
 function safeGet(obj, path, fallback) {
-    try {
-        return path.split(".").reduce((o, k) => o && o[k], obj) ?? fallback;
-    } catch {
-        return fallback;
-    }
+    try { return path.split(".").reduce((o, k) => o && o[k], obj) ?? fallback; }
+    catch { return fallback; }
 }
-
 function parseNetDate(v) {
     if (!v) return null;
-
     const iso = new Date(v);
     if (!isNaN(iso)) return iso;
-
     const m = /\/Date\((\d+)(?:[+-]\d+)?\)\//.exec(v);
     if (m) return new Date(parseInt(m[1], 10));
-
     return null;
 }
 
@@ -268,7 +263,6 @@ function refreshNow() {
         cache: false,
         dataType: "json",
         success: function (data) {
-            // Totals
             const totCpu = safeGet(data, "Totals.CpuPercentTotal", 0);
             const totMem = safeGet(data, "Totals.MemoryPercentTotal", 0);
             const totalPhys = safeGet(data, "Totals.TotalPhysBytes", null);
@@ -280,26 +274,21 @@ function refreshNow() {
             setBar("totMemBar", totMem);
 
             $("#totRam").text(`${fmtBytes(totalPhys)} total / ${fmtBytes(availPhys)} free`);
-            const memLoad = safeGet(data, "Totals.MemoryLoadPercent", null);
-            if (memLoad !== null && memLoad !== undefined) {
-                $("#totMemLoad").show().text(`Windows MemoryLoad: ${memLoad}%`);
-            } else {
-                $("#totMemLoad").hide();
-            }
 
-            // Updated time (shown in 2 spots)
+            const memLoad = safeGet(data, "Totals.MemoryLoadPercent", null);
+            if (memLoad !== null && memLoad !== undefined) $("#totMemLoad").show().text(`Windows MemoryLoad: ${memLoad}%`);
+            else $("#totMemLoad").hide();
+
             const stRaw = safeGet(data, "ServerTime", null);
             const st = parseNetDate(stRaw);
             const timeText = st ? st.toLocaleTimeString() : "—";
             $("#updated").text(timeText);
             $("#updated2").text(timeText);
 
-            // IIS
             const iis = safeGet(data, "IIS", null);
-            var iisWs = safeGet(iis, "WorkingSetBytes", null);
-            var iisPriv = safeGet(iis, "PrivateBytes", null);
+            const iisWs = safeGet(iis, "WorkingSetBytes", null);
+            const iisPriv = safeGet(iis, "PrivateBytes", null);
 
-            $("#iisName").text(safeGet(iis, "Name", "w3wp"));
             $("#iisPid").text(safeGet(iis, "Pid", "—"));
             $("#iisCpu").text(pctMb(safeGet(iis, "CpuPercent", null), iisWs));
             $("#iisMem").text(pctMb(safeGet(iis, "MemoryPercent", null), iisPriv));
@@ -311,10 +300,10 @@ function refreshNow() {
             $("#activeSessions").text(act === null ? "—" : act);
 
             setStatus("ok", "Live");
-            },
-            error: function (xhr) {
-                setStatus("error", "HTTP " + (xhr && xhr.status ? xhr.status : "error"));
-            }
+        },
+        error: function (xhr) {
+            setStatus("error", "HTTP " + (xhr && xhr.status ? xhr.status : "error"));
+        }
     });
 }
 
@@ -323,4 +312,3 @@ $(function () {
     setInterval(refreshNow, 2000);
 });
 </script>
-
