@@ -28,8 +28,16 @@ namespace GTX.Controllers
         {
             ViewBag.Message = "Terms and conditions";
             ViewBag.Title = "Terms and conditions";
-            return View("TermsAndConditions");
+            return View();
         }
+
+        public ActionResult PrivacyPolicy()
+        {
+            ViewBag.Message = "Privacy Policy";
+            ViewBag.Title = "Privacy Policy";
+            return View();
+        }
+
 
         public ActionResult Home() {
             return View();
