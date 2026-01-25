@@ -105,7 +105,7 @@
     <div class="row g-3">
 
         <!-- IIS Card -->
-        <div class="col-12 col-lg-4">
+        <div class="col-12 col-lg-4 w-25">
             <div class="h-100 shadow well rounded-5 p-5">
                 <div class="kpi-label">IIS</div>
 
@@ -137,7 +137,7 @@
         </div>
 
         <!-- Total CPU Card -->
-        <div class="col-12 col-lg-4">
+        <div class="col-12 col-lg-4 w-25">
             <div class="h-100 shadow well rounded-5 p-5">
                 <div class="kpi-label">Total CPU</div>
                 <div class="d-flex align-items-end justify-content-between mt-1">
@@ -152,7 +152,7 @@
         </div>
 
         <!-- Total Memory Card -->
-        <div class="col-12 col-lg-4">
+        <div class="col-12 col-lg-4 w-25">
             <div class="h-100 shadow well rounded-5 p-5">
                 <div class="kpi-label">Total Memory Used</div>
                 <div class="d-flex align-items-end justify-content-between mt-1">
@@ -166,6 +166,22 @@
                 <div class="kpi-sub mt-1" id="totMemLoad" style="display:none;"></div>
             </div>
         </div>
+
+        <!-- Active Sessions Card -->
+        <div class="col-12 col-lg-4 w-25">
+            <div class="h-100 shadow well rounded-5 p-5">
+                <div class="kpi-label">Active Sessions</div>
+
+                <div class="d-flex align-items-end justify-content-between mt-1">
+                    <div class="kpi-value" id="activeSessions">—</div>
+                </div>
+
+                <div class="kpi-sub mt-2">
+                    Session-based (IIS app pool)
+                </div>
+            </div>
+        </div>
+
 
     </div>
 
@@ -291,27 +307,8 @@ function refreshNow() {
             setBar("iisCpuBar", safeGet(iis, "CpuPercent", 0));
             setBar("iisMemBar", safeGet(iis, "MemoryPercent", 0));
 
-            // SQL
-            const sql = safeGet(data, "SqlServer", null);
-            if (!sql) {
-                $("#sqlPid").text("—");
-                $("#sqlCpu").text("—");
-                $("#sqlMem").text("—");
-                $("#sqlWs").text("—");
-                setBar("sqlCpuBar", 0);
-                setBar("sqlMemBar", 0);
-                $("#sqlAlert").show();
-            } else {
-                var sqlWs = safeGet(sql, "WorkingSetBytes", null);
-                var sqlPriv = safeGet(sql, "PrivateBytes", null);
-                $("#sqlPid").text(safeGet(sql, "Pid", "—"));
-                $("#sqlCpu").text(pctMb(safeGet(sql, "CpuPercent", null), sqlWs));
-                $("#sqlMem").text(pctMb(safeGet(sql, "MemoryPercent", null), sqlPriv));
-                $("#sqlWs").text(fmtBytes(safeGet(sql, "WorkingSetBytes", null)));
-                setBar("sqlCpuBar", safeGet(sql, "CpuPercent", 0));
-                setBar("sqlMemBar", safeGet(sql, "MemoryPercent", 0));
-                $("#sqlAlert").hide();
-            }
+            const act = safeGet(data, "ActiveSessions", null);
+            $("#activeSessions").text(act === null ? "—" : act);
 
             setStatus("ok", "Live");
             },

@@ -24,6 +24,11 @@ public class HealthController : BaseController
         IBlogPostService blogPostService)
     : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService, blogPostService)  { }
 
+    public ActionResult ActiveSessions()
+    {
+        var active = (int)(HttpContext.Application["TotalSessions"] ?? 0);
+        return Content(active.ToString());
+    }
     private static double GetProcessCpuPercent(Process p)
     {
         try
@@ -174,11 +179,15 @@ public class HealthController : BaseController
             MemoryLoadPercent = memLoadPct
         };
 
+        var activeSessions = (int)HttpContext.Application["TotalSessions"];
+
         return Json(new
         {
             ServerTime = DateTimeOffset.Now,
             Totals = totals,
-            IIS = iisObj
+            IIS = iisObj,
+            ActiveSessions = activeSessions
         }, JsonRequestBehavior.AllowGet);
     }
+
 }

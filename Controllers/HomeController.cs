@@ -24,6 +24,13 @@ namespace GTX.Controllers
             return View();
         }
 
+        public ActionResult TermsAndConditions()
+        {
+            ViewBag.Message = "Terms and conditions";
+            ViewBag.Title = "Terms and conditions";
+            return View("TermsAndConditions");
+        }
+
         public ActionResult Home() {
             return View();
         }

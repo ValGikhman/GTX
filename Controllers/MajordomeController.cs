@@ -22,7 +22,6 @@ using Utility.XMLHelpers;
 
 namespace GTX.Controllers
 {
-
     public class MajordomeController : BaseController {
 
         private const string HeaderFileVirtualPath = "~/App_Data/Inventory/header.csv";
