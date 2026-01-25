@@ -93,9 +93,10 @@
     }
 
     .noUi-handle {
-        width: 22px;
-        height: 22px;
-        top: -10px!important;
+        width: 22px !important;
+        height: 22px !important;
+        top: -8px !important;
+        right: -10px !important;
         border-radius: 999px;
         border: 1px solid rgba(0,0,0,.15);
         background: linear-gradient(180deg, #ffffff 0%, #e9ecef 100%);
@@ -104,6 +105,11 @@
 
     .noUi-horizontal {
         height: 10px;
+    }
+
+    .noUi-handle:before,
+    .noUi-handle:after {
+        display: none; /* removes the little bars inside the handle */
     }
 
     .slider-card {
@@ -291,16 +297,16 @@
         <div class="col-12 col-lg-6">
             <div class="slider-card p-1 p-md-2 shadow">
                 <div class="slider-head mb-3 d-flex align-items-center justify-content-between">
-                    <label class="form-label mb-0" for="price">
+                    <h6 class="filter-title">
                         <i class="bi bi-currency-dollar"></i> Price range
-                    </label>
+                    </h6>
                     <span class="badge text-bg-light border">
                         <i class="bi bi-tag me-1"></i>Range
                     </span>
                 </div>
 
                 <!-- noUiSlider target -->
-                <div id="priceSlider" class="mx-4"></div>
+                <div id="priceSlider" class="mx-2"></div>
                 <input type="hidden" id="minPrice">
                 <input type="hidden" id="maxPrice">
 
@@ -314,16 +320,16 @@
         <div class="col-12 col-lg-6">
             <div class="slider-card p-1 p-md-2 shadow">
                 <div class="slider-head mb-3 d-flex align-items-center justify-content-between">
-                    <label class="form-label mb-0" for="milege">
+                    <h6 class="filter-title">
                         <i class="bi bi-speedometer2"></i> Mileage
-                    </label>
+                    </h6>
                     <span class="badge text-bg-light border">
                         <i class="bi bi-road me-1"></i>Miles
                     </span>
                 </div>
 
                 <!-- noUiSlider target -->
-                <div id="milegeSlider" class="mx-4"></div>
+                <div id="milegeSlider" class="mx-2"></div>
                 <input type="hidden" id="minMiles">
                 <input type="hidden" id="maxMiles">
                 <div class="slider-meta small text-secondary d-flex justify-content-between mt-2">
