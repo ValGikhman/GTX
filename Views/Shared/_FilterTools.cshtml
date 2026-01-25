@@ -1,99 +1,328 @@
-﻿@*Makes*@
-<div class="col-6 col-lg-3 col-sm-6 p-2 well" title="Click on dropdown and type to search for Makes.">
-    <small class="form-check form-switch text-dark">
-        @Html.CheckBox("allMakes", true, new { @class = "form-check-input", id = "allMakes" })
-        @Html.Label("AllMakes", "All makes(s)", new { @class = "form-check-label text-shadow", @for = "allMakes" })
-    </small>
-    <select multiple class="chosen-select shadow w-25" id="makes" tabindex="1">
-   </select>
-</div>
+﻿@* ===== FULL COPY/PASTE VIEW (Bootstrap + Chosen + jQuery UI sliders) ===== *@
+<style>
+    /* ===== Filters layout ===== */
+    .filter-card {
+        border: 1px solid rgba(0,0,0,.075);
+        border-radius: 1rem;
+        background: #fff;
+        height: 100%;
+    }
 
-@*Models*@
-<div class="col-6  col-lg-3 col-sm-6 p-2 well" title="Click on dropdown and type to search for Models.">
-    <small class="form-check form-switch text-dark">
-        @Html.CheckBox("allModels", true, new { @class = "form-check-input", id = "allModels", disabled = "true" })
-        @Html.Label("AllModels", "All models(s)", new { @class = "form-check-label text-shadow", @for = "allModels" })
-    </small>
-    <select multiple class="chosen-select shadow w-25" id="models" disabled tabindex="2">
-    </select>
-</div>
+    .filter-title {
+        font-weight: 800;
+        font-size: .95rem;
+        letter-spacing: .2px;
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        line-height: 1.1;
+        margin: 0;
+    }
 
-@*Drive*@
-<div class="col-6 col-lg-3 col-sm-6 p-2 well" title="Click on dropdown and type to search for Drive Trains.">
-    <small class="form-check form-switch text-dark">
-        @Html.CheckBox("allDrives", true, new { @class = "form-check-input", id = "allDrives", disabled = "true" })
-        @Html.Label("AllDrives", "All drive train(s)", new { @class = "form-check-label text-shadow", @for = "allDrives" })
-    </small>
-    <select multiple class="chosen-select shadow w-25" id="drives" tabindex="3">
-    </select>
-</div>
+        .filter-title i {
+            font-size: 1.05rem;
+            opacity: .85;
+        }
 
-@*Body*@
-<div class="col-6 col-lg-3 col-sm-6 p-2 well" title="Click on dropdown and type to search for Body types.">
-    <small class="form-check form-switch text-dark">
-        @Html.CheckBox("allBodyTypes", true, new { @class = "form-check-input", id = "allBodyTypes", disabled = "true" })
-        @Html.Label("AllBodyTypes", "All body type(s)", new { @class = "form-check-label text-shadow", @for = "allBodyTypes" })
-    </small>
-    <select multiple class="chosen-select shadow w-25" id="bodyTypes" tabindex="4">
-    </select>
-</div>
+    .filter-card .form-switch {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        margin: 0;
+    }
 
-@*Cylinders*@
-<div class="col-6 col-lg-3 col-sm-6 p-2 well" title="Click on dropdown and type to search for Cylinders.">
-    <small class="form-check form-switch text-dark">
-        @Html.CheckBox("allCylinders", true, new { @class = "form-check-input", id = "allCylinders" })
-        @Html.Label("AllCylinders", "All cylinders", new { @class = "form-check-label text-shadow", @for = "allCylinders" })
-    </small>
-    <select multiple class="chosen-select shadow w-25" id="cylinders" tabindex="5">
-    </select>
-</div>
+        .filter-card .form-switch .form-check-input {
+            width: 2.5rem;
+            height: 1.25rem;
+            margin: 0;
+            cursor: pointer;
+        }
 
-@*Transmission*@
-<div class="col-6 col-lg-3 col-sm-6 p-2 well" title="Click on dropdown and type to search for Transmissions.">
-    <small class="form-check form-switch text-dark">
-        @Html.CheckBox("allTransmissions", true, new { @class = "form-check-input", id = "allTransmissions" })
-        @Html.Label("AllTransmissions", "All transmission(s)", new { @class = "form-check-label text-shadow", @for = "allTransmissions" })
-    </small>
-    <select multiple class="chosen-select shadow w-25" id="transmissions" tabindex="5">
-    </select>
-</div>
+        .filter-card .form-switch .form-check-label {
+            cursor: pointer;
+            user-select: none;
+        }
 
-@*Fuels*@
-<div class="col-6 col-lg-3 col-sm-6 p-2 well" title="Click on dropdown and type to search for Fuel types.">
-    <small class="form-check form-switch text-dark">
-        @Html.CheckBox("allFuelTypes", true, new { @class = "form-check-input", id = "allFuelTypes" })
-        @Html.Label("AllFuelTypes", "All Fuel types(s)", new { @class = "form-check-label text-shadow", @for = "allFuelTypes" })
-    </small>
-    <select multiple class="chosen-select shadow w-25" id="fuelTypes" tabindex="5">
-    </select>
-</div>
+    /* Make selects full width */
+    .filter-card select {
+        width: 100% !important;
+    }
 
-@*Vehicle types*@
-<div class="col-6 col-lg-3 col-sm-6 p-2 well" title="Click on dropdown and type to search for Fuels.">
-    <small class="form-check form-switch text-dark">
-        @Html.CheckBox("allVehicleTypes", true, new { @class = "form-check-input", id = "allVehicleTypes" })
-        @Html.Label("allVehicleTypes", "All vehicle types(s)", new { @class = "form-check-label text-shadow", @for = "allVehicleTypes" })
-    </small>
-    <select multiple class="chosen-select shadow w-25" id="vehicleTypes" tabindex="5">
-    </select>
-</div>
+    /* ===== Chosen (make it responsive + Bootstrap-ish) ===== */
+    .chosen-container {
+        width: 100% !important;
+    }
 
-@*Price*@
-<div class="col-6 col-lg-6 col-sm-6 p-2">
-    @Html.Label("Price", "Price range", new { @class = "form-check-label text-shadow", @for = "price" })
-    <div id="price" class="mx-2"></div>
-    <div class="d-flex justify-content-between p-0">
-        <span id="priceMin" class="form-check-label text-shadow"></span>
-        <span id="priceMax" class="form-check-label text-shadow"></span>
+        .chosen-container .chosen-choices {
+            border-radius: .75rem;
+            border: 1px solid rgba(0,0,0,.15);
+            padding: .25rem .5rem;
+            box-shadow: none;
+            background: #fff;
+        }
+
+    .chosen-container-active .chosen-choices {
+        border-color: rgba(13,110,253,.5);
+        box-shadow: 0 0 0 .25rem rgba(13,110,253,.15);
+    }
+
+    .chosen-container .chosen-drop {
+        border-radius: .75rem;
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,.15);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.12);
+    }
+
+    .chosen-container-multi .chosen-choices li.search-field input[type="text"] {
+        height: 22px;
+    }
+
+    /* Disabled chosen look */
+    select:disabled + .chosen-container .chosen-choices, .chosen-disabled .chosen-choices {
+        background: #f8f9fa !important;
+        opacity: .75;
+        cursor: not-allowed;
+    }
+
+    /* ===== Sliders ===== */
+    .slider-card {
+        background: #fff;
+        border: 1px solid rgba(0,0,0,.075);
+        border-radius: 1rem;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .slider-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .75rem;
+        margin-bottom: .5rem;
+    }
+
+        .slider-head .form-label {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            line-height: 1.1;
+            font-weight: 800;
+        }
+
+            .slider-head .form-label i {
+                font-size: 1.05rem;
+                opacity: .85;
+            }
+
+    #price, #milege {
+        height: 10px;
+        touch-action: none;
+        border-radius: 999px;
+    }
+
+        #price .ui-slider-handle,
+        #milege .ui-slider-handle {
+            width: 28px;
+            height: 28px;
+            top: -10px;
+            border-radius: 999px;
+            border: 2px solid rgba(13,110,253,.35);
+            background: #fff;
+            box-shadow: 0 .35rem .9rem rgba(0,0,0,.18);
+            cursor: grab;
+        }
+
+        #price .ui-slider-range,
+        #milege .ui-slider-range {
+            height: 10px;
+            border-radius: 999px;
+        }
+
+    .slider-meta {
+        margin-top: auto;
+        display: flex;
+        justify-content: space-between;
+        gap: .75rem;
+        padding-top: .75rem;
+        border-top: 1px dashed rgba(0,0,0,.12);
+        white-space: nowrap; /* prevents wrap = mismatched card height */
+    }
+</style>
+
+<div class="container-fluid p-0 m-0">
+    @* ===== Top filters grid ===== *@
+    <div class="row g-1 row-cols-2 row-cols-md-3 row-cols-lg-4 mt-1">
+        @* Makes *@
+        <div class="col" title="Click on dropdown and type to search for Makes.">
+            <div class="filter-card p-1 p-md-2 shadow">
+                <div class="d-flex align-items-start justify-content-between mb-2">
+                    <h6 class="filter-title">
+                        <i class="bi bi-building"></i> Makes
+                    </h6>
+                    <div class="form-check form-switch">
+                        @Html.CheckBox("allMakes", true, new { @class = "form-check-input", id = "allMakes" })
+                        @Html.Label("AllMakes", "All", new { @class = "form-check-label fw-semibold", @for = "allMakes" })
+                    </div>
+                </div>
+                <select multiple class="chosen-select" id="makes" tabindex="1"></select>
+            </div>
+        </div>
+
+        @* Models *@
+        <div class="col" title="Click on dropdown and type to search for Models.">
+            <div class="filter-card p-1 p-md-2 shadow">
+                <div class="d-flex align-items-start justify-content-between mb-2">
+                    <h6 class="filter-title">
+                        <i class="bi bi-car-front"></i> Models
+                    </h6>
+                    <div class="form-check form-switch">
+                        @Html.CheckBox("allModels", true, new { @class = "form-check-input", id = "allModels", disabled = "true" })
+                        @Html.Label("AllModels", "All", new { @class = "form-check-label fw-semibold", @for = "allModels" })
+                    </div>
+                </div>
+                <select multiple class="chosen-select" id="models" disabled tabindex="2"></select>
+            </div>
+        </div>
+
+        @* Drive *@
+        <div class="col" title="Click on dropdown and type to search for Drive Trains.">
+            <div class="filter-card p-1 p-md-2 shadow">
+                <div class="d-flex align-items-start justify-content-between mb-2">
+                    <h6 class="filter-title">
+                        <i class="bi bi-gear"></i> Drive
+                    </h6>
+                    <div class="form-check form-switch">
+                        @Html.CheckBox("allDrives", true, new { @class = "form-check-input", id = "allDrives", disabled = "true" })
+                        @Html.Label("AllDrives", "All", new { @class = "form-check-label fw-semibold", @for = "allDrives" })
+                    </div>
+                </div>
+                <select multiple class="chosen-select" id="drives" tabindex="3"></select>
+            </div>
+        </div>
+
+        @* Body *@
+        <div class="col" title="Click on dropdown and type to search for Body types.">
+            <div class="filter-card p-1 p-md-2 shadow">
+                <div class="d-flex align-items-start justify-content-between mb-2">
+                    <h6 class="filter-title">
+                        <i class="bi bi-truck-front"></i> Body
+                    </h6>
+                    <div class="form-check form-switch">
+                        @Html.CheckBox("allBodyTypes", true, new { @class = "form-check-input", id = "allBodyTypes", disabled = "true" })
+                        @Html.Label("AllBodyTypes", "All", new { @class = "form-check-label fw-semibold", @for = "allBodyTypes" })
+                    </div>
+                </div>
+                <select multiple class="chosen-select" id="bodyTypes" tabindex="4"></select>
+            </div>
+        </div>
+
+        @* Cylinders *@
+        <div class="col" title="Click on dropdown and type to search for Cylinders.">
+            <div class="filter-card p-1 p-md-2 shadow">
+                <div class="d-flex align-items-start justify-content-between mb-2">
+                    <h6 class="filter-title">
+                        <i class="bi bi-speedometer"></i> Cylinders
+                    </h6>
+                    <div class="form-check form-switch">
+                        @Html.CheckBox("allCylinders", true, new { @class = "form-check-input", id = "allCylinders" })
+                        @Html.Label("AllCylinders", "All", new { @class = "form-check-label fw-semibold", @for = "allCylinders" })
+                    </div>
+                </div>
+                <select multiple class="chosen-select" id="cylinders" tabindex="5"></select>
+            </div>
+        </div>
+
+        @* Transmission *@
+        <div class="col" title="Click on dropdown and type to search for Transmissions.">
+            <div class="filter-card p-1 p-md-2 shadow">
+                <div class="d-flex align-items-start justify-content-between mb-2">
+                    <h6 class="filter-title">
+                        <i class="bi bi-shuffle"></i> Transmission
+                    </h6>
+                    <div class="form-check form-switch">
+                        @Html.CheckBox("allTransmissions", true, new { @class = "form-check-input", id = "allTransmissions" })
+                        @Html.Label("AllTransmissions", "All", new { @class = "form-check-label fw-semibold", @for = "allTransmissions" })
+                    </div>
+                </div>
+                <select multiple class="chosen-select" id="transmissions" tabindex="6"></select>
+            </div>
+        </div>
+
+        @* Fuel *@
+        <div class="col" title="Click on dropdown and type to search for Fuel types.">
+            <div class="filter-card p-1 p-md-2 shadow">
+                <div class="d-flex align-items-start justify-content-between mb-2">
+                    <h6 class="filter-title">
+                        <i class="bi bi-fuel-pump"></i> Fuel
+                    </h6>
+                    <div class="form-check form-switch">
+                        @Html.CheckBox("allFuelTypes", true, new { @class = "form-check-input", id = "allFuelTypes" })
+                        @Html.Label("AllFuelTypes", "All", new { @class = "form-check-label fw-semibold", @for = "allFuelTypes" })
+                    </div>
+                </div>
+                <select multiple class="chosen-select" id="fuelTypes" tabindex="7"></select>
+            </div>
+        </div>
+
+        @* Vehicle Type *@
+        <div class="col" title="Click on dropdown and type to search for Vehicle types.">
+            <div class="filter-card p-1 p-md-2 shadow">
+                <div class="d-flex align-items-start justify-content-between mb-2">
+                    <h6 class="filter-title">
+                        <i class="bi bi-car-front-fill"></i> Vehicle Type
+                    </h6>
+                    <div class="form-check form-switch">
+                        @Html.CheckBox("allVehicleTypes", true, new { @class = "form-check-input", id = "allVehicleTypes" })
+                        @Html.Label("allVehicleTypes", "All", new { @class = "form-check-label fw-semibold", @for = "allVehicleTypes" })
+                    </div>
+                </div>
+                <select multiple class="chosen-select" id="vehicleTypes" tabindex="8"></select>
+            </div>
+        </div>
+
     </div>
-</div>
 
-@*Milege*@
-<div class="col-6 col-lg-6 col-sm-6 p-2">
-    @Html.Label("Miles", "Mileage", new { @class = "form-check-label text-shadow", @for = "milege" })
-    <div id="milege" class="mx-2"></div>
-    <div class="d-flex justify-content-between p-0">
-        <span id="milegeMin" class="form-check-label text-shadow"></span>
-        <span id="milegeMax" class="form-check-label text-shadow"></span>
+    @* ===== Sliders ===== *@
+    <div class="row g-1 mt-2">
+        <div class="col-12 col-lg-6">
+            <div class="slider-card p-1 p-md-2 shadow">
+                <div class="slider-head mb-3">
+                    <label class="form-label" for="price">
+                        <i class="bi bi-currency-dollar"></i> Price range
+                    </label>
+                    <span class="badge text-bg-light border">
+                        <i class="bi bi-tag me-1"></i>Range
+                    </span>
+                </div>
+
+                <div id="price" class="mx-2 slider"></div>
+
+                <div class="slider-meta small text-secondary">
+                    <span id="priceMin" class="fw-semibold"></span>
+                    <span id="priceMax" class="fw-semibold"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+            <div class="slider-card p-1 p-md-2 shadow">
+                <div class="slider-head mb-3">
+                    <label class="form-label" for="milege">
+                        <i class="bi bi-speedometer2"></i> Mileage
+                    </label>
+                    <span class="badge text-bg-light border">
+                        <i class="bi bi-road me-1"></i>Miles
+                    </span>
+                </div>
+
+                <div id="milege" class="mx-2 slider"></div>
+
+                <div class="slider-meta small text-secondary">
+                    <span id="milegeMin" class="fw-semibold"></span>
+                    <span id="milegeMax" class="fw-semibold"></span>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
