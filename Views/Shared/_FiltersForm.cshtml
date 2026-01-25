@@ -21,8 +21,13 @@
 
 <script type="text/javascript">
     $(function () {
-        $(document).on("touchmove", "#price, #milege", function (e) {
-            e.stopPropagation();
+        function closeAllChosen() {
+          $(".chosen-select").trigger("chosen:close"); // supported by chosen
+          $(".chosen-select").trigger("chosen:updated");
+        }
+
+        $(document).on("touchstart mousedown pointerdown", "#price, #milege", function () {
+          closeAllChosen();
         });
 
         $("#makes").chosen({
