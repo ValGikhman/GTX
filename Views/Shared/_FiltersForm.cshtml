@@ -21,15 +21,6 @@
 
 <script type="text/javascript">
     $(function () {
-        function closeAllChosen() {
-          $(".chosen-select").trigger("chosen:close"); // supported by chosen
-          $(".chosen-select").trigger("chosen:updated");
-        }
-
-        $(document).on("touchstart mousedown pointerdown", "#price, #milege", function () {
-          closeAllChosen();
-        });
-
         $("#makes").chosen({
             placeholder_text_multiple: "All make(s)...",
             no_results_text: "No makes for search criteria"
