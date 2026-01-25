@@ -20,10 +20,6 @@
 </div>
 
 <script type="text/javascript">
-    document.addEventListener('touchmove', function (e) {
-        if (e.target.closest('.ui-slider')) e.preventDefault();
-    }, { passive: false });
-
     $(function () {
         $("#makes").chosen({
             placeholder_text_multiple: "All make(s)...",
