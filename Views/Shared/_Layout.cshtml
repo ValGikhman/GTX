@@ -252,14 +252,12 @@
                     <span>&nbsp;@ViewBag.Environment</span>
                 </a>
 
-                <span class="text-muted text-shadow">
+                <span class="text-muted text-shadow d-none d-lg-inline">
                     | By placing calls to this dealership you agree to the
-                    <a href="@Url.Action("Terms", "Home")"
-                       class="link-primary text-decoration-underline"
-                       target="_blank" rel="noopener">
-                        Terms and Conditions of Use
-                    </a>
                 </span>
+                <a href="@Url.Action("TermsAndConditions", "Home")" class="link-primary text-decoration-underline" target="_blank" rel="noopener">
+                    Terms and Conditions of Use
+                </a>
             </div>
 
         </div>
