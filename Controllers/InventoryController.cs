@@ -104,7 +104,7 @@ namespace GTX.Controllers
                 .ToArray() ?? Array.Empty<Models.GTX>();
 
             // Lets show the tile from fraser details
-            ViewBag.Title = $"{vehicle.Year} - {vehicle.Make} - {vehicle.Model} {vehicle.VehicleStyle}";
+            ViewBag.Title = $"{vehicle.Year} - {vehicle.Make} - {vehicle.Model}";
             ViewBag.Price = $"{vehicle.InternetPrice.ToString("C")}";
 
             if (fromQR != null && fromQR == vehicle.VIN) {
