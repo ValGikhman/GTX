@@ -21,6 +21,10 @@
 
 <script type="text/javascript">
     $(function () {
+        $(document).on("touchmove", "#price, #milege", function (e) {
+            e.stopPropagation();
+        });
+
         $("#makes").chosen({
             placeholder_text_multiple: "All make(s)...",
             no_results_text: "No makes for search criteria"
