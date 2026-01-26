@@ -287,8 +287,7 @@ namespace GTX.Controllers
         }
 
         public Models.GTX[] ApplyFilters(Filters filter) {
-            var query = Model.Inventory.All.AsQueryable();
-            var request = new QueryHelper<Models.GTX>(query);
+            var request = new QueryHelper<Models.GTX>(Model.Inventory.All);
             request
                 .InList(m => m.Make, filter.Makes)
                 .InList(m => m.Model, filter.Models)
@@ -365,7 +364,6 @@ namespace GTX.Controllers
         private static Filters BuildFilters(Inventory inventory)
         {
             var all = inventory.All;
-
             return new Filters
             {
                 Makes = BuildFilter(all, m => m.Make),

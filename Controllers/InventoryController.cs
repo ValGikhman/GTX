@@ -238,6 +238,19 @@ namespace GTX.Controllers
         }
 
         [HttpPost]
+        public JsonResult ApplyMakes(string[] make)
+        {
+            if (make == null) return Json(new { error = "Model was null" });
+            var request = new QueryHelper<Models.GTX>(Model.Inventory.All);
+
+            request.InList(m => m.Make, make);
+            Model.Inventory.Vehicles = request.Query.OrderBy(m => m.Make).ThenBy(m => m.Model).ToArray();
+            Model.Inventory.Title = "Search";
+
+            return Json(new { redirectUrl = Url.Action("Index") });
+        }
+
+        [HttpPost]
         public JsonResult ApplyTerm(string term) {
             term = term.Trim().ToUpper();
 

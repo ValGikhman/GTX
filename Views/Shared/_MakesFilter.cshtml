@@ -22,12 +22,12 @@
                         .click(function () {
                             const make = $(this).data("make");
                             showSpinner($("#filterOverlay"));
-                            var model = { Makes: [make] };
+                            var model = { make: [make] };
 
                             $("#filtersModal [data-bs-dismiss='modal']").trigger("click");
 
                             $.ajax({
-                                url: `${root}Inventory/ApplyFilter`,
+                                url: `${root}Inventory/ApplyMakes`,
                                 type: "POST",
                                 contentType: "application/json; charset=utf-8",
                                 dataType: "json",
