@@ -286,6 +286,23 @@ namespace GTX.Controllers
             return Json(new { redirectUrl = Url.Action("All") });
         }
 
+        public Models.GTX[] ApplyFilters(Filters filter) {
+            var query = Model.Inventory.All.AsQueryable();
+            var request = new QueryHelper<Models.GTX>(query);
+            request
+                .InList(m => m.Make, filter.Makes)
+                .InList(m => m.Model, filter.Models)
+                .InList(m => m.Cylinders.ToString(), filter.Cylinders)
+                .InList(m => m.Transmission, filter.Transmissions)
+                .InList(m => m.DriveTrain, filter.DriveTrains)
+                .InList(m => m.Body, filter.BodyTypes)
+                .InList(m => m.FuelType, filter.FuelTypes)
+                .InList(m => m.VehicleType, filter.VehicleTypes)
+                .Between(m => m.Mileage, filter.MinMilege, filter.MaxMilege)
+                .Between(m => m.InternetPrice, filter.MinPrice, filter.MaxPrice);
+            return request.Query.OrderBy(m => m.Make).ThenBy(m => m.Model).ToArray();
+        }
+
         public Models.GTX[] ApplyTerms(string term)
         {
             var all = Model.Inventory.All ?? Array.Empty<Models.GTX>();
