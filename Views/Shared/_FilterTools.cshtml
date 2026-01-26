@@ -353,8 +353,8 @@
             var $priceSlider = $("#priceSlider");
             if (!$priceSlider.length || !$priceSlider[0].noUiSlider) return;
 
-            var min = floorTo(rawMin, 1000);
-            var max = ceilTo(rawMax, 1000);
+            var min = roundDownTo(rawMin, 1000);
+            var max = roundUpTo(rawMax, 1000);
 
             // update allowed bounds
             $priceSlider[0].noUiSlider.updateOptions({ range: { min: min, max: max } }, false);
@@ -367,8 +367,8 @@
             var $milegeSlider = $("#milegeSlider");
             if (!$milegeSlider.length || !$milegeSlider[0].noUiSlider) return;
 
-            var min = floorTo(rawMin, 1000);
-            var max = ceilTo(rawMax, 1000);
+            var min = roundDownTo(rawMin, 1000);
+            var max = roundUpTo(rawMax, 1000);
 
             $milegeSlider[0].noUiSlider.updateOptions({ range: { min: min, max: max } }, false);
             $milegeSlider[0].noUiSlider.set([min, max]);

@@ -25,8 +25,8 @@
 <script type="text/javascript">
     // ---------- helpers ----------
     function roundTo(n, step) { return Math.round(n / step) * step; }
-    function floorTo(n, step) { return Math.floor(n / step) * step; }
-    function ceilTo(n, step) { return Math.ceil(n / step) * step; }
+    function roundDownTo(n, step) { return Math.floor(n / step) * step; }
+    function roundUpTo(n, step) { return Math.ceil(n / step) * step; }
     function toNum(v) { return parseFloat(v); }
     var usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0, minimumFractionDigits: 0 });
 
@@ -362,8 +362,8 @@
         $.get(`${root}Inventory/GetPriceRange`, { makes: makes })
             .done(function (result) {
                 if (result != null) {
-                    var minVal = roundTo(toNum(result.PriceMin), 1000);
-                    var maxVal = roundTo(toNum(result.PriceMax), 1000);
+                    var minVal = roundDownTo(toNum(result.PriceMin), 1000);
+                    var maxVal = roundUpTo(toNum(result.PriceMax), 1000);
 
                     $("#minPrice").val(minVal);
                     $("#maxPrice").val(maxVal);
@@ -379,8 +379,8 @@
         $.get(`${root}Inventory/GetMilegeRange`, { makes: makes })
             .done(function (result) {
                 if (result != null) {
-                    var minVal = roundTo(toNum(result.MilesMin), 1000);
-                    var maxVal = roundTo(toNum(result.MilesMax), 1000);
+                    var minVal = roundDownTo(toNum(result.MilesMin), 1000);
+                    var maxVal = roundUpTo(toNum(result.MilesMax), 1000);
 
                     $("#minMiles").val(minVal);
                     $("#maxMiles").val(maxVal);

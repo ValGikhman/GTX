@@ -231,9 +231,7 @@ namespace GTX.Controllers
 
             if (model.Transmissions != null) model.Transmissions = model.Transmissions.Select(word => word.Substring(0, 1).ToUpper()).ToArray();
 
-            var filteredVehicles = ApplyFilters(model);
-
-            Model.Inventory.Vehicles = filteredVehicles;
+            Model.Inventory.Vehicles = ApplyFilters(model);
             Model.Inventory.Title = "Search";
 
             return Json(new { redirectUrl = Url.Action("Index") });
@@ -482,52 +480,6 @@ namespace GTX.Controllers
             finally {
             }
             return null;
-        }
-
-        private Models.GTX[] ApplyFilters(Filters filter) {
-            Models.GTX[] query = Model.Inventory.All;
-
-            if (query.Any() && filter.Makes != null) {
-                query = query.Where(m => filter.Makes.Contains(m.Make)).Distinct().ToArray();
-            }
-
-            if (query.Any() && filter.Models != null) {
-                query = query.Where(m => filter.Models.Contains(m.Model)).Distinct().ToArray();
-            }
-
-            if (query.Any() && filter.Cylinders != null) {
-                query = query.Where(m => filter.Cylinders.Contains(m.Cylinders.ToString())).Distinct().ToArray();
-            }
-
-            if (query.Any() && filter.Transmissions != null) {
-                query = query.Where(m => filter.Transmissions.Contains(m.Transmission)).Distinct().ToArray();
-            }
-
-            if (query.Any() && filter.DriveTrains != null) {
-                query = query.Where(m => filter.DriveTrains.Contains(m.DriveTrain)).Distinct().ToArray();
-            }
-
-            if (query.Any() && filter.BodyTypes != null) {
-                query = query.Where(m => filter.BodyTypes.Contains(m.Body)).Distinct().ToArray();
-            }
-
-            if (query.Any() && filter.MinMilege >= 0 && filter.MaxMilege > 0) {
-                query = query.Where(m => m.Mileage >= filter.MinMilege && m.Mileage <= filter.MaxMilege).Distinct().ToArray();
-            }
-
-            if (query.Any() && filter.MinPrice >= 0 && filter.MaxPrice > 0) {
-                query = query.Where(m => m.InternetPrice >= filter.MinPrice && m.InternetPrice <= filter.MaxPrice).Distinct().ToArray();
-            }
-
-            if (query.Any() && filter.FuelTypes != null) {
-                query = query.Where(m => filter.FuelTypes.Contains(m.FuelType)).Distinct().ToArray();
-            }
-
-            if (query.Any() && filter.VehicleTypes != null) {
-                query = query.Where(m => filter.VehicleTypes.Contains(m.VehicleType)).Distinct().ToArray();
-            }
-
-            return query.OrderBy(m => m.Make).ThenBy(m => m.Model).ToArray();
         }
     }
 }
