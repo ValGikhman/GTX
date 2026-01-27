@@ -1,0 +1,181 @@
+﻿@model GTX.Models.AnnouncementModel
+@{
+    var isEdit = Model != null && Model.Id > 0;
+    var action = isEdit ? "Save" : "Create";
+
+    var htmlAttrs = new Dictionary<string, object>
+{
+        { "data-announcement-ajax", "true" }
+    };
+}
+
+@using (Html.BeginForm(action, "Announcements", FormMethod.Post, htmlAttrs))
+{
+    @Html.HiddenFor(m => m.Id)
+    @Html.HiddenFor(m => m.DateCreated)
+
+    <div class="container-fluid p-0">
+        <div class="row g-3">
+
+            <!-- Row 1: Active -->
+            <div class="col-md-3">
+                <div class="form-check">
+                    @Html.CheckBoxFor(m => m.Active, new { @class = "form-check-input", id = "Active" })
+                    <label class="form-check-label text-shadow-small" for="Active"><strong>Active</strong></label>
+                </div>
+            </div>
+
+            <!-- Row 1b: Date range -->
+            <div class="col-md-4">
+                <label class="form-label text-shadow-small"><strong>Start Date</strong></label>
+                @Html.TextBoxFor(m => m.DateStart, "{0:yyyy-MM-dd}", new { @class = "form-control shadow", type = "date", id = "DateStart" })
+                @Html.ValidationMessageFor(m => m.DateStart, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="col-md-5">
+                <label class="form-label text-shadow-small"><strong>End Date</strong></label>
+                @Html.TextBoxFor(m => m.DateEnd, "{0:yyyy-MM-dd}", new { @class = "form-control shadow", type = "date", id = "DateEnd" })
+                @Html.ValidationMessageFor(m => m.DateEnd, "", new { @class = "text-danger" })
+            </div>
+
+            <!-- Row 2: Title -->
+            <div class="col-12">
+                <label class="form-label text-shadow-small"><strong>Title</strong></label>
+                @Html.TextBoxFor(m => m.Title, new { @class = "form-control shadow", maxlength = "120", placeholder = "Announcement title..." })
+                @Html.ValidationMessageFor(m => m.Title, "", new { @class = "text-danger" })
+            </div>
+
+            <!-- Row 3: Type / DisplayMode / TargetMode -->
+            <div class="col-md-4">
+                <label class="form-label text-shadow-small"><strong>Type</strong></label>
+                @Html.DropDownListFor(m => m.Type,
+                    new SelectList(Enum.GetValues(typeof(GTX.Models.AnnouncementType))),
+                    new { @class = "form-select shadow", id = "Type" })
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label text-shadow-small"><strong>Display</strong></label>
+                @Html.DropDownListFor(m => m.DisplayMode,
+                    new SelectList(Enum.GetValues(typeof(GTX.Models.DisplayMode))),
+                    new { @class = "form-select shadow", id = "DisplayMode" })
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label text-shadow-small"><strong>Target</strong></label>
+                @{
+                    // TargetMode? nullable
+                    var targetList = Enum.GetValues(typeof(GTX.Models.TargetMode))
+                        .Cast<GTX.Models.TargetMode>()
+                        .Select(x => new SelectListItem
+                        {
+                            Text = x.ToString(),
+                            Value = x.ToString(),
+                            Selected = Model != null && Model.TargetMode.HasValue && Model.TargetMode.Value.Equals(x)
+                        })
+                        .ToList();
+
+                    targetList.Insert(0, new SelectListItem
+                    {
+                        Text = "None (All Pages)",
+                        Value = "",
+                        Selected = Model == null || !Model.TargetMode.HasValue
+                    });
+                }
+                @Html.DropDownListFor(m => m.TargetMode, targetList, new { @class = "form-select shadow", id = "TargetMode" })
+            </div>
+
+            <!-- Row 4: TargetValue -->
+            <div class="col-12">
+                <label class="form-label text-shadow-small"><strong>Target Value (optional)</strong></label>
+                @Html.TextBoxFor(m => m.TargetValue, new { @class = "form-control shadow", maxlength = "200", id = "TargetValue", placeholder = "Example: / (landing), /inventory, or 'special' for contains..." })
+                <div class="form-text">Used when Target is UrlContains / UrlStartsWith.</div>
+            </div>
+
+            <!-- Row 5: MessageHtml editor -->
+            <div class="col-12">
+                <label class="form-label text-shadow-small"><strong>Message</strong></label>
+                @Html.HiddenFor(m => m.MessageHtml, new { id = "MessageHtml" })
+                <div id="messageEditor" class="form-control shadow" style="height:260px"></div>
+                @Html.ValidationMessageFor(m => m.MessageHtml, "", new { @class = "text-danger" })
+            </div>
+
+            @Html.ValidationSummary(false, "", new { @class = "text-danger mt-2" })
+
+            <div class="col-12 d-flex justify-content-end gap-2 mt-2">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary">@(isEdit ? "Save Changes" : "Create Announcement")</button>
+            </div>
+
+        </div>
+    </div>
+}
+
+<script>
+    $(function () {
+        var $form = $('form[data-announcement-ajax="true"]');
+        if (!$form.length) $form = $('form').first();
+
+        // -----------------------------
+        // Quill (MessageHtml)
+        // -----------------------------
+        var Font = Quill.import('formats/font');
+        Font.whitelist = ['sans-serif', 'serif', 'monospace', 'roboto', 'arial', 'times'];
+        Quill.register(Font, true);
+
+        var quill = new Quill('#messageEditor', {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    [{ font: [] }, { size: ['small', false, 'large', 'huge'] }],
+                    [{ header: [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ color: [] }, { background: [] }],
+                    [{ align: [] }],                // left/center/right/justify
+                    [{ list: 'ordered' }, { list: 'bullet' }],
+                    ['link'],
+                    ['clean']
+                ]
+            }
+        });
+
+        function normalizeEmpty(html) {
+            var h = $.trim(html || '');
+            return (h === '<p><br></p>' || h === '<div><br></div>') ? '' : h;
+        }
+
+        function syncMessage() {
+            var html = normalizeEmpty(quill.root.innerHTML);
+            $('#MessageHtml', $form).val(html);
+        }
+
+        // Load existing message (Edit mode)
+        var initialHtml = $('#MessageHtml', $form).val();
+        if (initialHtml) quill.clipboard.dangerouslyPasteHTML(initialHtml);
+
+        // Sync on submit (delegated; works when loaded in modal)
+        $(document).on('submit', 'form[data-announcement-ajax="true"]', function () {
+            syncMessage();
+        });
+
+        // Extra safety: sync on click
+        $form.on('click', 'button[type=submit], input[type=submit]', function () {
+            syncMessage();
+        });
+
+        // Initial sync so server receives correct value
+        syncMessage();
+
+        // -----------------------------
+        // TargetValue helper: hide when TargetMode empty/None
+        // -----------------------------
+        function toggleTargetValue() {
+            var v = $('#TargetMode').val();
+            // if empty => None (All Pages)
+            var show = !!v;
+            $('#TargetValue').closest('.col-12').toggle(show);
+        }
+
+        $(document).on('change', '#TargetMode', toggleTargetValue);
+        toggleTargetValue();
+    });
+</script>

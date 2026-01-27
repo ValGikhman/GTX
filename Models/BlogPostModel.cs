@@ -1,12 +1,11 @@
-﻿using GTX.Models;
-using Services;
+﻿using Services;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
 
 namespace GTX.Models
 {
-    public class BlogPostModel : BaseModel
+    public class BlogPostModel
     {
         public int Id { get; set; }
 

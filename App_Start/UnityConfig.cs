@@ -22,6 +22,7 @@ namespace GTX
             container.RegisterType<IHttpContextProvider, HttpContextProvider>();
             container.RegisterType<ISessionData, SessionData>();
             container.RegisterType<IBlogPostService, BlogPostService>();
+            container.RegisterType<IAnnouncementService, AnnouncementService>();
         }
     }
 }

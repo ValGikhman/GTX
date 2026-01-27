@@ -254,6 +254,7 @@
     <Compile Include="Common\Constants.cs" />
     <Compile Include="Common\Properties\AssemblyInfo.cs" />
     <Compile Include="Common\Utility.cs" />
+    <Compile Include="Controllers\AnnouncementsController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\BlogPostsController.cs" />
     <Compile Include="Controllers\EmployeeController.cs" />
@@ -264,6 +265,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\AnnouncementModel.cs" />
     <Compile Include="Models\BaseModel.cs" />
     <Compile Include="Models\BlogPostModel.cs" />
     <Compile Include="Models\DataOneModel.cs" />
@@ -608,9 +610,14 @@
     <Content Include="Views\Health\Index.cshtml" />
     <Content Include="Views\Home\TermsAndConditions.cshtml" />
     <Content Include="Views\Home\PrivacyPolicy.cshtml" />
+    <Content Include="Views\Shared\_Announcement.cshtml" />
+    <Content Include="Views\Shared\_AnnouncementModal.cshtml" />
+    <Content Include="Views\Shared\_AnnouncementEdit.cshtml" />
+    <Content Include="Views\Shared\_AnnouncementPreviewAlert.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
+    <Folder Include="Views\Announcement\" />
     <Folder Include="Views\Sitemap\" />
   </ItemGroup>
   <ItemGroup>

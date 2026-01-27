@@ -39,6 +39,8 @@ namespace GTX.Models
         public OpenHours[] OpenHours { get; set; }
 
         public List<BlogPostModel> Blogs { get; set; }
+
+        public List<AnnouncementModel> Announcements { get; set; }
     }
 
     public class Vehicle { 

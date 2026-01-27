@@ -134,6 +134,7 @@
         </div>
     </div>
     <!-- Offcanvas Menu End -->
+
     @{Html.RenderPartial("_SearchForm");}
 
     <!-- Header Section Begin -->
@@ -229,6 +230,7 @@
         }
     </header>
     <!-- Header Section End -->
+
     <!-- MAIN WRAPPER -->
     <div class="very-top d-flex flex-column flex-grow-1">
         <!-- Loading...  overlay -->
@@ -236,10 +238,20 @@
             <div class="spinner-border text-danger" role="status">
             </div>
         </div>
+
         <main class="body-content overflow-y-auto overflow-x-hidden flex-grow-1 min-h-0">
+            <!-- Announcement -->
+            <div class="toast-container position-fixed top-25 start-50 translate-middle-x p-3 pe-auto" style="z-index: 99999;">
+                <div id="announcementPreviewHostPopup" class="pe-auto"></div>
+            </div>
+
+            <div id="announcementPreviewHostBanner">
+            </div>
+
             @RenderBody()
         </main>
     </div>
+
     <!-- Footer Section Begin -->
     <footer class="footer-strip fixed-bottom btn-gradient-grey">
         <div class="row p-1 align-items-center small-text">
@@ -286,7 +298,6 @@
 
         </div>
     </footer>
-
     <!-- Footer Section End -->
 
     @Scripts.Render("~/scripts/jquery")
@@ -350,6 +361,5 @@
             bootstrap.Modal.getOrCreateInstance(modalEl).show();
         });
     }
-
 </script>
 

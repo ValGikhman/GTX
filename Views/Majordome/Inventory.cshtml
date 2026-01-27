@@ -141,6 +141,7 @@
     </div>
 </div>
 @Html.Partial("_BlogPostModal")
+@Html.Partial("_AnnouncementModal")
 
 <div class="this-container container-fluid px-5">
     <nav class="nav nav-tabs no-wrap-group" id="myTab" role="tablist">
@@ -171,6 +172,9 @@
         </button>
         <button class="btn btn-gradient-grey text-shadow-small" id="blog-tab" data-bs-toggle="tab" data-bs-target="#tab-blog" type="button" role="tab">
             Blogs
+        </button>
+        <button class="btn btn-gradient-grey text-shadow-small" id="announcement-tab" data-bs-toggle="tab" data-bs-target="#tab-announcement" type="button" role="tab">
+            Announcements
         </button>
 
         <div id="specials" class="d-none d-lg-block d-flex ms-auto"></div>
@@ -280,6 +284,11 @@
         <!-- Blog -->
         <div class="tab-pane fade py-1" id="tab-blog" role="tabpanel">
             @{ Html.RenderPartial("_BlogPost", Model.Blogs); }
+        </div>
+
+        <!-- Announcement -->
+        <div class="tab-pane fade py-1" id="tab-announcement" role="tabpanel">
+            @{ Html.RenderPartial("_Announcement", Model.Announcements); }
         </div>
     </div>
 </div>
