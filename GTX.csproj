@@ -262,6 +262,7 @@
     <Compile Include="Controllers\MajordomeController.cs" />
     <Compile Include="Controllers\InventoryController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\SitemapController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -275,6 +276,7 @@
     <Compile Include="Models\GTXClasses.cs" />
     <Compile Include="Models\HealthHelper.cs" />
     <Compile Include="Models\HealthModel.cs" />
+    <Compile Include="Models\SitemapModel.cs" />
     <Compile Include="Session\HttpContextProvider.cs" />
     <Compile Include="Session\IHttpContextProvider.cs" />
     <Compile Include="Session\ISessionData.cs" />
@@ -614,10 +616,11 @@
     <Content Include="Views\Announcements\Index.cshtml" />
     <Content Include="Views\Blogs\Index.cshtml" />
     <Content Include="Views\Shared\_AdCard.cshtml" />
+    <Content Include="Views\Sitemap\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
-    <Folder Include="Views\Sitemap\" />
+    <Folder Include="Views\NewFolder1\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\jquery\jquery-3.7.1.min.map" />
