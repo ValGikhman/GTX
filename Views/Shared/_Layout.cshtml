@@ -31,6 +31,7 @@
     <script src="~/Scripts/inventory.js"></script>
 </head>
 
+@Html.Action("LoginModal", "Home")
 <body class="overflow-hidden d-flex flex-column min-vh-100">
     <!-- Offcanvas open hours -->
     <div class="offcanvas-top-fixed-center" tabindex="-1" id="openHours">
@@ -228,6 +229,11 @@
                                 <i class="fa fa-twitter px-1"></i>
                             </a>
                         </li>
+                        <li class="mx-sm-1">
+                            <a class="btn gradient shadow border-dark rounded-4" href="#" title="Log in" data-bs-toggle="modal" data-login-modal="true">
+                                <i class="bi bi-person-circle px-1"></i>
+                            </a>
+                        </li>
                     </ul>
                 </nav>
             </div>
@@ -241,7 +247,6 @@
         }
     </header>
     <!-- Header Section End -->
-
     <!-- MAIN WRAPPER -->
     <div class="very-top d-flex flex-column flex-grow-1">
         <!-- Loading...  overlay -->
@@ -355,11 +360,10 @@
     function openFiltersFromOffcanvas(e) {
         e.preventDefault();
 
-        const offEl = document.getElementById('mobileMenuOffcanvas'); // must exist + be .offcanvas
+        const offEl = document.getElementById('mobileMenuOffcanvas');
         const modalEl = document.getElementById('filtersModal');
 
         if (!offEl || !offEl.classList.contains('offcanvas')) {
-            // Offcanvas not found / wrong element -> just open the modal
             bootstrap.Modal.getOrCreateInstance(modalEl).show();
             return;
         }
