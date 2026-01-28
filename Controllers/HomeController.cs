@@ -1,6 +1,7 @@
 ﻿using GTX.Models;
 using Services;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -12,16 +13,25 @@ namespace GTX.Controllers
     public class HomeController : BaseController {
 
         private readonly IContactService _contactService;
+        private readonly IAnnouncementService _announcementService;
 
-        public HomeController(ISessionData sessionData, ContactService contactService, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service eZ360Service, ILogService logService) :
+        public HomeController(ISessionData sessionData, ContactService contactService, IInventoryService inventoryService, IVinDecoderService vinDecoderService
+                , IEZ360Service eZ360Service
+                , ILogService logService
+                , IAnnouncementService announcementService) :
             base(sessionData, inventoryService, vinDecoderService, eZ360Service, logService)  {
             _contactService = contactService;
+            _announcementService = announcementService;
         }
 
         public ActionResult Index() {
+            // Check for Announcements
+            var announcement = GetAnnouncement();
+            Model.Announcements = announcement == null ? new List<AnnouncementModel>(): new List<AnnouncementModel> { announcement };
+
             ViewBag.Message = "Home";
             ViewBag.Title = "Home";
-            return View();
+            return View(Model);
         }
 
         public ActionResult TermsAndConditions()
@@ -143,5 +153,13 @@ namespace GTX.Controllers
             Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             return Json(new { message = "Unexpected error occurred." });
         }
+
+        private AnnouncementModel GetAnnouncement()
+        {
+            var entities = _announcementService.GetAllActive();
+            var posts = entities.Select(AnnouncementModel.FromEntity).ToList();
+            return posts.FirstOrDefault();
+        }
+
     }
 }

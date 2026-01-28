@@ -73,13 +73,6 @@
                             Selected = Model != null && Model.TargetMode.HasValue && Model.TargetMode.Value.Equals(x)
                         })
                         .ToList();
-
-                    targetList.Insert(0, new SelectListItem
-                    {
-                        Text = "None (All Pages)",
-                        Value = "",
-                        Selected = Model == null || !Model.TargetMode.HasValue
-                    });
                 }
                 @Html.DropDownListFor(m => m.TargetMode, targetList, new { @class = "form-select shadow", id = "TargetMode" })
             </div>
@@ -121,7 +114,6 @@
         var Font = Quill.import('formats/font');
         Font.whitelist = ['sans-serif', 'serif', 'monospace', 'roboto', 'arial', 'times'];
         Quill.register(Font, true);
-
         var quill = new Quill('#messageEditor', {
             theme: 'snow',
             modules: {

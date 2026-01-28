@@ -50,11 +50,16 @@
         }
 
         #homeSearch {
-            width: 75%!important;
+            width: 75% !important;
         }
     }
 </style>
-
+@{
+    @model GTX.Models.BaseModel
+    var hasAnnouncements = Model.Announcements?.Count() > 0;
+    var displayMode = hasAnnouncements ? Model.Announcements[0].DisplayMode : GTX.Models.DisplayMode.Popup;
+    var announcementId = hasAnnouncements ? Model.Announcements[0].Id : 0;
+}
 <section class="hero">
     <video class="video-background-video" autoplay muted loop playsinline webkit-playsinline preload="auto">
         <source src="~/GTXImages/video/GTX.MP4" type="video/mp4" />
@@ -89,30 +94,21 @@
 </section>
 
 <script>
+
     $(function () {
         $("#fakeSearch").css("visibility", "hidden");
         $("#GTX-image").removeClass("d-md-inline-block");
 
-@*        const backgrounds = [
-            'url("../img/hero/cin2.jpg")',
-            'url("../img/hero/cin3.jpg")',
-            'url("../img/hero/cin4.jpg")',
-            'url("../img/hero/cin5.jpg")'
-        ];
+        var hasAnnouncements = @((hasAnnouncements).ToString().ToLower());
+        var displayMode = "@displayMode";
+        var id = @announcementId;
 
-        var bgIndex = 0;
-        setInterval(() => {
-            makeChange();
-            getNow();
-        }, 60000); // 1 min
+        if (!hasAnnouncements) return;
 
-        $(".hero").on("click", function () {
-            makeChange();
-        });
-
-        function makeChange() {
-            $(".hero").css("background-image", backgrounds[bgIndex]);
-            bgIndex = (bgIndex + 1) % backgrounds.length;
-        }*@
+        if (displayMode === "Popup") {
+            previewAnnouncementPopup(id);
+        } else if (displayMode === "BannerTop") {
+            previewAnnouncementBanner(id);
+        }
     });
 </script>

@@ -31,7 +31,7 @@
 </div>
 
 <div id="announcementsList" class="card-body p-3">
-    <div class="table-responsive rounded-3 shadow">
+    <div class="table-responsive rounded-3 shadow" style="max-height: 70vh; overflow-y: auto;">
         <table class="table table-hover align-middle m-0" id="anTable">
             <thead class="table-light">
                 <tr>
@@ -81,8 +81,8 @@
                             </td>
 
                             <td>
-                                <span class="badge rounded-pill bg-light text-dark border">
-                                    @(announcement.DisplayMode == GTX.Models.DisplayMode.Popup ? "Banner" : "Popup")
+                                <span class="badge rounded-pill bg-light text-dark border shadow">
+                                    @(announcement.DisplayMode == GTX.Models.DisplayMode.BannerTop ? "Banner" : "Popup")
                                 </span>
                             </td>
 
@@ -102,7 +102,7 @@
                                                   : "bg-secondary-subtle text-secondary border border-secondary-subtle";
                                 }
 
-                                <span class="badge rounded-pill @badgeClass">
+                                <span class="badge rounded-pill @badgeClass shadow">
                                     @typeText
                                 </span>
                             </td>
@@ -122,7 +122,7 @@
                                 }
                                 else
                                 {
-                                    <span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary-subtle">
+                                    <span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary-subtle shadow">
                                         Inactive
                                     </span>
                                 }
@@ -132,17 +132,17 @@
                                 <div class="btn-group">
                                     @if (announcement.DisplayMode == GTX.Models.DisplayMode.Popup)
                                     {
-                                        <button type="button" class="btn btn-gradient-grey btn-sm btn-outline-secondary" onclick="previewAnnouncementPopup(@announcement.Id)" title="Preview">
+                                        <button type="button" class="btn btn-gradient-grey btn-sm btn-outline-success shadow" onclick="previewAnnouncementPopup(@announcement.Id)" title="Preview">
                                             <i class="bi bi-eye me-1"></i>
                                         </button>
                                     }
                                     else
                                     {
-                                        <button type="button" class="btn btn-gradient-grey btn-sm btn-outline-secondary" onclick="previewAnnouncementBanner(@announcement.Id)" title="Preview">
+                                        <button type="button" class="btn btn-gradient-grey btn-sm btn-outline-success shadow" onclick="previewAnnouncementBanner(@announcement.Id)" title="Preview">
                                             <i class="bi bi-eye me-1"></i>
                                         </button>}
 
-                                    <a class="btn btn-gradient-grey btn-sm btn-outline-primary"
+                                    <a class="btn btn-gradient-grey btn-sm btn-outline-primary shadow"
                                        data-announcement-modal="true"
                                        data-title="Edit Announcement"
                                        href="@Url.Action("Edit", "Announcements", new { id = announcement.Id })">
@@ -151,7 +151,7 @@
 
                                     <button id="btnDelete-@announcement.Id"
                                             type="button"
-                                            class="btn btn-gradient-grey btn-sm btn-outline-danger"
+                                            class="btn btn-gradient-grey btn-sm btn-outline-danger shadow"
                                             onclick="deleteAnnouncement(@announcement.Id)"
                                             data-id="@announcement.Id"
                                             title="Delete">
@@ -239,35 +239,4 @@
     $(document).on("change", "#anFilter", applyAnnouncements);
 
     $(applyAnnouncements);
-
-    function previewAnnouncementPopup(id) {
-        if (!id) return;
-
-        $(".toast-container").show();
-        $("#announcementPreviewHostPopup").html("<div class='alert alert-secondary shadow mb-0'>Loading preview...</div>");
-
-        $.get(root + "Announcements/PreviewAlert", { id: id })
-            .done(function (html) {
-                $("#announcementPreviewHostPopup").html(html);
-            })
-            .fail(function (xhr) {
-                $("#announcementPreviewHostPopup").html("<div class='alert alert-danger shadow mb-0'>Preview failed. Status: " + xhr.status + "</div>");
-            });
-    }
-
-    function previewAnnouncementBanner(id) {
-        if (!id) return;
-
-        $(".toast-container").hide();
-        $("#announcementPreviewHostBanner").html("<div class='alert alert-secondary shadow mb-0'>Loading preview...</div>");
-
-        $.get(root + "Announcements/PreviewAlert", { id: id })
-            .done(function (html) {
-                $("#announcementPreviewHostBanner").html(html);
-            })
-            .fail(function (xhr) {
-                $("#announcementPreviewHostBanner").html("<div class='alert alert-danger shadow mb-0'>Preview failed. Status: " + xhr.status + "</div>");
-            });
-    }
-
 </script>

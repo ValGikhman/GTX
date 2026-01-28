@@ -5,7 +5,7 @@ namespace GTX.Models
 {
     public enum AnnouncementType { Info = 0, Success = 1, Warning = 2, Danger = 3, Promo = 4 }
     public enum DisplayMode { Popup = 0, BannerTop = 1 }
-    public enum TargetMode { AllPages = 0, LandingOnly = 1, UrlContains = 2, UrlStartsWith = 3 }
+    public enum TargetMode { LandingOnly = 1 }
 
     public class AnnouncementModel
     {

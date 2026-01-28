@@ -15,14 +15,6 @@ namespace GTX.Controllers
             _announcementService = announcementService;
         }
 
-        private AnnouncementModel Announcement()
-        {
-            var entities = _announcementService.GetAllActive();
-            var posts = entities.Select(AnnouncementModel.FromEntity).ToList();
-            return posts.FirstOrDefault();
-        }
-
-
         public ActionResult List()
         {
             var entities = _announcementService.GetAll();
