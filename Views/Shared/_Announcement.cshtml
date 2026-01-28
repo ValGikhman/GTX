@@ -201,7 +201,7 @@
         var mode = $("#anFilter").val() || "all";
         const listContainerSelector = "#tab-announcement";
 
-        $(listContainerSelector).load(`${root}Announcements/List`, function () {
+        $(listContainerSelector).load(`${root}Announcements/ListPartial`, function () {
             $("#anSearch").val(term);
             $("#anFilter").val(mode).trigger("change");
             $("#anSearch").trigger("input");

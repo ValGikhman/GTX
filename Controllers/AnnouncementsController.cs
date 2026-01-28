@@ -15,11 +15,20 @@ namespace GTX.Controllers
             _announcementService = announcementService;
         }
 
-        public ActionResult List()
+        [HttpGet]
+        public ActionResult Index()
         {
             var entities = _announcementService.GetAll();
             var posts = entities.Select(AnnouncementModel.FromEntity).ToList();
-            return PartialView("_Announcement", posts); 
+            return View(posts);
+        }
+
+
+        public ActionResult ListPartial()
+        {
+            var entities = _announcementService.GetAll();
+            var posts = entities.Select(AnnouncementModel.FromEntity).ToList();
+            return PartialView("_Announcement", posts);
         }
 
         public ActionResult Create()

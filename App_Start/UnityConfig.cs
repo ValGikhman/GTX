@@ -21,7 +21,7 @@ namespace GTX
             container.RegisterType<IEZ360Service, EZ360Service>();
             container.RegisterType<IHttpContextProvider, HttpContextProvider>();
             container.RegisterType<ISessionData, SessionData>();
-            container.RegisterType<IBlogPostService, BlogPostService>();
+            container.RegisterType<IBlogsService, BlogsService>();
             container.RegisterType<IAnnouncementService, AnnouncementService>();
         }
     }

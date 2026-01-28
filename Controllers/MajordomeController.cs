@@ -30,18 +30,11 @@ namespace GTX.Controllers
         private static byte[] _cachedHeaderBytes;
         private static readonly object _headerLock = new object();
 
-        public IBlogPostService _blogPostService { get; set; }
-        public IAnnouncementService _announcementService { get; set; }
-
         public MajordomeController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService
                 , IEZ360Service _ez360Service
                 , ILogService logService
-                , IBlogPostService blogPostService
-                , IAnnouncementService announcementService
             )
             : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService) {
-            _blogPostService = blogPostService;
-            _announcementService = announcementService;
         }
 
         [HttpGet]
@@ -53,12 +46,6 @@ namespace GTX.Controllers
             ViewBag.Stock = stock;
 
             Model.Inventory.Vehicles = Model.Inventory.All;
-
-            var blogs = _blogPostService.GetAll();
-            Model.Blogs = blogs.Select(GTX.Models.BlogPostModel.FromEntity).ToList();
-
-            var announcements = _announcementService.GetAll();
-            Model.Announcements = announcements.Select(GTX.Models.AnnouncementModel.FromEntity).ToList();
 
             return View(Model);
         }

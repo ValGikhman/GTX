@@ -256,7 +256,7 @@
     <Compile Include="Common\Utility.cs" />
     <Compile Include="Controllers\AnnouncementsController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
-    <Compile Include="Controllers\BlogPostsController.cs" />
+    <Compile Include="Controllers\BlogsController.cs" />
     <Compile Include="Controllers\EmployeeController.cs" />
     <Compile Include="Controllers\HealthController.cs" />
     <Compile Include="Controllers\MajordomeController.cs" />
@@ -578,9 +578,6 @@
     <Content Include="Views\Shared\_Card.cshtml" />
     <Content Include="Views\Shared\_Schedule.cshtml" />
     <Content Include="Views\Shared\_Carousel.cshtml" />
-    <Content Include="Views\Majordome\Index.cshtml" />
-    <Content Include="Views\Majordome\_Layout.cshtml" />
-    <Content Include="Views\Majordome\_ViewStart.cshtml" />
     <Content Include="Views\Majordome\Inventory.cshtml" />
     <Content Include="Views\Majordome\Logs.cshtml" />
     <Content Include="Views\Shared\_SearchByTerm.cshtml" />
@@ -605,8 +602,8 @@
     <Content Include="Views\Shared\_BlogPost.cshtml" />
     <Content Include="Views\Shared\_BlogPostEdit.cshtml" />
     <Content Include="Views\Shared\_BlogPostModal.cshtml" />
-    <Content Include="Views\BlogPosts\Blogs.cshtml" />
-    <Content Include="Views\BlogPosts\BlogDetails.cshtml" />
+    <Content Include="Views\Blogs\Blogs.cshtml" />
+    <Content Include="Views\Blogs\BlogDetails.cshtml" />
     <Content Include="Views\Health\Index.cshtml" />
     <Content Include="Views\Home\TermsAndConditions.cshtml" />
     <Content Include="Views\Home\PrivacyPolicy.cshtml" />
@@ -614,6 +611,8 @@
     <Content Include="Views\Shared\_AnnouncementModal.cshtml" />
     <Content Include="Views\Shared\_AnnouncementEdit.cshtml" />
     <Content Include="Views\Shared\_AnnouncementPreviewAlert.cshtml" />
+    <Content Include="Views\Announcements\Index.cshtml" />
+    <Content Include="Views\Blogs\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

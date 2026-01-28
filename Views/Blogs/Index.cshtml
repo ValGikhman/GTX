@@ -1,0 +1,16 @@
+﻿@model List<GTX.Models.BlogPostModel>
+
+@{
+    ViewBag.Title = "Announcements";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Include stylesheet -->
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+<!-- Include the Quill library -->
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+
+@Html.Partial("_BlogPostModal")
+<div id="tab-announcement" class="p-3">
+    @{ Html.RenderPartial("_BlogPost", Model); }
+</div>

@@ -7,32 +7,41 @@ using System.Web.Mvc;
 
 namespace GTX
 {
-    public class BlogPostsController : BaseController
+    public class BlogsController : BaseController
     {
-        public IBlogPostService _blogPostService { get; set; }
+        public IBlogsService _blogsService { get; set; }
 
-        public BlogPostsController(
+        public BlogsController(
             ISessionData sessionData,
             IInventoryService inventoryService,
             IVinDecoderService vinDecoderService,
             IEZ360Service _ez360Service,
             ILogService logService,
-            IBlogPostService blogPostService)
+            IBlogsService blogsService)
             : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService)
         {
-            _blogPostService = blogPostService;
+            _blogsService = blogsService;
         }
+
+        [HttpGet]
+        public ActionResult Index()
+        {
+            var entities = _blogsService.GetAll();
+            var posts = entities.Select(BlogPostModel.FromEntity).ToList();
+            return View(posts);
+        }
+
         public ActionResult Blogs()
         {
-            Model.Blogs = _blogPostService.GetAll().Where(x => x.IsPublished).OrderByDescending(x => x.CreatedAt).Select(BlogPostModel.FromEntity).ToList();
+            Model.Blogs = _blogsService.GetAll().Where(x => x.IsPublished).OrderByDescending(x => x.CreatedAt).Select(BlogPostModel.FromEntity).ToList();
             return View(Model.Blogs.Where(m => m.IsPublished).ToList());
         }
 
-        public ActionResult List()
+        public ActionResult ListPartial()
         {
-            var entities = _blogPostService.GetAll(includeUnpublished: true);
+            var entities = _blogsService.GetAll(includeUnpublished: true);
             var posts = entities.Select(BlogPostModel.FromEntity).ToList();
-            return PartialView("_BlogPost", posts); // <-- your existing partial filename
+            return PartialView("_BlogPost", posts);
         }
 
         public ActionResult Create()
@@ -43,7 +52,7 @@ namespace GTX
 
         public ActionResult Edit(int id)
         {
-            var entity = _blogPostService.GetById(id);
+            var entity = _blogsService.GetById(id);
             if (entity == null) return HttpNotFound();
 
             var model = BlogPostModel.FromEntity(entity);
@@ -53,7 +62,7 @@ namespace GTX
         [HttpGet]
         public ActionResult Blog(int id)
         {
-            var entity = _blogPostService.GetById(id);
+            var entity = _blogsService.GetById(id);
             if (entity == null) return HttpNotFound();
 
             var model = BlogPostModel.FromEntity(entity);
@@ -65,7 +74,7 @@ namespace GTX
         {
             if (!ModelState.IsValid) return PartialView("_BlogPostEdit", model);
 
-            var ok = _blogPostService.Update(BlogPostModel.ToEntity(model));
+            var ok = _blogsService.Update(BlogPostModel.ToEntity(model));
             if (!ok) return HttpNotFound();
 
             return Json(new { ok = true });
@@ -76,7 +85,7 @@ namespace GTX
         {
             if (!ModelState.IsValid) return PartialView("_BlogPostEdit", model);
 
-            var ok = _blogPostService.Create(BlogPostModel.ToEntity(model));
+            var ok = _blogsService.Create(BlogPostModel.ToEntity(model));
             if (!ok) return HttpNotFound();
 
             return Json(new { ok = true });
@@ -85,7 +94,7 @@ namespace GTX
         [HttpPost]
         public ActionResult Delete(int id)
         {
-            _blogPostService.Delete(id);
+            _blogsService.Delete(id);
             return Json(new { ok = true });
         }
     }

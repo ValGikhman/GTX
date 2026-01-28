@@ -19,7 +19,7 @@
                 <option value="unpublished">Unpublished</option>
             </select>
 
-            <a id="newBlog"class="btn btn-primary" data-blog-modal="true" data-title="New Blog Post" href="@Url.Action("Create", "BlogPosts")">
+            <a id="newBlog"class="btn btn-primary" data-blog-modal="true" data-title="New Blog Post" href="@Url.Action("Create", "Blogs")">
                 <i class="bi bi-plus-lg me-1"></i> New
             </a>
         </div>
@@ -83,7 +83,7 @@
 
                             <td class="text-end">
                                 <div class="btn-group">
-                                    <a class="btn btn btn-gradient-grey btn-sm btn-outline-primary" data-blog-modal="true" data-title="Edit Blog Post" href="@Url.Action("Edit", "BlogPosts", new { id = p.Id })">
+                                    <a class="btn btn btn-gradient-grey btn-sm btn-outline-primary" data-blog-modal="true" data-title="Edit Blog Post" href="@Url.Action("Edit", "Blogs", new { id = p.Id })">
                                         <i class="bi bi-pencil-square me-1"></i>
                                     </a>
 
@@ -114,7 +114,7 @@
         if (!id) return;
 
         if (!confirm("Delete this blog post? This cannot be undone.")) return;
-        $.post(`${root}BlogPosts/Delete`, { id: id })
+        $.post(`${root}Blogs/Delete`, { id: id })
             .done(function (res) {
                 if (res && res.ok === true) {
                     console.log("Deleted");
@@ -133,7 +133,7 @@
         const mode = $("#bpPublishedFilter").val() || "all";
         const listContainerSelector = "#tab-blog";
 
-        $(listContainerSelector).load(`${root}BlogPosts/List`, function () {
+        $(listContainerSelector).load(`${root}Blogs/ListPartial`, function () {
             $("#bpSearch").val(term);
             $("#bpPublishedFilter").val(mode).trigger("change");
             $("#bpSearch").trigger("input");

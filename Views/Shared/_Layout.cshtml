@@ -166,10 +166,18 @@
                             {
                                 _class = string.Empty;
                             }
-                            <li id="MajordomeLink" class=@_class>@Html.ActionLink("Majordome", "Inventory", "Majordome")</li>
+                            <li id="MajordomeLink" class=@_class>
+                                <a href="#">Majordome</a>
+                                <ul class="dropdown rounded">
+                                    <li>@Html.ActionLink("Inventory", "Inventory", "Majordome")</li>
+                                    <li>@Html.ActionLink("Announcements", "Index", "Announcements")</li>
+                                    <li>@Html.ActionLink("Blogs", "Index", "Blogs")</li>
+                                    <li>@Html.ActionLink("Health", "Index", "Health")</li>
+                                </ul>
+                            </li>
                         }
                         <li>@Html.ActionLink("💲Get prequalified", "Application", "Home")</li>
-                        <li>@Html.ActionLink("Blog", "Blogs", "BlogPosts")</li>
+                        <li>@Html.ActionLink("Blog", "Blogs", "Blogs")</li>
                         <li>
                             <a href="#">About us</a>
                             <ul class="dropdown rounded">
