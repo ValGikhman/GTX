@@ -110,11 +110,6 @@ namespace GTX.Controllers
         }
 
         [HttpPost]
-        public void ShowAdmin() {
-            SessionData.SetSession(Constants.SESSION_MAJORDOME, true);
-        }
-
-        [HttpPost]
         public async Task<ActionResult> ReStoryAll() {
             try {
                 Model.Inventory.Vehicles = Model.Inventory.All;

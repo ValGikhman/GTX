@@ -33,8 +33,8 @@ namespace GTX
 
         public ActionResult Blogs()
         {
-            Model.Blogs = _blogsService.GetAll().Where(x => x.IsPublished).OrderByDescending(x => x.CreatedAt).Select(BlogPostModel.FromEntity).ToList();
-            return View(Model.Blogs.Where(m => m.IsPublished).ToList());
+            var blogs = _blogsService.GetAll().Where(x => x.IsPublished).OrderByDescending(x => x.CreatedAt).Select(BlogPostModel.FromEntity).ToList();
+            return View(blogs.Where(m => m.IsPublished).ToList());
         }
 
         public ActionResult ListPartial()

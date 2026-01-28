@@ -38,9 +38,11 @@ namespace GTX.Models
 
         public OpenHours[] OpenHours { get; set; }
 
-        public List<BlogPostModel> Blogs { get; set; }
-
         public List<AnnouncementModel> Announcements { get; set; }
+
+        public List<SitePassword> Passwords { get; set; }
+
+        public CommonUnit.Roles  CurrentRole { get; set; }
     }
 
     public class Vehicle { 
@@ -52,4 +54,11 @@ namespace GTX.Models
 
         public GTX[] VehicleSuggesion { get; set; }
     }
+
+    public class SitePassword
+    {
+        public string Role { get; set; }
+        public string Password { get; set; }
+    }
+
 }

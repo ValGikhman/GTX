@@ -89,6 +89,10 @@ namespace GTX.Controllers
                 Model.OpenHours = AppCache.GetOrCreate(Constants.OPENHOURS_CACHE, () => Utility.XMLHelpers.XmlRepository.GetOpenHours(), minutes: 60);
                 Model.Filters = AppCache.GetOrCreate(Constants.FILTERS_CACHE, () => BuildFilters(Model.Inventory), minutes: 60);
                 Model.Categories = AppCache.GetOrCreate(Constants.CATEGORIES_CACHE, () => GetCategories(), minutes: 60);
+                Model.Passwords = AppCache.GetOrCreate(Constants.PASSWORDS_CACHE, () => GetPasswords(), minutes: 60);
+
+                var roleStr = AppCache.GetOrCreate(Constants.ROLE_CACHE, () => CommonUnit.Roles.User.ToString(),  minutes: 60);
+                Model.CurrentRole = Enum.TryParse(roleStr, ignoreCase: true, out CommonUnit.Roles role)  ? role : CommonUnit.Roles.User;
 
                 var published = Model.Inventory?.Published ?? DateTime.Now;
                 ViewBag.Published = Model.IsDevelopment ? published : published.AddHours(-5);
@@ -127,6 +131,29 @@ namespace GTX.Controllers
         #endregion public
 
         #region Public Methods
+        [HttpPost]
+        protected bool ValidateLogin(string password)
+        {
+            password = (password ?? "").Trim();
+
+            var expected = Model.Passwords.Where(m => m.Password.Equals(password)).FirstOrDefault();
+            if (expected == null) return false;
+
+            if (Enum.TryParse<CommonUnit.Roles>(expected.Role, ignoreCase: true, out var role))
+            {
+                Model.CurrentRole = role;
+            }
+            else
+            {
+                Model.CurrentRole = CommonUnit.Roles.User;
+            }
+
+            AppCache.Remove(Constants.ROLE_CACHE);
+            AppCache.GetOrCreate(Constants.ROLE_CACHE, () => role.ToString(), minutes: 60);
+
+            return true;
+        }
+
         public static string RenderViewToString(ControllerContext context, string viewName) {
             return RenderViewToString(context, viewName, null);
         }
@@ -425,6 +452,17 @@ namespace GTX.Controllers
             return query.Distinct().OrderBy(s => s).ToArray();
         }
 
+        #endregion
+
+        #region Passwords
+        private List<SitePassword> GetPasswords()
+        {
+            return ConfigurationManager.AppSettings.AllKeys.Where(k => k.StartsWith("sitePassword:", StringComparison.OrdinalIgnoreCase))
+                .Select(k => new SitePassword {
+                    Role = k.Substring("sitePassword:".Length),
+                    Password = ConfigurationManager.AppSettings[k]
+                }).ToList();
+        }
         #endregion
     }
 }

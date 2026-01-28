@@ -16,6 +16,8 @@ public static class Constants {
     public const string OPENHOURS_CACHE = "GTX:OpenHours";
     public const string FILTERS_CACHE = "GTX:Filters";
     public const string CATEGORIES_CACHE = "GTX:Categories";
+    public const string PASSWORDS_CACHE = "GTX:Passwords";
+    public const string ROLE_CACHE = "GTX:Role";
 
     #endregion Public Fields
 }
