@@ -146,8 +146,27 @@
             <div class="d-flex justify-content-between">
                 <nav class="header__top header__menu w-100">
                     <ul class="main-menu">
-                        <li id="GTX-image" class="d-none d-md-inline-block"><a href="~/Home/Index"><img src="~/GTXImages/GTX-White.png" width="60" /></a></li>
-                        <li>
+                        <li id="GTX-image" class="d-none d-md-inline-block mx-1"><a href="~/Home/Index"><img src="~/GTXImages/GTX-White.png" width="60" /></a></li>
+                        @{
+                            var _class = "d-none";
+                            if ((ViewBag.IsMajordome as bool?) == true)
+                            {
+                                _class = string.Empty;
+                            }
+                            <li id="MajordomeLink" class="@_class mx-1">
+                                <a href="#" class="d-inline-flex align-items-center">
+                                    <i class="bi bi-gear"></i>
+                                </a>
+
+                                <ul class="dropdown rounded">
+                                    <li>@Html.ActionLink("Inventory", "Inventory", "Majordome")</li>
+                                    <li>@Html.ActionLink("Announcements", "Index", "Announcements")</li>
+                                    <li>@Html.ActionLink("Blogs", "Index", "Blogs")</li>
+                                    <li>@Html.ActionLink("Health", "Index", "Health")</li>
+                                </ul>
+                            </li>
+                        }
+                        <li class=" mx-2">
                             <a href="#">Inventory</a>
                             <ul class="dropdown rounded">
                                 <li>@Html.ActionLink("All", "All", "Inventory")</li>
@@ -160,25 +179,10 @@
                                 <li>@Html.ActionLink("Convertibles", "Convertibles", "Inventory")</li>
                             </ul>
                         </li>
-                        @{
-                            var _class = "d-none";
-                            if ((ViewBag.IsMajordome as bool?) == true)
-                            {
-                                _class = string.Empty;
-                            }
-                            <li id="MajordomeLink" class=@_class>
-                                <a href="#">Majordome</a>
-                                <ul class="dropdown rounded">
-                                    <li>@Html.ActionLink("Inventory", "Inventory", "Majordome")</li>
-                                    <li>@Html.ActionLink("Announcements", "Index", "Announcements")</li>
-                                    <li>@Html.ActionLink("Blogs", "Index", "Blogs")</li>
-                                    <li>@Html.ActionLink("Health", "Index", "Health")</li>
-                                </ul>
-                            </li>
-                        }
-                        <li>@Html.ActionLink("💲Get prequalified", "Application", "Home")</li>
-                        <li>@Html.ActionLink("Blog", "Blogs", "Blogs")</li>
-                        <li>
+
+                        <li class="mx-2">@Html.ActionLink("💲Get prequalified", "Application", "Home")</li>
+                        <li class="mx-2">@Html.ActionLink("Blog", "Blogs", "Blogs")</li>
+                        <li class="mx-2">
                             <a href="#">About us</a>
                             <ul class="dropdown rounded">
                                 <li>@Html.ActionLink("About us", "About", "Home")</li>
@@ -187,7 +191,7 @@
                                 <li>@Html.ActionLink("Testimonials", "Testimonials", "Home")</li>
                             </ul>
                         </li>
-                        <li id="fakeSearch" class="fake-input hand-pointer d-none d-xxl-inline-block w-25" data-bs-toggle="modal" data-bs-target="#filtersModal">
+                        <li id="fakeSearch" class="fake-input hand-pointer d-none d-xxl-inline-block w-25 mx-4" data-bs-toggle="modal" data-bs-target="#filtersModal">
                             @Html.Partial("_SearchByTerm")
                         </li>
                         <li class="d-xxl-none">
