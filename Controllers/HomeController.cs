@@ -24,6 +24,11 @@ namespace GTX.Controllers
             _announcementService = announcementService;
         }
 
+        [HttpGet]
+        public ActionResult LoginModal()
+        {
+            return PartialView("~/Views/Shared/_LoginModal.cshtml");
+        }
         public ActionResult Index() {
             // Check for Announcements
             var announcement = GetAnnouncement();

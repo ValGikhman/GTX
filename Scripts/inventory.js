@@ -53,18 +53,6 @@ function applyFilterTerm(term) {
         const cylinders = $(vehicle).data("cylinders") || "";
 
         if (filter.startsWith("@@")) {
-            if (filter === "@@ADMIN" || filter === "@@BOSS") {
-                $("#MajordomeLink").removeClass("d-none");
-                $.post(`${root}Majordome/ShowAdmin`)
-                    .done(function (response) {
-                        if (response.redirectUrl) { }
-                    })
-                    .fail(function (error) {
-                        console.error("Error setting admin:", error);
-                    });
-                return;
-            }
-
             // Hidden  features
             $("#filterTerm").addClass("text-info").addClass("border-info");
 
