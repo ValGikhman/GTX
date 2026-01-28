@@ -1,0 +1,69 @@
+﻿
+<div class="modal fade" id="announcementModal" data-bs-backdrop="static" data-bs-keyboard="false"
+     tabindex="-1" aria-labelledby="announcementModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header">
+                <h5 class="modal-title" id="announcementModalTitle">Announcement</h5>
+            </div>
+
+            <div class="modal-body" id="announcementModalBody">
+                <div class="text-muted">Loading...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(function () {
+    function openAnnouncementModal(url, title) {
+        $("#announcementModalTitle").text(title || "Announcement");
+        $("#announcementModalBody").html('<div class="text-muted">Loading...</div>');
+
+        $("#announcementModalBody").load(url, function (response, status, xhr) {
+            if (status === "error") {
+                $("#announcementModalBody").html(
+                    '<div class="alert alert-danger mb-0">Could not load form. ' +
+                    'Status: ' + xhr.status + '</div>'
+                );
+                return;
+            }
+
+            bootstrap.Modal.getOrCreateInstance(document.getElementById("announcementModal")).show();
+        });
+    }
+
+    // Click handler: any link with data-announcement-modal="true" opens modal
+    $(document).on("click", "a[data-announcement-modal='true']", function (e) {
+        e.preventDefault();
+        openAnnouncementModal($(this).attr("href"), $(this).data("title"));
+    });
+
+    // Submit handler: any form with data-announcement-ajax="true" posts via ajax
+    $(document).on("submit", "form[data-announcement-ajax='true']", function (e) {
+        e.preventDefault();
+
+        const $form = $(this);
+        const url = $form.attr("action");
+        const data = $form.serialize();
+
+        $.post(url, data)
+            .done(function (res) {
+                // success payload
+                if (res && res.ok === true) {
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById("announcementModal")).hide();
+                    refreshList();
+                    return;
+                }
+
+                // validation errors -> server returns partial html
+                $("#announcementModalBody").html(res);
+            })
+            .fail(function (xhr) {
+                $("#announcementModalBody").html(
+                    `<div class="alert alert-danger mb-0">Save failed. Status: ${xhr.status}</div>`
+                );
+            });
+    });
+});
+</script>

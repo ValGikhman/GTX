@@ -287,3 +287,33 @@ function setQrCode(vehicle) {
     $("#qrImg").attr("src", qrUrl);
     $("#qrText").html(`<div>${vehicle.Year} ${vehicle.Make} ${vehicle.Model} Stock# ${vehicle.Stock}</div>`);
 }
+
+function previewAnnouncementPopup(id) {
+    if (!id) return;
+
+    $(".toast-container").show();
+    $("#announcementPreviewHostPopup").html("<div class='alert alert-secondary shadow mb-0'>Loading preview...</div>");
+
+    $.get(root + "Announcements/PreviewAlert", { id: id })
+        .done(function (html) {
+            $("#announcementPreviewHostPopup").html(html);
+        })
+        .fail(function (xhr) {
+            $("#announcementPreviewHostPopup").html("<div class='alert alert-danger shadow mb-0'>Preview failed. Status: " + xhr.status + "</div>");
+        });
+}
+
+function previewAnnouncementBanner(id) {
+    if (!id) return;
+
+    $(".toast-container").hide();
+    $("#announcementPreviewHostBanner").html("<div class='alert alert-secondary shadow mb-0'>Loading preview...</div>");
+
+    $.get(root + "Announcements/PreviewAlert", { id: id })
+        .done(function (html) {
+            $("#announcementPreviewHostBanner").html(html);
+        })
+        .fail(function (xhr) {
+            $("#announcementPreviewHostBanner").html("<div class='alert alert-danger shadow mb-0'>Preview failed. Status: " + xhr.status + "</div>");
+        });
+}

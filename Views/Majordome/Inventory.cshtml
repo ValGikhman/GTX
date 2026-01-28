@@ -140,7 +140,6 @@
         </div>
     </div>
 </div>
-@Html.Partial("_BlogPostModal")
 
 <div class="this-container container-fluid px-5">
     <nav class="nav nav-tabs no-wrap-group" id="myTab" role="tablist">
@@ -169,10 +168,6 @@
         <button class="btn btn-gradient-grey text-shadow-small" id="EZ360-tab" data-bs-toggle="tab" data-bs-target="#tab-ez360" type="button" role="tab">
             EZ360 Vehicle info
         </button>
-        <button class="btn btn-gradient-grey text-shadow-small" id="blog-tab" data-bs-toggle="tab" data-bs-target="#tab-blog" type="button" role="tab">
-            Blogs
-        </button>
-
         <div id="specials" class="d-none d-lg-block d-flex ms-auto"></div>
     </nav>
 
@@ -275,11 +270,6 @@
 
         <!-- EZ360 info -->
         <div class="tab-pane fade" id="tab-ez360" role="tabpanel">
-        </div>
-
-        <!-- Blog -->
-        <div class="tab-pane fade py-1" id="tab-blog" role="tabpanel">
-            @{ Html.RenderPartial("_BlogPost", Model.Blogs); }
         </div>
     </div>
 </div>

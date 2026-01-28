@@ -134,6 +134,7 @@
         </div>
     </div>
     <!-- Offcanvas Menu End -->
+
     @{Html.RenderPartial("_SearchForm");}
 
     <!-- Header Section Begin -->
@@ -165,10 +166,18 @@
                             {
                                 _class = string.Empty;
                             }
-                            <li id="MajordomeLink" class=@_class>@Html.ActionLink("Majordome", "Inventory", "Majordome")</li>
+                            <li id="MajordomeLink" class=@_class>
+                                <a href="#">Majordome</a>
+                                <ul class="dropdown rounded">
+                                    <li>@Html.ActionLink("Inventory", "Inventory", "Majordome")</li>
+                                    <li>@Html.ActionLink("Announcements", "Index", "Announcements")</li>
+                                    <li>@Html.ActionLink("Blogs", "Index", "Blogs")</li>
+                                    <li>@Html.ActionLink("Health", "Index", "Health")</li>
+                                </ul>
+                            </li>
                         }
                         <li>@Html.ActionLink("💲Get prequalified", "Application", "Home")</li>
-                        <li>@Html.ActionLink("Blog", "Blogs", "BlogPosts")</li>
+                        <li>@Html.ActionLink("Blog", "Blogs", "Blogs")</li>
                         <li>
                             <a href="#">About us</a>
                             <ul class="dropdown rounded">
@@ -229,6 +238,7 @@
         }
     </header>
     <!-- Header Section End -->
+
     <!-- MAIN WRAPPER -->
     <div class="very-top d-flex flex-column flex-grow-1">
         <!-- Loading...  overlay -->
@@ -236,10 +246,20 @@
             <div class="spinner-border text-danger" role="status">
             </div>
         </div>
+
         <main class="body-content overflow-y-auto overflow-x-hidden flex-grow-1 min-h-0">
+            <!-- Announcement -->
+            <div class="toast-container position-fixed top-25 start-50 translate-middle-x p-3 pe-auto" style="z-index: 99999; top: 11rem;">
+                <div id="announcementPreviewHostPopup" class="pe-auto"></div>
+            </div>
+
+            <div id="announcementPreviewHostBanner" class="position-fixed start-50 translate-middle-x pe-auto w-100" style="z-index: 99999; top: 12rem;">
+            </div>
+
             @RenderBody()
         </main>
     </div>
+
     <!-- Footer Section Begin -->
     <footer class="footer-strip fixed-bottom btn-gradient-grey">
         <div class="row p-1 align-items-center small-text">
@@ -286,7 +306,6 @@
 
         </div>
     </footer>
-
     <!-- Footer Section End -->
 
     @Scripts.Render("~/scripts/jquery")
@@ -350,6 +369,5 @@
             bootstrap.Modal.getOrCreateInstance(modalEl).show();
         });
     }
-
 </script>
 

@@ -717,19 +717,6 @@ function deleteOverlayData() {
         })
 }
 
-function refreshList() {
-    const term = $("#bpSearch").val() || "";
-    const mode = $("#bpPublishedFilter").val() || "all";
-    const listContainerSelector = "#tab-blog";
-
-    $(listContainerSelector).load(`${root}BlogPosts/List`, function () {
-        $("#bpSearch").val(term);
-        $("#bpPublishedFilter").val(mode).trigger("change");
-        $("#bpSearch").trigger("input");
-
-    });
-}
-
 function saveOverlayData() {
     showSpinner($("#inventoryOverlay"));
     const overlay = $("#overlay");

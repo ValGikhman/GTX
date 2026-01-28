@@ -7,7 +7,7 @@
         { "data-blog-ajax", "true" }
     };
 }
-@using (Html.BeginForm(action, "BlogPosts", FormMethod.Post, htmlAttrs))
+@using (Html.BeginForm(action, "Blogs", FormMethod.Post, htmlAttrs))
 {
     @Html.HiddenFor(m => m.Id)
     @Html.HiddenFor(m => m.CreatedAt)
