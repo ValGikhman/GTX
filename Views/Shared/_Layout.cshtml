@@ -194,7 +194,7 @@
                                 <li>@Html.ActionLink("Testimonials", "Testimonials", "Home")</li>
                             </ul>
                         </li>
-                        <li id="fakeSearch" class="fake-input hand-pointer d-none d-xxl-inline-block w-25 mx-4" data-bs-toggle="modal" data-bs-target="#filtersModal">
+                        <li id="fakeSearch" class="fake-input hand-pointer d-none d-xxl-inline-block w-35 mx-4" data-bs-toggle="modal" data-bs-target="#filtersModal">
                             @Html.Partial("_SearchByTerm")
                         </li>
                         <li class="d-xxl-none">
@@ -312,7 +312,17 @@
                             Terms and Conditions of Use
                         </a>
                     </span>
+                </div>
+            </div>
 
+            <!-- RIGHT: Status Circle -->
+            <div class="col-auto d-flex align-items-center d-none">
+                <div class="form-check form-switch mt-2">
+                    <input class="form-check-input" type="checkbox" role="switch"
+                           id="themeSwitch" aria-label="Toggle dark theme">
+                    <label class="form-check-label small" for="themeSwitch" id="themeLabel">
+                        Dark
+                    </label>
                 </div>
             </div>
 
@@ -330,10 +340,7 @@
         </div>
         <div class="offcanvas-body text-black-50">
             <div class="offcanvas-body text-center">
-                <p class="fs-5 fw-semibold text-muted">
-                    For any questions<i class="bi bi-question-circle mx-1"></i>
-                    please <i class="bi bi-phone-vibrate mx-1"></i> call
-                </p>
+                <p class="fs-5 fw-semibold text-muted">For any questions<i class="bi bi-question-circle mx-1"></i>please <i class="bi bi-phone-vibrate mx-1"></i> call</p>
 
                 <p class="fs-4 fw-bold text-muted">
                     Valentin Gikhman
@@ -349,6 +356,38 @@
 </html>
 
 <script>
+    (() => {
+        const STORAGE_KEY = "gtx-theme"; // "dark" or "light"
+        const body = document.body;
+        const sw = document.getElementById("themeSwitch");
+        const label = document.getElementById("themeLabel");
+
+        if (!sw) return;
+
+        function apply(theme) {
+            const isDark = theme === "dark";
+            body.classList.toggle("dark", isDark);
+            sw.checked = isDark;
+            if (label) label.textContent = isDark ? "Dark" : "Light";
+        }
+
+        // initial: saved -> else (optional) system preference -> else light
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved === "dark" || saved === "light") {
+            apply(saved);
+        } else {
+            // optional: respect OS preference on first visit
+            const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+            apply(prefersDark ? "dark" : "light");
+        }
+
+        sw.addEventListener("change", () => {
+            const next = sw.checked ? "dark" : "light";
+            localStorage.setItem(STORAGE_KEY, next);
+            apply(next);
+        });
+    })();
+
     window.gtx = window.gtx || {};
     window.gtx.currentRole = '@(ViewBag.CurrentRole ?? "")';
     setMajordomeMenu(window.gtx.currentRole);

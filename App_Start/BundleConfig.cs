@@ -35,6 +35,7 @@ namespace GTX {
                       "~/Content/owl.carousel.min.css",
                       "~/Content/slicknav.min.css",
                       "~/Content/Site.css",
+                      //"~/Content/Dark.css",
                       "~/Scripts/chosen/chosen.min.css"
                 ));
         }

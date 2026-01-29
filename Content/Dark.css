@@ -1,0 +1,53 @@
+﻿/* =========================================================
+   SiteDark.css (GRADIENT-ONLY OVERRIDES)
+   Load AFTER Site.css.
+   Enable by adding: <body class="dark">
+   Only changes your “blue” areas/buttons to grey gradients.
+   ========================================================= */
+
+body.dark {
+    /* grey gradient (light -> dark) + reverse */
+    --gtx-grad: linear-gradient(180deg, #b9b9b9, #2a2a2a);
+    --gtx-grad-rev: linear-gradient(0deg, #b9b9b9, #2a2a2a);
+}
+
+    /* Replace your blue gradient areas with grey gradient */
+    body.dark .menu-strip,
+    body.dark .page-title,
+    body.dark .modal-header,
+    body.dark .small-offcanvas,
+    body.dark .gradient {
+        background: var(--gtx-grad) !important;
+        color: #fff !important;
+    }
+
+    /* Buttons that used your blue gradient */
+    body.dark .btn-gradient,
+    body.dark .btn-big-gradient,
+    body.dark .btn-gradient-grey {
+        background: var(--gtx-grad) !important;
+        color: #fff !important;
+        border-color: rgba(0,0,0,.35) !important;
+    }
+
+        body.dark .btn-gradient:hover,
+        body.dark .btn-big-gradient:hover,
+        body.dark .btn-gradient-grey:hover {
+            background: var(--gtx-grad-rev) !important;
+            color: #fff !important;
+        }
+
+    /* Header dropdown background (your blue dropdown) */
+    body.dark .header__menu ul li .dropdown {
+        background: var(--gtx-grad) !important;
+    }
+
+    /* Keep menu links readable on gradient */
+    body.dark .header__menu ul li a {
+        color: #fff !important;
+        text-shadow: none !important;
+    }
+
+        body.dark .header__menu ul li a:after {
+            background: #fff !important;
+        }
