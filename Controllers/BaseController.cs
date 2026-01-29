@@ -92,7 +92,6 @@ namespace GTX.Controllers
                 Model.Passwords = AppCache.GetOrCreate(Constants.PASSWORDS_CACHE, () => GetPasswords(), minutes: 60);
 
                 var roleStr = AppCache.GetOrCreate(Constants.ROLE_CACHE, () => CommonUnit.Roles.User.ToString(),  minutes: 60);
-                //Model.CurrentRole = Enum.TryParse(roleStr, ignoreCase: true, out CommonUnit.Roles role)  ? role : CommonUnit.Roles.User;
 
                 var published = Model.Inventory?.Published ?? DateTime.Now;
                 ViewBag.Published = Model.IsDevelopment ? published : published.AddHours(-5);
@@ -141,12 +140,7 @@ namespace GTX.Controllers
 
             if (Enum.TryParse<CommonUnit.Roles>(expected.Role, ignoreCase: true, out var role))
             {
-                //Model.CurrentRole = role;
                 currentRole = role;
-            }
-            else
-            {
-                //Model.CurrentRole = CommonUnit.Roles.User;
             }
 
             AppCache.Remove(Constants.ROLE_CACHE);

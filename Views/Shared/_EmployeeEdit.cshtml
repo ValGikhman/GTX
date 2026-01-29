@@ -9,10 +9,10 @@
         { "enctype", "multipart/form-data" }
     };
 
-    var previewSrc = !string.IsNullOrWhiteSpace(Model?.PhotoPath) ? Model.PhotoPath: "/images/placeholder-person.png";
-}
+    var previewSrc = !string.IsNullOrWhiteSpace(Model?.PhotoPath) ? Model.PhotoPath : "/GTXImages/staff/empty.jpg";
+    }
 
-@using (Html.BeginForm(action, "Employees", FormMethod.Post, htmlAttrs))
+    @using (Html.BeginForm(action, "Employees", FormMethod.Post, htmlAttrs))
 {
     @Html.HiddenFor(m => m.Id)
 
@@ -22,12 +22,9 @@
             <div class="shadow-sm rounded-4 h-100 overflow-hidden p-3">
                 <div class="card-header bg-white border-0">
                     <div class="d-flex align-items-center justify-content-between">
-                        <div class="fw-semibold">
+                        <div class="fw-semibold text-shadow-small">
                             <i class="bi bi-image me-2"></i>Employee Photo
                         </div>
-                        <span class="badge rounded-pill bg-light text-dark border">
-                            Optional
-                        </span>
                     </div>
                 </div>
 
@@ -37,20 +34,10 @@
                     </div>
 
                     <div class="mt-3">
-                        <label class="form-label fw-semibold">
+                        <label class="form-label fw-semibold text-shadow-small">
                             <i class="bi bi-upload me-1"></i>Upload from computer
                         </label>
                         <input id="PhotoFile" name="PhotoFile" type="file" class="form-control shadow-sm" accept="image/*" />
-                    </div>
-
-                    <div class="mt-3">
-                        <label class="form-label fw-semibold">
-                            <i class="bi bi-link-45deg me-1"></i>Or paste Photo URL
-                        </label>
-                        <div class="input-group shadow-sm">
-                            <span class="input-group-text bg-white"><i class="bi bi-globe"></i></span>
-                            @Html.TextBoxFor(m => m.PhotoPath, new { @class = "form-control", type = "text", id = "PhotoUrl", placeholder = "https://example.com/photo.jpg" })
-                        </div>
                     </div>
                 </div>
             </div>
@@ -61,13 +48,13 @@
             <div class="shadow-sm rounded-4 h-100">
                 <div class="card-header bg-white border-0 p-3">
                     <div class="d-flex align-items-center justify-content-between">
-                        <div class="fw-semibold">
+                        <div class="fw-semibold text-shadow-small">
                             <i class="bi bi-person-badge me-2"></i>@(isEdit ? "Edit Employee" : "New Employee")
                         </div>
 
                         <div class="form-check form-switch m-0">
                             @Html.CheckBoxFor(m => m.Active, new { @class = "form-check-input", id = "Active" })
-                            <label class="form-check-label fw-semibold ms-1" for="Active">
+                            <label class="form-check-label fw-semibold ms-1 text-shadow-small" for="Active">
                                 Active
                             </label>
                         </div>
@@ -77,25 +64,25 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold"><i class="bi bi-person me-1"></i>First Name</label>
+                            <label class="form-label fw-semibold text-shadow-small"><i class="bi bi-person me-1"></i>First Name</label>
                             @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control shadow-sm", maxlength = "50", placeholder = "First name..." })
                             @Html.ValidationMessageFor(m => m.FirstName, "", new { @class = "text-danger small" })
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold"><i class="bi bi-person me-1"></i>Last Name</label>
+                            <label class="form-label fw-semibold text-shadow-small"><i class="bi bi-person me-1"></i>Last Name</label>
                             @Html.TextBoxFor(m => m.LastName, new { @class = "form-control shadow-sm", maxlength = "50", placeholder = "Last name..." })
                             @Html.ValidationMessageFor(m => m.LastName, "", new { @class = "text-danger small" })
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label fw-semibold"><i class="bi bi-briefcase me-1"></i>Position</label>
+                            <label class="form-label fw-semibold text-shadow-small"><i class="bi bi-briefcase me-1"></i>Position</label>
                             @Html.TextBoxFor(m => m.Position, new { @class = "form-control shadow-sm", maxlength = "50", placeholder = "e.g., Sales Manager..." })
                             @Html.ValidationMessageFor(m => m.Position, "", new { @class = "text-danger small" })
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label fw-semibold"><i class="bi bi-telephone me-1"></i>Phone</label>
+                            <label class="form-label fw-semibold text-shadow-small"><i class="bi bi-telephone me-1"></i>Phone</label>
                             <div class="input-group shadow-sm">
                                 <span class="input-group-text bg-white"><i class="bi bi-phone"></i></span>
                                 @Html.TextBoxFor(m => m.Phone, new { @class = "form-control", maxlength = "10", placeholder = "10 digits..." })
@@ -104,7 +91,7 @@
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label fw-semibold"><i class="bi bi-envelope me-1"></i>Email</label>
+                            <label class="form-label fw-semibold text-shadow-small"><i class="bi bi-envelope me-1"></i>Email</label>
                             <div class="input-group shadow-sm">
                                 <span class="input-group-text bg-white"><i class="bi bi-at"></i></span>
                                 @Html.TextBoxFor(m => m.Email, new { @class = "form-control", maxlength = "50", type = "email", placeholder = "name@company.com" })
@@ -123,10 +110,10 @@
 
     <!-- FOOTER: buttons -->
     <div class="card-footer bg-white border-0 d-flex justify-content-end gap-2 py-3">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+        <button type="button" class="btn btn-outline-secondary shadow" data-bs-dismiss="modal">
             <i class="bi bi-x-lg me-1"></i>Cancel
         </button>
-        <button type="submit" class="btn btn-primary">
+        <button type="submit" class="btn btn-primary shadow">
             <i class="bi bi-check2-circle me-1"></i>@(isEdit ? "Save" : "Create")
         </button>
     </div>
@@ -141,7 +128,6 @@
         if (!$form.length) return;
 
         const $file = $form.find("#PhotoFile");
-        const $url = $form.find("#PhotoUrl");
         const $img = $form.find("#photoPreview");
 
         function setPreview(src) {
@@ -175,16 +161,6 @@
             $img.one("load", function () {
                 try { URL.revokeObjectURL(blobUrl); } catch (e) { }
             });
-
-            // If user picked a file, clear URL field so it's unambiguous
-            $url.val('');
-        });
-
-        // URL -> preview
-        $url.off("input.emp change.emp paste.emp").on("input.emp change.emp paste.emp", function () {
-            const src = (this.value || "").trim();
-            if (!src) { setPreview(""); return; }
-            setPreview(src + (src.indexOf("?") >= 0 ? "&" : "?") + "_=" + Date.now());
         });
 
         // Initial render (edit mode)
