@@ -50,13 +50,12 @@ public static class SitemapWriter
             var make = (string)v.Element("Make") ?? string.Empty;
             var model = (string)v.Element("Model") ?? string.Empty;
             var vehicleStyle = (string)v.Element("VehicleStyle") ?? string.Empty;
+            var setToUpload = (string)v.Element("SetToUpload") ?? string.Empty;
 
             if (string.IsNullOrWhiteSpace(stock)) continue;
+            if (setToUpload == "N") continue;
 
-            //var loc = $"{BaseUrl}/Inventory/Details?stock={Uri.EscapeDataString(stock)}";
-            //var loc = $"{BaseUrl}/Inventory/{string.Join("-", new[] { year, make, model, vehicleStyle, stock }.Where(s => !string.IsNullOrWhiteSpace(s)))}";
             var loc = $"{BaseUrl}/Inventory/{Regex.Replace(string.Join("-", new[] { year, make, model, vehicleStyle, stock }.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim())), @"-+", "-").Trim('-')}";
-
 
             urlset.Add(Url(ns, loc, lastmod, "daily", "0.9"));
         }
