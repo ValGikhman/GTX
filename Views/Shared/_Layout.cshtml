@@ -348,6 +348,10 @@
 </html>
 
 <script>
+    window.gtx = window.gtx || {};
+    window.gtx.currentRole = '@(ViewBag.CurrentRole ?? "")';
+    console.log("CurrentRole:", "@ViewBag.CurrentRole");
+
     var cookieLike = 'likedCars';
     var likedCars = [];
     loadLikedCars();

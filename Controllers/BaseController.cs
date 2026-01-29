@@ -93,8 +93,7 @@ namespace GTX.Controllers
                 Model.Filters = AppCache.GetOrCreate(Constants.FILTERS_CACHE, () => BuildFilters(Model.Inventory), minutes: 60);
                 Model.Categories = AppCache.GetOrCreate(Constants.CATEGORIES_CACHE, () => GetCategories(), minutes: 60);
                 Model.Passwords = AppCache.GetOrCreate(Constants.PASSWORDS_CACHE, () => GetPasswords(), minutes: 60);
-
-                var roleStr = AppCache.GetOrCreate(Constants.ROLE_CACHE, () => CommonUnit.Roles.User.ToString(),  minutes: 60);
+                ViewBag.CurrentRole = AppCache.GetOrCreate(Constants.ROLE_CACHE, () => CommonUnit.Roles.User.ToString(), minutes: 60); ;
 
                 var published = Model.Inventory?.Published ?? DateTime.Now;
                 ViewBag.Published = Model.IsDevelopment ? published : published.AddHours(-5);

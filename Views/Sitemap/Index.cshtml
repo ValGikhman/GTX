@@ -5,222 +5,236 @@
 }
 
 <style>
-    /* Make sticky table header work nicely inside scroll area */
-    .card {
-        width: 100%!important;
+    .body-content {
+        height: auto!important;
     }
-    .sitemap-scroll {
-        max-height: 62vh;
-        overflow: auto;
+    /* Set a height for the whole "card" so it can scroll internally.
+       Option A (recommended): clamp to viewport height. */
+    .sitemap-shell {
+        height: calc(100vh - 160px); /* adjust to your layout (top nav / margins) */
+        min-height: 520px;
     }
 
-    .sitemap-table thead th {
+    /* Make header sticky within the scrolling container */
+    .sitemap-header {
         position: sticky;
         top: 0;
+        z-index: 10;
+        /* a subtle divider when scrolling */
+        box-shadow: 0 1px 0 rgba(0,0,0,.06);
+    }
+
+    /* Scroll only the body */
+    .sitemap-body {
+        flex: 1 1 auto;
+        overflow-y: auto;
+        overflow-x: hidden;
+        /* keeps scroll anchored nicely below sticky header */
+        scroll-behavior: smooth;
+    }
+
+    /* Optional: keep thead visible while body scrolls */
+    .sitemap-table thead th {
+        position: sticky;
+        top: 0; /* inside the body scroll area */
         z-index: 2;
     }
 
-    .url-mono {
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-        font-size: .9rem;
-    }
-
-    .row-hover-soft tbody tr:hover {
-        background: rgba(13,110,253,.06); /* subtle bootstrap primary tint */
+    /* Optional: footer always visible at bottom of shell */
+    .sitemap-footer {
+        flex: 0 0 auto;
+        border-top: 1px solid rgba(0,0,0,.06);
     }
 </style>
 
-<div class="m-5">
-    <!-- Center + clamp width (ultimate "admin panel" feel) -->
-    <div class="mx-auto">
+<div class="mx-auto">
+    <!-- Main container (flex column so header/footer stay put, body scrolls) -->
+    <div class="border-0 shadow-lg rounded-4 overflow-hidden d-flex flex-column sitemap-shell">
 
-        <!-- Main Card -->
-        <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-
-            <!-- Header -->
-            <div class="card-header bg-white border-0 p-4">
-                <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="rounded-4 d-flex align-items-center justify-content-center shadow-sm border"
-                             style="width:52px; height:52px;">
-                            <i class="bi bi-diagram-3 fs-3 text-primary"></i>
-                        </div>
-
-                        <div>
-                            <h3 class="mb-1 fw-semibold">Sitemap Viewer</h3>
-                            <div class="text-muted small">
-                                <span class="me-2"><i class="bi bi-filetype-xml me-1"></i> <code class="text-muted">@Model.SourcePath</code></span>
-                                <span class="me-2"><i class="bi bi-clock-history me-1"></i> @Model.GeneratedUtc.ToString("yyyy-MM-dd HH:mm:ss") UTC</span>
-                            </div>
-                        </div>
+        <!-- Header (sticky / fixed within this container) -->
+        <div class="card-header bg-white border-0 p-4 sitemap-header">
+            <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-4 d-flex align-items-center justify-content-center shadow-sm border"
+                            style="width:52px; height:52px;">
+                        <i class="bi bi-diagram-3 fs-3 text-primary"></i>
                     </div>
 
-                    <!-- Stats -->
-                    <div class="d-flex align-items-center gap-2 flex-wrap">
-                        <span class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle px-3 py-2">
-                            <i class="bi bi-link-45deg me-1"></i> @Model.TotalCount URLs
-                        </span>
-                        <span class="badge rounded-pill bg-light text-dark border px-3 py-2">
-                            <i class="bi bi-collection me-1"></i> @Model.Groups.Count Groups
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Search Row -->
-                <div class="mt-4">
-                    <div class="row g-2 align-items-center">
-                        <div class="col-12 col-md-8">
-                            <div class="input-group input-group-lg shadow-sm rounded-4 overflow-hidden">
-                                <span class="input-group-text bg-white border-0">
-                                    <i class="bi bi-search text-muted"></i>
-                                </span>
-                                <input id="smSearch"
-                                       class="form-control border-0"
-                                       placeholder="Search URLs (type make/model/stock/route...)"
-                                       autocomplete="off" />
-                                <button class="btn btn-outline-secondary border-0" type="button" id="smClear" title="Clear">
-                                    <i class="bi bi-x-lg"></i>
-                                </button>
-                            </div>
-                            <div class="form-text mt-2">
-                                Tip: search works across all groups and will hide groups with zero matches.
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-md-4 text-md-end">
-                            <span id="smVisibleCount"
-                                  class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-2">
-                                Showing: <span id="smCountNum">@Model.TotalCount</span>
+                    <div>
+                        <h3 class="mb-1 fw-semibold">Sitemap Viewer</h3>
+                        <div class="text-muted small">
+                            <span class="me-2">
+                                <i class="bi bi-filetype-xml me-1"></i>
+                                <code class="text-muted">@Model.SourcePath</code>
+                            </span>
+                            <span class="me-2">
+                                <i class="bi bi-clock-history me-1"></i>
+                                @Model.GeneratedUtc.ToString("yyyy-MM-dd HH:mm:ss") UTC
                             </span>
                         </div>
                     </div>
                 </div>
+
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <span class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle px-3 py-2">
+                        <i class="bi bi-link-45deg me-1"></i> @Model.TotalCount URLs
+                    </span>
+                    <span class="badge rounded-pill bg-light text-dark border px-3 py-2">
+                        <i class="bi bi-collection me-1"></i> @Model.Groups.Count Groups
+                    </span>
+                </div>
             </div>
 
-            <!-- Body -->
-            <div class="card-body p-0">
-                <div class="accordion" id="sitemapAccordion">
-                    @for (int i = 0; i < Model.Groups.Count; i++)
-                    {
-                        var g = Model.Groups[i];
-                        var headingId = "smHeading_" + g.Key;
-                        var collapseId = "smCollapse_" + g.Key;
-                        var expanded = (i == 0) ? "true" : "false";
-                        var show = (i == 0) ? "show" : "";
+            <!-- Search Row -->
+            <div class="mt-4">
+                <div class="row g-2 align-items-center">
+                    <div class="col-12 col-md-8">
+                        <div class="input-group input-group-lg shadow-sm rounded-4 overflow-hidden">
+                            <span class="input-group-text bg-white border-0">
+                                <i class="bi bi-search text-muted"></i>
+                            </span>
+                            <input id="smSearch"
+                                    class="form-control border-0"
+                                    placeholder="Search URLs (type make/model/stock/route...)"
+                                    autocomplete="off" />
+                            <button class="btn btn-outline-secondary border-0" type="button" id="smClear" title="Clear">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                        <div class="form-text mt-2">
+                            Tip: search works across all groups and will hide groups with zero matches.
+                        </div>
+                    </div>
 
-                        <div class="accordion-item border-0 border-top">
-                            <h2 class="accordion-header" id="@headingId">
-                                <button class="accordion-button @(i == 0 ? "" : "collapsed") px-4 py-3"
-                                        type="button"
-                                        data-bs-toggle="collapse"
-                                        data-bs-target="#@collapseId"
-                                        aria-expanded="@expanded"
-                                        aria-controls="@collapseId">
-                                    <div class="d-flex align-items-center justify-content-between w-100 pe-2">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <i class="bi bi-folder2-open text-primary"></i>
-                                            <span class="fw-semibold">@g.Title</span>
-                                        </div>
-                                        <span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary-subtle">
-                                            @g.Items.Count
-                                        </span>
+                    <div class="col-12 col-md-4 text-md-end">
+                        <span id="smVisibleCount"
+                                class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-2">
+                            Showing: <span id="smCountNum">@Model.TotalCount</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Body (scrollable) -->
+        <div class="card-body p-0 sitemap-body">
+            <div class="accordion" id="sitemapAccordion">
+                @for (int i = 0; i < Model.Groups.Count; i++)
+                {
+                    var g = Model.Groups[i];
+                    var headingId = "smHeading_" + g.Key;
+                    var collapseId = "smCollapse_" + g.Key;
+                    var expanded = (i == 0) ? "true" : "false";
+                    var show = (i == 0) ? "show" : "";
+
+                    <div class="accordion-item border-0 border-top">
+                        <h2 class="accordion-header" id="@headingId">
+                            <button class="accordion-button @(i == 0 ? "" : "collapsed") px-4 py-3"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#@collapseId"
+                                    aria-expanded="@expanded"
+                                    aria-controls="@collapseId">
+                                <div class="d-flex align-items-center justify-content-between w-100 pe-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="bi bi-folder2-open text-primary"></i>
+                                        <span class="fw-semibold">@g.Title</span>
                                     </div>
-                                </button>
-                            </h2>
-
-                            <div id="@collapseId"
-                                 class="accordion-collapse collapse @show"
-                                 aria-labelledby="@headingId"
-                                 data-bs-parent="#sitemapAccordion">
-                                <div class="accordion-body p-0">
-
-                                    <div class="sitemap-scroll">
-                                        <table class="table table-hover align-middle mb-0 sitemap-table row-hover-soft">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th class="px-4" style="min-width:520px;">URL</th>
-                                                    <th style="width:180px;">Last Modified</th>
-                                                    <th style="width:120px;">Freq</th>
-                                                    <th style="width:120px;">Priority</th>
-                                                </tr>
-                                            </thead>
-
-                                            <tbody>
-                                                @foreach (var u in g.Items)
-                                                {
-                                                    <tr class="sm-row">
-                                                        <td class="px-4 sm-loc">
-                                                            <div class="d-flex align-items-center justify-content-between gap-2">
-                                                                <a href="@u.Loc"
-                                                                   target="_blank"
-                                                                   rel="noopener"
-                                                                   class="text-decoration-none url-mono text-primary">
-                                                                    @u.Loc
-                                                                </a>
-
-                                                                <!-- Optional: copy button (feels pro) -->
-                                                                <button type="button"
-                                                                        class="btn btn-sm btn-outline-secondary border-0"
-                                                                        title="Copy URL"
-                                                                        onclick="navigator.clipboard && navigator.clipboard.writeText('@u.Loc')">
-                                                                    <i class="bi bi-clipboard"></i>
-                                                                </button>
-                                                            </div>
-                                                        </td>
-
-                                                        <td class="text-muted small">
-                                                            @(u.LastMod.HasValue ? u.LastMod.Value.ToString("yyyy-MM-dd HH:mm") + "Z" : "-")
-                                                        </td>
-
-                                                        <td>
-                                                            @if (!string.IsNullOrWhiteSpace(u.ChangeFreq))
-                                                            {
-                                                                <span class="badge bg-light text-dark border">
-                                                                    <i class="bi bi-arrow-repeat me-1 text-muted"></i>@u.ChangeFreq
-                                                                </span>
-                                                            }
-                                                            else
-                                                            { <span class="text-muted small">-</span>}
-                                                        </td>
-
-                                                        <td>
-                                                            @if (u.Priority.HasValue)
-                                                            {
-                                                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
-                                                                    <i class="bi bi-graph-up-arrow me-1"></i>
-                                                                    @u.Priority.Value.ToString("0.##")
-                                                                </span>
-                                                            }
-                                                            else
-                                                            { <span class="text-muted small">-</span>}
-                                                        </td>
-                                                    </tr>
-                                                }
-                                            </tbody>
-                                        </table>
-                                    </div>
-
+                                    <span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary-subtle">
+                                        @g.Items.Count
+                                    </span>
                                 </div>
+                            </button>
+                        </h2>
+
+                        <div id="@collapseId"
+                                class="accordion-collapse collapse @show"
+                                aria-labelledby="@headingId">
+                            <div class="accordion-body p-0">
+
+                                <table class="table table-hover align-middle mb-0 sitemap-table row-hover-soft">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="px-4" style="min-width:520px;">URL</th>
+                                            <th style="width:180px;">Last Modified</th>
+                                            <th style="width:120px;">Freq</th>
+                                            <th style="width:120px;">Priority</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        @foreach (var u in g.Items)
+                                        {
+                                            <tr class="sm-row">
+                                                <td class="px-4 sm-loc">
+                                                    <div class="d-flex align-items-center justify-content-between gap-2">
+                                                        <a href="@u.Loc"
+                                                            target="_blank"
+                                                            rel="noopener"
+                                                            class="text-decoration-none url-mono text-primary">
+                                                            @u.Loc
+                                                        </a>
+
+                                                        <button type="button"
+                                                                class="btn btn-sm btn-outline-secondary border-0"
+                                                                title="Copy URL"
+                                                                onclick="navigator.clipboard && navigator.clipboard.writeText('@u.Loc')">
+                                                            <i class="bi bi-clipboard"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+
+                                                <td class="text-muted small">
+                                                    @(u.LastMod.HasValue ? u.LastMod.Value.ToString("yyyy-MM-dd HH:mm") + "Z" : "-")
+                                                </td>
+
+                                                <td>
+                                                    @if (!string.IsNullOrWhiteSpace(u.ChangeFreq))
+                                                    {
+                                                        <span class="badge bg-light text-dark border">
+                                                            <i class="bi bi-arrow-repeat me-1 text-muted"></i>@u.ChangeFreq
+                                                        </span>
+                                                    }
+                                                    else
+                                                    { <span class="text-muted small">-</span>}
+                                                </td>
+
+                                                <td>
+                                                    @if (u.Priority.HasValue)
+                                                    {
+                                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                                            <i class="bi bi-graph-up-arrow me-1"></i>
+                                                            @u.Priority.Value.ToString("0.##")
+                                                        </span>
+                                                    }
+                                                    else
+                                                    { <span class="text-muted small">-</span>}
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+
                             </div>
                         </div>
-                    }
-                </div>
+                    </div>
+                }
             </div>
-
-            <!-- Footer -->
-            <div class="card-footer bg-white border-0 p-3 px-4 text-muted small d-flex align-items-center justify-content-between flex-wrap gap-2">
-                <div>
-                    <i class="bi bi-info-circle me-1"></i>
-                    This is a read-only viewer for <code class="text-muted">@Model.SourcePath</code>.
-                </div>
-                <div>
-                    <a class="text-decoration-none" href="@Url.Content("~/sitemap.xml")" target="_blank" rel="noopener">
-                        Open raw sitemap <i class="bi bi-box-arrow-up-right ms-1"></i>
-                    </a>
-                </div>
-            </div>
-
         </div>
+
+        <!-- Footer (stays visible) -->
+        <div class="card-footer bg-white border-0 p-3 px-4 text-muted small d-flex align-items-center justify-content-between flex-wrap gap-2 sitemap-footer">
+            <div>
+                <i class="bi bi-info-circle me-1"></i>
+                This is a read-only viewer for <code class="text-muted">@Model.SourcePath</code>.
+            </div>
+            <div>
+                <a class="text-decoration-none" href="@Url.Content("~/sitemap.xml")" target="_blank" rel="noopener">
+                    Open raw sitemap <i class="bi bi-box-arrow-up-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+
     </div>
 </div>
 

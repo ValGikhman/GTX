@@ -1,9 +1,8 @@
 ﻿'use strict';
 
 (function ($) {
-    /*------------------
-        Preloader
-    --------------------*/
+    const currentRole = window.gtx?.currentRole || "";
+
     $(document).on("click", ".card.V, #btnPrev, #btnNext", function (e) {
         showSpinner("#loadingOverlay");
     });
@@ -101,6 +100,15 @@
     let charIndex = 0;
     let charFilterIndex = 0;
 
+    window.addEventListener("scroll", function () {
+        var filter = document.getElementById("filter-container");
+        if (window.scrollY > 100) {
+            filter.classList.add("fixed-top");
+        } else {
+            filter.classList.remove("fixed-top");
+        }
+    });
+
     function typePlaceholder() {
         const fullText = placeholders[currentIndex];
 
@@ -137,18 +145,60 @@
         }
     }
 
-    window.addEventListener("scroll", function () {
-        var filter = document.getElementById("filter-container");
-        if (window.scrollY > 100) {
-            filter.classList.add("fixed-top");
-        } else {
-            filter.classList.remove("fixed-top");
-        }
-    });
-
     typePlaceholder();
     typeFilterPlaceholder();
+    setMajordomeMenu(currentRole);
 })(jQuery);
+
+
+
+function setMajordomeMenu(role) {
+    switch (role.toLowerCase()) {
+        case "tech":
+            $("#menuInventory").show();
+            $("#menuAnnouncements").hide();
+            $("#menuBlogs").hide();
+            $("#menuEmployees").hide();
+            $("#menuHealth").hide();
+            $("#menuSitemap").show();
+            break;
+
+        case "owner":
+            $("#menuInventory").show();
+            $("#menuAnnouncements").show();
+            $("#menuBlogs").show();
+            $("#menuEmployees").show();
+            $("#menuHealth").show();
+            $("#menuSitemap").show();
+            break;
+
+        case "sales":
+            $("#menuInventory").show();
+            $("#menuAnnouncements").hide();
+            $("#menuBlogs").hide();
+            $("#menuEmployees").hide();
+            $("#menuHealth").hide();
+            $("#menuSitemap").show();
+            break;
+
+        case "manager":
+            $("#menuInventory").show();
+            $("#menuAnnouncements").show();
+            $("#menuBlogs").show();
+            $("#menuEmployees").hide();
+            $("#menuHealth").hide();
+            $("#menuSitemap").show();
+            break;
+
+        default:
+            $("#menuInventory").hide();
+            $("#menuAnnouncements").hide();
+            $("#menuBlogs").hide();
+            $("#menuEmployees").hide();
+            $("#menuHealth").hide();
+            $("#menuSitemap").hide();
+            break;
+    }}
 
 function loadLikedCars() {
     var cookieValue = Cookies.get(cookieLike);
@@ -214,7 +264,6 @@ function playBeep() {
     oscillator.start();
     oscillator.stop(ctx.currentTime + 0.01); // Beep duration: 0.1 second
 }
-
 
 function showSpinner(object) {
     $(object).removeClass("spinner-hidden");
