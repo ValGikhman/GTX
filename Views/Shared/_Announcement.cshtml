@@ -1,171 +1,184 @@
 ﻿@model List<GTX.Models.AnnouncementModel>
+<link href="~/Content/majordome.css" rel="stylesheet" />
 
-<div class="card-header bg-white p-3 m-3 rounded-3 shadow">
-    <h4 class="py-3">Announcement management</h4>
-    <div class="d-flex align-items-center justify-content-between flex-nowrap">
-        <!-- Search (left) -->
-        <div class="input-group flex-grow-1" style="max-width: 520px;">
-            <span class="input-group-text bg-white">
-                <i class="bi bi-search"></i>
-            </span>
-            <input id="anSearch" type="text" class="form-control" placeholder="Search title / message..." />
-        </div>
+<div class="shadow rounded-4 overflow-hidden">
 
-        <!-- Filter + New (right) -->
-        <div class="d-flex align-items-center gap-2 flex-shrink-0">
-            <select id="anFilter" class="form-select" style="width: 170px;">
-                <option value="all" selected>All</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-            </select>
+    <!-- FIXED HEADER -->
+    <div class="card-header bg-white p-3 border-0 sticky-top" style="z-index: 1020;">
+        <h4 class="py-3 mb-0">Announcement management</h4>
 
-            <a id="newAnnouncement"
-               class="btn btn-primary"
-               data-announcement-modal="true"
-               data-title="New Announcement"
-               href="@Url.Action("Create", "Announcements")">
-                <i class="bi bi-plus-lg me-1"></i> New
-            </a>
+        <div class="d-flex align-items-center justify-content-between flex-nowrap gap-3">
+            <!-- Search (left) -->
+            <div class="input-group flex-grow-1" style="max-width: 520px;">
+                <span class="input-group-text bg-white">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input id="anSearch" type="text" class="form-control" placeholder="Search title / message..." />
+            </div>
+
+            <!-- Filter + New (right) -->
+            <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                <select id="anFilter" class="form-select" style="width: 170px;">
+                    <option value="all" selected>All</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+
+                <a id="newAnnouncement"
+                   class="btn btn-primary"
+                   data-announcement-modal="true"
+                   data-title="New Announcement"
+                   href="@Url.Action("Create", "Announcements")">
+                    <i class="bi bi-plus-lg me-1"></i> New
+                </a>
+            </div>
         </div>
     </div>
-</div>
 
-<div id="announcementsList" class="card-body p-3">
-    <div class="table-responsive rounded-3 shadow" style="max-height: 70vh; overflow-y: auto;">
-        <table class="table table-hover align-middle m-0" id="anTable">
-            <thead class="table-light">
-                <tr>
-                    <th style="min-width:160px;">Title</th>
-                    <th style="min-width:260px;">Message</th>
-                    <th style="width:120px;">Display</th>
-                    <th style="width:120px;">Type</th>
-                    <th style="min-width:170px;">Date Range</th>
-                    <th style="width:120px;">Active</th>
-                    <th class="text-end" style="width:260px;">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model == null || !Model.Any())
-                {
+    <!-- SCROLL AREA -->
+    <div id="announcementsList" class="card-body p-0">
+        <div class="table-scroll">
+            <table class="table table-hover align-middle m-0" id="anTable">
+                <thead class="table-light">
                     <tr>
-                        <td colspan="7" class="text-center p-4 text-muted">
-                            No announcements yet. Click <strong>New</strong> to create one.
-                        </td>
+                        <th style="min-width:160px;">Title</th>
+                        <th style="min-width:260px;">Message</th>
+                        <th style="width:120px;">Display</th>
+                        <th style="width:120px;">Type</th>
+                        <th style="min-width:170px;">Date Range</th>
+                        <th style="width:120px;">Active</th>
+                        <th class="text-end" style="width:260px;">Actions</th>
                     </tr>
-                }
-                else
-                {
-                    foreach (var announcement in Model)
+                </thead>
+
+                <tbody>
+                    @if (Model == null || !Model.Any())
                     {
-                        <tr data-active="@(announcement.Active ? "1" : "0")">
-                            <td>
-                                <div class="fw-semibold">@announcement.Title</div>
-
-                                @if (announcement.TargetMode.HasValue || !string.IsNullOrWhiteSpace(announcement.TargetValue))
-                                {
-                                    <div class="text-muted small">
-                                        Target:
-                                        @(announcement.TargetMode.HasValue ? announcement.TargetMode.Value.ToString() : "N/A")
-                                        @if (!string.IsNullOrWhiteSpace(announcement.TargetValue))
-                                        {
-                                            <span class="ms-1">(@announcement.TargetValue)</span>
-                                        }
-                                    </div>
-                                }
-                            </td>
-
-                            <td>
-                                <div class="text-truncate" style="max-width: 520px;" title="@(announcement.MessageHtml ?? "")">
-                                    @Html.Raw(announcement.MessageHtml)
-                                </div>
-                            </td>
-
-                            <td>
-                                <span class="badge rounded-pill bg-light text-dark border shadow">
-                                    @(announcement.DisplayMode == GTX.Models.DisplayMode.BannerTop ? "Banner" : "Popup")
-                                </span>
-                            </td>
-
-                            <td>
-                                @{
-                                    // 0=Info,1=Success,2=Warning,3=Danger,4=Promo (adjust if needed)
-                                    var typeText = announcement.Type == GTX.Models.AnnouncementType.Success ? "Success"
-                                                : announcement.Type == GTX.Models.AnnouncementType.Warning ? "Warning"
-                                                : announcement.Type == GTX.Models.AnnouncementType.Danger ? "Danger"
-                                                : announcement.Type == GTX.Models.AnnouncementType.Promo ? "Promo"
-                                                : "Info";
-
-                                    var badgeClass = announcement.Type == GTX.Models.AnnouncementType.Success ? "bg-success-subtle text-success border border-success-subtle shadow"
-                                                  : announcement.Type == GTX.Models.AnnouncementType.Warning ? "bg-warning-subtle text-warning border border-warning-subtle shadow"
-                                                  : announcement.Type == GTX.Models.AnnouncementType.Danger ? "bg-danger-subtle text-danger border border-danger-subtle shadow"
-                                                  : announcement.Type == GTX.Models.AnnouncementType.Promo ? "bg-primary-subtle text-primary border border-primary-subtle shadow"
-                                                  : "bg-secondary-subtle text-secondary border border-secondary-subtle";
-                                }
-
-                                <span class="badge rounded-pill @badgeClass shadow">
-                                    @typeText
-                                </span>
-                            </td>
-
-                            <td class="text-muted">
-                                @announcement.DateStart.ToString("yyyy-MM-dd")
-                                <span class="mx-1">→</span>
-                                @announcement.DateEnd.ToString("yyyy-MM-dd")
-                            </td>
-
-                            <td>
-                                @if (announcement.Active)
-                                {
-                                    <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle shadow">
-                                        Active
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary-subtle shadow">
-                                        Inactive
-                                    </span>
-                                }
-                            </td>
-
-                            <td class="text-end">
-                                <div class="btn-group">
-                                    @if (announcement.DisplayMode == GTX.Models.DisplayMode.Popup)
-                                    {
-                                        <button type="button" class="btn btn-gradient-grey btn-sm btn-outline-success shadow" onclick="previewAnnouncementPopup(@announcement.Id)" title="Preview">
-                                            <i class="bi bi-eye me-1"></i>
-                                        </button>
-                                    }
-                                    else
-                                    {
-                                        <button type="button" class="btn btn-gradient-grey btn-sm btn-outline-success shadow" onclick="previewAnnouncementBanner(@announcement.Id)" title="Preview">
-                                            <i class="bi bi-eye me-1"></i>
-                                        </button>}
-
-                                    <a class="btn btn-gradient-grey btn-sm btn-outline-primary shadow"
-                                       data-announcement-modal="true"
-                                       data-title="Edit Announcement"
-                                       href="@Url.Action("Edit", "Announcements", new { id = announcement.Id })">
-                                        <i class="bi bi-pencil-square me-1"></i>
-                                    </a>
-
-                                    <button id="btnDelete-@announcement.Id"
-                                            type="button"
-                                            class="btn btn-gradient-grey btn-sm btn-outline-danger shadow"
-                                            onclick="deleteAnnouncement(@announcement.Id)"
-                                            data-id="@announcement.Id"
-                                            title="Delete">
-                                        <i class="bi bi-trash me-1"></i>
-                                    </button>
-                                </div>
+                        <tr>
+                            <td colspan="7" class="text-center p-4 text-muted">
+                                No announcements yet. Click <strong>New</strong> to create one.
                             </td>
                         </tr>
                     }
-                }
-            </tbody>
-        </table>
+                    else
+                    {
+                        foreach (var announcement in Model)
+                        {
+                            <tr data-active="@(announcement.Active ? "1" : "0")">
+                                <td>
+                                    <div class="fw-semibold">@announcement.Title</div>
+
+                                    @if (announcement.TargetMode.HasValue || !string.IsNullOrWhiteSpace(announcement.TargetValue))
+                                    {
+                                        <div class="text-muted small">
+                                            Target:
+                                            @(announcement.TargetMode.HasValue ? announcement.TargetMode.Value.ToString() : "N/A")
+                                            @if (!string.IsNullOrWhiteSpace(announcement.TargetValue))
+                                            {
+                                                <span class="ms-1">(@announcement.TargetValue)</span>
+                                            }
+                                        </div>
+                                    }
+                                </td>
+
+                                <td>
+                                    <div class="text-truncate" style="max-width: 520px;" title="@(announcement.MessageHtml ?? "")">
+                                        @Html.Raw(announcement.MessageHtml)
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="badge rounded-pill bg-light text-dark border shadow">
+                                        @(announcement.DisplayMode == GTX.Models.DisplayMode.BannerTop ? "Banner" : "Popup")
+                                    </span>
+                                </td>
+
+                                <td>
+                                    @{
+                                        var typeText = announcement.Type == GTX.Models.AnnouncementType.Success ? "Success"
+                                                    : announcement.Type == GTX.Models.AnnouncementType.Warning ? "Warning"
+                                                    : announcement.Type == GTX.Models.AnnouncementType.Danger ? "Danger"
+                                                    : announcement.Type == GTX.Models.AnnouncementType.Promo ? "Promo"
+                                                    : "Info";
+
+                                        var badgeClass = announcement.Type == GTX.Models.AnnouncementType.Success ? "bg-success-subtle text-success border border-success-subtle shadow"
+                                                      : announcement.Type == GTX.Models.AnnouncementType.Warning ? "bg-warning-subtle text-warning border border-warning-subtle shadow"
+                                                      : announcement.Type == GTX.Models.AnnouncementType.Danger ? "bg-danger-subtle text-danger border border-danger-subtle shadow"
+                                                      : announcement.Type == GTX.Models.AnnouncementType.Promo ? "bg-primary-subtle text-primary border border-primary-subtle shadow"
+                                                      : "bg-secondary-subtle text-secondary border border-secondary-subtle";
+                                    }
+
+                                    <span class="badge rounded-pill @badgeClass">
+                                        @typeText
+                                    </span>
+                                </td>
+
+                                <td class="text-muted">
+                                    @announcement.DateStart.ToString("yyyy-MM-dd")
+                                    <span class="mx-1">→</span>
+                                    @announcement.DateEnd.ToString("yyyy-MM-dd")
+                                </td>
+
+                                <td>
+                                    @if (announcement.Active)
+                                    {
+                                        <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle shadow">
+                                            Active
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary-subtle shadow">
+                                            Inactive
+                                        </span>
+                                    }
+                                </td>
+
+                                <td class="text-end">
+                                    <div class="btn-group">
+                                        @if (announcement.DisplayMode == GTX.Models.DisplayMode.Popup)
+                                        {
+                                            <button type="button" class="btn btn-gradient-grey btn-sm btn-outline-success shadow"
+                                                    onclick="previewAnnouncementPopup(@announcement.Id)" title="Preview">
+                                                <i class="bi bi-eye me-1"></i>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" class="btn btn-gradient-grey btn-sm btn-outline-success shadow"
+                                                    onclick="previewAnnouncementBanner(@announcement.Id)" title="Preview">
+                                                <i class="bi bi-eye me-1"></i>
+                                            </button>
+                                        }
+
+                                        <a class="btn btn-gradient-grey btn-sm btn-outline-primary shadow"
+                                           data-announcement-modal="true"
+                                           data-title="Edit Announcement"
+                                           href="@Url.Action("Edit", "Announcements", new { id = announcement.Id })">
+                                            <i class="bi bi-pencil-square me-1"></i>
+                                        </a>
+
+                                        <button id="btnDelete-@announcement.Id"
+                                                type="button"
+                                                class="btn btn-gradient-grey btn-sm btn-outline-danger shadow"
+                                                onclick="deleteAnnouncement(@announcement.Id)"
+                                                data-id="@announcement.Id"
+                                                title="Delete">
+                                            <i class="bi bi-trash me-1"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+
+            </table>
+        </div>
     </div>
+
 </div>
+
 
 <script>
     $(document).on("click", "[data-close-announcement-preview='true']", function (e) {

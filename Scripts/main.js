@@ -1,9 +1,8 @@
 ﻿'use strict';
 
 (function ($) {
-    /*------------------
-        Preloader
-    --------------------*/
+    const currentRole = window.gtx?.currentRole || "";
+
     $(document).on("click", ".card.V, #btnPrev, #btnNext", function (e) {
         showSpinner("#loadingOverlay");
     });
@@ -101,6 +100,15 @@
     let charIndex = 0;
     let charFilterIndex = 0;
 
+    window.addEventListener("scroll", function () {
+        var filter = document.getElementById("filter-container");
+        if (window.scrollY > 100) {
+            filter.classList.add("fixed-top");
+        } else {
+            filter.classList.remove("fixed-top");
+        }
+    });
+
     function typePlaceholder() {
         const fullText = placeholders[currentIndex];
 
@@ -137,18 +145,79 @@
         }
     }
 
-    window.addEventListener("scroll", function () {
-        var filter = document.getElementById("filter-container");
-        if (window.scrollY > 100) {
-            filter.classList.add("fixed-top");
-        } else {
-            filter.classList.remove("fixed-top");
-        }
-    });
-
     typePlaceholder();
     typeFilterPlaceholder();
 })(jQuery);
+
+
+function setMajordomeMenu(role) {
+    const r = (role || "").toLowerCase().trim();
+
+    // role -> bootstrap icon class
+    const roleIcons = {
+        "user": "bi-person-circle",          // default user
+        "owner": "bi-shield-lock",           // owner
+        "tech": "bi-tools",                  // tech
+        "manager": "bi-clipboard-check",     // manager
+        "sales": "bi-currency-dollar"        // sales
+    };
+
+    switch (r) {
+        case "tech":
+            $("#menuInventory").show();
+            $("#menuAnnouncements").hide();
+            $("#menuBlogs").hide();
+            $("#menuEmployees").hide();
+            $("#menuHealth").hide();
+            $("#menuSitemap").show();
+            break;
+
+        case "owner":
+            $("#menuInventory").show();
+            $("#menuAnnouncements").show();
+            $("#menuBlogs").show();
+            $("#menuEmployees").show();
+            $("#menuHealth").show();
+            $("#menuSitemap").show();
+            break;
+
+        case "sales":
+            $("#menuInventory").show();
+            $("#menuAnnouncements").hide();
+            $("#menuBlogs").hide();
+            $("#menuEmployees").hide();
+            $("#menuHealth").hide();
+            $("#menuSitemap").show();
+            break;
+
+        case "manager":
+            $("#menuInventory").show();
+            $("#menuAnnouncements").show();
+            $("#menuBlogs").show();
+            $("#menuEmployees").hide();
+            $("#menuHealth").hide();
+            $("#menuSitemap").show();
+            break;
+
+        default:
+            $("#menuInventory, #menuAnnouncements, #menuBlogs, #menuEmployees, #menuHealth, #menuSitemap").hide();
+            break;
+    }
+    // text
+    $('.role-text').text(role || "");
+
+    // icon swap (remove any bi-* then add the mapped icon)
+    const iconClass = roleIcons[r] || roleIcons["user"];
+    const $icon = $(".role-icon");
+
+    // remove all bi- classes so you don't accumulate old ones
+    $icon.removeClass(function (idx, cls) {
+        return (cls.match(/\bbi-\S+/g) || []).join(" ");
+    });
+
+    // keep base classes and add new icon class back
+    $icon.addClass("bi " + iconClass);
+}
 
 function loadLikedCars() {
     var cookieValue = Cookies.get(cookieLike);
@@ -214,7 +283,6 @@ function playBeep() {
     oscillator.start();
     oscillator.stop(ctx.currentTime + 0.01); // Beep duration: 0.1 second
 }
-
 
 function showSpinner(object) {
     $(object).removeClass("spinner-hidden");
