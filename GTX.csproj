@@ -257,7 +257,7 @@
     <Compile Include="Controllers\AnnouncementsController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\BlogsController.cs" />
-    <Compile Include="Controllers\EmployeeController.cs" />
+    <Compile Include="Controllers\EmployeesController.cs" />
     <Compile Include="Controllers\HealthController.cs" />
     <Compile Include="Controllers\MajordomeController.cs" />
     <Compile Include="Controllers\InventoryController.cs" />
@@ -617,10 +617,13 @@
     <Content Include="Views\Blogs\Index.cshtml" />
     <Content Include="Views\Shared\_AdCard.cshtml" />
     <Content Include="Views\Sitemap\Index.cshtml" />
+    <Content Include="Views\Shared\_Employee.cshtml" />
+    <Content Include="Views\Employees\Index.cshtml" />
+    <Content Include="Views\Shared\_EmployeeEdit.cshtml" />
+    <Content Include="Views\Shared\_EmployeeModal.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
-    <Folder Include="Views\NewFolder1\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\jquery\jquery-3.7.1.min.map" />

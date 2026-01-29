@@ -1,0 +1,73 @@
+﻿
+<div class="modal fade" id="employeeModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="employeeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header">
+                <h5 class="modal-title" id="employeeModalTitle">Employee</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body" id="employeeModalBody">
+                <div class="text-muted">Loading...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(function () {
+    function openEmployeeModal(url, title) {
+        $("#employeeModalTitle").text(title || "Employee");
+        $("#employeeModalBody").html('<div class="text-muted">Loading...</div>');
+
+        $("#employeeModalBody").load(url, function (response, status, xhr) {
+            if (status === "error") {
+                $("#employeeModalBody").html(
+                    '<div class="alert alert-danger mb-0">Could not load form. ' +
+                    'Status: ' + xhr.status + '</div>'
+                );
+                return;
+            }
+
+            bootstrap.Modal.getOrCreateInstance(document.getElementById("employeeModal")).show();
+        });
+    }
+
+    $(document).on("click", "a[data-employee-modal='true']", function (e) {
+        e.preventDefault();
+        openEmployeeModal($(this).attr("href"), $(this).data("title"));
+    });
+
+    $(document).on("submit", "form[data-employee-ajax='true']", function (e) {
+        e.preventDefault();
+
+        const $form = $(this);
+        const url = $form.attr("action");
+
+        // IMPORTANT: FormData includes files + fields
+        const fd = new FormData(this);
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: fd,
+            processData: false,   // don't turn into query string
+            contentType: false    // let browser set multipart boundary
+        })
+        .done(function (res) {
+            if (res && res.ok === true) {
+                bootstrap.Modal.getOrCreateInstance(document.getElementById("employeeModal")).hide();
+                refreshEmployees();
+                return;
+            }
+
+            // If server returned partial HTML (validation errors)
+            $("#employeeModalBody").html(res);
+        })
+        .fail(function (xhr) {
+            $("#employeeModalBody").html(`<div class="alert alert-danger mb-0">Save failed. Status: ${xhr.status}</div>`);
+        });
+    });
+
+});
+</script>
