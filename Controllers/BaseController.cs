@@ -36,18 +36,21 @@ namespace GTX.Controllers
 
         public IEZ360Service EZ360Service { get; private set; }
 
+        public IEmployeesService EmployeesService { get; set; }
+
         public BaseModel Model { get; set; }
 
         #endregion Properties
 
         #region Construtors
 
-        public BaseController(ISessionData _sessionData, IInventoryService _invntoryService, IVinDecoderService _vinDecoderService, IEZ360Service _ez360Service, ILogService _logService) {
+        public BaseController(ISessionData _sessionData, IInventoryService _invntoryService, IVinDecoderService _vinDecoderService, IEZ360Service _ez360Service, ILogService _logService, IEmployeesService employeesService) {
             SessionData = _sessionData;
             LogService = _logService;
             InventoryService = _invntoryService;
             VinDecoderService = _vinDecoderService;
             EZ360Service = _ez360Service;
+            EmployeesService = employeesService;
         }
         public BaseController(ISessionData _sessionData)
         {
@@ -85,7 +88,7 @@ namespace GTX.Controllers
                 ViewBag.IsMajordome = Model.IsMajordome;
 
                 Model.Inventory = AppCache.GetOrCreate(Constants.INVENTORY_CACHE, () => SetModel(), minutes: 60);
-                Model.Employers = AppCache.GetOrCreate(Constants.EMPLOYERS_CACHE, () => Utility.XMLHelpers.XmlRepository.GetEmployers(), minutes: 60);
+                Model.Employers = AppCache.GetOrCreate(Constants.EMPLOYERS_CACHE, () => GetEmployers(), minutes: 60);
                 Model.OpenHours = AppCache.GetOrCreate(Constants.OPENHOURS_CACHE, () => Utility.XMLHelpers.XmlRepository.GetOpenHours(), minutes: 60);
                 Model.Filters = AppCache.GetOrCreate(Constants.FILTERS_CACHE, () => BuildFilters(Model.Inventory), minutes: 60);
                 Model.Categories = AppCache.GetOrCreate(Constants.CATEGORIES_CACHE, () => GetCategories(), minutes: 60);
@@ -130,6 +133,12 @@ namespace GTX.Controllers
         #endregion public
 
         #region Public Methods
+        public EmployeeModel[] GetEmployers() {
+            var entities = EmployeesService.GetEmployees();
+            var posts = entities.Select(EmployeeModel.FromEntity).Where(m => m.Active).ToArray();
+            return posts;
+        }
+
         public bool ValidateLogin(string password, out CommonUnit.Roles currentRole)
         {
             currentRole = CommonUnit.Roles.User; // default always

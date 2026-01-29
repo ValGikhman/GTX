@@ -11,7 +11,7 @@ namespace GTX.Controllers
     {
         private readonly IAnnouncementService _announcementService;
         public AnnouncementsController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service _ez360Service,
-                    ILogService logService, IAnnouncementService announcementService) : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService) {
+                    ILogService logService, IAnnouncementService announcementService, IEmployeesService employeesService) : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService, employeesService) {
             _announcementService = announcementService;
         }
 

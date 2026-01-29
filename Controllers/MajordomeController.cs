@@ -32,9 +32,9 @@ namespace GTX.Controllers
 
         public MajordomeController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService
                 , IEZ360Service _ez360Service
-                , ILogService logService
+                , ILogService logService, IEmployeesService employeesService
             )
-            : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService) {
+            : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService, employeesService) {
         }
 
         [HttpGet]
@@ -535,7 +535,7 @@ namespace GTX.Controllers
 
         private string GetPrompt(Models.GTX vehicle) {
             var reps = string.Empty;
-            var representatives = Model.Employers.Where(m => m.Position.Contains("Sales")).Select(m => m.Name).ToArray();
+            var representatives = Model.Employers.Where(m => m.Position.Contains("Sales")).Select(m => $"{m.FirstName} { m.LastName}").ToArray();
             if (representatives != null) {
                 reps = string.Join(", ", representatives);
             }

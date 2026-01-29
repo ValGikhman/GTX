@@ -20,8 +20,9 @@ public class HealthController : BaseController
         IInventoryService inventoryService,
         IVinDecoderService vinDecoderService,
         IEZ360Service _ez360Service,
-        ILogService logService)
-    : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService)  { }
+        ILogService logService, 
+        IEmployeesService employeesService)
+    : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService, employeesService)  { }
 
     public ActionResult ActiveSessions()
     {

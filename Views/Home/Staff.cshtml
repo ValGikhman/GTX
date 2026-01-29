@@ -42,13 +42,13 @@
         @foreach (var employer in Model.Employers) {
             <li class="col-auto">
                 <article class="card shadow text-center">
-                    <img class="card-img-top rounded-2" src="@Url.Content($"~/GTXImages/staff/{employer.id}.jpg")" alt="@employer.Name">
+                    <img class="card-img-top rounded-2" src="@Url.Content($"{employer.PhotoPath}")" alt="@employer.FirstName @employer.LastName">
                     <div class="card-body gradient">
-                        <h5 class="card-title">@employer.Name</h5>
+                        <h5 class="card-title">@employer.FirstName @employer.LastName</h5>
                         <div class="card-subtitle text-muted">@employer.Position</div>
                         <button class="btn btn-gradient-grey border-dark shadow rounded-5 mt-2 w-75"
-                                data-name="@employer.Name"
-                                onclick="showContactForm(this, @employer.id)">
+                                data-name="@employer.FirstName @employer.LastName"
+                                onclick="showContactForm(this, @employer.Id)">
                             <i class="bi bi-send"></i> Sent
                         </button>
                     </div>

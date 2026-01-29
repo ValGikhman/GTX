@@ -2,18 +2,15 @@
 using Services;
 using System;
 using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
 using System.Web.Mvc;
-using System.Web.Script.Serialization;
 
 namespace GTX.Controllers
 {
 
     public class InventoryController : BaseController {
 
-    public InventoryController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service _ez360Service, ILogService logService)
-            : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService) {
+    public InventoryController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service _ez360Service, ILogService logService, IEmployeesService employeesService)
+            : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService, employeesService) {
         }
 
 

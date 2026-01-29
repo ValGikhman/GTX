@@ -9,8 +9,8 @@ namespace GTX.Controllers
 {
     public class VinDecoderController : BaseController
     {
-        public VinDecoderController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service _ez360Service, ILogService logService)
-        : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService) {}
+        public VinDecoderController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service _ez360Service, ILogService logService, IEmployeesService employeesService)
+        : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService, employeesService) {}
         // GET: VinDecoder
         public ActionResult Index()
         {

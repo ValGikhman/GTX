@@ -26,7 +26,7 @@ namespace GTX.Models
 
         public Inventory Inventory { get; set; }
 
-        public Employer[] Employers { get; set; }
+        public EmployeeModel[] Employers { get; set; }
 
         public Filters CurrentFilter { get; set; }
 

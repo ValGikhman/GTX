@@ -13,8 +13,9 @@ namespace GTX.Controllers {
         private readonly string uploadPath = "~/GTXImages/staff/";
         private readonly IEmployeesService _employeesService;
 
-        public EmployeesController(ISessionData sessionData, IEmployeesService employeesService, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service eZ360Service,  ILogService logService) :
-            base(sessionData, inventoryService, vinDecoderService, eZ360Service, logService)  {
+        public EmployeesController(ISessionData sessionData, IEmployeesService employeesService, IInventoryService inventoryService, IVinDecoderService vinDecoderService
+            , IEZ360Service eZ360Service,  ILogService logService) :
+            base(sessionData, inventoryService, vinDecoderService, eZ360Service, logService, employeesService)  {
             _employeesService = employeesService;
         }
         public ActionResult ListPartial()
