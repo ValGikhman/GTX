@@ -1,4 +1,5 @@
 ﻿using Services;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace GTX.Models {
@@ -25,6 +26,8 @@ namespace GTX.Models {
         public string PhotoPath { get; set; }
 
         public bool Active { get; set; }
+
+        public DateTime CreatedDate { get; set; }
 
         public static Employee ToEntity(EmployeeModel model)
         {
@@ -56,7 +59,8 @@ namespace GTX.Models {
                 Phone = entity.Phone,
                 Email = entity.Email,
                 PhotoPath = entity.PhotoPath,
-                Active = entity.Active
+                Active = entity.Active,
+                CreatedDate = entity.CreatedDate
             };
         }
     }

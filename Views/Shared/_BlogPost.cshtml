@@ -35,8 +35,8 @@
                     <th style="min-width:160px;">Title</th>
                     <th style="min-width:160px;">Author</th>
                     <th style="width:120px;">Published</th>
-                    <th style="min-width:170px;">Created</th>
-                    <th class="text-end" style="width:260px;">Actions</th>
+                    <th style="min-width:70px;">Created</th>
+                    <th class="text-end" style="width:160px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -78,7 +78,7 @@
                             </td>
 
                             <td class="text-muted">
-                                @p.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+                                @p.CreatedAt.ToString("yyyy-MM-dd")
                             </td>
 
                             <td class="text-end">

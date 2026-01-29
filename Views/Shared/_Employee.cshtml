@@ -1,5 +1,4 @@
-﻿
-@model List<GTX.Models.EmployeeModel>
+﻿@model List<GTX.Models.EmployeeModel>
 
 <div class="card-header bg-white p-3 m-3 rounded-3 shadow">
     <h4 class="py-3">Employee management</h4>
@@ -17,6 +16,8 @@
         <div class="d-flex align-items-center gap-2 flex-shrink-0">
             <select id="empFilter" class="form-select" style="width: 170px;">
                 <option value="all" selected>All</option>
+                <option value="active">Active</option>
+                <option value="notactive">Not Active</option>
                 <option value="withphoto">With Photo</option>
                 <option value="nophoto">No Photo</option>
             </select>
@@ -35,10 +36,12 @@
                 <tr>
                     <th style="min-width:90px;">Photo</th>
                     <th style="min-width:170px;">Name</th>
-                    <th style="min-width:160px;">Position</th>
+                    <th style="min-width:100px;">Position</th>
                     <th style="min-width:200px;">Email</th>
                     <th style="min-width:140px;">Phone</th>
-                    <th class="text-end" style="width:260px;">Actions</th>
+                    <th style="min-width:90px;">Status</th>
+                    <th style="min-width:90px;">Added</th>
+                    <th class="text-end" style="width:100px;">Actions</th>
                 </tr>
             </thead>
 
@@ -56,44 +59,62 @@
                     foreach (var e in Model)
                     {
                         var hasPhoto = !string.IsNullOrWhiteSpace(e.PhotoPath);
+                        var active = e.Active;
 
-                        <tr data-hasphoto="@(hasPhoto ? "1" : "0")">
-                            <td>
-                                @if (hasPhoto)
-                                {
-                                    <img width="90" height="90" class="rounded-2 border" src="@($"{e.PhotoPath}?h=90")" />
-                                }
-                                else
-                                {
-                                    <img width="90" height="90" class="rounded-2 border" src="/images/placeholder-person.png" />
-                                }
-                            </td>
+            <tr data-hasphoto="@(hasPhoto ? "1" : "0")" data-active="@(active ? "active" : "notactive")">
+                <td>
+                    @if (hasPhoto)
+                    {
+                        <img width="80" height="90" class="rounded-2 border" src="@($"{e.PhotoPath}?h=90")" />
+                    }
+                    else
+                    {
+                        <img width="80" height="90" class="rounded-2 border" src="~/GTXImages/staff/empty.jpg" />
+                    }
+                </td>
 
-                            <td>
-                                <div class="fw-semibold">@e.FirstName @e.LastName</div>
-                            </td>
+                <td>
+                    <div class="fw-semibold">@e.FirstName @e.LastName</div>
+                </td>
 
-                            <td>@(string.IsNullOrWhiteSpace(e.Position) ? "N/A" : e.Position)</td>
+                <td>@(string.IsNullOrWhiteSpace(e.Position) ? "N/A" : e.Position)</td>
 
-                            <td>@(string.IsNullOrWhiteSpace(e.Email) ? "N/A" : e.Email)</td>
+                <td>@(string.IsNullOrWhiteSpace(e.Email) ? "N/A" : e.Email)</td>
 
-                            <td>@(string.IsNullOrWhiteSpace(e.Phone) ? "N/A" : e.Phone)</td>
+                <td>@(string.IsNullOrWhiteSpace(e.Phone) ? "N/A" : e.Phone)</td>
 
-                            <td class="text-end">
-                                <div class="btn-group">
-                                    <a class="btn btn-gradient-grey btn-sm btn-outline-primary"
-                                       data-employee-modal="true"
-                                       data-title="Edit Employee"
-                                       href="@Url.Action("Edit", "Employees", new { id = e.Id })">
-                                        <i class="bi bi-pencil-square me-1"></i>
-                                    </a>
+                <td>
+                    @if (e.Active)
+                    {
+                        <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle shadow">
+                            Active
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary-subtle">
+                            Inactive
+                        </span>
+                    }
+                </td>
 
-                                    <button id="btnDeleteEmp-@e.Id" type="button" class="btn btn-gradient-grey btn-sm btn-outline-danger" onclick="deleteEmployee(@e.Id)" data-id="@e.Id" title="Delete">
-                                        <i class="bi bi-trash me-1"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
+                <td>@e.CreatedDate.ToString("MM/dd/yyyy")</td>
+
+                <td class="text-end">
+                    <div class="btn-group">
+                        <a class="btn btn-gradient-grey btn-sm btn-outline-primary"
+                           data-employee-modal="true"
+                           data-title="Edit Employee"
+                           href="@Url.Action("Edit", "Employees", new { id = e.Id })">
+                            <i class="bi bi-pencil-square me-1"></i>
+                        </a>
+
+                        <button id="btnDeleteEmp-@e.Id" type="button" class="btn btn-gradient-grey btn-sm btn-outline-danger" onclick="deleteEmployee(@e.Id)" data-id="@e.Id" title="Delete">
+                            <i class="bi bi-trash me-1"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
                     }
                 }
             </tbody>
@@ -127,7 +148,7 @@
     function refreshEmployees() {
         const term = $("#empSearch").val() || "";
         const mode = $("#empFilter").val() || "all";
-        const listContainerSelector = "#tab-employees"; // change to your container
+        const listContainerSelector = "#tab-employees";
 
         $(listContainerSelector).load(`${root}Employees/ListPartial`, function () {
             $("#empSearch").val(term);
@@ -136,36 +157,54 @@
         });
     }
 
-    function applyEmployees() {
-        const { search, filter, table } = getEmpEls();
-        if (!search || !filter || !table) return;
+function applyEmployees() {
+    const { search, filter, table } = getEmpEls();
+    if (!search || !filter || !table) return;
 
-        const term = (search.value || '').toLowerCase().trim();
-        const mode = filter.value;
+    const term = (search.value || '').toLowerCase().trim();
+    const mode = (filter.value || 'all').toLowerCase();
 
-        const rows = table.querySelectorAll('tbody tr');
-        rows.forEach(r => {
-            // Skip "No employees yet..." row (colspan row)
-            if (r.children.length === 1) return;
+    const rows = table.querySelectorAll('tbody tr');
 
-            const hasPhoto = r.getAttribute('data-hasphoto') === '1';
+    rows.forEach(r => {
+        // keep your "group/header" rows visible
+        if (r.children.length === 1) return;
 
-            const name = (r.querySelector('td:nth-child(2)')?.innerText || '').toLowerCase();
-            const position = (r.querySelector('td:nth-child(3)')?.innerText || '').toLowerCase();
-            const email = (r.querySelector('td:nth-child(4)')?.innerText || '').toLowerCase();
-            const phone = (r.querySelector('td:nth-child(5)')?.innerText || '').toLowerCase();
+        const hasPhoto = r.getAttribute('data-hasphoto') === '1';
+        const activeState = (r.getAttribute('data-active') || '').toLowerCase(); // "active" | "notactive"
 
-            const hay = (name + ' ' + position + ' ' + email + ' ' + phone).trim();
-            const matchText = !term || hay.includes(term);
+        const name = (r.querySelector('td:nth-child(2)')?.innerText || '').toLowerCase();
+        const position = (r.querySelector('td:nth-child(3)')?.innerText || '').toLowerCase();
+        const email = (r.querySelector('td:nth-child(4)')?.innerText || '').toLowerCase();
+        const phone = (r.querySelector('td:nth-child(5)')?.innerText || '').toLowerCase();
 
-            const matchFilter =
-                mode === 'all' ||
-                (mode === 'withphoto' && hasPhoto) ||
-                (mode === 'nophoto' && !hasPhoto);
+        const hay = `${name} ${position} ${email} ${phone} ${activeState}`.trim();
+        const matchText = !term || hay.includes(term);
 
-            r.style.display = (matchText && matchFilter) ? '' : 'none';
-        });
-    }
+        let matchFilter = true;
+        switch (mode) {
+            case 'withphoto':
+                matchFilter = hasPhoto;
+                break;
+            case 'nophoto':
+                matchFilter = !hasPhoto;
+                break;
+            case 'active':
+                matchFilter = activeState === 'active';
+                break;
+            case 'notactive':
+                matchFilter = activeState === 'notactive';
+                break;
+            case 'all':
+            default:
+                matchFilter = true;
+                break;
+        }
+
+        r.style.display = (matchText && matchFilter) ? '' : 'none';
+    });
+}
+
 
     $(document).on('input', '#empSearch', applyEmployees);
     $(document).on('change', '#empFilter', applyEmployees);
