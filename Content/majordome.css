@@ -1,0 +1,58 @@
+.body-content {
+    height: auto !important;
+}
+
+/* the scroll container for the table */
+.table-scroll {
+    max-height: calc(100vh - 240px); /* adjust based on your layout */
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+    /* sticky THEAD inside the scroll container */
+    .table-scroll thead th {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+    }
+
+.body-content {
+    height: auto !important;
+}
+/* Set a height for the whole "card" so it can scroll internally.
+       Option A (recommended): clamp to viewport height. */
+.sitemap-shell {
+    height: calc(100vh - 160px); /* adjust to your layout (top nav / margins) */
+    min-height: 520px;
+}
+
+/* Make header sticky within the scrolling container */
+.sitemap-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    /* a subtle divider when scrolling */
+    box-shadow: 0 1px 0 rgba(0,0,0,.06);
+}
+
+/* Scroll only the body */
+.sitemap-body {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    /* keeps scroll anchored nicely below sticky header */
+    scroll-behavior: smooth;
+}
+
+/* Optional: keep thead visible while body scrolls */
+.sitemap-table thead th {
+    position: sticky;
+    top: 0; /* inside the body scroll area */
+    z-index: 2;
+}
+
+/* Optional: footer always visible at bottom of shell */
+.sitemap-footer {
+    flex: 0 0 auto;
+    border-top: 1px solid rgba(0,0,0,.06);
+}

@@ -147,13 +147,22 @@
 
     typePlaceholder();
     typeFilterPlaceholder();
-    setMajordomeMenu(currentRole);
 })(jQuery);
 
 
-
 function setMajordomeMenu(role) {
-    switch (role.toLowerCase()) {
+    const r = (role || "").toLowerCase().trim();
+
+    // role -> bootstrap icon class
+    const roleIcons = {
+        "user": "bi-person-circle",          // default user
+        "owner": "bi-shield-lock",           // owner
+        "tech": "bi-tools",                  // tech
+        "manager": "bi-clipboard-check",     // manager
+        "sales": "bi-currency-dollar"        // sales
+    };
+
+    switch (r) {
         case "tech":
             $("#menuInventory").show();
             $("#menuAnnouncements").hide();
@@ -191,14 +200,24 @@ function setMajordomeMenu(role) {
             break;
 
         default:
-            $("#menuInventory").hide();
-            $("#menuAnnouncements").hide();
-            $("#menuBlogs").hide();
-            $("#menuEmployees").hide();
-            $("#menuHealth").hide();
-            $("#menuSitemap").hide();
+            $("#menuInventory, #menuAnnouncements, #menuBlogs, #menuEmployees, #menuHealth, #menuSitemap").hide();
             break;
-    }}
+    }
+    // text
+    $('.role-text').text(role || "");
+
+    // icon swap (remove any bi-* then add the mapped icon)
+    const iconClass = roleIcons[r] || roleIcons["user"];
+    const $icon = $(".role-icon");
+
+    // remove all bi- classes so you don't accumulate old ones
+    $icon.removeClass(function (idx, cls) {
+        return (cls.match(/\bbi-\S+/g) || []).join(" ");
+    });
+
+    // keep base classes and add new icon class back
+    $icon.addClass("bi " + iconClass);
+}
 
 function loadLikedCars() {
     var cookieValue = Cookies.get(cookieLike);
