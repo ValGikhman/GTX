@@ -1,0 +1,16 @@
+﻿@model List<GTX.Models.EmployeeModel>
+
+@{
+    ViewBag.Title = "Employees";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // change if different
+}
+
+<!-- Include stylesheet -->
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+<!-- Include the Quill library -->
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+
+@Html.Partial("_EmployeeModal")
+<div id="tab-employees" class="p-3">
+    @Html.Partial("_Employee", Model)
+</div>

@@ -257,12 +257,13 @@
     <Compile Include="Controllers\AnnouncementsController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\BlogsController.cs" />
-    <Compile Include="Controllers\EmployeeController.cs" />
+    <Compile Include="Controllers\EmployeesController.cs" />
     <Compile Include="Controllers\HealthController.cs" />
     <Compile Include="Controllers\MajordomeController.cs" />
     <Compile Include="Controllers\InventoryController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\SitemapController.cs" />
+    <Compile Include="Controllers\VinDecoderController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -617,6 +618,11 @@
     <Content Include="Views\Blogs\Index.cshtml" />
     <Content Include="Views\Shared\_AdCard.cshtml" />
     <Content Include="Views\Sitemap\Index.cshtml" />
+    <Content Include="Views\Shared\_Employee.cshtml" />
+    <Content Include="Views\Employees\Index.cshtml" />
+    <Content Include="Views\Shared\_EmployeeEdit.cshtml" />
+    <Content Include="Views\Shared\_EmployeeModal.cshtml" />
+    <Content Include="Views\VinDecoder\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

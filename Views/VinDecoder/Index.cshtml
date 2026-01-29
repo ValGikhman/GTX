@@ -1,0 +1,207 @@
+﻿@{
+    ViewBag.Title = "VIN Decoder";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    /* Overlay */
+    .spinner-overlay {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0,0,0,.35);
+        z-index: 2000;
+        backdrop-filter: blur(2px);
+    }
+    .spinner-hidden { display: none; }
+
+    /* Results animation */
+    .fade-in {
+        animation: fadeIn .18s ease-out;
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Shake for invalid VIN */
+    .shake {
+        animation: shake .25s ease-in-out;
+    }
+
+    @@keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-6px); }
+        75% { transform: translateX(6px); }
+    }
+
+    /* Small quality-of-life */
+    #vin { text-transform: uppercase; letter-spacing: .02em; }
+</style>
+
+<div id="vindecoderOverlay" class="spinner-overlay spinner-hidden" aria-hidden="true">
+    <div class="text-center">
+        <div class="spinner-border text-light" role="status" aria-label="Working..."></div>
+        <div class="text-light mt-3 small opacity-75">Decoding VIN…</div>
+    </div>
+</div>
+
+
+<div class="row g-3 mt-2 justify-content-center">
+    <div class="col-12 col-md-10 col-lg-8 col-xl-6">
+        <div class="card-body p-4 bg-white shadow rounded-4">
+            <div class="row g-3 align-items-center">
+                <!-- LEFT: Title + subtitle -->
+                <div class="col-12 col-lg-4">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-upc-scan fs-4 text-primary"></i>
+                        <h1 class="h4 mb-0">VIN Decoder</h1>
+                    </div>
+                    <div class="text-muted small mt-1">
+                        Paste or type a 17-character VIN.
+                    </div>
+                </div>
+
+                <!-- RIGHT: Input + actions -->
+                <div class="col-12 col-lg-8">
+                    <div class="input-group input-group-lg shadow-sm flex-nowrap">
+                        <span class="input-group-text bg-white" style="width:48px; justify-content:center;">
+                            <i class="bi bi-car-front-fill text-secondary"></i>
+                        </span>
+
+                        <input id="vin" class="form-control" placeholder="e.g., 1HGCM82633A004352" aria-label="VIN" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="latin" maxlength="17" />
+
+                        <button id="decode" type="button" class="btn btn-primary px-3 text-nowrap" aria-label="Decode VIN">
+                            <span class="btn-label">
+                                <i class="bi bi-search me-2"></i>Decode
+                            </span>
+                        </button>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <div class="form-text mb-0">
+                            Tip: Press <kbd>Enter</kbd> to decode.
+                        </div>
+                        <button id="clear" type="button" class="btn btn-link btn-sm text-decoration-none p-0">
+                            <i class="bi bi-x-circle me-1"></i>Clear
+                        </button>
+                    </div>
+
+                    <div id="vinError" class="alert alert-danger d-none mt-2 mb-0 rounded-3" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <span class="msg">Invalid VIN.</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-12 px-5">
+        <div id="dataOneVinDecoder" class="mt-2"></div>
+
+        <div id="emptyState" class="text-center text-muted py-5">
+            <i class="bi bi-search fs-1 opacity-25"></i>
+            <div class="mt-2">Decoded results will appear here.</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        const $vin = $("#vin");
+        const $btn = $("#decode");
+        const $clear = $("#clear");
+        const $overlay = $("#vindecoderOverlay");
+        const $err = $("#vinError");
+        const $errMsg = $("#vinError .msg");
+        const $result = $("#dataOneVinDecoder");
+        const $empty = $("#emptyState");
+
+        function showError(message) {
+            $errMsg.text(message);
+            $err.removeClass("d-none");
+            // Shake the input group subtly
+            const $group = $vin.closest(".input-group");
+            $group.addClass("shake");
+            setTimeout(() => $group.removeClass("shake"), 300);
+        }
+
+        function clearError() {
+            $err.addClass("d-none");
+        }
+
+        function normalizeVin(value) {
+            return (value || "").trim().toUpperCase();
+        }
+
+        function validateVin(vin) {
+            // Basic VIN validation: 17 chars, no I O Q
+            if (!vin) return "Please enter a VIN.";
+            if (vin.length !== 17) return "VIN must be exactly 17 characters.";
+            if (/[IOQ]/.test(vin)) return "VIN cannot contain I, O, or Q.";
+            return null;
+        }
+
+        async function decodeDataOneByAnyVin(vin) {
+            showSpinner($overlay);
+            clearError();
+
+            try {
+                const res = await fetch(`${root}Vindecoder/DecodeDataOneByAnyVin?vin=${encodeURIComponent(vin)}`, {
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                });
+
+                if (!res.ok) throw new Error(`Server returned ${res.status}`);
+
+                const html = await res.text();
+                $empty.hide();
+                $result.html(html).addClass("fade-in");
+                setTimeout(() => $result.removeClass("fade-in"), 250);
+            }
+            catch (err) {
+                console.error("DecodeDataOneByAnyVin failed:", err);
+                showError("Failed to decode VIN. Please try again.");
+            }
+            finally {
+                hideSpinner($overlay);
+            }
+        }
+
+        function submit() {
+            const vin = normalizeVin($vin.val());
+            $vin.val(vin);
+
+            const error = validateVin(vin);
+            if (error) {
+                showError(error);
+                $vin.trigger("focus").select();
+                return;
+            }
+
+            decodeDataOneByAnyVin(vin);
+        }
+
+        $btn.on("click", submit);
+
+        $vin.on("keydown", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                submit();
+            }
+        }).on("input", function () {
+            // hide error as user types
+            clearError();
+        }).trigger("focus");
+
+        $clear.on("click", function () {
+            $vin.val("").trigger("focus");
+            $result.empty();
+            $empty.show();
+            clearError();
+        });
+    });
+</script>

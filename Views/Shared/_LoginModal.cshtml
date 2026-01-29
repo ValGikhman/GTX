@@ -93,6 +93,7 @@
     $(document).on("submit", "#loginForm", function (e) {
         e.preventDefault(); // ✅ must be () !
         var password = $.trim($("#loginPassword").val() || "");
+
         $("#loginError").addClass("d-none").text("");
 
         if (!password) {
@@ -100,30 +101,76 @@
             return;
         }
 
-        if (password !== "nowORnever2017!") {
-            $("#loginError").removeClass("d-none").text("Invalid password.");
-            $("#loginPassword").trigger("focus").select();
-            return;
-        }
-
         var $btn = $("#btnLogin").prop("disabled", true);
 
-        $.post(`${root}Majordome/ShowAdmin`)
-            .done(function (response) {
-                $("#MajordomeLink").removeClass("d-none");
-                loginModal().hide();
+        $.post(`${root}Home/Login`, { password: password })
+            .done(function (res) {
+                if (res && res.ok) {
+                    $("#MajordomeLink").removeClass("d-none");
 
-                if (response && response.redirectUrl) {
-                    window.location.href = response.redirectUrl;
+                    const role = (res.role || res.Role || "");
+                    switch (role.toLowerCase()) {
+                        case "tech":
+                            $("#menuInventory").show();
+                            $("#menuAnnouncements").hide();
+                            $("#menuBlogs").hide();
+                            $("#menuEmployees").hide();
+                            $("#menuHealth").hide();
+                            $("#menuSitemap").show();
+                            break;
+
+                        case "owner":
+                            $("#menuInventory").show();
+                            $("#menuAnnouncements").show();
+                            $("#menuBlogs").show();
+                            $("#menuEmployees").show();
+                            $("#menuHealth").show();
+                            $("#menuSitemap").show();
+                            break;
+
+                        case "sales":
+                            $("#menuInventory").show();
+                            $("#menuAnnouncements").hide();
+                            $("#menuBlogs").hide();
+                            $("#menuEmployees").hide();
+                            $("#menuHealth").hide();
+                            $("#menuSitemap").show();
+                            break;
+
+                        case "manager":
+                            $("#menuInventory").show();
+                            $("#menuAnnouncements").show();
+                            $("#menuBlogs").show();
+                            $("#menuEmployees").hide();
+                            $("#menuHealth").hide();
+                            $("#menuSitemap").show();
+                            break;
+                            
+                        default:
+                            $("#menuInventory").hide();
+                            $("#menuAnnouncements").hide();
+                            $("#menuBlogs").hide();
+                            $("#menuEmployees").hide();
+                            $("#menuHealth").hide();
+                            $("#menuSitemap").hide();
+                            break;
+                    }
+
+                    loginModal().hide();
+                    return;
                 }
+
+                $("#loginError").removeClass("d-none").text(res?.msg || "Invalid password.");
+                $("#loginPassword").trigger("focus").select();
             })
-            .fail(function (xhr) {
-                console.error("Error setting admin:", xhr);
-                $("#loginError").removeClass("d-none").text("Login failed. Try again.");
+            .fail(function () {
+                console.error("Error setting admin:");
+                $("#loginError").removeClass("d-none").text("Server error. Try again.");
             })
             .always(function () {
                 $btn.prop("disabled", false);
-            });
+            }
+        );
     });
 
     function loginModal() {

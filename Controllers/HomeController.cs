@@ -24,6 +24,19 @@ namespace GTX.Controllers
             _announcementService = announcementService;
         }
 
+        [HttpPost]
+        public JsonResult Login(string password)
+        {
+            var ok = ValidateLogin(password, out var currentRole);
+
+            if (!ok)
+                return Json(new { ok = false, role = currentRole.ToString(), msg = "Invalid password." });
+
+            SessionData.SetSession(Constants.SESSION_MAJORDOME, true);
+            return Json(new { ok = true, role = currentRole.ToString() });
+        }
+
+
         [HttpGet]
         public ActionResult LoginModal()
         {
