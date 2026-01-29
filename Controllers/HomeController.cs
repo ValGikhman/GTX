@@ -27,11 +27,15 @@ namespace GTX.Controllers
         [HttpPost]
         public JsonResult Login(string password)
         {
-            if (!ValidateLogin(password)) return Json(new { ok = false, msg = "Invalid password." });
+            var ok = ValidateLogin(password, out var currentRole);
+
+            if (!ok)
+                return Json(new { ok = false, role = currentRole.ToString(), msg = "Invalid password." });
 
             SessionData.SetSession(Constants.SESSION_MAJORDOME, true);
-            return Json(new { ok = true });
+            return Json(new { ok = true, role = currentRole.ToString() });
         }
+
 
         [HttpGet]
         public ActionResult LoginModal()

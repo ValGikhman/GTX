@@ -107,6 +107,55 @@
             .done(function (res) {
                 if (res && res.ok) {
                     $("#MajordomeLink").removeClass("d-none");
+
+                    const role = (res.role || res.Role || "");
+                    switch (role.toLowerCase()) {
+                        case "tech":
+                            $("#menuInventory").show();
+                            $("#menuAnnouncements").hide();
+                            $("#menuBlogs").hide();
+                            $("#menuEmployees").hide();
+                            $("#menuHealth").hide();
+                            $("#menuSitemap").show();
+                            break;
+
+                        case "owner":
+                            $("#menuInventory").show();
+                            $("#menuAnnouncements").show();
+                            $("#menuBlogs").show();
+                            $("#menuEmployees").show();
+                            $("#menuHealth").show();
+                            $("#menuSitemap").show();
+                            break;
+
+                        case "sales":
+                            $("#menuInventory").show();
+                            $("#menuAnnouncements").hide();
+                            $("#menuBlogs").hide();
+                            $("#menuEmployees").hide();
+                            $("#menuHealth").hide();
+                            $("#menuSitemap").show();
+                            break;
+
+                        case "manager":
+                            $("#menuInventory").show();
+                            $("#menuAnnouncements").show();
+                            $("#menuBlogs").show();
+                            $("#menuEmployees").hide();
+                            $("#menuHealth").hide();
+                            $("#menuSitemap").show();
+                            break;
+                            
+                        default:
+                            $("#menuInventory").hide();
+                            $("#menuAnnouncements").hide();
+                            $("#menuBlogs").hide();
+                            $("#menuEmployees").hide();
+                            $("#menuHealth").hide();
+                            $("#menuSitemap").hide();
+                            break;
+                    }
+
                     loginModal().hide();
                     return;
                 }
@@ -120,7 +169,8 @@
             })
             .always(function () {
                 $btn.prop("disabled", false);
-            });
+            }
+        );
     });
 
     function loginModal() {

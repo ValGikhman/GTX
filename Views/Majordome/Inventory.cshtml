@@ -156,12 +156,6 @@
             </button>
         }
 
-        @if (@Model.IsDataOne)
-        {
-            <button class="btn btn-gradient-grey text-shadow-small" id="vin-decoder-tab" data-bs-toggle="tab" data-bs-target="#tab-vin-decoder" type="button" role="tab">
-                Vin decoder
-            </button>
-        }
         <button class="btn btn-gradient-grey text-shadow-small d-none" id="QR-code-tab" data-bs-toggle="tab" data-bs-target="#tab-qr-code" type="button" role="tab">
             QR Code
         </button>
@@ -226,25 +220,6 @@
                     <div id="gallery-content" class="flex-grow-1 w-100 px-3 pb-3">
                         <ul id="sortable-gallery" class="row justify-content-center">
                         </ul>
-                    </div>
-                </div>
-            </div>
-        }
-
-        <!-- Vin decoder Tab -->
-        @if (@Model.IsDataOne)
-        {
-            <div class="tab-pane fade" id="tab-vin-decoder" role="tabpanel">
-                <div class="row">
-                    <!-- Left Column: Form -->
-                    <div class="row col-lg-6 mt-3">
-                        @Html.Label("VIN", new { @class = "text-shadow" })
-                        <div class="input-group mb-2">
-                            <input id="vin" class="form-control shadow" placeholder="VIN" aria-label="VIN" aria-describedby="vin" />
-                            <button id="decode" class="btn btn-light bi bi-search input-group-text "></button>
-                        </div>
-                    </div>
-                    <div id="dataOneVinDecoder" class="row mt-3 d-flex justify-content-center">
                     </div>
                 </div>
             </div>
@@ -486,23 +461,6 @@
                 }
             }
         });
-
-        $("#vin").on("keydown", function (e) {
-            if (e.key === "Enter") {
-                e.preventDefault();
-                const vin = $(this).val();
-                if (vin.length > 0) {
-                    decodeDataOneByAnyVin(vin);
-                }
-            }
-        }).focus();
-
-        $("#decode").on("click", function () {
-            const vin = $("#vin").val();
-            if (vin.length > 0) {
-                decodeDataOneByAnyVin(vin);
-            }
-        })
 
         $("#EZ360-tab").on("click", function () {
             const stock = selectedVehicle.Stock;

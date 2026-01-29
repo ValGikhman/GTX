@@ -334,32 +334,6 @@ async function decodeDataOne(vin) {
     }
 }
 
-async function decodeDataOneByAnyVin(vin) {
-    const $overlay = $("#inventoryOverlay");
-    showSpinner($overlay);
-
-    try {
-        const res = await fetch(`${root}Majordome/DecodeDataOneByAnyVin?vin=${encodeURIComponent(vin)}`);
-
-        if (!res.ok) {
-            throw new Error(`Server returned ${res.status}`);
-        }
-
-        const html = await res.text();
-        $("#dataOneVinDecoder").html(html);
-
-    }
-
-    catch (err) {
-        console.error("DecodeDataOneByAnyVin failed:", err);
-        alert("Failed to decode VIN.");
-    }
-
-    finally {
-        hideSpinner($overlay);
-    }
-}
-
 async function deleteDataOne(stock) {
     const $overlay = $("#inventoryOverlay");
     showSpinner($overlay);
