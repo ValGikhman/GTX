@@ -18,8 +18,8 @@ namespace GTX.Controllers
         public HomeController(ISessionData sessionData, ContactService contactService, IInventoryService inventoryService, IVinDecoderService vinDecoderService
                 , IEZ360Service eZ360Service
                 , ILogService logService
-                , IAnnouncementService announcementService) :
-            base(sessionData, inventoryService, vinDecoderService, eZ360Service, logService)  {
+                , IAnnouncementService announcementService, IEmployeesService employeesService) :
+            base(sessionData, inventoryService, vinDecoderService, eZ360Service, logService, employeesService)  {
             _contactService = contactService;
             _announcementService = announcementService;
         }
@@ -152,8 +152,8 @@ namespace GTX.Controllers
                     }
 
                     if (model.EmployerId > 0) {
-                        var employer = Model.Employers.FirstOrDefault(m => m.id == model.EmployerId);
-                        model.Comment = $"{model.Comment}\nAttn: {employer.Name}";
+                        var employer = Model.Employers.FirstOrDefault(m => m.Id == model.EmployerId);
+                        model.Comment = $"{model.Comment}\nAttn: {employer.FirstName} {employer.LastName}";
                     }
 
                     contact.Comment = model.Comment;

@@ -17,8 +17,8 @@ namespace GTX
             IVinDecoderService vinDecoderService,
             IEZ360Service _ez360Service,
             ILogService logService,
-            IBlogsService blogsService)
-            : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService)
+            IBlogsService blogsService, IEmployeesService employeesService)
+            : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService, employeesService)
         {
             _blogsService = blogsService;
         }
