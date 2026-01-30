@@ -95,6 +95,24 @@
             font-size: 1.75rem;
         }
     }
+
+    /* Bigger Bootstrap switch */
+    .big-switch.form-check-input {
+        width: 3.4rem;
+        height: 1.8rem;
+        margin-top: 0;
+        cursor: pointer;
+    }
+
+        /* Improve thumb size/position for the bigger switch */
+        .big-switch.form-check-input:checked {
+            background-position: right center;
+        }
+
+    /* Optional: slightly bigger label next to it */
+    .form-check-label {
+        cursor: pointer;
+    }
 </style>
 
 <div class="container py-4 wrap">
@@ -193,122 +211,185 @@
             </div>
         </div>
 
+        <!-- Offline / Maintenance Mode Card -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="h-100 shadow well rounded-5 p-5 health-card">
+                <div class="d-flex align-items-center justify-content-between gap-3">
+                    <div class="kpi-label mb-0">Maintenance</div>
+
+                    <!-- Bigger switch (top row) -->
+                    <div class="form-check form-switch m-0 d-flex align-items-center gap-2">
+                        <input class="form-check-input big-switch" type="checkbox" id="chkOffline" role="switch">
+                        <label class="form-check-label kpi-sub user-select-none mb-0" for="chkOffline">
+                            Enable
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Body -->
+                <div class="d-flex align-items-start gap-3 mt-4">
+                    <div class="rounded-4 d-flex align-items-center justify-content-center border bg-light flex-shrink-0"
+                         style="width:48px;height:48px;">
+                        <i class="bi bi-shield-exclamation fs-4 text-danger"></i>
+                    </div>
+
+                    <div>
+                        <div class="kpi-value">Offline</div>
+                        <div class="kpi-sub mt-2">
+                            When enabled, visitors are redirected to the out-of-service page.
+                        </div>
+                        <div class="kpi-sub mt-3" id="offlineStatusText">Online</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
-const url = '@Url.Action("HealthJson", "Health")';
+    const url = '@Url.Action("HealthJson", "Health")';
 
-function bytesToMb2(bytes) {
-    if (bytes === null || bytes === undefined || isNaN(bytes)) return "—";
-    return (Number(bytes) / (1024 * 1024)).toFixed(2) + " MB";
-}
-function pctMb(pctVal, bytesVal) {
-    if (pctVal === null || pctVal === undefined || isNaN(pctVal)) return "—";
-    return Number(pctVal).toFixed(1) + "%";
-}
-function fmtBytes(b) {
-    if (b === null || b === undefined) return "—";
-    const u = ["B", "KB", "MB", "GB", "TB"];
-    let i = 0, n = Number(b);
-    while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; }
-    return (i === 0 ? n.toFixed(0) : n.toFixed(2)) + " " + u[i];
-}
-function fmtPct(v) {
-    if (v === null || v === undefined || isNaN(v)) return "—";
-    return Number(v).toFixed(1);
-}
-function clampPct(v) {
-    v = Number(v);
-    if (isNaN(v)) return 0;
-    if (v < 0) return 0;
-    if (v > 100) return 100;
-    return v;
-}
-function setBar(id, pct) {
-    $("#" + id).css("width", clampPct(pct).toFixed(1) + "%");
-}
-function setStatus(state, text) {
-    const $badge = $("#statusBadge");
-    const $statusText = $("#statusText");
+    function bytesToMb2(bytes) {
+        if (bytes === null || bytes === undefined || isNaN(bytes)) return "—";
+        return (Number(bytes) / (1024 * 1024)).toFixed(2) + " MB";
+    }
 
-    $badge.removeClass("text-bg-secondary text-bg-success text-bg-warning text-bg-danger");
+    function pctMb(pctVal, bytesVal) {
+        if (pctVal === null || pctVal === undefined || isNaN(pctVal)) return "—";
+        return Number(pctVal).toFixed(1) + "%";
+    }
 
-    if (state === "ok") { $badge.addClass("text-bg-success").text("OK"); }
-    else if (state === "loading") { $badge.addClass("text-bg-warning").text("Loading"); }
-    else if (state === "error") { $badge.addClass("text-bg-danger").text("Error"); }
-    else { $badge.addClass("text-bg-secondary").text("Idle"); }
+    function fmtBytes(b) {
+        if (b === null || b === undefined) return "—";
+        const u = ["B", "KB", "MB", "GB", "TB"];
+        let i = 0, n = Number(b);
+        while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; }
+        return (i === 0 ? n.toFixed(0) : n.toFixed(2)) + " " + u[i];
+    }
 
-    $statusText.text(text || "");
-}
-function safeGet(obj, path, fallback) {
-    try { return path.split(".").reduce((o, k) => o && o[k], obj) ?? fallback; }
-    catch { return fallback; }
-}
-function parseNetDate(v) {
-    if (!v) return null;
-    const iso = new Date(v);
-    if (!isNaN(iso)) return iso;
-    const m = /\/Date\((\d+)(?:[+-]\d+)?\)\//.exec(v);
-    if (m) return new Date(parseInt(m[1], 10));
-    return null;
-}
+    function fmtPct(v) {
+        if (v === null || v === undefined || isNaN(v)) return "—";
+        return Number(v).toFixed(1);
+    }
 
-function refreshNow() {
-    setStatus("loading", "Refreshing…");
+    function clampPct(v) {
+        v = Number(v);
+        if (isNaN(v)) return 0;
+        if (v < 0) return 0;
+        if (v > 100) return 100;
+        return v;
+    }
 
-    $.ajax({
-        url: url,
-        method: "GET",
-        cache: false,
-        dataType: "json",
-        success: function (data) {
-            const totCpu = safeGet(data, "Totals.CpuPercentTotal", 0);
-            const totMem = safeGet(data, "Totals.MemoryPercentTotal", 0);
-            const totalPhys = safeGet(data, "Totals.TotalPhysBytes", null);
-            const availPhys = safeGet(data, "Totals.AvailPhysBytes", null);
+    function setBar(id, pct) {
+        $("#" + id).css("width", clampPct(pct).toFixed(1) + "%");
+    }
 
-            $("#totCpu").text(fmtPct(totCpu) + "%");
-            $("#totMem").text(fmtPct(totMem) + "%");
-            setBar("totCpuBar", totCpu);
-            setBar("totMemBar", totMem);
+    function setStatus(state, text) {
+        const $badge = $("#statusBadge");
+        const $statusText = $("#statusText");
 
-            $("#totRam").text(`${fmtBytes(totalPhys)} total / ${fmtBytes(availPhys)} free`);
+        $badge.removeClass("text-bg-secondary text-bg-success text-bg-warning text-bg-danger");
 
-            const memLoad = safeGet(data, "Totals.MemoryLoadPercent", null);
-            if (memLoad !== null && memLoad !== undefined) $("#totMemLoad").show().text(`Windows MemoryLoad: ${memLoad}%`);
-            else $("#totMemLoad").hide();
+        if (state === "ok") { $badge.addClass("text-bg-success").text("OK"); }
+        else if (state === "loading") { $badge.addClass("text-bg-warning").text("Loading"); }
+        else if (state === "error") { $badge.addClass("text-bg-danger").text("Error"); }
+        else { $badge.addClass("text-bg-secondary").text("Idle"); }
 
-            const stRaw = safeGet(data, "ServerTime", null);
-            const st = parseNetDate(stRaw);
-            const timeText = st ? st.toLocaleTimeString() : "—";
-            $("#updated").text(timeText);
-            $("#updated2").text(timeText);
+        $statusText.text(text || "");
+    }
 
-            const iis = safeGet(data, "IIS", null);
-            const iisWs = safeGet(iis, "WorkingSetBytes", null);
-            const iisPriv = safeGet(iis, "PrivateBytes", null);
+    function safeGet(obj, path, fallback) {
+        try { return path.split(".").reduce((o, k) => o && o[k], obj) ?? fallback; }
+        catch { return fallback; }
+    }
 
-            $("#iisPid").text(safeGet(iis, "Pid", "—"));
-            $("#iisCpu").text(pctMb(safeGet(iis, "CpuPercent", null), iisWs));
-            $("#iisMem").text(pctMb(safeGet(iis, "MemoryPercent", null), iisPriv));
-            $("#iisWs").text(fmtBytes(safeGet(iis, "WorkingSetBytes", null)));
-            setBar("iisCpuBar", safeGet(iis, "CpuPercent", 0));
-            setBar("iisMemBar", safeGet(iis, "MemoryPercent", 0));
+    function parseNetDate(v) {
+        if (!v) return null;
+        const iso = new Date(v);
+        if (!isNaN(iso)) return iso;
+        const m = /\/Date\((\d+)(?:[+-]\d+)?\)\//.exec(v);
+        if (m) return new Date(parseInt(m[1], 10));
+        return null;
+    }
 
-            const act = safeGet(data, "ActiveSessions", null);
-            $("#activeSessions").text(act === null ? "—" : act);
+    function refreshNow() {
+        setStatus("loading", "Refreshing…");
 
-            setStatus("ok", "Live");
-        },
-        error: function (xhr) {
-            setStatus("error", "HTTP " + (xhr && xhr.status ? xhr.status : "error"));
+        $.ajax({
+            url: url,
+            method: "GET",
+            cache: false,
+            dataType: "json",
+            success: function (data) {
+                const totCpu = safeGet(data, "Totals.CpuPercentTotal", 0);
+                const totMem = safeGet(data, "Totals.MemoryPercentTotal", 0);
+                const totalPhys = safeGet(data, "Totals.TotalPhysBytes", null);
+                const availPhys = safeGet(data, "Totals.AvailPhysBytes", null);
+
+                $("#totCpu").text(fmtPct(totCpu) + "%");
+                $("#totMem").text(fmtPct(totMem) + "%");
+                setBar("totCpuBar", totCpu);
+                setBar("totMemBar", totMem);
+
+                $("#totRam").text(`${fmtBytes(totalPhys)} total / ${fmtBytes(availPhys)} free`);
+
+                const memLoad = safeGet(data, "Totals.MemoryLoadPercent", null);
+                if (memLoad !== null && memLoad !== undefined) $("#totMemLoad").show().text(`Windows MemoryLoad: ${memLoad}%`);
+                else $("#totMemLoad").hide();
+
+                const stRaw = safeGet(data, "ServerTime", null);
+                const st = parseNetDate(stRaw);
+                const timeText = st ? st.toLocaleTimeString() : "—";
+                $("#updated").text(timeText);
+                $("#updated2").text(timeText);
+
+                const iis = safeGet(data, "IIS", null);
+                const iisWs = safeGet(iis, "WorkingSetBytes", null);
+                const iisPriv = safeGet(iis, "PrivateBytes", null);
+
+                $("#iisPid").text(safeGet(iis, "Pid", "—"));
+                $("#iisCpu").text(pctMb(safeGet(iis, "CpuPercent", null), iisWs));
+                $("#iisMem").text(pctMb(safeGet(iis, "MemoryPercent", null), iisPriv));
+                $("#iisWs").text(fmtBytes(safeGet(iis, "WorkingSetBytes", null)));
+                setBar("iisCpuBar", safeGet(iis, "CpuPercent", 0));
+                setBar("iisMemBar", safeGet(iis, "MemoryPercent", 0));
+
+                const act = safeGet(data, "ActiveSessions", null);
+                $("#activeSessions").text(act === null ? "—" : act);
+
+                setStatus("ok", "Live");
+            },
+            error: function (xhr) {
+                setStatus("error", "HTTP " + (xhr && xhr.status ? xhr.status : "error"));
+            }
+        });
+    }
+
+    $(function () {
+        function setUi(isOffline) {
+            $("#chkOffline").prop("checked", isOffline);
+            $("#offlineStatusText").text(isOffline ? "Offline (redirecting users)" : "Online");
         }
-    });
-}
 
-$(function () {
-    refreshNow();
-    setInterval(refreshNow, 2000);
-});
+        // Load current state
+        $.get("/Health/GetOffline", function (r) {
+            setUi(!!r.isOffline);
+        });
+
+        // Toggle
+        $("#chkOffline").on("change", function () {
+            const on = this.checked;
+            setUi(on); // instant UI feedback
+
+            $.post("/Health/SetOffline", { isOffline: on })
+                .fail(function (xhr) {
+                    // If server rejects, revert UI
+                    setUi(!on);
+                    alert("Failed to update maintenance mode.\n" + xhr.status + " " + xhr.statusText);
+                });
+        });
+
+        refreshNow();
+        setInterval(refreshNow, 2000);
+    });
 </script>

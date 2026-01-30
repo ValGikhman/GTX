@@ -190,4 +190,18 @@ public class HealthController : BaseController
         }, JsonRequestBehavior.AllowGet);
     }
 
+    [HttpPost]
+    public ActionResult SetOffline(bool isOffline)
+    {
+        MaintenanceFlag.SetOffline(isOffline);
+        return Json(new { ok = true, isOffline });
+    }
+
+    // Optional: to load current state
+    [HttpGet]
+    public ActionResult GetOffline()
+    {
+        return Json(new { isOffline = MaintenanceFlag.IsOffline() }, JsonRequestBehavior.AllowGet);
+    }
+
 }
