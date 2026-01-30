@@ -1,0 +1,49 @@
+﻿/* Pink.css (scoped pink theme) */
+html.theme-pink {
+    /* pink -> deep magenta */
+    --gtx-grad: linear-gradient(180deg, #ff73b8, #7a0f4a);
+    --gtx-grad-rev: linear-gradient(0deg, #ff73b8, #7a0f4a);
+}
+
+    /* Replace your blue gradient areas */
+    html.theme-pink .menu-strip,
+    html.theme-pink .page-title,
+    html.theme-pink .modal-header,
+    html.theme-pink .small-offcanvas {
+        background: var(--gtx-grad) !important;
+        color: #fff !important;
+    }
+
+    /* If you want pink to affect these buttons too (same as grey theme behavior) */
+    html.theme-pink .btn-gradient,
+    html.theme-pink .btn-gradient-grey.active {
+        background: var(--gtx-grad) !important;
+        color: #fff !important;
+        border-color: rgba(0,0,0,.35) !important;
+    }
+
+    /* Header dropdown background */
+    html.theme-pink .header__menu ul li .dropdown {
+        background: var(--gtx-grad) !important;
+    }
+
+    /* Keep menu links readable on gradient */
+    html.theme-pink .header__menu ul li a {
+        color: #fff !important;
+        text-shadow: none !important;
+    }
+
+        html.theme-pink .header__menu ul li a:after {
+            background: #fff !important;
+        }
+
+    /* Your special-case override (kept same behavior) */
+    html.theme-pink #MajordomeLink .gradient {
+        color: #000 !important;
+    }
+
+    /* Checkbox color (optional) */
+    html.theme-pink .form-check-input:checked {
+        background-color: #c2185b;
+        border-color: #c2185b;
+    }
