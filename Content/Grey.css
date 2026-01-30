@@ -1,61 +1,49 @@
-﻿/* =========================================================
-   SiteDark.css (GRADIENT-ONLY OVERRIDES)
-   Load AFTER Site.css.
-   Enable by adding: <body class="dark">
-   Only changes your “blue” areas/buttons to grey gradients.
-   ========================================================= */
-
-html.grey {
-/*    --gtx-grad: linear-gradient(180deg, #666666, #101010); */
+﻿/* Grey.css (scoped grey theme) */
+html.theme-grey {
     --gtx-grad: linear-gradient(180deg, #757575, #141414);
     --gtx-grad-rev: linear-gradient(0deg, #757575, #141414);
 }
 
-    /* Replace your blue gradient areas with grey gradient */
-    html.grey .menu-strip,
-    html.grey .page-title,
-    html.grey .modal-header,
-    html.grey .small-offcanvas {
+    /* Replace your blue gradient areas */
+    html.theme-grey .menu-strip,
+    html.theme-grey .page-title,
+    html.theme-grey .modal-header,
+    html.theme-grey .small-offcanvas {
         background: var(--gtx-grad) !important;
         color: #fff !important;
     }
 
-    /* Buttons that used your blue gradient */
-    html.grey .btn-gradient,
-    html.grey .btn-gradient-grey.active {
+    /* Keep buttons BLUE (remove these if you truly want zero button overrides)
+   If you do want some grey button behavior, keep them scoped like this: */
+    html.theme-grey .btn-gradient,
+    html.theme-grey .btn-gradient-grey.active {
         background: var(--gtx-grad) !important;
         color: #fff !important;
         border-color: rgba(0,0,0,.35) !important;
     }
 
-    html.grey .footer-strip.btn-gradient-grey:hover {
-    }
-
-    /* Header dropdown background (your blue dropdown) */
-    html.grey .header__menu ul li .dropdown {
+    /* Header dropdown background */
+    html.theme-grey .header__menu ul li .dropdown {
         background: var(--gtx-grad) !important;
     }
 
     /* Keep menu links readable on gradient */
-    html.grey .header__menu ul li a {
+    html.theme-grey .header__menu ul li a {
         color: #fff !important;
         text-shadow: none !important;
     }
 
-        html.grey .header__menu ul li a:after {
+        html.theme-grey .header__menu ul li a:after {
             background: #fff !important;
         }
 
-    html.grey .btn-gradient-grey .active {
-        background: var(--gtx-grad) !important;
-        color: white;
+    /* Your special-case override */
+    html.theme-grey #MajordomeLink .gradient {
+        color: #000 !important;
     }
 
-    html.grey #MajordomeLink .gradient {
-        color: black!important;
-    }
-
-    html.grey .form-check-input:checked {
+    /* Checkbox color (optional) */
+    html.theme-grey .form-check-input:checked {
         background-color: darkgrey;
         border-color: darkgray;
     }

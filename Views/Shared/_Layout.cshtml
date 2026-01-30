@@ -1,5 +1,22 @@
 ﻿<!DOCTYPE html>
-<html>
+@{
+    var t = (Request.Cookies["gtx-theme"]?.Value ?? "blue").ToLowerInvariant();
+
+    // allow only known themes
+    switch (t)
+    {
+        case "grey":
+        case "pink":
+        case "blue":
+            break;
+        default:
+            t = "blue";
+            break;
+    }
+
+    var themeClass = "theme-" + t;
+}
+<html class="@themeClass">
 <head class="flex-shrink-0">
     <meta charset="UTF-8">
     @RenderSection("Meta", required: false)
@@ -14,12 +31,17 @@
 
     <script>
         (function () {
-            try {
-                var t = localStorage.getItem("gtx-theme"); // "grey" or "light"
-                var root = document.documentElement;
-                root.classList.toggle("grey", t === "grey");
-            } catch (e) { }
-        })();
+            var KEY = "gtx-theme";
+            var t = localStorage.getItem(KEY) || "blue"; // default
+            var root = document.documentElement;
+
+            // remove any theme classes first
+            root.classList.remove("theme-blue", "theme-grey", "theme-pink");
+
+            // add selected theme
+            root.classList.add("theme-" + t);
+        } catch (e) { }
+            }) ();
     </script>
 
 
@@ -73,49 +95,46 @@
 
                     <!-- Inventory (collapsible header = bold black pill) -->
                     <li class="mb-2">
-                        <a class="btn btn-gradient-grey rounded-3 w-100 d-flex align-items-center justify-content-between text-dark fw-bold shadow" data-bs-toggle="collapse" href="#menuInventory" role="button" aria-expanded="false" aria-controls="menuInventory">
+                        <a class="btn btn-gradient-grey rounded-3 w-100 d-flex align-items-center justify-content-between text-dark fw-bold shadow" data-bs-toggle="collapse" href="#menuInventoryMobile" role="button" aria-expanded="false" aria-controls="menuInventoryMobile">
                             <span><i class="bi bi-car-front me-2"></i>Inventory</span>
                             <i class="bi bi-chevron-down"></i>
                         </a>
-
                         <!-- Submenu (indented list-group look) -->
-                        <ul id="menuInventory" class="collapse list-unstyled mt-2 ms-3 p-2" data-bs-parent="#mobileMenuOffcanvas">
-                            <li class="mb-1">@Html.ActionLink("All", "All", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1">@Html.ActionLink("Suvs", "Suvs", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1">@Html.ActionLink("Trucks", "Trucks", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1">@Html.ActionLink("Vans", "Vans", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1">@Html.ActionLink("Hatchbacks", "Hatchbacks", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1">@Html.ActionLink("Coupes", "Coupes", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1">@Html.ActionLink("Sedans", "Sedans", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1">@Html.ActionLink("Convertibles", "Convertibles", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                        <ul id="menuInventoryMobile" class="collapse list-unstyled mt-2 ms-3 p-2" data-bs-parent="#mobileMenuOffcanvas">
+                            <li class="mb-1 shadow-sm">@Html.ActionLink("All", "All", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1 shadow-sm">@Html.ActionLink("Suvs", "Suvs", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1 shadow-sm">@Html.ActionLink("Trucks", "Trucks", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1 shadow-sm">@Html.ActionLink("Vans", "Vans", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1 shadow-sm">@Html.ActionLink("Hatchbacks", "Hatchbacks", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1 shadow-sm">@Html.ActionLink("Coupes", "Coupes", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1 shadow-sm">@Html.ActionLink("Sedans", "Sedans", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1 shadow-sm">@Html.ActionLink("Convertibles", "Convertibles", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
                         </ul>
                     </li>
 
                     <!-- About (collapsible) -->
                     <li class="mb-2">
-                        <a class="btn btn-gradient-grey rounded-3 w-100 d-flex align-items-center justify-content-between text-dark fw-bold shadow" data-bs-toggle="collapse" href="#menuAbout" role="button" aria-expanded="false" aria-controls="menuAbout">
+                        <a class="btn btn-gradient-grey rounded-3 w-100 d-flex align-items-center justify-content-between text-dark fw-bold shadow" data-bs-toggle="collapse" href="#menuAboutMobile" role="button" aria-expanded="false" aria-controls="menuAboutMobile">
                             <span><i class="bi bi-info-circle me-2"></i>About us</span>
                             <i class="bi bi-chevron-down"></i>
                         </a>
 
-                        <ul id="menuAbout" class="collapse list-unstyled mt-2 ms-3 p-2" data-bs-parent="#mobileMenuOffcanvas">
-                            <li class="mb-1">@Html.ActionLink("About us", "About", "Home", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1">
-                                <a class="btn btn-outline-dark w-100 text-start rounded-3" data-bs-dismiss="offcanvas" href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })">Contact us</a>
-                            </li>
-                            <li class="mb-1">@Html.ActionLink("Our staff", "Staff", "Home", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1">@Html.ActionLink("Testimonials", "Testimonials", "Home", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                        <ul id="menuAboutMobile" class="collapse list-unstyled mt-2 ms-3 p-2" data-bs-parent="#mobileMenuOffcanvas">
+                            <li class="mb-1 shadow-sm">@Html.ActionLink("About us", "About", "Home", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1 shadow-sm"><a class="btn btn-outline-dark w-100 text-start rounded-3" data-bs-dismiss="offcanvas" href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })">Contact us</a></li>
+                            <li class="mb-1 shadow-sm">@Html.ActionLink("Our staff", "Staff", "Home", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1 shadow-sm">@Html.ActionLink("Testimonials", "Testimonials", "Home", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
                         </ul>
                     </li>
 
                     <!-- Hours / Schedule (collapsible + centered address) -->
                     <li class="mb-2">
-                        <a class="btn btn-gradient-grey rounded-3 w-100 d-flex align-items-center justify-content-between text-dark fw-bold shadow" data-bs-toggle="collapse" href="#menuSchedule" role="button" aria-expanded="false" aria-controls="menuSchedule">
+                        <a class="btn btn-gradient-grey rounded-3 w-100 d-flex align-items-center justify-content-between text-dark fw-bold shadow" data-bs-toggle="collapse" href="#menuScheduleMobile" role="button" aria-expanded="false" aria-controls="menuScheduleMobile">
                             <span><i class="bi bi-stopwatch me-2"></i>Hours / Schedule</span>
                             <i class="bi bi-chevron-down"></i>
                         </a>
 
-                        <div id="menuSchedule" class="collapse mt-2" data-bs-parent="#mobileMenuOffcanvas">
+                        <div id="menuScheduleMobile" class="collapse mt-2" data-bs-parent="#mobileMenuOffcanvas">
                             <div class="text-center py-2">
                                 <div class="fw-bold text-dark">9516 Princeton Glendale Rd</div>
                                 <div class="text-secondary small">West Chester Township, OH 45011</div>
@@ -128,7 +147,7 @@
                     </li>
 
                     <!-- Search (primary style) -->
-                    <li class="mb-2">
+                    <li class="mb-2 shadow-sm">
                         <a class="btn btn-dark w-100 rounded-3 d-flex align-items-center justify-content-center gap-2 shadow"
                            href="#" onclick="openFiltersFromOffcanvas(event)">
                             <i class="bi bi-search"></i>
@@ -137,7 +156,7 @@
                     </li>
 
                     <!-- Prequalified (success-ish outline) -->
-                    <li class="mb-2">@Html.ActionLink("💲 Get prequalified", "Application", "Home", null, new { @class = "btn btn-outline-success w-100 rounded-3 fw-semibold shadow" })</li>
+                    <li class="mb-2 shadow-sm">@Html.ActionLink("💲 Get prequalified", "Application", "Home", null, new { @class = "btn btn-outline-success w-100 rounded-3 fw-semibold" })</li>
 
                 </ul>
             </div>
@@ -325,15 +344,39 @@
                 </div>
             </div>
 
-            <!-- RIGHT: Status Circle -->
+            <!-- RIGHT:  -->
             <div class="col-auto d-flex align-items-center">
-                <div class="form-check form-switch mt-2">
-                    <input class="form-check-input" type="checkbox" role="switch" id="themeSwitch" aria-label="Toggle theme">
-                    <label class="form-check-label small" for="themeSwitch" id="themeLabel">
-                        Blue
-                    </label>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-gradient dropdown-toggle" type="button" id="themeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        Theme: <span id="themeLabel">Blue</span>
+                    </button>
+
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="themeDropdown">
+                        <li>
+                            <a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="blue">
+                                <span class="theme-swatch swatch-blue"></span>
+                                Blue
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="grey">
+                                <span class="theme-swatch swatch-grey"></span>
+                                Grey
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="pink">
+                                <span class="theme-swatch swatch-pink"></span>
+                                Pink
+                            </a>
+                        </li>
+
+                    </ul>
                 </div>
             </div>
+
 
         </div>
     </footer>
@@ -366,27 +409,40 @@
         (() => {
             const KEY = "gtx-theme";
             const root = document.documentElement;
-            const sw = document.getElementById("themeSwitch");
             const label = document.getElementById("themeLabel");
 
-            if (!sw) return;
+            const items = Array.from(document.querySelectorAll(".theme-item"));
+            const themes = items.map(x => x.dataset.theme).filter(Boolean);
+            const pretty = (t) => t ? (t.charAt(0).toUpperCase() + t.slice(1)) : "";
 
-            function applyGrey(isGrey) {
-                root.classList.toggle("grey", isGrey);
-                localStorage.setItem(KEY, isGrey ? "grey" : "light");
-                sw.checked = isGrey;
-
-                if (label) label.textContent = isGrey ? "Grey" : "Blue";
+            function setCookie(name, value) {
+                // 1 year, site-wide
+                document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=31536000; samesite=lax`;
             }
 
-            // init
-            const saved = localStorage.getItem(KEY);
-            applyGrey(saved === "grey");
+            function applyTheme(theme) {
+                themes.forEach(t => root.classList.remove("theme-" + t));
+                root.classList.add("theme-" + theme);
 
-            // change
-            sw.addEventListener("change", () => applyGrey(sw.checked));
+                localStorage.setItem(KEY, theme);
+                setCookie(KEY, theme);
+
+                if (label) label.textContent = pretty(theme);
+            }
+
+            const saved = localStorage.getItem(KEY) || "blue";
+            if (themes.includes(saved)) applyTheme(saved);
+
+            items.forEach(a => {
+                a.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    applyTheme(a.dataset.theme);
+                });
+            });
         })();
     </script>
+
+
 </body>
 </html>
 

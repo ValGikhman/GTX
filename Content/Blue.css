@@ -1,0 +1,50 @@
+﻿/* Blue.css (scoped blue theme) */
+html.theme-blue {
+    --gtx-grad: linear-gradient(180deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1) 94%);
+    --gtx-grad-rev: linear-gradient(0deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1) 94%);
+    --gtx-grad-diag: linear-gradient(83deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1) 94%);
+    --gtx-grad-page: linear-gradient(0deg, rgba(21, 90, 150, 1) 20%, rgba(30, 115, 190, 1) 80%);
+}
+
+    /* Buttons */
+    html.theme-blue .btn-big-gradient {
+        background: var(--gtx-grad);
+        color: #fff;
+    }
+
+        html.theme-blue .btn-big-gradient:hover {
+            background: var(--gtx-grad-rev);
+            color: #fff;
+        }
+
+    html.theme-blue .btn-gradient {
+        background: var(--gtx-grad);
+        color: #fff;
+    }
+
+        html.theme-blue .btn-gradient:hover {
+            background: var(--gtx-grad-rev);
+        }
+
+    html.theme-blue .btn-gradient-grey.active {
+        background: var(--gtx-grad);
+        color: #fff;
+    }
+
+    /* Strips / headers */
+    html.theme-blue .menu-strip {
+        background: var(--gtx-grad);
+    }
+
+    html.theme-blue .page-title {
+        background: var(--gtx-grad-page);
+    }
+
+    html.theme-blue .modal-header {
+        background: var(--gtx-grad);
+    }
+
+    /* Header dropdown */
+    html.theme-blue .header__menu ul li .dropdown {
+        background: var(--gtx-grad-diag);
+    }
