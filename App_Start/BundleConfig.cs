@@ -34,7 +34,7 @@ namespace GTX {
                       "~/Content/magnific-popup.css",
                       "~/Content/owl.carousel.min.css",
                       "~/Content/slicknav.min.css",
-                      // "~/Content/Grey.css",
+                      "~/Content/Grey.css",
                       "~/Content/Site.css",
                       "~/Scripts/chosen/chosen.min.css"
                 ));

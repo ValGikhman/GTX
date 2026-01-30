@@ -5,66 +5,57 @@
    Only changes your “blue” areas/buttons to grey gradients.
    ========================================================= */
 
-body.grey {
-    --gtx-grad: linear-gradient(180deg, #666666, #101010);
+html.grey {
+/*    --gtx-grad: linear-gradient(180deg, #666666, #101010); */
     --gtx-grad: linear-gradient(180deg, #757575, #141414);
     --gtx-grad-rev: linear-gradient(0deg, #757575, #141414);
 }
 
     /* Replace your blue gradient areas with grey gradient */
-    body.grey .menu-strip,
-    body.grey .page-title,
-    body.grey .modal-header,
-    body.grey .small-offcanvas {
+    html.grey .menu-strip,
+    html.grey .page-title,
+    html.grey .modal-header,
+    html.grey .small-offcanvas {
         background: var(--gtx-grad) !important;
         color: #fff !important;
     }
 
     /* Buttons that used your blue gradient */
-    body.grey .btn-gradient,
-    body.grey .btn-gradient-grey .active {
+    html.grey .btn-gradient,
+    html.grey .btn-gradient-grey.active {
         background: var(--gtx-grad) !important;
         color: #fff !important;
         border-color: rgba(0,0,0,.35) !important;
     }
 
-        body.grey .btn-gradient:hover,
-        body.grey .btn-big-gradient:hover,
-        body.grey .btn-gradient-grey:hover {
-            background: var(--gtx-grad-rev) !important;
-            font-weight: bold !important;
-        }
-
-
-
-    body.grey .footer-strip.btn-gradient-grey:hover {
+    html.grey .footer-strip.btn-gradient-grey:hover {
     }
 
     /* Header dropdown background (your blue dropdown) */
-    body.grey .header__menu ul li .dropdown {
+    html.grey .header__menu ul li .dropdown {
         background: var(--gtx-grad) !important;
     }
 
     /* Keep menu links readable on gradient */
-    body.grey .header__menu ul li a {
+    html.grey .header__menu ul li a {
         color: #fff !important;
         text-shadow: none !important;
     }
 
-        body.grey .header__menu ul li a:after {
+        html.grey .header__menu ul li a:after {
             background: #fff !important;
         }
 
-    body.grey .btn-gradient-grey.active {
+    html.grey .btn-gradient-grey .active {
         background: var(--gtx-grad) !important;
         color: white;
     }
 
-    body.grey #MajordomeLink .gradient {
+    html.grey #MajordomeLink .gradient {
         color: black!important;
     }
 
-    body.grey .form-check-input:checked {
+    html.grey .form-check-input:checked {
         background-color: darkgrey;
         border-color: darkgray;
     }
