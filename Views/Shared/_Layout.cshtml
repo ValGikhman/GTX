@@ -32,7 +32,7 @@
 </head>
 
 @Html.Action("LoginModal", "Home")
-<body class="main-container overflow-hidden d-flex flex-column min-vh-100 grey">
+<body class="main-container overflow-hidden d-flex flex-column min-vh-100">
     <!-- Offcanvas open hours -->
     <div class="offcanvas-top-fixed-center" tabindex="-1" id="openHours">
         <div class="offcanvas-body">
@@ -316,7 +316,7 @@
             </div>
 
             <!-- RIGHT: Status Circle -->
-            <div class="col-auto d-flex align-items-center">
+            <div class="col-auto d-flex align-items-center d-none">
                 <div class="form-check form-switch mt-2">
                     <input class="form-check-input" type="checkbox" role="switch" id="themeSwitch" aria-label="Toggle theme">
                     <label class="form-check-label small" for="themeSwitch" id="themeLabel">
