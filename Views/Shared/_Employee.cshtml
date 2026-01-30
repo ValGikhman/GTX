@@ -1,4 +1,5 @@
-﻿@model List<GTX.Models.EmployeeModel>
+﻿@using Extensions
+@model List<GTX.Models.EmployeeModel>
 <link href="~/Content/majordome.css" rel="stylesheet" />
 
 <div class="shadow rounded-4 overflow-hidden">
@@ -87,7 +88,7 @@
 
                                 <td>@(string.IsNullOrWhiteSpace(e.Position) ? "N/A" : e.Position)</td>
                                 <td>@(string.IsNullOrWhiteSpace(e.Email) ? "N/A" : e.Email)</td>
-                                <td>@(string.IsNullOrWhiteSpace(e.Phone) ? "N/A" : e.Phone)</td>
+                                <td>@(string.IsNullOrWhiteSpace(e.Phone) ? "N/A" : e.Phone.FormatPhone())</td>
 
                                 <td>
                                     @if (e.Active)
