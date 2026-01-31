@@ -1,0 +1,80 @@
+﻿@model GTX.Models.GTX
+@{
+    var detailsUrl = Url.Action("Details", "Inventory", new { stock = Model.Stock });
+}
+<style>
+    .text-truncate {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>
+<li id="@Model.Stock" class="card rounded-3 col-12 col-sm-6 col-md-4 col-lg-3 V @Model.LocationCode" title="Click here to see details."
+    data-url="@Url.Action("Details", "Inventory", new { stock = Model.Stock })"
+    data-location-code="@Model.LocationCode"
+    data-story="@(Model.Story is not null && !Model.Story.HtmlContent.ToUpper().Contains("ERROR") ? "STORY" : "NOSTORY")"
+    data-dataone="@(Model.DataOne is not null ? "DATAONE" : "NODATAONE")"
+    data-images="@(Model.Image is not null && Model.Image.Contains("no-image") ? "NOIMAGE" : "IMAGE")"
+    data-year="@Model.Year"
+    data-stock="@Model.Stock.ToUpper()"
+    data-vin="@Model.VIN.ToUpper()"
+    data-make="@Model.Make.ToUpper()"
+    data-model="@Model.Model.ToUpper()"
+    data-transmission="@Model.TransmissionWord.ToUpper()"
+    data-style="@Model.VehicleStyle.ToUpper()"
+    data-type="@Model.VehicleType.ToUpper()"
+    data-miles="@Model.Mileage"
+    data-price="@Model.InternetPrice"
+    data-cylinders="@Model.Cylinders"
+    data-color="@Model.Color.ToUpper()"
+    data-color2="@Model.Color2.ToUpper()">
+    <div class="h-100 rounded-3 hand-pointer">
+        <div class="card-header gradient position-relative">
+            <!-- open-in-new-tab icon (right side, vertically centered) -->
+            <a href="@detailsUrl"  target="_blank" rel="noopener" class="position-absolute top-50 end-0 translate-middle-y me-2 text-dark" title="Open details in new tab" onclick="event.stopPropagation();">
+                <i class="bi bi-box-arrow-up-right fs-5"></i>
+            </a>
+
+            <div class="row g-2" style="margin-left:-1rem">
+                <div class="col-auto">
+                    @{
+                        var makeImg = $"/GTXImages/makes/{Model.Make.Replace(" ", "-")}.png";
+                    }
+                    <img src="@makeImg" alt="@Model.Make logo" data-make="@Model.Make" class="img-fluid" style="height:40px;">
+                </div>
+
+                <div class="col pe-5">
+                    <!-- pe-5 makes room so text doesn't sit under the icon -->
+                    <div class="fw-bold fs-6 text-shadow">
+                        @Model.Year @Model.Make
+                        <i class="liked bi bi-heart-fill text-danger position-absolute top-0 end-0 mt-2 me-2" style="display:none;"></i>
+                    </div>
+                    <div class="fw-bold fs-7 text-shadow text-truncate" style="max-width: 230px;">@Model.Model - @Model.VehicleStyle</div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="card-body p-0 well ez360-srp-pic" data-vin="@Model.VIN">
+            <img class="img-fluid w-100" src="@Model.Image" alt="@($"{Model.Year} {Model.Make} {Model.Model}")" loading="lazy" decoding="async">
+        </div>
+
+        <div class="card-footer gradient no-click">
+            <h5>
+                <div class="d-flex flex-wrap justify-content-between">
+                    <span>Price: @Model.InternetPrice.ToString("C0")</span>
+                    <span>Miles: @Model.Mileage.ToString("N0")</span>
+                </div>
+                <div class="d-flex flex-wrap justify-content-between very-small-text">
+                    <span class="no-click copyable">@Model.VIN</span>
+                    <span class="no-click copyable">@Model.Stock</span>
+                </div>
+                <div class="d-flex justify-content-center">
+                    <a href="http://www.carfax.com/VehicleHistory/p/Report.cfx?partner=DVW_1&vin=@Model.VIN" target="_blank">
+                        <img width="100" src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report">
+                    </a>
+                </div>
+            </h5>
+        </div>
+    </div>
+</li>
