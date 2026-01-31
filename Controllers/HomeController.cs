@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Mvc;
+using System.Web.Security;
 
 namespace GTX.Controllers
 {
@@ -27,15 +29,40 @@ namespace GTX.Controllers
         [HttpPost]
         public JsonResult Login(string password)
         {
-            var ok = ValidateLogin(password, out var currentRole);
+            CommonUnit.Roles role;
+            var ok = ValidateLogin(password, out role, Session, Request, Response, rememberOnThisComputer: true);
+
 
             if (!ok)
-                return Json(new { ok = false, role = currentRole.ToString(), msg = "Invalid password." });
+                return Json(new { ok = false, role = CommonUnit.Roles.User.ToString(), msg = "Invalid password." });
 
             SessionData.SetSession(Constants.SESSION_MAJORDOME, true);
-            return Json(new { ok = true, role = currentRole.ToString() });
+
+            return Json(new { ok = true, role = role.ToString() });
         }
 
+
+        [HttpPost]
+        public ActionResult Logout()
+        {
+            // 1) Clear per-user server session
+            Session.Remove(Constants.SESSION_MAJORDOME);
+            Session.Remove("CurrentRole");     // if you used this
+            Session.Clear();
+            Session.Abandon();
+
+            // 2) If you're using FormsAuthentication, sign out too
+            // (harmless if you aren't)
+            FormsAuthentication.SignOut();
+
+            // 3) Clear the "computer-level" role cookie
+            RoleCookie.Clear(Response);
+
+            // 4) Optional: also expire your custom auth cookie if you have one
+            // Response.Cookies.Add(new HttpCookie("YourAuthCookie", "") { Expires = DateTime.UtcNow.AddDays(-1), Path="/" });
+
+            return RedirectToAction("Index", "Home");
+        }
 
         [HttpGet]
         public ActionResult LoginModal()

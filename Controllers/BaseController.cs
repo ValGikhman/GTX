@@ -5,8 +5,11 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
+using System.Web;
 using System.Web.Mvc;
+using System.Web.Security;
 
 namespace GTX.Controllers
 {
@@ -93,7 +96,23 @@ namespace GTX.Controllers
                 Model.Filters = AppCache.GetOrCreate(Constants.FILTERS_CACHE, () => BuildFilters(Model.Inventory), minutes: 60);
                 Model.Categories = AppCache.GetOrCreate(Constants.CATEGORIES_CACHE, () => GetCategories(), minutes: 60);
                 Model.Passwords = AppCache.GetOrCreate(Constants.PASSWORDS_CACHE, () => GetPasswords(), minutes: 60);
-                ViewBag.CurrentRole = AppCache.GetOrCreate(Constants.ROLE_CACHE, () => CommonUnit.Roles.User.ToString(), minutes: 60); ;
+                var role = CommonUnit.Roles.User;
+                if (Session["CurrentRole"] is CommonUnit.Roles r)
+                {
+                    role = r;
+                }
+                else
+                {
+                    var roleStr = RoleCookie.TryGet(Request);
+                    if (!string.IsNullOrWhiteSpace(roleStr) &&
+                        Enum.TryParse(roleStr, true, out CommonUnit.Roles parsed))
+                    {
+                        role = parsed;
+                        Session["CurrentRole"] = role; // hydrate session
+                    }
+                }
+
+                ViewBag.CurrentRole = role.ToString();
 
                 var published = Model.Inventory?.Published ?? DateTime.Now;
                 ViewBag.Published = Model.IsDevelopment ? published : published.AddHours(-5);
@@ -138,21 +157,44 @@ namespace GTX.Controllers
             return posts;
         }
 
-        public bool ValidateLogin(string password, out CommonUnit.Roles currentRole)
+        public bool ValidateLogin(
+            string password,
+            out CommonUnit.Roles currentRole,
+            HttpSessionStateBase session,
+            HttpRequestBase request,
+            HttpResponseBase response,
+            bool rememberOnThisComputer = true)
         {
-            currentRole = CommonUnit.Roles.User; // default always
+            currentRole = CommonUnit.Roles.User;
             password = (password ?? "").Trim();
 
-            var expected = Model.Passwords.Where(m => m.Password.Equals(password)).FirstOrDefault();
+            var expected = Model.Passwords.FirstOrDefault(m => m.Password == password);
             if (expected == null) return false;
 
-            if (Enum.TryParse<CommonUnit.Roles>(expected.Role, ignoreCase: true, out var role))
+            if (!string.IsNullOrWhiteSpace(expected.Role) &&
+                Enum.TryParse(expected.Role, true, out CommonUnit.Roles role))
             {
                 currentRole = role;
             }
 
-            AppCache.Remove(Constants.ROLE_CACHE);
-            AppCache.GetOrCreate(Constants.ROLE_CACHE, () => role.ToString(), minutes: 60);
+            // session
+            session["CurrentRole"] = currentRole;
+
+            // encrypted cookie
+            var bytes = Encoding.UTF8.GetBytes(currentRole.ToString());
+            var encoded = MachineKey.Encode(bytes, MachineKeyProtection.All);
+
+            var cookie = new HttpCookie(RoleCookie.CookieName, encoded)
+            {
+                HttpOnly = true,
+                Secure = request.IsSecureConnection,   // ✅ MVC5 correct
+                Path = "/"
+            };
+
+            if (rememberOnThisComputer)
+                cookie.Expires = DateTime.UtcNow.AddDays(30);
+
+            response.Cookies.Add(cookie);
 
             return true;
         }
