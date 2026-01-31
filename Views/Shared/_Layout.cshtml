@@ -8,6 +8,8 @@
         case "grey":
         case "pink":
         case "blue":
+        case "deep-purple":
+        case "metallica":
             break;
         default:
             t = "blue";
@@ -32,11 +34,12 @@
     <script>
         (function () {
             var KEY = "gtx-theme";
+            const THEMES = ["blue", "grey", "pink", "deep-purple", "metallica"]; // add more here
             var t = localStorage.getItem(KEY) || "blue"; // default
             var root = document.documentElement;
 
             // remove any theme classes first
-            root.classList.remove("theme-blue", "theme-grey", "theme-pink");
+            root.classList.remove(...THEMES.map(t => "theme-" + t));
 
             // add selected theme
             root.classList.add("theme-" + t);
@@ -372,12 +375,21 @@
                                 Pink
                             </a>
                         </li>
-
+                        <li>
+                            <a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="deep-purple">
+                                <span class="theme-swatch swatch-deep-purple"></span>
+                                Deep Purple
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="metallica">
+                                <span class="theme-swatch swatch-metallica"></span>
+                                Metallica
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
-
-
         </div>
     </footer>
     <!-- Footer Section End -->
