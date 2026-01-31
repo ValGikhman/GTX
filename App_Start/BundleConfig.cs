@@ -34,13 +34,14 @@ namespace GTX {
                       "~/Content/magnific-popup.css",
                       "~/Content/owl.carousel.min.css",
                       "~/Content/slicknav.min.css",
+                      "~/Scripts/chosen/chosen.min.css",
                       "~/Content/Site.css",
-                      "~/Content/Grey.css",
-                      "~/Content/Pink.css",
-                      "~/Content/Blue.css",
-                      "~/Content/DeepPurple.css",
-                      "~/Content/Metallica.css",
-                      "~/Scripts/chosen/chosen.min.css"
+                      "~/Content/Themes/Grey.css",
+                      "~/Content/Themes/Pink.css",
+                      "~/Content/Themes/Blue.css",
+                      "~/Content/Themes/DeepPurple.css",
+                      "~/Content/Themes/Metallica.css"
+
                 ));
         }
     }
