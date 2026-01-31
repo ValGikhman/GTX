@@ -96,22 +96,7 @@ namespace GTX.Controllers
                 Model.Filters = AppCache.GetOrCreate(Constants.FILTERS_CACHE, () => BuildFilters(Model.Inventory), minutes: 60);
                 Model.Categories = AppCache.GetOrCreate(Constants.CATEGORIES_CACHE, () => GetCategories(), minutes: 60);
                 Model.Passwords = AppCache.GetOrCreate(Constants.PASSWORDS_CACHE, () => GetPasswords(), minutes: 60);
-                var role = CommonUnit.Roles.User;
-                if (Session["CurrentRole"] is CommonUnit.Roles r)
-                {
-                    role = r;
-                }
-                else
-                {
-                    var roleStr = RoleCookie.TryGet(Request);
-                    if (!string.IsNullOrWhiteSpace(roleStr) &&
-                        Enum.TryParse(roleStr, true, out CommonUnit.Roles parsed))
-                    {
-                        role = parsed;
-                        Session["CurrentRole"] = role; // hydrate session
-                    }
-                }
-
+                var role = RoleCookie.GetCurrentRole(Request, Session);
                 ViewBag.CurrentRole = role.ToString();
 
                 var published = Model.Inventory?.Published ?? DateTime.Now;
