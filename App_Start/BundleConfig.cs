@@ -38,6 +38,8 @@ namespace GTX {
                       "~/Content/Grey.css",
                       "~/Content/Pink.css",
                       "~/Content/Blue.css",
+                      "~/Content/DeepPurple.css",
+                      "~/Content/Metallica.css",
                       "~/Scripts/chosen/chosen.min.css"
                 ));
         }

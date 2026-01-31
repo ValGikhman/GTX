@@ -1,0 +1,54 @@
+﻿/* Metallica.css (scoped metallic theme) */
+html.theme-metallica {
+    /* Brushed metal vibe: light silver highlights -> gunmetal */
+    --gtx-grad: linear-gradient( 180deg, #f1f2f4 0%, #cfd3d8 22%, #9aa0a8 45%, #5c626b 70%, #2a2f36 100% );
+    --gtx-grad-rev: linear-gradient( 0deg, #f1f2f4 0%, #cfd3d8 22%, #9aa0a8 45%, #5c626b 70%, #2a2f36 100% );
+}
+
+    /* Apply to your gradient surfaces */
+    html.theme-metallica .menu-strip,
+    html.theme-metallica .page-title,
+    html.theme-metallica .modal-header,
+    html.theme-metallica .small-offcanvas {
+        background: var(--gtx-grad) !important;
+        color: #0f1115 !important; /* dark text reads better on silver */
+    }
+
+    /* Optional: if you want buttons to follow Metallica too */
+    html.theme-metallica .btn-gradient,
+    html.theme-metallica .btn-gradient-grey.active {
+        background: var(--gtx-grad) !important;
+        color: #0f1115 !important;
+        border-color: rgba(0,0,0,.35) !important;
+    }
+
+    /* Header dropdown background */
+    html.theme-metallica .header__menu ul li .dropdown {
+        background: var(--gtx-grad) !important;
+    }
+
+    /* Menu links readable (metal is bright, so use dark) */
+    html.theme-metallica .header__menu ul li a {
+        color: #101318 !important;
+        text-shadow: none !important;
+    }
+
+        html.theme-metallica .header__menu ul li a:after {
+            background: #101318 !important;
+        }
+
+    /* Checkbox (optional) */
+    html.theme-metallica .form-check-input:checked {
+        background-color: #9aa0a8;
+        border-color: #9aa0a8;
+    }
+
+    /* Address */
+    html.theme-metallica .nav-addr-hours {
+        border-color: black;
+        border-radius: var(--bs-border-radius-xxl) !important;
+        background: linear-gradient(180deg, rgb(255 255 255), #AAAAB3);
+        color: black;
+        padding: 2px 20px 2px 20px;
+        font-size: 16px;
+    }

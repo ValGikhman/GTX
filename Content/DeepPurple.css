@@ -1,0 +1,49 @@
+﻿/* DeepPurple.css (scoped deep purple theme) */
+html.theme-deep-purple {
+    /* deep purple -> near-black purple */
+    --gtx-grad: linear-gradient(180deg, #4a1b78, #0b0610);
+    --gtx-grad-rev: linear-gradient(0deg, #4a1b78, #0b0610);
+}
+
+    /* Replace your blue gradient areas */
+    html.theme-deep-purple .menu-strip,
+    html.theme-deep-purple .page-title,
+    html.theme-deep-purple .modal-header,
+    html.theme-deep-purple .small-offcanvas {
+        background: var(--gtx-grad) !important;
+        color: #fff !important;
+    }
+
+    /* If you want purple to affect these buttons too */
+    html.theme-deep-purple .btn-gradient,
+    html.theme-deep-purple .btn-gradient-grey.active {
+        background: var(--gtx-grad) !important;
+        color: #fff !important;
+        border-color: rgba(0,0,0,.35) !important;
+    }
+
+    /* Header dropdown background */
+    html.theme-deep-purple .header__menu ul li .dropdown {
+        background: var(--gtx-grad) !important;
+    }
+
+    /* Keep menu links readable on gradient */
+    html.theme-deep-purple .header__menu ul li a {
+        color: #fff !important;
+        text-shadow: none !important;
+    }
+
+        html.theme-deep-purple .header__menu ul li a:after {
+            background: #fff !important;
+        }
+
+    /* Your special-case override (kept same behavior) */
+    html.theme-deep-purple #MajordomeLink .gradient {
+        color: #000 !important;
+    }
+
+    /* Checkbox color (optional) */
+    html.theme-deep-purple .form-check-input:checked {
+        background-color: #6a1bb1;
+        border-color: #6a1bb1;
+    }
