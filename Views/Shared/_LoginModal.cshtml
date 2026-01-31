@@ -1,69 +1,163 @@
 ﻿<style>
-    #loginModal .form-control:focus, #loginModal .btn:focus {
-        box-shadow: 0 0 0 .25rem rgba(13,110,253,.15);
+    /* ===== Ultra-stable login input shell (only in login modal) ===== */
+    #loginModal .login-shell {
+        display: flex !important;
+        align-items: center !important;
+        height: 44px !important;
+        border: 1px solid rgba(0,0,0,.14) !important;
+        border-radius: 14px !important;
+        overflow: hidden !important;
+        background: #fff !important;
+    }
+
+    /* left icon area */
+    #loginModal .login-shell__icon {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 .9rem !important;
+        height: 100% !important;
+        background: #fff !important;
+        color: inherit !important;
+    }
+
+    /* the input (this kills the “double line / underline” from other CSS libraries) */
+    #loginModal .login-shell__input {
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        height: 100% !important;
+        /* remove all the stuff other themes inject */
+        border: 0 !important;
+        border-radius: 0 !important;
+        outline: 0 !important;
+        box-shadow: none !important;
+        background: #fff !important;
+        background-image: none !important;
+        background-repeat: no-repeat !important;
+        background-size: 0 0 !important;
+        /* good vertical centering */
+        padding: 0 .95rem !important;
+        line-height: normal !important;
+    }
+
+    /* eye button */
+    #loginModal .login-shell__btn {
+        height: 100% !important;
+        min-width: 46px !important;
+        padding: 0 .8rem !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: #fff !important;
+        box-shadow: none !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+        #loginModal .login-shell__btn:hover {
+            background: rgba(0,0,0,.03) !important;
+        }
+
+    /* nice focus ring around the whole shell */
+    #loginModal .login-shell:focus-within {
+        border-color: rgba(13,110,253,.45) !important;
+        box-shadow: 0 0 0 .25rem rgba(13,110,253,.15) !important;
+    }
+
+    /* keep Login button same height */
+    #loginModal #btnLogin {
+        height: 44px !important;
+        white-space: nowrap !important;
     }
 </style>
+
 
 <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content rounded-4 shadow">
 
             <div class="modal-header">
-                <div class="rounded-5 d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary p-3" style="width:22px;height:22px;">
+                <div class="rounded-5 d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary p-3"
+                     style="width:22px;height:22px;">
                     <i class="bi bi-shield-lock fs-5"></i>
                 </div>
-                <h5 class="modal-title fw-semibold mx-2" id="loginModalLabel">
-                    Admin Login
-                </h5>
-                <button type="button" class="btn btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                <h5 class="modal-title fw-semibold mx-2" id="loginModalLabel">Admin Login</h5>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <div class="modal-body">
-                <form id="loginForm" autocomplete="off">
-                    <div class="mb-3">
-                        <label for="loginPassword" class="form-label fw-semibold">Password</label>
 
-                        <div class="input-group">
-                            <span class="input-group-text bg-white">
-                                <i class="bi bi-key"></i>
-                            </span>
+                <div class="mb-2">
+                    <label for="loginPassword" class="form-label fw-semibold">Password</label>
 
-                            <input type="password" class="form-control" id="loginPassword" name="password" placeholder="Enter password" required />
-                            <button type="button" class="btn btn-outline-secondary" id="toggleLoginPassword" title="Show/Hide">
-                                <i class="bi bi-eye"></i>
+                    <!-- Password + Login on SAME ROW -->
+                    <form id="loginForm" autocomplete="off">
+                        <div class="d-flex gap-2 align-items-stretch">
+                            <div class="login-shell flex-grow-1">
+                                <span class="login-shell__icon">
+                                    <i class="bi bi-key"></i>
+                                </span>
+
+                                <input type="password"
+                                       class="form-control login-shell__input"
+                                       id="loginPassword"
+                                       name="password"
+                                       placeholder="Enter password"
+                                       autocomplete="new-password"
+                                       required />
+
+                                <button type="button" class="btn login-shell__btn" id="toggleLoginPassword" title="Show/Hide">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" id="btnLogin">
+                                <i class="bi bi-box-arrow-in-right me-1"></i> Log in
                             </button>
                         </div>
+                    </form>
 
-                        <div id="loginError" class="text-danger text-shadow-small mt-2 d-none text-center mx-auto" style="max-width: 320px;">
-                            Invalid password.
-                        </div>
+                    <div id="loginError"
+                         class="text-danger mt-2 d-none text-center mx-auto"
+                         style="max-width: 320px;">
+                        Invalid password.
                     </div>
+                </div>
 
-                    <div class="d-flex justify-content-end gap-2">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary" id="btnLogin">
-                            <i class="bi bi-box-arrow-in-right me-1"></i> Log in
-                        </button>
-                    </div>
-                </form>
+            </div>
+
+            <!-- Footer row: Cancel + Logout -->
+            <div class="modal-footer d-flex justify-content-between">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    Cancel
+                </button>
+
+                @using (Html.BeginForm("Logout", "Home", FormMethod.Post, new { id = "logoutForm", @class = "m-0" }))
+                {
+                    <button type="submit" class="btn btn-danger" id="btnLogout" title="Logout (clears session/cookie)">
+                        <i class="bi bi-box-arrow-right me-1"></i> Logout
+                    </button>
+                }
             </div>
 
         </div>
     </div>
 </div>
+
 <script>
-    function loginModal() {
-        var el = $("#loginModal")[0];
-        return bootstrap.Modal.getOrCreateInstance(el, { backdrop: true, keyboard: true });
+    function getLoginModal() {
+        return bootstrap.Modal.getOrCreateInstance($("#loginModal")[0], { backdrop: true, keyboard: true });
     }
 
     $(document).on("click", "[data-login-modal='true']", function (e) {
         e.preventDefault();
-        loginModal().show();
+        getLoginModal().show();
     });
 
     $(document).on("shown.bs.modal", "#loginModal", function () {
-        $("#loginError").addClass("d-none");
+        $("#loginError").addClass("d-none").text("");
         $("#loginPassword").trigger("focus");
     });
 
@@ -71,7 +165,7 @@
         var form = $("#loginForm")[0];
         if (form) form.reset();
 
-        $("#loginError").addClass("d-none");
+        $("#loginError").addClass("d-none").text("");
         $("#loginPassword").attr("type", "password");
         $("#toggleLoginPassword i").attr("class", "bi bi-eye");
     });
@@ -84,10 +178,11 @@
         $("#toggleLoginPassword i").attr("class", isHidden ? "bi bi-eye-slash" : "bi bi-eye");
     });
 
+    // Login AJAX submit
     $(document).on("submit", "#loginForm", function (e) {
-        e.preventDefault(); // ✅ must be () !
-        var password = $.trim($("#loginPassword").val() || "");
+        e.preventDefault();
 
+        var password = $.trim($("#loginPassword").val() || "");
         $("#loginError").addClass("d-none").text("");
 
         if (!password) {
@@ -101,11 +196,9 @@
             .done(function (res) {
                 if (res && res.ok) {
                     $("#MajordomeLink").removeClass("d-none");
-                    const role = (res.role || res.Role || "");
-
+                    const role = (res.role || res.Role || "user");
                     setMajordomeMenu(role);
-
-                    loginModal().hide();
+                    getLoginModal().hide();
                     return;
                 }
 
@@ -113,18 +206,16 @@
                 $("#loginPassword").trigger("focus").select();
             })
             .fail(function () {
-                console.error("Error setting admin:");
                 $("#loginError").removeClass("d-none").text("Server error. Try again.");
             })
             .always(function () {
                 $btn.prop("disabled", false);
-            }
-        );
+            });
     });
 
-    function loginModal() {
-        return bootstrap.Modal.getOrCreateInstance($("#loginModal")[0], { backdrop: true, keyboard: true });
-    }
-
-
+    // Optional: instant UI reset on logout click (server still does the real work)
+    $(document).on("submit", "#logoutForm", function () {
+        setMajordomeMenu("user");
+        $(".role-text").text("");
+    });
 </script>
