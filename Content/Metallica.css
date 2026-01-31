@@ -1,8 +1,8 @@
 ﻿/* Metallica.css (scoped metallic theme) */
 html.theme-metallica {
     /* Brushed metal vibe: light silver highlights -> gunmetal */
-    --gtx-grad: linear-gradient( 180deg, #f1f2f4 0%, #cfd3d8 22%, #9aa0a8 45%, #5c626b 70%, #2a2f36 100% );
-    --gtx-grad-rev: linear-gradient( 0deg, #f1f2f4 0%, #cfd3d8 22%, #9aa0a8 45%, #5c626b 70%, #2a2f36 100% );
+    --gtx-grad: linear-gradient(180deg, #cfd4da 0%, #aab2bc 22%, #747d88 45%, #404852 70%, #141a21 100%);
+    --gtx-grad-rev: linear-gradient(0deg, #cfd4da 0%, #aab2bc 22%, #747d88 45%, #404852 70%, #141a21 100%);
 }
 
     /* Apply to your gradient surfaces */
@@ -29,7 +29,7 @@ html.theme-metallica {
 
     /* Menu links readable (metal is bright, so use dark) */
     html.theme-metallica .header__menu ul li a {
-        color: #101318 !important;
+        color: white !important;
         text-shadow: none !important;
     }
 
@@ -52,3 +52,4 @@ html.theme-metallica {
         padding: 2px 20px 2px 20px;
         font-size: 16px;
     }
+
