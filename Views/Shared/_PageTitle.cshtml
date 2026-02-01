@@ -21,9 +21,9 @@
     </a>
 
     <div id="shorts" class="d-none d-md-flex align-items-center gap-1 position-absolute end-0 top-50 translate-middle-y ps-2 mx-3">
-        <a id="loanApplication" href="/Home/Application" class="btn btn-success rounded-4" type="button">💲Get prequalified</a>
-        <a id="contactUs" href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })" class="btn btn-primary rounded-4" type="button">🏢Contact us</a>
-        <a id="testDrive" href="@Url.RouteUrl("TestDriveContact")" class="btn btn-warning rounded-4" type="button">📅Schedule test drive</a>
+        <a id="loanApplication" href="/Home/Application" class="btn btn-success rounded-4" type="button">💲@I18n.R("Nav_GetPrequalified")</a>
+        <a id="contactUs" href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })" class="btn btn-primary rounded-4" type="button">🏢@I18n.R("Nav_ContactUs")</a>
+        <a id="testDrive" href="@Url.RouteUrl("TestDriveContact")" class="btn btn-warning rounded-4" type="button">📅@I18n.R("Nav_ScheduleTestDrive")</a>
     </div>
 
     <!-- Next button (far right) -->

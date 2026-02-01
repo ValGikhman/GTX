@@ -191,7 +191,7 @@
             <div id="header" class="modal-header shadow">
                 <img src="~/GTXImages/GTX-White.png" width="60" />
                 <h5 id="titleModal" class="modal-title test-shadow mx-3">
-                    Contact
+                    @I18n.R("Nav_Contact")
                 </h5>
             </div>
             <div id="messageBody" class="modal-body well">
@@ -213,14 +213,14 @@
         <!-- Buttons -->
         <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                <button class="nav-item active btn btn-gradient-grey border-dark text-shadow-small" id="nav-details-tab" data-bs-toggle="tab" data-bs-target="#nav-details" type="button" role="tab" aria-controls="nav-details" aria-selected="true"><i class="bi bi-car-front"></i>&nbsp; Details</button>
+                <button class="nav-item active btn btn-gradient-grey border-dark text-shadow-small" id="nav-details-tab" data-bs-toggle="tab" data-bs-target="#nav-details" type="button" role="tab" aria-controls="nav-details" aria-selected="true"><i class="bi bi-car-front"></i>&nbsp; @I18n.R("All_Details")</button>
                 @{
                     if (!(Model.CurrentVehicle.DisplayEZ360Player && Model.IsEZ360) && Model.CurrentVehicle.VehicleDetails.Images?.Count() > 0)
                     {
-                        <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small" id="nav-pictures-tab" data-bs-toggle="tab" data-bs-target="#nav-pictures" type="button" role="tab" aria-controls="nav-pictures" aria-selected="false"><i class="bi bi-camera"></i>&nbsp; Photos ( @Model.CurrentVehicle.VehicleDetails.Images.Count())</button>
+                                <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small" id="nav-pictures-tab" data-bs-toggle="tab" data-bs-target="#nav-pictures" type="button" role="tab" aria-controls="nav-pictures" aria-selected="false"><i class="bi bi-camera"></i>&nbsp; @I18n.R("All_Photos") ( @Model.CurrentVehicle.VehicleDetails.Images.Count())</button>
                     }
                 }
-                <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small" id="nav-location-tab" data-bs-toggle="tab" data-bs-target="#nav-location" type="button" role="tab" aria-controls="nav-location" aria-selected="true"><i class="bi bi-geo-fill"></i>&nbsp; Location</button>
+            <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small" id="nav-location-tab" data-bs-toggle="tab" data-bs-target="#nav-location" type="button" role="tab" aria-controls="nav-location" aria-selected="true"><i class="bi bi-geo-fill"></i>&nbsp; @I18n.R("All_Location")</button>
                 <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small d-none" id="nav-payment-tab" data-bs-toggle="tab" data-bs-target="#nav-payment" type="button" role="tab" aria-controls="nav-payment" aria-selected="true"><strong><i class="bi bi-calculator"></i>&nbsp; Pay $<span id="monthlyAmount"></span>/mo</strong></button>
                 <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small d-none d-lg-inline" id="QR-code-tab" data-bs-toggle="tab" data-bs-target="#tab-qr-code" type="button" role="tab">
                     QR Code
@@ -470,14 +470,9 @@
         </div>
         @*May also like*@
         <div class="row mb-5 d-none d-lg-inline">
-            <button class="btn btn-gradient position-relative collapse-toggle"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#suggestion"
-                    aria-expanded="true"
-                    aria-controls="suggestion">
+            <button class="btn btn-gradient position-relative collapse-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#suggestion" aria-expanded="true" aria-controls="suggestion">
                 <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
-                    <i class="bi bi-hand-thumbs-up mx-2"></i>You may also like
+                    <i class="bi bi-hand-thumbs-up mx-2"></i>@I18n.R("All_YouMayLike")
                 </h5>
 
                 <!-- right-side +/–, stays out of the flow so the H5 can center -->
@@ -521,38 +516,24 @@
         </a>
 
         @*Test drive*@
-        <button class="w-100 btn btn-gradient-yellow mb-3"
-                type="button"
-                id="btnTestDriveForm"
-                data-url="Inventory/TestDriveModal/"
-                data-title="Schedule test drive">
+        <button class="w-100 btn btn-gradient-yellow mb-3" type="button" id="btnTestDriveForm" data-url="Inventory/TestDriveModal/"data-title="Schedule test drive">
 
             <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
-                <i class="bi bi-calendar3 mx-2"></i>Schedule test drive
+                <i class="bi bi-calendar3 mx-2"></i>@I18n.R("Nav_ScheduleTestDrive")
             </h5>
         </button>
 
         @*Contact us*@
-        <button class="w-100 btn btn-gradient mb-3"
-                type="button"
-                id="btnContactForm"
-                data-url="Inventory/ContactModal/"
-                data-title="Contact us">
-
+        <button class="w-100 btn btn-gradient mb-3" type="button" id="btnContactForm" data-url="Inventory/ContactModal/" data-title="Contact us">
             <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
-                <i class="bi bi-person-vcard mx-2"></i>Contact us
+                <i class="bi bi-person-vcard mx-2"></i>@I18n.R("Nav_ContactUs")
             </h5>
         </button>
 
         @*Loan app*@
-        <button class="w-100 btn btn-gradient-green mb-3"
-                type="button"
-                id="btnLoanApplication"
-                data-url="Inventory/ApplicationModal"
-                data-title="Get prequalified">
-
+        <button class="w-100 btn btn-gradient-green mb-3" type="button" id="btnLoanApplication" data-url="Inventory/ApplicationModal" data-title="Get prequalified">
             <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
-                <i class="bi bi-currency-dollar mx-2"></i>Get prequalified
+                <i class="bi bi-currency-dollar mx-2"></i>@I18n.R("Nav_GetPrequalified")
             </h5>
         </button>
     </div>

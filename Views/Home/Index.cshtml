@@ -86,12 +86,13 @@
 
     <div class="d-flex justify-content-center align-items-center w-100">
         <div class="btn-container d-flex justify-content-center align-items-center gap-xxl-5 w-100 flex-nowrap">
-            <a href="/Home/Application" class="btn btn-big-gradient-green shadow" type="button"><span class="bi bi-currency-dollar" /><span class="mx-3">Get prequalified</span></a>
-            <a href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })" class="btn btn-big-gradient shadow" type="button"><span class="bi bi-person-vcard" /><span class="mx-3">Contact us</span></a>
-            <a href="@Url.RouteUrl("TestDriveContact")" class="btn btn-big-gradient-yellow shadow" type="button"><span class="bi bi-calendar3" /><span class="mx-3">Schedule test drive</span></a>
+            <a href="/Home/Application" class="btn btn-big-gradient-green shadow" type="button"><span class="bi bi-currency-dollar" /><span class="mx-3">@I18n.R("Nav_GetPrequalified")</span></a>
+            <a href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })" class="btn btn-big-gradient shadow" type="button"><span class="bi bi-person-vcard" /><span class="mx-3">@I18n.R("Nav_ContactUs")</span></a>
+            <a href="@Url.RouteUrl("TestDriveContact")" class="btn btn-big-gradient-yellow shadow" type="button"><span class="bi bi-calendar3" /><span class="mx-3">@I18n.R("Nav_ScheduleTestDrive")</span></a>
         </div>
     </div>
 </section>
+
 
 <script>
 

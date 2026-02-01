@@ -142,11 +142,11 @@
                 opacity: .85;
             }
 
-        #price .ui-slider-range,
-        #milege .ui-slider-range {
-            height: 10px;
-            border-radius: 999px;
-        }
+    #price .ui-slider-range,
+    #milege .ui-slider-range {
+        height: 10px;
+        border-radius: 999px;
+    }
 
     .slider-meta {
         margin-top: auto;
@@ -335,13 +335,19 @@
     </div>
 
 </div>
-
+@{
+    var moreThan = HttpUtility.JavaScriptStringEncode(I18n.R("Filter_MoreThan"));
+    var under = HttpUtility.JavaScriptStringEncode(I18n.R("Filter_Under"));
+}
 <script>
     // ==========================================================
     // Create sliders ONCE on load, then update their ranges later
     // Call: setPriceRange(min,max) / setMilesRange(min,max)
     // ==========================================================
     $(function () {
+        const moreThan = "@Html.Raw(moreThan) ";
+        const under = "@Html.Raw(under) ";
+
         // expose setters globally so your ajax functions can call them
         window.setPriceRange = function (rawMin, rawMax) {
             var $priceSlider = $("#priceSlider");
@@ -393,8 +399,8 @@
                     $("#minPrice").val(minVal);
                     $("#maxPrice").val(maxVal);
 
-                    $priceMin.text("More than " + usd.format(minVal));
-                    $priceMax.text("Under " + usd.format(maxVal));
+                    $priceMin.text(moreThan + usd.format(minVal));
+                    $priceMax.text(under + usd.format(maxVal));
                 });
 
                 $priceSlider[0].noUiSlider.on("change", function (values) {
@@ -429,8 +435,9 @@
                     $("#minMiles").val(minVal);
                     $("#maxMiles").val(maxVal);
 
-                    $milegeMin.text("More than " + minVal.toLocaleString() + " mi");
-                    $milegeMax.text("Under " + maxVal.toLocaleString() + " mi");
+                    $milegeMin.text(moreThan + minVal.toLocaleString() + ' mi');
+                    $milegeMax.text(under + maxVal.toLocaleString() + ' mi');
+
                 });
 
                 $milegeSlider[0].noUiSlider.on("change", function (values) {

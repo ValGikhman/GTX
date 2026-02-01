@@ -1,4 +1,5 @@
-﻿using GTX.Models;
+﻿using GTX.Helpers;
+using GTX.Models;
 using Services;
 using System;
 using System.Collections.Generic;
@@ -237,14 +238,14 @@ namespace GTX.Controllers
                 var todayName = userNow.DayOfWeek.ToString();
                 var today = Model.OpenHours?.FirstOrDefault(m => m.Day == todayName);
                 bool isOpen = today != null && userNow.Hour >= today.From && userNow.Hour <= today.To;
-                var returnValue = isOpen ? "Now open" : "Closed";
+                var returnValue = isOpen ? I18n.R("All_NowOpen") : I18n.R("All_Closed");
 
                 return Json(new { Now = returnValue }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
                 Log(ex);
-                return Json(new { Now = "Closed" }, JsonRequestBehavior.AllowGet);
+                return Json(new { Now = I18n.R("All_Closed") }, JsonRequestBehavior.AllowGet);
             }
         }
 

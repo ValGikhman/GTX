@@ -6,13 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
 
 namespace GTX.Controllers
 {
-
     public class HomeController : BaseController {
 
         private readonly IContactService _contactService;
@@ -33,9 +31,7 @@ namespace GTX.Controllers
             CommonUnit.Roles role;
             var ok = ValidateLogin(password, out role, Session, Request, Response, rememberOnThisComputer: true);
 
-
-            if (!ok)
-                return Json(new { ok = false, role = CommonUnit.Roles.User.ToString(), msg = "Invalid password." });
+            if (!ok) return Json(new { ok = false, role = CommonUnit.Roles.User.ToString(), msg = "Invalid password." });
 
             SessionData.SetSession(Constants.SESSION_MAJORDOME, true);
 
@@ -70,6 +66,7 @@ namespace GTX.Controllers
         {
             return PartialView("~/Views/Shared/_LoginModal.cshtml");
         }
+
         public ActionResult Index() {
             // Check for Announcements
             var announcement = GetAnnouncement();
@@ -77,7 +74,7 @@ namespace GTX.Controllers
 
             ViewBag.Message = "Home";
             ViewBag.Title = I18n.R("Title_Home");
-            return View(Model);
+            return View("Index", Model);
         }
 
         public ActionResult TermsAndConditions()
@@ -91,11 +88,6 @@ namespace GTX.Controllers
         {
             ViewBag.Message = "Privacy Policy";
             ViewBag.Title = I18n.R("Title_PrivacyPolicy");
-            return View();
-        }
-
-
-        public ActionResult Home() {
             return View();
         }
 
@@ -119,7 +111,7 @@ namespace GTX.Controllers
 
         public ActionResult Contact(bool testDrive = false) {
             ViewBag.Message = testDrive ? "Test drive request" : "Contact request";
-            ViewBag.Title = testDrive ? I18n.R("Title_ScheduleTestDrive") : I18n.R("Title_ContactUs");
+            ViewBag.Title = testDrive ? I18n.R("Nav_ScheduleTestDrive") : I18n.R("Title_ContactUs");
 
             return View(new ContactModel(testDrive));
         }
