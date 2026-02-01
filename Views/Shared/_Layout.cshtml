@@ -1,7 +1,8 @@
 ﻿<!DOCTYPE html>
+@using System.Threading
 @{
     var t = (Request.Cookies["gtx-theme"]?.Value ?? "blue").ToLowerInvariant();
-
+    var current = Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName;
     // allow only known themes
     switch (t)
     {
@@ -20,7 +21,7 @@
 }
 <html class="@themeClass">
 <head class="flex-shrink-0">
-    <meta charset="UTF-8">
+    <meta charset="utf-8" />
     @RenderSection("Meta", required: false)
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -43,7 +44,7 @@
 
             // add selected theme
             root.classList.add("theme-" + t);
-        }) ();
+        })();
     </script>
 
 
@@ -98,19 +99,19 @@
                     <!-- Inventory (collapsible header = bold black pill) -->
                     <li class="mb-2">
                         <a class="btn btn-gradient-grey rounded-3 w-100 d-flex align-items-center justify-content-between text-dark fw-bold shadow" data-bs-toggle="collapse" href="#menuInventoryMobile" role="button" aria-expanded="false" aria-controls="menuInventoryMobile">
-                            <span><i class="bi bi-car-front me-2"></i>Inventory</span>
+                            <span><i class="bi bi-car-front me-2"></i>@I18n.R("Nav_Inventory")</span>
                             <i class="bi bi-chevron-down"></i>
                         </a>
                         <!-- Submenu (indented list-group look) -->
                         <ul id="menuInventoryMobile" class="collapse list-unstyled mt-2 ms-3 p-2" data-bs-parent="#mobileMenuOffcanvas">
-                            <li class="mb-1 shadow-sm">@Html.ActionLink("All", "All", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1 shadow-sm">@Html.ActionLink("Suvs", "Suvs", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1 shadow-sm">@Html.ActionLink("Trucks", "Trucks", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1 shadow-sm">@Html.ActionLink("Vans", "Vans", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1 shadow-sm">@Html.ActionLink("Hatchbacks", "Hatchbacks", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1 shadow-sm">@Html.ActionLink("Coupes", "Coupes", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1 shadow-sm">@Html.ActionLink("Sedans", "Sedans", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1 shadow-sm">@Html.ActionLink("Convertibles", "Convertibles", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_All"), "All", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_SUVs"), "Suvs", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_Trucks"), "Trucks", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_Vans"), "Vans", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_Hatchbacks"), "Hatchbacks", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_Coupes"), "Coupes", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_Sedans"), "Sedans", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_Convertibles"), "Convertibles", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
                         </ul>
                     </li>
 
@@ -150,8 +151,7 @@
 
                     <!-- Search (primary style) -->
                     <li class="mb-2 shadow-sm">
-                        <a class="btn btn-dark w-100 rounded-3 d-flex align-items-center justify-content-center gap-2 shadow"
-                           href="#" onclick="openFiltersFromOffcanvas(event)">
+                        <a class="btn btn-dark w-100 rounded-3 d-flex align-items-center justify-content-center gap-2 shadow" href="#" onclick="openFiltersFromOffcanvas(event)">
                             <i class="bi bi-search"></i>
                             <span class="fw-semibold">Search inventory</span>
                         </a>
@@ -201,28 +201,28 @@
                             </ul>
                         </li>
                         <li class=" mx-2">
-                            <a href="#">Inventory</a>
+                            <a href="#">@I18n.R("Nav_Inventory")</a>
                             <ul class="dropdown rounded">
-                                <li>@Html.ActionLink("All", "All", "Inventory")</li>
-                                <li>@Html.ActionLink("Suvs", "Suvs", "Inventory")</li>
-                                <li>@Html.ActionLink("Trucks", "Trucks", "Inventory")</li>
-                                <li>@Html.ActionLink("Vans", "Vans", "Inventory")</li>
-                                <li>@Html.ActionLink("Hatchbacks", "Hatchbacks", "Inventory")</li>
-                                <li>@Html.ActionLink("Coupes", "Coupes", "Inventory")</li>
-                                <li>@Html.ActionLink("Sedans", "Sedans", "Inventory")</li>
-                                <li>@Html.ActionLink("Convertibles", "Convertibles", "Inventory")</li>
+                                <li>@Html.ActionLink(I18n.R("Nav_All"), "All", "Inventory")</li>
+                                <li>@Html.ActionLink(I18n.R("Nav_SUVs"), "Suvs", "Inventory")</li>
+                                <li>@Html.ActionLink(I18n.R("Nav_Trucks"), "Trucks", "Inventory")</li>
+                                <li>@Html.ActionLink(I18n.R("Nav_Vans"), "Vans", "Inventory")</li>
+                                <li>@Html.ActionLink(I18n.R("Nav_Hatchbacks"), "Hatchbacks", "Inventory")</li>
+                                <li>@Html.ActionLink(I18n.R("Nav_Coupes"), "Coupes", "Inventory")</li>
+                                <li>@Html.ActionLink(I18n.R("Nav_Sedans"), "Sedans", "Inventory")</li>
+                                <li>@Html.ActionLink(I18n.R("Nav_Convertibles"), "Convertibles", "Inventory")</li>
                             </ul>
                         </li>
 
-                        <li class="mx-2">@Html.ActionLink("💲Get prequalified", "Application", "Home")</li>
+                        <li class="mx-2">@Html.ActionLink("💲" + I18n.R("Nav_GetPrequalified"), "Application", "Home")</li>
                         <li class="mx-2">@Html.ActionLink("Blog", "Blogs", "Blogs")</li>
                         <li class="mx-2">
-                            <a href="#">About us</a>
+                            <a href="#">@I18n.R("Nav_AboutUs")</a>
                             <ul class="dropdown rounded">
-                                <li>@Html.ActionLink("About us", "About", "Home")</li>
-                                <li><a href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })">Contact us</a></li>
-                                <li>@Html.ActionLink("Our staff", "Staff", "Home")</li>
-                                <li>@Html.ActionLink("Testimonials", "Testimonials", "Home")</li>
+                                <li>@Html.ActionLink(I18n.R("Nav_AboutUs"), "About", "Home")</li>
+                                <li><a href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })">@I18n.R("Nav_ContactUs")</a></li>
+                                <li>@Html.ActionLink(I18n.R("Nav_OurStaff"), "Staff", "Home")</li>
+                                <li>@Html.ActionLink(I18n.R("Nav_Testimonials"), "Testimonials", "Home")</li>
                             </ul>
                         </li>
                         <li id="fakeSearch" class="fake-input hand-pointer d-none d-xxl-inline-block w-35 mx-4" data-bs-toggle="modal" data-bs-target="#filtersModal">
@@ -345,9 +345,10 @@
                     </span>
                 </div>
             </div>
+            <!-- RIGHT -->
+            <div class="col-auto d-flex align-items-center gap-2">
 
-            <!-- RIGHT:  -->
-            <div class="col-auto d-flex align-items-center">
+                <!-- Theme dropdown (yours) -->
                 <div class="dropdown">
                     <button class="btn btn-sm btn-gradient dropdown-toggle" type="button" id="themeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         Theme: <span id="themeLabel">Blue</span>
@@ -356,39 +357,68 @@
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="themeDropdown">
                         <li>
                             <a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="blue">
-                                <span class="theme-swatch swatch-blue"></span>
-                                Blue
+                                <span class="theme-swatch swatch-blue"></span> Blue
                             </a>
                         </li>
-
                         <li>
                             <a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="grey">
-                                <span class="theme-swatch swatch-grey"></span>
-                                Grey
+                                <span class="theme-swatch swatch-grey"></span> Grey
                             </a>
                         </li>
-
                         <li>
                             <a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="pink">
-                                <span class="theme-swatch swatch-pink"></span>
-                                Pink
+                                <span class="theme-swatch swatch-pink"></span> Pink
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="deep-purple">
-                                <span class="theme-swatch swatch-deep-purple"></span>
-                                Deep Purple
+                                <span class="theme-swatch swatch-deep-purple"></span> Deep Purple
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="metallica">
-                                <span class="theme-swatch swatch-metallica"></span>
-                                Metallica
+                                <span class="theme-swatch swatch-metallica"></span> Metallica
                             </a>
                         </li>
                     </ul>
                 </div>
+
+                <!-- Language dropdown (styled like Theme) -->
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-gradient dropdown-toggle d-flex align-items-center gap-1"
+                            type="button" id="langDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-globe2"></i>
+                        <span class="text-uppercase">@current</span>
+                    </button>
+
+                    <form method="post" action="@Url.Action("SetLanguage", "Localization")" class="dropdown-menu dropdown-menu-end p-1 shadow"
+                          aria-labelledby="langDropdown" style="min-width: 11rem;">
+                        <input type="hidden" name="lang" id="langValue" value="@current" />
+
+                        <button type="submit"
+                                class="dropdown-item d-flex align-items-center justify-content-between rounded-3"
+                                onclick="document.getElementById('langValue').value='en'">
+                            <span class="d-flex align-items-center gap-2">
+                                <span class="badge bg-light text-dark border">EN</span> English
+                            </span>
+                            @if (current == "en")
+                            {<i class="bi bi-check2 text-success"></i>}
+                        </button>
+
+                        <button type="submit"
+                                class="dropdown-item d-flex align-items-center justify-content-between rounded-3"
+                                onclick="document.getElementById('langValue').value='es'">
+                            <span class="d-flex align-items-center gap-2">
+                                <span class="badge bg-light text-dark border">ES</span> Español
+                            </span>
+                            @if (current == "es")
+                            {<i class="bi bi-check2 text-success"></i>}
+                        </button>
+                    </form>
+                </div>
+
             </div>
+
         </div>
     </footer>
     <!-- Footer Section End -->

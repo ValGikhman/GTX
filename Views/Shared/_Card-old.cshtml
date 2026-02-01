@@ -62,7 +62,7 @@
         <div class="card-footer gradient no-click">
             <h5>
                 <div class="d-flex flex-wrap justify-content-between">
-                    <span>Price: @Model.InternetPrice.ToString("C0")</span>
+                    <span>Price: @Model.InternetPrice.ToString("C0", new System.Globalization.CultureInfo("en-US"))</span>
                     <span>Miles: @Model.Mileage.ToString("N0")</span>
                 </div>
                 <div class="d-flex flex-wrap justify-content-between very-small-text">

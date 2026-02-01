@@ -163,7 +163,7 @@
                                     <span class="text-decoration-line-through" style="color: slategrey">
                                         @(Model?.CurrentVehicle?.VehicleDetails?.RetailPrice.ToString("C0"))
                                     </span><br />
-                                    <span class="fw-bold text-danger fs-5">@(Model?.CurrentVehicle?.VehicleDetails?.InternetPrice.ToString("C0"))</span>
+                                    <span class="fw-bold text-danger fs-5">@(Model?.CurrentVehicle?.VehicleDetails?.InternetPrice.ToString("C0", new System.Globalization.CultureInfo("en-US")))</span>
                                 </td>
                                 <td class="fw-bold">MSRP</td>
                                 <td>@Safe(Money(style.Pricing.Msrp))</td>
