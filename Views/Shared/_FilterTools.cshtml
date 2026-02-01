@@ -167,7 +167,7 @@
             <div class="filter-card p-1 p-md-2 shadow">
                 <div class="d-flex align-items-start justify-content-between mb-2">
                     <h6 class="filter-title">
-                        <i class="bi bi-building"></i> Makes
+                        <i class="bi bi-building"></i> @I18n.R("All_Makes")
                     </h6>
                     <div class="form-check form-switch">
                         @Html.CheckBox("allMakes", true, new { @class = "form-check-input", id = "allMakes" })
@@ -183,7 +183,7 @@
             <div class="filter-card p-1 p-md-2 shadow">
                 <div class="d-flex align-items-start justify-content-between mb-2">
                     <h6 class="filter-title">
-                        <i class="bi bi-car-front"></i>Models
+                        <i class="bi bi-car-front"></i>@I18n.R("All_Models")
                     </h6>
                     <div class="form-check form-switch">
                         @Html.CheckBox("allModels", true, new { @class = "form-check-input", id = "allModels", disabled = "true" })
@@ -199,7 +199,7 @@
             <div class="filter-card p-1 p-md-2 shadow">
                 <div class="d-flex align-items-start justify-content-between mb-2">
                     <h6 class="filter-title">
-                        <i class="bi bi-gear"></i>Drive
+                        <i class="bi bi-gear"></i>@I18n.R("All_Drive")
                     </h6>
                     <div class="form-check form-switch">
                         @Html.CheckBox("allDrives", true, new { @class = "form-check-input", id = "allDrives", disabled = "true" })
@@ -215,7 +215,7 @@
             <div class="filter-card p-1 p-md-2 shadow">
                 <div class="d-flex align-items-start justify-content-between mb-2">
                     <h6 class="filter-title">
-                        <i class="bi bi-truck-front"></i>Body
+                        <i class="bi bi-truck-front"></i>@I18n.R("All_Body")
                     </h6>
                     <div class="form-check form-switch">
                         @Html.CheckBox("allBodyTypes", true, new { @class = "form-check-input", id = "allBodyTypes", disabled = "true" })
@@ -231,7 +231,7 @@
             <div class="filter-card p-1 p-md-2 shadow">
                 <div class="d-flex align-items-start justify-content-between mb-2">
                     <h6 class="filter-title">
-                        <i class="bi bi-speedometer"></i>Cylinders
+                        <i class="bi bi-speedometer"></i>@I18n.R("All_Cylinders")
                     </h6>
                     <div class="form-check form-switch">
                         @Html.CheckBox("allCylinders", true, new { @class = "form-check-input", id = "allCylinders" })
@@ -247,7 +247,7 @@
             <div class="filter-card p-1 p-md-2 shadow">
                 <div class="d-flex align-items-start justify-content-between mb-2">
                     <h6 class="filter-title">
-                        <i class="bi bi-shuffle"></i>Transm
+                        <i class="bi bi-shuffle"></i>@I18n.R("All_Transm")
                     </h6>
                     <div class="form-check form-switch">
                         @Html.CheckBox("allTransmissions", true, new { @class = "form-check-input", id = "allTransmissions" })
@@ -263,7 +263,7 @@
             <div class="filter-card p-1 p-md-2 shadow">
                 <div class="d-flex align-items-start justify-content-between mb-2">
                     <h6 class="filter-title">
-                        <i class="bi bi-fuel-pump"></i>Fuel
+                        <i class="bi bi-fuel-pump"></i>@I18n.R("All_Fuel")
                     </h6>
                     <div class="form-check form-switch">
                         @Html.CheckBox("allFuelTypes", true, new { @class = "form-check-input", id = "allFuelTypes" })
@@ -279,7 +279,7 @@
             <div class="filter-card p-1 p-md-2 shadow">
                 <div class="d-flex align-items-start justify-content-between mb-2">
                     <h6 class="filter-title">
-                        <i class="bi bi-car-front-fill"></i>Type
+                        <i class="bi bi-car-front-fill"></i>@I18n.R("All_Type")
                     </h6>
                     <div class="form-check form-switch">
                         @Html.CheckBox("allVehicleTypes", true, new { @class = "form-check-input", id = "allVehicleTypes" })
@@ -298,11 +298,8 @@
             <div class="slider-card p-1 p-md-2 shadow">
                 <div class="slider-head mb-3 d-flex align-items-center justify-content-between">
                     <h6 class="filter-title">
-                        <i class="bi bi-currency-dollar"></i> Price range
+                        <i class="bi bi-currency-dollar"></i> @I18n.R("All_PriceRange")
                     </h6>
-                    <span class="badge text-bg-light border">
-                        <i class="bi bi-tag me-1"></i>Range
-                    </span>
                 </div>
 
                 <!-- noUiSlider target -->
@@ -321,11 +318,8 @@
             <div class="slider-card p-1 p-md-2 shadow">
                 <div class="slider-head mb-3 d-flex align-items-center justify-content-between">
                     <h6 class="filter-title">
-                        <i class="bi bi-speedometer2"></i> Mileage
+                        <i class="bi bi-speedometer2"></i> @I18n.R("All_Mileage")
                     </h6>
-                    <span class="badge text-bg-light border">
-                        <i class="bi bi-road me-1"></i>Miles
-                    </span>
                 </div>
 
                 <!-- noUiSlider target -->

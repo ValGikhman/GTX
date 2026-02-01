@@ -30,7 +30,7 @@
                 </span>
             </span>
             <span class="btn btn-light shadow position-relative details">
-                <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.InternetPrice.ToString("C0")</span>
+                <span class="medium-small-text">@Model.CurrentVehicle.VehicleDetails.InternetPrice.ToString("C0", new System.Globalization.CultureInfo("en-US"))</span>
                 <span class="detail-badge position-absolute start-50 translate-middle shadow badge rounded btn-gradient-grey text-black fw-bold text-uppercase">
                     Price
                 </span>

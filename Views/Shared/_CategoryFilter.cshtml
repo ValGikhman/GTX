@@ -2,13 +2,13 @@
     <div class="knopka p-1 col-3 col-md-1 col-lg-1 text-center">
         <a class="cursor-pointer hover-bw text-center" title="All inventory at GTX dealership" href="/inventory/all">
             <img class="img-fluid d-block mx-auto" width="85" src="@Url.Content("~/img/category/ai.png")" alt="All GTX inventory">
-            <h6 class="mt-1">All</h6>
+            <h6 class="mt-1">@I18n.R("Nav_All")</h6>
         </a>
     </div>
 
     @foreach (var item in Enum.GetValues(typeof(CommonUnit.VehicleType)).Cast<CommonUnit.VehicleType>()) {
         <div class="knopka p-md-1 col-3 col-md-1 col-lg-1 text-center">
-            <a class="cursor-pointer hover-bw text-center" title="@item.GetDisplayName() at GTX dealership" href="/inventory/@item.GetDisplayName()">
+            <a class="cursor-pointer hover-bw text-center" title="@item.GetDisplayName() at GTX dealership" href="/inventory/@item.ToString().ToLower()s">
                 <img alt="@item.GetDisplayName()" class="img-fluid d-block mx-auto object-fit-contain" width="90" src="@Url.Content($"~/img/Category/{item.ToString()}.png")">
                 <h6 class="mt-1">@item.GetDisplayName()</h6>
             </a>

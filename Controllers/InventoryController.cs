@@ -1,4 +1,5 @@
-﻿using GTX.Models;
+﻿using GTX.Helpers;
+using GTX.Models;
 using Services;
 using System;
 using System.Linq;
@@ -17,7 +18,8 @@ namespace GTX.Controllers
         [HttpGet]
         public ActionResult Index() {
             Model.Inventory.Title = "Found";
-            ViewBag.Title = $"{Model.Inventory.Title.ToUpper()} {Model.Inventory.Vehicles.Length} vehicle(s)";
+            //ViewBag.Title = $"{Model.Inventory.Title.ToUpper()} {Model.Inventory.Vehicles.Length} vehicle(s)";
+            ViewBag.Title = I18n.F("Title_TotalVehicles", Model.Inventory.Title.ToUpper(), Model.Inventory.Vehicles.Length);
             Log($"{Model.Inventory.Title} inventory");
 
             return View(Model);
@@ -102,7 +104,7 @@ namespace GTX.Controllers
 
             // Lets show the tile from fraser details
             ViewBag.Title = $"{vehicle.Year} - {vehicle.Make} - {vehicle.Model}";
-            ViewBag.Price = $"{vehicle.InternetPrice.ToString("C")}";
+            ViewBag.Price = $"{vehicle.InternetPrice.ToString("C", new System.Globalization.CultureInfo("en-US"))}";
 
             if (fromQR != null && fromQR == vehicle.VIN) {
                 return View("DetailsQR", Model);
@@ -121,8 +123,8 @@ namespace GTX.Controllers
         public ActionResult All() {
             Model.Inventory.Vehicles = Model?.Inventory?.All ?? Array.Empty<Models.GTX>(); ;
             Model.Inventory.Title = "All";
-            ViewBag.Title = $"{Model.Inventory.Vehicles.Length} vehicles";
-
+            //ViewBag.Title = $"{Model.Inventory.Vehicles.Length} vehicles";
+            ViewBag.Title = I18n.F("Title_AllVehicles", Model.Inventory.Vehicles.Length);
             return View("Index", Model);
         }
 
@@ -132,8 +134,8 @@ namespace GTX.Controllers
             Model.Inventory.Suvs = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
             Model.Inventory.Vehicles = Model?.Inventory?.Suvs ?? Array.Empty<Models.GTX>();
 
-            Model.Inventory.Title = "Suv(s)";
-            ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
+            Model.Inventory.Title = I18n.R("Nav_SUVs");
+            ViewBag.Title = I18n.F("Title_Category", Model.Inventory.Vehicles.Length, Model.Inventory.Title);
 
             return View("Index", Model);
         }
@@ -144,8 +146,8 @@ namespace GTX.Controllers
             Model.Inventory.Sedans = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
             Model.Inventory.Vehicles = Model?.Inventory?.Sedans ?? Array.Empty<Models.GTX>();
 
-            Model.Inventory.Title = "Sedan(s)";
-            ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
+            Model.Inventory.Title = I18n.R("Nav_Sedans");
+            ViewBag.Title = I18n.F("Title_Category", Model.Inventory.Vehicles.Length, Model.Inventory.Title);
 
             return View("Index", Model);
         }
@@ -156,8 +158,8 @@ namespace GTX.Controllers
             Model.Inventory.Wagons = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
             Model.Inventory.Vehicles = Model?.Inventory?.Wagons ?? Array.Empty<Models.GTX>();
 
-            Model.Inventory.Title = "Wagon(s)";
-            ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
+            Model.Inventory.Title = I18n.R("Nav_Wagons");
+            ViewBag.Title = I18n.F("Title_Category", Model.Inventory.Vehicles.Length, Model.Inventory.Title);
 
             return View("Index", Model);
         }
@@ -168,8 +170,8 @@ namespace GTX.Controllers
             Model.Inventory.Trucks = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
             Model.Inventory.Vehicles = Model?.Inventory?.Trucks ?? Array.Empty<Models.GTX>();
 
-            Model.Inventory.Title = "Truck(s)";
-            ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
+            Model.Inventory.Title = I18n.R("Nav_Trucks");
+            ViewBag.Title = I18n.F("Title_Category", Model.Inventory.Vehicles.Length, Model.Inventory.Title);
 
             return View("Index", Model);
         }
@@ -180,8 +182,8 @@ namespace GTX.Controllers
             Model.Inventory.Vans = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
             Model.Inventory.Vehicles = Model?.Inventory?.Vans ?? Array.Empty<Models.GTX>();
 
-            Model.Inventory.Title = "Van(s)";
-            ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
+            Model.Inventory.Title = I18n.R("Nav_Vans");
+            ViewBag.Title = I18n.F("Title_Category", Model.Inventory.Vehicles.Length, Model.Inventory.Title);
 
             return View("Index", Model);
         }
@@ -192,8 +194,8 @@ namespace GTX.Controllers
             Model.Inventory.Convertibles = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
             Model.Inventory.Vehicles = Model?.Inventory?.Convertibles ?? Array.Empty<Models.GTX>();
 
-            Model.Inventory.Title = "Convertible(s)";
-            ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
+            Model.Inventory.Title = I18n.R("Nav_Convertibles");
+            ViewBag.Title = I18n.F("Title_Category", Model.Inventory.Vehicles.Length, Model.Inventory.Title);
 
             return View("Index", Model);
         }
@@ -204,8 +206,8 @@ namespace GTX.Controllers
             Model.Inventory.Hatchbacks = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
             Model.Inventory.Vehicles = Model?.Inventory?.Hatchbacks ?? Array.Empty<Models.GTX>();
 
-            Model.Inventory.Title = "Hatchback(s)";
-            ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
+            Model.Inventory.Title = I18n.R("Nav_Hatchbacks");
+            ViewBag.Title = I18n.F("Title_Category", Model.Inventory.Vehicles.Length, Model.Inventory.Title);
 
             return View("Index", Model);
         }
@@ -216,8 +218,8 @@ namespace GTX.Controllers
             Model.Inventory.Coupe = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
             Model.Inventory.Vehicles = Model?.Inventory?.Coupe ?? Array.Empty<Models.GTX>();
 
-            Model.Inventory.Title = "Coupe(s)";
-            ViewBag.Title = $"{Model.Inventory.Vehicles.Length} {Model.Inventory.Title.ToUpper()}";
+            Model.Inventory.Title = I18n.R("Nav_Coupes");
+            ViewBag.Title = I18n.F("Title_Category", Model.Inventory.Vehicles.Length, Model.Inventory.Title);
 
             return View("Index", Model);
         }

@@ -1,4 +1,5 @@
-﻿using GTX.Models;
+﻿using GTX.Helpers;
+using GTX.Models;
 using Services;
 using System;
 using System.Collections.Generic;
@@ -75,21 +76,21 @@ namespace GTX.Controllers
             Model.Announcements = announcement == null ? new List<AnnouncementModel>(): new List<AnnouncementModel> { announcement };
 
             ViewBag.Message = "Home";
-            ViewBag.Title = "Home";
+            ViewBag.Title = I18n.R("Title_Home");
             return View(Model);
         }
 
         public ActionResult TermsAndConditions()
         {
             ViewBag.Message = "Terms and conditions";
-            ViewBag.Title = "Terms and conditions";
+            ViewBag.Title = I18n.R("Title_Terms");
             return View();
         }
 
         public ActionResult PrivacyPolicy()
         {
             ViewBag.Message = "Privacy Policy";
-            ViewBag.Title = "Privacy Policy";
+            ViewBag.Title = I18n.R("Title_PrivacyPolicy");
             return View();
         }
 
@@ -100,14 +101,14 @@ namespace GTX.Controllers
 
         public ActionResult About() {
             ViewBag.Message = "About";
-            ViewBag.Title = "About us";
+            ViewBag.Title = I18n.R("Title_AboutUs");
 
             return View();
         }
 
         public ActionResult Staff() {
             ViewBag.Message = "Staff";
-            ViewBag.Title = "Our staff";
+            ViewBag.Title = I18n.R("Title_OutStaff");
 
             return View(Model);
         }
@@ -118,28 +119,28 @@ namespace GTX.Controllers
 
         public ActionResult Contact(bool testDrive = false) {
             ViewBag.Message = testDrive ? "Test drive request" : "Contact request";
-            ViewBag.Title = testDrive ? "Schedule test drive" : "Contact us";
+            ViewBag.Title = testDrive ? I18n.R("Title_ScheduleTestDrive") : I18n.R("Title_ContactUs");
 
             return View(new ContactModel(testDrive));
         }
 
         public ActionResult Application() {
             ViewBag.Message = "Application";
-            ViewBag.Title = "Get prequalified";
+            ViewBag.Title = I18n.R("Title_GetPrequalified");
 
             return View();
         }
 
         public ActionResult Blog() {
             ViewBag.Message = "Blog";
-            ViewBag.Title = "Latest news";
+            ViewBag.Title = I18n.R("Title_Blog");
 
             return View();
         }
 
         public ActionResult Testimonials() {
             ViewBag.Message = "Testimonials";
-            ViewBag.Title = "Testimonials";
+            ViewBag.Title = I18n.R("Nav_Testimonials");
 
             return View();
         }

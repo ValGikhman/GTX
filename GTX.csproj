@@ -245,6 +245,16 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_GlobalResources\Site.designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Site.resx</DependentUpon>
+    </Compile>
+    <Compile Include="App_GlobalResources\Site.es.designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Site.es.resx</DependentUpon>
+    </Compile>
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
@@ -259,6 +269,7 @@
     <Compile Include="Controllers\BlogsController.cs" />
     <Compile Include="Controllers\EmployeesController.cs" />
     <Compile Include="Controllers\HealthController.cs" />
+    <Compile Include="Controllers\LocalizationController.cs" />
     <Compile Include="Controllers\MajordomeController.cs" />
     <Compile Include="Controllers\InventoryController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -633,7 +644,9 @@
     <Content Include="Views\Shared\_Card-old.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="App_Code\" />
     <Folder Include="Properties\" />
+    <Folder Include="Views\Localization\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\jquery\jquery-3.7.1.min.map" />
@@ -651,6 +664,18 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_GlobalResources\Site.resx">
+      <Generator>GlobalResourceProxyGenerator</Generator>
+      <LastGenOutput>Site.designer.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_GlobalResources\Site.es.resx">
+      <Generator>GlobalResourceProxyGenerator</Generator>
+      <LastGenOutput>Site.es.designer.cs</LastGenOutput>
+    </Content>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
