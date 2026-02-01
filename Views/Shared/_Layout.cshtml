@@ -158,7 +158,7 @@
                     </li>
 
                     <!-- Prequalified (success-ish outline) -->
-                    <li class="mb-2 shadow-sm">@Html.ActionLink("💲 " +I18n.R("Nav_GetPrequalified"), "Application", "Home", null, new { @class = "btn btn-outline-success w-100 rounded-3 fw-semibold" })</li>
+                    <li class="mb-2 shadow-sm">@Html.ActionLink("💲 " + I18n.R("Nav_GetPrequalified"), "Application", "Home", null, new { @class = "btn btn-outline-success w-100 rounded-3 fw-semibold" })</li>
 
                 </ul>
             </div>
@@ -302,129 +302,122 @@
             @RenderBody()
         </main>
     </div>
-
     <!-- Footer Section Begin -->
     <footer class="footer-strip fixed-bottom btn-gradient-grey">
-        <div class="row p-1 align-items-center small-text">
-            <!-- LEFT: Status Circle -->
-            <div class="col-auto d-flex align-items-center">
-                <span id="inventoryStatus" class="status-circle" title="Very old"></span>
-                <span class="text-muted text-shadow mx-2">@ViewBag.Published.ToString("MM-dd HH:mm")</span>
-            </div>
+        <div class="container-fluid px-2">
+            <div class="d-flex align-items-center justify-content-between gap-2 py-1 small-text flex-nowrap">
 
-            <!-- CENTER: Copyright + Terms line -->
-            <div class="col">
-                <div class="d-flex flex-wrap flex-lg-nowrap align-items-center justify-content-center gap-2 gap-lg-3 text-center">
-
-                    <!-- Left / brand + env (click opens offcanvas) -->
-                    <a class="text-muted text-shadow text-decoration-none d-inline-flex align-items-center gap-2" data-bs-toggle="offcanvas" href="#gtxDevelopment" role="button" aria-controls="gtxDevelopment">
-                        <span class="d-none d-lg-inline">
-                            Copyright &copy; @DateTime.Now.Year ✧ Made by
-                        </span>
-
-                        <span class="badge bg-primary">GTX</span>
-
-                        <span class="text-nowrap">
-                            @ViewBag.Environment
-                        </span>
-
-                        <span class="d-none d-lg-inline">✧</span>
-                    </a>
-
-                    <!-- Privacy -->
-                    <a href="@Url.Action("PrivacyPolicy", "Home")" class="link-primary text-decoration-underline text-nowrap" target="_blank" rel="noopener">
-                        Privacy Policy
-                    </a>
-
-                    <!-- Terms sentence (desktop only) -->
-                    <span class="text-muted text-shadow d-none d-lg-inline">
-                        ✧ By placing calls to this dealership you agree to the ✧
-                        <a href="@Url.Action("TermsAndConditions", "Home")" class="link-primary text-decoration-underline" target="_blank" rel="noopener">
-                            Terms and Conditions of Use
-                        </a>
+                <!-- LEFT: Status + time -->
+                <div class="d-flex align-items-center flex-shrink-0">
+                    <span id="inventoryStatus" class="status-circle" title="Very old"></span>
+                    <span class="text-muted text-shadow ms-2 text-nowrap">
+                        @ViewBag.Published.ToString("MM-dd HH:mm")
                     </span>
                 </div>
-            </div>
-            <!-- RIGHT -->
-            <div class="col-auto d-flex align-items-center gap-2">
 
-                <!-- Theme dropdown (yours) -->
-                <div class="dropdown">
-                    <button class="btn btn-sm btn-gradient dropdown-toggle" type="button" id="themeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        Theme: <span id="themeLabel">Blue</span>
-                    </button>
+                <!-- CENTER: Truncated content (prevents wrapping) -->
+                <div class="flex-grow-1 text-center overflow-hidden">
+                    <div class="d-inline-flex align-items-center gap-2 gap-lg-3 justify-content-center text-truncate"
+                         style="max-width:100%;">
 
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="themeDropdown">
-                        <li>
-                            <a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="blue">
-                                <span class="theme-swatch swatch-blue"></span> Blue
+                        <!-- Brand/env (desktop only) -->
+                        <a class="text-muted text-shadow text-decoration-none d-none d-lg-inline-flex align-items-center gap-2"
+                           data-bs-toggle="offcanvas" href="#gtxDevelopment" role="button" aria-controls="gtxDevelopment">
+                            <span>Copyright &copy; @DateTime.Now.Year ✧ Made by</span>
+                            <span class="badge bg-primary">GTX</span>
+                            <span class="text-nowrap">@ViewBag.Environment</span>
+                            <span>✧</span>
+                        </a>
+
+                        <!-- Privacy (always visible) -->
+                        <a href="@Url.Action("PrivacyPolicy", "Home")"
+                           class="link-primary text-decoration-underline text-nowrap"
+                           target="_blank" rel="noopener">
+                            @I18n.R("Title_PrivacyPolicy")
+                        </a>
+
+                        <!-- Terms sentence (desktop only) -->
+                        <span class="text-muted text-shadow d-none d-lg-inline text-nowrap">
+                            ✧ By placing calls to this dealership you agree to the ✧
+                            <a href="@Url.Action("TermsAndConditions", "Home")"
+                               class="link-primary text-decoration-underline"
+                               target="_blank" rel="noopener">
+                                @I18n.R("Title_Terms")
                             </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="grey">
-                                <span class="theme-swatch swatch-grey"></span> Grey
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="pink">
-                                <span class="theme-swatch swatch-pink"></span> Pink
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="deep-purple">
-                                <span class="theme-swatch swatch-deep-purple"></span> Deep Purple
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="metallica">
-                                <span class="theme-swatch swatch-metallica"></span> Metallica
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+                        </span>
 
-                <!-- Language dropdown (styled like Theme) -->
-                <div class="dropdown">
-                    <button class="btn btn-sm btn-gradient dropdown-toggle d-flex align-items-center gap-1"
-                            type="button" id="langDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-globe2"></i>
-                        <span class="text-uppercase">@current</span>
-                    </button>
-
-                    <!-- Dropdown menu MUST be a div/ul, not a form -->
-                    <div class="dropdown-menu dropdown-menu-end p-1 shadow"
-                         aria-labelledby="langDropdown" style="min-width: 11rem;">
-
-                        <button type="button" class="dropdown-item d-flex align-items-center justify-content-between rounded-3 @(current=="en" ? "active" : "")"
-                                onclick="setLang('en')">
-                            <span class="d-flex align-items-center gap-2">
-                                <span class="badge bg-light text-dark border">EN</span> English
-                            </span>
-                            @if (current == "en")
-                            {<i class="bi bi-check2 text-success"></i>}
-                        </button>
-
-                        <button type="button" class="dropdown-item d-flex align-items-center justify-content-between rounded-3 @(current=="es" ? "active" : "")"
-                                onclick="setLang('es')">
-                            <span class="d-flex align-items-center gap-2">
-                                <span class="badge bg-light text-dark border">ES</span> Español
-                            </span>
-                            @if (current == "es")
-                            {<i class="bi bi-check2 text-success"></i>}
-                        </button>
                     </div>
                 </div>
 
-                <!-- Hidden form used by setLang() -->
-                <form id="langForm" method="post" action="@Url.Action("SetLanguage", "Localization")" class="d-none">
-                    <input type="hidden" name="lang" id="langValue" value="@current" />
-                </form>
+                <!-- RIGHT: Theme + Language (never wrap) -->
+                <div class="d-flex align-items-center gap-2 flex-shrink-0 flex-nowrap">
 
+                    <!-- Theme dropdown -->
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-gradient dropdown-toggle text-nowrap"
+                                type="button" id="themeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            Theme: <span id="themeLabel">Blue</span>
+                        </button>
+
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="themeDropdown">
+                            <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="blue"><span class="theme-swatch swatch-blue"></span> Blue</a></li>
+                            <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="grey"><span class="theme-swatch swatch-grey"></span> Grey</a></li>
+                            <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="pink"><span class="theme-swatch swatch-pink"></span> Pink</a></li>
+                            <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="deep-purple"><span class="theme-swatch swatch-deep-purple"></span> Deep Purple</a></li>
+                            <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="metallica"><span class="theme-swatch swatch-metallica"></span> Metallica</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Language dropdown -->
+                    <div class="dropdown">
+                        @{
+                            var flagSrc = (current.StartsWith("es", StringComparison.OrdinalIgnoreCase))
+                                ? Url.Content("~/img/flags/es.svg")
+                                : Url.Content("~/img/flags/us.svg");
+                        }
+
+                        <button class="btn btn-sm btn-gradient dropdown-toggle d-flex align-items-center gap-2 text-nowrap"
+                                type="button" id="langDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="@flagSrc" width="16" height="16" class="rounded-1" alt="" />
+                            <span class="text-uppercase">@current</span>
+                        </button>
+
+                        <div class="dropdown-menu dropdown-menu-end p-1 shadow" aria-labelledby="langDropdown" style="min-width: 11rem;">
+                            <button type="button"
+                                    class="dropdown-item d-flex align-items-center justify-content-between rounded-3 @(current=="en" ? "active" : "")"
+                                    onclick="setLang('en')">
+                                <span class="d-flex align-items-center gap-2">
+                                    <img src="~/img/flags/us.svg" width="22" height="22" class="rounded-1 shadow-sm" alt="English" />
+                                    English
+                                </span>
+                                @if (current == "en")
+                                {<i class="bi bi-check2 text-success"></i>}
+                            </button>
+
+                            <button type="button"
+                                    class="dropdown-item d-flex align-items-center justify-content-between rounded-3 @(current=="es" ? "active" : "")"
+                                    onclick="setLang('es')">
+                                <span class="d-flex align-items-center gap-2">
+                                    <img src="~/img/flags/es.svg" width="22" height="22" class="rounded-1 shadow-sm" alt="Español" />
+                                    Español
+                                </span>
+                                @if (current == "es")
+                                {<i class="bi bi-check2 text-success"></i>}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Hidden form used by setLang() -->
+                    <form id="langForm" method="post" action="@Url.Action("SetLanguage", "Localization")" class="d-none">
+                        <input type="hidden" name="lang" id="langValue" value="@current" />
+                    </form>
+
+                </div>
             </div>
-
         </div>
     </footer>
     <!-- Footer Section End -->
+
 
     @Scripts.Render("~/scripts/jquery")
     @RenderSection("scripts", required: false)
