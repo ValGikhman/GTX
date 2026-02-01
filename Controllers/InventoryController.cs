@@ -14,11 +14,10 @@ namespace GTX.Controllers
             : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService, employeesService) {
         }
 
-
         [HttpGet]
         public ActionResult Index() {
             Model.Inventory.Title = "Found";
-            //ViewBag.Title = $"{Model.Inventory.Title.ToUpper()} {Model.Inventory.Vehicles.Length} vehicle(s)";
+            ViewBag.Message = "Inventory";
             ViewBag.Title = I18n.F("Title_TotalVehicles", Model.Inventory.Title.ToUpper(), Model.Inventory.Vehicles.Length);
             Log($"{Model.Inventory.Title} inventory");
 
@@ -28,22 +27,29 @@ namespace GTX.Controllers
         [HttpGet]
         public ActionResult DetailsCard(string stock) {
             Model.CurrentVehicle.VehicleDetails = Model.Inventory.All.FirstOrDefault(m => m.Stock == stock);
+            ViewBag.Message = "Inventory";
 
             return View("DetailsCard", Model.CurrentVehicle.VehicleDetails);
         }
 
         [HttpGet]
         public ActionResult ContactModal() {
+            ViewBag.Message = "Inventory";
+
             return PartialView("_ContactForm", new GTX.Models.ContactModel());
         }
 
         [HttpGet]
         public ActionResult TestDriveModal() {
+            ViewBag.Message = "Inventory";
+
             return PartialView("_ContactForm", new GTX.Models.ContactModel(true));
         }
 
         [HttpGet]
         public ActionResult ApplicationModal() {
+            ViewBag.Message = "Inventory";
+
             return PartialView("_LoanApplication");
         }
 
@@ -61,7 +67,9 @@ namespace GTX.Controllers
                 return View("Index", Model);
             }
 
-            Model.Inventory.Title = "Details";
+            ViewBag.Message = "Inventory";
+
+            Model.Inventory.Title = I18n.R("All_Details");
 
             var vehicle = Model.Inventory.All?.FirstOrDefault(m => m.Stock == stock);
             if (vehicle == null) {
@@ -115,6 +123,7 @@ namespace GTX.Controllers
 
         [HttpGet]
         public ActionResult ShareVehicle(string stock) {
+            ViewBag.Message = "Inventory";
             Models.GTX model = Model.Inventory.All.FirstOrDefault(m => m.Stock == stock);
             return PartialView("_AdCard", model);
         }
@@ -123,7 +132,8 @@ namespace GTX.Controllers
         public ActionResult All() {
             Model.Inventory.Vehicles = Model?.Inventory?.All ?? Array.Empty<Models.GTX>(); ;
             Model.Inventory.Title = "All";
-            //ViewBag.Title = $"{Model.Inventory.Vehicles.Length} vehicles";
+            ViewBag.Message = "Inventory";
+
             ViewBag.Title = I18n.F("Title_AllVehicles", Model.Inventory.Vehicles.Length);
             return View("Index", Model);
         }
@@ -136,7 +146,7 @@ namespace GTX.Controllers
 
             Model.Inventory.Title = I18n.R("Nav_SUVs");
             ViewBag.Title = I18n.F("Title_Category", Model.Inventory.Vehicles.Length, Model.Inventory.Title);
-
+            ViewBag.Message = "Inventory";
             return View("Index", Model);
         }
 
@@ -148,7 +158,7 @@ namespace GTX.Controllers
 
             Model.Inventory.Title = I18n.R("Nav_Sedans");
             ViewBag.Title = I18n.F("Title_Category", Model.Inventory.Vehicles.Length, Model.Inventory.Title);
-
+            ViewBag.Message = "Inventory";
             return View("Index", Model);
         }
 
@@ -160,7 +170,7 @@ namespace GTX.Controllers
 
             Model.Inventory.Title = I18n.R("Nav_Wagons");
             ViewBag.Title = I18n.F("Title_Category", Model.Inventory.Vehicles.Length, Model.Inventory.Title);
-
+            ViewBag.Message = "Inventory";
             return View("Index", Model);
         }
 
@@ -172,7 +182,7 @@ namespace GTX.Controllers
 
             Model.Inventory.Title = I18n.R("Nav_Trucks");
             ViewBag.Title = I18n.F("Title_Category", Model.Inventory.Vehicles.Length, Model.Inventory.Title);
-
+            ViewBag.Message = "Inventory";
             return View("Index", Model);
         }
 
@@ -184,7 +194,7 @@ namespace GTX.Controllers
 
             Model.Inventory.Title = I18n.R("Nav_Vans");
             ViewBag.Title = I18n.F("Title_Category", Model.Inventory.Vehicles.Length, Model.Inventory.Title);
-
+            ViewBag.Message = "Inventory";
             return View("Index", Model);
         }
 
@@ -196,7 +206,7 @@ namespace GTX.Controllers
 
             Model.Inventory.Title = I18n.R("Nav_Convertibles");
             ViewBag.Title = I18n.F("Title_Category", Model.Inventory.Vehicles.Length, Model.Inventory.Title);
-
+            ViewBag.Message = "Inventory";
             return View("Index", Model);
         }
 
@@ -208,7 +218,7 @@ namespace GTX.Controllers
 
             Model.Inventory.Title = I18n.R("Nav_Hatchbacks");
             ViewBag.Title = I18n.F("Title_Category", Model.Inventory.Vehicles.Length, Model.Inventory.Title);
-
+            ViewBag.Message = "Inventory";
             return View("Index", Model);
         }
 
@@ -220,7 +230,7 @@ namespace GTX.Controllers
 
             Model.Inventory.Title = I18n.R("Nav_Coupes");
             ViewBag.Title = I18n.F("Title_Category", Model.Inventory.Vehicles.Length, Model.Inventory.Title);
-
+            ViewBag.Message = "Inventory";
             return View("Index", Model);
         }
 
@@ -231,8 +241,8 @@ namespace GTX.Controllers
             if (model.Transmissions != null) model.Transmissions = model.Transmissions.Select(word => word.Substring(0, 1).ToUpper()).ToArray();
 
             Model.Inventory.Vehicles = ApplyFilters(model);
-            Model.Inventory.Title = "Search";
-
+            Model.Inventory.Title = I18n.R("All_Search");
+            ViewBag.Message = "Inventory";
             return Json(new { redirectUrl = Url.Action("Index") });
         }
 
@@ -244,8 +254,8 @@ namespace GTX.Controllers
 
             request.InList(m => m.Make, make);
             Model.Inventory.Vehicles = request.Query.OrderBy(m => m.Make).ThenBy(m => m.Model).ToArray();
-            Model.Inventory.Title = "Search";
-
+            Model.Inventory.Title = I18n.R("All_Search");
+            ViewBag.Message = "Inventory";
             return Json(new { redirectUrl = Url.Action("Index") });
         }
 
@@ -254,7 +264,7 @@ namespace GTX.Controllers
             term = term.Trim().ToUpper();
 
             Model.Inventory.Vehicles = ApplyTerms(term);
-            Model.Inventory.Title = "Search";
+            Model.Inventory.Title = I18n.R("All_Search");
             return Json(new { redirectUrl = Url.Action("Index") });
         }
 

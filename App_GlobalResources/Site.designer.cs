@@ -70,11 +70,38 @@ namespace Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Close.
+        /// </summary>
+        internal static string All_Close {
+            get {
+                return ResourceManager.GetString("All_Close", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Closed.
+        /// </summary>
+        internal static string All_Closed {
+            get {
+                return ResourceManager.GetString("All_Closed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cylinders.
         /// </summary>
         internal static string All_Cylinders {
             get {
                 return ResourceManager.GetString("All_Cylinders", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Details.
+        /// </summary>
+        internal static string All_Details {
+            get {
+                return ResourceManager.GetString("All_Details", resourceCulture);
             }
         }
         
@@ -115,6 +142,15 @@ namespace Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Location.
+        /// </summary>
+        internal static string All_Location {
+            get {
+                return ResourceManager.GetString("All_Location", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Makes.
         /// </summary>
         internal static string All_Makes {
@@ -151,6 +187,24 @@ namespace Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Now open.
+        /// </summary>
+        internal static string All_NowOpen {
+            get {
+                return ResourceManager.GetString("All_NowOpen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Photos.
+        /// </summary>
+        internal static string All_Photos {
+            get {
+                return ResourceManager.GetString("All_Photos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Price.
         /// </summary>
         internal static string All_Price {
@@ -165,6 +219,24 @@ namespace Resources {
         internal static string All_PriceRange {
             get {
                 return ResourceManager.GetString("All_PriceRange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Search.
+        /// </summary>
+        internal static string All_Search {
+            get {
+                return ResourceManager.GetString("All_Search", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Search inventory.
+        /// </summary>
+        internal static string All_SearchInventory {
+            get {
+                return ResourceManager.GetString("All_SearchInventory", resourceCulture);
             }
         }
         
@@ -192,6 +264,42 @@ namespace Resources {
         internal static string All_Vehicles {
             get {
                 return ResourceManager.GetString("All_Vehicles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You may also like.
+        /// </summary>
+        internal static string All_YouMayLike {
+            get {
+                return ResourceManager.GetString("All_YouMayLike", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Choose your filters.
+        /// </summary>
+        internal static string Filter_ChooseYourFilters {
+            get {
+                return ResourceManager.GetString("Filter_ChooseYourFilters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to More than.
+        /// </summary>
+        internal static string Filter_MoreThan {
+            get {
+                return ResourceManager.GetString("Filter_MoreThan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Under.
+        /// </summary>
+        internal static string Filter_Under {
+            get {
+                return ResourceManager.GetString("Filter_Under", resourceCulture);
             }
         }
         
@@ -309,6 +417,15 @@ namespace Resources {
         internal static string Nav_OurStaff {
             get {
                 return ResourceManager.GetString("Nav_OurStaff", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Schedule test drive.
+        /// </summary>
+        internal static string Nav_ScheduleTestDrive {
+            get {
+                return ResourceManager.GetString("Nav_ScheduleTestDrive", resourceCulture);
             }
         }
         
@@ -466,15 +583,6 @@ namespace Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Schedule test drive.
-        /// </summary>
-        internal static string Title_ScheduleTestDrive {
-            get {
-                return ResourceManager.GetString("Title_ScheduleTestDrive", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Terms and conditions.
         /// </summary>
         internal static string Title_Terms {
@@ -489,15 +597,6 @@ namespace Resources {
         internal static string Title_TotalVehicles {
             get {
                 return ResourceManager.GetString("Title_TotalVehicles", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to VIN decoder.
-        /// </summary>
-        internal static string Title_VINDecoder {
-            get {
-                return ResourceManager.GetString("Title_VINDecoder", resourceCulture);
             }
         }
     }

@@ -24,7 +24,8 @@ namespace GTX.Controllers
             // (not needed for redirect, but harmless)
             Request.Cookies.Set(cookie);
 
-            return RedirectToAction("Index", "Home");
+            //return RedirectToAction("Index", "Home");
+            return new HttpStatusCodeResult(204); // No Content
         }
     }
 }

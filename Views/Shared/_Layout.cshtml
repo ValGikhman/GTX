@@ -153,12 +153,12 @@
                     <li class="mb-2 shadow-sm">
                         <a class="btn btn-dark w-100 rounded-3 d-flex align-items-center justify-content-center gap-2 shadow" href="#" onclick="openFiltersFromOffcanvas(event)">
                             <i class="bi bi-search"></i>
-                            <span class="fw-semibold">Search inventory</span>
+                            <span class="fw-semibold">@I18n.R("All_SearchInventory")</span>
                         </a>
                     </li>
 
                     <!-- Prequalified (success-ish outline) -->
-                    <li class="mb-2 shadow-sm">@Html.ActionLink("💲 Get prequalified", "Application", "Home", null, new { @class = "btn btn-outline-success w-100 rounded-3 fw-semibold" })</li>
+                    <li class="mb-2 shadow-sm">@Html.ActionLink("💲 " +I18n.R("Nav_GetPrequalified"), "Application", "Home", null, new { @class = "btn btn-outline-success w-100 rounded-3 fw-semibold" })</li>
 
                 </ul>
             </div>
@@ -274,7 +274,7 @@
             </div>
         </div>
         @{
-            if (ViewBag.Title != null && !ViewBag.Title.Contains("Home") && !ViewBag.Title.Contains("Inventory management"))
+            if (ViewBag.Message != null && !ViewBag.Message.Contains("Home") && !ViewBag.Message.Contains("Inventory management"))
             {
                 @Html.Partial("_CategoryFilter")
                 @Html.Partial("_PageTitle")
@@ -391,13 +391,12 @@
                         <span class="text-uppercase">@current</span>
                     </button>
 
-                    <form method="post" action="@Url.Action("SetLanguage", "Localization")" class="dropdown-menu dropdown-menu-end p-1 shadow"
-                          aria-labelledby="langDropdown" style="min-width: 11rem;">
-                        <input type="hidden" name="lang" id="langValue" value="@current" />
+                    <!-- Dropdown menu MUST be a div/ul, not a form -->
+                    <div class="dropdown-menu dropdown-menu-end p-1 shadow"
+                         aria-labelledby="langDropdown" style="min-width: 11rem;">
 
-                        <button type="submit"
-                                class="dropdown-item d-flex align-items-center justify-content-between rounded-3"
-                                onclick="document.getElementById('langValue').value='en'">
+                        <button type="button" class="dropdown-item d-flex align-items-center justify-content-between rounded-3 @(current=="en" ? "active" : "")"
+                                onclick="setLang('en')">
                             <span class="d-flex align-items-center gap-2">
                                 <span class="badge bg-light text-dark border">EN</span> English
                             </span>
@@ -405,17 +404,21 @@
                             {<i class="bi bi-check2 text-success"></i>}
                         </button>
 
-                        <button type="submit"
-                                class="dropdown-item d-flex align-items-center justify-content-between rounded-3"
-                                onclick="document.getElementById('langValue').value='es'">
+                        <button type="button" class="dropdown-item d-flex align-items-center justify-content-between rounded-3 @(current=="es" ? "active" : "")"
+                                onclick="setLang('es')">
                             <span class="d-flex align-items-center gap-2">
                                 <span class="badge bg-light text-dark border">ES</span> Español
                             </span>
                             @if (current == "es")
                             {<i class="bi bi-check2 text-success"></i>}
                         </button>
-                    </form>
+                    </div>
                 </div>
+
+                <!-- Hidden form used by setLang() -->
+                <form id="langForm" method="post" action="@Url.Action("SetLanguage", "Localization")" class="d-none">
+                    <input type="hidden" name="lang" id="langValue" value="@current" />
+                </form>
 
             </div>
 
@@ -480,9 +483,43 @@
                     applyTheme(a.dataset.theme);
                 });
             });
+            // ----------------------------
+            // LANGUAGE (POST + reload)
+            // ----------------------------
+            const langForm = document.getElementById("langForm");
+            const langInput = document.getElementById("langValue");
+
+            window.setLang = function (lang) {
+                try {
+                    if (!langForm || !langInput) {
+                        const url = new URL(window.location.href);
+                        url.searchParams.set("lang", lang);
+                        window.location.href = url.toString();
+                        return;
+                    }
+
+                    langInput.value = lang;
+
+                    fetch(langForm.action, {
+                        method: "POST",
+                        body: new FormData(langForm),
+                        credentials: "same-origin"
+                    })
+                        .then(() => window.location.reload())
+                        .catch(() => {
+                            const url = new URL(window.location.href);
+                            url.searchParams.set("lang", lang);
+                            window.location.href = url.toString();
+                        });
+                } catch (e) {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set("lang", lang);
+                    window.location.href = url.toString();
+                }
+            };
+
         })();
     </script>
-
 
 </body>
 </html>
