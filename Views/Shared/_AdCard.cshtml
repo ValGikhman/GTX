@@ -26,12 +26,12 @@
             </div>
             <div>
                 <h8 class="fw-bold mb-1">
-                    <strong>Price: </strong>@Model.InternetPrice.ToString("C0", new System.Globalization.CultureInfo("en-US"))
+                    <strong>@I18n.R("All_Price"): </strong>@Model.InternetPrice.ToString("C0", new System.Globalization.CultureInfo("en-US"))
                 </h8>
             </div>
             <div>
                 <h8 class="fw-bold mb-1">
-                    <strong>Miles: </strong>@Model.Mileage.ToString("N0")
+                    <strong>@I18n.R("All_Miles"): </strong>@Model.Mileage.ToString("N0")
                 </h8>
             </div>
         </div>

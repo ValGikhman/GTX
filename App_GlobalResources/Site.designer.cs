@@ -232,6 +232,15 @@ namespace Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Search within results....
+        /// </summary>
+        internal static string All_SearchInResults {
+            get {
+                return ResourceManager.GetString("All_SearchInResults", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Search inventory.
         /// </summary>
         internal static string All_SearchInventory {
@@ -291,6 +300,15 @@ namespace Resources {
         internal static string Filter_MoreThan {
             get {
                 return ResourceManager.GetString("Filter_MoreThan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sort by : .
+        /// </summary>
+        internal static string Filter_SortBy {
+            get {
+                return ResourceManager.GetString("Filter_SortBy", resourceCulture);
             }
         }
         

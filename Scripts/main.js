@@ -91,8 +91,11 @@
         applyFilterLast();
     });
 
-    const filterResuls = ['🚗 Search within results...'];
-    const placeholders = ['🔍 Click here to search inventory...'];
+    const i18n = window.gtxI18n || {};
+    console.log("oooooo", i18n);
+    const filterResuls = ['🚗 ' + (i18n.searchWithinResults || 'Search within results...')];
+    const placeholders = ['🔍 ' + (i18n.clickToSearchInventory || 'Click here to search inventory...')];
+
     let currentText = "";
     let currentFilterText = "";
     let currentIndex = 0;
