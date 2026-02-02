@@ -1,4 +1,27 @@
 ﻿/*Custom*/
+/* Premium dropdown look */
+.dropdown-menu {
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,.12);
+    box-shadow: 0 10px 35px rgba(0,0,0,.22);
+    backdrop-filter: blur(10px);
+}
+
+.dropdown-item {
+    border-radius: 10px;
+    padding: .55rem .75rem;
+}
+
+    .dropdown-item:hover {
+        filter: brightness(1.02);
+    }
+
+    .dropdown-item.active,
+    .dropdown-item:active {
+        background: rgba(13,110,253,.12);
+        color: inherit;
+    }
+
 /* Small gradient preview pill */
 .theme-swatch {
     width: 26px;
@@ -602,7 +625,6 @@
 
 .term {
     height: 36px;
-    min-width: 200px;
     flex-grow: 1;
 }
 
@@ -1326,166 +1348,95 @@ a, u {
         color: #d54d29;
         text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6); /* Optional: makes text readable on any background */
     }
+/* =========================================
+   FIX: Bootstrap Offcanvas vs old custom menu CSS
+   Scope ONLY to #mobileMenuOffcanvas so nothing else breaks
+   ========================================= */
 
-.hero__tab .nav-tabs {
-    border-bottom: none;
+#mobileMenuOffcanvas {
+    /* make it feel like a real mobile drawer */
+    --bs-offcanvas-width: 92vw;
+    width: 92vw !important;
+    max-width: 520px !important; /* nice on tablets; adjust if you want */
 }
 
-    .hero__tab .nav-tabs .nav-item {
-        margin-bottom: 5px;
-        margin-right: 5px;
+    /* IMPORTANT: kill the old "position:fixed left:-595px" mobile menu behavior */
+    #mobileMenuOffcanvas .offcanvas-menu-wrapper,
+    #mobileMenuOffcanvas .offcanvas-menu-wrapper.active {
+        position: static !important;
+        left: auto !important;
+        top: auto !important;
+        width: 100% !important;
+        opacity: 1 !important;
+        transform: none !important;
+        max-height: none !important;
+        overflow: visible !important;
+        display: block !important;
+        padding: 1rem !important; /* overrides p-5 */
     }
 
-        .hero__tab .nav-tabs .nav-item .nav-link {
-            position: relative;
-            font-size: 15px;
-            font-weight: 700;
-            color: #323232;
-            display: inline-block;
-            padding: 7px 20px;
-            border: none;
-            border-radius: 2px;
-            background: #ffffff;
-        }
-
-            .hero__tab .nav-tabs .nav-item .nav-link:after {
-                position: absolute;
-                content: "";
-                width: 100%;
-                height: 10px;
-                left: 0;
-                bottom: -7px;
-                opacity: 0;
-                background: #ffffff;
-                -webkit-transition: 0.3s;
-                -o-transition: 0.3s;
-                transition: 0.3s;
-            }
-
-            .hero__tab .nav-tabs .nav-item .nav-link.active:after {
-                opacity: 1;
-                bottom: -7px;
-            }
-
-.hero__tab__form {
-    background: #ffffff;
-    padding: 42px 40px 50px;
-    border-radius: 2px;
-}
-
-    .hero__tab__form h2 {
-        color: #323232;
-        font-weight: 700;
-        margin-bottom: 22px;
+    /* You have p-0 on offcanvas-body; restore padding and scrolling */
+    #mobileMenuOffcanvas .offcanvas-body {
+        padding: 1rem !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
     }
 
-    .hero__tab__form form .select-list {
-        display: -webkit-box;
-        display: -ms-flexbox;
-        display: flex;
-        -ms-flex-wrap: wrap;
-        flex-wrap: wrap;
-        margin-right: -20px;
+    /* Buttons/links should fit the drawer and not overflow */
+    #mobileMenuOffcanvas .btn,
+    #mobileMenuOffcanvas a.btn {
+        max-width: 100% !important;
+        white-space: normal !important;
+        overflow-wrap: anywhere;
     }
 
-        .hero__tab__form form .select-list .select-list-item {
-            max-width: calc(50% - 20px);
-            float: left;
-            -webkit-box-flex: 0;
-            -ms-flex: 0 0 50%;
-            flex: 0 0 50%;
-            margin-right: 20px;
-            margin-bottom: 20px;
-        }
-
-            .hero__tab__form form .select-list .select-list-item p {
-                color: #323232;
-                margin-bottom: 5px;
-            }
-
-            .hero__tab__form form .select-list .select-list-item .nice-select {
-                width: 100%;
-                height: 40px;
-                border: 1px solid #ebebeb;
-                border-radius: 2px;
-            }
-
-                .hero__tab__form form .select-list .select-list-item .nice-select .list {
-                    width: 100%;
-                    border-radius: 0;
-                    margin-top: 0;
-                }
-
-                .hero__tab__form form .select-list .select-list-item .nice-select.open span {
-                    display: block !important;
-                }
-
-                .hero__tab__form form .select-list .select-list-item .nice-select:after {
-                    display: none;
-                }
-
-    .hero__tab__form form .car-price {
-        margin-bottom: 45px;
+    /* Reduce indentation so Spanish text doesn’t waste width */
+    #mobileMenuOffcanvas ul.collapse {
+        margin-left: 0 !important; /* neutralize ms-3 */
+        padding-left: .25rem !important;
+        padding-right: .25rem !important;
     }
 
-        .hero__tab__form form .car-price p {
-            color: #323232;
-            margin-bottom: 5px;
-            margin-bottom: 12px;
+    /* Keep collapse headers clean */
+    #mobileMenuOffcanvas a[data-bs-toggle="collapse"] {
+        gap: .75rem;
+    }
+
+        #mobileMenuOffcanvas a[data-bs-toggle="collapse"] > span {
+            min-width: 0;
+            flex: 1 1 auto;
         }
-
-        .hero__tab__form form .car-price .price-range-wrap {
-            position: relative;
-        }
-
-            .hero__tab__form form .car-price .price-range-wrap .ui-widget-content {
-                height: 5px;
-                background: rgba(45, 45, 45, 0.1);
-                border: none;
-                border-radius: 1px;
-            }
-
-            .hero__tab__form form .car-price .price-range-wrap .ui-slider-horizontal .ui-slider-handle {
-                top: -5px;
-                margin-left: -4px;
-            }
-
-            .hero__tab__form form .car-price .price-range-wrap .ui-slider .ui-slider-handle {
-                width: 14px;
-                height: 14px;
-                background: #ffffff;
-                border-radius: 50%;
-                cursor: pointer;
-            }
-
-            .hero__tab__form form .car-price .price-range-wrap .ui-state-default,
-            .hero__tab__form form .car-price .price-range-wrap .ui-widget-content .ui-state-default,
-            .hero__tab__form form .car-price .price-range-wrap .ui-widget-header .ui-state-default,
-            .hero__tab__form form .car-price .price-range-wrap .ui-button,
-            .hero__tab__form form .car-price .price-range-wrap html .ui-button.ui-state-disabled:hover,
-            .hero__tab__form form .car-price .price-range-wrap html .ui-button.ui-state-disabled:active {
-                border: 1.5px solid #db2d2e;
-            }
-
-            .hero__tab__form form .car-price .price-range-wrap .ui-slider .ui-slider-range {
-                background: #db2d2e;
-            }
-
-        .hero__tab__form form .car-price .price-input {
-            position: absolute;
-            left: 89px;
-            top: -36px;
-        }
-
-            .hero__tab__form form .car-price .price-input input {
-                font-size: 15px;
-                color: #323232;
-                font-weight: 700;
-                border: none;
-                width: 180px;
-            }
 
 /*--------------------------------- Responsive Media Quaries -----------------------------*/
+@media (max-width: 576px) {
+    #mobileMenuOffcanvas {
+        width: 94vw !important;
+        max-width: none !important;
+    }
+
+        #mobileMenuOffcanvas .offcanvas-menu-wrapper {
+            padding: .75rem !important;
+        }
+}
+
+@media (max-width: 1200px) {
+    /* reduce spacing on each item */
+    .header__menu .main-menu {
+        gap: .15rem .45rem;
+    }
+
+    /* make search take priority */
+    #fakeSearch {
+        flex-basis: 260px;
+    }
+
+    /* optional: hide blog earlier to preserve one-line header */
+    /* comment out if you don't want it */
+    .header__menu .main-menu > li:nth-child(4) { /* this may not be Blog in your markup */
+        /* display:none; */
+    }
+}
+
 @media only screen and (min-width: 1600px) and (max: 1800px) {
     .carousel-inner {
         height: 600px;
@@ -1935,5 +1886,102 @@ a, u {
 
     .make {
         display: none;
+    }
+
+    /* ===========================================
+   OFFCANVAS MOBILE RESPONSIVE FIX
+   (add at bottom of Site.css)
+   =========================================== */
+
+    @media (max-width: 576px) {
+
+        /* reduce that p-5 on mobile */
+        .offcanvas-menu-wrapper.p-5 {
+            padding: 1rem !important;
+        }
+
+        /* stop horizontal overflow */
+        #mobileMenuOffcanvas .offcanvas-body {
+            overflow-x: hidden !important;
+        }
+
+        /* make sure the menu can scroll vertically if it gets tall */
+        #mobileMenuOffcanvas .offcanvas-body {
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* keep buttons from pushing outside the viewport */
+        #mobileMenuOffcanvas .btn,
+        #mobileMenuOffcanvas a.btn {
+            max-width: 100% !important;
+            white-space: normal !important; /* allow wrap */
+        }
+
+        /* the collapsible header row: allow the label to shrink and ellipsis */
+        #mobileMenuOffcanvas a[data-bs-toggle="collapse"] span {
+            min-width: 0 !important;
+            flex: 1 1 auto !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+        }
+
+        /* make the chevron never wrap */
+        #mobileMenuOffcanvas a[data-bs-toggle="collapse"] i.bi-chevron-down {
+            flex: 0 0 auto;
+        }
+
+        /* submenu: reduce indent so it doesn't squeeze content */
+        #mobileMenuOffcanvas ul.collapse.list-unstyled.mt-2.ms-3.p-2 {
+            margin-left: .75rem !important;
+            padding: .5rem !important;
+        }
+
+        /* submenu buttons: make text truncate nicely on 1 line */
+        #mobileMenuOffcanvas ul.collapse .btn {
+            display: flex !important;
+            align-items: center;
+            gap: .5rem;
+        }
+
+        #mobileMenuOffcanvas ul.collapse .btn {
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+
+        /* top row: logo + phone should wrap cleanly */
+        #mobileMenuOffcanvas .main-menu > li.d-flex {
+            flex-wrap: wrap !important;
+        }
+
+            #mobileMenuOffcanvas .main-menu > li.d-flex a.btn {
+                width: 100% !important; /* phone button full width */
+                justify-content: center !important;
+            }
+
+        /* shrink icons a touch for tight screens */
+        #mobileMenuOffcanvas .bi {
+            font-size: 1rem;
+        }
+    }
+}
+
+/* Tighten header between 1400–1800px (xxl-ish) */
+@media (min-width: 1400px) and (max-width: 1800px) {
+    #schedule, #telephone {
+        display: none !important;
+    }
+    /* your intent */
+}
+
+@media (max-width: 1750px) {
+    .header__menu .main-menu {
+        gap: .55rem !important;
+    }
+
+    #fakeSearch {
+        max-width: 420px !important;
     }
 }

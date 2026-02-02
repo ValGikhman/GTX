@@ -34,6 +34,12 @@
 
     <script>
         (function () {
+            window.gtxI18n = window.gtxI18n || {};
+            window.gtxI18n = {
+                searchWithinResults: '@Html.Raw(HttpUtility.JavaScriptStringEncode(I18n.R("All_SearchInResults")))',
+                clickToSearchInventory: '@Html.Raw(HttpUtility.JavaScriptStringEncode(I18n.R("All_SearchInventory")))',
+            };
+
             var KEY = "gtx-theme";
             const THEMES = ["blue", "grey", "pink", "deep-purple", "metallica"]; // add more here
             var t = localStorage.getItem(KEY) || "blue"; // default
@@ -118,15 +124,15 @@
                     <!-- About (collapsible) -->
                     <li class="mb-2">
                         <a class="btn btn-gradient-grey rounded-3 w-100 d-flex align-items-center justify-content-between text-dark fw-bold shadow" data-bs-toggle="collapse" href="#menuAboutMobile" role="button" aria-expanded="false" aria-controls="menuAboutMobile">
-                            <span><i class="bi bi-info-circle me-2"></i>About us</span>
+                            <span><i class="bi bi-info-circle me-2"></i>@I18n.R("Nav_AboutUs")</span>
                             <i class="bi bi-chevron-down"></i>
                         </a>
 
                         <ul id="menuAboutMobile" class="collapse list-unstyled mt-2 ms-3 p-2" data-bs-parent="#mobileMenuOffcanvas">
-                            <li class="mb-1 shadow-sm">@Html.ActionLink("About us", "About", "Home", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1 shadow-sm"><a class="btn btn-outline-dark w-100 text-start rounded-3" data-bs-dismiss="offcanvas" href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })">Contact us</a></li>
-                            <li class="mb-1 shadow-sm">@Html.ActionLink("Our staff", "Staff", "Home", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1 shadow-sm">@Html.ActionLink("Testimonials", "Testimonials", "Home", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_AboutUs"), "About", "Home", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1 shadow-sm"><a class="btn btn-outline-dark w-100 text-start rounded-3" data-bs-dismiss="offcanvas" href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })">@I18n.R("Nav_ContactUs")</a></li>
+                            <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_OurStaff"), "Staff", "Home", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_Testimonials"), "Testimonials", "Home", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
                         </ul>
                     </li>
 
@@ -193,7 +199,7 @@
                             <ul class="dropdown rounded">
                                 <li id="menuInventory">@Html.ActionLink("Majordome", "Inventory", "Majordome")</li>
                                 <li id="menuVinDecoder">@Html.ActionLink("Vindecoder", "Index", "Vindecoder")</li>
-                                <li id="menuAnnouncements">@Html.ActionLink("Alerts", "Index", "Announcements")</liid="menuAnnouncements">
+                                <li id="menuAnnouncements">@Html.ActionLink("Alerts", "Index", "Announcements")</li>
                                 <li id="menuBlogs">@Html.ActionLink("Blogs", "Index", "Blogs")</li>
                                 <li id="menuEmployees">@Html.ActionLink("Employees", "Index", "Employees")</li>
                                 <li id="menuHealth">@Html.ActionLink("Health", "Index", "Health")</li>
@@ -225,7 +231,7 @@
                                 <li>@Html.ActionLink(I18n.R("Nav_Testimonials"), "Testimonials", "Home")</li>
                             </ul>
                         </li>
-                        <li id="fakeSearch" class="fake-input hand-pointer d-none d-xxl-inline-block w-35 mx-4" data-bs-toggle="modal" data-bs-target="#filtersModal">
+                        <li id="fakeSearch" class="fake-input hand-pointer d-none d-xl-inline-flex" data-bs-toggle="modal" data-bs-target="#filtersModal">
                             @Html.Partial("_SearchByTerm")
                         </li>
                         <li class="d-xxl-none">
@@ -282,6 +288,7 @@
         }
     </header>
     <!-- Header Section End -->
+
     <!-- MAIN WRAPPER -->
     <div class="very-top d-flex flex-column flex-grow-1">
         <!-- Loading...  overlay -->
@@ -513,7 +520,6 @@
 
         })();
     </script>
-
 </body>
 </html>
 

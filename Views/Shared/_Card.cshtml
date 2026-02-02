@@ -300,14 +300,14 @@
         </div>
 
         <!-- FOOTER (3 rows, keeps gradient) -->
-        <div class="card-footer gradient no-click py-1">
+        <div class="card-footer gradient no-click py-1 fs-6 fw-bold text-shadow"">
             <!-- Row 1: Price + Miles (like before) -->
             <div class="d-flex justify-content-between align-items-baseline">
-                <span class="fw-bold">
+                <span>
                     <i class="bi bi-car-front"></i>
                     @I18n.R("All_Price"): @Model.InternetPrice.ToString("C0", new System.Globalization.CultureInfo("en-US"))
                 </span>
-                <span class="fw-bold">
+                <span>
                     <i class="bi bi-speedometer2 me-1"></i>@Model.Mileage.ToString("N0") @I18n.R("All_Miles")
                 </span>
             </div>
