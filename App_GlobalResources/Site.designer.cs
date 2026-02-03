@@ -160,6 +160,15 @@ namespace Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to MAX My Trade/Sell Offers.
+        /// </summary>
+        internal static string All_MaxAllowance {
+            get {
+                return ResourceManager.GetString("All_MaxAllowance", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Mileage.
         /// </summary>
         internal static string All_Mileage {
