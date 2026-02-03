@@ -148,6 +148,9 @@
     <!-- SKINS -->
     <link href="~/Content/Lightbox/dark.css" rel="stylesheet" />
 
+    <!-- New button-->
+    <link rel="stylesheet" href="https://c.maxallowance.com/widget/css/tradein-maxallowance.css?ver=0.0.1">
+
     <!-- ASSETS -->
     <script src="~/Scripts/AlloyFinger/alloy_finger.min.js" type="text/javascript"></script>
     @if (Model.CurrentVehicle.DisplayEZ360Player && Model.IsEZ360)
@@ -217,10 +220,10 @@
                 @{
                     if (!(Model.CurrentVehicle.DisplayEZ360Player && Model.IsEZ360) && Model.CurrentVehicle.VehicleDetails.Images?.Count() > 0)
                     {
-                                <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small" id="nav-pictures-tab" data-bs-toggle="tab" data-bs-target="#nav-pictures" type="button" role="tab" aria-controls="nav-pictures" aria-selected="false"><i class="bi bi-camera"></i>&nbsp; @I18n.R("All_Photos") ( @Model.CurrentVehicle.VehicleDetails.Images.Count())</button>
+                        <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small" id="nav-pictures-tab" data-bs-toggle="tab" data-bs-target="#nav-pictures" type="button" role="tab" aria-controls="nav-pictures" aria-selected="false"><i class="bi bi-camera"></i>&nbsp; @I18n.R("All_Photos") ( @Model.CurrentVehicle.VehicleDetails.Images.Count())</button>
                     }
                 }
-            <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small" id="nav-location-tab" data-bs-toggle="tab" data-bs-target="#nav-location" type="button" role="tab" aria-controls="nav-location" aria-selected="true"><i class="bi bi-geo-fill"></i>&nbsp; @I18n.R("All_Location")</button>
+                <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small" id="nav-location-tab" data-bs-toggle="tab" data-bs-target="#nav-location" type="button" role="tab" aria-controls="nav-location" aria-selected="true"><i class="bi bi-geo-fill"></i>&nbsp; @I18n.R("All_Location")</button>
                 <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small d-none" id="nav-payment-tab" data-bs-toggle="tab" data-bs-target="#nav-payment" type="button" role="tab" aria-controls="nav-payment" aria-selected="true"><strong><i class="bi bi-calculator"></i>&nbsp; Pay $<span id="monthlyAmount"></span>/mo</strong></button>
                 <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small d-none d-lg-inline" id="QR-code-tab" data-bs-toggle="tab" data-bs-target="#tab-qr-code" type="button" role="tab">
                     QR Code
@@ -499,6 +502,7 @@
             </div>
         </div>
     </div>
+    <!-- Buttons Carfax/ schedules etc-->
     <div id="modalShortcuts" class="col-lg-3 col-md-12 col-sm-12">
         @*Carfax reviews*@
         <a class="w-100 d-none" id="btnCarfaxReview" href="https://www.carfax.com/Reviews-GTX-Auto-Group-Inc-Hamilton-OH_KBPIWOM66I?partner=RRW_1#reviews" target="_blank">
@@ -506,34 +510,39 @@
         </a>
 
         @*Carfax*@
-        <a class="w-100 btn btn-gradient mb-3"
-           type="button"
-           id="btnCarfax"
-           href="http://www.carfax.com/VehicleHistory/p/Report.cfx?partner=DVW_1&vin=@Model.CurrentVehicle.VehicleDetails.VIN" target="_blank">
+        <a class="w-100 btn btn-gradient mb-3 shadow" type="button" id="btnCarfax" href="http://www.carfax.com/VehicleHistory/p/Report.cfx?partner=DVW_1&vin=@Model.CurrentVehicle.VehicleDetails.VIN" target="_blank">
             <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
                 <img src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report">
             </h5>
         </a>
 
+        @*Contact us*@
+        <button class="w-100 btn btn-gradient shadow mb-3" type="button" id="btnContactForm" data-url="Inventory/ContactModal/" data-title="Contact us">
+            <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
+                <i class="bi bi-person-vcard mx-2"></i>@I18n.R("Nav_ContactUs")
+            </h5>
+        </button>
+
         @*Test drive*@
-        <button class="w-100 btn btn-gradient-yellow mb-3" type="button" id="btnTestDriveForm" data-url="Inventory/TestDriveModal/"data-title="Schedule test drive">
+        <button class="w-100 btn btn-gradient-yellow mb-3 shadow" type="button" id="btnTestDriveForm" data-url="Inventory/TestDriveModal/" data-title="Schedule test drive">
 
             <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
                 <i class="bi bi-calendar3 mx-2"></i>@I18n.R("Nav_ScheduleTestDrive")
             </h5>
         </button>
 
-        @*Contact us*@
-        <button class="w-100 btn btn-gradient mb-3" type="button" id="btnContactForm" data-url="Inventory/ContactModal/" data-title="Contact us">
+
+        @*Loan app*@
+        <button class="w-100 btn btn-gradient-green mb-3 shadow" type="button" id="btnLoanApplication" data-url="Inventory/ApplicationModal" data-title="Get prequalified">
             <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
-                <i class="bi bi-person-vcard mx-2"></i>@I18n.R("Nav_ContactUs")
+                <i class="bi bi-currency-dollar mx-2"></i>@I18n.R("Nav_GetPrequalified")
             </h5>
         </button>
 
-        @*Loan app*@
-        <button class="w-100 btn btn-gradient-green mb-3" type="button" id="btnLoanApplication" data-url="Inventory/ApplicationModal" data-title="Get prequalified">
+        @*Maxallowance button*@
+        <button id="maxallowance-tradein" class="maxallowance-tradein w-100 btn btn-gradient-green shadow" data-max-id="gtxautogroup">
             <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
-                <i class="bi bi-currency-dollar mx-2"></i>@I18n.R("Nav_GetPrequalified")
+                <i class="bi bi-cash-coin mx-2"></i>@I18n.R("All_MaxAllowance")
             </h5>
         </button>
     </div>
@@ -721,6 +730,7 @@
         }
     }
 </script>
+<script src="https://max-allowance.s3.us-east-2.amazonaws.com/trade-in-maxallowance.js"></script>
 
 
 
