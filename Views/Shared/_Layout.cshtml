@@ -221,7 +221,7 @@
                         </li>
 
                         <li class="mx-2">@Html.ActionLink("💲" + I18n.R("Nav_GetPrequalified"), "Application", "Home")</li>
-                        <li class="mx-2">@Html.ActionLink("Blog", "Blogs", "Blogs")</li>
+                        <li class="mx-2">@Html.ActionLink("Blog", "List", "Blogs")</li>
                         <li class="mx-2">
                             <a href="#">@I18n.R("Nav_AboutUs")</a>
                             <ul class="dropdown rounded">
@@ -279,13 +279,9 @@
                 </nav>
             </div>
         </div>
-        @{
-            if (ViewBag.Message != null && !ViewBag.Message.Contains("Home") && !ViewBag.Message.Contains("Inventory management"))
-            {
-                @Html.Partial("_CategoryFilter")
-                @Html.Partial("_PageTitle")
-            }
-        }
+
+        @Html.Partial("_CategoryFilter")
+        @Html.Partial("_PageTitle")
     </header>
     <!-- Header Section End -->
 

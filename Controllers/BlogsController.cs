@@ -31,7 +31,7 @@ namespace GTX
             return View(posts);
         }
 
-        public ActionResult Blogs()
+        public ActionResult List()
         {
             var blogs = _blogsService.GetAll().Where(x => x.IsPublished).OrderByDescending(x => x.CreatedAt).Select(BlogPostModel.FromEntity).ToList();
             return View(blogs.Where(m => m.IsPublished).ToList());
