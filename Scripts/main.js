@@ -2,6 +2,7 @@
 
 (function ($) {
     const currentRole = window.gtx?.currentRole || "";
+    setMajordomeMenu(currentRole);
 
     $(document).on("click", ".card.V, #btnPrev, #btnNext", function (e) {
         showSpinner("#loadingOverlay");
@@ -92,7 +93,6 @@
     });
 
     const i18n = window.gtxI18n || {};
-    console.log("oooooo", i18n);
     const filterResuls = ['🚗 ' + (i18n.searchWithinResults || 'Search within results...')];
     const placeholders = ['🔍 ' + (i18n.clickToSearchInventory || 'Click here to search inventory...')];
 
