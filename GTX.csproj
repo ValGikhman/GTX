@@ -245,6 +245,11 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_GlobalResources\Site.ua.designer.cs">
+      <DependentUpon>Site.ua.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
     <Compile Include="App_GlobalResources\Site.designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -319,6 +324,7 @@
     <Content Include="Content\bootstrap\bootstrap-utilities.min.css" />
     <Content Include="Content\bootstrap\bootstrap.css" />
     <Content Include="Content\bootstrap\bootstrap.min.css" />
+    <Content Include="Content\Themes\Dark.css" />
     <Content Include="Content\Themes\Metallica.css" />
     <Content Include="Content\elegant-icons.css" />
     <Content Include="Content\font-awesome.min.css" />
@@ -673,6 +679,12 @@
     <Content Include="App_GlobalResources\Site.es.resx">
       <Generator>GlobalResourceProxyGenerator</Generator>
       <LastGenOutput>Site.es.designer.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_GlobalResources\Site.ua.resx">
+      <Generator>GlobalResourceProxyGenerator</Generator>
+      <LastGenOutput>Site.ua.designer.cs</LastGenOutput>
     </Content>
   </ItemGroup>
   <PropertyGroup>

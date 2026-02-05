@@ -10,6 +10,7 @@
         case "pink":
         case "blue":
         case "deep-purple":
+        case "dark":
         case "metallica":
             break;
         default:
@@ -368,17 +369,32 @@
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="pink"><span class="theme-swatch swatch-pink"></span> Pink</a></li>
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="deep-purple"><span class="theme-swatch swatch-deep-purple"></span> Deep Purple</a></li>
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="metallica"><span class="theme-swatch swatch-metallica"></span> Metallica</a></li>
+                            <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="dark"><span class="theme-swatch swatch-dark"></span> Dark</a></li>
                         </ul>
                     </div>
 
                     <!-- Language dropdown -->
                     <div class="dropdown">
                         @{
-                            var flagSrc = (current.StartsWith("es", StringComparison.OrdinalIgnoreCase))
-                                ? Url.Content("~/img/flags/es.svg")
-                                : Url.Content("~/img/flags/us.svg");
-                        }
+                            var lang = (current ?? "en").ToLowerInvariant();
+                            string flagSrc;
 
+                            switch (lang)
+                            {
+                                case "es":
+                                    flagSrc = Url.Content("~/img/flags/es.svg");
+                                    break;
+
+                                case "ua":
+                                    flagSrc = Url.Content("~/img/flags/ua.svg");
+                                    break;
+
+                                case "en":
+                                default:
+                                    flagSrc = Url.Content("~/img/flags/us.svg");
+                                    break;
+                            }
+                        }
                         <button class="btn btn-sm btn-gradient dropdown-toggle d-flex align-items-center gap-2 text-nowrap"
                                 type="button" id="langDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="@flagSrc" width="16" height="16" class="rounded-1" alt="" />
@@ -405,6 +421,16 @@
                                     Español
                                 </span>
                                 @if (current == "es")
+                                {<i class="bi bi-check2 text-success"></i>}
+                            </button>
+                            <button type="button"
+                                    class="dropdown-item d-flex align-items-center justify-content-between rounded-3 @(current=="ua" ? "active" : "")"
+                                    onclick="setLang('ua')">
+                                <span class="d-flex align-items-center gap-2">
+                                    <img src="~/img/flags/ua.svg" width="22" height="22" class="rounded-1 shadow-sm" alt="Украинська" />
+                                    Українська
+                                </span>
+                                @if (current == "ua")
                                 {<i class="bi bi-check2 text-success"></i>}
                             </button>
                         </div>
