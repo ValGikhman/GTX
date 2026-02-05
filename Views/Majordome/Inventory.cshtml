@@ -20,8 +20,7 @@
         }
 
         .body-content {
-            height: 100%;
-            margin-top: 5rem;
+            margin-top: 13.7rem;
         }
 
         .dropzone {
@@ -500,7 +499,7 @@
         cellRenderer: imageButtonRenderer,
         filter: false,
         sortable: true,
-        width: 200,
+        width: 80,
         cellClass: 'd-flex align-items-center justify-content-center',
         comparator: function (valueA, valueB) {
             // Convert to 1 if has image, 0 if "noimage"
@@ -651,7 +650,7 @@
         },
         columnDefs: columnDefs,
         rowSelection: "single",
-        rowHeight: 150, // Set fixed row height in pixels
+        rowHeight: 80, // Set fixed row height in pixels
         suppressRowClickSelection: false, // Allow clicking anywhere in the row
         suppressCellFocus: true, // 🔥 Disable cell selection focus
         pagination: false,
