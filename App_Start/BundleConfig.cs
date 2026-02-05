@@ -40,6 +40,7 @@ namespace GTX {
                       "~/Content/Themes/Pink.css",
                       "~/Content/Themes/Blue.css",
                       "~/Content/Themes/DeepPurple.css",
+                      "~/Content/Themes/Dark.css",
                       "~/Content/Themes/Metallica.css"
 
                 ));

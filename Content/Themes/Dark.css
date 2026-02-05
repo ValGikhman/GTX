@@ -1,0 +1,49 @@
+﻿/* Dark.css (scoped grey theme) */
+html.theme-dark {
+    --gtx-grad: linear-gradient(180deg, #191d22 0%, #2b3138 22%, #1f242c 45%, #0d1117 70%, #000000 100% );
+    --gtx-grad-rev: linear-gradient(0deg, #191d22 0%, #2b3138 22%, #1f242c 45%, #0d1117 70%, #000000 100% );
+}
+
+    /* Replace your blue gradient areas */
+    html.theme-dark .menu-strip,
+    html.theme-dark .page-title,
+    html.theme-dark .modal-header,
+    html.theme-dark .small-offcanvas {
+        background: var(--gtx-grad) !important;
+        color: #fff !important;
+    }
+
+    /* Keep buttons BLUE (remove these if you truly want zero button overrides)
+   If you do want some grey button behavior, keep them scoped like this: */
+    html.theme-dark .btn-gradient,
+    html.theme-dark .btn-gradient-grey.active {
+        background: var(--gtx-grad) !important;
+        color: #fff !important;
+        border-color: rgba(0,0,0,.35) !important;
+    }
+
+    /* Header dropdown background */
+    html.theme-dark .header__menu ul li .dropdown {
+        background: var(--gtx-grad) !important;
+    }
+
+    /* Keep menu links readable on gradient */
+    html.theme-dark .header__menu ul li a {
+        color: #fff !important;
+        text-shadow: none !important;
+    }
+
+        html.theme-dark .header__menu ul li a:after {
+            background: #fff !important;
+        }
+
+    /* Your special-case override */
+    html.theme-dark #MajordomeLink .gradient {
+        color: #000 !important;
+    }
+
+    /* Checkbox color (optional) */
+    html.theme-dark .form-check-input:checked {
+        background-color: darkgrey;
+        border-color: darkgray;
+    }
