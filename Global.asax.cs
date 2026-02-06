@@ -27,11 +27,11 @@ namespace GTX
         {
             var path = (Request.Path ?? "").ToLowerInvariant();
             if (path == "/out-of-service.html") return; // prevent loop
-            if (path.StartsWith("/health")) return;
             if (path.StartsWith("/content") || path.StartsWith("/scripts") || path.StartsWith("/bundles")) return;
 
             if (MaintenanceFlag.IsOffline())
             {
+                if (path.StartsWith("/health")) return;
                 Response.Redirect("/out-of-service.html", true);
             }
 

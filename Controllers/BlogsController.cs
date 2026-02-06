@@ -24,6 +24,7 @@ namespace GTX
             _blogsService = blogsService;
         }
 
+        [RequireAdminRole]
         [HttpGet]
         public ActionResult Index()
         {
