@@ -162,12 +162,14 @@ function setMajordomeMenu(role) {
         "owner": "bi-shield-lock",           // owner
         "tech": "bi-tools",                  // tech
         "manager": "bi-clipboard-check",     // manager
-        "sales": "bi-currency-dollar"        // sales
+        "sales": "bi-currency-dollar",       // sales
+        "support": "bi-wrench"               // support
     };
 
     switch (r) {
         case "tech":
             $("#menuInventory").show();
+            $("#menuVinDecoder").show();
             $("#menuAnnouncements").hide();
             $("#menuBlogs").hide();
             $("#menuEmployees").hide();
@@ -177,6 +179,7 @@ function setMajordomeMenu(role) {
 
         case "owner":
             $("#menuInventory").show();
+            $("#menuVinDecoder").show();
             $("#menuAnnouncements").show();
             $("#menuBlogs").show();
             $("#menuEmployees").show();
@@ -185,7 +188,8 @@ function setMajordomeMenu(role) {
             break;
 
         case "sales":
-            $("#menuInventory").show();
+            $("#menuInventory").hide();
+            $("#menuVinDecoder").hide();
             $("#menuAnnouncements").hide();
             $("#menuBlogs").hide();
             $("#menuEmployees").hide();
@@ -194,16 +198,26 @@ function setMajordomeMenu(role) {
             break;
 
         case "manager":
-            $("#menuInventory").show();
+            $("#menuInventory").hide();
+            $("#menuVinDecoder").show();
             $("#menuAnnouncements").show();
+            $("#menuBlogs").show();
+            $("#menuEmployees").show();
+            $("#menuHealth").hide();
+            $("#menuSitemap").show();
+            break;
+
+        case "support":
+            $("#menuInventory").hide();
+            $("#menuVinDecoder").hide();
+            $("#menuAnnouncements").hide();
             $("#menuBlogs").show();
             $("#menuEmployees").hide();
             $("#menuHealth").hide();
             $("#menuSitemap").show();
             break;
-
         default:
-            $("#menuInventory, #menuAnnouncements, #menuBlogs, #menuEmployees, #menuHealth, #menuSitemap").hide();
+            $("#menuVinDecoder, #menuInventory, #menuAnnouncements, #menuBlogs, #menuEmployees, #menuHealth, #menuSitemap").hide();
             break;
     }
     // text
