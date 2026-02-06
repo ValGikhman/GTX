@@ -1,4 +1,5 @@
-﻿using GTX.Models;
+﻿using GTX.Common;
+using GTX.Models;
 using ImageMagick;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -22,6 +23,7 @@ using Utility.XMLHelpers;
 
 namespace GTX.Controllers
 {
+    [RequireAdminRole]
     public class MajordomeController : BaseController {
 
         private const string HeaderFileVirtualPath = "~/App_Data/Inventory/header.csv";

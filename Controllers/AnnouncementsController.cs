@@ -1,4 +1,5 @@
-﻿using GTX.Models;
+﻿using GTX.Common;
+using GTX.Models;
 using Services;
 using System;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Web.Mvc;
 
 namespace GTX.Controllers
 {
-
+    [RequireAdminRole]
     public class AnnouncementsController : BaseController
     {
         private readonly IAnnouncementService _announcementService;

@@ -1,4 +1,5 @@
-﻿using GTX.Controllers;
+﻿using GTX.Common;
+using GTX.Controllers;
 using GTX.Models;
 using Services;
 using System;
@@ -7,6 +8,7 @@ using System.Web.Mvc;
 
 namespace GTX
 {
+    [RequireAdminRole]
     public class BlogsController : BaseController
     {
         public IBlogsService _blogsService { get; set; }
