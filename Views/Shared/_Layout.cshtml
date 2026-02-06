@@ -184,106 +184,112 @@
     }
 
     <!-- Header Section Begin -->
-    <header class="header fixed-top">
-        <div class="canvas__open">
-            <button class="btn btn-gradient-grey" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenuOffcanvas"><i class="bi bi-list"></i></button>
-        </div>
-        <div class="menu-strip container-fluid">
-            <div class="d-flex justify-content-between">
-                <nav class="header__top header__menu w-100">
-                    <ul class="main-menu">
-                        <li id="GTX-image" class="d-none d-md-inline-block mx-1"><a href="~/Home/Index"><img src="~/GTXImages/GTX-White.png" width="60" /></a></li>
-                        <li id="MajordomeLink" class="@_class mx-1">
-                            <a href="#" class="btn gradient shadow border-dark rounded-4 d-inline-flex align-items-center text-black">
-                                <i class="bi bi-gear px-2"></i>
-                            </a>
-                            <ul class="dropdown rounded">
-                                <li id="menuInventory">@Html.ActionLink("Majordome", "Inventory", "Majordome")</li>
-                                <li id="menuVinDecoder">@Html.ActionLink("Vindecoder", "Index", "Vindecoder")</li>
-                                <li id="menuAnnouncements">@Html.ActionLink("Alerts", "Index", "Announcements")</li>
-                                <li id="menuBlogs">@Html.ActionLink("Blogs", "Index", "Blogs")</li>
-                                <li id="menuEmployees">@Html.ActionLink("Employees", "Index", "Employees")</li>
-                                <li id="menuHealth">@Html.ActionLink("Health", "Index", "Health")</li>
-                                <li id="menuSitemap">@Html.ActionLink("Sitemap", "Index", "Sitemap")</li>
-                            </ul>
-                        </li>
-                        <li class=" mx-2">
-                            <a href="#">@I18n.R("Nav_Inventory")</a>
-                            <ul class="dropdown rounded">
-                                <li>@Html.ActionLink(I18n.R("Nav_All"), "All", "Inventory")</li>
-                                <li>@Html.ActionLink(I18n.R("Nav_SUVs"), "Suvs", "Inventory")</li>
-                                <li>@Html.ActionLink(I18n.R("Nav_Trucks"), "Trucks", "Inventory")</li>
-                                <li>@Html.ActionLink(I18n.R("Nav_Vans"), "Vans", "Inventory")</li>
-                                <li>@Html.ActionLink(I18n.R("Nav_Hatchbacks"), "Hatchbacks", "Inventory")</li>
-                                <li>@Html.ActionLink(I18n.R("Nav_Coupes"), "Coupes", "Inventory")</li>
-                                <li>@Html.ActionLink(I18n.R("Nav_Sedans"), "Sedans", "Inventory")</li>
-                                <li>@Html.ActionLink(I18n.R("Nav_Convertibles"), "Convertibles", "Inventory")</li>
-                            </ul>
-                        </li>
+<header class="header fixed-top">
+    <div class="canvas__open">
+        <button class="btn btn-gradient-grey" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenuOffcanvas"><i class="bi bi-list"></i></button>
+    </div>
+    <div class="menu-strip container-fluid">
+        <div class="d-flex justify-content-between">
+            <nav class="header__top header__menu w-100">
+                <ul class="main-menu">
+                    <li id="GTX-image" class="d-none d-md-inline-block mx-1"><a href="~/Home/Index"><img src="~/GTXImages/GTX-White.png" width="60" /></a></li>
+                    <li id="MajordomeLink" class="@_class mx-1">
+                        <a href="#" class="btn gradient shadow border-dark rounded-4 d-inline-flex align-items-center text-black">
+                            <i class="bi bi-gear px-2"></i>
+                        </a>
+                        <ul class="dropdown rounded">
+                            <li id="menuInventory">@Html.ActionLink("Majordome", "Inventory", "Majordome")</li>
+                            <li id="menuVinDecoder">@Html.ActionLink("Vindecoder", "Index", "Vindecoder")</li>
+                            <li id="menuAnnouncements">@Html.ActionLink("Alerts", "Index", "Announcements")</li>
+                            <li id="menuBlogs">@Html.ActionLink("Blogs", "Index", "Blogs")</li>
+                            <li id="menuEmployees">@Html.ActionLink("Employees", "Index", "Employees")</li>
+                            <li id="menuHealth">@Html.ActionLink("Health", "Index", "Health")</li>
+                            <li id="menuSitemap">@Html.ActionLink("Sitemap", "Index", "Sitemap")</li>
+                        </ul>
+                    </li>
+                    <li class=" mx-2">
+                        <a href="#">@I18n.R("Nav_Inventory")</a>
+                        <ul class="dropdown rounded">
+                            <li>@Html.ActionLink(I18n.R("Nav_All"), "All", "Inventory")</li>
+                            <li>@Html.ActionLink(I18n.R("Nav_SUVs"), "Suvs", "Inventory")</li>
+                            <li>@Html.ActionLink(I18n.R("Nav_Trucks"), "Trucks", "Inventory")</li>
+                            <li>@Html.ActionLink(I18n.R("Nav_Vans"), "Vans", "Inventory")</li>
+                            <li>@Html.ActionLink(I18n.R("Nav_Hatchbacks"), "Hatchbacks", "Inventory")</li>
+                            <li>@Html.ActionLink(I18n.R("Nav_Coupes"), "Coupes", "Inventory")</li>
+                            <li>@Html.ActionLink(I18n.R("Nav_Sedans"), "Sedans", "Inventory")</li>
+                            <li>@Html.ActionLink(I18n.R("Nav_Convertibles"), "Convertibles", "Inventory")</li>
+                        </ul>
+                    </li>
 
-                        <li class="mx-2">@Html.ActionLink("💲" + I18n.R("Nav_GetPrequalified"), "Application", "Home")</li>
-                        <li class="mx-2">@Html.ActionLink("Blog", "List", "Blogs")</li>
-                        <li class="mx-2">
-                            <a href="#">@I18n.R("Nav_AboutUs")</a>
-                            <ul class="dropdown rounded">
-                                <li>@Html.ActionLink(I18n.R("Nav_AboutUs"), "About", "Home")</li>
-                                <li><a href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })">@I18n.R("Nav_ContactUs")</a></li>
-                                <li>@Html.ActionLink(I18n.R("Nav_OurStaff"), "Staff", "Home")</li>
-                                <li>@Html.ActionLink(I18n.R("Nav_Testimonials"), "Testimonials", "Home")</li>
-                            </ul>
-                        </li>
-                        <li id="fakeSearch" class="fake-input hand-pointer d-none d-xl-inline-flex" data-bs-toggle="modal" data-bs-target="#filtersModal">
-                            @Html.Partial("_SearchByTerm")
-                        </li>
-                        <li class="d-xxl-none">
-                            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#filtersModal">
-                                <i class="bi bi-search"></i>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-                <nav class="header__top d-none d-xxl-flex">
-                    <ul class="main-menu start-100 list-unstyled no-wrap-group">
-                        <li class="mx-sm-1 nav-addr-hours hand-pointer" data-bs-toggle="offcanvas" data-bs-target="#openHours" aria-controls="openHours">
-                            <div class="addr-line1">9516 Princeton Glendale Rd</div>
-                            <div class="addr-line2">West Chester Township, OH 45011</div>
-                        </li>
-                        <li class="mx-sm-1">
-                            <a class="btn btn-gradient-grey border-dark rounded-4" id="btnOpenHours" data-bs-toggle="offcanvas" data-bs-target="#openHours" aria-controls="openHours">
-                                <i class="bi bi-stopwatch"></i>
-                                <span id="schedule" class="schedule d-none d-xxl-inline m-sm-1"></span>
-                            </a>
-                        </li>
-                        <li class="mx-sm-1">
-                            <a class="btn btn-gradient-grey border-dark rounded-4" href="tel:(513) 489-2886">
-                                <i class="bi bi-telephone"></i>
-                                <span id="telephone" class="d-none d-xxl-inline m-sm-1">(513) 489-2886</span>
-                            </a>
-                        </li>
-                        <li class="mx-sm-1">
-                            <a class="btn gradient shadow border-dark rounded-4" href="https://www.facebook.com/GTXAutoGroup" target="_blank" title="GTX Facebook page">
-                                <i class="fa fa-facebook px-2"></i>
-                            </a>
-                        </li>
-                        <li class="mx-sm-1">
-                            <a class="btn gradient shadow border-dark rounded-4" href="https://www.twitter.com/GTXAutoGroup" target="_blank" title="GTX Meta page">
-                                <i class="fa fa-twitter px-1"></i>
-                            </a>
-                        </li>
-                        <li class="mx-sm-1">
-                            <a class="btn gradient shadow border-dark rounded-4" href="#" title="Log in" data-bs-toggle="modal" data-login-modal="true">
-                                <i class="bi bi-person-circle px-1 role-icon"></i>
-                                <span class="role-text text-shadow-small fw-bold"></span>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
+                    <li class="mx-2">@Html.ActionLink("💲" + I18n.R("Nav_GetPrequalified"), "Application", "Home")</li>
+                    <li class="mx-2">@Html.ActionLink(I18n.R("Title_Blog"), "List", "Blogs")</li>
+                    <li class="mx-2">
+                        <a href="#">@I18n.R("Nav_AboutUs")</a>
+                        <ul class="dropdown rounded">
+                            <li>@Html.ActionLink(I18n.R("Nav_AboutUs"), "About", "Home")</li>
+                            <li><a href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })">@I18n.R("Nav_ContactUs")</a></li>
+                            <li>@Html.ActionLink(I18n.R("Nav_OurStaff"), "Staff", "Home")</li>
+                            <li>@Html.ActionLink(I18n.R("Nav_Testimonials"), "Testimonials", "Home")</li>
+                        </ul>
+                    </li>
+                    <li id="fakeSearch" class="fake-input hand-pointer d-none d-xl-inline-flex" data-bs-toggle="modal" data-bs-target="#filtersModal">
+                        @Html.Partial("_SearchByTerm")
+                    </li>
+                    <li class="d-xxl-none">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#filtersModal">
+                            <i class="bi bi-search"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <nav class="header__top d-none d-xxl-flex">
+                <ul class="main-menu start-100 list-unstyled no-wrap-group">
+                    <li class="mx-sm-1 nav-addr-hours hand-pointer" data-bs-toggle="offcanvas" data-bs-target="#openHours" aria-controls="openHours">
+                        <div class="addr-line1">9516 Princeton Glendale Rd</div>
+                        <div class="addr-line2">West Chester Township, OH 45011</div>
+                    </li>
+                    <li class="mx-sm-1">
+                        <a class="btn btn-gradient-grey border-dark rounded-4" id="btnOpenHours" data-bs-toggle="offcanvas" data-bs-target="#openHours" aria-controls="openHours">
+                            <i class="bi bi-stopwatch"></i>
+                            <span id="schedule" class="schedule d-none d-xxl-inline m-sm-1"></span>
+                        </a>
+                    </li>
+                    <li class="mx-sm-1">
+                        <a class="btn btn-gradient-grey border-dark rounded-4" href="tel:(513) 489-2886">
+                            <i class="bi bi-telephone"></i>
+                            <span id="telephone" class="d-none d-xxl-inline m-sm-1">(513) 489-2886</span>
+                        </a>
+                    </li>
+                    <li class="mx-sm-1">
+                        <a class="btn gradient shadow border-dark rounded-4" href="https://www.facebook.com/GTXAutoGroup" target="_blank" title="GTX Facebook page">
+                            <i class="fa fa-facebook px-2"></i>
+                        </a>
+                    </li>
+                    <li class="mx-sm-1">
+                        <a class="btn gradient shadow border-dark rounded-4" href="https://www.twitter.com/GTXAutoGroup" target="_blank" title="GTX Meta page">
+                            <i class="fa fa-twitter px-1"></i>
+                        </a>
+                    </li>
+                    <li class="mx-sm-1">
+                        <a class="btn gradient shadow border-dark rounded-4" href="#" title="Log in" data-bs-toggle="modal" data-login-modal="true">
+                            <i class="bi bi-person-circle px-1 role-icon"></i>
+                            <span class="role-text text-shadow-small fw-bold"></span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
         </div>
+    </div>
 
-        @Html.Partial("_CategoryFilter")
-        @Html.Partial("_PageTitle")
-    </header>
+    @{
+        if (ViewBag.Message != "Home")
+        {
+            @Html.Partial("_CategoryFilter")
+            @Html.Partial("_PageTitle")
+        }
+    }
+
+</header>
     <!-- Header Section End -->
 
     <!-- MAIN WRAPPER -->

@@ -127,13 +127,6 @@ namespace GTX.Controllers
             return View();
         }
 
-        public ActionResult Blog() {
-            ViewBag.Message = "Blog";
-            ViewBag.Title = I18n.R("Title_Blog");
-
-            return View();
-        }
-
         public ActionResult Testimonials() {
             ViewBag.Message = "Testimonials";
             ViewBag.Title = I18n.R("Nav_Testimonials");
