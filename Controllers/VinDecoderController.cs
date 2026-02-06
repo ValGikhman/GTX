@@ -1,12 +1,12 @@
-﻿using Services;
+﻿using GTX.Common;
+using Services;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 
 namespace GTX.Controllers
 {
+    [RequireAdminRole]
     public class VinDecoderController : BaseController
     {
         public VinDecoderController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service _ez360Service, ILogService logService, IEmployeesService employeesService)
