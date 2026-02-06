@@ -25,6 +25,10 @@ namespace GTX.Controllers
             _announcementService = announcementService;
         }
 
+        public ActionResult NeedLogin() {
+            return View("NeedLogin");
+        }
+
         [HttpPost]
         public JsonResult Login(string password)
         {
