@@ -7,6 +7,27 @@
 
 <style>
     /* ========= GTX Card Pro (scoped to this partial) ========= */
+    /* CRITICAL: allow flex child to shrink (otherwise nowrap still wraps in weird ways) */
+    .gtx-title-wrap,
+    .gtx-title-stack {
+        min-width: 0;
+    }
+
+    /* force model/style to stay one line and ellipsize */
+    .gtx-trimline {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+
+    /* optional: ensure the make line also behaves well */
+    .gtx-truncate-1 {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
     .gtx-card {
         border: 0 !important;
         border-radius: 1rem !important;
@@ -251,17 +272,17 @@
                 </div>
 
                 <!-- Title stack -->
-                <div class="flex-grow-1 min-h-0">
+                <div class="flex-grow-1 min-h-0 gtx-title-wrap">
                     <div class="d-flex justify-content-between align-items-start gap-2">
 
-                        <div class="min-h-0">
+                        <div class="min-h-0 gtx-title-stack">
                             <!-- Make line -->
                             <div class="gtx-title fs-5 text-shadow gtx-truncate-1 mb-0" style="line-height:1.05;">
                                 @Model.Year @Model.Make
                             </div>
 
-                            <!-- Model/style line (tighter) -->
-                            <div class="fs-6 text-shadow gtx-truncate-2 mt-0" style="line-height:1.05;">
+                            <!-- Model/style line (NO WRAP + ellipsis) -->
+                            <div class="fs-6 text-shadow gtx-trimline mt-0" style="line-height:1.05;">
                                 @Model.Model - @Model.VehicleStyle
                             </div>
                         </div>
@@ -270,6 +291,7 @@
                         <a href="@detailsUrl" target="_blank" rel="noopener" class="gtx-open text-dark shadow flex-shrink-0" title="Open details in new tab" onclick="event.stopPropagation();">
                             <i class="bi bi-box-arrow-up-right"></i>
                         </a>
+
                     </div>
                 </div>
             </div>
@@ -300,7 +322,7 @@
         </div>
 
         <!-- FOOTER (3 rows, keeps gradient) -->
-        <div class="card-footer gradient no-click py-1 fs-6 fw-bold text-shadow"">
+        <div class="card-footer gradient no-click py-1 fs-6 fw-bold text-shadow" ">
             <!-- Row 1: Price + Miles (like before) -->
             <div class="d-flex justify-content-between align-items-baseline">
                 <span>
@@ -329,5 +351,5 @@
             </div>
         </div>
 
-    </div>
+            </div>
 </li>
