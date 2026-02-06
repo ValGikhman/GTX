@@ -25,12 +25,14 @@ namespace GTX.Controllers
             _announcementService = announcementService;
         }
 
-        public ActionResult NeedLogin() {
-            return View("NeedLogin");
+        public ActionResult NeedLogin(string returnUrl)
+        {
+            ViewBag.ReturnUrl = returnUrl;
+            return View();
         }
 
         [HttpPost]
-        public JsonResult Login(string password)
+        public JsonResult Login(string password, string returnUrl)
         {
             CommonUnit.Roles role;
             var ok = ValidateLogin(password, out role, Session, Request, Response, rememberOnThisComputer: true);
@@ -39,7 +41,7 @@ namespace GTX.Controllers
 
             SessionData.SetSession(Constants.SESSION_MAJORDOME, true);
 
-            return Json(new { ok = true, role = role.ToString() });
+            return Json(new { ok = true, role = role.ToString(), returnUrl = Url.IsLocalUrl(returnUrl) ? returnUrl : Url.Action("Index", "Home") });
         }
 
 

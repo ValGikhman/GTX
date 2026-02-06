@@ -191,14 +191,19 @@
         }
 
         var $btn = $("#btnLogin").prop("disabled", true);
+        var ru = window.gtxReturnUrl || new URLSearchParams(window.location.search).get("returnUrl") || window.location.pathname + window.location.search;
 
-        $.post(`${root}Home/Login`, { password: password })
+        $("#loginReturnUrl").val(ru);
+
+        $.post(`${root}Home/Login`, { password: password, returnUrl: ru })
             .done(function (res) {
                 if (res && res.ok) {
                     $("#MajordomeLink").removeClass("d-none");
                     const role = (res.role || res.Role || "user");
                     setMajordomeMenu(role);
                     getLoginModal().hide();
+
+                    window.location.href = res.returnUrl || window.gtxReturnUrl || "/";
                     return;
                 }
 

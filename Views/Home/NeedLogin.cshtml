@@ -2,7 +2,24 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewBag.Title = "Login Required";
+
+    // 1) Prefer what the attribute sent
+    var returnUrl = ViewBag.ReturnUrl as string;
+
+    // 2) Fallback: querystring ?returnUrl=...
+    if (string.IsNullOrWhiteSpace(returnUrl))
+    {
+        returnUrl = Request.QueryString["returnUrl"];
+    }
+
+    // 3) Final fallback: current page
+    if (string.IsNullOrWhiteSpace(returnUrl))
+    {
+        returnUrl = Request?.Url?.PathAndQuery ?? "/";
+    }
 }
+
+<input type="hidden" id="returnUrl" value="@returnUrl" />
 
 <div class="gtx-auth-wrap py-5">
     <div class="row justify-content-center">
