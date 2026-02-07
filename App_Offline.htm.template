@@ -1,0 +1,634 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="theme-color" content="#0b0c0f" />
+    <title>We’ll Be Right Back</title>
+
+    <style>
+        :root {
+            /* Greyscale palette */
+            --bg0: #07080a;
+            --bg1: #0b0c0f;
+            --card: #0f1116;
+            --card2: #0b0d11;
+            --text: #f5f6f8;
+            --muted: #b9bcc5;
+            --line: rgba(255,255,255,.10);
+            --line2: rgba(255,255,255,.14);
+            --shadow: 0 22px 70px rgba(0,0,0,.60);
+            --radius: 22px;
+            --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html, body {
+            height: 100%
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--sans);
+            color: var(--text);
+            background: radial-gradient(1100px 680px at 12% 10%, rgba(255,255,255,.14), transparent 60%), radial-gradient(900px 620px at 88% 12%, rgba(255,255,255,.10), transparent 55%), radial-gradient(900px 700px at 50% 115%, rgba(255,255,255,.08), transparent 60%), linear-gradient(180deg, var(--bg0), var(--bg1));
+            overflow-x: hidden;
+        }
+
+        /* subtle animated grid */
+        .grid {
+            position: fixed;
+            inset: -2px;
+            background: linear-gradient(to right, rgba(255,255,255,.030) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.030) 1px, transparent 1px);
+            background-size: 44px 44px;
+            mask-image: radial-gradient(650px 420px at 50% 30%, rgba(0,0,0,.95), transparent 72%);
+            opacity: .60;
+            pointer-events: none;
+            animation: drift 18s linear infinite;
+        }
+
+        @keyframes drift {
+            from {
+                transform: translate3d(0,0,0)
+            }
+
+            to {
+                transform: translate3d(-44px,-44px,0)
+            }
+        }
+
+        /* floating monochrome light */
+        .blob {
+            position: fixed;
+            width: 560px;
+            height: 560px;
+            filter: blur(44px);
+            opacity: .20;
+            border-radius: 999px;
+            pointer-events: none;
+            transform: translate3d(0,0,0);
+            animation: float 12s ease-in-out infinite;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.75), transparent 60%), radial-gradient(circle at 70% 70%, rgba(255,255,255,.35), transparent 64%);
+        }
+
+            .blob.a {
+                left: -220px;
+                top: 120px;
+            }
+
+            .blob.b {
+                right: -250px;
+                bottom: 60px;
+                opacity: .16;
+                animation-duration: 14s;
+                animation-delay: -3s;
+            }
+
+        @keyframes float {
+            0%,100% {
+                transform: translate3d(0,0,0) scale(1)
+            }
+
+            50% {
+                transform: translate3d(0,-18px,0) scale(1.03)
+            }
+        }
+
+        .wrap {
+            min-height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 18px;
+            position: relative;
+        }
+
+        .card {
+            width: min(980px, 100%);
+            background: linear-gradient(180deg, rgba(18,20,26,.92), rgba(10,12,16,.84));
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            position: relative;
+        }
+
+            .card::before {
+                content: "";
+                position: absolute;
+                inset: -2px;
+                background: radial-gradient(900px 240px at 50% 0%, rgba(255,255,255,.12), transparent 70%), radial-gradient(800px 220px at 20% 0%, rgba(255,255,255,.06), transparent 70%), radial-gradient(800px 220px at 80% 0%, rgba(255,255,255,.05), transparent 70%);
+                pointer-events: none;
+            }
+
+        .top {
+            padding: 26px 28px 14px;
+            position: relative;
+            display: flex;
+            gap: 18px;
+            align-items: flex-start;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .brand-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 260px;
+        }
+
+        .brand-logo {
+            width: 160px; /* adjust if you want bigger/smaller */
+            height: auto;
+            border-radius: 20px;
+        }
+
+
+        .brand-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .brand-title {
+            font-size: 13px;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            color: rgba(245,246,248,.92);
+            line-height: 1.1;
+        }
+
+        .sub {
+            font-size: 12px;
+            color: rgba(245,246,248,.70);
+            line-height: 1.35;
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,.14);
+            background: rgba(255,255,255,.04);
+            color: rgba(245,246,248,.88);
+            font-size: 12px;
+            user-select: none;
+        }
+
+        .badge-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.86);
+            box-shadow: 0 0 0 5px rgba(255,255,255,.12);
+            animation: badgePulse 1.4s ease-in-out infinite;
+        }
+
+        @keyframes badgePulse {
+            0%,100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 5px rgba(255,255,255,.12);
+            }
+
+            50% {
+                transform: scale(1.12);
+                box-shadow: 0 0 0 10px rgba(255,255,255,.08);
+            }
+        }
+
+        @media (max-width: 520px) {
+            .brand-logo {
+                width: 112px;
+            }
+
+            .brand-title {
+                font-size: 12px;
+            }
+        }
+
+
+        .sub {
+            font-size: 12px;
+            color: rgba(245,246,248,.70);
+            line-height: 1.35;
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,.14);
+            background: rgba(255,255,255,.04);
+            color: rgba(245,246,248,.88);
+            font-size: 12px;
+            user-select: none;
+        }
+
+        .badge-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.86);
+            box-shadow: 0 0 0 5px rgba(255,255,255,.12);
+            animation: badgePulse 1.4s ease-in-out infinite;
+        }
+
+        @keyframes badgePulse {
+            0%,100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 5px rgba(255,255,255,.12);
+            }
+
+            50% {
+                transform: scale(1.12);
+                box-shadow: 0 0 0 10px rgba(255,255,255,.08);
+            }
+        }
+
+        @media (max-width: 520px) {
+            .brand-logo-wrap {
+                width: 56px;
+                height: 56px;
+                border-radius: 16px;
+            }
+
+            .brand-title {
+                font-size: 12px;
+            }
+        }
+
+
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,.14);
+            background: rgba(255,255,255,.04);
+            color: rgba(245,246,248,.90);
+            font-size: 12px;
+            user-select: none;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.85);
+            box-shadow: 0 0 0 5px rgba(255,255,255,.12);
+            animation: pulse 1.4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%,100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 5px rgba(255,255,255,.12)
+            }
+
+            50% {
+                transform: scale(1.12);
+                box-shadow: 0 0 0 10px rgba(255,255,255,.08)
+            }
+        }
+
+        .hero {
+            padding: 0 28px 10px;
+            position: relative;
+        }
+
+            .hero h2 {
+                margin: 6px 0 8px;
+                font-size: clamp(28px, 4vw, 44px);
+                letter-spacing: -0.02em;
+                line-height: 1.06;
+            }
+
+            .hero p {
+                margin: 0;
+                font-size: 15px;
+                color: rgba(245,246,248,.74);
+                max-width: 70ch;
+                line-height: 1.6;
+            }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1.2fr .8fr;
+            gap: 18px;
+            padding: 18px 28px 26px;
+            position: relative;
+        }
+
+        @media (max-width: 880px) {
+            .content {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .panel {
+            border: 1px solid rgba(255,255,255,.10);
+            background: rgba(255,255,255,.03);
+            border-radius: 18px;
+            padding: 18px;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .panel::before {
+                content: "";
+                position: absolute;
+                inset: -2px;
+                background: radial-gradient(700px 180px at 25% 0%, rgba(255,255,255,.07), transparent 72%);
+                pointer-events: none;
+            }
+
+            .panel h3 {
+                margin: 0 0 10px;
+                font-size: 14px;
+                letter-spacing: .08em;
+                text-transform: uppercase;
+                color: rgba(245,246,248,.78);
+            }
+
+        .items {
+            display: grid;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 12px 12px;
+            border-radius: 14px;
+            background: rgba(255,255,255,.03);
+            border: 1px solid rgba(255,255,255,.08);
+        }
+
+        .icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 12px;
+            background: rgba(255,255,255,.05);
+            border: 1px solid rgba(255,255,255,.10);
+            display: grid;
+            place-items: center;
+            flex: 0 0 auto;
+            font-family: var(--mono);
+            font-size: 13px;
+            color: rgba(245,246,248,.92);
+        }
+
+        .item b {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 2px;
+        }
+
+        .item span {
+            font-size: 12px;
+            color: rgba(245,246,248,.70);
+            line-height: 1.5;
+            display: block;
+        }
+
+        .meta {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .kv {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: rgba(255,255,255,.03);
+            border: 1px solid rgba(255,255,255,.08);
+            font-size: 12px;
+            color: rgba(245,246,248,.76);
+        }
+
+            .kv code {
+                font-family: var(--mono);
+                color: rgba(245,246,248,.92);
+                background: rgba(0,0,0,.28);
+                border: 1px solid rgba(255,255,255,.12);
+                padding: 3px 8px;
+                border-radius: 999px;
+                white-space: nowrap;
+            }
+
+        .btnrow {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,.14);
+            background: rgba(255,255,255,.05);
+            color: rgba(245,246,248,.92);
+            text-decoration: none;
+            font-size: 13px;
+            user-select: none;
+            transition: transform .12s ease, background .12s ease, border-color .12s ease;
+        }
+
+            .btn:hover {
+                transform: translateY(-1px);
+                background: rgba(255,255,255,.07);
+                border-color: rgba(255,255,255,.20);
+            }
+
+            .btn:active {
+                transform: translateY(0px);
+            }
+
+            .btn.primary {
+                background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+                border-color: rgba(255,255,255,.24);
+            }
+
+        .footer {
+            padding: 14px 28px 22px;
+            border-top: 1px solid rgba(255,255,255,.08);
+            color: rgba(245,246,248,.55);
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+            .footer .tiny {
+                font-family: var(--mono);
+                opacity: .9;
+            }
+
+        .kbd {
+            font-family: var(--mono);
+            border: 1px solid rgba(255,255,255,.16);
+            background: rgba(0,0,0,.24);
+            border-bottom-color: rgba(255,255,255,.22);
+            padding: 2px 8px;
+            border-radius: 10px;
+            white-space: nowrap;
+            color: rgba(245,246,248,.82);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="grid"></div>
+    <div class="blob a"></div>
+    <div class="blob b"></div>
+
+    <main class="wrap">
+        <section class="card" role="status" aria-live="polite">
+            <header class="top">
+                <div class="brand">
+                    <div class="brand-left">
+                        <img class="brand-logo" src="GTXImages/gtx.png" alt="GTX" />
+
+                        <div class="brand-meta">
+                            <div class="brand-title">Sorry,</div>
+                            <div class="sub">Scheduled maintenance in progress</div>
+                        </div>
+                    </div>
+
+                    <div class="brand-badge" title="Maintenance Mode">
+                        <span class="badge-dot" aria-hidden="true"></span>
+                        Maintenance
+                    </div>
+                </div>
+
+            </header>
+
+            <div class="hero">
+                <h2>We’ll be right back.</h2>
+                <p>
+                    We’re performing a quick update to keep the experience fast, secure, and reliable.
+                    This page will disappear automatically as soon as maintenance is complete.
+                </p>
+            </div>
+
+            <div class="content">
+                <!-- left -->
+                <div class="panel">
+                    <h3>What you can do</h3>
+
+                    <div class="items">
+                        <div class="item">
+                            <div class="icon" aria-hidden="true">↻</div>
+                            <div>
+                                <b>Refresh in a few minutes</b>
+                                <span>Most updates are short. Try again shortly — your data and progress are safe.</span>
+                            </div>
+                        </div>
+
+                        <div class="item">
+                            <div class="icon" aria-hidden="true">✓</div>
+                            <div>
+                                <b>Keep this tab open</b>
+                                <span>When we’re back online, simply refresh and you’ll be good to go.</span>
+                            </div>
+                        </div>
+
+                        <div class="item">
+                            <div class="icon" aria-hidden="true">✉</div>
+                            <div>
+                                <b>Need urgent help?</b>
+                                <span>Contact your administrator or support team for time-sensitive requests.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btnrow">
+                        <a class="btn primary" href="javascript:location.reload()" aria-label="Refresh the page">
+                            <span aria-hidden="true">↻</span> Refresh
+                        </a>
+                        <a class="btn" href="/" aria-label="Try home page">
+                            <span aria-hidden="true">⌂</span> Home
+                        </a>
+                    </div>
+                </div>
+
+                <!-- right -->
+                <aside class="meta">
+                    <div class="panel">
+                        <h3>Status</h3>
+                        <div class="kv">
+                            <span>Mode</span>
+                            <code>MAINTENANCE</code>
+                        </div>
+                        <div class="kv">
+                            <span>Suggested retry</span>
+                            <code>~ 2–5 min</code>
+                        </div>
+                        <div class="kv">
+                            <span>Reference</span>
+                            <code id="ref">OFFLINE</code>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <h3>Quick tip</h3>
+                        <div class="kv" style="justify-content:flex-start; gap:10px;">
+                            <span class="kbd">Ctrl</span> <span class="kbd">R</span>
+                            <span style="opacity:.7;">or</span>
+                            <span class="kbd">⌘</span> <span class="kbd">R</span>
+                            <span style="opacity:.7;">to refresh</span>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+
+            <footer class="footer">
+                <div>Thank you for your patience — we’ll be online shortly.</div>
+                <div class="tiny">© <span id="y"></span> GTX Auto Group • <span id="ts"></span></div>
+            </footer>
+        </section>
+    </main>
+
+    <script>
+        (function () {
+            var y = document.getElementById('y');
+            var ts = document.getElementById('ts');
+            var ref = document.getElementById('ref');
+            if (y) y.textContent = new Date().getFullYear();
+            if (ts) ts.textContent = new Date().toLocaleString();
+            if (ref) ref.textContent = "OFFLINE-" + Math.random().toString(16).slice(2, 8).toUpperCase();
+        })();
+    </script>
+</body>
+</html>
