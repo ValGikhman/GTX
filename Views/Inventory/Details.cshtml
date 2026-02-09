@@ -225,10 +225,13 @@
                 }
                 <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small" id="nav-location-tab" data-bs-toggle="tab" data-bs-target="#nav-location" type="button" role="tab" aria-controls="nav-location" aria-selected="true"><i class="bi bi-geo-fill"></i>&nbsp; @I18n.R("All_Location")</button>
                 <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small d-none" id="nav-payment-tab" data-bs-toggle="tab" data-bs-target="#nav-payment" type="button" role="tab" aria-controls="nav-payment" aria-selected="true"><strong><i class="bi bi-calculator"></i>&nbsp; Pay $<span id="monthlyAmount"></span>/mo</strong></button>
-                <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small d-none d-lg-inline" id="QR-code-tab" data-bs-toggle="tab" data-bs-target="#tab-qr-code" type="button" role="tab">
-                    QR Code
-                </button>
-            </div>
+                @if (ViewBag.CurrentRole != CommonUnit.Roles.User.ToString())
+                {
+                    <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small d-none d-lg-inline" id="QR-code-tab" data-bs-toggle="tab" data-bs-target="#tab-qr-code" type="button" role="tab">
+                        QR Code
+                    </button>
+                }
+                </div>
         </nav>
         <div class="tab-content" id="nav-tabContent">
             <!-- Content Tab -->
@@ -325,8 +328,8 @@
 
                 @*Stickers placeholder*@
                 @*                <div class="d-flex justify-content-center align-items-center gap-2 flex-nowrap ">
-                        <img src="https://velocity-vdp-prod-attachments.s3.amazonaws.com/Velocity+Automotive+Solutions/WindowSticker_v2.png" alt="Velocity Window Sticker" class="" style="max-height: 100px">
-                    </div>*@
+                <img src="https://velocity-vdp-prod-attachments.s3.amazonaws.com/Velocity+Automotive+Solutions/WindowSticker_v2.png" alt="Velocity Window Sticker" class="" style="max-height: 100px">
+            </div>*@
             </div>
             <!-- Pictures Tab -->
             @if (!(Model.CurrentVehicle.DisplayEZ360Player && Model.IsEZ360) && Model.CurrentVehicle.VehicleDetails.Images?.Count() > 0)
@@ -453,23 +456,27 @@
                 </div>
             </div>
             <!-- QR Code Tab -->
-            <div class="tab-pane fade" id="tab-qr-code" role="tabpanel">
-                <div class="row">
-                    <div class="d-flex flex-column align-items-center text-center">
-                        <div id="qrPrintArea" class="m-3" style="width:300px;">
-                            <h3>ATTENTION</h3>
-                            <h3>Car shoppers!</h3>
-                            <h6 class="px-5">Scan the code  with your mobile phone's camera app for more information about this vehicle</h6>
-                            <img id="qrImg" src="" alt="QR Code" style="width:300px;height:300px;" />
-                            <div id="qrText" class="very-small-text"></div>
+            @if (ViewBag.CurrentRole != CommonUnit.Roles.User.ToString())
+            {
+                <div class="tab-pane fade" id="tab-qr-code" role="tabpanel">
+                    <div class="row">
+                        <div class="d-flex flex-column align-items-center text-center">
+                            <div id="qrPrintArea" class="m-3" style="width:300px;">
+                                <h3>ATTENTION</h3>
+                                <h3>Car shoppers!</h3>
+                                <h6 class="px-5">Scan the code  with your mobile phone's camera app for more information about this vehicle</h6>
+                                <img id="qrImg" src="" alt="QR Code" style="width:300px;height:300px;" />
+                                <div id="qrText" class="very-small-text"></div>
 
-                        </div>
-                        <div class="m-3">
-                            <button type="button" class="btn btn-gradient shadow" onclick="printQrArea()">Print QR</button>
+                            </div>
+                            <div class="m-3">
+                                <button type="button" class="btn btn-gradient shadow" onclick="printQrArea()">Print QR</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            }
+
         </div>
         @*May also like*@
         <div class="row mb-5 d-none d-lg-inline">
