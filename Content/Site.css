@@ -1420,6 +1420,17 @@ a, u {
         #mobileMenuOffcanvas .offcanvas-menu-wrapper {
             padding: .75rem !important;
         }
+
+    /* announsment */
+    /* Default stays as-is (desktop/tablet) */
+
+    @media (max-width: 576px) {
+        .toast-container {
+            transform: translateX(-50%) scale(0.80) !important;
+            transform-origin: top center;
+        }
+    }
+
 }
 
 @media (max-width: 1200px) {
@@ -1988,3 +1999,4 @@ a, u {
         max-width: 420px !important;
     }
 }
+
