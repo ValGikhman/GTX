@@ -1412,6 +1412,12 @@ a, u {
 
 @media (max-width: 576px) {
     .toast-container {
+        transform: translateX(-50%) !important;
+        transform-origin: top center;
+        left: 50% !important;
+        right: auto !important;
+        width: 100% !important;
+        padding: 10px !important;
         top: 7vh;
     }
 
@@ -1423,7 +1429,6 @@ a, u {
         -webkit-overflow-scrolling: touch;
         border-radius: 16px;
     }
-
 }
 
 
