@@ -547,11 +547,16 @@
         </button>
 
         @*Maxallowance button*@
-        <button id="maxallowance-tradein" class="maxallowance-tradein w-100 btn btn-gradient-green shadow" data-max-id="gtxautogroup">
+        <button id="maxallowance-tradein" class="maxallowance-tradein w-100 btn btn-gradient-green mb-3 shadow" data-max-id="gtxautogroup">
             <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
                 <i class="bi bi-cash-coin mx-2"></i>@I18n.R("All_MaxAllowance")
             </h5>
         </button>
+
+        @* Another crap *@
+        <span class="mb-3">
+            @Html.Partial("_Button")
+        </span>
     </div>
 </div>
 
@@ -738,7 +743,7 @@
     }
 </script>
 <script src="https://max-allowance.s3.us-east-2.amazonaws.com/trade-in-maxallowance.js"></script>
-
+<script src="https://widget.mycreditdriveapp.com/offerlogix/js/OfferLogixWidgetForm.js?_=1770841571886"></script>
 
 
 

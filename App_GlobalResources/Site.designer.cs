@@ -142,6 +142,15 @@ namespace Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Get pre-approved instantly.
+        /// </summary>
+        internal static string All_InstantPreapproved {
+            get {
+                return ResourceManager.GetString("All_InstantPreapproved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Location.
         /// </summary>
         internal static string All_Location {
