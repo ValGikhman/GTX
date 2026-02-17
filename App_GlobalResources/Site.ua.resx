@@ -1,311 +1,312 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-    <!--
-      Microsoft ResX Schema
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
 
-      Version 2.0
-
-      The primary goals of this format is to allow a simple XML format
-      that is mostly human readable. The generation and parsing of the
-      various data types are done through the TypeConverter classes
-      associated with the data types.
-
-      Example:
-
-      ... ado.net/XML headers & schema ...
-      <resheader name="resmimetype">text/microsoft-resx</resheader>
-      <resheader name="version">2.0</resheader>
-      <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
-      <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
-      <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
-      <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
-      <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
-          <value>[base64 mime encoded serialized .NET Framework object]</value>
-      </data>
-      <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-          <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
-          <comment>This is a comment</comment>
-      </data>
-
-      There are any number of "resheader" rows that contain simple
-      name/value pairs.
-
-      Each data row contains a name, and value. The row also contains a
-      type or mimetype. Type corresponds to a .NET class that support
-      text/value conversion through the TypeConverter architecture.
-      Classes that don't support this are serialized and stored with the
-      mimetype set.
-
-      The mimetype is used for serialized objects, and tells the
-      ResXResourceReader how to depersist the object. This is currently not
-      extensible. For a given mimetype the value must be set accordingly:
-
-      Note - application/x-microsoft.net.object.binary.base64 is the format
-      that the ResXResourceWriter will generate, however the reader can
-      read any of the formats listed below.
-
-      mimetype: application/x-microsoft.net.object.binary.base64
-      value   : The object must be serialized with
-              : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
-              : and then encoded with base64 encoding.
-
-      mimetype: application/x-microsoft.net.object.soap.base64
-      value   : The object must be serialized with
-              : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
-              : and then encoded with base64 encoding.
-
-      mimetype: application/x-microsoft.net.object.bytearray.base64
-      value   : The object must be serialized into a byte array
-              : using a System.ComponentModel.TypeConverter
-              : and then encoded with base64 encoding.
-      -->
-    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-        <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
-        <xsd:element name="root" msdata:IsDataSet="true">
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
             <xsd:complexType>
-                <xsd:choice maxOccurs="unbounded">
-                    <xsd:element name="metadata">
-                        <xsd:complexType>
-                            <xsd:sequence>
-                                <xsd:element name="value" type="xsd:string" minOccurs="0" />
-                            </xsd:sequence>
-                            <xsd:attribute name="name" use="required" type="xsd:string" />
-                            <xsd:attribute name="type" type="xsd:string" />
-                            <xsd:attribute name="mimetype" type="xsd:string" />
-                            <xsd:attribute ref="xml:space" />
-                        </xsd:complexType>
-                    </xsd:element>
-                    <xsd:element name="assembly">
-                        <xsd:complexType>
-                            <xsd:attribute name="alias" type="xsd:string" />
-                            <xsd:attribute name="name" type="xsd:string" />
-                        </xsd:complexType>
-                    </xsd:element>
-                    <xsd:element name="data">
-                        <xsd:complexType>
-                            <xsd:sequence>
-                                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-                                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
-                            </xsd:sequence>
-                            <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
-                            <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
-                            <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-                            <xsd:attribute ref="xml:space" />
-                        </xsd:complexType>
-                    </xsd:element>
-                    <xsd:element name="resheader">
-                        <xsd:complexType>
-                            <xsd:sequence>
-                                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-                            </xsd:sequence>
-                            <xsd:attribute name="name" type="xsd:string" use="required" />
-                        </xsd:complexType>
-                    </xsd:element>
-                </xsd:choice>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
-        </xsd:element>
-    </xsd:schema>
-    <resheader name="resmimetype">
-        <value>text/microsoft-resx</value>
-    </resheader>
-    <resheader name="version">
-        <value>2.0</value>
-    </resheader>
-    <resheader name="reader">
-        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-    </resheader>
-    <resheader name="writer">
-        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-    </resheader>
-
-    <data name="All_Body" xml:space="preserve">
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="All_Body" xml:space="preserve">
     <value>Кузов</value>
-</data>
-    <data name="All_Close" xml:space="preserve">
+  </data>
+  <data name="All_Close" xml:space="preserve">
     <value>Закрити</value>
-</data>
-    <data name="All_Closed" xml:space="preserve">
+  </data>
+  <data name="All_Closed" xml:space="preserve">
     <value>Зачинено</value>
-</data>
-    <data name="All_Cylinders" xml:space="preserve">
+  </data>
+  <data name="All_Cylinders" xml:space="preserve">
     <value>Циліндри</value>
-</data>
-    <data name="All_Details" xml:space="preserve">
+  </data>
+  <data name="All_Details" xml:space="preserve">
     <value>Деталі</value>
-</data>
-    <data name="All_Drive" xml:space="preserve">
+  </data>
+  <data name="All_Drive" xml:space="preserve">
     <value>Привід</value>
-</data>
-    <data name="All_Found" xml:space="preserve">
+  </data>
+  <data name="All_Found" xml:space="preserve">
     <value>Знайдено</value>
-</data>
-    <data name="All_From" xml:space="preserve">
+  </data>
+  <data name="All_From" xml:space="preserve">
     <value>з</value>
-</data>
-    <data name="All_Fuel" xml:space="preserve">
+  </data>
+  <data name="All_Fuel" xml:space="preserve">
     <value>Паливо</value>
-</data>
-    <data name="All_Location" xml:space="preserve">
+  </data>
+  <data name="All_InstantPreapproved" xml:space="preserve">
+    <value>Миттєве попереднє схвалення</value>
+  </data>
+  <data name="All_Location" xml:space="preserve">
     <value>Місцезнаходження</value>
-</data>
-    <data name="All_Makes" xml:space="preserve">
+  </data>
+  <data name="All_Makes" xml:space="preserve">
     <value>Марки</value>
-</data>
-    <data name="All_MaxAllowance" xml:space="preserve">
+  </data>
+  <data name="All_MaxAllowance" xml:space="preserve">
     <value>MAX Мої пропозиції обміну/продажу</value>
-</data>
-    <data name="All_Mileage" xml:space="preserve">
+  </data>
+  <data name="All_Mileage" xml:space="preserve">
     <value>Пробіг</value>
-</data>
-    <data name="All_Miles" xml:space="preserve">
+  </data>
+  <data name="All_Miles" xml:space="preserve">
     <value>Милі</value>
-</data>
-    <data name="All_Models" xml:space="preserve">
+  </data>
+  <data name="All_Models" xml:space="preserve">
     <value>Моделі</value>
-</data>
-    <data name="All_NowOpen" xml:space="preserve">
+  </data>
+  <data name="All_NowOpen" xml:space="preserve">
     <value>Зараз відкрито</value>
-</data>
-    <data name="All_Photos" xml:space="preserve">
+  </data>
+  <data name="All_Photos" xml:space="preserve">
     <value>Фото</value>
-</data>
-    <data name="All_Price" xml:space="preserve">
+  </data>
+  <data name="All_Price" xml:space="preserve">
     <value>Ціна</value>
-</data>
-    <data name="All_PriceRange" xml:space="preserve">
+  </data>
+  <data name="All_PriceRange" xml:space="preserve">
     <value>Діапазон цін</value>
-</data>
-    <data name="All_Search" xml:space="preserve">
+  </data>
+  <data name="All_Search" xml:space="preserve">
     <value>Пошук</value>
-</data>
-    <data name="All_SearchInResults" xml:space="preserve">
+  </data>
+  <data name="All_SearchInResults" xml:space="preserve">
     <value>Пошук серед результатів...</value>
-</data>
-    <data name="All_SearchInventory" xml:space="preserve">
+  </data>
+  <data name="All_SearchInventory" xml:space="preserve">
     <value>Пошук в інвентарі</value>
-</data>
-    <data name="All_Transm" xml:space="preserve">
+  </data>
+  <data name="All_Transm" xml:space="preserve">
     <value>Трансмісія</value>
-</data>
-    <data name="All_Type" xml:space="preserve">
+  </data>
+  <data name="All_Type" xml:space="preserve">
     <value>Тип</value>
-</data>
-    <data name="All_Vehicles" xml:space="preserve">
+  </data>
+  <data name="All_Vehicles" xml:space="preserve">
     <value>авто(мобілі)</value>
-</data>
-    <data name="All_YouMayLike" xml:space="preserve">
+  </data>
+  <data name="All_YouMayLike" xml:space="preserve">
     <value>Вам також може сподобатися</value>
-</data>
-    <data name="Filter_ChooseYourFilters" xml:space="preserve">
+  </data>
+  <data name="Filter_ChooseYourFilters" xml:space="preserve">
     <value>Оберіть фільтри</value>
-</data>
-    <data name="Filter_MoreThan" xml:space="preserve">
+  </data>
+  <data name="Filter_MoreThan" xml:space="preserve">
     <value>Більше ніж</value>
-</data>
-    <data name="Filter_SortBy" xml:space="preserve">
+  </data>
+  <data name="Filter_SortBy" xml:space="preserve">
     <value>Сортувати за:</value>
-</data>
-    <data name="Filter_Under" xml:space="preserve">
+  </data>
+  <data name="Filter_Under" xml:space="preserve">
     <value>Менше ніж</value>
-</data>
-    <data name="Nav_AboutUs" xml:space="preserve">
+  </data>
+  <data name="Nav_AboutUs" xml:space="preserve">
     <value>Про нас</value>
-</data>
-    <data name="Nav_Admin" xml:space="preserve">
+  </data>
+  <data name="Nav_Admin" xml:space="preserve">
     <value>Адмін</value>
-</data>
-    <data name="Nav_All" xml:space="preserve">
+  </data>
+  <data name="Nav_All" xml:space="preserve">
     <value>Усі</value>
-</data>
-    <data name="Nav_Blog" xml:space="preserve">
+  </data>
+  <data name="Nav_Blog" xml:space="preserve">
     <value>Блог</value>
-</data>
-    <data name="Nav_Contact" xml:space="preserve">
+  </data>
+  <data name="Nav_Contact" xml:space="preserve">
     <value>Контакт</value>
-</data>
-    <data name="Nav_ContactUs" xml:space="preserve">
+  </data>
+  <data name="Nav_ContactUs" xml:space="preserve">
     <value>Зв’яжіться з нами</value>
-</data>
-    <data name="Nav_Convertibles" xml:space="preserve">
+  </data>
+  <data name="Nav_Convertibles" xml:space="preserve">
     <value>Кабріолети</value>
-</data>
-    <data name="Nav_Coupes" xml:space="preserve">
+  </data>
+  <data name="Nav_Coupes" xml:space="preserve">
     <value>Купе</value>
-</data>
-    <data name="Nav_GetPrequalified" xml:space="preserve">
+  </data>
+  <data name="Nav_GetPrequalified" xml:space="preserve">
     <value>Отримати попереднє схвалення</value>
-</data>
-    <data name="Nav_Hatchbacks" xml:space="preserve">
+  </data>
+  <data name="Nav_Hatchbacks" xml:space="preserve">
     <value>Хетчбеки</value>
-</data>
-    <data name="Nav_Inventory" xml:space="preserve">
+  </data>
+  <data name="Nav_Inventory" xml:space="preserve">
     <value>Інвентар</value>
-</data>
-    <data name="Nav_Login" xml:space="preserve">
+  </data>
+  <data name="Nav_Login" xml:space="preserve">
     <value>Вхід</value>
-</data>
-    <data name="Nav_OurStaff" xml:space="preserve">
+  </data>
+  <data name="Nav_OurStaff" xml:space="preserve">
     <value>Наша команда</value>
-</data>
-    <data name="Nav_ScheduleTestDrive" xml:space="preserve">
+  </data>
+  <data name="Nav_ScheduleTestDrive" xml:space="preserve">
     <value>Записатися на тест-драйв</value>
-</data>
-    <data name="Nav_SearchInventory" xml:space="preserve">
+  </data>
+  <data name="Nav_SearchInventory" xml:space="preserve">
     <value>Пошук в інвентарі</value>
-</data>
-    <data name="Nav_Sedans" xml:space="preserve">
+  </data>
+  <data name="Nav_Sedans" xml:space="preserve">
     <value>Седани</value>
-</data>
-    <data name="Nav_SUVs" xml:space="preserve">
+  </data>
+  <data name="Nav_SUVs" xml:space="preserve">
     <value>Позашляховики</value>
-</data>
-    <data name="Nav_Testimonials" xml:space="preserve">
+  </data>
+  <data name="Nav_Testimonials" xml:space="preserve">
     <value>Відгуки</value>
-</data>
-    <data name="Nav_Trucks" xml:space="preserve">
+  </data>
+  <data name="Nav_Trucks" xml:space="preserve">
     <value>Пікапи</value>
-</data>
-    <data name="Nav_Vans" xml:space="preserve">
+  </data>
+  <data name="Nav_Vans" xml:space="preserve">
     <value>Мінівени</value>
-</data>
-    <data name="Nav_Wagons" xml:space="preserve">
+  </data>
+  <data name="Nav_Wagons" xml:space="preserve">
     <value>Універсали</value>
-</data>
-    <data name="Title_AboutUs" xml:space="preserve">
+  </data>
+  <data name="Title_AboutUs" xml:space="preserve">
     <value>Про нас</value>
-</data>
-    <data name="Title_AllVehicles" xml:space="preserve">
+  </data>
+  <data name="Title_AllVehicles" xml:space="preserve">
     <value>{0} авто(мобілі)</value>
-</data>
-    <data name="Title_Blog" xml:space="preserve">
+  </data>
+  <data name="Title_Blog" xml:space="preserve">
     <value>Блог</value>
-</data>
-    <data name="Title_Category" xml:space="preserve">
+  </data>
+  <data name="Title_Category" xml:space="preserve">
     <value>{0} {1}</value>
-</data>
-    <data name="Title_ContactUs" xml:space="preserve">
+  </data>
+  <data name="Title_ContactUs" xml:space="preserve">
     <value>Зв’яжіться з нами</value>
-</data>
-    <data name="Title_Employees" xml:space="preserve">
+  </data>
+  <data name="Title_Employees" xml:space="preserve">
     <value>Співробітники</value>
-</data>
-    <data name="Title_GetPrequalified" xml:space="preserve">
+  </data>
+  <data name="Title_GetPrequalified" xml:space="preserve">
     <value>Отримати попереднє схвалення</value>
-</data>
-    <data name="Title_Home" xml:space="preserve">
+  </data>
+  <data name="Title_Home" xml:space="preserve">
     <value>Головна</value>
-</data>
-    <data name="Title_OutStaff" xml:space="preserve">
+  </data>
+  <data name="Title_OutStaff" xml:space="preserve">
     <value>Наша команда</value>
-</data>
-    <data name="Title_PrivacyPolicy" xml:space="preserve">
+  </data>
+  <data name="Title_PrivacyPolicy" xml:space="preserve">
     <value>Політика конфіденційності</value>
-</data>
-    <data name="Title_Terms" xml:space="preserve">
+  </data>
+  <data name="Title_Terms" xml:space="preserve">
     <value>Умови та положення</value>
-</data>
-    <data name="Title_TotalVehicles" xml:space="preserve">
+  </data>
+  <data name="Title_TotalVehicles" xml:space="preserve">
     <value>{0} {1} авто(мобілі)</value>
-</data>
-
+  </data>
 </root>
