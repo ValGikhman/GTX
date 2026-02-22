@@ -110,23 +110,41 @@
 }
 
 .status-circle {
-    width: 12px;
-    height: 12px;
-    border-radius: 50% !important;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    font-size: 8px;
+    font-weight: 700;
+    line-height: 1;
+    color: #0f172a; /* readable on yellow/green */
+    box-shadow: 0 0 0 2px rgba(0,0,0,.08) inset;
+    user-select: none;
 }
 
 /* Three possible colors */
-.status-0, .status-1 {
-    background-color: #28a745; /* green */
+.status-h-0 {
+    background: #22c55e;
 }
-
-.status-2, .status-3 {
-    background-color: #ffc107; /* yellow */
+/* 0-1h */
+.status-h-2 {
+    background: #84cc16;
 }
-
-.status-4, .status-5 {
-    background-color: #dc3545; /* red */
+/* 2-5h */
+.status-h-6 {
+    background: #facc15;
+}
+/* 6-23h */
+.status-h-24 {
+    background: #fb923c;
+}
+/* 24-71h */
+.status-h-72 {
+    background: #ef4444;
+}
+/* 72h+ */
 }
 
 .collapse-toggle .icon-minus {
