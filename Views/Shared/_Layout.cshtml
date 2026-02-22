@@ -319,7 +319,7 @@
 
                 <!-- LEFT: Status + time -->
                 <div class="d-flex align-items-center flex-shrink-0">
-                    <span id="inventoryStatus" class="status-circle" title=""></span>
+                    <span id="inventoryStatus" class="status-circle shadow text-shadow" title=""></span>
                 </div>
 
                 <!-- CENTER: Truncated content (prevents wrapping) -->
@@ -574,7 +574,7 @@
 
     $("#inventoryStatus")
         .attr("title", `The inventory is ${hours} hour${hours === 1 ? "" : "s"} old`)
-        .text(hours) 
+        .text(`${hours}h`)
         .removeClass()
         .addClass(`status-circle ${bucket}`);
 
