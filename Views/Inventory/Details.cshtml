@@ -493,8 +493,20 @@
             </div>
         </div>
     </div>
-    <!-- Buttons Carfax/ schedules etc DESKTOP ONLY-->
-    <div id="modalShortcuts" class="col-lg-3 d-none d-lg-block">
+    <!-- Buttons Carfax/ schedules etc-->
+    <div id="modalShortcuts" class="col-lg-3">
+        @*Maxallowance button*@
+        <button id="maxallowance-tradein" class="maxallowance-tradein w-100 btn btn-gradient-green mb-3 shadow" data-max-id="gtxautogroup">
+            <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
+                <i class="bi bi-cash-coin mx-2"></i>@I18n.R("All_MaxAllowance")
+            </h5>
+        </button>
+
+        @* Instant pre approval *@
+        <span class="mb-3">
+            @Html.Partial("_Button")
+        </span>
+
         @*Carfax*@
         <a class="w-100 btn btn-gradient mb-3 shadow" type="button" id="btnCarfax" href="http://www.carfax.com/VehicleHistory/p/Report.cfx?partner=DVW_1&vin=@Model.CurrentVehicle.VehicleDetails.VIN" target="_blank">
             <h5 class="fw-bold text-uppercase text-white m-0 text-center py-1">
@@ -518,23 +530,11 @@
 
 
         @*Loan app*@
-        <button class="w-100 btn btn-gradient-green mb-3 shadow" type="button" id="btnLoanApplication" data-url="Inventory/ApplicationModal" data-title="Get prequalified">
+        <button class="w-100 btn btn-gradient-green mb-3 shadow d-none" type="button" id="btnLoanApplication" data-url="Inventory/ApplicationModal" data-title="Get prequalified">
             <h5 class="fw-bold text-uppercase text-white m-0 text-center py-3">
                 <i class="bi bi-currency-dollar mx-2"></i>@I18n.R("Nav_GetPrequalified")
             </h5>
         </button>
-
-        @*Maxallowance button*@
-        <button id="maxallowance-tradein" class="maxallowance-tradein w-100 btn btn-gradient-green mb-3 shadow" data-max-id="gtxautogroup">
-            <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
-                <i class="bi bi-cash-coin mx-2"></i>@I18n.R("All_MaxAllowance")
-            </h5>
-        </button>
-
-        @* Instant pre approval *@
-        <span class="mb-3">
-            @Html.Partial("_Button")
-        </span>
     </div>
 </div>
 

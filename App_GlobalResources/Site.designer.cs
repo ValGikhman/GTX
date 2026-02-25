@@ -412,7 +412,7 @@ namespace Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Get prequalified.
+        ///   Looks up a localized string similar to Credit application.
         /// </summary>
         internal static string Nav_GetPrequalified {
             get {
