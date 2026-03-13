@@ -1,0 +1,111 @@
+﻿
+@{
+    ViewBag.Title = "Vehicle Not Found";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var stock = ViewBag.Stock as string;
+    var requestedUrl = ViewBag.RequestedUrl as string;
+}
+
+<div class="container-fluid d-flex align-items-center justify-content-center py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-12">
+            <div class="border-0 shadow-lg overflow-hidden rounded-4">
+                <div class="card-body p-0">
+
+                    <div class="modal-header text-white p-3 p-md-3">
+                        <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-4">
+                            <div>
+                                <h1 class="display-6 fw-bold mb-2">
+                                    Vehicle Not Found
+                                </h1>
+                                <p class="mb-0 fs-5 opacity-75">
+                                    We couldn’t find the vehicle you were looking for in our current inventory.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 p-md-5 bg-light">
+                        <div class="row g-4 align-items-stretch">
+                            <div class="col-12 col-lg-8">
+                                <div class="h-100 bg-white border rounded-4 shadow-sm p-4">
+                                    <h3 class="fw-bold mb-3">What may have happened?</h3>
+
+                                    <div class="d-grid gap-3">
+                                        <div class="d-flex align-items-start">
+                                            <div class="me-3">
+                                                <span class="badge rounded-pill text-bg-secondary px-3 py-2">01</span>
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold">The vehicle was recently sold</div>
+                                                <div class="text-muted">
+                                                    Inventory updates quickly, and this unit may no longer be available.
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex align-items-start">
+                                            <div class="me-3">
+                                                <span class="badge rounded-pill text-bg-secondary px-3 py-2">02</span>
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold">The stock number may be incorrect</div>
+                                                <div class="text-muted">
+                                                    A typo or outdated link could point to a vehicle that does not exist.
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex align-items-start">
+                                            <div class="me-3">
+                                                <span class="badge rounded-pill text-bg-secondary px-3 py-2">03</span>
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold">The listing may have changed</div>
+                                                <div class="text-muted">
+                                                    The unit could have been moved, renamed, or temporarily unavailable.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    @if (!string.IsNullOrWhiteSpace(requestedUrl))
+                                    {
+                                        <hr class="my-4" />
+                                        <div class="small text-muted">
+                                            <strong>Requested URL:</strong><br />
+                                            <span class="text-break">@requestedUrl</span>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-lg-4">
+                                <div class="h-100 bg-white border rounded-4 shadow-sm p-4 d-flex flex-column">
+                                    <h4 class="fw-bold mb-3">Helpful next steps</h4>
+
+                                    <div class="d-grid gap-3 mt-1">
+                                        <a href="@Url.Action("Index", "Inventory")" class="btn btn-gradient btn-lg rounded-3">
+                                            Browse All Inventory
+                                        </a>
+
+                                        <a href="@Url.Action("Contact", "Home")" class="btn btn-outline-dark btn-lg rounded-3">
+                                            Contact Us
+                                        </a>
+
+                                        <a href="javascript:history.back();" class="btn btn-light btn-lg border rounded-3">
+                                            Go Back
+                                        </a>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
