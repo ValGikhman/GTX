@@ -73,7 +73,9 @@ namespace GTX.Controllers
 
             var vehicle = Model.Inventory.All?.FirstOrDefault(m => m.Stock == stock);
             if (vehicle == null) {
-                return HttpNotFound($"Vehicle with stock '{stock}' not found.");
+                ViewBag.Stock = stock;
+                ViewBag.RequestedUrl = Request?.Url?.AbsoluteUri;
+                return View("VehicleNotFound");
             }
 
             Model.CurrentVehicle.VehicleDetails = vehicle;
