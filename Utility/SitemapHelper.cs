@@ -57,10 +57,8 @@ public static class SitemapWriter
 
 
 
-            string SlugPart(string? s) => Regex.Replace((s ?? "").Trim(), @"\s+", "-");
-            var loc = $"{BaseUrl}/Inventory/{Regex.Replace(string.Join("-", new[] {  year, SlugPart(make), SlugPart(model), vehicleStyle, stock }.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim())), @"-+", "-").Trim('-')}";
-
-            //var loc = $"{BaseUrl}/Inventory/{Regex.Replace(string.Join("-", new[] { year, make, model, vehicleStyle, stock }.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim())), @"-+", "-").Trim('-')}";
+            string SlugPart(string? s) => Regex.Replace((s ?? "").Trim(), @"[\s/]+", "-");
+            var loc = $"{BaseUrl}/Inventory/{Regex.Replace(string.Join("-", new[] { year, SlugPart(make), SlugPart(model), SlugPart(vehicleStyle), stock }.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim())), @"-+", "-").Trim('-')}";
 
             urlset.Add(Url(ns, loc, lastmod, "daily", "0.9"));
         }
