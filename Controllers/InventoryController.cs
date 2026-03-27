@@ -2,6 +2,7 @@
 using GTX.Models;
 using Services;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -88,7 +89,24 @@ namespace GTX.Controllers
                 {
                     var details = VinDecoderService.DecodeVin(vehicle.VIN, dataOneApiKey, dataOneSecretApiKey);
                     InventoryService.SaveDataOneDetails(stock, details);
-                    Model.CurrentVehicle.VehicleDataOneDetails = GetDecodedData(stock);
+
+                    // Query transmission 
+                    var transmission = Model.CurrentVehicle.VehicleDetails.Transmission;
+                    var dataOne = GetDecodedData(stock);
+
+                    if (dataOne?.QueryResponses?.Items != null)
+                    {
+                        foreach (var item in dataOne.QueryResponses.Items)
+                        {
+                            if (item.UsMarketData.UsStyles.Styles.Count > 1)
+                            {
+                                item.UsMarketData.UsStyles.Styles = item.UsMarketData.UsStyles.Styles.Where(s => s.Transmissions?.Items?.Any(t => !string.IsNullOrWhiteSpace(t.Type) 
+                                        && !string.IsNullOrWhiteSpace(transmission) && char.ToUpperInvariant(t.Type[0]) == char.ToUpperInvariant(transmission[0])) == true).ToList();
+                            }
+                        }
+                    }
+
+                    Model.CurrentVehicle.VehicleDataOneDetails = dataOne;
                 }
                 else {
                     Model.CurrentVehicle.VehicleDataOneDetails = vehicle.DataOne;
