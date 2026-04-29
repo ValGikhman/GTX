@@ -149,6 +149,45 @@
     <script src="~/Scripts/AlloyFinger/alloy_finger.min.js" type="text/javascript"></script>
     @if (Model.CurrentVehicle.DisplayEZ360Player && Model.IsEZ360)
     {
+        <script>
+            (function () {
+                var ez360Allow = "accelerometer *; gyroscope *; magnetometer *; fullscreen *; xr-spatial-tracking *";
+
+                function allowEz360Sensors(frame) {
+                    if (!frame || frame.tagName !== "IFRAME") return;
+
+                    frame.setAttribute("allow", ez360Allow);
+                    frame.setAttribute("allowfullscreen", "allowfullscreen");
+                }
+
+                var originalAppendChild = Node.prototype.appendChild;
+                Node.prototype.appendChild = function (node) {
+                    allowEz360Sensors(node);
+                    return originalAppendChild.call(this, node);
+                };
+
+                var originalInsertBefore = Node.prototype.insertBefore;
+                Node.prototype.insertBefore = function (node, referenceNode) {
+                    allowEz360Sensors(node);
+                    return originalInsertBefore.call(this, node, referenceNode);
+                };
+
+                var observer = new MutationObserver(function (mutations) {
+                    mutations.forEach(function (mutation) {
+                        mutation.addedNodes.forEach(function (node) {
+                            if (node.tagName === "IFRAME") {
+                                allowEz360Sensors(node);
+                            } else if (node.querySelectorAll) {
+                                node.querySelectorAll("iframe").forEach(allowEz360Sensors);
+                            }
+                        });
+                    });
+                });
+
+                observer.observe(document.documentElement, { childList: true, subtree: true });
+                document.querySelectorAll("iframe").forEach(allowEz360Sensors);
+            })();
+        </script>
         <script src="https://sdk.sister.tv/integrations/cvdp/live/injectEZ360PlayerScript.min.js" id="ez360-cvdp" vin="@Model.CurrentVehicle.VehicleDetails.VIN" integration_id="gtx-auto-cincinnati" page_type="VDP"></script>
     }
     <script id="cfx-script" src="https://ratings.carfax.com/top-rated/v1/js/cfx-loader.js" type="module"></script>

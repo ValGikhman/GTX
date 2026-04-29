@@ -227,6 +227,7 @@ namespace GTX.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public JsonResult GetNow(int offset) // offset in minutes from JS
         {
             try
