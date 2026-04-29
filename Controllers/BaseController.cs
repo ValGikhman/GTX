@@ -212,6 +212,7 @@ namespace GTX.Controllers
             Model.Inventory.All = DecideImages(vehicles);
 
             Model.Inventory.Vehicles = Model.Inventory.All;
+
             return Model.Inventory;
         }
 
@@ -299,7 +300,8 @@ namespace GTX.Controllers
                 else
                 {
                     var ez360 = vehicle.EZ360;
-                    var ezImages = PickPrimaryImages(ez360);
+                    //var ezImages = PickPrimaryImages(ez360);
+                    var ezImages = PickDisplayImages(ez360);
 
                     // Normalize to avoid repeated null checks
                     var hasEz = ezImages is { Length: > 0 };
@@ -460,6 +462,22 @@ namespace GTX.Controllers
             return null;
         }
 
+        private Image[] PickDisplayImages(EZ360.Vehicle? ez)
+        {
+            if (ez == null) return null;
+
+            if (ez.DisplayPics != null && ez.DisplayPics.Any())
+            {
+                return ez.DisplayPics.Select(m => new Image() { Id = Guid.Empty, Stock = ez.StockNo, DateCreated = DateTime.Now, Order = 0, Source = m }).ToArray();
+            }
+
+            if (ez.ThirdPartyPics != null && ez.ThirdPartyPics.Any())
+            {
+                return ez.ThirdPartyPics.Select(m => new Image() { Id = Guid.Empty, Stock = ez.StockNo, DateCreated = DateTime.Now, Order = 0, Source = m }).ToArray();
+            }
+
+            return null;
+        }
         private Image[] PickPrimaryImages(EZ360.Vehicle? ez)
         {
             if (ez == null) return null;

@@ -113,6 +113,8 @@ namespace GTX.Controllers
                 }
             }
 
+            Model.IsEZ360 = false;
+
             if (Model.IsEZ360)
             {
                 Model.CurrentVehicle.DisplayEZ360Player = false;
