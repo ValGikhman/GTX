@@ -300,8 +300,8 @@ namespace GTX.Controllers
                 else
                 {
                     var ez360 = vehicle.EZ360;
-                    //var ezImages = PickPrimaryImages(ez360);
-                    var ezImages = PickDisplayImages(ez360);
+                    var ezImages = PickPrimaryImages(ez360);
+                    //var ezImages = PickDisplayImages(ez360);
 
                     // Normalize to avoid repeated null checks
                     var hasEz = ezImages is { Length: > 0 };

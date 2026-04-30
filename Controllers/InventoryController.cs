@@ -87,33 +87,46 @@ namespace GTX.Controllers
             {
                 if (vehicle.DataOne == null)
                 {
-                    var details = VinDecoderService.DecodeVin(vehicle.VIN, dataOneApiKey, dataOneSecretApiKey);
-                    InventoryService.SaveDataOneDetails(stock, details);
-
-                    // Query transmission 
-                    var transmission = Model.CurrentVehicle.VehicleDetails.Transmission;
-                    var dataOne = GetDecodedData(stock);
-
-                    if (dataOne?.QueryResponses?.Items != null)
+                    try
                     {
-                        foreach (var item in dataOne.QueryResponses.Items)
+                        var details = VinDecoderService.DecodeVin(vehicle.VIN, dataOneApiKey, dataOneSecretApiKey);
+                        var dataOne = Models.GTX.SetDecodedData(details);
+
+                        if (dataOne != null)
                         {
-                            if (item.UsMarketData.UsStyles.Styles.Count > 1)
+                            InventoryService.SaveDataOneDetails(stock, details);
+
+                            // Query transmission 
+                            var transmission = Model.CurrentVehicle.VehicleDetails.Transmission;
+
+                            if (dataOne.QueryResponses?.Items != null)
                             {
-                                item.UsMarketData.UsStyles.Styles = item.UsMarketData.UsStyles.Styles.Where(s => s.Transmissions?.Items?.Any(t => !string.IsNullOrWhiteSpace(t.Type) 
-                                        && !string.IsNullOrWhiteSpace(transmission) && char.ToUpperInvariant(t.Type[0]) == char.ToUpperInvariant(transmission[0])) == true).ToList();
+                                foreach (var item in dataOne.QueryResponses.Items)
+                                {
+                                    if (item.UsMarketData.UsStyles.Styles.Count > 1)
+                                    {
+                                        item.UsMarketData.UsStyles.Styles = item.UsMarketData.UsStyles.Styles.Where(s => s.Transmissions?.Items?.Any(t => !string.IsNullOrWhiteSpace(t.Type) 
+                                                && !string.IsNullOrWhiteSpace(transmission) && char.ToUpperInvariant(t.Type[0]) == char.ToUpperInvariant(transmission[0])) == true).ToList();
+                                    }
+                                }
                             }
+
+                            Model.CurrentVehicle.VehicleDataOneDetails = dataOne;
+                        }
+                        else
+                        {
+                            Log($"DataOne decode returned no details for stock {stock}, VIN {vehicle.VIN}.");
                         }
                     }
-
-                    Model.CurrentVehicle.VehicleDataOneDetails = dataOne;
+                    catch (Exception ex)
+                    {
+                        Log($"DataOne decode failed for stock {stock}, VIN {vehicle.VIN}: {ex.Message}");
+                    }
                 }
                 else {
                     Model.CurrentVehicle.VehicleDataOneDetails = vehicle.DataOne;
                 }
             }
-
-            Model.IsEZ360 = false;
 
             if (Model.IsEZ360)
             {
