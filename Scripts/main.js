@@ -236,13 +236,31 @@ function setMajordomeMenu(role) {
     $icon.addClass("bi " + iconClass);
 }
 
+function parseCarCookie(cookieValue) {
+    if (!cookieValue) return [];
+
+    return cookieValue
+        .split(/[|,]/)
+        .map(function (stock) {
+            return (stock || "").trim().toUpperCase();
+        })
+        .filter(function (stock, index, stocks) {
+            return /^[A-Z0-9-]+$/.test(stock) && stocks.indexOf(stock) === index;
+        });
+}
+
+function saveCarCookie(cookieName, stocks) {
+    var value = parseCarCookie((stocks || []).join("|")).join("|");
+    Cookies.set(cookieName, value, { expires: 30, path: "/" });
+}
+
 function loadLikedCars() {
-    var cookieValue = Cookies.get(cookieLike);
-    likedCars = cookieValue ? cookieValue.split(',') : [];
+    likedCars = parseCarCookie(Cookies.get(cookieLike));
+    saveLikedCars();
 }
 
 function saveLikedCars() {
-    Cookies.set(cookieLike, likedCars.join(','), { expires: 30 });
+    saveCarCookie(cookieLike, likedCars);
 }
 
 function isCarLiked(stock) {
@@ -266,12 +284,12 @@ function updateFilterLiked() {
 }
 
 function loadLastCars() {
-    var cookieValue = Cookies.get(cookieLast);
-    lastCars = cookieValue ? cookieValue.split(',') : [];
+    lastCars = parseCarCookie(Cookies.get(cookieLast));
+    saveLastCars();
 }
 
 function saveLastCars() {
-    Cookies.set(cookieLast, lastCars.join(','), { expires: 30 });
+    saveCarCookie(cookieLast, lastCars);
 }
 
 function isCarLast(stock) {
