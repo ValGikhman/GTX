@@ -278,7 +278,7 @@ namespace GTX.Controllers
             Model.Inventory.Vehicles = ApplyFilters(model);
             Model.Inventory.Title = I18n.R("All_Search");
             ViewBag.Message = "Inventory";
-            return Json(new { redirectUrl = Url.Action("Index") });
+            return Json(new { redirectUrl = Url.Content("~/Inventory/Index") });
         }
 
         [HttpPost]
@@ -291,16 +291,22 @@ namespace GTX.Controllers
             Model.Inventory.Vehicles = request.Query.OrderBy(m => m.Make).ThenBy(m => m.Model).ToArray();
             Model.Inventory.Title = I18n.R("All_Search");
             ViewBag.Message = "Inventory";
-            return Json(new { redirectUrl = Url.Action("Index") });
+            return Json(new { redirectUrl = Url.Content("~/Inventory/Index") });
         }
 
         [HttpPost]
         public JsonResult ApplyTerm(string term) {
+            if (string.IsNullOrWhiteSpace(term)) {
+                Model.Inventory.Vehicles = Model.Inventory.All;
+                Model.Inventory.Title = "All";
+                return Json(new { redirectUrl = Url.Content("~/Inventory/Index") });
+            }
+
             term = term.Trim().ToUpper();
 
             Model.Inventory.Vehicles = ApplyTerms(term);
             Model.Inventory.Title = I18n.R("All_Search");
-            return Json(new { redirectUrl = Url.Action("Index") });
+            return Json(new { redirectUrl = Url.Content("~/Inventory/Index") });
         }
 
         [HttpGet]

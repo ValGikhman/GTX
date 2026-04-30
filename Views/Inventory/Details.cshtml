@@ -4,10 +4,10 @@
 @{
     var vehicle = Model.CurrentVehicle?.VehicleDetails;
 
-    string JoinClean(params string?[] parts)
+    string JoinClean(params string[] parts)
     {
         // join only non-empty pieces with a single dash
-        var raw = string.Join("-", parts.Where(p => !string.IsNullOrWhiteSpace(p)).Select(p => p!.Trim()));
+        var raw = string.Join("-", parts.Where(p => !string.IsNullOrWhiteSpace(p)).Select(p => p.Trim()));
 
         // normalize: collapse multiple dashes + trim edges (prevents "--")
         raw = Regex.Replace(raw, @"-+", "-").Trim('-');
@@ -15,7 +15,7 @@
         return raw;
     }
 
-    var title = string.Join(" ", new[] { vehicle?.Year.ToString(), vehicle?.Make, vehicle?.Model, vehicle?.VehicleStyle }.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s!.Trim()));
+    var title = string.Join(" ", new[] { vehicle?.Year.ToString(), vehicle?.Make, vehicle?.Model, vehicle?.VehicleStyle }.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim()));
 
     if (string.IsNullOrWhiteSpace(title))
     {
