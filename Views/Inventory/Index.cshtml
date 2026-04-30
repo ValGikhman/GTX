@@ -82,10 +82,17 @@
             refreshCarLikes();
         });
 
-        $(".card").on("click", function () {
+        let detailsNavigationStarted = false;
+        $("#inventory").on("click", ".card", function () {
+            if (detailsNavigationStarted) return;
+
+            const url = $(this).data("url");
             const stock = $(this).data("stock");
-            if (stock) {
-                window.location.href = `${root}Inventory/Details?stock=${stock}`
+            const fallbackUrl = stock ? `${root}Inventory/Details?stock=${encodeURIComponent(stock)}` : "";
+
+            if (url || fallbackUrl) {
+                detailsNavigationStarted = true;
+                window.location.href = url || fallbackUrl;
             }
         });
 

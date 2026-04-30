@@ -278,6 +278,7 @@ namespace GTX.Controllers
 
             // Compute once instead of per vehicle
             var defaultImage = $"{imageFolder}no-image-{Version()}.jpg";
+
             var isEz360 = Model.IsEZ360;
 
             foreach (var vehicle in vehicles)
