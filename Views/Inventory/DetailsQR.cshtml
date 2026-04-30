@@ -208,10 +208,17 @@
             border_w: 1
         });
 
+        let detailsNavigationStarted = false;
         $(".hover-bw").on("click", function () {
+            if (detailsNavigationStarted) return;
+
+            const url = $(this).data("url");
             const stock = $(this).data("stock");
-            if (stock) {
-                window.location.href = `${root}Inventory/Details?stock=${stock}`
+            const fallbackUrl = stock ? `${root}Inventory/Details?stock=${encodeURIComponent(stock)}` : "";
+
+            if (url || fallbackUrl) {
+                detailsNavigationStarted = true;
+                window.location.href = url || fallbackUrl;
             }
         });
     });

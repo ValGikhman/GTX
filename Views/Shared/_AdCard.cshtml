@@ -1,8 +1,12 @@
 ﻿@model GTX.Models.GTX
+@{
+    var detailsUrl = Url.Action("Details", "Inventory", new { stock = Model.Stock });
+}
 
 <div id="@Model.Stock"
     class="btn btn-light hover-bw"
     title="Click here to see details."
+    data-url="@detailsUrl"
     data-year="@Model.Year"
     data-stock="@Model.Stock.ToUpper()"
     data-make="@Model.Make.ToUpper()"
