@@ -78,6 +78,16 @@
             }
         }).focus();
 
+    $(document).on("click", "#btnTermSearch", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const term = $.trim($("#term").val() || "");
+        if (term.length > 0) {
+            applyTerm(term);
+        }
+    });
+
 
     $("#filterTerm").on("input", function () {
         var searchText = $(this).val();
