@@ -251,6 +251,9 @@
     data-make="@Model.Make.ToUpper()"
     data-model="@Model.Model.ToUpper()"
     data-transmission="@Model.TransmissionWord.ToUpper()"
+    data-fuel="@((Model.FuelType ?? string.Empty).ToUpper())"
+    data-drive="@((Model.DriveTrain ?? string.Empty).ToUpper())"
+    data-body="@((Model.Body ?? string.Empty).ToUpper())"
     data-style="@Model.VehicleStyle.ToUpper()"
     data-type="@Model.VehicleType.ToUpper()"
     data-miles="@Model.Mileage"
@@ -336,10 +339,10 @@
 
             <!-- Row 2: VIN + Stock -->
             <div class="d-flex justify-content-between align-items-center" style="margin-top: -5px;">
-                <span class="copyable very-small-text hand-pointer text-truncate V @Model.LocationCode" style="max-width: 70%;" title="Copy VIN">
+                <span class="copyable very-small-text hand-pointer text-truncate style="max-width: 70%;" title="Copy VIN">
                     @Model.VIN
                 </span>
-                <span class="copyable very-small-text hand-pointer text-truncate V @Model.LocationCode" style="max-width: 70%;" title="Copy Stock#">
+                <span class="copyable very-small-text hand-pointer text-truncate style="max-width: 70%;" title="Copy Stock#">
                     @Model.Stock
                 </span>
             </div>
