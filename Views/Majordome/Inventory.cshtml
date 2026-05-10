@@ -19,10 +19,6 @@
             width: 72% !important;
         }
 
-        .body-content {
-            margin-top: 13.7rem;
-        }
-
         .dropzone {
             --dz-label-size: clamp(26px, 2.4vw, 28px);
             transition: background-color .15s, border-color .15s;
@@ -645,8 +641,6 @@
             }
 
             setTimeout(selectAndClickFirstDisplayedRow, 700);
-            const count = gridApi.getDisplayedRowCount();
-            $("#filterResults").html(`${count} record(s) found.`);
         },
         columnDefs: columnDefs,
         rowSelection: "single",
@@ -671,10 +665,6 @@
             loadGallery(selectedVehicle);
             setDetails(selectedVehicle.Stock);
             setQrCode(selectedVehicle);
-        },
-        onFilterChanged: params => {
-            const count = gridApi.getDisplayedRowCount();
-            $("#filterResults").html(`${count} record(s) found.`);
         }
     };
 

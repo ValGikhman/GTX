@@ -34,7 +34,6 @@ function applyFilterTerm(term) {
     const vehicles = document.querySelectorAll(".card");
     let combined;
 
-    let i = 0;
     vehicles.forEach(vehicle => {
         const stock = $(vehicle).data("stock") || "";
         const vin = $(vehicle).data("vin") || "";
@@ -84,18 +83,10 @@ function applyFilterTerm(term) {
 
         if (combined.includes(filter)) {
             vehicle.style.display = "";
-            i++;
         } else {
             vehicle.style.display = "none";
         }
     });
-
-    if (filter === "") {
-        $("#filterResults").empty();
-    }
-    else {
-        $("#filterResults").empty().html(`${i} record(s) found.`);
-    }
 
     let stocks = $(".card:visible").map(function () {
         return $(this).data("stock");
@@ -161,3 +152,358 @@ function calculateMonthlyPayment(P, rate, month) {
     const n = month;
     return (P * r) / (1 - Math.pow(1 + r, -n));
 }
+
+(function () {
+    function selectedByField() {
+        var selected = {};
+
+        $(".inventory-filter-check:checked").each(function () {
+            var field = $(this).data("field");
+            var value = normalizeInventoryValue($(this).data("value"));
+
+            if (!selected[field]) selected[field] = [];
+            selected[field].push(value);
+        });
+
+        return selected;
+    }
+
+    function normalizeInventoryValue(value) {
+        return $.trim(String(value || "")).toUpperCase();
+    }
+
+    function inventoryTermMatches($vehicle, filter) {
+        if (!filter) return true;
+        if (filter === "@@") return false;
+
+        var stock = normalizeInventoryValue($vehicle.data("stock"));
+        var vin = normalizeInventoryValue($vehicle.data("vin"));
+        var dataone = normalizeInventoryValue($vehicle.data("dataone"));
+        var make = normalizeInventoryValue($vehicle.data("make"));
+        var model = normalizeInventoryValue($vehicle.data("model"));
+        var style = normalizeInventoryValue($vehicle.data("style"));
+        var type = normalizeInventoryValue($vehicle.data("type"));
+        var transmission = normalizeInventoryValue($vehicle.data("transmission"));
+        var year = normalizeInventoryValue($vehicle.data("year"));
+        var color = normalizeInventoryValue($vehicle.data("color"));
+        var color2 = normalizeInventoryValue($vehicle.data("color2"));
+        var location = normalizeInventoryValue($vehicle.data("location-code"));
+        var story = normalizeInventoryValue($vehicle.data("story"));
+        var images = normalizeInventoryValue($vehicle.data("images"));
+        var cylinders = normalizeInventoryValue($vehicle.data("cylinders"));
+        var combined;
+
+        if (filter.indexOf("@@") === 0) {
+            var prefixMap = {
+                "@@YR": "@@YR " + year,
+                "@@MK": "@@MK " + make,
+                "@@MD": "@@MD " + model,
+                "@@TR": "@@TR " + transmission,
+                "@@CY": "@@CY " + cylinders,
+                "@@OW": "@@OW " + location
+            };
+
+            combined = "@@" + story + " @@" + images + " @@" + dataone;
+
+            $.each(prefixMap, function (key, text) {
+                if (filter.indexOf(key) === 0) {
+                    combined = text;
+                    return false;
+                }
+            });
+        } else {
+            combined = [
+                stock, vin, make, model, style, type, transmission, year,
+                color, color2, normalizeInventoryValue($vehicle.data("fuel")),
+                normalizeInventoryValue($vehicle.data("drive")),
+                normalizeInventoryValue($vehicle.data("body"))
+            ].join(" ");
+        }
+
+        return combined.indexOf(filter) !== -1;
+    }
+
+    function inventoryCheckboxMatches($vehicle, selected) {
+        var matched = true;
+
+        $.each(selected, function (field, values) {
+            if (!values.length) return;
+
+            var vehicleValue = normalizeInventoryValue($vehicle.data(field));
+            if ($.inArray(vehicleValue, values) === -1) {
+                matched = false;
+                return false;
+            }
+        });
+
+        return matched;
+    }
+
+    function inventoryLikedMatches($vehicle) {
+        if (!$("#filterLiked").hasClass("bi-heart-fill")) return true;
+        return $vehicle.find(".liked").length && $vehicle.find(".liked")[0].style.display === "";
+    }
+
+    function inventoryLastMatches($vehicle) {
+        if (!$("#filterLast").hasClass("bi-journal-album")) return true;
+        return isCarLast(normalizeInventoryValue($vehicle.data("stock")));
+    }
+
+    function syncInventoryModelPanel(selected) {
+        var selectedMakes = selected.make || [];
+        var availableModels = {};
+        var hasMakes = selectedMakes.length > 0;
+        var $modelPanel = $("#invFilterModels").closest(".inventory-filter-panel");
+        var $modelToggle = $modelPanel.find(".inventory-filter-panel-toggle");
+        var $modelInstruction = $modelPanel.find("[data-empty-panel-for='model']");
+
+        if (hasMakes) {
+            $("#inventory > li.card").each(function () {
+                var $vehicle = $(this);
+                var make = normalizeInventoryValue($vehicle.data("make"));
+                var model = normalizeInventoryValue($vehicle.data("model"));
+
+                if (model && $.inArray(make, selectedMakes) !== -1) {
+                    availableModels[model] = true;
+                }
+            });
+        }
+
+        $modelToggle.toggle(hasMakes);
+        $modelInstruction.toggle(!hasMakes);
+
+        if (!hasMakes) {
+            $("#invFilterModels").removeClass("show");
+            $modelToggle.addClass("collapsed").attr("aria-expanded", "false");
+        }
+
+        var visibleModels = 0;
+        $("#invFilterModels .inventory-check-row").each(function () {
+            var $row = $(this);
+            var $check = $row.find(".inventory-filter-check");
+            var model = normalizeInventoryValue($check.data("value"));
+            var isAvailable = hasMakes && !!availableModels[model];
+
+            if (!isAvailable) {
+                $check.prop("checked", false);
+            }
+
+            $row.toggle(isAvailable);
+            if (isAvailable) visibleModels++;
+        });
+
+        $("[data-bs-target='#invFilterModels'] .inventory-filter-panel-count").text(visibleModels);
+    }
+
+    function updateInventoryFilterCounts(selected, filter) {
+        $(".inventory-check-hit").each(function () {
+            var $count = $(this);
+            var field = $count.data("count-field");
+            var value = normalizeInventoryValue($count.data("count-value"));
+            var count = 0;
+
+            $("#inventory > li.card").each(function () {
+                var $vehicle = $(this);
+                var scopedSelected = $.extend(true, {}, selected);
+                delete scopedSelected[field];
+
+                if (normalizeInventoryValue($vehicle.data(field)) === value &&
+                    inventoryCheckboxMatches($vehicle, scopedSelected) &&
+                    inventoryTermMatches($vehicle, filter) &&
+                    inventoryLikedMatches($vehicle) &&
+                    inventoryLastMatches($vehicle)) {
+                    count++;
+                }
+            });
+
+            var $row = $count.closest(".inventory-check-row");
+            var isChecked = $row.find(".inventory-filter-check").is(":checked");
+
+            $count.text(count);
+            $row.toggle(count > 0 || isChecked);
+            $row.removeClass("opacity-50");
+        });
+    }
+
+    function syncInventoryVisibleCount(visibleCount) {
+        var title = visibleCount + " vehicle(s)";
+
+        $("#inventoryFilterCount").text(visibleCount);
+        $(".main-title").text(title);
+    }
+
+    function clampInventorySidebarWidth(width) {
+        var maxWidth = Math.min(560, Math.max(300, $(window).width() - 420));
+        return Math.max(260, Math.min(maxWidth, width));
+    }
+
+    function setInventorySidebarState($split, isCollapsed) {
+        var $toggle = $("#inventorySidebarToggle");
+        var $icon = $toggle.find("i");
+        var title = isCollapsed ? "Expand filters" : "Collapse filters";
+
+        $split.toggleClass("inventory-sidebar-collapsed", isCollapsed);
+        $toggle.attr("title", title).attr("aria-label", title);
+        $icon.toggleClass("bi-chevron-left", !isCollapsed);
+        $icon.toggleClass("bi-chevron-right", isCollapsed);
+        localStorage.setItem("inventorySidebarCollapsed", isCollapsed ? "1" : "0");
+    }
+
+    function setInventorySidebarWidth($split, width) {
+        var clampedWidth = clampInventorySidebarWidth(width);
+
+        $split.css("--inventory-sidebar-width", clampedWidth + "px");
+        localStorage.setItem("inventorySidebarWidth", clampedWidth);
+    }
+
+    function pointerClientX(event) {
+        var originalEvent = event.originalEvent || event;
+        var touch = originalEvent.touches && originalEvent.touches.length ? originalEvent.touches[0] : null;
+        var changedTouch = originalEvent.changedTouches && originalEvent.changedTouches.length ? originalEvent.changedTouches[0] : null;
+
+        return touch ? touch.clientX : (changedTouch ? changedTouch.clientX : event.clientX);
+    }
+
+    function initInventorySplitPanel() {
+        var $split = $("#inventorySplit");
+        var $divider = $("#inventorySplitDivider");
+        var $toggle = $("#inventorySidebarToggle");
+
+        if (!$split.length || !$divider.length || !$toggle.length) return;
+
+        var savedWidth = parseInt(localStorage.getItem("inventorySidebarWidth"), 10);
+        if (savedWidth) {
+            setInventorySidebarWidth($split, savedWidth);
+        }
+
+        setInventorySidebarState($split, localStorage.getItem("inventorySidebarCollapsed") === "1");
+
+        $toggle.off("click.inventorySplit").on("click.inventorySplit", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            setInventorySidebarState($split, !$split.hasClass("inventory-sidebar-collapsed"));
+        });
+
+        $divider.off(".inventorySplit").on("dblclick.inventorySplit", function () {
+            setInventorySidebarState($split, !$split.hasClass("inventory-sidebar-collapsed"));
+        });
+
+        $divider.on("mousedown.inventorySplit touchstart.inventorySplit", function (event) {
+            if ($(event.target).closest("#inventorySidebarToggle").length || $(window).width() < 992) return;
+
+            var startX = pointerClientX(event);
+            var startWidth = $("#inventorySidebarPane").outerWidth();
+            var didMove = false;
+
+            event.preventDefault();
+            $("body").addClass("inventory-split-resizing");
+
+            $(document)
+                .on("mousemove.inventorySplit touchmove.inventorySplit", function (moveEvent) {
+                    var nextWidth = startWidth + pointerClientX(moveEvent) - startX;
+
+                    didMove = true;
+                    setInventorySidebarState($split, false);
+                    setInventorySidebarWidth($split, nextWidth);
+                    moveEvent.preventDefault();
+                })
+                .on("mouseup.inventorySplit touchend.inventorySplit touchcancel.inventorySplit", function () {
+                    $("body").removeClass("inventory-split-resizing");
+                    $(document).off(".inventorySplit");
+
+                    if (!didMove) {
+                        setInventorySidebarState($split, !$split.hasClass("inventory-sidebar-collapsed"));
+                    }
+                });
+        });
+
+        $(window).off("resize.inventorySplit").on("resize.inventorySplit", function () {
+            var currentWidth = parseInt(localStorage.getItem("inventorySidebarWidth"), 10);
+
+            if (currentWidth) {
+                setInventorySidebarWidth($split, currentWidth);
+            }
+        });
+    }
+
+    function routeTypeFilter() {
+        return normalizeInventoryValue($("#inventorySplit").data("route-type-filter"));
+    }
+
+    function syncRouteTypeFilter() {
+        var type = routeTypeFilter();
+        if (!type) return;
+
+        $(".inventory-filter-check").filter(function () {
+            return normalizeInventoryValue($(this).data("field")) === "TYPE" &&
+                normalizeInventoryValue($(this).data("value")) === type;
+        }).prop("checked", true);
+    }
+
+    window.applyInventoryPanelFilters = function () {
+        var selected = selectedByField();
+        var filter = normalizeInventoryValue($("#filterTerm").val());
+        var visibleCount = 0;
+
+        syncInventoryModelPanel(selected);
+        selected = selectedByField();
+
+        $("#inventory > li.card").each(function () {
+            var $vehicle = $(this);
+            var isMatch = inventoryCheckboxMatches($vehicle, selected) &&
+                inventoryTermMatches($vehicle, filter) &&
+                inventoryLikedMatches($vehicle) &&
+                inventoryLastMatches($vehicle);
+
+            $vehicle.toggle(isMatch);
+            if (isMatch) visibleCount++;
+        });
+
+        syncInventoryVisibleCount(visibleCount);
+        $(".inventory-empty-filter").toggle(visibleCount === 0);
+
+        var stocks = $(".card:visible").map(function () {
+            return $(this).data("stock");
+        }).get();
+
+        if (stocks.length > 0) {
+            localStorage.setItem("matchedStocks", JSON.stringify(stocks));
+        } else {
+            localStorage.removeItem("matchedStocks");
+        }
+
+        updateInventoryFilterCounts(selected, filter);
+    };
+
+    $(function () {
+        if (!$("#inventoryFilterRail").length) return;
+
+        initInventorySplitPanel();
+
+        $(document).on("change", ".inventory-filter-check", window.applyInventoryPanelFilters);
+
+        $(document).on("input", "#filterTerm", function () {
+            window.setTimeout(window.applyInventoryPanelFilters, 0);
+        });
+
+        $(document).on("click", "#filterLiked, #filterLast", function () {
+            window.setTimeout(window.applyInventoryPanelFilters, 0);
+        });
+
+        $("#inventoryClearFilters").on("click", function () {
+            var type = routeTypeFilter();
+            var allInventoryUrl = $("#inventorySplit").data("all-inventory-url");
+
+            if (type && allInventoryUrl) {
+                window.location.href = allInventoryUrl;
+                return;
+            }
+
+            $(".inventory-filter-check").prop("checked", false);
+            window.applyInventoryPanelFilters();
+        });
+
+        syncRouteTypeFilter();
+        window.applyInventoryPanelFilters();
+    });
+})();

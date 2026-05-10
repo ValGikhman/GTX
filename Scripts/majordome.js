@@ -30,8 +30,6 @@ class StyleParser {
 
 function applyFilterTerm(term) {
     gridApi.setGridOption('quickFilterText', term);
-    const count = gridApi.getDisplayedRowCount();
-    $("#filterResults").empty().html(`${count} record(s) found.`);
 }
 
 function saveDetails(model) {

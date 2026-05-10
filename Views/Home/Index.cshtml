@@ -11,11 +11,6 @@
     </script>
 </head>
 <style>
-    .body-content {
-        margin-top: 10rem;
-        height: 70rem;
-    }
-
     .slogan-container {
         position: absolute;
         top: 3rem;
@@ -71,24 +66,19 @@
         </div>
         <div class="slogan-big end-0 mx-lg-5 d-none d-xxl-flex ">Your car, your style, your way</div>
 
-        <div class="slogan-small position-absolute">Top rated dealer in Cincinnati</div>
+        <div class="slogan-small text-dark position-absolute">Top rated dealer in Cincinnati</div>
     </div>
 
-    <div id="homeSearch" class="position-absolute w-25 top-50 start-50 translate-middle">
-        <a class="fake-input hand-pointer my-5" data-bs-toggle="modal" data-bs-target="#filtersModal">
-            <div class="input-group no-wrap-group">
-                <input type="search" class="term form-control no-click rounded-start-4 rounded-end-4 border-start-0 shadow"
-                       aria-label="Search inventory" aria-describedby="addon-wrapping" title="Searching inventory"
-                       style="height:55px" />
-            </div>
-        </a>
+    <div class="home-inventory-cta d-flex justify-content-center align-items-center w-100">
+        <a href="/Inventory/All" class="btn btn-big-gradient" type="button"><i class="bi bi-car-front-fill"></i><span class="mx-3">@I18n.R("Nav_All") @I18n.R("Nav_Inventory")</span></a>
     </div>
+
 
     <div class="d-flex justify-content-center align-items-center w-100">
-        <div class="btn-container d-flex justify-content-center align-items-center gap-xxl-5 w-100 flex-nowrap">
-            <a href="/Home/Application" class="btn btn-big-gradient-green shadow" type="button"><span class="bi bi-currency-dollar" /><span class="mx-3">@I18n.R("Nav_GetPrequalified")</span></a>
-            <a href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })" class="btn btn-big-gradient shadow" type="button"><span class="bi bi-person-vcard" /><span class="mx-3">@I18n.R("Nav_ContactUs")</span></a>
-            <a href="@Url.RouteUrl("TestDriveContact")" class="btn btn-big-gradient-yellow shadow" type="button"><span class="bi bi-calendar3" /><span class="mx-3">@I18n.R("Nav_ScheduleTestDrive")</span></a>
+        <div class="btn-container home-cta-actions d-flex justify-content-center align-items-center gap-xxl-5 w-100 flex-nowrap">
+            <a href="/Home/Application" class="btn btn-big-gradient" type="button"><i class="bi bi-currency-dollar"></i><span class="mx-3">@I18n.R("Nav_GetPrequalified")</span></a>
+            <a href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })" class="btn btn-big-gradient" type="button"><i class="bi bi-person-vcard"></i><span class="mx-3">@I18n.R("Nav_ContactUs")</span></a>
+            <a href="@Url.RouteUrl("TestDriveContact")" class="btn btn-big-gradient" type="button"><i class="bi bi-calendar3"></i><span class="mx-3">@I18n.R("Nav_ScheduleTestDrive")</span></a>
         </div>
     </div>
 </section>

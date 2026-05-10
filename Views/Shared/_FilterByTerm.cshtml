@@ -1,7 +1,23 @@
-﻿<div id="filterByTerm" class="d-flex align-items-center position-relative w-100 mt-1 pb-4">
-    <!-- Centered search -->
-    <div class="position-absolute start-50 translate-middle-x w-100 d-flex justify-content-center mt-3">
-        <div id="filterWrapper" class="input-group shadow rounded-4" style="max-width: 350px;">
+<div id="filterByTerm" class="d-flex align-items-center justify-content-start gap-3 flex-wrap w-100 mt-3 pb-4">
+    <!-- Sort -->
+    <div class="sort d-none d-xl-flex align-items-center gap-2 z-3">
+        <label for="sortField" class="fw-bold mb-0">@I18n.R("Filter_SortBy")</label>
+        <select id="sortField" class="form-select d-inline-block w-auto">
+            <option value="make">Make</option>
+            <option value="year">Year</option>
+            <option value="miles">Miles</option>
+            <option value="price">Price</option>
+        </select>
+
+        <span class="form-check form-check-inline mx-1">
+            <input class="form-check-input me-2" type="checkbox" id="sortDirection">
+            <label class="fw-bold mb-0" for="sortDirection">Desc</label>
+        </span>
+    </div>
+
+    <!-- Search -->
+    <div class="inventory-term-search d-flex justify-content-start">
+        <div id="filterWrapper" class="input-group shadow rounded-4">
             <!-- Search box -->
             <input type="search" id="filterTerm" class="form-control rounded-start-4 rounded-end-4" placeholder="Search within results..." aria-label="Search inventory">
 
@@ -21,28 +37,21 @@
             </button>
         </div>
     </div>
-
-    <!-- Filter results (absolute center, one row below) -->
-    <div class="position-absolute start-50 translate-middle-x text-center" style="top: 50px;">
-        <h8 id="filterResults" class="m-0"></h8>
-    </div>
-
-    <!-- RIGHT: Sort (pushed right with ms-auto) -->
-    <div class="sort d-none d-xl-inline ms-auto d-flex align-items-center gap-2 z-3 mt-3">
-        <label for="sortField" class="fw-bold mb-0">@I18n.R("Filter_SortBy")</label>
-        <select id="sortField" class="form-select d-inline-block w-auto">
-            <option value="make">Make</option>
-            <option value="year">Year</option>
-            <option value="miles">Miles</option>
-            <option value="price">Price</option>
-        </select>
-
-        <span class="form-check form-check-inline mx-1">
-            <input class="form-check-input me-2" type="checkbox" id="sortDirection">
-            <label class="fw-bold mb-0" for="sortDirection">Desc</label>
-        </span>
-    </div>
 </div>
+
+<style>
+    #filterByTerm #filterWrapper {
+        width: min(100%, 350px);
+        left: 5rem;
+    }
+
+    #filterByTerm > .sort {
+        margin: 0;
+        justify-content: flex-start;
+        white-space: nowrap;
+    }
+</style>
+
 <div class="modal fade" id="searchHelpModal" tabindex="-1" aria-labelledby="searchHelpModal" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow">
@@ -66,4 +75,3 @@
         </div>
     </div>
 </div>
-

@@ -24,29 +24,72 @@
 
 
 
-@if (Model.Inventory?.Vehicles.Count() > 0)
-{
-    @Html.Partial("_FilterByTerm");
-}
 <!-- Scrollable wrapper -->
-<div class="inventory-wrapper">
-    <ul id="inventory" class="d-flex flex-wrap justify-content-center gap-3">
-        @{
-            if (Model.Inventory?.Vehicles != null)
-            {
-                foreach (var vehicle in Model.Inventory.Vehicles)
+@{
+    var inventoryAction = (ViewContext.RouteData.Values["action"] ?? string.Empty).ToString();
+    var inventoryRouteType = string.Empty;
+
+    switch (inventoryAction)
+    {
+        case "Suvs":
+            inventoryRouteType = "SUV";
+            break;
+        case "Sedans":
+            inventoryRouteType = "SEDAN";
+            break;
+        case "Wagons":
+            inventoryRouteType = "WAGON";
+            break;
+        case "Trucks":
+            inventoryRouteType = "TRUCK";
+            break;
+        case "Vans":
+            inventoryRouteType = "VAN";
+            break;
+        case "Convertibles":
+            inventoryRouteType = "CONVERTIBLE";
+            break;
+    }
+}
+<div id="inventorySplit" class="inventory-wrapper inventory-split" data-route-type-filter="@inventoryRouteType" data-all-inventory-url="@Url.Action("All", "Inventory")">
+    <div id="inventorySidebarPane" class="inventory-sidebar-pane">
+        @Html.Partial("_InventoryCheckboxFilters", Model)
+    </div>
+
+    <div id="inventorySplitDivider" class="inventory-split-divider" role="separator" aria-orientation="vertical" title="Drag to resize filters">
+        <button type="button" id="inventorySidebarToggle" class="inventory-sidebar-toggle btn btn-sm btn-gradient-grey border-dark shadow" title="Collapse filters">
+            <i class="bi bi-chevron-left"></i>
+        </button>
+    </div>
+
+    <div class="inventory-results-zone">
+        @if (Model.Inventory?.Vehicles.Count() > 0)
+        {
+            @Html.Partial("_FilterByTerm")
+        }
+
+        <div class="inventory-empty-filter shadow-sm p-4 mb-3 text-center">
+            No vehicles match the selected filters.
+        </div>
+
+        <ul id="inventory" class="d-flex flex-wrap justify-content-center gap-3">
+            @{
+                if (Model.Inventory?.Vehicles != null)
                 {
-                    @Html.Partial("_Card", vehicle)
+                    foreach (var vehicle in Model.Inventory.Vehicles)
+                    {
+                        @Html.Partial("_Card", vehicle)
+                    }
+                }
+                else
+                {
+                    <li>
+                        <h6 class="well shadow-lg p-3">No vehicles found....</h6>
+                    </li>
                 }
             }
-            else
-            {
-                <li>
-                    <h6 class="well shadow-lg p-3">No vehicles found....</h6>
-                </li>
-            }
-        }
-    </ul>
+        </ul>
+    </div>
 </div>
 
 <script type="text/javascript">
@@ -103,6 +146,10 @@
         refreshCarLikes();
 
         $('#sortField, #sortDirection').on('change', sortInventory);
+
+        if (window.applyInventoryPanelFilters) {
+            window.applyInventoryPanelFilters();
+        }
     })
 
     function refreshCarLikes() {

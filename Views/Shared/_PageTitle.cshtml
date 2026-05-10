@@ -1,4 +1,4 @@
-﻿<section class="container-fluid page-title position-relative d-flex align-items-center justify-content-center">
+﻿<section class="container-fluid page-title position-relative d-flex align-items-center justify-content-center shadow">
     <!-- Prev button (far left) -->
     <span class=" position-absolute start-0 top-50 translate-middle-y ms-3">
         <a id="btnPrev" href="#" class="btn btn-gradient-grey border-black shadow rounded-4 d-none" type="button" title="Previous vehicle">
@@ -10,20 +10,21 @@
         </a>
     </span>
 
-    <a id="title" href="#" data-bs-toggle="modal" data-bs-target="#filtersModal" class="text-decoration-none d-flex align-items-center justify-content-center gap-2 w-75 position-relative px-2">
+@*<a id="title" href="#" data-bs-toggle="modal" data-bs-target="#filtersModal" class="text-decoration-none d-flex align-items-center justify-content-center gap-2 w-75 position-relative px-2">*@        
+    <div id="title" href="#" class="text-decoration-none d-flex align-items-center justify-content-center gap-2 w-75 position-relative px-2">
         <!-- Centered title (stays centered even with the icon) -->
-        <h5 class="m-0 text-white fancy text-truncate text-center main-title" style="max-width: 85vw;">
+        <h5 class="m-0 text-dark fancy text-truncate text-center main-title" style="max-width: 85vw;">
             @Html.Raw(ViewBag.Title)
         </h5>
 
         <!-- Right-aligned icon on mobile -->
         <i class="bi bi-search d-md-none fs-4 text-white position-absolute end-0 me-2"></i>
-    </a>
+    </div>
 
     <div id="shorts" class="d-none d-md-flex align-items-center gap-1 position-absolute end-0 top-50 translate-middle-y ps-2 mx-3">
-        <a id="loanApplication" href="/Home/Application" class="btn btn-success rounded-4" type="button">💲@I18n.R("Nav_GetPrequalified")</a>
-        <a id="contactUs" href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })" class="btn btn-primary rounded-4" type="button">🏢@I18n.R("Nav_ContactUs")</a>
-        <a id="testDrive" href="@Url.RouteUrl("TestDriveContact")" class="btn btn-warning rounded-4" type="button">📅@I18n.R("Nav_ScheduleTestDrive")</a>
+        <a id="loanApplication" href="/Home/Application" class="btn gradient rounded-4 border-0 shadow" type="button">💲@I18n.R("Nav_GetPrequalified")</a>
+        <a id="contactUs" href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })" class="btn gradient rounded-4 border-0 shadow" type="button">🏢@I18n.R("Nav_ContactUs")</a>
+        <a id="testDrive" href="@Url.RouteUrl("TestDriveContact")" class="btn gradient rounded-4 border-0 shadow" type="button">📅@I18n.R("Nav_ScheduleTestDrive")</a>
     </div>
 
     <!-- Next button (far right) -->
