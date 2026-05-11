@@ -1,5 +1,7 @@
-﻿/*Custom*/
-/* Premium dropdown look */
+/* ==========================================================================
+   Shared: Bootstrap and app-wide overrides
+   ========================================================================== */
+
 .dropdown-menu {
     border-radius: 14px;
     border: 1px solid rgba(255,255,255,.12);
@@ -55,19 +57,6 @@
 
 .swatch-metallica {
     background: linear-gradient( 180deg, #f1f2f4 0%, #cfd3d8 22%, #9aa0a8 45%, #5c626b 70%, #2a2f36 100% );
-}
-
-/* line 1 can stay single-line */
-.opacity-80 {
-    opacity: 0.80 !important;
-}
-
-.opacity-85 {
-    opacity: 0.85 !important;
-}
-
-.opacity-90 {
-    opacity: 0.90 !important;
 }
 
 .opacity-95 {
@@ -234,10 +223,9 @@
     font-size: 0.7rem !important;
 }
 
-.fs-8 {
-    font-size: 0.55rem !important;
-}
-
+/* ==========================================================================
+   Inventory page
+   ========================================================================== */
 
 #filterByTerm {
     position: fixed !important;
@@ -348,6 +336,10 @@
     color: red !important;
 }
 
+/* ==========================================================================
+   Home page
+   ========================================================================== */
+
 .btn-container {
     position: absolute;
     bottom: 6vh;
@@ -410,24 +402,6 @@
         color: white;
     }
 
-.btn-big-gradient-green {
-    font-size: 1.7rem; /* Large text */
-    padding: 1.2rem 2rem; /* Large padding */
-    border-width: 1px;
-    border-radius: 1.6rem;
-    background: #155A96;
-    background: linear-gradient(180deg, #3d8044, #5cbf66);
-    color: white;
-    transition: transform 0.2s ease;
-}
-
-    .btn-big-gradient-green:hover {
-        transform: scale(1.05);
-        background: #155A96;
-        background: linear-gradient(0deg, #3d8044, #5cbf66);
-        color: white;
-    }
-
 .btn-big-gradient {
     font-size: 1.7rem; /* Large text */
     padding: 1.2rem 2rem; /* Large padding */
@@ -474,16 +448,6 @@
     }
 
 
-.btn-gradient-red {
-    border-color: transparent;
-    background: linear-gradient(180deg, red, red);
-    margin-inline-end: 0.15rem;
-}
-
-    .btn-gradient-red:hover {
-        background: linear-gradient(0deg, red, red);
-    }
-
 .btn-gradient-green {
     border-color: transparent;
     background: linear-gradient(180deg, #3d8044, #5cbf66);
@@ -494,16 +458,9 @@
         background: linear-gradient(0deg, #3d8044, #5cbf66);
     }
 
-
-.btn-gradient-yellow {
-    border-color: transparent;
-    background: linear-gradient(180deg, #a16f0d, #f0a40e);
-    margin-inline-end: 0.15rem;
-}
-
-    .btn-gradient-yellow:hover {
-        background: linear-gradient(0deg, #a16f0d, #f0a40e);
-    }
+/* ==========================================================================
+   Details and Majordome pages
+   ========================================================================== */
 
 .detail-badge {
     top: -10px !important;
@@ -605,6 +562,10 @@
 }
 
 
+/* ==========================================================================
+   Schedule and contact helpers
+   ========================================================================== */
+
 .open-hours {
     max-width: 400px;
     border: 1px solid #ddd;
@@ -685,28 +646,8 @@
     text-align: right;
 }
 
-.h-5 {
-    height: 5% !important;
-}
-
 .h-10 {
     height: 10% !important;
-}
-
-.h-15 {
-    height: 15% !important;
-}
-
-.h-20 {
-    height: 20% !important;
-}
-
-.vh-25 {
-    height: 25vh !important;
-}
-
-.vh-50 {
-    height: 50vh !important;
 }
 
 .vh-75 {
@@ -739,22 +680,6 @@
 
 .w-40 {
     width: 40% !important;
-}
-
-.w-45 {
-    width: 45% !important;
-}
-
-.start-25 {
-    left: 25% !important;
-}
-
-.start-75 {
-    left: 75% !important;
-}
-
-.top-90 {
-    top: 90% !important;
 }
 
 .form-control:focus {
@@ -798,7 +723,7 @@ input::placeholder {
     background-color: #f5f5f5;
     border: 1px solid #e3e3e3;
     border-radius: 4px;
-    @ -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .05);
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .05);
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, .05);
 }
 
@@ -978,15 +903,6 @@ li.search-field {
     vertical-align: middle !important;
 }
 
-.td-v-center {
-    vertical-align: middle !important;
-}
-
-.td-t-center {
-    text-align: center;
-}
-
-
 .chosen-choices {
     border: 2px solid rgba(0, 0, 0, 0.4) !important;
 }
@@ -1021,6 +937,10 @@ li.search-field {
 .offcanvas-top-fixed-center {
     display: none;
 }
+/* ==========================================================================
+   Layout shell and base typography
+   ========================================================================== */
+
 /*Site*/
 html, body {
     font-family: "Lato", sans-serif;
@@ -1161,15 +1081,6 @@ a, u {
 
 .text-shadow-small {
     text-shadow: .75px .75px 8px #8D8484;
-}
-
-.shadow-3d {
-    background-color: #6c757d; /* Bootstrap's gray (btn-secondary) */
-    color: #fff;
-    border: none;
-    box-shadow: 0 4px 0 #545b62, 0 6px 12px rgba(0, 0, 0, 0.2);
-    border-bottom: 4px solid #545b62;
-    transition: all 0.1s ease-in-out;
 }
 
 /*---------------------
@@ -1317,22 +1228,8 @@ a, u {
             gap: .4rem;
         }
 
-/* ===== Toggle rows (Inventory/About/Schedule) ===== */
-.menu-acc-toggle {
-    display: flex;
-    align-items: center;
-    gap: .5rem;
-    width: 100%;
-    padding: .75rem .95rem;
-    border-radius: 1rem;
-    text-decoration: none;
-    font-weight: 600;
-    line-height: 1;
-    user-select: none;
-}
-
 /* ===== Simple links (non-collapsible) ===== */
-.offcanvas-menu-wrapper .main-menu > li > a:not(.menu-acc-toggle) {
+.offcanvas-menu-wrapper .main-menu > li > a {
     display: block;
     padding: .7rem .95rem;
     border-radius: 1rem;
@@ -1340,7 +1237,7 @@ a, u {
     font-weight: 600;
 }
 
-    .offcanvas-menu-wrapper .main-menu > li > a:not(.menu-acc-toggle):hover {
+    .offcanvas-menu-wrapper .main-menu > li > a:hover {
         filter: brightness(1.05);
     }
 
@@ -1584,7 +1481,7 @@ a, u {
         margin-top: 7rem;
     }
 
-    .btn-big-gradient, .btn-big-gradient-red, .btn-big-gradient-yellow, .btn-big-gradient-green {
+    .btn-big-gradient, .btn-big-gradient-yellow {
         transform: scale(0.80);
         font-size: 1.4rem;
         padding: 1rem 1rem;
@@ -1625,7 +1522,7 @@ a, u {
         margin-top: 2rem;
     }
 
-    .btn-big-gradient, .btn-big-gradient-red, .btn-big-gradient-yellow, .btn-big-gradient-green {
+    .btn-big-gradient, .btn-big-gradient-yellow {
         transform: scale(0.80);
     }
 
@@ -1633,17 +1530,8 @@ a, u {
         height: 325px;
     }
 
-    .hero__text {
-        padding-top: 0;
-        margin-bottom: 40px;
-    }
-
     .header__top {
         display: inline;
-    }
-
-    .header__nav {
-        display: none;
     }
 
     .header .container {
@@ -1696,7 +1584,7 @@ a, u {
             font-size: 1rem;
         }
 
-    .btn-big-gradient, .btn-big-gradient-red, .btn-big-gradient-yellow, .btn-big-gradient-green {
+    .btn-big-gradient, .btn-big-gradient-yellow {
         transform: scale(0.80);
         font-size: 1.4rem;
         padding: 1rem 1rem;
@@ -1738,11 +1626,6 @@ a, u {
         background: linear-gradient(0deg, rgba(21, 90, 150, 1) 20%, rgba(30, 115, 190, 1) 80%);
     }
 
-    .searchTop {
-        flex-direction: column;
-        align-items: center !important;
-    }
-
     .inventory-wrapper {
         margin-top: 2rem;
     }
@@ -1757,10 +1640,6 @@ a, u {
     }
 
     .header__top {
-        display: none;
-    }
-
-    .header__nav {
         display: none;
     }
 
@@ -1848,114 +1727,6 @@ a, u {
             top: 5vh;
         }
 
-    .offcanvas__menu {
-        display: none;
-    }
-
-    .slicknav_btn {
-        display: none;
-    }
-
-    .slicknav_menu {
-        background: transparent;
-        padding: 0;
-    }
-
-    .slicknav_nav ul {
-        margin-left: 25px;
-    }
-
-    .slicknav_nav .slicknav_row,
-    .slicknav_nav a {
-        padding: 7px 0;
-        margin: 0;
-        color: #353535;
-        font-weight: 600;
-    }
-
-        .slicknav_nav .slicknav_row:hover {
-            border-radius: 0;
-            background: transparent;
-            color: #353535;
-        }
-
-        .slicknav_nav a:hover {
-            border-radius: 0;
-            background: transparent;
-            color: #353535;
-        }
-
-    .slicknav_nav {
-        display: block !important;
-        font-size: 1rem;
-    }
-
-    .offcanvas__logo {
-        margin-bottom: 30px;
-    }
-
-    .offcanvas__widget {
-        margin-bottom: 30px;
-    }
-
-        .offcanvas__widget a {
-            font-size: 15px;
-            color: #353535;
-            margin-right: 20px;
-            display: inline-block;
-        }
-
-        .offcanvas__widget .primary-btn {
-            color: #ffffff;
-        }
-
-    .offcanvas__widget__add {
-        margin-bottom: 20px;
-    }
-
-        .offcanvas__widget__add li {
-            font-size: 15px;
-            color: #353535;
-            margin-right: 35px;
-            list-style: none;
-            line-height: 30px;
-        }
-
-            .offcanvas__widget__add li:last-child {
-                margin-right: 0;
-            }
-
-            .offcanvas__widget__add li i {
-                font-size: 18px;
-                color: #353535;
-                margin-right: 6px;
-            }
-
-    .offcanvas__social a {
-        display: inline-block;
-        font-size: 15px;
-        color: #353535;
-        margin-right: 16px;
-    }
-
-        .offcanvas__social a:last-child {
-            margin-right: 0;
-        }
-
-    .offcanvas__phone__num {
-        margin-bottom: 20px;
-    }
-
-        .offcanvas__phone__num i {
-            color: #353535;
-            margin-right: 6px;
-            font-size: 15px;
-        }
-
-        .offcanvas__phone__num span {
-            font-size: 15px;
-            color: #353535;
-        }
 }
 
 /* Small Device = 320px */
@@ -1969,7 +1740,7 @@ a, u {
         width: 75% !important;
     }
 
-    .btn-big-gradient, .btn-big-gradient-red, .btn-big-gradient-yellow, .btn-big-gradient-green {
+    .btn-big-gradient, .btn-big-gradient-yellow {
         font-size: 1.2rem;
     }
 
@@ -1995,78 +1766,65 @@ a, u {
    (add at bottom of Site.css)
    =========================================== */
 
-    @media (max-width: 576px) {
+    .offcanvas-menu-wrapper.p-5 {
+        padding: 1rem !important;
+    }
 
-        /* reduce that p-5 on mobile */
-        .offcanvas-menu-wrapper.p-5 {
-            padding: 1rem !important;
-        }
+    #mobileMenuOffcanvas .offcanvas-body {
+        overflow-x: hidden !important;
+    }
 
-        /* stop horizontal overflow */
-        #mobileMenuOffcanvas .offcanvas-body {
-            overflow-x: hidden !important;
-        }
+    #mobileMenuOffcanvas .offcanvas-body {
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
 
-        /* make sure the menu can scroll vertically if it gets tall */
-        #mobileMenuOffcanvas .offcanvas-body {
-            overflow-y: auto !important;
-            -webkit-overflow-scrolling: touch;
-        }
+    #mobileMenuOffcanvas .btn,
+    #mobileMenuOffcanvas a.btn {
+        max-width: 100% !important;
+        white-space: normal !important;
+    }
 
-        /* keep buttons from pushing outside the viewport */
-        #mobileMenuOffcanvas .btn,
-        #mobileMenuOffcanvas a.btn {
-            max-width: 100% !important;
-            white-space: normal !important; /* allow wrap */
-        }
+    #mobileMenuOffcanvas a[data-bs-toggle="collapse"] span {
+        min-width: 0 !important;
+        flex: 1 1 auto !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
 
-        /* the collapsible header row: allow the label to shrink and ellipsis */
-        #mobileMenuOffcanvas a[data-bs-toggle="collapse"] span {
-            min-width: 0 !important;
-            flex: 1 1 auto !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
-            white-space: nowrap !important;
-        }
+    #mobileMenuOffcanvas a[data-bs-toggle="collapse"] i.bi-chevron-down {
+        flex: 0 0 auto;
+    }
 
-        /* make the chevron never wrap */
-        #mobileMenuOffcanvas a[data-bs-toggle="collapse"] i.bi-chevron-down {
-            flex: 0 0 auto;
-        }
+    #mobileMenuOffcanvas ul.collapse.list-unstyled.mt-2.ms-3.p-2 {
+        margin-left: .75rem !important;
+        padding: .5rem !important;
+    }
 
-        /* submenu: reduce indent so it doesn't squeeze content */
-        #mobileMenuOffcanvas ul.collapse.list-unstyled.mt-2.ms-3.p-2 {
-            margin-left: .75rem !important;
-            padding: .5rem !important;
-        }
+    #mobileMenuOffcanvas ul.collapse .btn {
+        display: flex !important;
+        align-items: center;
+        gap: .5rem;
+    }
 
-        /* submenu buttons: make text truncate nicely on 1 line */
-        #mobileMenuOffcanvas ul.collapse .btn {
-            display: flex !important;
-            align-items: center;
-            gap: .5rem;
-        }
+    #mobileMenuOffcanvas ul.collapse .btn {
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
 
-        #mobileMenuOffcanvas ul.collapse .btn {
-            white-space: nowrap !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
-        }
+    #mobileMenuOffcanvas .main-menu > li.d-flex {
+        flex-wrap: wrap !important;
+    }
 
-        /* top row: logo + phone should wrap cleanly */
-        #mobileMenuOffcanvas .main-menu > li.d-flex {
-            flex-wrap: wrap !important;
-        }
+    #mobileMenuOffcanvas .main-menu > li.d-flex a.btn {
+        width: 100% !important;
+        justify-content: center !important;
+    }
 
-            #mobileMenuOffcanvas .main-menu > li.d-flex a.btn {
-                width: 100% !important; /* phone button full width */
-                justify-content: center !important;
-            }
-
-        /* shrink icons a touch for tight screens */
-        #mobileMenuOffcanvas .bi {
-            font-size: 1rem;
-        }
+    #mobileMenuOffcanvas .bi {
+        font-size: 1rem;
     }
 }
 

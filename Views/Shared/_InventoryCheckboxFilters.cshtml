@@ -47,6 +47,61 @@
     </section>
 }
 
+@helper RangePanel(string panelId, string title, string icon, string field, decimal min, decimal max, decimal step, string format)
+{
+    if (max <= 0)
+    {
+        return;
+    }
+
+    var minText = min.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+    var maxText = max.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+    var stepText = step.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+
+    <section class="inventory-filter-panel inventory-range-filter"
+             data-range-field="@field"
+             data-range-min="@minText"
+             data-range-max="@maxText"
+             data-range-format="@format">
+        <button class="inventory-filter-panel-toggle collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#@panelId" aria-expanded="false" aria-controls="@panelId">
+            <span class="inventory-filter-panel-title">
+                <i class="bi @icon"></i>
+                <span>@title</span>
+            </span>
+        </button>
+        <div id="@panelId" class="collapse">
+            <div class="inventory-filter-panel-body inventory-range-panel-body">
+                <div class="inventory-range-values">
+                    <span>Max</span>
+                    <output class="inventory-range-output shadow" for="@($"{panelId}Max")" data-range-value-label="@field"></output>
+                </div>
+                <input id="@($"{panelId}Max")"
+                       class="form-range inventory-range-input"
+                       type="range"
+                       min="@minText"
+                       max="@maxText"
+                       step="@stepText"
+                       value="@maxText"
+                       data-range-field="@field" />
+            </div>
+        </div>
+    </section>
+}
+
+@{
+    var vehicles = Model.Inventory?.Vehicles ?? Enumerable.Empty<GTX.Models.GTX>();
+    var yearValues = vehicles.Select(v => (decimal)v.Year).ToArray();
+    var mileValues = vehicles.Select(v => (decimal)v.Mileage).ToArray();
+    var priceValues = vehicles.Select(v => Convert.ToDecimal(v.InternetPrice)).ToArray();
+
+    var minYear = yearValues.Any() ? yearValues.Min() : 0;
+    var maxYear = yearValues.Any() ? yearValues.Max() : 0;
+    var minMiles = 0m;
+    var maxMiles = mileValues.Any() ? Math.Ceiling(mileValues.Max() / 1000m) * 1000m : 0;
+    var minPrice = 0m;
+    var maxPrice = priceValues.Any() ? Math.Ceiling(priceValues.Max() / 1000m) * 1000m : 0;
+}
+
 <aside id="inventoryFilterRail" class="inventory-filter-rail">
     <div class="inventory-filter-shell">
         <div class="inventory-filter-stats text-dark">
@@ -61,6 +116,7 @@
         </div>
 
         <div class="inventory-filter-scroll">
+            @RangePanel("invFilterYearRange", "Year", "bi-calendar3", "year", minYear, maxYear, 1m, "year")
             @FilterPanel("invFilterMakes", I18n.R("All_Makes"), "bi-building", "make", Model.Filters?.Makes)
             @FilterPanel("invFilterModels", I18n.R("All_Models"), "bi-car-front", "model", Model.Filters?.Models, "Choose a make to see available models.")
             @FilterPanel("invFilterBody", I18n.R("All_Body"), "bi-truck-front", "body", Model.Filters?.BodyTypes)
@@ -69,6 +125,8 @@
             @FilterPanel("invFilterDrive", I18n.R("All_Drive"), "bi-gear", "drive", Model.Filters?.DriveTrains)
             @FilterPanel("invFilterTransmission", I18n.R("All_Transm"), "bi-shuffle", "transmission", Model.Filters?.Transmissions)
             @FilterPanel("invFilterCylinders", I18n.R("All_Cylinders"), "bi-speedometer", "cylinders", Model.Filters?.Cylinders)
+            @RangePanel("invFilterMilesRange", I18n.R("All_Miles"), "bi-speedometer2", "miles", minMiles, maxMiles, 1000m, "number")
+            @RangePanel("invFilterPriceRange", I18n.R("All_Price"), "bi-currency-dollar", "price", minPrice, maxPrice, 1000m, "currency")
         </div>
     </div>
 </aside>
@@ -346,6 +404,77 @@
     .inventory-filter-panel-body {
         padding: .2rem .55rem .7rem;
         background: #f8fafc;
+    }
+
+    .inventory-range-panel-body {
+        padding-top: .65rem;
+    }
+
+    .inventory-range-values {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .5rem;
+        margin-bottom: .4rem;
+        color: #1f2937;
+        font-size: .82rem;
+        font-weight: 900;
+    }
+
+    .inventory-range-output {
+        min-width: 5.5rem;
+        padding: .12rem .45rem;
+        border-radius: 999px;
+        background: #e5e7eb;
+        color: #1f2937;
+        text-align: center;
+    }
+
+    .inventory-range-input {
+        margin-bottom: .55rem;
+        cursor: pointer;
+    }
+
+    .inventory-range-input::-webkit-slider-thumb {
+        background-color: #155a96;
+    }
+
+    .inventory-range-input::-moz-range-thumb {
+        background-color: #155a96;
+    }
+
+    html.theme-grey .inventory-range-input::-webkit-slider-thumb,
+    html.theme-dark .inventory-range-input::-webkit-slider-thumb {
+        background-color: #757575;
+    }
+
+    html.theme-grey .inventory-range-input::-moz-range-thumb,
+    html.theme-dark .inventory-range-input::-moz-range-thumb {
+        background-color: #757575;
+    }
+
+    html.theme-pink .inventory-range-input::-webkit-slider-thumb {
+        background-color: #c52674;
+    }
+
+    html.theme-pink .inventory-range-input::-moz-range-thumb {
+        background-color: #c52674;
+    }
+
+    html.theme-deep-purple .inventory-range-input::-webkit-slider-thumb {
+        background-color: #3a145e;
+    }
+
+    html.theme-deep-purple .inventory-range-input::-moz-range-thumb {
+        background-color: #3a145e;
+    }
+
+    html.theme-metallica .inventory-range-input::-webkit-slider-thumb {
+        background-color: #747d88;
+    }
+
+    html.theme-metallica .inventory-range-input::-moz-range-thumb {
+        background-color: #747d88;
     }
 
     .inventory-check-row {

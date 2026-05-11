@@ -168,8 +168,100 @@ function calculateMonthlyPayment(P, rate, month) {
         return selected;
     }
 
+    function parseInventoryNumber(value) {
+        var parsed = parseFloat(String(value == null ? "" : value).replace(/[^0-9.\-]/g, ""));
+        return isNaN(parsed) ? null : parsed;
+    }
+
     function normalizeInventoryValue(value) {
         return $.trim(String(value || "")).toUpperCase();
+    }
+
+    function formatInventoryRangeValue(value, format) {
+        var number = parseInventoryNumber(value);
+
+        if (number === null) return "";
+
+        if (format === "currency") {
+            return "$" + Math.round(number).toLocaleString();
+        }
+
+        if (format === "number") {
+            return Math.round(number).toLocaleString();
+        }
+
+        return String(Math.round(number));
+    }
+
+    function selectedRangeByField() {
+        var ranges = {};
+
+        $(".inventory-range-filter").each(function () {
+            var $panel = $(this);
+            var field = $panel.data("range-field");
+            var minLimit = parseInventoryNumber($panel.data("range-min"));
+            var maxLimit = parseInventoryNumber($panel.data("range-max"));
+            var max = parseInventoryNumber($panel.find(".inventory-range-input").val());
+
+            if (!field || max === null || minLimit === null || maxLimit === null) return;
+
+            ranges[field] = {
+                min: minLimit,
+                max: max,
+                minLimit: minLimit,
+                maxLimit: maxLimit,
+                format: $panel.data("range-format")
+            };
+        });
+
+        return ranges;
+    }
+
+    function inventoryRangeMatches($vehicle, ranges) {
+        var matched = true;
+
+        $.each(ranges, function (field, range) {
+            var value = parseInventoryNumber($vehicle.data(field));
+
+            if (value === null || value > range.max) {
+                matched = false;
+                return false;
+            }
+        });
+
+        return matched;
+    }
+
+    function syncInventoryRangeLabels() {
+        $(".inventory-range-filter").each(function () {
+            var $panel = $(this);
+            var field = $panel.data("range-field");
+            var format = $panel.data("range-format");
+            var maxLimit = parseInventoryNumber($panel.data("range-max"));
+            var $input = $panel.find(".inventory-range-input");
+            var max = parseInventoryNumber($input.val());
+
+            if (max === null || maxLimit === null) return;
+
+            if (max > maxLimit) {
+                max = maxLimit;
+                $input.val(max);
+            }
+
+            var maxText = formatInventoryRangeValue(max, format);
+
+            $panel.find("[data-range-value-label='" + field + "']").text(maxText);
+        });
+    }
+
+    function resetInventoryRanges() {
+        $(".inventory-range-filter").each(function () {
+            var $panel = $(this);
+
+            $panel.find(".inventory-range-input").val($panel.data("range-max"));
+        });
+
+        syncInventoryRangeLabels();
     }
 
     function inventoryTermMatches($vehicle, filter) {
@@ -295,7 +387,7 @@ function calculateMonthlyPayment(P, rate, month) {
         $("[data-bs-target='#invFilterModels'] .inventory-filter-panel-count").text(visibleModels);
     }
 
-    function updateInventoryFilterCounts(selected, filter) {
+    function updateInventoryFilterCounts(selected, filter, ranges) {
         $(".inventory-check-hit").each(function () {
             var $count = $(this);
             var field = $count.data("count-field");
@@ -309,6 +401,7 @@ function calculateMonthlyPayment(P, rate, month) {
 
                 if (normalizeInventoryValue($vehicle.data(field)) === value &&
                     inventoryCheckboxMatches($vehicle, scopedSelected) &&
+                    inventoryRangeMatches($vehicle, ranges) &&
                     inventoryTermMatches($vehicle, filter) &&
                     inventoryLikedMatches($vehicle) &&
                     inventoryLastMatches($vehicle)) {
@@ -442,15 +535,18 @@ function calculateMonthlyPayment(P, rate, month) {
 
     window.applyInventoryPanelFilters = function () {
         var selected = selectedByField();
+        var ranges = selectedRangeByField();
         var filter = normalizeInventoryValue($("#filterTerm").val());
         var visibleCount = 0;
 
+        syncInventoryRangeLabels();
         syncInventoryModelPanel(selected);
         selected = selectedByField();
 
         $("#inventory > li.card").each(function () {
             var $vehicle = $(this);
             var isMatch = inventoryCheckboxMatches($vehicle, selected) &&
+                inventoryRangeMatches($vehicle, ranges) &&
                 inventoryTermMatches($vehicle, filter) &&
                 inventoryLikedMatches($vehicle) &&
                 inventoryLastMatches($vehicle);
@@ -472,7 +568,7 @@ function calculateMonthlyPayment(P, rate, month) {
             localStorage.removeItem("matchedStocks");
         }
 
-        updateInventoryFilterCounts(selected, filter);
+        updateInventoryFilterCounts(selected, filter, ranges);
     };
 
     $(function () {
@@ -480,7 +576,14 @@ function calculateMonthlyPayment(P, rate, month) {
 
         initInventorySplitPanel();
 
+        syncInventoryRangeLabels();
+
         $(document).on("change", ".inventory-filter-check", window.applyInventoryPanelFilters);
+
+        $(document).on("input change", ".inventory-range-input", function () {
+            syncInventoryRangeLabels();
+            window.applyInventoryPanelFilters();
+        });
 
         $(document).on("input", "#filterTerm", function () {
             window.setTimeout(window.applyInventoryPanelFilters, 0);
@@ -500,6 +603,7 @@ function calculateMonthlyPayment(P, rate, month) {
             }
 
             $(".inventory-filter-check").prop("checked", false);
+            resetInventoryRanges();
             window.applyInventoryPanelFilters();
         });
 
