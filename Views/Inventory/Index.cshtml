@@ -52,8 +52,20 @@
     }
 }
 <div id="inventorySplit" class="inventory-wrapper inventory-split" data-route-type-filter="@inventoryRouteType" data-all-inventory-url="@Url.Action("All", "Inventory")">
-    <div id="inventorySidebarPane" class="inventory-sidebar-pane">
-        @Html.Partial("_InventoryCheckboxFilters", Model)
+    <div id="inventorySidebarPane" class="inventory-sidebar-pane offcanvas offcanvas-top inventory-filter-offcanvas" tabindex="-1" aria-labelledby="inventoryFiltersLabel">
+        <div class="offcanvas-header inventory-filter-offcanvas-header d-lg-none">
+            <div class="inventory-filter-offcanvas-title-wrap">
+                <h5 class="offcanvas-title" id="inventoryFiltersLabel">
+                    <i class="bi bi-sliders2 me-2"></i>
+                    <span id="inventoryMobileFilterCount">0</span>
+                    <span>active filter(s)</span>
+                </h5>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body inventory-filter-offcanvas-body">
+            @Html.Partial("_InventoryCheckboxFilters", Model)
+        </div>
     </div>
 
     <div id="inventorySplitDivider" class="inventory-split-divider" role="separator" aria-orientation="vertical" title="Drag to resize filters">
@@ -65,6 +77,22 @@
     <div class="inventory-results-zone">
         @if (Model.Inventory?.Vehicles.Count() > 0)
         {
+            <div class="inventory-mobile-filter-bar d-lg-none">
+                <button type="button"
+                        class="btn inventory-mobile-filter-btn"
+                        data-bs-toggle="offcanvas"
+                        data-bs-target="#inventorySidebarPane"
+                        aria-controls="inventorySidebarPane">
+                    <span class="inventory-mobile-filter-title">
+                        <i class="bi bi-sliders2"></i>
+                        <span>Filters</span>
+                    </span>
+                    <span class="inventory-mobile-filter-meta">
+                        <span id="inventoryMobileMatchCount">0</span> vehicles
+                        <span id="inventoryMobileActiveBadge" class="inventory-mobile-active-badge">0</span>
+                    </span>
+                </button>
+            </div>
             @Html.Partial("_FilterByTerm")
         }
 

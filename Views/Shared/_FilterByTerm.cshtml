@@ -1,4 +1,4 @@
-<div id="filterByTerm" class="d-flex align-items-center justify-content-start gap-3 flex-wrap w-100 mt-3 pb-4">
+<div id="filterByTerm" class="d-flex align-items-center justify-content-center gap-3 flex-wrap w-100 mt-3 pb-4">
     <!-- Sort -->
     <div class="sort d-none d-xl-flex align-items-center gap-2 z-3">
         <label for="sortField" class="fw-bold mb-0">@I18n.R("Filter_SortBy")</label>
@@ -16,13 +16,13 @@
     </div>
 
     <!-- Search -->
-    <div class="inventory-term-search d-flex justify-content-start">
+    <div class="inventory-term-search d-flex justify-content-center">
         <div id="filterWrapper" class="input-group shadow rounded-4">
             <!-- Search box -->
             <input type="search" id="filterTerm" class="form-control rounded-start-4 rounded-end-4" placeholder="Search within results..." aria-label="Search inventory">
 
             <!-- Help -->
-            <button class="filterHelp input-group-text btn btn-gradient-grey border-start-0 rounded-0 border-dark-subtle" data-bs-toggle="modal" data-bs-target="#searchHelpModal">
+            <button class="filterHelp d-none input-group-text btn btn-gradient-grey border-start-0 rounded-0 border-dark-subtle" data-bs-toggle="modal" data-bs-target="#searchHelpModal">
                 <i id="filterHelp" class="bi-question-circle" title="Help" style="cursor:pointer;"></i>
             </button>
 
@@ -42,7 +42,6 @@
 <style>
     #filterByTerm #filterWrapper {
         width: min(100%, 350px);
-        left: 5rem;
     }
 
     #filterByTerm > .sort {

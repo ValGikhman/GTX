@@ -103,23 +103,12 @@
 
                     <li><hr class="my-2"></li>
 
-                    <!-- Inventory (collapsible header = bold black pill) -->
+                    <!-- Inventory -->
                     <li class="mb-2">
-                        <a class="btn btn-gradient-grey rounded-3 w-100 d-flex align-items-center justify-content-between text-dark fw-bold shadow" data-bs-toggle="collapse" href="#menuInventoryMobile" role="button" aria-expanded="false" aria-controls="menuInventoryMobile">
-                            <span><i class="bi bi-car-front me-2"></i>@I18n.R("Nav_Inventory")</span>
-                            <i class="bi bi-chevron-down"></i>
+                        <a class="btn btn-gradient-grey rounded-3 w-100 d-flex align-items-center justify-content-center gap-2 text-dark fw-bold shadow" href="~/Inventory/Index">
+                            <i class="bi bi-car-front"></i>
+                            <span>@I18n.R("Nav_Inventory")</span>
                         </a>
-                        <!-- Submenu (indented list-group look) -->
-@*                        <ul id="menuInventoryMobile" class="collapse list-unstyled mt-2 ms-3 p-2" data-bs-parent="#mobileMenuOffcanvas">
-                            <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_All"), "All", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_SUVs"), "Suvs", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_Trucks"), "Trucks", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_Vans"), "Vans", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_Hatchbacks"), "Hatchbacks", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_Coupes"), "Coupes", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_Sedans"), "Sedans", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_Convertibles"), "Convertibles", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                        </ul>*@
                     </li>
 
                     <!-- About (collapsible) -->
@@ -145,23 +134,24 @@
                         </a>
 
                         <div id="menuScheduleMobile" class="collapse mt-2" data-bs-parent="#mobileMenuOffcanvas">
-                            <div class="text-center py-2">
-                                <div class="fw-bold text-dark">9516 Princeton Glendale Rd</div>
-                                <div class="text-secondary small">West Chester Township, OH 45011</div>
+                            <div class="mobile-menu-address-card">
+                                <div class="mobile-menu-address-text">
+                                    <div class="fw-bold text-dark">9516 Princeton Glendale Rd</div>
+                                    <div class="text-secondary small">West Chester Township, OH 45011</div>
+                                </div>
+                                <button type="button"
+                                        class="btn btn-gradient-grey border-dark rounded-3 shadow-sm mobile-menu-copy-address"
+                                        data-copy-address="9516 Princeton Glendale Rd, West Chester Township, OH 45011"
+                                        aria-label="Copy address">
+                                    <i class="bi bi-copy"></i>
+                                    <span>Copy address</span>
+                                </button>
                             </div>
 
                             <div class="border rounded-3 p-2 bg-light">
                                 @Html.Partial("_ScheduleMobile")
                             </div>
                         </div>
-                    </li>
-
-                    <!-- Search (primary style) -->
-                    <li class="mb-2 shadow-sm">
-                        <a class="btn btn-dark w-100 rounded-3 d-flex align-items-center justify-content-center gap-2 shadow" href="#" onclick="openFiltersFromOffcanvas(event)">
-                            <i class="bi bi-search"></i>
-                            <span class="fw-semibold">@I18n.R("All_SearchInventory")</span>
-                        </a>
                     </li>
 
                     <!-- Prequalified (success-ish outline) -->
@@ -234,11 +224,6 @@
                     </li>
                     <li id="fakeSearch" class="fake-input hand-pointer d-none" data-bs-toggle="modal" data-bs-target="#filtersModal">
                         @Html.Partial("_SearchByTerm")
-                    </li>
-                    <li class="d-xxl-none">
-                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#filtersModal">
-                            <i class="bi bi-search"></i>
-                        </a>
                     </li>
                 </ul>
             </nav>
@@ -621,5 +606,52 @@
             bootstrap.Modal.getOrCreateInstance(modalEl).show();
         });
     }
+
+    function copyTextToClipboard(text) {
+        if (navigator.clipboard && window.isSecureContext) {
+            return navigator.clipboard.writeText(text);
+        }
+
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.setAttribute("readonly", "");
+        textArea.style.position = "fixed";
+        textArea.style.top = "-1000px";
+        textArea.style.left = "-1000px";
+        document.body.appendChild(textArea);
+        textArea.select();
+
+        try {
+            document.execCommand("copy");
+            return Promise.resolve();
+        } catch (error) {
+            return Promise.reject(error);
+        } finally {
+            document.body.removeChild(textArea);
+        }
+    }
+
+    document.addEventListener("click", function (event) {
+        const button = event.target.closest(".mobile-menu-copy-address");
+        if (!button) return;
+
+        const address = button.getAttribute("data-copy-address");
+        const label = button.querySelector("span");
+        const originalText = label ? label.textContent : "";
+
+        copyTextToClipboard(address).then(function () {
+            if (label) label.textContent = "Copied";
+            button.classList.add("active");
+            window.setTimeout(function () {
+                if (label) label.textContent = originalText || "Copy address";
+                button.classList.remove("active");
+            }, 1400);
+        }).catch(function () {
+            if (label) label.textContent = "Copy failed";
+            window.setTimeout(function () {
+                if (label) label.textContent = originalText || "Copy address";
+            }, 1400);
+        });
+    });
 </script>
 

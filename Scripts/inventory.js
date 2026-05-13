@@ -422,7 +422,38 @@ function calculateMonthlyPayment(P, rate, month) {
         var title = visibleCount + " vehicle(s)";
 
         $("#inventoryFilterCount").text(visibleCount);
+        $("#inventoryMobileMatchCount").text(visibleCount);
         $(".main-title").text(title);
+    }
+
+    function activeInventoryFilterCount(selected, ranges, filter) {
+        var count = filter ? 1 : 0;
+
+        $.each(selected, function (_, values) {
+            count += values.length;
+        });
+
+        $.each(ranges, function (_, range) {
+            if (range.max < range.maxLimit) {
+                count++;
+            }
+        });
+
+        if ($("#filterLiked").hasClass("bi-heart-fill")) count++;
+        if ($("#filterLast").hasClass("bi-journal-album")) count++;
+
+        return count;
+    }
+
+    function syncInventoryMobileFilterState(visibleCount, selected, ranges, filter) {
+        var activeCount = activeInventoryFilterCount(selected, ranges, filter);
+
+        $("#inventoryMobileMatchCount").text(visibleCount);
+        $("#inventoryMobileFilterCount").text(activeCount);
+        $("#inventoryMobileActiveBadge")
+            .text(activeCount)
+            .toggleClass("is-active", activeCount > 0);
+        $(".inventory-mobile-filter-btn").toggleClass("has-active-filters", activeCount > 0);
     }
 
     function clampInventorySidebarWidth(width) {
@@ -457,12 +488,15 @@ function calculateMonthlyPayment(P, rate, month) {
         return touch ? touch.clientX : (changedTouch ? changedTouch.clientX : event.clientX);
     }
 
-    function initInventorySplitPanel() {
-        var $split = $("#inventorySplit");
-        var $divider = $("#inventorySplitDivider");
-        var $toggle = $("#inventorySidebarToggle");
+    function isInventoryDesktopLayout() {
+        return !window.matchMedia || window.matchMedia("(min-width: 992px)").matches;
+    }
 
-        if (!$split.length || !$divider.length || !$toggle.length) return;
+    function syncInventorySplitForViewport($split) {
+        if (!isInventoryDesktopLayout()) {
+            $split.removeClass("inventory-sidebar-collapsed");
+            return;
+        }
 
         var savedWidth = parseInt(localStorage.getItem("inventorySidebarWidth"), 10);
         if (savedWidth) {
@@ -470,19 +504,31 @@ function calculateMonthlyPayment(P, rate, month) {
         }
 
         setInventorySidebarState($split, localStorage.getItem("inventorySidebarCollapsed") === "1");
+    }
+
+    function initInventorySplitPanel() {
+        var $split = $("#inventorySplit");
+        var $divider = $("#inventorySplitDivider");
+        var $toggle = $("#inventorySidebarToggle");
+
+        if (!$split.length || !$divider.length || !$toggle.length) return;
+
+        syncInventorySplitForViewport($split);
 
         $toggle.off("click.inventorySplit").on("click.inventorySplit", function (event) {
             event.preventDefault();
             event.stopPropagation();
+            if (!isInventoryDesktopLayout()) return;
             setInventorySidebarState($split, !$split.hasClass("inventory-sidebar-collapsed"));
         });
 
         $divider.off(".inventorySplit").on("dblclick.inventorySplit", function () {
+            if (!isInventoryDesktopLayout()) return;
             setInventorySidebarState($split, !$split.hasClass("inventory-sidebar-collapsed"));
         });
 
         $divider.on("mousedown.inventorySplit touchstart.inventorySplit", function (event) {
-            if ($(event.target).closest("#inventorySidebarToggle").length || $(window).width() < 992) return;
+            if ($(event.target).closest("#inventorySidebarToggle").length || !isInventoryDesktopLayout()) return;
 
             var startX = pointerClientX(event);
             var startWidth = $("#inventorySidebarPane").outerWidth();
@@ -511,11 +557,7 @@ function calculateMonthlyPayment(P, rate, month) {
         });
 
         $(window).off("resize.inventorySplit").on("resize.inventorySplit", function () {
-            var currentWidth = parseInt(localStorage.getItem("inventorySidebarWidth"), 10);
-
-            if (currentWidth) {
-                setInventorySidebarWidth($split, currentWidth);
-            }
+            syncInventorySplitForViewport($split);
         });
     }
 
@@ -556,6 +598,7 @@ function calculateMonthlyPayment(P, rate, month) {
         });
 
         syncInventoryVisibleCount(visibleCount);
+        syncInventoryMobileFilterState(visibleCount, selected, ranges, filter);
         $(".inventory-empty-filter").toggle(visibleCount === 0);
 
         var stocks = $(".card:visible").map(function () {
