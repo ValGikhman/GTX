@@ -23,13 +23,13 @@ function applyTerm(term) {
 }
 
 function applyFilterTerm(term) {
-    const filter = term.trim().toUpperCase();
+    const rawTerm = (term || "").toString();
+    const filter = rawTerm.trim().toUpperCase();
+    const terms = filter.split(/\s+/).filter(Boolean);
 
     if (filter === undefined || filter === "" || filter === null) {
         sessionStorage.removeItem("term");
     }
-
-    if (filter == "@") return;
 
     const vehicles = document.querySelectorAll(".card");
     let combined;
@@ -51,37 +51,12 @@ function applyFilterTerm(term) {
         const images = $(vehicle).data("images") || "";
         const cylinders = $(vehicle).data("cylinders") || "";
 
-        if (filter.startsWith("@@")) {
-            // Hidden  features
-            $("#filterTerm").addClass("text-info").addClass("border-info");
+        $("#filterTerm").removeClass("text-info").removeClass("border-info");
+        combined = `${stock} ${vin} ${dataone} ${make} ${model} ${style} ${type} ${transmission} ${year} ${color} ${color2} ${location} ${story} ${images} ${cylinders} ${$(vehicle).data("fuel") || ""} ${$(vehicle).data("drive") || ""} ${$(vehicle).data("body") || ""}`.toUpperCase();
 
-            // Map prefix to data
-            const prefixMap = {
-                "@@YR": `@@YR ${year}`,
-                "@@MK": `@@MK ${make}`,
-                "@@MD": `@@MD ${model}`,
-                "@@TR": `@@TR ${transmission}`,
-                "@@CY": `@@CY ${cylinders}`,
-                "@@OW": `@@OW ${location}`
-            };
+        const isMatch = terms.length === 0 || terms.every(t => combined.includes(t));
 
-            combined = `@@${story} @@${images} @@${dataone}`;
-
-            // Override combined if matching a special prefix
-            for (const key in prefixMap) {
-                if (filter.startsWith(key)) {
-                    combined = prefixMap[key];
-                    break;
-                }
-            }
-        }
-        else {
-            // Normal search
-            $("#filterTerm").removeClass("text-info").removeClass("border-info");
-            combined = `${stock} ${vin} ${make} ${model} ${style} ${type} ${transmission} ${year} ${color} ${color2}`;
-        }
-
-        if (combined.includes(filter)) {
+        if (isMatch) {
             vehicle.style.display = "";
         } else {
             vehicle.style.display = "none";
@@ -177,6 +152,24 @@ function calculateMonthlyPayment(P, rate, month) {
         return $.trim(String(value || "")).toUpperCase();
     }
 
+    function splitInventoryTerms(value) {
+        return normalizeInventoryValue(value).split(/\s+/).filter(function (term) {
+            return term.length > 0;
+        });
+    }
+
+    function inventoryContainsAllTerms(haystack, terms) {
+        if (!terms.length) return true;
+
+        for (var i = 0; i < terms.length; i++) {
+            if (haystack.indexOf(terms[i]) === -1) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     function formatInventoryRangeValue(value, format) {
         var number = parseInventoryNumber(value);
 
@@ -265,8 +258,9 @@ function calculateMonthlyPayment(P, rate, month) {
     }
 
     function inventoryTermMatches($vehicle, filter) {
-        if (!filter) return true;
-        if (filter === "@@") return false;
+        var terms = splitInventoryTerms(filter);
+        if (!terms.length) return true;
+        if (terms.length === 1 && terms[0] === "@@") return false;
 
         var stock = normalizeInventoryValue($vehicle.data("stock"));
         var vin = normalizeInventoryValue($vehicle.data("vin"));
@@ -308,11 +302,12 @@ function calculateMonthlyPayment(P, rate, month) {
                 stock, vin, make, model, style, type, transmission, year,
                 color, color2, normalizeInventoryValue($vehicle.data("fuel")),
                 normalizeInventoryValue($vehicle.data("drive")),
-                normalizeInventoryValue($vehicle.data("body"))
+                normalizeInventoryValue($vehicle.data("body")),
+                dataone, location, story, images, cylinders
             ].join(" ");
         }
 
-        return combined.indexOf(filter) !== -1;
+        return inventoryContainsAllTerms(combined, terms);
     }
 
     function inventoryCheckboxMatches($vehicle, selected) {
