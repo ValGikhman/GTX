@@ -636,6 +636,44 @@ function calculateMonthlyPayment(P, rate, month) {
             window.setTimeout(window.applyInventoryPanelFilters, 0);
         });
 
+        $(document).on("click", "#inventoryMobileFilterToggle", function (event) {
+            if ($(event.target).closest("#inventoryMobileClearFilters, #inventoryMobileCloseCanvas").length) {
+                return;
+            }
+
+            var offcanvasElement = document.getElementById("inventorySidebarPane");
+            if (!offcanvasElement || !window.bootstrap || !window.bootstrap.Offcanvas) return;
+
+            window.bootstrap.Offcanvas.getOrCreateInstance(offcanvasElement).show();
+        });
+
+        $(document).on("keydown", "#inventoryMobileFilterToggle", function (event) {
+            if (event.key !== "Enter" && event.key !== " ") return;
+            event.preventDefault();
+            $(this).trigger("click");
+        });
+
+        $(document).on("click", "#inventoryMobileClearFilters", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            $("#inventoryClearFilters").trigger("click");
+        });
+
+        $(document).on("click", "#inventoryMobileCloseCanvas", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            var offcanvasElement = document.getElementById("inventorySidebarPane");
+            if (!offcanvasElement || !window.bootstrap || !window.bootstrap.Offcanvas) return;
+
+            window.bootstrap.Offcanvas.getOrCreateInstance(offcanvasElement).hide();
+        });
+
+        $(document).on("click", "#inventoryClearFiltersDesktop", function (event) {
+            event.preventDefault();
+            $("#inventoryClearFilters").trigger("click");
+        });
+
         $("#inventoryClearFilters").on("click", function () {
             var type = routeTypeFilter();
             var allInventoryUrl = $("#inventorySplit").data("all-inventory-url");

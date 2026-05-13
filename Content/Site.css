@@ -244,14 +244,19 @@
 
 .inventory-mobile-filter-bar {
     width: 100%;
+    display: flex;
+    align-items: stretch;
+    gap: .45rem;
 }
 
 .inventory-mobile-filter-btn {
     width: 100%;
+    min-width: 0;
+    flex: 1 1 auto;
     min-height: 3rem;
     display: inline-flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     gap: .75rem;
     border: 1px solid rgba(0, 0, 0, .24);
     border-radius: .5rem;
@@ -259,6 +264,7 @@
     color: #fff;
     font-weight: 800;
     box-shadow: 0 .75rem 1.75rem rgba(15, 23, 42, .18);
+    cursor: pointer;
 }
 
 .inventory-mobile-filter-btn:hover,
@@ -270,6 +276,43 @@
 .inventory-mobile-filter-btn.has-active-filters {
     border-color: rgba(255, 255, 255, .55);
     box-shadow: 0 .8rem 1.9rem rgba(15, 23, 42, .24);
+}
+
+.inventory-mobile-filter-action-btn {
+    flex: 0 0 auto;
+    width: 2rem;
+    min-width: 2rem;
+    height: 2rem;
+    min-height: 2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .12rem;
+    padding: 0 .42rem !important;
+    border-radius: .55rem !important;
+    color: #111827;
+    font-size: .82rem;
+    line-height: 1;
+    white-space: nowrap;
+    margin-inline-end: 0 !important;
+}
+
+.inventory-mobile-filter-action-btn:hover,
+.inventory-mobile-filter-action-btn:focus {
+    color: #111827;
+}
+
+.inventory-mobile-filter-action-btn i {
+    line-height: 1;
+}
+
+.inventory-mobile-close-btn .bi-binoculars {
+    font-size: .78rem;
+}
+
+.inventory-mobile-close-btn .bi-x-lg {
+    font-size: .58rem;
+    margin-left: -.08rem;
 }
 
 .inventory-mobile-filter-title,
@@ -319,6 +362,8 @@
 
 .inventory-filter-offcanvas-header {
     position: relative;
+    display: flex;
+    align-items: center;
     min-height: 3.55rem;
     padding: .8rem 1rem;
     overflow: hidden;
@@ -347,8 +392,9 @@
 .inventory-filter-offcanvas-header .offcanvas-title {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: .32rem;
-    width: 100%;
+    width: auto;
     margin: 0;
     color: #fff !important;
     font-size: .9rem;
@@ -399,10 +445,25 @@
 }
 
 .inventory-filter-offcanvas-title-wrap {
-    width: 100%;
+    width: auto;
     min-width: 0;
     flex: 1 1 auto;
+    display: flex;
+    justify-content: center;
     overflow: hidden;
+}
+
+.inventory-filter-offcanvas-header .inventory-filter-offcanvas-clear-btn,
+.inventory-filter-offcanvas-header .inventory-filter-offcanvas-close-btn {
+    min-width: 4.85rem;
+    height: 2.2rem;
+    min-height: 2.2rem;
+    padding: 0 .45rem !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .3rem;
+    margin-inline-end: 0 !important;
 }
 
 .inventory-filter-offcanvas-header #inventoryMobileFilterCount {
@@ -1161,6 +1222,22 @@ input::placeholder {
     object-fit: contain;
 }
 
+.page-title-phone-btn {
+    white-space: nowrap;
+}
+
+.page-title #shorts .page-title-phone-btn {
+    margin-inline-end: 0 !important;
+}
+
+.page-title-phone-standalone {
+    z-index: 4;
+}
+
+.page-title-phone-detail-offset {
+    right: 4.1rem !important;
+}
+
 @media (max-width: 767.98px) {
     .page-title {
         height: 48px !important;
@@ -1274,7 +1351,7 @@ input::placeholder {
 
     .page-title > .position-absolute.start-0 {
         gap: .16rem;
-        margin-left: 2.45rem !important;
+        margin-left: 4rem !important;
         max-width: 3.95rem;
     }
 
@@ -1295,8 +1372,22 @@ input::placeholder {
         min-height: 1.78rem;
     }
 
-    .page-title #btnNext {
-        margin-right: .25rem !important;
+    .inventory-mobile-filter-action-btn {
+        width: 1.78rem;
+        min-width: 1.78rem;
+        height: 1.78rem;
+        min-height: 1.78rem;
+        padding: 0 .34rem !important;
+        border-radius: .48rem !important;
+        font-size: .74rem;
+    }
+
+    .inventory-mobile-close-btn .bi-binoculars {
+        font-size: .68rem;
+    }
+
+    .inventory-mobile-close-btn .bi-x-lg {
+        font-size: .52rem;
     }
 
     .page-title #title {
@@ -2273,17 +2364,13 @@ a, u {
 
     .canvas__open {
         display: block;
-        font-size: 22px;
         color: white;
-        height: 35px;
-        width: 35px;
-        line-height: 35px;
-        text-align: center;
         border-radius: 2px;
         cursor: pointer;
         position: absolute;
-        top: 6px;
+        top: 50%;
         left: 10px;
+        transform: translateY(-50%);
         z-index: 555;
     }
 
@@ -2371,7 +2458,7 @@ a, u {
     }
 
     .canvas__open {
-        top: 12px;
+        top: 50%;
         left: 5px !important;
     }
 
@@ -2381,7 +2468,7 @@ a, u {
 
     .make.img-fluid {
         display: inline-block !important;
-        height: 1.3rem !important;
+        height: 1.5rem !important;
         max-width: 4.2rem;
         padding-right: .24rem !important;
         padding-left: .24rem !important;

@@ -8,6 +8,8 @@
         var isInventoryDetailsTitle = controllerName.Equals("Inventory", StringComparison.OrdinalIgnoreCase)
             && (actionName.Equals("Details", StringComparison.OrdinalIgnoreCase)
                 || actionName.Equals("DetailsQR", StringComparison.OrdinalIgnoreCase));
+        var showPageTitlePhone = controllerName.Equals("Inventory", StringComparison.OrdinalIgnoreCase)
+            && inventoryListActions.Any(a => a.Equals(actionName, StringComparison.OrdinalIgnoreCase));
         var titleClass = "m-0 text-dark fancy text-truncate text-center main-title"
             + (hideInventoryListTitle ? " d-none" : string.Empty)
             + (isInventoryDetailsTitle ? " inventory-details-page-title" : string.Empty);
@@ -25,21 +27,28 @@
         </a>
     </span>
 
-@*<a id="title" href="#" data-bs-toggle="modal" data-bs-target="#filtersModal" class="text-decoration-none d-flex align-items-center justify-content-center gap-2 w-75 position-relative px-2">*@        
-    <div id="title" href="#" class="text-decoration-none d-flex align-items-center justify-content-center gap-2 w-75 position-relative px-2">
+    <a id="title" href="/Home" class="text-decoration-none d-flex align-items-center justify-content-center gap-2 w-75 position-relative px-2">
         <!-- Centered title (stays centered even with the icon) -->
         <h5 class="@titleClass" style="max-width: 85vw;">
             @Html.Raw(ViewBag.Title)
         </h5>
         <img src="~/GTXImages/GTX-White.png" alt="GTX" class="@mobileLogoClass" />
 
-    </div>
+    </a>
 
-    <div id="shorts" class="d-none d-md-flex align-items-center gap-1 position-absolute end-0 top-50 translate-middle-y ps-2 mx-3">
+    <div id="shorts" class="d-none d-md-flex align-items-center gap-1 position-absolute end-0 top-50 translate-middle-y ps-2 me-1">
         <a id="loanApplication" href="/Home/Application" class="btn gradient rounded-4 border-0 shadow" type="button">💲@I18n.R("Nav_GetPrequalified")</a>
         <a id="contactUs" href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })" class="btn gradient rounded-4 border-0 shadow" type="button">🏢@I18n.R("Nav_ContactUs")</a>
         <a id="testDrive" href="@Url.RouteUrl("TestDriveContact")" class="btn gradient rounded-4 border-0 shadow" type="button">📅@I18n.R("Nav_ScheduleTestDrive")</a>
+        @if (showPageTitlePhone)
+        {
+            <a id="pageTitlePhone" href="tel:+15134892886" class="btn btn-gradient-grey border-dark rounded-4 shadow page-title-phone-btn" type="button"><i class="bi bi-telephone-fill me-1"></i>(513) 489-2886</a>
+        }
     </div>
+    @if (showPageTitlePhone)
+    {
+        <a href="tel:+15134892886" class="btn btn-gradient-grey border-dark rounded-4 shadow page-title-phone-btn page-title-phone-standalone position-absolute end-0 top-50 translate-middle-y me-1 d-inline-flex d-md-none" type="button"><i class="bi bi-telephone-fill me-1"></i>(513) 489-2886</a>
+    }
 
     <!-- Next button (far right) -->
     <a id="btnNext" href="#" class="btn btn-gradient-grey border-black shadow rounded-4 position-absolute end-0 top-50 translate-middle-y me-3 d-none" type="button" title="Next vehicle">

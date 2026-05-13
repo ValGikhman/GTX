@@ -109,10 +109,16 @@
                 <span id="inventoryFilterCount">0</span>
                 <span>matching vehicle(s)</span>
             </div>
-            <button type="button" class="btn btn-sm btn-gradient-grey border-dark rounded-3 shadow text-black fw-bold inventory-clear-btn" id="inventoryClearFilters">
-                <i class="bi bi-eraser-fill"></i>
-                <span>Clear</span>
-            </button>
+            <div class="inventory-filter-actions">
+                <button type="button" id="inventoryClearFiltersDesktop" class="btn btn-sm btn-gradient-grey border-dark rounded-3 shadow text-black fw-bold inventory-clear-btn d-none d-lg-inline-flex">
+                    <i class="bi bi-eraser-fill"></i>
+                    <span>Clear</span>
+                </button>
+                <button type="button" id="inventoryMobileCloseCanvas" class="btn btn-sm btn-gradient-grey border-dark rounded-3 shadow text-black fw-bold inventory-clear-btn d-lg-none">
+                    <i class="bi bi-binoculars"></i>
+                    <span>Search</span>
+                </button>
+            </div>
         </div>
 
         <div class="inventory-filter-scroll">
@@ -286,6 +292,12 @@
         justify-content: center;
         gap: .35rem;
         line-height: 1.2;
+    }
+
+    .inventory-filter-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: .45rem;
     }
 
     .inventory-filter-scroll {
