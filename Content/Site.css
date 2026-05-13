@@ -59,6 +59,10 @@
     background: linear-gradient( 180deg, #f1f2f4 0%, #cfd3d8 22%, #9aa0a8 45%, #5c626b 70%, #2a2f36 100% );
 }
 
+.swatch-silver {
+    background: linear-gradient(180deg, rgb(255 255 255), #AAAAB3);
+}
+
 .opacity-95 {
     opacity: 0.95 !important;
 }
@@ -1222,20 +1226,28 @@ input::placeholder {
     object-fit: contain;
 }
 
-.page-title-phone-btn {
+.page-title-inventory-contact {
+    max-width: min(56vw, 52rem);
+    gap: .55rem;
+}
+
+.page-title-inventory-address {
+    max-width: min(46vw, 42rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.page-title-inventory-address > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.page-title #shorts .page-title-phone-btn {
-    margin-inline-end: 0 !important;
-}
-
-.page-title-phone-standalone {
-    z-index: 4;
-}
-
-.page-title-phone-detail-offset {
-    right: 4.1rem !important;
+.page-title-inventory-address.copied {
+    color: #0b7a2f;
+    text-decoration-color: #0b7a2f;
 }
 
 @media (max-width: 767.98px) {

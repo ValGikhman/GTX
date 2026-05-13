@@ -93,7 +93,7 @@
             break;
     }
 }
-<div class="inventory-contact-strip shadow-sm">
+<div class="inventory-contact-strip shadow-sm d-lg-none">
     <span id="inventoryAddressCopy"
           class="inventory-contact-address"
           role="button"
@@ -201,9 +201,8 @@
     $(function () {
         $("#filterTerm").removeClass("rounded-end-4");
 
-        function markAddressCopied() {
-            const $address = $("#inventoryAddressCopy");
-            if (!$address.length) return;
+        function markAddressCopied($address) {
+            if (!$address || !$address.length) return;
 
             $address.addClass("copied");
             $address.attr("title", "Copied to clipboard");
@@ -213,7 +212,7 @@
             }, 1200);
         }
 
-        function fallbackCopyAddress(text) {
+        function fallbackCopyAddress(text, $address) {
             const $temp = $("<textarea readonly></textarea>").val(text).css({
                 position: "fixed",
                 top: "-9999px",
@@ -228,28 +227,28 @@
                 document.execCommand("copy");
             } finally {
                 $temp.remove();
-                markAddressCopied();
+                markAddressCopied($address);
             }
         }
 
-        function copyAddress(text) {
+        function copyAddress(text, $address) {
             if (!text) return;
 
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(text)
                     .then(function () {
-                        markAddressCopied();
+                        markAddressCopied($address);
                     })
                     .catch(function () {
-                        fallbackCopyAddress(text);
+                        fallbackCopyAddress(text, $address);
                     });
                 return;
             }
 
-            fallbackCopyAddress(text);
+            fallbackCopyAddress(text, $address);
         }
 
-        $("#inventoryAddressCopy").on("click keydown", function (e) {
+        $("#inventoryAddressCopy, #pageTitleInventoryAddressCopy").on("click keydown", function (e) {
             const key = e.key || "";
             const keyCode = e.keyCode || 0;
             const isKeyboardActivate = e.type === "keydown" && (key === "Enter" || key === " " || keyCode === 13 || keyCode === 32);
@@ -257,7 +256,7 @@
             if (e.type === "keydown" && !isKeyboardActivate) return;
             if (isKeyboardActivate) e.preventDefault();
 
-            copyAddress($(this).data("address"));
+            copyAddress($(this).data("address"), $(this));
         });
 
         const term = sessionStorage.getItem("term");

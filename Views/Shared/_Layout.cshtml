@@ -12,6 +12,7 @@
         case "deep-purple":
         case "dark":
         case "metallica":
+        case "silver":
             break;
         default:
             t = "blue";
@@ -42,7 +43,7 @@
             };
 
             var KEY = "gtx-theme";
-            const THEMES = ["blue", "grey", "pink", "deep-purple", "metallica"]; // add more here
+            const THEMES = ["blue", "grey", "pink", "deep-purple", "metallica", "dark", "silver"]; // add more here
             var t = localStorage.getItem(KEY) || "blue"; // default
             var root = document.documentElement;
 
@@ -338,6 +339,7 @@
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="pink"><span class="theme-swatch swatch-pink"></span> Pink</a></li>
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="deep-purple"><span class="theme-swatch swatch-deep-purple"></span> Deep Purple</a></li>
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="metallica"><span class="theme-swatch swatch-metallica"></span> Metallica</a></li>
+                            <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="silver"><span class="theme-swatch swatch-silver"></span> Silver</a></li>
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="dark"><span class="theme-swatch swatch-dark"></span> Dark</a></li>
                         </ul>
                     </div>
