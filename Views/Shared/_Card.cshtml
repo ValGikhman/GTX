@@ -347,8 +347,6 @@
                          data-make="@Model.Make"
                          class="img-fluid"
                          style="height:38px;"
-                         width="76"
-                         height="38"
                          loading="@logoLoadingMode"
                          decoding="async" />
                 </div>
@@ -359,12 +357,12 @@
 
                         <div class="min-h-0 gtx-title-stack">
                             <!-- Make line -->
-                            <div class="gtx-title fs-5 text-shadow gtx-truncate-1 mb-0" style="line-height:1.05;">
+                            <div class="gtx-title fs-6 text-shadow gtx-truncate-1 mb-0">
                                 @Model.Year @Model.Make
                             </div>
 
                             <!-- Model/style line (NO WRAP + ellipsis) -->
-                            <div class="fs-6 text-shadow gtx-trimline mt-0" style="line-height:1.05;">
+                            <div class="fs-7 text-shadow gtx-trimline mt-0" style="line-height:1.05;">
                                 @Model.Model - @Model.VehicleStyle
                             </div>
                         </div>
