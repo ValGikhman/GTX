@@ -10,6 +10,21 @@
                                        .OrderBy(name => name)
                                        .ToList();
 
+    var stock = (Model.Stock ?? string.Empty).Trim();
+    var overlayPath = (Model.Source ?? string.Empty).Replace("\\", "/").TrimStart('/');
+    overlayPath = overlayPath.StartsWith("GTXImages/Inventory/", StringComparison.OrdinalIgnoreCase)
+        ? overlayPath.Substring("GTXImages/Inventory/".Length)
+        : overlayPath;
+    overlayPath = overlayPath.StartsWith("Pictures/", StringComparison.OrdinalIgnoreCase)
+        ? overlayPath.Substring("Pictures/".Length)
+        : overlayPath;
+
+    if (!string.IsNullOrWhiteSpace(stock) && !overlayPath.Contains("/")) {
+        overlayPath = $"{stock}/{overlayPath}";
+    }
+
+    var encodedOverlayPath = Uri.EscapeDataString(overlayPath);
+    string imagePath = $"/InventoryImages/Get?path={encodedOverlayPath}";
 }
 
 <div class="modal-header">
@@ -20,15 +35,10 @@
 
 <div class="d-flex flex-wrap align-items-start m-2 gap-1">
     <div class="modal-body overlay-image-container shadow rounded m-3 col-3">
-        @{
-            var overlayPath = $"{Model.Stock.Trim()}/{Model.Name}";
-            var encodedOverlayPath = Uri.EscapeDataString(overlayPath);
-            string imagePath = $"/InventoryImages/Get?path={encodedOverlayPath}";
-            <img src="@imagePath" class="d-block mx-auto rounded" alt="@imagePath" />
-            <div id="overlay" class="overlay-image-overlay rounded-bottom">
-                <p class="overlay-text">Double click to edit.... </p>
-            </div>
-        }
+        <img src="@imagePath" class="d-block mx-auto rounded" alt="@imagePath" />
+        <div id="overlay" class="overlay-image-overlay rounded-bottom">
+            <p class="overlay-text">Double click to edit.... </p>
+        </div>
     </div>
     <div class="col-3 mx-3">
         @Html.Label("Text color", new { @class = "text-shadow" })
@@ -82,7 +92,7 @@
 
 <script type="text/javascript">
     var id = "@Model.Id";
-    var stock = "@Model.Stock.Trim()"
+    var stock = "@stock"
     var imagePath = "/InventoryImages/Get?path=@encodedOverlayPath";
     var overlay = @Html.Raw(Json.Encode(Model.Overlay));
 
@@ -122,8 +132,8 @@
                     const newText = $(this).val();
                     const $p = $('<p id="overlay-text" class="overlay-text"></p>').text(newText);
                     $(this).replaceWith($p);
-                    $(this).css("font-size", $("#fontSize").val());
-                    $(this).css("color", $("#textColor").val());
+                    $p.css("font-size", $("#fontSize").val());
+                    $p.css("color", $("#textColor").val());
                     $(".overlay-image-overlay").css("background-color", $("#backgroundColor").val());
                 }
             });

@@ -283,6 +283,10 @@ namespace GTX.Controllers
 
         public ActionResult OverlayModal(Guid id) {
             Services.Image image = InventoryService.GetImage(id);
+            if (image == null) {
+                return HttpNotFound($"Image {id} was not found.");
+            }
+
             return PartialView("_OverlayModal", image);
         }
 
@@ -315,15 +319,20 @@ namespace GTX.Controllers
 
         [HttpPost]
         public JsonResult DeleteImage(Guid id, string file, string stock) {
-            var path = CombineUnderInventoryImagesRoot(stock, file);
+            var path = ResolveInventoryImagePhysicalPath(file);
+
+            if ((string.IsNullOrWhiteSpace(path) || !System.IO.File.Exists(path)) &&
+                !string.IsNullOrWhiteSpace(stock) &&
+                !string.IsNullOrWhiteSpace(file)) {
+                path = CombineUnderInventoryImagesRoot(stock, Path.GetFileName(file));
+            }
 
             if (System.IO.File.Exists(path)) {
                 System.IO.File.Delete(path);
-                InventoryService.DeleteImage(id);
-                return Json(new { success = true });
             }
 
-            return Json(new { success = false });
+            InventoryService.DeleteImage(id);
+            return Json(new { success = true });
         }
 
         [HttpPost]
@@ -478,9 +487,9 @@ namespace GTX.Controllers
                     string text = (string)child["text"];
                     string style = (string)child["style"];
 
-                    var (font, color) = GetFontAndColorFromStyle(image.Width, style);
+                    var (font, color) = GetFontAndColorFromStyle(image.Width, overlayHeight, style);
 
-                    using (font) // dispose Font if your factory creates one
+                    using (font)
                     using (var textBrush = new SolidBrush(color))
                     using (var format = new StringFormat {
                         Alignment = StringAlignment.Center,
@@ -502,7 +511,7 @@ namespace GTX.Controllers
                 image.Save(filename, ImageFormat.Png);
             }
 
-            InventoryService.SaveImage(stock, filename);
+            InventoryService.SaveImage(stock, Path.GetFileName(filename));
         }
 
         private async Task<string> GetChatGptResponse(string prompt) {
@@ -592,31 +601,125 @@ namespace GTX.Controllers
         }
 
         private Color GetColorFromStyle(string style) {
-            // crude parser for background-color: lightskyblue;
-            var match = System.Text.RegularExpressions.Regex.Match(style, @"background-color:\s*([^;]+)");
-            return match.Success ? Color.FromName(match.Groups[1].Value.Trim()) : Color.Transparent;
+            var styles = ParseCssStyle(style);
+            return styles.TryGetValue("background-color", out var color)
+                ? ParseCssColor(color, Color.Transparent)
+                : Color.Transparent;
         }
 
-        private (Font font, Color color) GetFontAndColorFromStyle(int width, string style) {
-            float size = 1.0f;
+        private (Font font, Color color) GetFontAndColorFromStyle(int width, int overlayHeight, string style) {
+            var styles = ParseCssStyle(style);
             FontStyle fontStyle = FontStyle.Regular;
-            Color color = Color.Black;
-            string fontFamily = "Arial";
 
-            if (style.Contains("italic")) fontStyle |= FontStyle.Italic;
-            if (style.Contains("bold")) fontStyle |= FontStyle.Bold;
+            if (styles.TryGetValue("font-style", out var cssFontStyle) &&
+                cssFontStyle.Equals("italic", StringComparison.OrdinalIgnoreCase)) {
+                fontStyle |= FontStyle.Italic;
+            }
 
+            if (styles.TryGetValue("font-weight", out var cssFontWeight) &&
+                IsBoldFontWeight(cssFontWeight)) {
+                fontStyle |= FontStyle.Bold;
+            }
 
-            float vw = width / 100f;
+            var size = styles.TryGetValue("font-size", out var cssFontSize)
+                ? ParseCssFontSize(cssFontSize, width, overlayHeight)
+                : Math.Max(16f, overlayHeight * 0.45f);
 
-            var sizeMatch = Regex.Match(style, @"font-size:\s*(\d+(\.\d+)?)vw");
-            if (sizeMatch.Success) size = float.Parse(sizeMatch.Groups[1].Value) * vw * 2.3f;
+            var color = styles.TryGetValue("color", out var cssColor)
+                ? ParseCssColor(cssColor, Color.Black)
+                : Color.Black;
 
-            var colorMatch = System.Text.RegularExpressions.Regex.Match(style, @"color:\s*([^;]+)");
-            if (colorMatch.Success) color = Color.FromName(colorMatch.Groups[1].Value.Trim());
-
-            Font font = new Font(fontFamily, size, fontStyle);
+            Font font = new Font("Arial", size, fontStyle, GraphicsUnit.Pixel);
             return (font, color);
+        }
+
+        private static Dictionary<string, string> ParseCssStyle(string style) {
+            var styles = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            if (string.IsNullOrWhiteSpace(style)) {
+                return styles;
+            }
+
+            foreach (var rule in style.Split(';')) {
+                var separator = rule.IndexOf(':');
+                if (separator <= 0) {
+                    continue;
+                }
+
+                var property = rule.Substring(0, separator).Trim();
+                var value = rule.Substring(separator + 1).Trim();
+                if (!string.IsNullOrWhiteSpace(property) && !string.IsNullOrWhiteSpace(value)) {
+                    styles[property] = value;
+                }
+            }
+
+            return styles;
+        }
+
+        private static bool IsBoldFontWeight(string value) {
+            if (string.IsNullOrWhiteSpace(value)) {
+                return false;
+            }
+
+            value = value.Trim();
+            if (value.Equals("bold", StringComparison.OrdinalIgnoreCase) ||
+                value.Equals("bolder", StringComparison.OrdinalIgnoreCase)) {
+                return true;
+            }
+
+            return int.TryParse(value, out var weight) && weight >= 600;
+        }
+
+        private static float ParseCssFontSize(string value, int width, int overlayHeight) {
+            var fallback = Math.Max(16f, overlayHeight * 0.45f);
+            if (string.IsNullOrWhiteSpace(value)) {
+                return fallback;
+            }
+
+            var match = Regex.Match(value.Trim(), @"^(\d+(?:\.\d+)?)(vw|px|pt|em|rem)?$", RegexOptions.IgnoreCase);
+            if (!match.Success ||
+                !float.TryParse(match.Groups[1].Value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var number)) {
+                return fallback;
+            }
+
+            var unit = match.Groups[2].Success ? match.Groups[2].Value.ToLowerInvariant() : "px";
+            float pixels;
+
+            switch (unit) {
+                case "vw":
+                    pixels = number * (width / 100f) * 2.3f;
+                    break;
+                case "pt":
+                    pixels = number * 96f / 72f;
+                    break;
+                case "em":
+                case "rem":
+                    pixels = number * 16f;
+                    break;
+                default:
+                    pixels = number;
+                    break;
+            }
+
+            var max = Math.Max(18f, overlayHeight * 0.8f);
+            return Math.Max(12f, Math.Min(pixels, max));
+        }
+
+        private static Color ParseCssColor(string value, Color fallback) {
+            if (string.IsNullOrWhiteSpace(value)) {
+                return fallback;
+            }
+
+            value = value.Trim();
+            try {
+                return ColorTranslator.FromHtml(value);
+            }
+            catch {
+                var color = Color.FromName(value);
+                return color.IsKnownColor || color.IsNamedColor || color.A > 0
+                    ? color
+                    : fallback;
+            }
+
         }
 
         [OutputCache(Duration = 86400, VaryByParam = "text")] // cache for speed

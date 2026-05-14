@@ -463,7 +463,7 @@ function deleteImage(id, file, object) {
     showSpinner($overlay);
 
     const stock = selectedVehicle.Stock;
-    const $item = $(object).closest('.gallery-item');
+    const $item = $(object).closest('li');
 
     $.post(`${root}Majordome/DeleteImage`, { id, file, stock })
         .done(function (response) {
@@ -578,7 +578,12 @@ function saveOrder(sorted) {
     const $overlay = $("#inventoryOverlay");
     showSpinner($overlay);
 
-    $.post(`${root}Majordome/SaveOrder`, { sorted })
+    $.ajax({
+        url: `${root}Majordome/SaveOrder`,
+        type: "POST",
+        data: { sorted },
+        traditional: true
+    })
         .done(function (response) {
             if (response && response.success) {
                 getUpdatedItems()
@@ -717,7 +722,7 @@ function saveOverlayData() {
 
     overlay.children().each(function () {
         const bold = $("#fontType").val().includes("bold") ? "bold" : "normal"
-        const italic = $("#fontType").val().includes("italic") ? "italic" : ""
+        const italic = $("#fontType").val().includes("italic") ? "italic" : "normal"
 
         const tag = this.tagName.toLowerCase();
         const text = $(this).text();

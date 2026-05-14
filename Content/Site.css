@@ -1671,7 +1671,7 @@ html.inventory-page-loading #loadingOverlay {
     align-items: center;
     position: relative;
     margin: 0 -.9rem .6rem;
-    padding: .38rem .75rem;
+    padding: 1.1rem;
     background: var(--gtx-grad, linear-gradient(180deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1) 94%));
     border-top: 1px solid rgba(255, 255, 255, .2);
     border-bottom: 1px solid rgba(0, 0, 0, .2);
@@ -1849,8 +1849,8 @@ html.inventory-page-loading #loadingOverlay {
         margin: 0 auto;
         max-width: none;
         align-self: center;
-        justify-self: center;
-        width: min(100%, 34rem);
+        justify-self: stretch;
+        width: 100%;
     }
 
     #openHours .open-hours-media {

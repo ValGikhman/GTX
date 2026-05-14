@@ -351,7 +351,7 @@
             $item.prependTo("#sortable-gallery");
 
             const sorted = getSortedIds();
-            saveOrder(sorted, stock)
+            saveOrder(sorted);
             updateGalleryDisplay();
         });
 
@@ -684,7 +684,7 @@
             let sorted = $("#sortable-gallery li").map(function () {
                 return $(this).attr("id")
             }).get();
-            saveOrder(sorted, selectedVehicle.Stock);
+            saveOrder(sorted);
             updateGalleryDisplay();
         }
     });
