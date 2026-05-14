@@ -1108,6 +1108,68 @@
         flex-direction: column;
     }
 
+@media (max-width: 991px) {
+    .inventory-details-layout {
+        width: 100%;
+    }
+}
+
+.inventory-details-main {
+    min-width: 0;
+}
+
+.inventory-details-actions {
+    min-width: 0;
+}
+
+.details-suggestions {
+    width: 100%;
+    padding-bottom: 1.5rem;
+}
+
+.details-suggestion-rail {
+    width: 100%;
+    min-width: 0;
+    align-items: stretch;
+    gap: .65rem;
+}
+
+.details-suggestion-rail .scroll-button {
+    flex: 0 0 2.5rem;
+    height: auto;
+    min-height: 8rem;
+    align-self: stretch;
+}
+
+.details-suggestion-rail .scroll-container {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    white-space: normal;
+    margin-bottom: 0;
+    padding: .75rem;
+    -webkit-overflow-scrolling: touch;
+}
+
+.details-suggestion-list {
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: .75rem;
+    width: max-content;
+    min-width: 100%;
+}
+
+.details-suggestion-list .card-wrapper {
+    flex: 0 0 320px;
+    height: auto;
+}
+
+.details-suggestion-list .hover-bw {
+    width: 100%;
+}
+
 .card:hover {
     transform: translateX(-2px) translateY(-2px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2);
