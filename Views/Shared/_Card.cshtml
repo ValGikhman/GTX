@@ -1,10 +1,80 @@
 ﻿@model GTX.Models.GTX
 @{
+    string NormalizeInventoryImagePath(string source)
+    {
+        var value = (source ?? string.Empty).Trim().Replace('\\', '/');
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        value = value.TrimStart('/');
+
+        const string legacyPrefix = "GTXImages/Inventory/";
+        const string picturesPrefix = "Pictures/";
+
+        if (value.StartsWith(legacyPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return value.Substring(legacyPrefix.Length);
+        }
+
+        if (value.StartsWith(picturesPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return value.Substring(picturesPrefix.Length);
+        }
+
+        return null;
+    }
+
+    string BuildInventoryCardImageUrl(string source)
+    {
+        var value = (source ?? string.Empty).Trim();
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return value;
+        }
+
+        if (value.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            value.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            return value;
+        }
+
+        if (value.StartsWith("/InventoryImages/Get", StringComparison.OrdinalIgnoreCase) ||
+            value.StartsWith("InventoryImages/Get", StringComparison.OrdinalIgnoreCase))
+        {
+            return value.StartsWith("/") ? value : "/" + value;
+        }
+
+        var normalizedPath = NormalizeInventoryImagePath(value);
+        if (string.IsNullOrWhiteSpace(normalizedPath))
+        {
+            return value;
+        }
+
+        return "/InventoryImages/Get?path=" + Uri.EscapeDataString(normalizedPath);
+    }
+
     var detailsUrl = Url.Action("Details", "Inventory", new { stock = Model.Stock });
     var makeImg = $"/GTXImages/makes/{Model.Make.Replace(" ", "-")}.png";
     var carTitle = $"{Model.Year} {Model.Make} {Model.Model}";
+    var cardImageUrl = BuildInventoryCardImageUrl(Model.Image);
+    var cardIndexRaw = ViewData["InventoryCardIndex"];
+    var cardIndex = cardIndexRaw is int cardIndexValue ? cardIndexValue : int.MaxValue;
+    var isPriorityCardImage = cardIndex >= 0 && cardIndex < 8;
+    var imageLoadingMode = isPriorityCardImage ? "eager" : "lazy";
+    var imageFetchPriority = isPriorityCardImage ? "high" : "auto";
+    var logoLoadingMode = cardIndex >= 0 && cardIndex < 16 ? "eager" : "lazy";
+    var renderCardStyles = Context.Items["__gtx_card_styles_rendered"] == null;
+
+    if (renderCardStyles)
+    {
+        Context.Items["__gtx_card_styles_rendered"] = true;
+    }
 }
 
+@if (renderCardStyles)
+{
 <style>
     /* ========= GTX Card Pro (scoped to this partial) ========= */
     /* CRITICAL: allow flex child to shrink (otherwise nowrap still wraps in weird ways) */
@@ -236,6 +306,7 @@
         overflow: hidden;                     /* keep image corners clean */
     }
 </style>
+}
 
 <li id="@Model.Stock"
     class="card gtx-card gtx-card-premium col-12 col-sm-6 col-md-4 col-lg-3 hand-pointer"
@@ -271,7 +342,15 @@
 
                 <!-- Make logo -->
                 <div class="flex-shrink-0 d-flex align-items-center">
-                    <img src="@makeImg" alt="@Model.Make logo" data-make="@Model.Make" class="img-fluid" style="height:38px;" loading="lazy" decoding="async" />
+                    <img src="@makeImg"
+                         alt="@Model.Make logo"
+                         data-make="@Model.Make"
+                         class="img-fluid"
+                         style="height:38px;"
+                         width="76"
+                         height="38"
+                         loading="@logoLoadingMode"
+                         decoding="async" />
                 </div>
 
                 <!-- Title stack -->
@@ -321,7 +400,14 @@
                 }
             </div>
 
-            <img class="gtx-img" src="@Model.Image" alt="@carTitle" loading="lazy" decoding="async" />
+            <img class="gtx-img"
+                 src="@cardImageUrl"
+                 alt="@carTitle"
+                 width="640"
+                 height="360"
+                 loading="@imageLoadingMode"
+                 fetchpriority="@imageFetchPriority"
+                 decoding="async" />
         </div>
 
         <!-- FOOTER (3 rows, keeps gradient) -->
