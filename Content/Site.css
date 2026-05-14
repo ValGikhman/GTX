@@ -761,19 +761,25 @@
     }
 
 .slide-box {
-    position: absolute;
-    inset: 0; /* top/right/bottom/left: 0 */
+    position: relative;
+    width: 100%;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
     padding: 0.25rem; /* optional: small padding so images don't kiss edges */
 }
 
     /* Scale without distortion and stay centered */
     .slide-box img {
+        width: 100%;
+        height: 100%;
         max-width: 100%;
         max-height: 100%;
         object-fit: contain;
+        object-position: center;
+        display: block;
     }
 
 .card-header, .card-footer {
@@ -1544,6 +1550,14 @@ li.search-field {
     display: none;
 }
 
+html.inventory-page-loading #inventorySplit {
+    visibility: hidden;
+}
+
+html.inventory-page-loading #loadingOverlay {
+    display: flex !important;
+}
+
 .hand-pointer {
     cursor: pointer;
 }
@@ -1567,14 +1581,16 @@ li.search-field {
     width: 30%;
 }
 
-    .elem > span {
-        display: block;
-        cursor: pointer;
-        height: 0;
-        padding-bottom: 70%;
-        background-size: cover;
-        background-position: center center;
-    }
+.elem > span {
+    display: block;
+    cursor: pointer;
+    height: 0;
+    padding-bottom: 70%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-color: rgba(15, 23, 42, .04);
+}
 
 /* Make the carousel fill the ratio box */
 .ratio > #detailsCarousel,
@@ -1583,13 +1599,16 @@ li.search-field {
     height: 100%;
 }
 
-    #detailsCarousel .carousel-item img {
-        width: auto; /* preserve aspect */
-        max-width: 100%; /* don’t overflow horizontally */
-        height: auto;
-        object-fit: contain; /* safety if something sets width/height */
-        display: inline-block; /* works with text-align:center */
-    }
+#detailsCarousel .carousel-item {
+    position: relative;
+}
+
+#detailsCarousel .carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+}
 
 .ratio-carousel {
     --bs-aspect-ratio: 70%;
@@ -1618,25 +1637,331 @@ li.search-field {
 .dropdown-toggle::after {
     filter: brightness(0) invert(1); /* Turns it white */
 }
-/* Centered Offcanvas */
+/* Centered open-hours panel */
 .offcanvas-top-fixed-center {
     position: fixed;
-    top: 4.1rem;
+    top: var(--gtx-header-height, 4.1rem);
     left: 50%;
     transform: translateX(-50%);
-    width: 60%;
-    z-index: 1055; /* Above most content */
-    border-radius: 0.5rem 0.5rem 0.5rem 0.5rem;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    width: min(64rem, calc(100vw - 1.5rem));
+    height: min(78vh, 48rem);
+    max-height: min(78vh, 48rem);
+    z-index: 1055;
+    border-radius: .75rem;
+    box-shadow: 0 .95rem 2.2rem rgba(0, 0, 0, .28);
     background-color: #fff;
+    overflow: hidden;
+    display: none;
 }
 
     .offcanvas-top-fixed-center.show {
         display: block;
     }
 
-.offcanvas-top-fixed-center {
-    display: none;
+#openHours .offcanvas-body {
+    position: relative;
+    padding: 0 .9rem 1rem;
+    max-height: inherit;
+    overflow-y: auto;
+}
+
+#openHours .open-hours-panel-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    margin: 0 -.9rem .6rem;
+    padding: .38rem .75rem;
+    background: var(--gtx-grad, linear-gradient(180deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1) 94%));
+    border-top: 1px solid rgba(255, 255, 255, .2);
+    border-bottom: 1px solid rgba(0, 0, 0, .2);
+    border-radius: .72rem .72rem 0 0;
+    color: #fff;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, .3);
+}
+
+#openHours .open-hours-panel-title {
+    font-size: .98rem;
+    font-weight: 800;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+    line-height: 1.1;
+    width: 100%;
+    max-width: none;
+    padding: 0 2.6rem;
+    text-align: center;
+}
+
+#openHours .open-hours-close-btn {
+    width: 2rem;
+    height: 2rem;
+    min-width: 2rem;
+    padding: .45rem;
+    position: absolute;
+    top: 50%;
+    right: .7rem;
+    transform: translateY(-50%);
+    border: 0 !important;
+    border-radius: .5rem;
+    background-color: transparent !important;
+    box-shadow: none;
+    background-size: .72rem;
+    opacity: 1;
+    filter: var(--open-hours-close-icon-filter, invert(1) grayscale(100%) brightness(220%)) !important;
+}
+
+    #openHours .open-hours-close-btn:hover,
+    #openHours .open-hours-close-btn:focus {
+        background-color: rgba(255, 255, 255, .12) !important;
+        border-color: transparent !important;
+        box-shadow: none;
+    }
+
+#openHours .open-hours-media {
+    align-items: stretch;
+}
+
+#openHours .open-hours-photo {
+    object-fit: cover;
+}
+
+#openHours .open-hours-map {
+    border: 0;
+    border-radius: .5rem;
+    min-height: 20rem;
+}
+
+#openHours .open-hours-address-card {
+    max-width: 30rem;
+    margin: .1rem auto .65rem;
+    padding: .7rem .8rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .45rem;
+    text-align: center;
+}
+
+#openHours .open-hours-address-text {
+    line-height: 1.25;
+}
+
+#openHours .open-hours-copy-address {
+    min-height: 2.2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+#openHours .open-hours-day-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: .55rem;
+    text-align: left;
+    padding: .58rem .72rem;
+}
+
+#openHours .open-hours-day-badge {
+    position: static !important;
+    left: auto !important;
+    transform: none !important;
+    margin-top: 0 !important;
+    min-width: 3.25rem;
+    min-height: 1.35rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .72rem;
+    flex: 0 0 auto;
+}
+
+#openHours .open-hours-day-hours {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    line-height: 1.12;
+    text-align: left;
+    min-width: 0;
+}
+
+@media (min-width: 992px) {
+    #openHours .offcanvas-body {
+        height: 100%;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        gap: .7rem;
+    }
+
+    #openHours .open-hours-panel {
+        flex: 1 1 auto;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            "days"
+            "address"
+            "media";
+        grid-template-rows: auto auto minmax(0, 1fr);
+        gap: .75rem;
+        align-items: stretch;
+        min-height: 0;
+        height: 100%;
+    }
+
+    #openHours .open-hours-days {
+        grid-area: days;
+        display: grid !important;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        margin: 0 !important;
+        padding: 0 !important;
+        gap: .45rem !important;
+        width: 100%;
+    }
+
+    #openHours .open-hours-day-btn {
+        width: 100%;
+        min-width: 0;
+        min-height: 3.45rem;
+        padding: .45rem .35rem;
+        gap: .22rem;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    #openHours .open-hours-day-hours {
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-align: center;
+        font-size: .82rem;
+        width: 100%;
+    }
+
+    #openHours .open-hours-address-card {
+        grid-area: address;
+        margin: 0 auto;
+        max-width: none;
+        align-self: center;
+        justify-self: center;
+        width: min(100%, 34rem);
+    }
+
+    #openHours .open-hours-media {
+        grid-area: media;
+        margin: 0 !important;
+        padding: 0 !important;
+        gap: .75rem;
+        align-items: stretch;
+        justify-content: stretch;
+        min-height: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    #openHours .open-hours-photo {
+        display: block;
+        width: 34%;
+        min-height: 0;
+        height: 100%;
+        flex: 0 0 34%;
+    }
+
+    #openHours .open-hours-map {
+        width: 66%;
+        min-height: 0;
+        height: 100%;
+        flex: 1 1 auto;
+    }
+}
+
+@media only screen and (max-width: 767px) {
+    .offcanvas-top-fixed-center {
+        top: 0;
+        left: 0;
+        transform: none;
+        width: 100vw;
+        max-width: 100vw;
+        height: 62vh;
+        max-height: 62vh;
+        border-radius: 0;
+        box-shadow: none;
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    #openHours .offcanvas-body {
+        height: 100%;
+        max-height: none;
+        padding: 0 .65rem 1rem;
+    }
+
+    #openHours .open-hours-panel-controls {
+        position: relative;
+        margin: 0 -.65rem .5rem;
+        padding: 1.1rem;
+        border-radius: 0;
+    }
+
+    #openHours .open-hours-days {
+        flex-wrap: wrap;
+        justify-content: stretch !important;
+        gap: .5rem !important;
+        margin: .25rem 0 .75rem !important;
+        padding: .1rem 0 .35rem !important;
+    }
+
+    #openHours .open-hours-day-btn {
+        flex: 1 1 calc(50% - .5rem);
+        min-width: 9.75rem;
+        min-height: 3.15rem;
+        font-size: .86rem;
+        font-weight: 700;
+        justify-content: flex-start;
+        gap: .48rem;
+        padding: .6rem .65rem;
+        text-align: left;
+    }
+
+    #openHours .open-hours-day-hours {
+        justify-content: flex-start;
+        text-align: left;
+    }
+
+    #openHours .open-hours-media {
+        flex-direction: column;
+        gap: .5rem !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    #openHours .open-hours-photo {
+        display: none !important;
+    }
+
+    #openHours .open-hours-map {
+        width: 100% !important;
+        height: 30vh;
+        min-height: 12rem;
+        max-height: 17rem;
+    }
+
+    #openHours .open-hours-address-card {
+        margin: 0 auto .55rem;
+        padding: .55rem .65rem;
+    }
+
+    #openHours .open-hours-copy-address {
+        min-height: 2rem;
+        padding: .3rem .75rem;
+        font-size: .83rem;
+    }
 }
 /* ==========================================================================
    Layout shell and base typography
@@ -2157,13 +2482,13 @@ a, u {
     }
 }
 
-@media only screen and (min-width: 1600px) and (max: 1800px) {
-    .carousel-inner {
+@media only screen and (min-width: 1600px) and (max-width: 1800px) {
+    #detailsCarousel .carousel-inner {
         height: 600px;
     }
 }
 
-@media (min-width: 1400px) and (max: 1800px) {
+@media (min-width: 1400px) and (max-width: 1800px) {
     #schedule, #telephone {
         display: none !important;
     }
@@ -2178,7 +2503,7 @@ a, u {
         margin-right: 32px;
     }
 
-    .carousel-inner {
+    #detailsCarousel .carousel-inner {
         height: 400px;
     }
 }
@@ -2198,7 +2523,7 @@ a, u {
         margin-right: 32px;
     }
 
-    .carousel-inner {
+    #detailsCarousel .carousel-inner {
         height: 283px;
     }
 }
@@ -2254,7 +2579,7 @@ a, u {
         transform: scale(0.80);
     }
 
-    .carousel-inner {
+    #detailsCarousel .carousel-inner {
         height: 325px;
     }
 
@@ -2285,6 +2610,9 @@ a, u {
 
     .home-cta-actions {
         flex-wrap: nowrap !important;
+        width: 75% !important;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .home-inventory-cta {
@@ -2318,7 +2646,7 @@ a, u {
         padding: 1rem 1rem;
     }
 
-    .carousel-inner {
+    #detailsCarousel .carousel-inner {
         height: 390px;
     }
 
@@ -2386,6 +2714,57 @@ a, u {
         z-index: 555;
     }
 
+    body.home-index .canvas__open {
+        display: none;
+    }
+
+    body.home-index .menu-strip {
+        display: flex;
+        align-items: center;
+        min-height: 3.7rem;
+        padding-left: .95rem;
+        padding-right: .95rem;
+    }
+
+        body.home-index .menu-strip > .d-flex {
+            width: 100%;
+            min-height: inherit;
+            align-items: center !important;
+        }
+
+    #homeMobileMenuStripActions {
+        width: 100%;
+        margin-left: 0;
+        justify-content: flex-end;
+        align-items: center;
+        min-height: 2.6rem;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        gap: .45rem !important;
+    }
+
+        #homeMobileMenuStripActions .btn,
+        #homeMobileMenuStripActions a.btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 2.3rem;
+            padding: .35rem .7rem;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        #homeMobileMenuOpenBtn {
+            margin-right: auto;
+        }
+
+        #homeMobileMenuStripActions .btn i,
+        #homeMobileMenuStripActions .btn span {
+            display: inline-flex !important;
+            align-items: center;
+            line-height: 1;
+        }
+
     .menu-strip {
         background: #155A96;
         background: linear-gradient(180deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1) 94%);
@@ -2448,7 +2827,7 @@ a, u {
 
 /* Small Device = 320px */
 @media only screen and (max-width: 479px) {
-    .carousel-inner {
+    #detailsCarousel .carousel-inner {
         height: 270px;
     }
 

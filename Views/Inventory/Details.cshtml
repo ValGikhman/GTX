@@ -15,6 +15,36 @@
         return raw;
     }
 
+    string BuildInventoryImageUrl(string source)
+    {
+        var value = (source ?? string.Empty).Trim().Replace('\\', '/');
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return value;
+        }
+
+        if (value.StartsWith("https:", StringComparison.OrdinalIgnoreCase))
+        {
+            return value;
+        }
+
+        value = value.TrimStart('/');
+
+        const string legacyPrefix = "GTXImages/Inventory/";
+        const string picturesPrefix = "Pictures/";
+
+        if (value.StartsWith(legacyPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            value = value.Substring(legacyPrefix.Length);
+        }
+        else if (value.StartsWith(picturesPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            value = value.Substring(picturesPrefix.Length);
+        }
+
+        return $"/InventoryImages/Get?path={Uri.EscapeDataString(value)}";
+    }
+
     var title = string.Join(" ", new[] { vehicle?.Year.ToString(), vehicle?.Make, vehicle?.Model, vehicle?.VehicleStyle }.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim()));
 
     if (string.IsNullOrWhiteSpace(title))
@@ -356,7 +386,7 @@
                             string imagePath = $"{image.Source}?h=200";
                             if (image.Source?.StartsWith("https:", StringComparison.OrdinalIgnoreCase) == false)
                             {
-                                imageBig = $"/GTXImages/Inventory/{image.Source}";
+                                imageBig = BuildInventoryImageUrl(image.Source);
                                 imagePath = $"{imageBig}";
                             }
 

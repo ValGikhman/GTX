@@ -14,6 +14,7 @@
             + (hideInventoryListTitle ? " d-none" : string.Empty)
             + (isInventoryDetailsTitle ? " inventory-details-page-title" : string.Empty);
         var mobileLogoClass = "page-title-mobile-logo" + (hideInventoryListTitle ? " d-inline-block d-md-none" : " d-none");
+        var titleHref = isInventoryDetailsTitle ? "/Inventory/Index" : "/Home";
     }
 
     <!-- Prev button (far left) -->
@@ -44,7 +45,7 @@
         }
     </span>
 
-    <a id="title" href="/Home" class="text-decoration-none d-flex align-items-center justify-content-center gap-2 w-75 position-relative px-2">
+    <a id="title" href="@titleHref" class="text-decoration-none d-flex align-items-center justify-content-center gap-2 w-75 position-relative px-2">
         <!-- Centered title (stays centered even with the icon) -->
         <h5 class="@titleClass" style="max-width: 85vw;">
             @Html.Raw(ViewBag.Title)

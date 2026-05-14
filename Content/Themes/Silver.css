@@ -74,3 +74,25 @@ html.theme-silver {
         background-color: #8f98a3;
         border-color: #8f98a3;
     }
+
+    html.theme-silver #modalShortcuts .text-white,
+    html.theme-silver [data-bs-target="#details"] .text-white,
+    html.theme-silver [data-bs-target="#suggestion"] .text-white {
+        color: #111 !important;
+        text-shadow: none !important;
+        font-weight: 700 !important;
+    }
+
+    html.theme-silver #openHours .open-hours-panel-controls {
+        color: #111 !important;
+        text-shadow: none !important;
+    }
+
+    html.theme-silver #openHours .open-hours-close-btn {
+        filter: none !important;
+    }
+
+        html.theme-silver #openHours .open-hours-close-btn:hover,
+        html.theme-silver #openHours .open-hours-close-btn:focus {
+            background-color: rgba(0, 0, 0, .06) !important;
+        }

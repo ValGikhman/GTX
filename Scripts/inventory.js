@@ -610,7 +610,10 @@ function calculateMonthlyPayment(P, rate, month) {
     };
 
     $(function () {
-        if (!$("#inventoryFilterRail").length) return;
+        if (!$("#inventoryFilterRail").length) {
+            document.documentElement.classList.remove("inventory-page-loading");
+            return;
+        }
 
         initInventorySplitPanel();
 
@@ -685,5 +688,6 @@ function calculateMonthlyPayment(P, rate, month) {
 
         syncRouteTypeFilter();
         window.applyInventoryPanelFilters();
+        document.documentElement.classList.remove("inventory-page-loading");
     });
 })();

@@ -67,6 +67,17 @@
 
 
 <!-- Scrollable wrapper -->
+<script>
+    (function () {
+        var root = document.documentElement;
+        root.classList.add("inventory-page-loading");
+
+        // Failsafe: never keep the page hidden if an init script errors out.
+        window.addEventListener("load", function () {
+            root.classList.remove("inventory-page-loading");
+        }, { once: true });
+    })();
+</script>
 @{
     var inventoryAction = (ViewContext.RouteData.Values["action"] ?? string.Empty).ToString();
     var inventoryRouteType = string.Empty;

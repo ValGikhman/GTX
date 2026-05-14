@@ -2,6 +2,10 @@
 @using System.Threading
 @{
     var t = (Request.Cookies["gtx-theme"]?.Value ?? "blue").ToLowerInvariant();
+    var controllerName = (ViewContext.RouteData.Values["controller"] ?? string.Empty).ToString();
+    var actionName = (ViewContext.RouteData.Values["action"] ?? string.Empty).ToString();
+    var isHomeIndexPage = controllerName.Equals("Home", StringComparison.OrdinalIgnoreCase)
+        && actionName.Equals("Index", StringComparison.OrdinalIgnoreCase);
     var current = Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName;
     // allow only known themes
     switch (t)
@@ -69,16 +73,24 @@
 
     <script type="text/javascript">
         var root = "@Url.Content("~/")";
-        var images = "@Url.Content("~/GTXImages/Inventory/")";
+        var images = "/InventoryImages/Get?path=";
     </script>
     <script src="~/Scripts/inventory.js"></script>
 </head>
 
 @Html.Action("LoginModal", "Home")
-<body class="main-container overflow-hidden d-flex flex-column min-vh-100">
+<body class="main-container overflow-hidden d-flex flex-column min-vh-100 @(isHomeIndexPage ? "home-index" : string.Empty)">
     <!-- Offcanvas open hours -->
-    <div class="offcanvas-top-fixed-center" tabindex="-1" id="openHours">
+    <div class="offcanvas-top-fixed-center" tabindex="-1" id="openHours" aria-label="Open hours">
         <div class="offcanvas-body">
+            <div class="open-hours-panel-controls">
+                <div class="open-hours-panel-title">Open Hours</div>
+                <button type="button"
+                        class="btn-close open-hours-close-btn"
+                        data-bs-dismiss="offcanvas"
+                        data-bs-target="#openHours"
+                        aria-label="Close hours panel"></button>
+            </div>
             @Html.Partial("_Schedule")
         </div>
     </div>
@@ -180,7 +192,7 @@
         <button class="btn btn-gradient-grey" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenuOffcanvas"><i class="bi bi-list"></i></button>
     </div>
     <div class="menu-strip container-fluid">
-        <div class="d-flex justify-content-between">
+        <div class="d-flex justify-content-between align-items-center">
             <nav class="header__top header__menu w-100">
                 <ul class="main-menu">
                     <li id="GTX-image" class="d-none d-md-inline-block mx-1"><a href="~/Home/Index"><img src="~/GTXImages/GTX-White.png" width="60" /></a></li>
@@ -221,7 +233,7 @@
             <nav class="header__top d-none d-xxl-flex">
                 <ul class="main-menu start-100 list-unstyled no-wrap-group">
                     <li class="mx-sm-1">
-                        <a class="btn btn-gradient-grey border-dark rounded-4" id="btnOpenHours" data-bs-toggle="offcanvas" data-bs-target="#openHours" aria-controls="openHours">
+                        <a class="btn btn-gradient-grey border-dark rounded-4" id="btnOpenHoursDesktop" data-bs-toggle="offcanvas" data-bs-target="#openHours" aria-controls="openHours">
                             <i class="bi bi-stopwatch"></i>
                             <span id="schedule" class="schedule d-none d-xxl-inline m-sm-1"></span>
                         </a>
@@ -245,6 +257,33 @@
                     </li>
                 </ul>
             </nav>
+            @if (isHomeIndexPage)
+            {
+                <div id="homeMobileMenuStripActions" class="d-md-none d-flex align-items-center gap-2 ms-auto py-1">
+                    <button type="button"
+                            id="homeMobileMenuOpenBtn"
+                            class="btn btn-gradient-grey border-dark rounded-4 d-inline-flex align-items-center gap-2"
+                            aria-label="Open menu">
+                        <i class="bi bi-list"></i>
+                        <span class="fw-semibold">Menu</span>
+                    </button>
+                    <a id="btnOpenHours"
+                       class="btn btn-gradient-grey border-dark rounded-4 d-inline-flex align-items-center gap-2"
+                       data-bs-toggle="offcanvas"
+                       data-bs-target="#openHours"
+                       aria-controls="openHours"
+                       aria-label="Open hours">
+                        <i class="bi bi-stopwatch"></i>
+                        <span class="schedule fw-semibold m-sm-1"></span>
+                    </a>
+                    <a class="btn btn-gradient-grey border-dark rounded-4 d-inline-flex align-items-center gap-2"
+                       href="tel:+15134892886"
+                       aria-label="Call (513) 489-2886">
+                        <i class="bi bi-telephone"></i>
+                        <span class="fw-semibold">(513) 489-2886</span>
+                    </a>
+                </div>
+            }
         </div>
     </div>
 
@@ -641,5 +680,16 @@
             }, 1400);
         });
     });
+
+    document.addEventListener("click", function (event) {
+        const button = event.target.closest("#homeMobileMenuOpenBtn");
+        if (!button) return;
+
+        const offcanvasElement = document.getElementById("mobileMenuOffcanvas");
+        if (!offcanvasElement || !window.bootstrap || !window.bootstrap.Offcanvas) return;
+
+        window.bootstrap.Offcanvas.getOrCreateInstance(offcanvasElement).show();
+    });
+
 </script>
 

@@ -230,7 +230,7 @@ namespace GTX.Controllers
         public async Task<ActionResult> Upload(IEnumerable<HttpPostedFileBase> files, string stock) {
             try {
                 if (files != null && files.Any()) {
-                    var uploadPath = Server.MapPath(Path.Combine(imageFolder, stock));
+                    var uploadPath = CombineUnderInventoryImagesRoot(stock);
                     Directory.CreateDirectory(uploadPath);
                     
                     int total = files?.Count() ?? 0;
@@ -315,8 +315,7 @@ namespace GTX.Controllers
 
         [HttpPost]
         public JsonResult DeleteImage(Guid id, string file, string stock) {
-            string path = $"{imageFolder}{stock}/{file}";
-            path = Server.MapPath(path);
+            var path = CombineUnderInventoryImagesRoot(stock, file);
 
             if (System.IO.File.Exists(path)) {
                 System.IO.File.Delete(path);
@@ -407,8 +406,7 @@ namespace GTX.Controllers
 
         [HttpPost]
         public ActionResult DeleteImages(string stock) {
-            string path = $"{imageFolder}{stock}";
-            path = Server.MapPath(path);
+            var path = CombineUnderInventoryImagesRoot(stock);
 
             string[] extensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
 
@@ -445,7 +443,12 @@ namespace GTX.Controllers
         }
 
         public void CreateImageWithOverlay(string stock, string baseImagePath, string overlayJson) {
-            string baseImage = Server.MapPath(baseImagePath);
+            string baseImage = ResolveInventoryImagePhysicalPath(baseImagePath);
+            if (string.IsNullOrWhiteSpace(baseImage) || !System.IO.File.Exists(baseImage))
+            {
+                return;
+            }
+
             string dir = Path.GetDirectoryName(baseImage);
             string filename = Path.Combine(dir, Path.GetFileNameWithoutExtension(baseImage) + "-O.png");
 

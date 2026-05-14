@@ -3,13 +3,38 @@
     <div class="carousel-inner">
         @{
             var i = 0;
+            string NormalizeInventoryImagePath(string source)
+            {
+                var value = (source ?? string.Empty).Trim().Replace('\\', '/');
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    return value;
+                }
+
+                value = value.TrimStart('/');
+
+                const string legacyPrefix = "GTXImages/Inventory/";
+                const string picturesPrefix = "Pictures/";
+
+                if (value.StartsWith(legacyPrefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    value = value.Substring(legacyPrefix.Length);
+                }
+                else if (value.StartsWith(picturesPrefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    value = value.Substring(picturesPrefix.Length);
+                }
+
+                return value;
+            }
         }
         @foreach (var image in Model.VehicleDetails.Images) {
             var imagePath = $"{image.Source}";
 
             if (image.Source?.StartsWith("https:", StringComparison.OrdinalIgnoreCase) == false)
             {
-                imagePath = $"/GTXImages/Inventory/{imagePath}";
+                var normalizedPath = NormalizeInventoryImagePath(image.Source);
+                imagePath = $"/InventoryImages/Get?path={Uri.EscapeDataString(normalizedPath)}";
             }
             <div class="carousel-item @(i == 0 ? "active" : "")">
                 <div class="slide-box">

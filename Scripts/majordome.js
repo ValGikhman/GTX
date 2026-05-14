@@ -1,5 +1,24 @@
 ﻿var selectedVehicle;
 
+function toInventoryImageUrl(source) {
+    var raw = (source || "").toString().trim();
+    if (!raw) return "";
+
+    if (/^https?:\/\//i.test(raw)) {
+        return raw;
+    }
+
+    if (/^\/?InventoryImages\/Get\?path=/i.test(raw)) {
+        return raw.charAt(0) === "/" ? raw : "/" + raw;
+    }
+
+    var normalized = raw.replace(/\\/g, "/").replace(/^\/+/, "");
+    normalized = normalized.replace(/^GTXImages\/Inventory\//i, "");
+    normalized = normalized.replace(/^Pictures\//i, "");
+
+    return "/InventoryImages/Get?path=" + encodeURIComponent(normalized);
+}
+
 class StyleParser {
     constructor(styleString) {
         this.styles = {};
@@ -57,10 +76,11 @@ function loadGallery(vehicle) {
     container.empty();
     var i = 0;
     vehicle.Images.forEach(function (img) {
+        var source = (img.Source || "").toString();
         var showImageEdit = "";
         var imageIcon = "bi bi-image";
 
-        if (img.Source.includes("-O")) {
+        if (source.includes("-O")) {
             showImageEdit = "visually-hidden";
         }
 
@@ -68,16 +88,15 @@ function loadGallery(vehicle) {
             imageIcon = "bi bi-image-fill";
         }
 
-        //var imagePath = `${images}/${img.Source}`;
-        var imagePath = `${img.Source}`;
+        var imagePath = toInventoryImageUrl(source);
 
         var item = `
-        <li id="${img.Id}" class="col-lg-2 col-md-3 col-sm-4 pt-2 shadow" data-filename="${img.Source}" style="width:245px!important;height:245px !important;">
+        <li id="${img.Id}" class="col-lg-2 col-md-3 col-sm-4 pt-2 shadow" data-filename="${source}" style="width:245px!important;height:245px !important;">
             <a href="${imagePath}" data-lightbox="gallery">
                 <img class="edit-image" src="${imagePath}"/>
             </a>
-            <span id="${img.Id}" class="delete-image bi bi-trash btn btn-light shadow my-2" data-filename="${img.Source}" title="Delete image"></span>
-            <span id="${img.Id}" class="overlay-image ${imageIcon} btn btn-light shadow my-2 ${showImageEdit}" data-filename="${img.Source}" title="Add overlay"></span>
+            <span id="${img.Id}" class="delete-image bi bi-trash btn btn-light shadow my-2" data-filename="${source}" title="Delete image"></span>
+            <span id="${img.Id}" class="overlay-image ${imageIcon} btn btn-light shadow my-2 ${showImageEdit}" data-filename="${source}" title="Add overlay"></span>
             <span class="move-to-top bi bi-front btn btn-light shadow my-2 pull-right" title="Make it default image"></span>
         </li>
         `;

@@ -5,6 +5,19 @@ namespace GTX {
     public class RouteConfig {
         public static void RegisterRoutes(RouteCollection routes) {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+
+            routes.MapRoute(
+                name: "InventoryImages",
+                url: "GTXImages/Inventory/{*path}",
+                defaults: new { controller = "InventoryImages", action = "Get" }
+            );
+
+            routes.MapRoute(
+                name: "Pictures",
+                url: "Pictures/{*path}",
+                defaults: new { controller = "InventoryImages", action = "Get" }
+            );
+
             routes.MapRoute(
                 name: "TestDriveContact",
                 url: "Test-Drive",
