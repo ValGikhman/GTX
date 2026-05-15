@@ -15,7 +15,7 @@
 
     <section class="inventory-filter-panel" data-filter-panel-field="@field">
         <button class="inventory-filter-panel-toggle collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#@panelId" aria-expanded="false" aria-controls="@panelId">
-            <span class="inventory-filter-panel-title">
+            <span class="inventory-filter-panel-title text-shadow-small">
                 <i class="bi @icon"></i>
                 <span>@title</span>
             </span>
@@ -38,8 +38,8 @@
                                id="@id"
                                data-field="@field"
                                data-value="@value.ToUpperInvariant()" />
-                        <span class="inventory-check-label">@value</span>
-                        <span class="inventory-check-hit" data-count-field="@field" data-count-value="@value.ToUpperInvariant()"></span>
+                        <span class="inventory-check-label text-shadow-small">@value</span>
+                        <span class="inventory-check-hit shadow" data-count-field="@field" data-count-value="@value.ToUpperInvariant()"></span>
                     </label>
                 }
             </div>
@@ -64,7 +64,7 @@
              data-range-max="@maxText"
              data-range-format="@format">
         <button class="inventory-filter-panel-toggle collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#@panelId" aria-expanded="false" aria-controls="@panelId">
-            <span class="inventory-filter-panel-title">
+            <span class="inventory-filter-panel-title text-shadow-small">
                 <i class="bi @icon"></i>
                 <span>@title</span>
             </span>
@@ -344,7 +344,7 @@
         gap: .75rem;
         position: relative;
         padding: .65rem .75rem;
-        font-weight: 900;
+        font-weight: 600;
         text-align: left;
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, .78);
         transition: filter .14s ease, box-shadow .14s ease;
@@ -512,7 +512,7 @@
         border-radius: .45rem;
         cursor: pointer;
         color: #1f2937;
-        font-weight: 700;
+        font-weight: 600;
     }
 
     .inventory-check-row:hover {
