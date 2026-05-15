@@ -9,7 +9,7 @@
     }
 
     .wrap {
-        max-width: 1400px;
+        max-width: 90%;
         margin-left: auto;
         margin-right: auto;
     }
@@ -18,6 +18,39 @@
         border: 0;
         border-radius: 18px;
         box-shadow: 0 10px 30px rgba(0,0,0,.06);
+    }
+
+    .health-cards-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .health-card-col {
+        flex: 1 1 240px;
+        min-width: 240px;
+    }
+
+    .health-card-maintenance {
+        border: 1px solid rgba(0, 0, 0, .08);
+        transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease;
+    }
+
+    .health-card-maintenance.is-offline {
+        background: linear-gradient(180deg, #fff5f5 0%, #ffe3e3 100%);
+        border-color: rgba(220, 53, 69, .6);
+        box-shadow: 0 14px 28px rgba(220, 53, 69, .2);
+    }
+
+    .health-card-maintenance.is-offline .kpi-label,
+    .health-card-maintenance.is-offline .kpi-sub,
+    .health-card-maintenance.is-offline .kpi-value {
+        color: #842029 !important;
+    }
+
+    .health-card-maintenance.is-offline #offlineStatusText {
+        color: #b02a37 !important;
+        font-weight: 800;
     }
 
     .kpi-label {
@@ -132,10 +165,10 @@
     </div>
 
     <!-- ROW: Cards -->
-    <div class="row g-3">
+    <div class="health-cards-row">
 
         <!-- IIS Card -->
-        <div class="col-12 col-sm-6 col-lg-3">
+        <div class="health-card-col">
             <div class="h-100 shadow well rounded-5 p-5 health-card">
                 <div class="kpi-label">IIS</div>
 
@@ -167,7 +200,7 @@
         </div>
 
         <!-- Total CPU Card -->
-        <div class="col-12 col-sm-6 col-lg-3">
+        <div class="health-card-col">
             <div class="h-100 shadow well rounded-5 p-5 health-card">
                 <div class="kpi-label">Total CPU</div>
                 <div class="d-flex align-items-end justify-content-between mt-1 flex-wrap gap-2">
@@ -182,7 +215,7 @@
         </div>
 
         <!-- Total Memory Card -->
-        <div class="col-12 col-sm-6 col-lg-3">
+        <div class="health-card-col">
             <div class="h-100 shadow well rounded-5 p-5 health-card">
                 <div class="kpi-label">Total Memory Used</div>
                 <div class="d-flex align-items-end justify-content-between mt-1 flex-wrap gap-2">
@@ -198,7 +231,7 @@
         </div>
 
         <!-- Active Sessions Card -->
-        <div class="col-12 col-sm-6 col-lg-3">
+        <div class="health-card-col">
             <div class="h-100 shadow well rounded-5 p-5 health-card">
                 <div class="kpi-label">Active Sessions</div>
 
@@ -213,8 +246,8 @@
         </div>
 
         <!-- Offline / Maintenance Mode Card -->
-        <div class="col-12 col-sm-6 col-lg-3">
-            <div class="h-100 shadow well rounded-5 p-5 health-card">
+        <div class="health-card-col">
+            <div id="maintenanceCard" class="h-100 shadow well rounded-5 p-5 health-card health-card-maintenance">
                 <div class="d-flex align-items-center justify-content-between gap-3">
                     <div class="kpi-label mb-0">Maintenance</div>
 
@@ -248,17 +281,14 @@
 </div>
 
 <script>
-    const url = '@Url.Action("HealthJson", "Health")';
+    const healthUrl = '@Url.Action("HealthJson", "Health")';
+    const getOfflineUrl = '@Url.Action("GetOffline", "Health")';
+    const setOfflineUrl = '@Url.Action("SetOffline", "Health")';
+    const POLL_VISIBLE_MS = 2000;
 
-    function bytesToMb2(bytes) {
-        if (bytes === null || bytes === undefined || isNaN(bytes)) return "—";
-        return (Number(bytes) / (1024 * 1024)).toFixed(2) + " MB";
-    }
-
-    function pctMb(pctVal, bytesVal) {
-        if (pctVal === null || pctVal === undefined || isNaN(pctVal)) return "—";
-        return Number(pctVal).toFixed(1) + "%";
-    }
+    let pollTimer = null;
+    let requestInFlight = false;
+    let disposed = false;
 
     function fmtBytes(b) {
         if (b === null || b === undefined) return "—";
@@ -273,6 +303,11 @@
         return Number(v).toFixed(1);
     }
 
+    function fmtPctWithSymbol(v) {
+        const pct = fmtPct(v);
+        return pct === "—" ? pct : pct + "%";
+    }
+
     function clampPct(v) {
         v = Number(v);
         if (isNaN(v)) return 0;
@@ -281,13 +316,13 @@
         return v;
     }
 
-    function setBar(id, pct) {
-        $("#" + id).css("width", clampPct(pct).toFixed(1) + "%");
+    function setBar($bar, pct) {
+        $bar.css("width", clampPct(pct).toFixed(1) + "%");
     }
 
     function setStatus(state, text) {
-        const $badge = $("#statusBadge");
-        const $statusText = $("#statusText");
+        const $badge = dom.statusBadge;
+        const $statusText = dom.statusText;
 
         $badge.removeClass("text-bg-secondary text-bg-success text-bg-warning text-bg-danger");
 
@@ -313,76 +348,125 @@
         return null;
     }
 
+    function scheduleNextPoll(immediate) {
+        if (disposed) return;
+        if (pollTimer) {
+            clearTimeout(pollTimer);
+        }
+
+        const delay = immediate ? 0 : POLL_VISIBLE_MS;
+        pollTimer = setTimeout(refreshNow, delay);
+    }
+
+    const dom = {};
+
     function refreshNow() {
+        if (disposed || document.visibilityState === "hidden") {
+            return;
+        }
+
+        if (requestInFlight) {
+            scheduleNextPoll(false);
+            return;
+        }
+
+        requestInFlight = true;
         setStatus("loading", "Refreshing…");
 
         $.ajax({
-            url: url,
+            url: healthUrl,
             method: "GET",
             cache: false,
             dataType: "json",
+            timeout: 8000,
             success: function (data) {
                 const totCpu = safeGet(data, "Totals.CpuPercentTotal", 0);
                 const totMem = safeGet(data, "Totals.MemoryPercentTotal", 0);
                 const totalPhys = safeGet(data, "Totals.TotalPhysBytes", null);
                 const availPhys = safeGet(data, "Totals.AvailPhysBytes", null);
 
-                $("#totCpu").text(fmtPct(totCpu) + "%");
-                $("#totMem").text(fmtPct(totMem) + "%");
-                setBar("totCpuBar", totCpu);
-                setBar("totMemBar", totMem);
+                dom.totCpu.text(fmtPctWithSymbol(totCpu));
+                dom.totMem.text(fmtPctWithSymbol(totMem));
+                setBar(dom.totCpuBar, totCpu);
+                setBar(dom.totMemBar, totMem);
 
-                $("#totRam").text(`${fmtBytes(totalPhys)} total / ${fmtBytes(availPhys)} free`);
+                dom.totRam.text(`${fmtBytes(totalPhys)} total / ${fmtBytes(availPhys)} free`);
 
                 const memLoad = safeGet(data, "Totals.MemoryLoadPercent", null);
-                if (memLoad !== null && memLoad !== undefined) $("#totMemLoad").show().text(`Windows MemoryLoad: ${memLoad}%`);
-                else $("#totMemLoad").hide();
+                if (memLoad !== null && memLoad !== undefined) {
+                    dom.totMemLoad.show().text(`Windows MemoryLoad: ${memLoad}%`);
+                } else {
+                    dom.totMemLoad.hide();
+                }
 
                 const stRaw = safeGet(data, "ServerTime", null);
                 const st = parseNetDate(stRaw);
                 const timeText = st ? st.toLocaleTimeString() : "—";
-                $("#updated").text(timeText);
-                $("#updated2").text(timeText);
+                dom.updated.text(timeText);
+                dom.updated2.text(timeText);
 
                 const iis = safeGet(data, "IIS", null);
-                const iisWs = safeGet(iis, "WorkingSetBytes", null);
-                const iisPriv = safeGet(iis, "PrivateBytes", null);
-
-                $("#iisPid").text(safeGet(iis, "Pid", "—"));
-                $("#iisCpu").text(pctMb(safeGet(iis, "CpuPercent", null), iisWs));
-                $("#iisMem").text(pctMb(safeGet(iis, "MemoryPercent", null), iisPriv));
-                $("#iisWs").text(fmtBytes(safeGet(iis, "WorkingSetBytes", null)));
-                setBar("iisCpuBar", safeGet(iis, "CpuPercent", 0));
-                setBar("iisMemBar", safeGet(iis, "MemoryPercent", 0));
+                dom.iisPid.text(safeGet(iis, "Pid", "—"));
+                dom.iisCpu.text(fmtPctWithSymbol(safeGet(iis, "CpuPercent", null)));
+                dom.iisMem.text(fmtPctWithSymbol(safeGet(iis, "MemoryPercent", null)));
+                dom.iisWs.text(fmtBytes(safeGet(iis, "WorkingSetBytes", null)));
+                setBar(dom.iisCpuBar, safeGet(iis, "CpuPercent", 0));
+                setBar(dom.iisMemBar, safeGet(iis, "MemoryPercent", 0));
 
                 const act = safeGet(data, "ActiveSessions", null);
-                $("#activeSessions").text(act === null ? "—" : act);
+                dom.activeSessions.text(act === null ? "—" : act);
 
                 setStatus("ok", "Live");
             },
             error: function (xhr) {
                 setStatus("error", "HTTP " + (xhr && xhr.status ? xhr.status : "error"));
+            },
+            complete: function () {
+                requestInFlight = false;
+                scheduleNextPoll(false);
             }
         });
     }
 
     $(function () {
+        dom.statusBadge = $("#statusBadge");
+        dom.statusText = $("#statusText");
+        dom.updated = $("#updated");
+        dom.updated2 = $("#updated2");
+        dom.totCpu = $("#totCpu");
+        dom.totMem = $("#totMem");
+        dom.totCpuBar = $("#totCpuBar");
+        dom.totMemBar = $("#totMemBar");
+        dom.totRam = $("#totRam");
+        dom.totMemLoad = $("#totMemLoad");
+        dom.iisPid = $("#iisPid");
+        dom.iisCpu = $("#iisCpu");
+        dom.iisMem = $("#iisMem");
+        dom.iisWs = $("#iisWs");
+        dom.iisCpuBar = $("#iisCpuBar");
+        dom.iisMemBar = $("#iisMemBar");
+        dom.activeSessions = $("#activeSessions");
+        dom.chkOffline = $("#chkOffline");
+        dom.offlineStatusText = $("#offlineStatusText");
+        dom.maintenanceCard = $("#maintenanceCard");
+
         function setUi(isOffline) {
-            $("#chkOffline").prop("checked", isOffline);
-            $("#offlineStatusText").text(isOffline ? "Offline (redirecting users)" : "Online");
+            dom.chkOffline.prop("checked", isOffline);
+            dom.offlineStatusText.text(isOffline ? "Offline (redirecting users)" : "Online");
+            dom.maintenanceCard.toggleClass("is-offline", isOffline);
         }
 
         // Load current state
-        $.get("/Health/GetOffline", function (r) {
+        $.get(getOfflineUrl, function (r) {
             setUi(!!r.isOffline);
         });
 
         // Toggle
-        $("#chkOffline").on("change", function () {
+        dom.chkOffline.on("change", function () {
             const on = this.checked;
             setUi(on); // instant UI feedback
 
-            $.post("/Health/SetOffline", { isOffline: on })
+            $.post(setOfflineUrl, { isOffline: on })
                 .fail(function (xhr) {
                     // If server rejects, revert UI
                     setUi(!on);
@@ -390,7 +474,23 @@
                 });
         });
 
-        refreshNow();
-        setInterval(refreshNow, 2000);
+        $(document).on("visibilitychange.health", function () {
+            if (document.visibilityState === "visible") {
+                scheduleNextPoll(true);
+            } else if (pollTimer) {
+                clearTimeout(pollTimer);
+                pollTimer = null;
+            }
+        });
+
+        $(window).on("pagehide.health beforeunload.health", function () {
+            disposed = true;
+            if (pollTimer) {
+                clearTimeout(pollTimer);
+                pollTimer = null;
+            }
+        });
+
+        scheduleNextPoll(true);
     });
 </script>

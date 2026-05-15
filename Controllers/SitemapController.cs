@@ -55,7 +55,7 @@ namespace GTX.Controllers
                 SourcePath = "~/sitemap.xml",
                 GeneratedUtc = DateTime.UtcNow,
                 Groups = groups,
-                TotalCount = urls.Count
+                TotalCount = groups.Sum(g => g.Items.Count)
             };
 
             Cache.Set(CacheKey, model, DateTimeOffset.UtcNow.AddMinutes(10));
@@ -64,7 +64,7 @@ namespace GTX.Controllers
 
         private static List<SitemapGroup> BuildGroups(List<SitemapModel> urls)
         {
-            // inventory category pages you listed
+            // Inventory category routes to exclude from the viewer.
             var inventoryCategoryPages = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
                 "/Inventory/All", "/Inventory/Suvs", "/Inventory/Trucks", "/Inventory/Vans", "/Inventory/Sedans"
@@ -83,7 +83,13 @@ namespace GTX.Controllers
 
                     if (path.StartsWith("/Inventory/", StringComparison.OrdinalIgnoreCase))
                     {
-                        if (inventoryCategoryPages.Contains(path)) return "inventory-categories";
+                        var normalizedPath = path.TrimEnd('/');
+                        if (string.IsNullOrEmpty(normalizedPath))
+                        {
+                            normalizedPath = "/";
+                        }
+
+                        if (inventoryCategoryPages.Contains(normalizedPath)) return "exclude";
 
                         // anything else under /Inventory/ is likely a vehicle detail page
                         return "inventory-vehicles";
@@ -100,7 +106,6 @@ namespace GTX.Controllers
                 switch (key)
                 {
                     case "home": return "Home";
-                    case "inventory-categories": return "Inventory Category Pages";
                     case "inventory-vehicles": return "Vehicle Detail Pages";
                     case "site-pages": return "Site Pages";
                     default: return "Other";
@@ -109,11 +114,11 @@ namespace GTX.Controllers
 
             return urls
                 .GroupBy(u => Classify(u.Loc))
+                .Where(g => !string.Equals(g.Key, "exclude", StringComparison.OrdinalIgnoreCase))
                 .OrderBy(g =>
                     g.Key == "home" ? 0 :
-                    g.Key == "inventory-categories" ? 1 :
-                    g.Key == "inventory-vehicles" ? 2 :
-                    g.Key == "site-pages" ? 3 : 9)
+                    g.Key == "inventory-vehicles" ? 1 :
+                    g.Key == "site-pages" ? 2 : 9)
                 .Select(g => new SitemapGroup
                 {
                     Key = g.Key,
