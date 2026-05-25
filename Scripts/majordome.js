@@ -48,7 +48,9 @@ class StyleParser {
 }
 
 function applyFilterTerm(term) {
-    gridApi.setGridOption('quickFilterText', term);
+    if (typeof window.applyMajordomeInventoryFilter === "function") {
+        window.applyMajordomeInventoryFilter(term);
+    }
 }
 
 function saveDetails(model) {
@@ -122,42 +124,6 @@ function updateGalleryDisplay() {
             $li.removeClass("gradient");
         }
     });
-}
-
-function actionsRenderer(params) {
-    const container = document.createElement('div');
-    const fileInput = document.createElement('input');
-
-    fileInput.type = 'file';
-    fileInput.multiple = true;
-    fileInput.style.display = 'none';
-
-    const icon = document.createElement('span');
-    icon.className = 'bi bi-upload fs-5 px-2';
-    icon.style.cursor = 'pointer';
-    icon.title = `Upload images for Stock# ${JSON.stringify(params.data.Stock)}`;
-
-    icon.onclick = () => {
-        fileInput.click();
-    };
-
-    fileInput.addEventListener('change', () => {
-        const files = Array.from(fileInput.files);
-        if (files.length > 0) {
-            uploadFiles(params.data.Stock, fileInput);
-        }
-    });
-
-    container.appendChild(icon);
-    container.appendChild(fileInput);
-    if (params.data.Images && params.data.Images.length > 0) {
-        container.appendChild(deleteIconRenderer(params));
-    }
-    container.appendChild(reStoryIconRenderer(params));
-    container.appendChild(deleteStoryIconRenderer(params));
-    container.appendChild(dataOneIconRenderer(params));
-    container.appendChild(deleteDataOneIconRenderer(params));
-    return container;
 }
 
 function uploadFiles(stock, input) {
@@ -256,7 +222,10 @@ function setDetails(stock) {
 }
 
 function setQrCode(vehicle) {
-    setQrCode(vehicle);
+    var qrText = `https://usedcarscincinnati.com/Inventory/Details?stock=${vehicle.Stock}&QR=${encodeURIComponent(vehicle.VIN)}`;
+    var qrUrl = "/Majordome/Qr?text=" + encodeURIComponent(qrText);
+    $("#qrImg").attr("src", qrUrl);
+    $("#qrText").html(`<div>${vehicle.Year} ${vehicle.Make} ${vehicle.Model} Stock# ${vehicle.Stock}</div>`);
     $("#QR-code-tab").removeClass("d-none");
 }
 
@@ -625,14 +594,11 @@ async function getUpdatedItems() {
 }
 
 function updateRow(data) {
-    const stock = selectedVehicle.Stock;
-    const vehicle = data.find(v => v.Stock === stock);
-    gridApi.forEachNode(function (node) {
-        if (node.data.Stock === stock) {
-            node.setData(vehicle);
-            $("#gallery-tab").text(`Photos (${vehicle.Images.length})`);
-        }
-    });
+    if (typeof window.onMajordomeInventoryDataUpdated === "function") {
+        window.onMajordomeInventoryDataUpdated(data);
+        return;
+    }
+
     hideSpinner($("#inventoryOverlay"));
 }
 
