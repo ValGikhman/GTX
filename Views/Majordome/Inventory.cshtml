@@ -207,6 +207,24 @@
                 color: #166534;
             }
 
+            .majordome-status-pill.is-gtx-x {
+                border-color: rgba(29, 78, 216, .5);
+                background: rgba(37, 99, 235, .14);
+                color: #1d4ed8;
+            }
+
+            .majordome-status-pill.is-gtx-t {
+                border-color: rgba(185, 28, 28, .45);
+                background: rgba(220, 38, 38, .14);
+                color: #b91c1c;
+            }
+
+            .majordome-status-pill.is-gtx-g {
+                border-color: rgba(22, 163, 74, .45);
+                background: rgba(22, 163, 74, .12);
+                color: #166534;
+            }
+
         .majordome-actions {
             display: inline-flex;
             align-items: center;
@@ -334,7 +352,7 @@
     </div>
 </div>
 
-<div class="this-container container-fluid px-5 my-5">
+<div class="this-container container-fluid px-5 my-3">
     <nav class="nav nav-tabs no-wrap-group" id="myTab" role="tablist">
         <button class="btn btn-gradient-grey text-shadow-small active" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#tab-inventory" type="button" role="tab">
             Inventory
@@ -378,7 +396,7 @@
                                     <th class="majordome-sortable-th" data-sort-key="vehicle" style="min-width:220px;">Vehicle <span class="majordome-sort-indicator"></span></th>
                                     <th class="d-none d-lg-table-cell majordome-sortable-th" data-sort-key="purchased" style="min-width:120px;">Purchased <span class="majordome-sort-indicator"></span></th>
                                     <th class="majordome-sortable-th" data-sort-key="stock" style="min-width:110px;">Stock <span class="majordome-sort-indicator"></span></th>
-                                    <th class="d-none d-xl-table-cell majordome-sortable-th" data-sort-key="gtx" style="min-width:120px;">GTX <span class="majordome-sort-indicator"></span></th>
+                                    <th class="text-center d-none d-xl-table-cell majordome-sortable-th" data-sort-key="gtx" style="min-width:120px;">GTX <span class="majordome-sort-indicator"></span></th>
                                     <th class="text-center d-none d-md-table-cell majordome-sortable-th" data-sort-key="upload" style="width:80px;">Upload <span class="majordome-sort-indicator"></span></th>
                                     <th class="text-center d-none d-md-table-cell majordome-sortable-th" data-sort-key="story" style="width:80px;">Story <span class="majordome-sort-indicator"></span></th>
                                     <th class="text-center d-none d-md-table-cell majordome-sortable-th" data-sort-key="dataone" style="width:90px;">DataOne <span class="majordome-sort-indicator"></span></th>
@@ -858,6 +876,25 @@
         return Number.isNaN(parsed) ? Number.NEGATIVE_INFINITY : parsed;
     }
 
+    function getMajordomeGtxBadgeInfo(value) {
+        const label = safeText(value).trim();
+        const normalized = label.toUpperCase();
+        let toneClass = "";
+
+        if (normalized.startsWith("X")) {
+            toneClass = "is-gtx-x";
+        } else if (normalized.startsWith("T")) {
+            toneClass = "is-gtx-t";
+        } else if (normalized.startsWith("G")) {
+            toneClass = "is-gtx-g";
+        }
+
+        return {
+            label: label || "-",
+            toneClass: toneClass
+        };
+    }
+
     function compareMajordomeText(left, right) {
         return safeText(left).localeCompare(safeText(right), undefined, { numeric: true, sensitivity: "base" });
     }
@@ -957,16 +994,13 @@
     }
 
     function buildVehicleSearch(vehicle) {
-        const imageTokens = Array.isArray(vehicle?.Images)
-            ? vehicle.Images.map(function (img) { return img?.Source || ""; }).join(" ")
-            : "";
-
         return [
             vehicle?.Stock,
             vehicle?.VIN,
             vehicle?.Year,
             vehicle?.Make,
             vehicle?.Model,
+            vehicle?.Trim,
             vehicle?.VehicleStyle,
             vehicle?.Type,
             vehicle?.Transmission,
@@ -979,13 +1013,7 @@
             vehicle?.BodyType,
             vehicle?.Color,
             vehicle?.Color2,
-            vehicle?.LocationCode,
-            vehicle?.SetToUpload,
-            vehicle?.DataOne ? "dataone" : "",
-            hasStory(vehicle) ? vehicle.Story?.Title : "",
-            hasStory(vehicle) ? vehicle.Story?.HtmlContent : "",
-            vehicle?.Images?.length || 0,
-            imageTokens
+            vehicle?.LocationCode
         ].map(safeText).join(" ").toUpperCase();
     }
 
@@ -1044,6 +1072,7 @@
         const upload = safeText(row.SetToUpload).toUpperCase() === "Y";
         const story = hasStory(row);
         const dataOne = hasDataOne(row);
+        const gtxBadge = getMajordomeGtxBadgeInfo(row.LocationCode);
 
         return `
             <tr class="majordome-vehicle-row" data-stock="${escapeHtml(stock)}" data-search="${search}">
@@ -1057,7 +1086,9 @@
                 </td>
                 <td class="d-none d-lg-table-cell">${escapeHtml(purchaseDate)}</td>
                 <td><span class="fw-semibold">${escapeHtml(stock)}</span></td>
-                <td class="d-none d-xl-table-cell">${escapeHtml(row.LocationCode)}</td>
+                <td class="text-center d-none d-xl-table-cell">
+                    <span class="majordome-status-pill ${escapeHtml(gtxBadge.toneClass)}">${escapeHtml(gtxBadge.label)}</span>
+                </td>
                 <td class="text-center d-none d-md-table-cell">
                     <span class="majordome-status-pill ${upload ? "is-on" : ""}">${upload ? "Y" : "N"}</span>
                 </td>
