@@ -168,7 +168,11 @@
                     </li>
 
                     <!-- Prequalified (success-ish outline) -->
-                    <li class="mb-2 shadow-sm">@Html.ActionLink("💲 " + I18n.R("Nav_GetPrequalified"), "Application", "Home", null, new { @class = "btn btn-outline-success w-100 rounded-3 fw-semibold" })</li>
+                    <li class="mb-2 shadow-sm">
+                        <a href="@Url.Action("Application", "Home")" class="btn btn-outline-success w-100 rounded-3 fw-semibold">
+                            <i class="bi bi-currency-dollar me-1"></i>@I18n.R("Nav_GetPrequalified")
+                        </a>
+                    </li>
 
                 </ul>
             </div>
@@ -214,7 +218,11 @@
                         <a href="~/Inventory/Index">@I18n.R("Nav_Inventory")</a>
                     </li>
 
-                    <li class="mx-2 d-none">@Html.ActionLink("💲" + I18n.R("Nav_GetPrequalified"), "Application", "Home")</li>
+                    <li class="mx-2 d-none">
+                        <a href="@Url.Action("Application", "Home")">
+                            <i class="bi bi-currency-dollar me-1"></i>@I18n.R("Nav_GetPrequalified")
+                        </a>
+                    </li>
                     <li class="mx-2">@Html.ActionLink(I18n.R("Title_Blog"), "List", "Blogs")</li>
                     <li class="mx-2">
                         <a href="#">@I18n.R("Nav_AboutUs")</a>
