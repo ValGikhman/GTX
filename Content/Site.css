@@ -1282,6 +1282,15 @@ input::placeholder {
     object-fit: contain;
 }
 
+.page-title-mobile-call {
+    line-height: 1;
+}
+
+.page-title-mobile-call span {
+    white-space: nowrap;
+    line-height: 1;
+}
+
 .page-title-inventory-contact {
     max-width: min(56vw, 52rem);
     gap: .55rem;
@@ -1353,6 +1362,25 @@ input::placeholder {
         margin-right: 1rem !important;
     }
 
+    .page-title .page-title-mobile-call {
+        width: auto !important;
+        max-width: 8.35rem;
+        margin-right: .5rem !important;
+        padding: 0 .46rem !important;
+        gap: .2rem !important;
+        font-size: .71rem !important;
+        z-index: 3;
+    }
+
+    .page-title .page-title-mobile-call .bi {
+        font-size: .78rem;
+    }
+
+    .page-title.page-title-mobile-call-enabled #title {
+        width: calc(100% - 12rem) !important;
+        max-width: calc(100% - 12rem);
+    }
+
     .page-title #title {
         width: calc(100% - 7rem) !important;
         max-width: calc(100% - 7rem);
@@ -1375,9 +1403,23 @@ input::placeholder {
         text-overflow: ellipsis;
     }
 
+    html.theme-blue .page-title #title .main-title,
+    html.theme-grey .page-title #title .main-title,
+    html.theme-pink .page-title #title .main-title,
+    html.theme-deep-purple .page-title #title .main-title,
+    html.theme-dark .page-title #title .main-title {
+        color: #fff !important;
+    }
+
+    html.theme-silver .page-title #title .main-title,
+    html.theme-metallica .page-title #title .main-title {
+        color: #111 !important;
+        text-shadow: none;
+    }
+
     .page-title .inventory-details-page-title {
         font-size: .9rem !important;
-        color: #ffff !important;
+        color: inherit !important;
     }
 
     .page-title-mobile-logo {
@@ -1440,6 +1482,17 @@ input::placeholder {
         min-height: 1.78rem;
     }
 
+    .page-title .page-title-mobile-call {
+        max-width: 7.8rem;
+        margin-right: .35rem !important;
+        padding: 0 .34rem !important;
+        font-size: .64rem !important;
+    }
+
+    .page-title .page-title-mobile-call .bi {
+        font-size: .7rem;
+    }
+
     .inventory-mobile-filter-action-btn {
         width: 1.78rem;
         min-width: 1.78rem;
@@ -1462,6 +1515,11 @@ input::placeholder {
         width: calc(100% - 6.35rem) !important;
         max-width: calc(100% - 6.35rem);
         gap: .18rem !important;
+    }
+
+    .page-title.page-title-mobile-call-enabled #title {
+        width: calc(100% - 10.85rem) !important;
+        max-width: calc(100% - 10.85rem);
     }
 
     .page-title #title:has(.inventory-details-page-title) {
@@ -3003,3 +3061,4 @@ a, u {
         max-width: 420px !important;
     }
 }
+

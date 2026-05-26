@@ -278,6 +278,7 @@
                     }
                 }
                 <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small" id="nav-location-tab" data-bs-toggle="tab" data-bs-target="#nav-location" type="button" role="tab" aria-controls="nav-location" aria-selected="true"><i class="bi bi-geo-fill"></i>&nbsp; @I18n.R("All_Location")</button>
+                <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small" id="nav-call-tab" data-bs-toggle="tab" data-bs-target="#nav-call" type="button" role="tab" aria-controls="nav-call" aria-selected="false"><i class="bi bi-telephone-fill"></i>&nbsp; @I18n.R("Nav_ContactUs")</button>
                 <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small d-none" id="nav-payment-tab" data-bs-toggle="tab" data-bs-target="#nav-payment" type="button" role="tab" aria-controls="nav-payment" aria-selected="true"><strong><i class="bi bi-calculator"></i>&nbsp; Pay $<span id="monthlyAmount"></span>/mo</strong></button>
                 @if (ViewBag.CurrentRole != CommonUnit.Roles.User.ToString())
                 {
@@ -429,6 +430,30 @@
                         width="100%"
                         height="360">
                 </iframe>
+            </div>
+            <div class="tab-pane fade well" id="nav-call" role="tabpanel" aria-labelledby="nav-call-tab">
+                <div class="d-flex flex-column align-items-center justify-content-center py-4 gap-3">
+                    <p class="mb-0 text-shadow-small fw-semibold text-center">
+                        <i class="bi bi-geo-alt-fill me-1"></i>
+                        9516 Princeton Glendale Rd, West Chester, OH 45011
+                    </p>
+                    <div class="d-flex flex-wrap justify-content-center gap-2">
+                        <a class="btn btn-gradient-grey border-dark rounded-4 shadow d-inline-flex align-items-center gap-2 px-4 py-2"
+                           href="https://www.google.com/maps/search/?api=1&query=9516+Princeton+Glendale+Rd%2C+West+Chester+Township%2C+OH+45011"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           aria-label="Open map to GTX Auto Group">
+                            <i class="bi bi-map-fill"></i>
+                            <span class="fw-bold">Map</span>
+                        </a>
+                        <a class="btn btn-gradient-grey border-dark rounded-4 shadow d-inline-flex align-items-center gap-2 px-4 py-2"
+                           href="tel:+15134892886"
+                           aria-label="Call (513) 489-2886">
+                            <i class="bi bi-telephone-fill"></i>
+                            <span class="fw-bold">(513) 489-2886</span>
+                        </a>
+                    </div>
+                </div>
             </div>
             <!-- Payment Tab -->
             <div class="tab-pane fade well d-none" id="nav-payment" role="tabpanel" aria-labelledby="nav-payment-tab">
