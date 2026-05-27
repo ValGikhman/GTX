@@ -257,7 +257,7 @@ function calculateMonthlyPayment(P, rate, month) {
     }
 
     function initInventoryDualRangeSliders() {
-        if (!$.fn || typeof $.fn.slider !== "function") {
+        if (!window.noUiSlider || typeof window.noUiSlider.create !== "function") {
             return;
         }
 
@@ -294,9 +294,9 @@ function calculateMonthlyPayment(P, rate, month) {
             $maxInput.val(maxValue);
 
             if (maxLimit <= minLimit) {
-                if ($slider.hasClass("ui-slider")) {
+                if (sliderElement.noUiSlider) {
                     try {
-                        $slider.slider("destroy");
+                        sliderElement.noUiSlider.destroy();
                     } catch (e) { }
                 }
                 $slider.addClass("inventory-range-dual-slider-static");
@@ -305,38 +305,40 @@ function calculateMonthlyPayment(P, rate, month) {
 
             $slider.removeClass("inventory-range-dual-slider-static");
 
-            if ($slider.hasClass("ui-slider")) {
-                $slider.slider("option", {
-                    min: minLimit,
-                    max: maxLimit,
+            if (sliderElement.noUiSlider) {
+                sliderElement.noUiSlider.updateOptions({
+                    range: { min: minLimit, max: maxLimit },
                     step: step
-                });
-                $slider.slider("values", [minValue, maxValue]);
+                }, false);
+                sliderElement.noUiSlider.set([minValue, maxValue]);
                 return;
             }
 
-            $slider.slider({
-                range: true,
-                min: minLimit,
-                max: maxLimit,
+            window.noUiSlider.create(sliderElement, {
+                start: [minValue, maxValue],
+                connect: true,
                 step: step,
-                values: [minValue, maxValue],
-                slide: function (_, ui) {
-                    if (!ui || !ui.values || ui.values.length < 2) return;
+                range: { min: minLimit, max: maxLimit },
+                behaviour: "tap-drag"
+            });
 
-                    $minInput.val(ui.values[0]);
-                    $maxInput.val(ui.values[1]);
-                    syncInventoryRangeLabels();
-                    window.applyInventoryPanelFilters();
-                },
-                change: function (_, ui) {
-                    if (!ui || !ui.values || ui.values.length < 2) return;
+            sliderElement.noUiSlider.on("update", function (values) {
+                var nextMin = parseInventoryNumber(values[0]);
+                var nextMax = parseInventoryNumber(values[1]);
 
-                    $minInput.val(ui.values[0]);
-                    $maxInput.val(ui.values[1]);
-                    syncInventoryRangeLabels();
-                    window.applyInventoryPanelFilters();
+                if (nextMin === null || nextMax === null) return;
+
+                if (nextMin > nextMax) {
+                    var low = Math.min(nextMin, nextMax);
+                    var high = Math.max(nextMin, nextMax);
+                    nextMin = low;
+                    nextMax = high;
                 }
+
+                $minInput.val(nextMin);
+                $maxInput.val(nextMax);
+                syncInventoryRangeLabels();
+                window.applyInventoryPanelFilters();
             });
         });
     }
@@ -402,8 +404,8 @@ function calculateMonthlyPayment(P, rate, month) {
                 $panel.find(".inventory-range-input[data-range-bound='min']").val(minReset);
                 $panel.find(".inventory-range-input[data-range-bound='max']").val(maxReset);
 
-                if (sliderElement && $.fn && typeof $.fn.slider === "function" && $(sliderElement).hasClass("ui-slider")) {
-                    $(sliderElement).slider("values", [minReset, maxReset]);
+                if (sliderElement && sliderElement.noUiSlider) {
+                    sliderElement.noUiSlider.set([minReset, maxReset]);
                 }
                 return;
             }

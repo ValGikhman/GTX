@@ -494,63 +494,68 @@
         background: #e5e7eb;
     }
 
-    .inventory-range-dual-slider.ui-slider {
-        position: relative;
+    .inventory-range-dual-slider.noUi-target {
         border: 0;
         box-shadow: none;
         background: #e5e7eb;
     }
 
-    .inventory-range-dual-slider.ui-slider .ui-slider-range {
-        border: 0;
+    .inventory-range-dual-slider .noUi-connects {
         border-radius: 999px;
+    }
+
+    .inventory-range-dual-slider .noUi-connect {
         background: #155a96;
     }
 
-    .inventory-range-dual-slider.ui-slider .ui-slider-handle {
+    .inventory-range-dual-slider .noUi-handle {
         width: 1rem;
         height: 1rem;
         border-radius: 999px;
         top: -.29rem;
-        margin-left: -.5rem;
+        right: -.5rem;
         border: 2px solid #155a96;
         box-shadow: 0 0 0 2px #fff;
         background: #fff;
         cursor: pointer;
-        touch-action: none;
     }
 
-    html.theme-grey .inventory-range-dual-slider.ui-slider .ui-slider-range,
-    html.theme-dark .inventory-range-dual-slider.ui-slider .ui-slider-range {
+    .inventory-range-dual-slider .noUi-handle::before,
+    .inventory-range-dual-slider .noUi-handle::after {
+        display: none;
+    }
+
+    html.theme-grey .inventory-range-dual-slider .noUi-connect,
+    html.theme-dark .inventory-range-dual-slider .noUi-connect {
         background: #757575;
     }
 
-    html.theme-grey .inventory-range-dual-slider.ui-slider .ui-slider-handle,
-    html.theme-dark .inventory-range-dual-slider.ui-slider .ui-slider-handle {
+    html.theme-grey .inventory-range-dual-slider .noUi-handle,
+    html.theme-dark .inventory-range-dual-slider .noUi-handle {
         border-color: #757575;
     }
 
-    html.theme-pink .inventory-range-dual-slider.ui-slider .ui-slider-range {
+    html.theme-pink .inventory-range-dual-slider .noUi-connect {
         background: #c52674;
     }
 
-    html.theme-pink .inventory-range-dual-slider.ui-slider .ui-slider-handle {
+    html.theme-pink .inventory-range-dual-slider .noUi-handle {
         border-color: #c52674;
     }
 
-    html.theme-deep-purple .inventory-range-dual-slider.ui-slider .ui-slider-range {
+    html.theme-deep-purple .inventory-range-dual-slider .noUi-connect {
         background: #3a145e;
     }
 
-    html.theme-deep-purple .inventory-range-dual-slider.ui-slider .ui-slider-handle {
+    html.theme-deep-purple .inventory-range-dual-slider .noUi-handle {
         border-color: #3a145e;
     }
 
-    html.theme-metallica .inventory-range-dual-slider.ui-slider .ui-slider-range {
+    html.theme-metallica .inventory-range-dual-slider .noUi-connect {
         background: #747d88;
     }
 
-    html.theme-metallica .inventory-range-dual-slider.ui-slider .ui-slider-handle {
+    html.theme-metallica .inventory-range-dual-slider .noUi-handle {
         border-color: #747d88;
     }
 
