@@ -341,6 +341,15 @@ function calculateMonthlyPayment(P, rate, month) {
         });
     }
 
+    function ensureInventoryDualRangeSlidersReady() {
+        if (!window.noUiSlider || typeof window.noUiSlider.create !== "function") {
+            return;
+        }
+
+        initInventoryDualRangeSliders();
+        syncInventoryRangeLabels();
+    }
+
     function selectedRangeByField() {
         var ranges = {};
 
@@ -778,6 +787,18 @@ function calculateMonthlyPayment(P, rate, month) {
         initInventoryDualRangeSliders();
 
         syncInventoryRangeLabels();
+
+        $(document).on("shown.bs.offcanvas", "#inventorySidebarPane", function () {
+            ensureInventoryDualRangeSlidersReady();
+        });
+
+        $(document).on("shown.bs.collapse", ".inventory-range-filter .collapse", function () {
+            ensureInventoryDualRangeSlidersReady();
+        });
+
+        $(window).off("resize.inventoryDualRanges").on("resize.inventoryDualRanges", function () {
+            ensureInventoryDualRangeSlidersReady();
+        });
 
         $(document).on("change", ".inventory-filter-check", window.applyInventoryPanelFilters);
 
