@@ -257,11 +257,15 @@ function calculateMonthlyPayment(P, rate, month) {
     }
 
     function initInventoryDualRangeSliders() {
+        var hasNoUiSlider = !!(window.noUiSlider && typeof window.noUiSlider.create === "function");
+        var hasJqueryUiSlider = !!($.fn && typeof $.fn.slider === "function");
+
         $(".inventory-range-filter[data-range-mode='between']").each(function () {
             var $panel = $(this);
-            var sliderElement = $panel.find(".inventory-range-dual-slider").get(0);
+            var $slider = $panel.find(".inventory-range-dual-slider");
+            var sliderElement = $slider.get(0);
 
-            if (!sliderElement || !window.noUiSlider || typeof window.noUiSlider.create !== "function") {
+            if (!sliderElement) {
                 return;
             }
 
@@ -297,55 +301,114 @@ function calculateMonthlyPayment(P, rate, month) {
                 if (sliderElement.noUiSlider) {
                     sliderElement.noUiSlider.destroy();
                 }
+                if (hasJqueryUiSlider && $slider.hasClass("ui-slider")) {
+                    try {
+                        $slider.slider("destroy");
+                    } catch (e) { }
+                }
                 $(sliderElement).addClass("inventory-range-dual-slider-static");
                 return;
             }
 
             $(sliderElement).removeClass("inventory-range-dual-slider-static");
 
-            if (sliderElement.noUiSlider) {
-                sliderElement.noUiSlider.updateOptions({
-                    range: { min: minLimit, max: maxLimit },
-                    step: step
-                }, false);
-                sliderElement.noUiSlider.set([minValue, maxValue]);
+            if (hasNoUiSlider) {
+                try {
+                    if (hasJqueryUiSlider && $slider.hasClass("ui-slider")) {
+                        try {
+                            $slider.slider("destroy");
+                        } catch (e) { }
+                    }
+
+                    if (sliderElement.noUiSlider) {
+                        sliderElement.noUiSlider.updateOptions({
+                            range: { min: minLimit, max: maxLimit },
+                            step: step
+                        }, false);
+                        sliderElement.noUiSlider.set([minValue, maxValue]);
+                        return;
+                    }
+
+                    window.noUiSlider.create(sliderElement, {
+                        start: [minValue, maxValue],
+                        connect: true,
+                        step: step,
+                        range: { min: minLimit, max: maxLimit },
+                        behaviour: "tap-drag"
+                    });
+
+                    sliderElement.noUiSlider.on("update", function (values) {
+                        var min = parseInventoryNumber(values[0]);
+                        var max = parseInventoryNumber(values[1]);
+
+                        if (min === null || max === null) return;
+
+                        if (min > max) {
+                            var currentLow = Math.min(min, max);
+                            var currentHigh = Math.max(min, max);
+                            min = currentLow;
+                            max = currentHigh;
+                        }
+
+                        $minInput.val(min);
+                        $maxInput.val(max);
+                        syncInventoryRangeLabels();
+                        window.applyInventoryPanelFilters();
+                    });
+                    return;
+                } catch (e) {
+                    if (sliderElement.noUiSlider) {
+                        sliderElement.noUiSlider.destroy();
+                    }
+                }
+            }
+
+            if (hasJqueryUiSlider) {
+                if (sliderElement.noUiSlider) {
+                    sliderElement.noUiSlider.destroy();
+                }
+
+                if ($slider.hasClass("ui-slider")) {
+                    $slider.slider("option", {
+                        min: minLimit,
+                        max: maxLimit,
+                        step: step
+                    });
+                    $slider.slider("values", [minValue, maxValue]);
+                    return;
+                }
+
+                $slider.slider({
+                    range: true,
+                    min: minLimit,
+                    max: maxLimit,
+                    step: step,
+                    values: [minValue, maxValue],
+                    slide: function (_, ui) {
+                        if (!ui || !ui.values || ui.values.length < 2) return;
+
+                        $minInput.val(ui.values[0]);
+                        $maxInput.val(ui.values[1]);
+                        syncInventoryRangeLabels();
+                        window.applyInventoryPanelFilters();
+                    },
+                    change: function (_, ui) {
+                        if (!ui || !ui.values || ui.values.length < 2) return;
+
+                        $minInput.val(ui.values[0]);
+                        $maxInput.val(ui.values[1]);
+                        syncInventoryRangeLabels();
+                        window.applyInventoryPanelFilters();
+                    }
+                });
                 return;
             }
 
-            window.noUiSlider.create(sliderElement, {
-                start: [minValue, maxValue],
-                connect: true,
-                step: step,
-                range: { min: minLimit, max: maxLimit },
-                behaviour: "tap-drag"
-            });
-
-            sliderElement.noUiSlider.on("update", function (values) {
-                var min = parseInventoryNumber(values[0]);
-                var max = parseInventoryNumber(values[1]);
-
-                if (min === null || max === null) return;
-
-                if (min > max) {
-                    var currentLow = Math.min(min, max);
-                    var currentHigh = Math.max(min, max);
-                    min = currentLow;
-                    max = currentHigh;
-                }
-
-                $minInput.val(min);
-                $maxInput.val(max);
-                syncInventoryRangeLabels();
-                window.applyInventoryPanelFilters();
-            });
+            $(sliderElement).addClass("inventory-range-dual-slider-static");
         });
     }
 
     function ensureInventoryDualRangeSlidersReady() {
-        if (!window.noUiSlider || typeof window.noUiSlider.create !== "function") {
-            return;
-        }
-
         initInventoryDualRangeSliders();
         syncInventoryRangeLabels();
     }
@@ -408,6 +471,8 @@ function calculateMonthlyPayment(P, rate, month) {
 
                 if (sliderElement && sliderElement.noUiSlider) {
                     sliderElement.noUiSlider.set([minReset, maxReset]);
+                } else if (sliderElement && $.fn && typeof $.fn.slider === "function" && $(sliderElement).hasClass("ui-slider")) {
+                    $(sliderElement).slider("values", [minReset, maxReset]);
                 }
                 return;
             }
