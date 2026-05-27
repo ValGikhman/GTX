@@ -83,27 +83,17 @@
                          data-range-field="@field"
                          data-range-min="@minText"
                          data-range-max="@maxText"
-                         data-range-step="@stepText">
-                        <div class="inventory-range-dual-track"></div>
-                        <input class="form-range inventory-range-input inventory-range-thumb inventory-range-thumb-min"
-                               type="range"
-                               min="@minText"
-                               max="@maxText"
-                               step="@stepText"
-                               value="@minText"
-                               data-range-field="@field"
-                               data-range-bound="min"
-                               aria-label="@($"{title} minimum")" />
-                        <input class="form-range inventory-range-input inventory-range-thumb inventory-range-thumb-max"
-                               type="range"
-                               min="@minText"
-                               max="@maxText"
-                               step="@stepText"
-                               value="@maxText"
-                               data-range-field="@field"
-                               data-range-bound="max"
-                               aria-label="@($"{title} maximum")" />
-                    </div>
+                         data-range-step="@stepText"></div>
+                    <input type="hidden"
+                           class="inventory-range-input"
+                           data-range-field="@field"
+                           data-range-bound="min"
+                           value="@minText" />
+                    <input type="hidden"
+                           class="inventory-range-input"
+                           data-range-field="@field"
+                           data-range-bound="max"
+                           value="@maxText" />
                 }
                 else
                 {
@@ -498,97 +488,75 @@
     }
 
     .inventory-range-dual-slider {
-        position: relative;
         margin: .15rem .15rem .75rem;
-        height: 1.05rem;
-        --inventory-range-min: 0%;
-        --inventory-range-max: 100%;
-        --inventory-range-accent: #155a96;
+        height: .42rem;
+        border-radius: 999px;
+        background: #e5e7eb;
     }
 
-    .inventory-range-dual-track {
-        position: absolute;
-        left: 0;
-        right: 0;
-        top: 50%;
-        height: .42rem;
-        transform: translateY(-50%);
+    .inventory-range-dual-slider.ui-slider {
+        position: relative;
+        border: 0;
+        box-shadow: none;
+        background: #e5e7eb;
+    }
+
+    .inventory-range-dual-slider.ui-slider .ui-slider-range {
+        border: 0;
         border-radius: 999px;
-        background: linear-gradient(to right, #e5e7eb 0 var(--inventory-range-min), var(--inventory-range-accent) var(--inventory-range-min) var(--inventory-range-max), #e5e7eb var(--inventory-range-max) 100%);
+        background: #155a96;
+    }
+
+    .inventory-range-dual-slider.ui-slider .ui-slider-handle {
+        width: 1rem;
+        height: 1rem;
+        border-radius: 999px;
+        top: -.29rem;
+        margin-left: -.5rem;
+        border: 2px solid #155a96;
+        box-shadow: 0 0 0 2px #fff;
+        background: #fff;
+        cursor: pointer;
+        touch-action: none;
+    }
+
+    html.theme-grey .inventory-range-dual-slider.ui-slider .ui-slider-range,
+    html.theme-dark .inventory-range-dual-slider.ui-slider .ui-slider-range {
+        background: #757575;
+    }
+
+    html.theme-grey .inventory-range-dual-slider.ui-slider .ui-slider-handle,
+    html.theme-dark .inventory-range-dual-slider.ui-slider .ui-slider-handle {
+        border-color: #757575;
+    }
+
+    html.theme-pink .inventory-range-dual-slider.ui-slider .ui-slider-range {
+        background: #c52674;
+    }
+
+    html.theme-pink .inventory-range-dual-slider.ui-slider .ui-slider-handle {
+        border-color: #c52674;
+    }
+
+    html.theme-deep-purple .inventory-range-dual-slider.ui-slider .ui-slider-range {
+        background: #3a145e;
+    }
+
+    html.theme-deep-purple .inventory-range-dual-slider.ui-slider .ui-slider-handle {
+        border-color: #3a145e;
+    }
+
+    html.theme-metallica .inventory-range-dual-slider.ui-slider .ui-slider-range {
+        background: #747d88;
+    }
+
+    html.theme-metallica .inventory-range-dual-slider.ui-slider .ui-slider-handle {
+        border-color: #747d88;
     }
 
     .inventory-range-input {
         margin-bottom: .55rem;
         cursor: pointer;
-    }
-
-    .inventory-range-filter[data-range-mode='between'] .inventory-range-input {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 1.05rem;
-        margin: 0;
-        padding: 0;
-        border: 0;
-        pointer-events: none;
-        -webkit-appearance: none;
-        appearance: none;
-        background: transparent;
-        touch-action: pan-y;
-    }
-
-    .inventory-range-filter[data-range-mode='between'] .inventory-range-input::-webkit-slider-runnable-track {
-        height: .42rem;
-        border: 0;
-        background: transparent;
-    }
-
-    .inventory-range-filter[data-range-mode='between'] .inventory-range-input::-moz-range-track {
-        height: .42rem;
-        border: 0;
-        background: transparent;
-    }
-
-    .inventory-range-filter[data-range-mode='between'] .inventory-range-input::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        width: 1rem;
-        height: 1rem;
-        margin-top: -.29rem;
-        border-radius: 999px;
-        border: 2px solid var(--inventory-range-accent);
-        box-shadow: 0 0 0 2px #fff;
-        background: #fff;
-        pointer-events: auto;
-        cursor: pointer;
-    }
-
-    .inventory-range-filter[data-range-mode='between'] .inventory-range-input::-moz-range-thumb {
-        width: 1rem;
-        height: 1rem;
-        border-radius: 999px;
-        border: 2px solid var(--inventory-range-accent);
-        box-shadow: 0 0 0 2px #fff;
-        background: #fff;
-        pointer-events: auto;
-        cursor: pointer;
-    }
-
-    html.theme-grey .inventory-range-dual-slider,
-    html.theme-dark .inventory-range-dual-slider {
-        --inventory-range-accent: #757575;
-    }
-
-    html.theme-pink .inventory-range-dual-slider {
-        --inventory-range-accent: #c52674;
-    }
-
-    html.theme-deep-purple .inventory-range-dual-slider {
-        --inventory-range-accent: #3a145e;
-    }
-
-    html.theme-metallica .inventory-range-dual-slider {
-        --inventory-range-accent: #747d88;
     }
 
     .inventory-range-input::-webkit-slider-thumb {
