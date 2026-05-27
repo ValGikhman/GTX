@@ -1,4 +1,6 @@
 @model GTX.Models.BaseModel
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider@15.8.1/dist/nouislider.min.css">
+<script src="https://cdn.jsdelivr.net/npm/nouislider@15.8.1/dist/nouislider.min.js"></script>
 
 @helper FilterPanel(string panelId, string title, string icon, string field, string[] values, string emptyText = null)
 {
@@ -47,7 +49,7 @@
     </section>
 }
 
-@helper RangePanel(string panelId, string title, string icon, string field, decimal min, decimal max, decimal step, string format)
+@helper RangePanel(string panelId, string title, string icon, string field, decimal min, decimal max, decimal step, string format, bool useMinMaxRange = false)
 {
     if (max <= 0)
     {
@@ -62,7 +64,8 @@
              data-range-field="@field"
              data-range-min="@minText"
              data-range-max="@maxText"
-             data-range-format="@format">
+             data-range-format="@format"
+             data-range-mode="@(useMinMaxRange ? "between" : "max")">
         <button class="inventory-filter-panel-toggle collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#@panelId" aria-expanded="false" aria-controls="@panelId">
             <span class="inventory-filter-panel-title text-shadow-small">
                 <i class="bi @icon"></i>
@@ -72,17 +75,40 @@
         <div id="@panelId" class="collapse">
             <div class="inventory-filter-panel-body inventory-range-panel-body">
                 <div class="inventory-range-values">
-                    <span>Max</span>
-                    <output class="inventory-range-output shadow" for="@($"{panelId}Max")" data-range-value-label="@field"></output>
+                    <span>@(useMinMaxRange ? "Range" : "Max")</span>
+                    <output class="inventory-range-output shadow" for="@(useMinMaxRange ? $"{panelId}Slider" : $"{panelId}Max")" data-range-value-label="@field"></output>
                 </div>
-                <input id="@($"{panelId}Max")"
-                       class="form-range inventory-range-input"
-                       type="range"
-                       min="@minText"
-                       max="@maxText"
-                       step="@stepText"
-                       value="@maxText"
-                       data-range-field="@field" />
+                @if (useMinMaxRange)
+                {
+                    <div id="@($"{panelId}Slider")"
+                         class="inventory-range-dual-slider"
+                         data-range-field="@field"
+                         data-range-min="@minText"
+                         data-range-max="@maxText"
+                         data-range-step="@stepText"></div>
+                    <input type="hidden"
+                           class="inventory-range-input"
+                           data-range-field="@field"
+                           data-range-bound="min"
+                           value="@minText" />
+                    <input type="hidden"
+                           class="inventory-range-input"
+                           data-range-field="@field"
+                           data-range-bound="max"
+                           value="@maxText" />
+                }
+                else
+                {
+                    <input id="@($"{panelId}Max")"
+                           class="form-range inventory-range-input"
+                           type="range"
+                           min="@minText"
+                           max="@maxText"
+                           step="@stepText"
+                           value="@maxText"
+                           data-range-field="@field"
+                           data-range-bound="max" />
+                }
             </div>
         </div>
     </section>
@@ -98,7 +124,7 @@
     var maxYear = yearValues.Any() ? yearValues.Max() : 0;
     var minMiles = 0m;
     var maxMiles = mileValues.Any() ? Math.Ceiling(mileValues.Max() / 1000m) * 1000m : 0;
-    var minPrice = 0m;
+    var minPrice = priceValues.Any() ? Math.Floor(priceValues.Min() / 1000m) * 1000m : 0m;
     var maxPrice = priceValues.Any() ? Math.Ceiling(priceValues.Max() / 1000m) * 1000m : 0;
 }
 
@@ -122,7 +148,7 @@
         </div>
 
         <div class="inventory-filter-scroll">
-            @RangePanel("invFilterYearRange", "Year", "bi-calendar3", "year", minYear, maxYear, 1m, "year")
+            @RangePanel("invFilterYearRange", "Year", "bi-calendar3", "year", minYear, maxYear, 1m, "year", true)
             @FilterPanel("invFilterMakes", I18n.R("All_Makes"), "bi-building", "make", Model.Filters?.Makes)
             @FilterPanel("invFilterModels", I18n.R("All_Models"), "bi-car-front", "model", Model.Filters?.Models, "Choose a make to see available models.")
             @FilterPanel("invFilterBody", I18n.R("All_Body"), "bi-truck-front", "body", Model.Filters?.BodyTypes)
@@ -131,20 +157,21 @@
             @FilterPanel("invFilterDrive", I18n.R("All_Drive"), "bi-gear", "drive", Model.Filters?.DriveTrains)
             @FilterPanel("invFilterTransmission", I18n.R("All_Transm"), "bi-shuffle", "transmission", Model.Filters?.Transmissions)
             @FilterPanel("invFilterCylinders", I18n.R("All_Cylinders"), "bi-speedometer", "cylinders", Model.Filters?.Cylinders)
-            @RangePanel("invFilterMilesRange", I18n.R("All_Miles"), "bi-speedometer2", "miles", minMiles, maxMiles, 1000m, "number")
-            @RangePanel("invFilterPriceRange", I18n.R("All_Price"), "bi-currency-dollar", "price", minPrice, maxPrice, 1000m, "currency")
+            @RangePanel("invFilterMilesRange", I18n.R("All_Miles"), "bi-speedometer2", "miles", minMiles, maxMiles, 1000m, "number", true)
+            @RangePanel("invFilterPriceRange", I18n.R("All_Price"), "bi-currency-dollar", "price", minPrice, maxPrice, 1000m, "currency", true)
         </div>
     </div>
 </aside>
 
 <style>
     .inventory-split {
-        --inventory-sidebar-width: 340px;
+        --inventory-sidebar-width: 360px;
         display: flex;
         align-items: stretch;
         gap: 0;
         height: 100%;
         min-height: 0;
+        box-sizing: border-box;
         margin-left: 0 !important;
         padding-left: 0 !important;
     }
@@ -152,7 +179,7 @@
     .inventory-sidebar-pane {
         width: var(--inventory-sidebar-width);
         flex: 0 0 var(--inventory-sidebar-width);
-        min-width: 260px;
+        min-width: 280px;
         max-width: 520px;
         height: 100%;
         min-height: 0;
@@ -304,9 +331,10 @@
         flex: 1 1 auto;
         min-height: 0;
         overflow-y: auto;
-        padding: .55rem;
+        padding: .55rem .85rem .55rem .55rem;
         background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
         scrollbar-width: thin;
+        scrollbar-gutter: stable both-edges;
     }
 
     .inventory-filter-scroll::-webkit-scrollbar {
@@ -454,6 +482,83 @@
         background: #e5e7eb;
         color: #1f2937;
         text-align: center;
+        white-space: nowrap;
+    }
+
+    .inventory-range-filter[data-range-mode='between'] .inventory-range-output {
+        min-width: 9rem;
+    }
+
+    .inventory-range-dual-slider {
+        margin: .15rem .15rem .75rem;
+        height: .42rem;
+        border-radius: 999px;
+        background: #e5e7eb;
+    }
+
+    .inventory-range-dual-slider.noUi-target {
+        border: 0;
+        box-shadow: none;
+        background: #e5e7eb;
+    }
+
+    .inventory-range-dual-slider .noUi-connects {
+        border-radius: 999px;
+    }
+
+    .inventory-range-dual-slider .noUi-connect {
+        background: #155a96;
+    }
+
+    .inventory-range-dual-slider .noUi-handle {
+        width: 1rem;
+        height: 1rem;
+        border-radius: 999px;
+        top: -.29rem;
+        right: -.5rem;
+        border: 2px solid #155a96;
+        box-shadow: 0 0 0 2px #fff;
+        background: #fff;
+        cursor: pointer;
+    }
+
+    .inventory-range-dual-slider .noUi-handle::before,
+    .inventory-range-dual-slider .noUi-handle::after {
+        display: none;
+    }
+
+    html.theme-grey .inventory-range-dual-slider .noUi-connect,
+    html.theme-dark .inventory-range-dual-slider .noUi-connect {
+        background: #757575;
+    }
+
+    html.theme-grey .inventory-range-dual-slider .noUi-handle,
+    html.theme-dark .inventory-range-dual-slider .noUi-handle {
+        border-color: #757575;
+    }
+
+    html.theme-pink .inventory-range-dual-slider .noUi-connect {
+        background: #c52674;
+    }
+
+    html.theme-pink .inventory-range-dual-slider .noUi-handle {
+        border-color: #c52674;
+    }
+
+    html.theme-deep-purple .inventory-range-dual-slider .noUi-connect {
+        background: #3a145e;
+    }
+
+    html.theme-deep-purple .inventory-range-dual-slider .noUi-handle {
+        border-color: #3a145e;
+    }
+
+    html.theme-metallica .inventory-range-dual-slider .noUi-connect {
+        background: #747d88;
+    }
+
+    html.theme-metallica .inventory-range-dual-slider .noUi-handle {
+        border-color: #747d88;
     }
 
     .inventory-range-input {
@@ -586,6 +691,12 @@
         background: #fff;
         color: #4b5563;
         font-weight: 800;
+    }
+
+    @@media (min-width: 992px) {
+        #inventorySplit.inventory-split {
+            padding-bottom: calc(var(--gtx-footer-height) + .35rem);
+        }
     }
 
     @@media (max-width: 991.98px) {

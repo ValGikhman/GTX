@@ -332,7 +332,12 @@
 
         refreshCarLikes();
 
-        $('#sortField, #sortDirection').on('change', sortInventory);
+        $('#sortField, #sortDirection').on('change', function () {
+            updateSortDirectionLabel();
+            sortInventory();
+        });
+
+        updateSortDirectionLabel();
 
         if (window.applyInventoryPanelFilters) {
             window.applyInventoryPanelFilters();
@@ -349,6 +354,11 @@
                 $(this).find(".liked").hide();
             }
         });
+    }
+
+    function updateSortDirectionLabel() {
+        var isDesc = $('#sortDirection').is(':checked');
+        $('#sortDirectionLabel').text(isDesc ? 'Z-a' : 'A-z');
     }
 
     function sortInventory() {
