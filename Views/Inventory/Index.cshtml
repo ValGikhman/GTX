@@ -356,11 +356,6 @@
         });
     }
 
-    function updateSortDirectionLabel() {
-        var isDesc = $('#sortDirection').is(':checked');
-        $('#sortDirectionLabel').text(isDesc ? 'Z-a' : 'A-z');
-    }
-
     function sortInventory() {
         var field = $('#sortField').val();
         var desc = $('#sortDirection').is(':checked');
@@ -391,5 +386,10 @@
         });
 
         $container.append($items);
+    }
+
+    function updateSortDirectionLabel() {
+        var isChecked = $('#sortDirection').is(':checked');
+        $('#sortDirectionLabel').text(isChecked ? 'Z-a' : 'A-z');
     }
 </script>
