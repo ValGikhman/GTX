@@ -1,58 +1,394 @@
-﻿@using Newtonsoft.Json
+@using System.Linq
 @model Services.Log[]
-<head>
-    <!-- Includes all JS & CSS for the JavaScript Data Grid -->
-    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.1/dist/ag-grid-community.min.js"></script>
-</head>
+@{
+    var logs = Model ?? System.Array.Empty<Services.Log>();
+    var levels = logs
+        .Select(l => (l?.LogLevel ?? string.Empty).Trim())
+        .Where(l => !string.IsNullOrWhiteSpace(l))
+        .Distinct(System.StringComparer.OrdinalIgnoreCase)
+        .OrderBy(l => l)
+        .ToList();
+}
 
 <style>
-    .ag-paging-panel {
-        justify-content: left !important;
+    .majordome-logs-shell {
+        background: #fff;
+        border-radius: 1rem;
+        box-shadow: 0 .75rem 1.8rem rgba(15, 23, 42, .08);
+    }
+
+    .majordome-logs-header {
+        border-bottom: 1px solid rgba(15, 23, 42, .1);
+        background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+    }
+
+    .majordome-logs-title {
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: .02em;
+        color: #0f172a;
+    }
+
+    .majordome-logs-search {
+        min-width: 280px;
+        max-width: 540px;
+    }
+
+    .majordome-logs-tools {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .majordome-logs-table-wrap {
+        max-height: 68vh;
+        overflow: auto;
+    }
+
+        .majordome-logs-table-wrap thead th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            text-transform: uppercase;
+            font-size: .76rem;
+            letter-spacing: .03em;
+            white-space: nowrap;
+            border-bottom: 1px solid rgba(15, 23, 42, .16);
+        }
+
+    .logs-sort {
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .logs-sort-icon {
+        opacity: .45;
+        transition: opacity .15s;
+    }
+
+    .logs-sort.is-active .logs-sort-icon {
+        opacity: 1;
+    }
+
+    .log-cell {
+        font-size: .92rem;
+        line-height: 1.25rem;
+        vertical-align: top;
+    }
+
+    .log-cell-message,
+    .log-cell-exception,
+    .log-cell-url {
+        max-width: 460px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .log-level-badge {
+        min-width: 70px;
+        text-align: center;
+    }
+
+    @media (max-width: 991.98px) {
+        .majordome-logs-page {
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }
+
+        .majordome-logs-search {
+            min-width: 220px;
+            width: 100%;
+            max-width: none;
+        }
+
+        .majordome-logs-tools {
+            justify-content: center;
+        }
+
+        .majordome-logs-table-wrap {
+            max-height: none;
+        }
     }
 </style>
 
-<div class="d-flex justify-content-center vh-75 p-5 well shadow">
-    <div id="myGrid" class="ag-theme-alpine w-75" style="height: 80vh;"></div>
+<div class="majordome-logs-page container-fluid px-4 py-3">
+    <div class="majordome-logs-shell shadow rounded-4 overflow-hidden border border-dark-subtle">
+        <div class="majordome-logs-header p-3">
+            <div class="d-flex flex-column align-items-center gap-2">
+                <h5 class="majordome-logs-title mb-0 text-center">Application logs</h5>
+                <div class="majordome-logs-tools d-flex align-items-center gap-2 flex-wrap">
+                    <div class="input-group majordome-logs-search">
+                        <span class="input-group-text bg-white">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input id="logsSearch" type="search" class="form-control" placeholder="Search logs..." aria-label="Search logs">
+                    </div>
+                    <select id="logsLevelFilter" class="form-select" style="width:170px;">
+                        <option value="all" selected>All levels</option>
+                        @foreach (var level in levels)
+                        {
+                            <option value="@level.ToUpperInvariant()">@level</option>
+                        }
+                    </select>
+                    <select id="logsPageSize" class="form-select" style="width:90px;">
+                        <option value="20" selected>20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="majordome-logs-table-wrap table-responsive">
+            <table id="logsTable" class="table table-hover align-middle m-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="logs-sort" data-sort-key="loglevel" style="width:110px;">Level <i class="bi bi-arrow-down-up logs-sort-icon ms-1"></i></th>
+                        <th class="logs-sort" data-sort-key="message" style="min-width:320px;">Message <i class="bi bi-arrow-down-up logs-sort-icon ms-1"></i></th>
+                        <th class="logs-sort d-none d-xl-table-cell" data-sort-key="exception" style="min-width:300px;">Exception <i class="bi bi-arrow-down-up logs-sort-icon ms-1"></i></th>
+                        <th class="logs-sort d-none d-lg-table-cell" data-sort-key="url" style="min-width:280px;">Url <i class="bi bi-arrow-down-up logs-sort-icon ms-1"></i></th>
+                        <th class="logs-sort text-center d-none d-md-table-cell" data-sort-key="method" style="width:100px;">Method <i class="bi bi-arrow-down-up logs-sort-icon ms-1"></i></th>
+                        <th class="logs-sort text-center d-none d-lg-table-cell" data-sort-key="ip" style="min-width:140px;">IP Address <i class="bi bi-arrow-down-up logs-sort-icon ms-1"></i></th>
+                        <th class="logs-sort" data-sort-key="created" style="min-width:190px;">Created <i class="bi bi-arrow-down-up logs-sort-icon ms-1"></i></th>
+                    </tr>
+                </thead>
+                <tbody id="logsTableBody">
+                    @foreach (var log in logs)
+                    {
+                        System.DateTime? createdRaw = null;
+                        if (log != null)
+                        {
+                            createdRaw = log.DateCreated;
+                        }
+                        var createdDisplay = createdRaw.HasValue ? createdRaw.Value.ToString("MM/dd/yyyy HH:mm:ss") : string.Empty;
+                        var createdSort = createdRaw.HasValue ? createdRaw.Value.ToString("o") : string.Empty;
+                        var level = log?.LogLevel ?? string.Empty;
+                        var message = log?.Message ?? string.Empty;
+                        var exception = log?.Exception ?? string.Empty;
+                        var url = log?.Url ?? string.Empty;
+                        var method = log?.HttpMethod ?? string.Empty;
+                        var ipAddress = log?.IPAddress ?? string.Empty;
+                        var searchBlob = string.Join(" ", new[] { level, message, exception, url, method, ipAddress, createdDisplay });
+                        var levelUpper = level.ToUpperInvariant();
+                        var badgeClass = levelUpper.Contains("ERROR") || levelUpper.Contains("FATAL")
+                            ? "bg-danger-subtle text-danger border border-danger-subtle"
+                            : levelUpper.Contains("WARN")
+                                ? "bg-warning-subtle text-warning-emphasis border border-warning-subtle"
+                                : "bg-secondary-subtle text-secondary border border-secondary-subtle";
+
+                        <tr class="logs-row"
+                            data-loglevel="@levelUpper"
+                            data-search="@searchBlob.ToUpperInvariant()"
+                            data-created="@createdSort">
+                            <td data-col="loglevel" class="log-cell">
+                                <span class="badge rounded-pill log-level-badge @badgeClass">@level</span>
+                            </td>
+                            <td data-col="message" class="log-cell log-cell-message" title="@message">@message</td>
+                            <td data-col="exception" class="log-cell log-cell-exception d-none d-xl-table-cell" title="@exception">@exception</td>
+                            <td data-col="url" class="log-cell log-cell-url d-none d-lg-table-cell" title="@url">@url</td>
+                            <td data-col="method" class="log-cell text-center d-none d-md-table-cell">@method</td>
+                            <td data-col="ip" class="log-cell text-center d-none d-lg-table-cell">@ipAddress</td>
+                            <td data-col="created" class="log-cell text-nowrap">@createdDisplay</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 p-3 border-top">
+            <div id="logsResultInfo" class="small text-muted">Loading...</div>
+            <div class="d-flex align-items-center gap-2">
+                <button id="logsPrev" type="button" class="btn btn-sm btn-gradient-grey border-dark-subtle">Prev</button>
+                <span id="logsPageInfo" class="small fw-semibold px-2">0 / 0</span>
+                <button id="logsNext" type="button" class="btn btn-sm btn-gradient-grey border-dark-subtle">Next</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script type="text/javascript">
-    let gridApi = null;
-
-    const columnDefs = [
-        { headerName: "LogLevel", field: "LogLevel", width: 100},
-        { headerName: "Message", field: "Message"},
-        { headerName: "Exception", field: "Exception" },
-        { headerName: "Url", field: "Url" },
-        { headerName: "Method", field: "HttpMethod" , width:100},
-        { headerName: "IPAddress", field: "IPAddress" },
-        {
-            headerName: "Created", field: "DateCreated",  width: 100, valueFormatter: (params) => {
-                if (!params.value) return '';
-                const date = new Date(params.value);
-                return date.toLocaleString(); // or custom format
-            }, width:200 }
-    ]
-
-    const gridOptions = {
-        rowData: @Html.Raw(JsonConvert.SerializeObject(Model)),
-        onGridReady: (params) => {
-            gridApi = params.api; // ✅ store reference globally
-        },
-        columnDefs: columnDefs,
-        pagination: true,
-        paginationPageSize: 20,
-        paginationPageSizeSelector: [20, 50, 100],
-        defaultColDef: {
-            sortable: true,
-            filter: true,
-            resizable: true,
-            headerClass: 'text-shadow fw-normal td-center'
-        },
-        rowHeight: 30
-    }
-
     $(function () {
-        var grid = document.querySelector('#myGrid'); /// $("#myGrid");
-        agGrid.createGrid(grid, gridOptions);
+        const $tbody = $("#logsTableBody");
+        const $search = $("#logsSearch");
+        const $level = $("#logsLevelFilter");
+        const $pageSize = $("#logsPageSize");
+        const $prev = $("#logsPrev");
+        const $next = $("#logsNext");
+        const $pageInfo = $("#logsPageInfo");
+        const $resultInfo = $("#logsResultInfo");
+        const $sortHeaders = $("#logsTable thead th.logs-sort");
+
+        const rows = $tbody.find("tr.logs-row").toArray().map(function (row) {
+            const $row = $(row);
+            return {
+                row: row,
+                loglevel: ($row.data("loglevel") || "").toString(),
+                search: ($row.data("search") || "").toString(),
+                createdTicks: Date.parse(($row.data("created") || "").toString()) || 0,
+                message: ($row.find('[data-col="message"]').text() || "").trim().toLowerCase(),
+                exception: ($row.find('[data-col="exception"]').text() || "").trim().toLowerCase(),
+                url: ($row.find('[data-col="url"]').text() || "").trim().toLowerCase(),
+                method: ($row.find('[data-col="method"]').text() || "").trim().toLowerCase(),
+                ip: ($row.find('[data-col="ip"]').text() || "").trim().toLowerCase(),
+                created: ($row.find('[data-col="created"]').text() || "").trim().toLowerCase()
+            };
+        });
+
+        const state = {
+            term: "",
+            level: "all",
+            page: 1,
+            pageSize: parseInt($pageSize.val(), 10) || 20,
+            sortKey: "created",
+            sortDir: "desc"
+        };
+
+        function compareValues(a, b) {
+            if (a === b) return 0;
+            return a > b ? 1 : -1;
+        }
+
+        function sortRows(filteredRows) {
+            const sorted = filteredRows.slice();
+            const key = state.sortKey;
+            const dir = state.sortDir === "asc" ? 1 : -1;
+
+            sorted.sort(function (a, b) {
+                let valA;
+                let valB;
+
+                if (key === "created") {
+                    valA = a.createdTicks;
+                    valB = b.createdTicks;
+                    return compareValues(valA, valB) * dir;
+                }
+
+                if (key === "loglevel") {
+                    valA = (a.loglevel || "").toLowerCase();
+                    valB = (b.loglevel || "").toLowerCase();
+                } else {
+                    valA = (a[key] || "").toLowerCase();
+                    valB = (b[key] || "").toLowerCase();
+                }
+
+                return valA.localeCompare(valB, undefined, { numeric: true, sensitivity: "base" }) * dir;
+            });
+
+            return sorted;
+        }
+
+        function applyFilters() {
+            const termUpper = (state.term || "").toUpperCase();
+            const filterLevel = (state.level || "all").toUpperCase();
+
+            return rows.filter(function (row) {
+                const termMatch = !termUpper || row.search.includes(termUpper);
+                const levelMatch = filterLevel === "ALL" || row.loglevel === filterLevel;
+                return termMatch && levelMatch;
+            });
+        }
+
+        function syncSortIndicators() {
+            $sortHeaders.each(function () {
+                const $header = $(this);
+                const key = ($header.data("sortKey") || "").toString();
+                const $icon = $header.find(".logs-sort-icon");
+                const isActive = key === state.sortKey;
+
+                $header.toggleClass("is-active", isActive);
+                $icon.removeClass("bi-arrow-down-up bi-arrow-up bi-arrow-down");
+
+                if (!isActive) {
+                    $icon.addClass("bi-arrow-down-up");
+                    return;
+                }
+
+                $icon.addClass(state.sortDir === "asc" ? "bi-arrow-up" : "bi-arrow-down");
+            });
+        }
+
+        function render() {
+            const filtered = sortRows(applyFilters());
+            const total = filtered.length;
+            const totalPages = total === 0 ? 0 : Math.ceil(total / state.pageSize);
+
+            if (totalPages === 0) {
+                state.page = 1;
+            } else if (state.page > totalPages) {
+                state.page = totalPages;
+            } else if (state.page < 1) {
+                state.page = 1;
+            }
+
+            const startIndex = total === 0 ? 0 : (state.page - 1) * state.pageSize;
+            const endIndex = total === 0 ? 0 : Math.min(startIndex + state.pageSize, total);
+            const pageRows = filtered.slice(startIndex, endIndex);
+
+            $tbody.empty();
+
+            if (pageRows.length === 0) {
+                $tbody.append('<tr><td colspan="7" class="text-center p-4 text-muted">No logs match the current filter.</td></tr>');
+            } else {
+                $tbody.append(pageRows.map(function (entry) { return entry.row; }));
+            }
+
+            if (total === 0) {
+                $resultInfo.text("No matching logs");
+                $pageInfo.text("0 / 0");
+            } else {
+                $resultInfo.text("Showing " + (startIndex + 1) + "-" + endIndex + " of " + total + " logs");
+                $pageInfo.text(state.page + " / " + totalPages);
+            }
+
+            $prev.prop("disabled", totalPages <= 1 || state.page <= 1);
+            $next.prop("disabled", totalPages <= 1 || state.page >= totalPages);
+
+            syncSortIndicators();
+        }
+
+        $search.on("input", function () {
+            state.term = ($(this).val() || "").trim();
+            state.page = 1;
+            render();
+        });
+
+        $level.on("change", function () {
+            state.level = ($(this).val() || "all").toString();
+            state.page = 1;
+            render();
+        });
+
+        $pageSize.on("change", function () {
+            state.pageSize = parseInt($(this).val(), 10) || 20;
+            state.page = 1;
+            render();
+        });
+
+        $prev.on("click", function () {
+            state.page -= 1;
+            render();
+        });
+
+        $next.on("click", function () {
+            state.page += 1;
+            render();
+        });
+
+        $sortHeaders.on("click", function () {
+            const key = ($(this).data("sortKey") || "").toString();
+            if (!key) return;
+
+            if (state.sortKey === key) {
+                state.sortDir = state.sortDir === "asc" ? "desc" : "asc";
+            } else {
+                state.sortKey = key;
+                state.sortDir = key === "created" ? "desc" : "asc";
+            }
+
+            state.page = 1;
+            render();
+        });
+
+        render();
     });
 </script>

@@ -1,25 +1,42 @@
-﻿<div class="d-flex justify-content-evenly rounded p-3 gap-3 my-3">
-    @{
-        GTX.Models.OpenHours[] openHours = Utility.XMLHelpers.XmlRepository.GetOpenHours();
-        if (openHours != null) {
-            foreach (var open in openHours) {
-                <button type="button" class="btn btn-light shadow position-relative">
-                    @open.Description
-                    <span class="position-absolute start-0 translate-middle-y shadow badge rounded bg-secondary" style="margin-top: -5px">
-                        @open.Day
-                    </span>
-                </button>
+<div class="open-hours-panel">
+    <div class="d-flex justify-content-evenly rounded p-3 gap-3 my-3 open-hours-days">
+        @{
+            GTX.Models.OpenHours[] openHours = Utility.XMLHelpers.XmlRepository.GetOpenHours();
+            if (openHours != null) {
+                foreach (var open in openHours) {
+                    <button type="button" class="btn btn-light shadow position-relative open-hours-day-btn">
+                        <span class="shadow badge rounded bg-secondary open-hours-day-badge">
+                            @open.Day
+                        </span>
+                        <span class="open-hours-day-hours">@open.Description</span>
+                    </button>
+                }
             }
         }
-    }
-</div>
+    </div>
 
-<div class="d-flex justify-content-evenly rounded p-3 gap-3">
-    <img class="well w-50 rounded-2 shadow" src="@Url.Content("~/GTXImages/gtx.jpg")">
-    <iframe loading="lazy"
-            allowfullscreen
-            referrerpolicy="no-referrer-when-downgrade"
-            src="https://www.google.com/maps?q=9516+Prinston+Glendale+Rd,+West+Checter,+OH, 45011&output=embed"
-            class="well w-75 shadow">
-    </iframe>
+    <div class="well shadow-sm open-hours-address-card">
+        <div class="open-hours-address-text">
+            <div class="fw-bold text-dark">9516 Princeton Glendale Rd</div>
+            <div class="small text-secondary">West Chester, OH 45011</div>
+        </div>
+        <button type="button"
+                class="btn btn-light border-secondary rounded-3 shadow-sm mobile-menu-copy-address open-hours-copy-address"
+                data-copy-address="9516 Princeton Glendale Rd, West Chester, OH 45011"
+                aria-label="Copy address">
+            <i class="bi bi-copy"></i>
+            <span>Copy address</span>
+        </button>
+    </div>
+
+    <div class="d-flex justify-content-evenly rounded p-3 gap-3 open-hours-media">
+        <img class="well w-50 rounded-2 shadow open-hours-photo" src="@Url.Content("~/GTXImages/gtx.jpg")" alt="GTX Auto Group">
+        <iframe loading="lazy"
+                allowfullscreen
+                referrerpolicy="no-referrer-when-downgrade"
+                src="https://www.google.com/maps?q=9516+Prinston+Glendale+Rd,+West+Checter,+OH, 45011&output=embed"
+                class="well w-75 shadow open-hours-map"
+                title="GTX Auto Group map">
+        </iframe>
+    </div>
 </div>

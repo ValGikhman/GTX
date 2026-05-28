@@ -1,0 +1,98 @@
+/* Silver.css (scoped silver theme) */
+html.theme-silver {
+    --gtx-grad: linear-gradient(180deg, rgb(255 255 255), #AAAAB3);
+    --gtx-grad-rev: linear-gradient(0deg, rgb(255 255 255), #AAAAB3);
+}
+
+    html.theme-silver .btn-big-gradient,
+    html.theme-silver .btn-big-gradient:hover,
+    html.theme-silver .btn-big-gradient:focus,
+    html.theme-silver .btn-gradient,
+    html.theme-silver .btn-gradient:hover,
+    html.theme-silver .btn-gradient:focus,
+    html.theme-silver .btn-gradient-grey.active,
+    html.theme-silver .menu-strip,
+    html.theme-silver .modal-header,
+    html.theme-silver .small-offcanvas,
+    html.theme-silver .inventory-mobile-filter-btn,
+    html.theme-silver .inventory-mobile-filter-btn:hover,
+    html.theme-silver .inventory-mobile-filter-btn:focus,
+    html.theme-silver .gradient,
+    html.theme-silver .btn-big-gradient-yellow,
+    html.theme-silver .btn-big-gradient-yellow:hover,
+    html.theme-silver .btn-big-gradient-yellow:focus,
+    html.theme-silver .btn-gradient-green,
+    html.theme-silver .btn-gradient-green:hover,
+    html.theme-silver .btn-gradient-green:focus,
+    html.theme-silver .card-header,
+    html.theme-silver .card-footer {
+        color: #111 !important;
+        text-shadow: none !important;
+        font-weight: 700 !important;
+    }
+
+    html.theme-silver .btn-big-gradient,
+    html.theme-silver .btn-big-gradient:hover,
+    html.theme-silver .btn-big-gradient:focus,
+    html.theme-silver .menu-strip,
+    html.theme-silver .modal-header,
+    html.theme-silver .small-offcanvas {
+        background: var(--gtx-grad) !important;
+    }
+
+    html.theme-silver .btn-gradient,
+    html.theme-silver .btn-gradient-grey.active {
+        background: var(--gtx-grad) !important;
+        color: #111 !important;
+        border-color: rgba(0,0,0,.35) !important;
+    }
+
+    html.theme-silver .header__menu ul li .dropdown {
+        background: var(--gtx-grad) !important;
+    }
+
+    html.theme-silver .header__menu ul li a {
+        color: #111 !important;
+        text-shadow: none !important;
+        font-weight: 700 !important;
+    }
+
+        html.theme-silver .header__menu ul li a:after {
+            background: #111 !important;
+        }
+
+    html.theme-silver .menu-strip,
+    html.theme-silver .menu-strip a,
+    html.theme-silver .menu-strip span,
+    html.theme-silver .menu-strip .nav-addr-hours,
+    html.theme-silver .menu-strip .addr-line1,
+    html.theme-silver .menu-strip .addr-line2 {
+        font-weight: 700 !important;
+    }
+
+    html.theme-silver .form-check-input:checked {
+        background-color: #8f98a3;
+        border-color: #8f98a3;
+    }
+
+    html.theme-silver #modalShortcuts .text-white,
+    html.theme-silver [data-bs-target="#details"] .text-white,
+    html.theme-silver [data-bs-target="#suggestion"] .text-white {
+        color: #111 !important;
+        text-shadow: none !important;
+        font-weight: 700 !important;
+    }
+
+    html.theme-silver #openHours .open-hours-panel-controls {
+        color: #111 !important;
+        text-shadow: none !important;
+    }
+
+    html.theme-silver #openHours .open-hours-close-btn {
+        filter: none !important;
+    }
+
+        html.theme-silver #openHours .open-hours-close-btn:hover,
+        html.theme-silver #openHours .open-hours-close-btn:focus {
+            background-color: rgba(0, 0, 0, .06) !important;
+        }

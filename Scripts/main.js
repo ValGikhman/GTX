@@ -342,7 +342,7 @@ function getNow() {
         offset: new Date().getTimezoneOffset() 
     })
     .done(function (html) {
-        $("#schedule").text(html.Now);
+        $(".schedule").text(html.Now);
     });
 }
 

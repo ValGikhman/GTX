@@ -41,7 +41,8 @@ namespace GTX {
                       "~/Content/Themes/Blue.css",
                       "~/Content/Themes/DeepPurple.css",
                       "~/Content/Themes/Dark.css",
-                      "~/Content/Themes/Metallica.css"
+                      "~/Content/Themes/Metallica.css",
+                      "~/Content/Themes/Silver.css"
 
                 ));
         }

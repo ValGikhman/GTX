@@ -15,6 +15,48 @@
         overflow-y: hidden !important;
     }
 
+    #inventorySplit {
+        margin-top: 0 !important;
+    }
+
+    .inventory-contact-strip {
+        margin: 0;
+        padding: .55rem .8rem;
+        border: 1px solid rgba(0, 0, 0, .16);
+        border-radius: .55rem;
+        background: linear-gradient(180deg, #ffffff 0%, #edf2f8 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: .9rem;
+        flex-wrap: wrap;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .inventory-contact-address {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        font-weight: 800;
+        color: #1f2937;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        cursor: pointer;
+    }
+
+    .inventory-contact-address.copied {
+        color: #0b7a2f;
+        text-decoration-color: #0b7a2f;
+    }
+
+    .inventory-contact-map-btn {
+        white-space: nowrap;
+        padding: .25rem .55rem;
+        font-size: .85rem;
+        line-height: 1.1;
+    }
+
     @@media only screen and (min-width: 768px) and (max-width: 991px) {
         #title {
             margin-left: -160px !important;
@@ -25,6 +67,17 @@
 
 
 <!-- Scrollable wrapper -->
+<script>
+    (function () {
+        var root = document.documentElement;
+        root.classList.add("inventory-page-loading");
+
+        // Failsafe: never keep the page hidden if an init script errors out.
+        window.addEventListener("load", function () {
+            root.classList.remove("inventory-page-loading");
+        }, { once: true });
+    })();
+</script>
 @{
     var inventoryAction = (ViewContext.RouteData.Values["action"] ?? string.Empty).ToString();
     var inventoryRouteType = string.Empty;
@@ -51,9 +104,48 @@
             break;
     }
 }
+<div class="inventory-contact-strip shadow-sm d-lg-none">
+    <span id="inventoryAddressCopy"
+          class="inventory-contact-address"
+          role="button"
+          tabindex="0"
+          data-address="9516 Princeton Glendale Rd, West Chester, OH 45011"
+          title="Click to copy address">
+        <i class="bi bi-geo-alt-fill"></i>9516 Princeton Glendale Rd, West Chester, OH 45011
+    </span>
+    <a href="https://www.google.com/maps/search/?api=1&query=9516+Princeton+Glendale+Rd%2C+West+Chester+Township%2C+OH+45011" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-gradient-grey border-dark rounded-3 shadow-sm inventory-contact-map-btn">
+        <i class="bi bi-map"></i> <strong> Map </strong>
+    </a>
+</div>
 <div id="inventorySplit" class="inventory-wrapper inventory-split" data-route-type-filter="@inventoryRouteType" data-all-inventory-url="@Url.Action("All", "Inventory")">
-    <div id="inventorySidebarPane" class="inventory-sidebar-pane">
-        @Html.Partial("_InventoryCheckboxFilters", Model)
+    <div id="inventorySidebarPane" class="inventory-sidebar-pane offcanvas offcanvas-top inventory-filter-offcanvas" tabindex="-1" aria-labelledby="inventoryFiltersLabel">
+        <div class="offcanvas-header inventory-filter-offcanvas-header d-lg-none">
+            <button type="button"
+                    id="inventoryClearFilters"
+                    class="btn btn-sm btn-gradient-grey border-dark rounded-3 shadow text-black fw-bold inventory-clear-btn inventory-filter-offcanvas-clear-btn"
+                    title="Clear filters"
+                    aria-label="Clear filters">
+                <i class="bi bi-eraser-fill"></i>
+                <span>Clear</span>
+            </button>
+            <div class="inventory-filter-offcanvas-title-wrap">
+                <h5 class="offcanvas-title" id="inventoryFiltersLabel">
+                    <i class="bi bi-sliders2 me-2"></i>
+                    <span id="inventoryMobileFilterCount">0</span>
+                    <span>active filter(s)</span>
+                </h5>
+            </div>
+            <button type="button"
+                    class="btn btn-sm btn-gradient-grey border-dark rounded-3 shadow text-black fw-bold inventory-clear-btn inventory-filter-offcanvas-close-btn"
+                    data-bs-dismiss="offcanvas"
+                    aria-label="Close filters">
+                <i class="bi bi-x-lg"></i>
+                <span>Close</span>
+            </button>
+        </div>
+        <div class="offcanvas-body inventory-filter-offcanvas-body">
+            @Html.Partial("_InventoryCheckboxFilters", Model)
+        </div>
     </div>
 
     <div id="inventorySplitDivider" class="inventory-split-divider" role="separator" aria-orientation="vertical" title="Drag to resize filters">
@@ -65,6 +157,30 @@
     <div class="inventory-results-zone">
         @if (Model.Inventory?.Vehicles.Count() > 0)
         {
+            <div class="inventory-mobile-filter-bar d-lg-none">
+                <div id="inventoryMobileFilterToggle"
+                     class="btn inventory-mobile-filter-btn"
+                     role="button"
+                     tabindex="0"
+                     aria-controls="inventorySidebarPane"
+                     aria-label="Open filters">
+                    <span class="inventory-mobile-filter-title">
+                        <i class="bi bi-sliders2"></i>
+                        <span>Filters</span>
+                    </span>
+                    <span class="inventory-mobile-filter-meta">
+                        <span id="inventoryMobileMatchCount">0</span> vehicles
+                        <span id="inventoryMobileActiveBadge" class="inventory-mobile-active-badge">0</span>
+                    </span>
+                    <button type="button"
+                            id="inventoryMobileClearFilters"
+                            class="btn btn-gradient-grey border-black shadow rounded-4 inventory-mobile-filter-action-btn inventory-mobile-clear-btn"
+                            title="Clear filters"
+                            aria-label="Clear filters">
+                        <i class="bi bi-eraser-fill"></i>
+                    </button>
+                </div>
+            </div>
             @Html.Partial("_FilterByTerm")
         }
 
@@ -76,9 +192,11 @@
             @{
                 if (Model.Inventory?.Vehicles != null)
                 {
+                    var inventoryCardIndex = 0;
                     foreach (var vehicle in Model.Inventory.Vehicles)
                     {
-                        @Html.Partial("_Card", vehicle)
+                        @Html.Partial("_Card", vehicle, new ViewDataDictionary(ViewData) { { "InventoryCardIndex", inventoryCardIndex } })
+                        inventoryCardIndex++;
                     }
                 }
                 else
@@ -95,6 +213,64 @@
 <script type="text/javascript">
     $(function () {
         $("#filterTerm").removeClass("rounded-end-4");
+
+        function markAddressCopied($address) {
+            if (!$address || !$address.length) return;
+
+            $address.addClass("copied");
+            $address.attr("title", "Copied to clipboard");
+            setTimeout(function () {
+                $address.removeClass("copied");
+                $address.attr("title", "Click to copy address");
+            }, 1200);
+        }
+
+        function fallbackCopyAddress(text, $address) {
+            const $temp = $("<textarea readonly></textarea>").val(text).css({
+                position: "fixed",
+                top: "-9999px",
+                left: "-9999px"
+            });
+
+            $("body").append($temp);
+            $temp[0].focus();
+            $temp[0].select();
+
+            try {
+                document.execCommand("copy");
+            } finally {
+                $temp.remove();
+                markAddressCopied($address);
+            }
+        }
+
+        function copyAddress(text, $address) {
+            if (!text) return;
+
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text)
+                    .then(function () {
+                        markAddressCopied($address);
+                    })
+                    .catch(function () {
+                        fallbackCopyAddress(text, $address);
+                    });
+                return;
+            }
+
+            fallbackCopyAddress(text, $address);
+        }
+
+        $("#inventoryAddressCopy, #pageTitleInventoryAddressCopy").on("click keydown", function (e) {
+            const key = e.key || "";
+            const keyCode = e.keyCode || 0;
+            const isKeyboardActivate = e.type === "keydown" && (key === "Enter" || key === " " || keyCode === 13 || keyCode === 32);
+
+            if (e.type === "keydown" && !isKeyboardActivate) return;
+            if (isKeyboardActivate) e.preventDefault();
+
+            copyAddress($(this).data("address"), $(this));
+        });
 
         const term = sessionStorage.getItem("term");
         if (term === undefined || term === "" || term === null) {
@@ -119,13 +295,24 @@
 
         }
 
+        let detailsNavigationStarted = false;
         $(window).on('pageshow', function (event) {
+            detailsNavigationStarted = false;
+            if (typeof hideSpinner === "function") {
+                hideSpinner("#loadingOverlay");
+            }
+
             loadLastCars();
             loadLikedCars();
             refreshCarLikes();
         });
 
-        let detailsNavigationStarted = false;
+        $(document).on("visibilitychange", function () {
+            if (document.visibilityState === "visible") {
+                detailsNavigationStarted = false;
+            }
+        });
+
         $("#inventory").on("click", ".card", function () {
             if (detailsNavigationStarted) return;
 
@@ -145,7 +332,12 @@
 
         refreshCarLikes();
 
-        $('#sortField, #sortDirection').on('change', sortInventory);
+        $('#sortField, #sortDirection').on('change', function () {
+            updateSortDirectionLabel();
+            sortInventory();
+        });
+
+        updateSortDirectionLabel();
 
         if (window.applyInventoryPanelFilters) {
             window.applyInventoryPanelFilters();
@@ -194,5 +386,10 @@
         });
 
         $container.append($items);
+    }
+
+    function updateSortDirectionLabel() {
+        var isChecked = $('#sortDirection').is(':checked');
+        $('#sortDirectionLabel').text(isChecked ? 'Z-a' : 'A-z');
     }
 </script>

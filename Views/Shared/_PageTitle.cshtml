@@ -1,4 +1,23 @@
-﻿<section class="container-fluid page-title position-relative d-flex align-items-center justify-content-center shadow">
+@{
+    var controllerName = (ViewContext.RouteData.Values["controller"] ?? string.Empty).ToString();
+    var actionName = (ViewContext.RouteData.Values["action"] ?? string.Empty).ToString();
+    var inventoryListActions = new[] { "Index", "All", "Suvs", "Sedans", "Wagons", "Trucks", "Vans", "Convertibles", "Hatchbacks", "Coupes" };
+    var hideInventoryListTitle = controllerName.Equals("Inventory", StringComparison.OrdinalIgnoreCase)
+        && inventoryListActions.Any(a => a.Equals(actionName, StringComparison.OrdinalIgnoreCase));
+    var isInventoryDetailsTitle = controllerName.Equals("Inventory", StringComparison.OrdinalIgnoreCase)
+        && (actionName.Equals("Details", StringComparison.OrdinalIgnoreCase)
+            || actionName.Equals("DetailsQR", StringComparison.OrdinalIgnoreCase));
+    var showInventoryDesktopAddress = controllerName.Equals("Inventory", StringComparison.OrdinalIgnoreCase)
+        && inventoryListActions.Any(a => a.Equals(actionName, StringComparison.OrdinalIgnoreCase));
+    var titleClass = "m-0 text-dark fancy text-truncate text-center main-title"
+        + (hideInventoryListTitle ? " d-none" : string.Empty)
+        + (isInventoryDetailsTitle ? " inventory-details-page-title" : string.Empty);
+    var mobileLogoClass = "page-title-mobile-logo" + (hideInventoryListTitle ? " d-inline-block d-md-none" : " d-none");
+    var titleHref = isInventoryDetailsTitle ? "/Inventory/Index" : "/Home";
+}
+
+<section class="container-fluid page-title @(isInventoryDetailsTitle ? string.Empty : "page-title-mobile-call-enabled") position-relative d-flex align-items-center justify-content-center shadow">
+
     <!-- Prev button (far left) -->
     <span class=" position-absolute start-0 top-50 translate-middle-y ms-3">
         <a id="btnPrev" href="#" class="btn btn-gradient-grey border-black shadow rounded-4 d-none" type="button" title="Previous vehicle">
@@ -6,29 +25,57 @@
         </a>
 
         <a id="btnUp" href="/inventory/index" class="btn btn-gradient-grey border-black shadow rounded-4 d-none" type="button" title="Back to inventory">
+            <span class="d-none d-lg-inline me-1">Back to inventory</span>
             <i class="bi bi-caret-up-fill"></i>
         </a>
+
+        @if (showInventoryDesktopAddress)
+        {
+            <div class="page-title-inventory-contact d-none d-lg-inline-flex align-items-center">
+                <span id="pageTitleInventoryAddressCopy" class="page-title-inventory-address" role="button" tabindex="0"  data-address="9516 Princeton Glendale Rd, West Chester, OH 45011" title="Click to copy address">
+                    <i class="bi bi-geo-alt-fill me-1"></i>
+                    <span>9516 Princeton Glendale Rd, West Chester, OH 45011</span>
+                </span>
+                <a href="https://www.google.com/maps/search/?api=1&query=9516+Princeton+Glendale+Rd%2C+West+Chester+Township%2C+OH+45011"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="btn btn-sm btn-gradient-grey border-dark rounded-3 shadow-sm inventory-contact-map-btn page-title-inventory-map-btn">
+                    <i class="bi bi-map"></i>
+                    <strong> Map </strong>
+                </a>
+            </div>
+        }
     </span>
 
-@*<a id="title" href="#" data-bs-toggle="modal" data-bs-target="#filtersModal" class="text-decoration-none d-flex align-items-center justify-content-center gap-2 w-75 position-relative px-2">*@        
-    <div id="title" href="#" class="text-decoration-none d-flex align-items-center justify-content-center gap-2 w-75 position-relative px-2">
+    <a id="title" href="@titleHref" class="text-decoration-none d-flex align-items-center justify-content-center gap-2 w-75 position-relative px-2">
         <!-- Centered title (stays centered even with the icon) -->
-        <h5 class="m-0 text-dark fancy text-truncate text-center main-title" style="max-width: 85vw;">
+        <h5 class="@titleClass" style="max-width: 85vw;">
             @Html.Raw(ViewBag.Title)
         </h5>
+        <img src="~/GTXImages/GTX-White.png" alt="GTX" class="@mobileLogoClass" />
 
-        <!-- Right-aligned icon on mobile -->
-        <i class="bi bi-search d-md-none fs-4 text-white position-absolute end-0 me-2"></i>
+    </a>
+
+    <div id="shorts" class="d-none d-md-flex align-items-center gap-1 position-absolute end-0 top-50 translate-middle-y ps-2 me-1">
+        <a id="loanApplication" href="/Home/Application" class="btn gradient rounded-4 border-0 shadow" type="button"><i class="bi bi-currency-dollar me-1"></i>@I18n.R("Nav_GetPrequalified")</a>
+        <a id="contactUs" href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })" class="btn gradient rounded-4 border-0 shadow" type="button"><i class="bi bi-person-vcard me-1"></i>@I18n.R("Nav_ContactUs")</a>
+        <a id="testDrive" href="@Url.RouteUrl("TestDriveContact")" class="btn gradient rounded-4 border-0 shadow" type="button"><i class="bi bi-calendar3 me-1"></i>@I18n.R("Nav_ScheduleTestDrive")</a>
     </div>
 
-    <div id="shorts" class="d-none d-md-flex align-items-center gap-1 position-absolute end-0 top-50 translate-middle-y ps-2 mx-3">
-        <a id="loanApplication" href="/Home/Application" class="btn gradient rounded-4 border-0 shadow" type="button">💲@I18n.R("Nav_GetPrequalified")</a>
-        <a id="contactUs" href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })" class="btn gradient rounded-4 border-0 shadow" type="button">🏢@I18n.R("Nav_ContactUs")</a>
-        <a id="testDrive" href="@Url.RouteUrl("TestDriveContact")" class="btn gradient rounded-4 border-0 shadow" type="button">📅@I18n.R("Nav_ScheduleTestDrive")</a>
-    </div>
 
+    @if (!isInventoryDetailsTitle)
+    {
+        <a id="pageTitleMobileCallBtn"
+           href="tel:+15134892886"
+           class="page-title-mobile-call btn btn-gradient-grey border-dark rounded-4 shadow position-absolute end-0 top-50 translate-middle-y me-2 d-inline-flex d-md-none align-items-center gap-1"
+           aria-label="Call (513) 489-2886">
+            <i class="bi bi-telephone"></i>
+            <span class="fw-semibold">(513) 489-2886</span>
+        </a>
+    }
     <!-- Next button (far right) -->
     <a id="btnNext" href="#" class="btn btn-gradient-grey border-black shadow rounded-4 position-absolute end-0 top-50 translate-middle-y me-3 d-none" type="button" title="Next vehicle">
         <i class="bi bi-caret-right-fill"></i>
     </a>
 </section>
+

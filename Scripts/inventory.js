@@ -23,13 +23,13 @@ function applyTerm(term) {
 }
 
 function applyFilterTerm(term) {
-    const filter = term.trim().toUpperCase();
+    const rawTerm = (term || "").toString();
+    const filter = rawTerm.trim().toUpperCase();
+    const terms = filter.split(/\s+/).filter(Boolean);
 
     if (filter === undefined || filter === "" || filter === null) {
         sessionStorage.removeItem("term");
     }
-
-    if (filter == "@") return;
 
     const vehicles = document.querySelectorAll(".card");
     let combined;
@@ -51,37 +51,12 @@ function applyFilterTerm(term) {
         const images = $(vehicle).data("images") || "";
         const cylinders = $(vehicle).data("cylinders") || "";
 
-        if (filter.startsWith("@@")) {
-            // Hidden  features
-            $("#filterTerm").addClass("text-info").addClass("border-info");
+        $("#filterTerm").removeClass("text-info").removeClass("border-info");
+        combined = `${stock} ${vin} ${dataone} ${make} ${model} ${style} ${type} ${transmission} ${year} ${color} ${color2} ${location} ${story} ${images} ${cylinders} ${$(vehicle).data("fuel") || ""} ${$(vehicle).data("drive") || ""} ${$(vehicle).data("body") || ""}`.toUpperCase();
 
-            // Map prefix to data
-            const prefixMap = {
-                "@@YR": `@@YR ${year}`,
-                "@@MK": `@@MK ${make}`,
-                "@@MD": `@@MD ${model}`,
-                "@@TR": `@@TR ${transmission}`,
-                "@@CY": `@@CY ${cylinders}`,
-                "@@OW": `@@OW ${location}`
-            };
+        const isMatch = terms.length === 0 || terms.every(t => combined.includes(t));
 
-            combined = `@@${story} @@${images} @@${dataone}`;
-
-            // Override combined if matching a special prefix
-            for (const key in prefixMap) {
-                if (filter.startsWith(key)) {
-                    combined = prefixMap[key];
-                    break;
-                }
-            }
-        }
-        else {
-            // Normal search
-            $("#filterTerm").removeClass("text-info").removeClass("border-info");
-            combined = `${stock} ${vin} ${make} ${model} ${style} ${type} ${transmission} ${year} ${color} ${color2}`;
-        }
-
-        if (combined.includes(filter)) {
+        if (isMatch) {
             vehicle.style.display = "";
         } else {
             vehicle.style.display = "none";
@@ -168,13 +143,124 @@ function calculateMonthlyPayment(P, rate, month) {
         return selected;
     }
 
+    function parseInventoryNumber(value) {
+        var parsed = parseFloat(String(value == null ? "" : value).replace(/[^0-9.\-]/g, ""));
+        return isNaN(parsed) ? null : parsed;
+    }
+
     function normalizeInventoryValue(value) {
         return $.trim(String(value || "")).toUpperCase();
     }
 
+    function splitInventoryTerms(value) {
+        return normalizeInventoryValue(value).split(/\s+/).filter(function (term) {
+            return term.length > 0;
+        });
+    }
+
+    function inventoryContainsAllTerms(haystack, terms) {
+        if (!terms.length) return true;
+
+        for (var i = 0; i < terms.length; i++) {
+            if (haystack.indexOf(terms[i]) === -1) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    function formatInventoryRangeValue(value, format) {
+        var number = parseInventoryNumber(value);
+
+        if (number === null) return "";
+
+        if (format === "currency") {
+            return "$" + Math.round(number).toLocaleString();
+        }
+
+        if (format === "number") {
+            return Math.round(number).toLocaleString();
+        }
+
+        return String(Math.round(number));
+    }
+
+    function selectedRangeByField() {
+        var ranges = {};
+
+        $(".inventory-range-filter").each(function () {
+            var $panel = $(this);
+            var field = $panel.data("range-field");
+            var minLimit = parseInventoryNumber($panel.data("range-min"));
+            var maxLimit = parseInventoryNumber($panel.data("range-max"));
+            var max = parseInventoryNumber($panel.find(".inventory-range-input").val());
+
+            if (!field || max === null || minLimit === null || maxLimit === null) return;
+
+            ranges[field] = {
+                min: minLimit,
+                max: max,
+                minLimit: minLimit,
+                maxLimit: maxLimit,
+                format: $panel.data("range-format")
+            };
+        });
+
+        return ranges;
+    }
+
+    function inventoryRangeMatches($vehicle, ranges) {
+        var matched = true;
+
+        $.each(ranges, function (field, range) {
+            var value = parseInventoryNumber($vehicle.data(field));
+
+            if (value === null || value > range.max) {
+                matched = false;
+                return false;
+            }
+        });
+
+        return matched;
+    }
+
+    function syncInventoryRangeLabels() {
+        $(".inventory-range-filter").each(function () {
+            var $panel = $(this);
+            var field = $panel.data("range-field");
+            var format = $panel.data("range-format");
+            var maxLimit = parseInventoryNumber($panel.data("range-max"));
+            var $input = $panel.find(".inventory-range-input");
+            var max = parseInventoryNumber($input.val());
+
+            if (max === null || maxLimit === null) return;
+
+            if (max > maxLimit) {
+                max = maxLimit;
+                $input.val(max);
+            }
+
+            var maxText = formatInventoryRangeValue(max, format);
+
+            $panel.find("[data-range-value-label='" + field + "']").text(maxText);
+        });
+    }
+
+    function resetInventoryRanges() {
+        $(".inventory-range-filter").each(function () {
+            var $panel = $(this);
+
+            $panel.find(".inventory-range-input").val($panel.data("range-max"));
+        });
+
+        syncInventoryRangeLabels();
+    }
+
     function inventoryTermMatches($vehicle, filter) {
-        if (!filter) return true;
-        if (filter === "@@") return false;
+        var terms = splitInventoryTerms(filter);
+        if (!terms.length) return true;
+        if (terms.length === 1 && terms[0] === "@@") return false;
 
         var stock = normalizeInventoryValue($vehicle.data("stock"));
         var vin = normalizeInventoryValue($vehicle.data("vin"));
@@ -216,11 +302,12 @@ function calculateMonthlyPayment(P, rate, month) {
                 stock, vin, make, model, style, type, transmission, year,
                 color, color2, normalizeInventoryValue($vehicle.data("fuel")),
                 normalizeInventoryValue($vehicle.data("drive")),
-                normalizeInventoryValue($vehicle.data("body"))
+                normalizeInventoryValue($vehicle.data("body")),
+                dataone, location, story, images, cylinders
             ].join(" ");
         }
 
-        return combined.indexOf(filter) !== -1;
+        return inventoryContainsAllTerms(combined, terms);
     }
 
     function inventoryCheckboxMatches($vehicle, selected) {
@@ -295,7 +382,7 @@ function calculateMonthlyPayment(P, rate, month) {
         $("[data-bs-target='#invFilterModels'] .inventory-filter-panel-count").text(visibleModels);
     }
 
-    function updateInventoryFilterCounts(selected, filter) {
+    function updateInventoryFilterCounts(selected, filter, ranges) {
         $(".inventory-check-hit").each(function () {
             var $count = $(this);
             var field = $count.data("count-field");
@@ -309,6 +396,7 @@ function calculateMonthlyPayment(P, rate, month) {
 
                 if (normalizeInventoryValue($vehicle.data(field)) === value &&
                     inventoryCheckboxMatches($vehicle, scopedSelected) &&
+                    inventoryRangeMatches($vehicle, ranges) &&
                     inventoryTermMatches($vehicle, filter) &&
                     inventoryLikedMatches($vehicle) &&
                     inventoryLastMatches($vehicle)) {
@@ -329,7 +417,38 @@ function calculateMonthlyPayment(P, rate, month) {
         var title = visibleCount + " vehicle(s)";
 
         $("#inventoryFilterCount").text(visibleCount);
+        $("#inventoryMobileMatchCount").text(visibleCount);
         $(".main-title").text(title);
+    }
+
+    function activeInventoryFilterCount(selected, ranges, filter) {
+        var count = filter ? 1 : 0;
+
+        $.each(selected, function (_, values) {
+            count += values.length;
+        });
+
+        $.each(ranges, function (_, range) {
+            if (range.max < range.maxLimit) {
+                count++;
+            }
+        });
+
+        if ($("#filterLiked").hasClass("bi-heart-fill")) count++;
+        if ($("#filterLast").hasClass("bi-journal-album")) count++;
+
+        return count;
+    }
+
+    function syncInventoryMobileFilterState(visibleCount, selected, ranges, filter) {
+        var activeCount = activeInventoryFilterCount(selected, ranges, filter);
+
+        $("#inventoryMobileMatchCount").text(visibleCount);
+        $("#inventoryMobileFilterCount").text(activeCount);
+        $("#inventoryMobileActiveBadge")
+            .text(activeCount)
+            .toggleClass("is-active", activeCount > 0);
+        $(".inventory-mobile-filter-btn").toggleClass("has-active-filters", activeCount > 0);
     }
 
     function clampInventorySidebarWidth(width) {
@@ -364,12 +483,15 @@ function calculateMonthlyPayment(P, rate, month) {
         return touch ? touch.clientX : (changedTouch ? changedTouch.clientX : event.clientX);
     }
 
-    function initInventorySplitPanel() {
-        var $split = $("#inventorySplit");
-        var $divider = $("#inventorySplitDivider");
-        var $toggle = $("#inventorySidebarToggle");
+    function isInventoryDesktopLayout() {
+        return !window.matchMedia || window.matchMedia("(min-width: 992px)").matches;
+    }
 
-        if (!$split.length || !$divider.length || !$toggle.length) return;
+    function syncInventorySplitForViewport($split) {
+        if (!isInventoryDesktopLayout()) {
+            $split.removeClass("inventory-sidebar-collapsed");
+            return;
+        }
 
         var savedWidth = parseInt(localStorage.getItem("inventorySidebarWidth"), 10);
         if (savedWidth) {
@@ -377,19 +499,31 @@ function calculateMonthlyPayment(P, rate, month) {
         }
 
         setInventorySidebarState($split, localStorage.getItem("inventorySidebarCollapsed") === "1");
+    }
+
+    function initInventorySplitPanel() {
+        var $split = $("#inventorySplit");
+        var $divider = $("#inventorySplitDivider");
+        var $toggle = $("#inventorySidebarToggle");
+
+        if (!$split.length || !$divider.length || !$toggle.length) return;
+
+        syncInventorySplitForViewport($split);
 
         $toggle.off("click.inventorySplit").on("click.inventorySplit", function (event) {
             event.preventDefault();
             event.stopPropagation();
+            if (!isInventoryDesktopLayout()) return;
             setInventorySidebarState($split, !$split.hasClass("inventory-sidebar-collapsed"));
         });
 
         $divider.off(".inventorySplit").on("dblclick.inventorySplit", function () {
+            if (!isInventoryDesktopLayout()) return;
             setInventorySidebarState($split, !$split.hasClass("inventory-sidebar-collapsed"));
         });
 
         $divider.on("mousedown.inventorySplit touchstart.inventorySplit", function (event) {
-            if ($(event.target).closest("#inventorySidebarToggle").length || $(window).width() < 992) return;
+            if ($(event.target).closest("#inventorySidebarToggle").length || !isInventoryDesktopLayout()) return;
 
             var startX = pointerClientX(event);
             var startWidth = $("#inventorySidebarPane").outerWidth();
@@ -418,11 +552,7 @@ function calculateMonthlyPayment(P, rate, month) {
         });
 
         $(window).off("resize.inventorySplit").on("resize.inventorySplit", function () {
-            var currentWidth = parseInt(localStorage.getItem("inventorySidebarWidth"), 10);
-
-            if (currentWidth) {
-                setInventorySidebarWidth($split, currentWidth);
-            }
+            syncInventorySplitForViewport($split);
         });
     }
 
@@ -442,15 +572,18 @@ function calculateMonthlyPayment(P, rate, month) {
 
     window.applyInventoryPanelFilters = function () {
         var selected = selectedByField();
+        var ranges = selectedRangeByField();
         var filter = normalizeInventoryValue($("#filterTerm").val());
         var visibleCount = 0;
 
+        syncInventoryRangeLabels();
         syncInventoryModelPanel(selected);
         selected = selectedByField();
 
         $("#inventory > li.card").each(function () {
             var $vehicle = $(this);
             var isMatch = inventoryCheckboxMatches($vehicle, selected) &&
+                inventoryRangeMatches($vehicle, ranges) &&
                 inventoryTermMatches($vehicle, filter) &&
                 inventoryLikedMatches($vehicle) &&
                 inventoryLastMatches($vehicle);
@@ -460,6 +593,7 @@ function calculateMonthlyPayment(P, rate, month) {
         });
 
         syncInventoryVisibleCount(visibleCount);
+        syncInventoryMobileFilterState(visibleCount, selected, ranges, filter);
         $(".inventory-empty-filter").toggle(visibleCount === 0);
 
         var stocks = $(".card:visible").map(function () {
@@ -472,15 +606,37 @@ function calculateMonthlyPayment(P, rate, month) {
             localStorage.removeItem("matchedStocks");
         }
 
-        updateInventoryFilterCounts(selected, filter);
+        updateInventoryFilterCounts(selected, filter, ranges);
     };
 
     $(function () {
-        if (!$("#inventoryFilterRail").length) return;
+        if (!$("#inventoryFilterRail").length) {
+            document.documentElement.classList.remove("inventory-page-loading");
+            return;
+        }
 
         initInventorySplitPanel();
 
+        syncInventoryRangeLabels();
+
+        $(document).on("shown.bs.offcanvas", "#inventorySidebarPane", function () {
+            ensureInventoryDualRangeSlidersReady();
+        });
+
+        $(document).on("shown.bs.collapse", ".inventory-range-filter .collapse", function () {
+            ensureInventoryDualRangeSlidersReady();
+        });
+
+        $(window).off("resize.inventoryDualRanges").on("resize.inventoryDualRanges", function () {
+            ensureInventoryDualRangeSlidersReady();
+        });
+
         $(document).on("change", ".inventory-filter-check", window.applyInventoryPanelFilters);
+
+        $(document).on("input change", ".inventory-range-input", function () {
+            syncInventoryRangeLabels();
+            window.applyInventoryPanelFilters();
+        });
 
         $(document).on("input", "#filterTerm", function () {
             window.setTimeout(window.applyInventoryPanelFilters, 0);
@@ -488,6 +644,44 @@ function calculateMonthlyPayment(P, rate, month) {
 
         $(document).on("click", "#filterLiked, #filterLast", function () {
             window.setTimeout(window.applyInventoryPanelFilters, 0);
+        });
+
+        $(document).on("click", "#inventoryMobileFilterToggle", function (event) {
+            if ($(event.target).closest("#inventoryMobileClearFilters, #inventoryMobileCloseCanvas").length) {
+                return;
+            }
+
+            var offcanvasElement = document.getElementById("inventorySidebarPane");
+            if (!offcanvasElement || !window.bootstrap || !window.bootstrap.Offcanvas) return;
+
+            window.bootstrap.Offcanvas.getOrCreateInstance(offcanvasElement).show();
+        });
+
+        $(document).on("keydown", "#inventoryMobileFilterToggle", function (event) {
+            if (event.key !== "Enter" && event.key !== " ") return;
+            event.preventDefault();
+            $(this).trigger("click");
+        });
+
+        $(document).on("click", "#inventoryMobileClearFilters", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            $("#inventoryClearFilters").trigger("click");
+        });
+
+        $(document).on("click", "#inventoryMobileCloseCanvas", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            var offcanvasElement = document.getElementById("inventorySidebarPane");
+            if (!offcanvasElement || !window.bootstrap || !window.bootstrap.Offcanvas) return;
+
+            window.bootstrap.Offcanvas.getOrCreateInstance(offcanvasElement).hide();
+        });
+
+        $(document).on("click", "#inventoryClearFiltersDesktop", function (event) {
+            event.preventDefault();
+            $("#inventoryClearFilters").trigger("click");
         });
 
         $("#inventoryClearFilters").on("click", function () {
@@ -500,10 +694,12 @@ function calculateMonthlyPayment(P, rate, month) {
             }
 
             $(".inventory-filter-check").prop("checked", false);
+            resetInventoryRanges();
             window.applyInventoryPanelFilters();
         });
 
         syncRouteTypeFilter();
         window.applyInventoryPanelFilters();
+        document.documentElement.classList.remove("inventory-page-loading");
     });
 })();

@@ -2,6 +2,10 @@
 @using System.Threading
 @{
     var t = (Request.Cookies["gtx-theme"]?.Value ?? "blue").ToLowerInvariant();
+    var controllerName = (ViewContext.RouteData.Values["controller"] ?? string.Empty).ToString();
+    var actionName = (ViewContext.RouteData.Values["action"] ?? string.Empty).ToString();
+    var isHomeIndexPage = controllerName.Equals("Home", StringComparison.OrdinalIgnoreCase)
+        && actionName.Equals("Index", StringComparison.OrdinalIgnoreCase);
     var current = Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName;
     // allow only known themes
     switch (t)
@@ -12,6 +16,7 @@
         case "deep-purple":
         case "dark":
         case "metallica":
+        case "silver":
             break;
         default:
             t = "blue";
@@ -32,6 +37,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/Content/nouislider.min.css" />
 
     <script>
         (function () {
@@ -42,7 +48,7 @@
             };
 
             var KEY = "gtx-theme";
-            const THEMES = ["blue", "grey", "pink", "deep-purple", "metallica"]; // add more here
+            const THEMES = ["blue", "grey", "pink", "deep-purple", "metallica", "dark", "silver"]; // add more here
             var t = localStorage.getItem(KEY) || "blue"; // default
             var root = document.documentElement;
 
@@ -62,22 +68,31 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+    <script src="~/Scripts/nouislider.min.js"></script>
 
     <script src="~/Scripts/just-validate/just-validate.production.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
 
     <script type="text/javascript">
         var root = "@Url.Content("~/")";
-        var images = "@Url.Content("~/GTXImages/Inventory/")";
+        var images = "/InventoryImages/Get?path=";
     </script>
     <script src="~/Scripts/inventory.js"></script>
 </head>
 
 @Html.Action("LoginModal", "Home")
-<body class="main-container overflow-hidden d-flex flex-column min-vh-100">
+<body class="main-container overflow-hidden d-flex flex-column min-vh-100 @(isHomeIndexPage ? "home-index" : string.Empty)">
     <!-- Offcanvas open hours -->
-    <div class="offcanvas-top-fixed-center" tabindex="-1" id="openHours">
+    <div class="offcanvas-top-fixed-center" tabindex="-1" id="openHours" aria-label="Open hours">
         <div class="offcanvas-body">
+            <div class="open-hours-panel-controls">
+                <div class="open-hours-panel-title">Open Hours</div>
+                <button type="button"
+                        class="btn-close open-hours-close-btn"
+                        data-bs-dismiss="offcanvas"
+                        data-bs-target="#openHours"
+                        aria-label="Close hours panel"></button>
+            </div>
             @Html.Partial("_Schedule")
         </div>
     </div>
@@ -103,23 +118,12 @@
 
                     <li><hr class="my-2"></li>
 
-                    <!-- Inventory (collapsible header = bold black pill) -->
+                    <!-- Inventory -->
                     <li class="mb-2">
-                        <a class="btn btn-gradient-grey rounded-3 w-100 d-flex align-items-center justify-content-between text-dark fw-bold shadow" data-bs-toggle="collapse" href="#menuInventoryMobile" role="button" aria-expanded="false" aria-controls="menuInventoryMobile">
-                            <span><i class="bi bi-car-front me-2"></i>@I18n.R("Nav_Inventory")</span>
-                            <i class="bi bi-chevron-down"></i>
+                        <a class="btn btn-gradient-grey rounded-3 w-100 d-flex align-items-center justify-content-center gap-2 text-dark fw-bold shadow" href="~/Inventory/Index">
+                            <i class="bi bi-car-front"></i>
+                            <span>@I18n.R("Nav_Inventory")</span>
                         </a>
-                        <!-- Submenu (indented list-group look) -->
-@*                        <ul id="menuInventoryMobile" class="collapse list-unstyled mt-2 ms-3 p-2" data-bs-parent="#mobileMenuOffcanvas">
-                            <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_All"), "All", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_SUVs"), "Suvs", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_Trucks"), "Trucks", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_Vans"), "Vans", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_Hatchbacks"), "Hatchbacks", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_Coupes"), "Coupes", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_Sedans"), "Sedans", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                            <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_Convertibles"), "Convertibles", "Inventory", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
-                        </ul>*@
                     </li>
 
                     <!-- About (collapsible) -->
@@ -145,9 +149,18 @@
                         </a>
 
                         <div id="menuScheduleMobile" class="collapse mt-2" data-bs-parent="#mobileMenuOffcanvas">
-                            <div class="text-center py-2">
-                                <div class="fw-bold text-dark">9516 Princeton Glendale Rd</div>
-                                <div class="text-secondary small">West Chester Township, OH 45011</div>
+                            <div class="mobile-menu-address-card">
+                                <div class="mobile-menu-address-text">
+                                    <div class="fw-bold text-dark">9516 Princeton Glendale Rd</div>
+                                    <div class="text-secondary small">West Chester, OH 45011</div>
+                                </div>
+                                <button type="button"
+                                        class="btn btn-gradient-grey border-dark rounded-3 shadow-sm mobile-menu-copy-address"
+                                        data-copy-address="9516 Princeton Glendale Rd, West Chester, OH 45011"
+                                        aria-label="Copy address">
+                                    <i class="bi bi-copy"></i>
+                                    <span>Copy address</span>
+                                </button>
                             </div>
 
                             <div class="border rounded-3 p-2 bg-light">
@@ -156,16 +169,12 @@
                         </div>
                     </li>
 
-                    <!-- Search (primary style) -->
+                    <!-- Prequalified (success-ish outline) -->
                     <li class="mb-2 shadow-sm">
-                        <a class="btn btn-dark w-100 rounded-3 d-flex align-items-center justify-content-center gap-2 shadow" href="#" onclick="openFiltersFromOffcanvas(event)">
-                            <i class="bi bi-search"></i>
-                            <span class="fw-semibold">@I18n.R("All_SearchInventory")</span>
+                        <a href="@Url.Action("Application", "Home")" class="btn btn-outline-success w-100 rounded-3 fw-semibold">
+                            <i class="bi bi-currency-dollar me-1"></i>@I18n.R("Nav_GetPrequalified")
                         </a>
                     </li>
-
-                    <!-- Prequalified (success-ish outline) -->
-                    <li class="mb-2 shadow-sm">@Html.ActionLink("💲 " + I18n.R("Nav_GetPrequalified"), "Application", "Home", null, new { @class = "btn btn-outline-success w-100 rounded-3 fw-semibold" })</li>
 
                 </ul>
             </div>
@@ -189,7 +198,7 @@
         <button class="btn btn-gradient-grey" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenuOffcanvas"><i class="bi bi-list"></i></button>
     </div>
     <div class="menu-strip container-fluid">
-        <div class="d-flex justify-content-between">
+        <div class="d-flex justify-content-between align-items-center">
             <nav class="header__top header__menu w-100">
                 <ul class="main-menu">
                     <li id="GTX-image" class="d-none d-md-inline-block mx-1"><a href="~/Home/Index"><img src="~/GTXImages/GTX-White.png" width="60" /></a></li>
@@ -209,19 +218,13 @@
                     </li>
                     <li class=" mx-2">
                         <a href="~/Inventory/Index">@I18n.R("Nav_Inventory")</a>
-@*                        <ul class="dropdown rounded">
-                            <li>@Html.ActionLink(I18n.R("Nav_All"), "All", "Inventory")</li>
-                            <li>@Html.ActionLink(I18n.R("Nav_SUVs"), "Suvs", "Inventory")</li>
-                            <li>@Html.ActionLink(I18n.R("Nav_Trucks"), "Trucks", "Inventory")</li>
-                            <li>@Html.ActionLink(I18n.R("Nav_Vans"), "Vans", "Inventory")</li>
-                            <li>@Html.ActionLink(I18n.R("Nav_Hatchbacks"), "Hatchbacks", "Inventory")</li>
-                            <li>@Html.ActionLink(I18n.R("Nav_Coupes"), "Coupes", "Inventory")</li>
-                            <li>@Html.ActionLink(I18n.R("Nav_Sedans"), "Sedans", "Inventory")</li>
-                            <li>@Html.ActionLink(I18n.R("Nav_Convertibles"), "Convertibles", "Inventory")</li>
-                        </ul>*@
                     </li>
 
-                    <li class="mx-2 d-none">@Html.ActionLink("💲" + I18n.R("Nav_GetPrequalified"), "Application", "Home")</li>
+                    <li class="mx-2 d-none">
+                        <a href="@Url.Action("Application", "Home")">
+                            <i class="bi bi-currency-dollar me-1"></i>@I18n.R("Nav_GetPrequalified")
+                        </a>
+                    </li>
                     <li class="mx-2">@Html.ActionLink(I18n.R("Title_Blog"), "List", "Blogs")</li>
                     <li class="mx-2">
                         <a href="#">@I18n.R("Nav_AboutUs")</a>
@@ -235,21 +238,12 @@
                     <li id="fakeSearch" class="fake-input hand-pointer d-none" data-bs-toggle="modal" data-bs-target="#filtersModal">
                         @Html.Partial("_SearchByTerm")
                     </li>
-                    <li class="d-xxl-none">
-                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#filtersModal">
-                            <i class="bi bi-search"></i>
-                        </a>
-                    </li>
                 </ul>
             </nav>
-            <nav class="header__top d-none d-xxl-flex">
+            <nav class="header__top d-none d-lg-flex">
                 <ul class="main-menu start-100 list-unstyled no-wrap-group">
-                    <li class="mx-sm-1 nav-addr-hours hand-pointer" data-bs-toggle="offcanvas" data-bs-target="#openHours" aria-controls="openHours">
-                        <div class="addr-line1">9516 Princeton Glendale Rd</div>
-                        <div class="addr-line2">West Chester Township, OH 45011</div>
-                    </li>
                     <li class="mx-sm-1">
-                        <a class="btn btn-gradient-grey border-dark rounded-4" id="btnOpenHours" data-bs-toggle="offcanvas" data-bs-target="#openHours" aria-controls="openHours">
+                        <a class="btn btn-gradient-grey border-dark rounded-4" id="btnOpenHoursDesktop" data-bs-toggle="offcanvas" data-bs-target="#openHours" aria-controls="openHours">
                             <i class="bi bi-stopwatch"></i>
                             <span id="schedule" class="schedule d-none d-xxl-inline m-sm-1"></span>
                         </a>
@@ -273,6 +267,33 @@
                     </li>
                 </ul>
             </nav>
+            @if (isHomeIndexPage)
+            {
+                <div id="homeMobileMenuStripActions" class="d-md-none d-flex align-items-center gap-2 ms-auto py-1">
+                    <button type="button"
+                            id="homeMobileMenuOpenBtn"
+                            class="btn btn-gradient-grey border-dark rounded-4 d-inline-flex align-items-center gap-2"
+                            aria-label="Open menu">
+                        <i class="bi bi-list"></i>
+                        <span class="fw-semibold">Menu</span>
+                    </button>
+                    <a id="btnOpenHours"
+                       class="btn btn-gradient-grey border-dark rounded-4 d-inline-flex align-items-center gap-2"
+                       data-bs-toggle="offcanvas"
+                       data-bs-target="#openHours"
+                       aria-controls="openHours"
+                       aria-label="Open hours">
+                        <i class="bi bi-stopwatch"></i>
+                        <span class="schedule fw-semibold m-sm-1"></span>
+                    </a>
+                    <a class="btn btn-gradient-grey border-dark rounded-4 d-inline-flex align-items-center gap-2"
+                       href="tel:+15134892886"
+                       aria-label="Call (513) 489-2886">
+                        <i class="bi bi-telephone"></i>
+                        <span class="fw-semibold">(513) 489-2886</span>
+                    </a>
+                </div>
+            }
         </div>
     </div>
 
@@ -319,8 +340,7 @@
 
                 <!-- CENTER: Truncated content (prevents wrapping) -->
                 <div class="flex-grow-1 text-center overflow-hidden">
-                    <div class="d-inline-flex align-items-center gap-2 gap-lg-3 justify-content-center text-truncate"
-                         style="max-width:100%;">
+                    <div class="d-inline-flex align-items-center gap-2 gap-lg-3 justify-content-center text-truncate" style="max-width:100%;">
 
                         <!-- Brand/env (desktop only) -->
                         <a class="text-muted text-shadow text-decoration-none d-none d-lg-inline-flex align-items-center gap-2"
@@ -367,6 +387,7 @@
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="pink"><span class="theme-swatch swatch-pink"></span> Pink</a></li>
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="deep-purple"><span class="theme-swatch swatch-deep-purple"></span> Deep Purple</a></li>
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="metallica"><span class="theme-swatch swatch-metallica"></span> Metallica</a></li>
+                            <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="silver"><span class="theme-swatch swatch-silver"></span> Silver</a></li>
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="dark"><span class="theme-swatch swatch-dark"></span> Dark</a></li>
                         </ul>
                     </div>
@@ -456,9 +477,9 @@
         </div>
         <div class="offcanvas-body text-black-50">
             <div class="offcanvas-body text-center">
-                <p class="fs-5 fw-semibold text-muted">For any questions<i class="bi bi-question-circle mx-1"></i>please <i class="bi bi-phone-vibrate mx-1"></i> call</p>
+                <p class="fs-4 fw-semibold text-muted">Need web site like this please call</p>
 
-                <p class="fs-4 fw-bold text-muted">
+                <p class="fs-5 fw-bold text-muted">
                     Valentin Gikhman
                 </p>
 
@@ -621,5 +642,63 @@
             bootstrap.Modal.getOrCreateInstance(modalEl).show();
         });
     }
+
+    function copyTextToClipboard(text) {
+        if (navigator.clipboard && window.isSecureContext) {
+            return navigator.clipboard.writeText(text);
+        }
+
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.setAttribute("readonly", "");
+        textArea.style.position = "fixed";
+        textArea.style.top = "-1000px";
+        textArea.style.left = "-1000px";
+        document.body.appendChild(textArea);
+        textArea.select();
+
+        try {
+            document.execCommand("copy");
+            return Promise.resolve();
+        } catch (error) {
+            return Promise.reject(error);
+        } finally {
+            document.body.removeChild(textArea);
+        }
+    }
+
+    document.addEventListener("click", function (event) {
+        const button = event.target.closest(".mobile-menu-copy-address");
+        if (!button) return;
+
+        const address = button.getAttribute("data-copy-address");
+        const label = button.querySelector("span");
+        const originalText = label ? label.textContent : "";
+
+        copyTextToClipboard(address).then(function () {
+            if (label) label.textContent = "Copied";
+            button.classList.add("active");
+            window.setTimeout(function () {
+                if (label) label.textContent = originalText || "Copy address";
+                button.classList.remove("active");
+            }, 1400);
+        }).catch(function () {
+            if (label) label.textContent = "Copy failed";
+            window.setTimeout(function () {
+                if (label) label.textContent = originalText || "Copy address";
+            }, 1400);
+        });
+    });
+
+    document.addEventListener("click", function (event) {
+        const button = event.target.closest("#homeMobileMenuOpenBtn");
+        if (!button) return;
+
+        const offcanvasElement = document.getElementById("mobileMenuOffcanvas");
+        if (!offcanvasElement || !window.bootstrap || !window.bootstrap.Offcanvas) return;
+
+        window.bootstrap.Offcanvas.getOrCreateInstance(offcanvasElement).show();
+    });
+
 </script>
 

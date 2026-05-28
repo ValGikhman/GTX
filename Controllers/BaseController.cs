@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.Json;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Hosting;
 using System.Web.Security;
 
 namespace GTX.Controllers
@@ -20,7 +21,7 @@ namespace GTX.Controllers
         #region Properties
         public readonly string devComputer = "VALS-PC";
 
-        public readonly string imageFolder = "/GTXImages/Inventory/";
+        public readonly string imageFolder = "/InventoryImages/Get?path=";
         public readonly string openAiApiKey = ConfigurationManager.AppSettings["OpenAI:ApiKey"];
         public readonly string dataOneApiKey = ConfigurationManager.AppSettings["DataOne:AccessKey"];
         public readonly string dataOneSecretApiKey = ConfigurationManager.AppSettings["DataOne:SecretAccessKey"];
@@ -405,6 +406,104 @@ namespace GTX.Controllers
             Session.Clear();
             Session.RemoveAll();
             Session.Abandon();
+        }
+
+        protected static string InventoryImagesPhysicalRoot()
+        {
+            var appRoot = HostingEnvironment.MapPath("~") ?? AppDomain.CurrentDomain.BaseDirectory;
+            return Path.GetFullPath(Path.Combine(appRoot, "..", "Pictures"));
+        }
+
+        protected static string CombineUnderInventoryImagesRoot(params string[] segments)
+        {
+            var root = InventoryImagesPhysicalRoot();
+            var rootWithSeparator = root.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+            var path = root;
+
+            if (segments != null)
+            {
+                foreach (var segment in segments)
+                {
+                    var clean = (segment ?? string.Empty)
+                        .Replace('/', Path.DirectorySeparatorChar)
+                        .Replace('\\', Path.DirectorySeparatorChar)
+                        .Trim(Path.DirectorySeparatorChar);
+
+                    if (!string.IsNullOrWhiteSpace(clean))
+                    {
+                        path = Path.Combine(path, clean);
+                    }
+                }
+            }
+
+            var fullPath = Path.GetFullPath(path);
+            if (!fullPath.Equals(root, StringComparison.OrdinalIgnoreCase) &&
+                !fullPath.StartsWith(rootWithSeparator, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException("Invalid inventory image path.");
+            }
+
+            return fullPath;
+        }
+
+        protected static string ResolveInventoryImagePhysicalPath(string requestPath)
+        {
+            if (string.IsNullOrWhiteSpace(requestPath))
+            {
+                return null;
+            }
+
+            var rawPath = requestPath.Trim();
+            string queryPath = null;
+
+            if (Uri.TryCreate(rawPath, UriKind.Absolute, out var absolute))
+            {
+                queryPath = HttpUtility.ParseQueryString(absolute.Query)["path"];
+                rawPath = absolute.AbsolutePath;
+            }
+            else
+            {
+                var queryIndex = rawPath.IndexOf('?');
+                if (queryIndex >= 0)
+                {
+                    var query = rawPath.Substring(queryIndex);
+                    queryPath = HttpUtility.ParseQueryString(query)["path"];
+                    rawPath = rawPath.Substring(0, queryIndex);
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(queryPath))
+            {
+                var normalizedQueryPath = queryPath.Replace('\\', '/').TrimStart('/');
+                var queryParts = normalizedQueryPath.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                return CombineUnderInventoryImagesRoot(queryParts);
+            }
+
+            var noQuery = rawPath.Replace('\\', '/');
+            var legacyPrefix = "/GTXImages/Inventory/";
+            var currentPrefix = "/Pictures/";
+            var inventoryControllerPrefix = "/InventoryImages/Get/";
+            if (noQuery.StartsWith(legacyPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                noQuery = noQuery.Substring(legacyPrefix.Length);
+            }
+            else if (noQuery.StartsWith(currentPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                noQuery = noQuery.Substring(currentPrefix.Length);
+            }
+            else if (noQuery.StartsWith(inventoryControllerPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                noQuery = noQuery.Substring(inventoryControllerPrefix.Length);
+            }
+
+            noQuery = noQuery.TrimStart('/');
+            if (string.IsNullOrWhiteSpace(noQuery))
+            {
+                return CombineUnderInventoryImagesRoot();
+            }
+
+            var parts = noQuery.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            return CombineUnderInventoryImagesRoot(parts);
         }
 
         public DecodedData GetDecodedData(string stock) {

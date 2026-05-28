@@ -11,9 +11,13 @@
     </script>
 </head>
 <style>
+    .hero {
+        position: relative;
+    }
+
     .slogan-container {
         position: absolute;
-        top: 3rem;
+        top: 0;
         height: 9rem;
         width: 100%;
         z-index: 10;
@@ -30,6 +34,10 @@
             top: 0rem;
             height: 5rem;
         }
+
+        .canvas__open {
+            top: 2.5rem !important;
+        }
     }
 
     @@media only screen and (min-width: 501px) and (max-width: 991px) {
@@ -40,12 +48,16 @@
         }
 
         .slogan-container {
-            top: 3rem;
+            top: 0;
             height: 5rem;
         }
 
         #homeSearch {
             width: 75% !important;
+        }
+
+        .canvas__open {
+            top: 5.5rem !important;
         }
     }
 </style>

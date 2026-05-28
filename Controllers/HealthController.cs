@@ -4,7 +4,6 @@ using Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Management;
 using System.Runtime.InteropServices;
 using System.Web.Mvc;
@@ -13,6 +12,9 @@ public class HealthController : BaseController
 {
     private static readonly object _cpuLock = new object();
     private static readonly Dictionary<int, (DateTime utc, TimeSpan cpu)> _lastCpu = new Dictionary<int, (DateTime, TimeSpan)>();
+    private static readonly object _totalCpuCacheLock = new object();
+    private static DateTime _totalCpuCacheUtc = DateTime.MinValue;
+    private static double _totalCpuCacheValue = 0.0;
 
 
     public HealthController(
@@ -72,17 +74,37 @@ public class HealthController : BaseController
     // ---- Total CPU% (system-wide) via WMI (no PerformanceCounter) ----
     private static double GetTotalCpuPercent()
     {
+        var now = DateTime.UtcNow;
+        lock (_totalCpuCacheLock)
+        {
+            if ((now - _totalCpuCacheUtc).TotalMilliseconds < 1500)
+            {
+                return _totalCpuCacheValue;
+            }
+        }
+
         try
         {
             using (var searcher = new ManagementObjectSearcher("SELECT LoadPercentage FROM Win32_Processor"))
             using (var results = searcher.Get())
             {
-                var vals = results
-                    .Cast<ManagementObject>()
-                    .Select(mo => Convert.ToDouble(mo["LoadPercentage"]))
-                    .ToList();
+                var sum = 0.0;
+                var count = 0;
 
-                return vals.Count > 0 ? Math.Round(vals.Average(), 1) : 0.0;
+                foreach (ManagementObject mo in results)
+                {
+                    sum += Convert.ToDouble(mo["LoadPercentage"]);
+                    count++;
+                }
+
+                var value = count > 0 ? Math.Round(sum / count, 1) : 0.0;
+                lock (_totalCpuCacheLock)
+                {
+                    _totalCpuCacheUtc = now;
+                    _totalCpuCacheValue = value;
+                }
+
+                return value;
             }
         }
         catch
@@ -179,7 +201,7 @@ public class HealthController : BaseController
             MemoryLoadPercent = memLoadPct
         };
 
-        var activeSessions = (int)HttpContext.Application["TotalSessions"];
+        var activeSessions = Convert.ToInt32(HttpContext.Application["TotalSessions"] ?? 0);
 
         return Json(new
         {

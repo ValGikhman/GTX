@@ -1,5 +1,24 @@
 ﻿var selectedVehicle;
 
+function toInventoryImageUrl(source) {
+    var raw = (source || "").toString().trim();
+    if (!raw) return "";
+
+    if (/^https?:\/\//i.test(raw)) {
+        return raw;
+    }
+
+    if (/^\/?InventoryImages\/Get\?path=/i.test(raw)) {
+        return raw.charAt(0) === "/" ? raw : "/" + raw;
+    }
+
+    var normalized = raw.replace(/\\/g, "/").replace(/^\/+/, "");
+    normalized = normalized.replace(/^GTXImages\/Inventory\//i, "");
+    normalized = normalized.replace(/^Pictures\//i, "");
+
+    return "/InventoryImages/Get?path=" + encodeURIComponent(normalized);
+}
+
 class StyleParser {
     constructor(styleString) {
         this.styles = {};
@@ -29,7 +48,9 @@ class StyleParser {
 }
 
 function applyFilterTerm(term) {
-    gridApi.setGridOption('quickFilterText', term);
+    if (typeof window.applyMajordomeInventoryFilter === "function") {
+        window.applyMajordomeInventoryFilter(term);
+    }
 }
 
 function saveDetails(model) {
@@ -57,10 +78,11 @@ function loadGallery(vehicle) {
     container.empty();
     var i = 0;
     vehicle.Images.forEach(function (img) {
+        var source = (img.Source || "").toString();
         var showImageEdit = "";
         var imageIcon = "bi bi-image";
 
-        if (img.Source.includes("-O")) {
+        if (source.includes("-O")) {
             showImageEdit = "visually-hidden";
         }
 
@@ -68,16 +90,15 @@ function loadGallery(vehicle) {
             imageIcon = "bi bi-image-fill";
         }
 
-        //var imagePath = `${images}/${img.Source}`;
-        var imagePath = `${img.Source}`;
+        var imagePath = toInventoryImageUrl(source);
 
         var item = `
-        <li id="${img.Id}" class="col-lg-2 col-md-3 col-sm-4 pt-2 shadow" data-filename="${img.Source}" style="width:245px!important;height:245px !important;">
+        <li id="${img.Id}" class="col-lg-2 col-md-3 col-sm-4 pt-2 shadow" data-filename="${source}" style="width:245px!important;height:245px !important;">
             <a href="${imagePath}" data-lightbox="gallery">
                 <img class="edit-image" src="${imagePath}"/>
             </a>
-            <span id="${img.Id}" class="delete-image bi bi-trash btn btn-light shadow my-2" data-filename="${img.Source}" title="Delete image"></span>
-            <span id="${img.Id}" class="overlay-image ${imageIcon} btn btn-light shadow my-2 ${showImageEdit}" data-filename="${img.Source}" title="Add overlay"></span>
+            <span id="${img.Id}" class="delete-image bi bi-trash btn btn-light shadow my-2" data-filename="${source}" title="Delete image"></span>
+            <span id="${img.Id}" class="overlay-image ${imageIcon} btn btn-light shadow my-2 ${showImageEdit}" data-filename="${source}" title="Add overlay"></span>
             <span class="move-to-top bi bi-front btn btn-light shadow my-2 pull-right" title="Make it default image"></span>
         </li>
         `;
@@ -103,42 +124,6 @@ function updateGalleryDisplay() {
             $li.removeClass("gradient");
         }
     });
-}
-
-function actionsRenderer(params) {
-    const container = document.createElement('div');
-    const fileInput = document.createElement('input');
-
-    fileInput.type = 'file';
-    fileInput.multiple = true;
-    fileInput.style.display = 'none';
-
-    const icon = document.createElement('span');
-    icon.className = 'bi bi-upload fs-5 px-2';
-    icon.style.cursor = 'pointer';
-    icon.title = `Upload images for Stock# ${JSON.stringify(params.data.Stock)}`;
-
-    icon.onclick = () => {
-        fileInput.click();
-    };
-
-    fileInput.addEventListener('change', () => {
-        const files = Array.from(fileInput.files);
-        if (files.length > 0) {
-            uploadFiles(params.data.Stock, fileInput);
-        }
-    });
-
-    container.appendChild(icon);
-    container.appendChild(fileInput);
-    if (params.data.Images && params.data.Images.length > 0) {
-        container.appendChild(deleteIconRenderer(params));
-    }
-    container.appendChild(reStoryIconRenderer(params));
-    container.appendChild(deleteStoryIconRenderer(params));
-    container.appendChild(dataOneIconRenderer(params));
-    container.appendChild(deleteDataOneIconRenderer(params));
-    return container;
 }
 
 function uploadFiles(stock, input) {
@@ -237,7 +222,10 @@ function setDetails(stock) {
 }
 
 function setQrCode(vehicle) {
-    setQrCode(vehicle);
+    var qrText = `https://usedcarscincinnati.com/Inventory/Details?stock=${vehicle.Stock}&QR=${encodeURIComponent(vehicle.VIN)}`;
+    var qrUrl = "/Majordome/Qr?text=" + encodeURIComponent(qrText);
+    $("#qrImg").attr("src", qrUrl);
+    $("#qrText").html(`<div>${vehicle.Year} ${vehicle.Make} ${vehicle.Model} Stock# ${vehicle.Stock}</div>`);
     $("#QR-code-tab").removeClass("d-none");
 }
 
@@ -444,7 +432,7 @@ function deleteImage(id, file, object) {
     showSpinner($overlay);
 
     const stock = selectedVehicle.Stock;
-    const $item = $(object).closest('.gallery-item');
+    const $item = $(object).closest('li');
 
     $.post(`${root}Majordome/DeleteImage`, { id, file, stock })
         .done(function (response) {
@@ -559,7 +547,12 @@ function saveOrder(sorted) {
     const $overlay = $("#inventoryOverlay");
     showSpinner($overlay);
 
-    $.post(`${root}Majordome/SaveOrder`, { sorted })
+    $.ajax({
+        url: `${root}Majordome/SaveOrder`,
+        type: "POST",
+        data: { sorted },
+        traditional: true
+    })
         .done(function (response) {
             if (response && response.success) {
                 getUpdatedItems()
@@ -601,14 +594,11 @@ async function getUpdatedItems() {
 }
 
 function updateRow(data) {
-    const stock = selectedVehicle.Stock;
-    const vehicle = data.find(v => v.Stock === stock);
-    gridApi.forEachNode(function (node) {
-        if (node.data.Stock === stock) {
-            node.setData(vehicle);
-            $("#gallery-tab").text(`Photos (${vehicle.Images.length})`);
-        }
-    });
+    if (typeof window.onMajordomeInventoryDataUpdated === "function") {
+        window.onMajordomeInventoryDataUpdated(data);
+        return;
+    }
+
     hideSpinner($("#inventoryOverlay"));
 }
 
@@ -698,7 +688,7 @@ function saveOverlayData() {
 
     overlay.children().each(function () {
         const bold = $("#fontType").val().includes("bold") ? "bold" : "normal"
-        const italic = $("#fontType").val().includes("italic") ? "italic" : ""
+        const italic = $("#fontType").val().includes("italic") ? "italic" : "normal"
 
         const tag = this.tagName.toLowerCase();
         const text = $(this).text();
