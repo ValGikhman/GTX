@@ -276,21 +276,90 @@ namespace GTX.Controllers
 
         [HttpPost]
         public JsonResult SaveOrder(Guid[] sorted) {
-            InventoryService.UpdateOrder(sorted);
-            return Json(new { success = true });
+            try {
+                if (sorted == null || sorted.Length == 0) {
+                    return Json(new { success = false, message = "No images were provided to reorder." });
+                }
+
+                InventoryService.UpdateOrder(sorted);
+                return Json(new { success = true });
+            }
+            catch (Exception ex) {
+                return Json(new { success = false, message = $"Error saving image order: {ex.Message}" });
+            }
         }
 
         [HttpPost]
         public JsonResult SaveOverlay(Guid id, string stock, string overlay, string imagePath) {
-            InventoryService.SaveOverlay(id, overlay);
-            CreateImageWithOverlay(stock, imagePath, overlay);
-            return Json(new { success = true });
+            try {
+                if (id == Guid.Empty) {
+                    return Json(new { success = false, message = "Invalid image id." });
+                }
+
+                if (string.IsNullOrWhiteSpace(stock) || string.IsNullOrWhiteSpace(overlay) || string.IsNullOrWhiteSpace(imagePath)) {
+                    return Json(new { success = false, message = "Missing required overlay parameters." });
+                }
+
+                InventoryService.SaveOverlay(id, overlay);
+                CreateImageWithOverlay(stock, imagePath, overlay);
+                return Json(new { success = true });
+            }
+            catch (Exception ex) {
+                return Json(new { success = false, message = $"Error saving overlay: {ex.Message}" });
+            }
         }
 
         [HttpPost]
         public JsonResult DeleteOverlay(Guid id, string stock) {
-            InventoryService.DeleteOverlay(id);
-            return Json(new { success = true });
+            try {
+                if (id == Guid.Empty) {
+                    return Json(new { success = false, message = "Invalid image id." });
+                }
+
+                var image = InventoryService.GetImage(id);
+                InventoryService.DeleteOverlay(id);
+                DeleteOverlayRenderedImageFile(image, stock);
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex) {
+                return Json(new { success = false, message = $"Error deleting overlay: {ex.Message}" });
+            }
+        }
+
+        private void DeleteOverlayRenderedImageFile(Services.Image image, string stock) {
+            if (image == null) {
+                return;
+            }
+
+            var source = image.Source ?? string.Empty;
+            var resolvedStock = !string.IsNullOrWhiteSpace(stock) ? stock : image.Stock;
+            var basePath = ResolveInventoryImagePhysicalPath(source);
+
+            if ((string.IsNullOrWhiteSpace(basePath) || !System.IO.File.Exists(basePath)) &&
+                !string.IsNullOrWhiteSpace(resolvedStock) &&
+                !string.IsNullOrWhiteSpace(source)) {
+                basePath = CombineUnderInventoryImagesRoot(resolvedStock, Path.GetFileName(source));
+            }
+
+            if (string.IsNullOrWhiteSpace(basePath)) {
+                return;
+            }
+
+            var directory = Path.GetDirectoryName(basePath);
+            if (string.IsNullOrWhiteSpace(directory)) {
+                return;
+            }
+
+            var baseName = Path.GetFileNameWithoutExtension(basePath);
+            if (baseName.EndsWith("-O", StringComparison.OrdinalIgnoreCase)) {
+                baseName = baseName.Substring(0, baseName.Length - 2);
+            }
+
+            var overlayPath = Path.Combine(directory, baseName + "-O.png");
+            if (System.IO.File.Exists(overlayPath)) {
+                System.IO.File.Delete(overlayPath);
+            }
         }
 
         [HttpPost]

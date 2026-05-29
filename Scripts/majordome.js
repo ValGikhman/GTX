@@ -98,6 +98,239 @@ function applyMajordomePhotoCardOrientation($image) {
     }
 }
 
+var majordomeImageActionInProgress = false;
+
+function normalizeMajordomeStockKey(stock) {
+    return (stock || "").toString().trim().toUpperCase();
+}
+
+function findMajordomeVehicleByStock(data, stock) {
+    var target = normalizeMajordomeStockKey(stock);
+    if (!target || !Array.isArray(data)) return null;
+
+    for (var i = 0; i < data.length; i++) {
+        var item = data[i];
+        if (normalizeMajordomeStockKey(item && item.Stock) === target) {
+            return item;
+        }
+    }
+
+    return null;
+}
+
+function setMajordomeImageActionsBusy(isBusy) {
+    var busy = !!isBusy;
+
+    $("#sortable-gallery .majordome-photo-actions .btn, #upload, #deleteAll, #saveOverlay, #deleteOverlay")
+        .prop("disabled", busy)
+        .toggleClass("disabled", busy);
+
+    $("#dropzone").toggleClass("pe-none", busy);
+}
+
+function beginMajordomeImageAction($overlay) {
+    if (majordomeImageActionInProgress) {
+        return false;
+    }
+
+    majordomeImageActionInProgress = true;
+    setMajordomeImageActionsBusy(true);
+    showSpinner($overlay);
+    return true;
+}
+
+function endMajordomeImageAction($overlay) {
+    majordomeImageActionInProgress = false;
+    setMajordomeImageActionsBusy(false);
+    if (typeof hideSpinner === "function") {
+        hideSpinner($overlay);
+    }
+}
+
+function refreshMajordomeAfterImageMutation(stock, options) {
+    var settings = options || {};
+    var keepGalleryTab = settings.keepGalleryTab !== false;
+    var stockKey = (stock || "").toString().trim();
+
+    if (stockKey) {
+        window.majordomeSelectedStock = stockKey;
+    }
+
+    if (keepGalleryTab) {
+        window.majordomeForceActiveTab = "gallery-tab";
+    }
+
+    return getUpdatedItems().then(function (data) {
+        var vehicle = findMajordomeVehicleByStock(data, stockKey);
+
+        if (vehicle) {
+            loadGallery(vehicle);
+        } else if (keepGalleryTab) {
+            $("#sortable-gallery").empty();
+        }
+
+        updateRow(data);
+
+        if (keepGalleryTab) {
+            $("#gallery-tab").tab("show");
+        }
+
+        return data;
+    });
+}
+
+function waitForMajordomeImageToLoad($image) {
+    return new Promise(function (resolve) {
+        var imageEl = $image && $image.length ? $image.get(0) : null;
+        if (!imageEl) {
+            resolve();
+            return;
+        }
+
+        var complete = imageEl.complete && imageEl.naturalWidth > 0;
+        if (complete) {
+            resolve();
+            return;
+        }
+
+        var done = function () {
+            $image.off("load.majordomeRefresh error.majordomeRefresh", done);
+            resolve();
+        };
+
+        $image.one("load.majordomeRefresh error.majordomeRefresh", done);
+    });
+}
+
+function refreshMajordomePhotoCardImage($card, file) {
+    if (!$card || !$card.length) {
+        return Promise.resolve();
+    }
+
+    var freshUrl = appendCacheBust(toInventoryImageUrl(file), Date.now());
+    var $link = $card.find(".majordome-photo-link");
+    var $image = $card.find(".majordome-photo-image");
+
+    if ($link.length) {
+        $link.attr("href", freshUrl);
+    }
+
+    if (!$image.length) {
+        return Promise.resolve();
+    }
+
+    $image.attr("src", freshUrl);
+    applyMajordomePhotoCardOrientation($image);
+    return waitForMajordomeImageToLoad($image);
+}
+
+function reorderMajordomeSelectedVehicleImages(sorted, stock) {
+    if (!selectedVehicle || !Array.isArray(selectedVehicle.Images) || !Array.isArray(sorted) || sorted.length === 0) {
+        return;
+    }
+
+    var selectedStock = normalizeMajordomeStockKey(selectedVehicle.Stock);
+    var targetStock = normalizeMajordomeStockKey(stock);
+    if (targetStock && selectedStock && selectedStock !== targetStock) {
+        return;
+    }
+
+    var byId = {};
+    var noId = [];
+    for (var i = 0; i < selectedVehicle.Images.length; i++) {
+        var image = selectedVehicle.Images[i];
+        var key = image && image.Id != null ? image.Id.toString() : "";
+        if (key) {
+            byId[key] = image;
+        } else {
+            noId.push(image);
+        }
+    }
+
+    var reordered = [];
+    for (var j = 0; j < sorted.length; j++) {
+        var sortedKey = (sorted[j] || "").toString();
+        if (sortedKey && byId[sortedKey]) {
+            reordered.push(byId[sortedKey]);
+            delete byId[sortedKey];
+        }
+    }
+
+    var remainingKeys = Object.keys(byId);
+    for (var k = 0; k < remainingKeys.length; k++) {
+        reordered.push(byId[remainingKeys[k]]);
+    }
+    for (var m = 0; m < noId.length; m++) {
+        reordered.push(noId[m]);
+    }
+
+    selectedVehicle.Images = reordered;
+    if (reordered.length > 0 && reordered[0] && reordered[0].Source) {
+        selectedVehicle.Image = reordered[0].Source;
+    }
+}
+
+function refreshMajordomeSelectedRowThumbnail(stock) {
+    var targetStock = normalizeMajordomeStockKey(stock);
+    if (!targetStock) {
+        return;
+    }
+
+    var $firstCard = $("#sortable-gallery li").first();
+    if (!$firstCard.length) {
+        return;
+    }
+
+    var source = ($firstCard.attr("data-filename") || "").toString().trim();
+    if (!source) {
+        return;
+    }
+
+    var freshThumb = appendCacheBust(toInventoryImageUrl(source), Date.now());
+    var $row = $("#majordomeInventoryBody .majordome-vehicle-row").filter(function () {
+        return normalizeMajordomeStockKey($(this).attr("data-stock")) === targetStock;
+    }).first();
+
+    if ($row.length) {
+        $row.find(".majordome-row-image").attr("src", freshThumb);
+    }
+}
+
+function getMajordomeOverlayContext() {
+    if (typeof window !== "undefined" && window.majordomeOverlayContext) {
+        return window.majordomeOverlayContext;
+    }
+
+    return null;
+}
+
+function postMajordome(url, data, ajaxOptions) {
+    return new Promise(function (resolve, reject) {
+        var options = $.extend(
+            {
+                url: url,
+                type: "POST",
+                data: data || {}
+            },
+            ajaxOptions || {}
+        );
+
+        $.ajax(options)
+            .done(function (response) {
+                resolve(response);
+            })
+            .fail(function (xhr, status, error) {
+                var message =
+                    (xhr && xhr.responseJSON && xhr.responseJSON.message) ||
+                    (xhr && xhr.responseText) ||
+                    error ||
+                    status ||
+                    "Request failed.";
+                reject(new Error(message));
+            });
+    });
+}
+
 class StyleParser {
     constructor(styleString) {
         this.styles = {};
@@ -225,7 +458,6 @@ function updateGalleryDisplay() {
 }
 
 function uploadFiles(stock, input) {
-    showSpinner($("#inventoryOverlay"));
     const files = input.files;
 
     const formData = new FormData();
@@ -238,7 +470,6 @@ function uploadFiles(stock, input) {
 }
 
 function uploadDroppedFiles(stock, files) {
-    showSpinner($("#inventoryOverlay"));
     const formData = new FormData();
     files.forEach(f => formData.append("files", f, f.name));
     formData.append("stock", stock);
@@ -246,30 +477,32 @@ function uploadDroppedFiles(stock, files) {
     upload(formData, stock);
 }
 
-function upload(formData, stock) {
-    fetch("/Majordome/Upload", {
-        method: "POST",
-        body: formData,
-        headers: {
-            "Cache-Control": "no-cache"
+async function upload(formData, stock) {
+    const $overlay = $("#inventoryOverlay");
+    if (!beginMajordomeImageAction($overlay)) {
+        return;
+    }
+
+    try {
+        const response = await fetch("/Majordome/Upload", {
+            method: "POST",
+            body: formData,
+            headers: {
+                "Cache-Control": "no-cache"
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error("Upload failed.");
         }
-    })
-    .then(response => {
-        if (response.ok) {
-            fetch('/Majordome/GetUpdatedItems')
-                .then(res => res.json())
-                .then(data => {
-                    const vehicle = data.find(v => v.Stock === stock);
-                    loadGallery(vehicle);
-                    updateRow(data);
-                });
-        } else {
-            alert("Upload failed.");
-        }
-    })
-    .catch(error => {
-        alert(error);
-    });
+
+        await refreshMajordomeAfterImageMutation(stock, { keepGalleryTab: true });
+    } catch (error) {
+        console.error("Upload failed:", error);
+        alert(error && error.message ? error.message : "Upload failed.");
+    } finally {
+        endMajordomeImageAction($overlay);
+    }
 }
 
 function uploadInventory(input) {
@@ -457,48 +690,28 @@ async function deleteDataOne(stock) {
     }
 }
 
-function deleteImages(stock) {
+async function deleteImages(stock) {
     const $overlay = $("#inventoryOverlay");
-    showSpinner($overlay);
+    if (!beginMajordomeImageAction($overlay)) {
+        return;
+    }
 
-    $.post(`${root}Majordome/DeleteImages`, { stock })
-        .done(function (response) {
-            if (response && response.success) {
+    try {
+        const response = await postMajordome(`${root}Majordome/DeleteImages`, { stock });
+        if (!response || !response.success) {
+            throw new Error((response && response.message) || "Failed to delete images.");
+        }
 
-                getUpdatedItems()
-                    .then(data => {
-                        const vehicle = data.find(v => v.Stock === stock);
-
-                        if (vehicle) {
-                            loadGallery(vehicle);
-                        } else {
-                            console.warn(`Vehicle with stock ${stock} not found in updated items.`);
-                        }
-
-                        updateRow(data);
-                    })
-                    .catch(err => {
-                        console.error('Error refreshing updated items after deleteImages:', err);
-                        alert('Images deleted, but failed to refresh items.');
-                    });
-            } else {
-                alert((response && response.message) || 'Failed to delete images.');
-            }
-        })
-
-        .fail(function (xhr, status, error) {
-            console.error('DeleteImages failed:', status, error, xhr.responseText);
-            alert('Failed to delete images on the server.');
-        })
-
-        .always(function () {
-            if (typeof hideSpinner === 'function') {
-                hideSpinner($overlay);
-            }
-        });
+        await refreshMajordomeAfterImageMutation(stock, { keepGalleryTab: true });
+    } catch (err) {
+        console.error("DeleteImages failed:", err);
+        alert(err.message || "Failed to delete images on the server.");
+    } finally {
+        endMajordomeImageAction($overlay);
+    }
 }
 
-function deleteImage(id, file, object) {
+async function deleteImage(id, file, object) {
     const stock = getActiveMajordomeStock();
     if (!stock) {
         alert("Please select a vehicle first.");
@@ -506,49 +719,27 @@ function deleteImage(id, file, object) {
     }
 
     const $overlay = $("#inventoryOverlay");
-    showSpinner($overlay);
+    if (!beginMajordomeImageAction($overlay)) {
+        return;
+    }
 
-    const $item = $(object).closest('li');
+    try {
+        const response = await postMajordome(`${root}Majordome/DeleteImage`, { id, file, stock });
+        if (!response || !response.success) {
+            throw new Error((response && response.message) || "Failed to delete image.");
+        }
 
-    $.post(`${root}Majordome/DeleteImage`, { id, file, stock })
-        .done(function (response) {
-            if (response && response.success) {
-                // Remove the image from the DOM first
-                $item.fadeOut(300, function () { $item.remove(); });
-
-                getUpdatedItems()
-                    .then(data => {
-                        const vehicle = data.find(v => v.Stock === stock);
-
-                        if (vehicle) {
-                            loadGallery(vehicle);
-                        } else {
-                            console.warn(`Vehicle with stock ${stock} not found in updated items.`);
-                        }
-
-                        updateRow(data);
-                        $("#close").click();
-                    })
-                    .catch(err => {
-                        console.error('Error refreshing updated items after deleteImage:', err);
-                        alert('Image deleted, but failed to refresh items.');
-                    });
-            } else {
-                alert((response && response.message) || 'Failed to delete image.');
-            }
-        })
-        .fail(function (xhr, status, error) {
-            console.error('DeleteImage failed:', status, error, xhr.responseText);
-            alert('Failed to delete image on the server.');
-        })
-        .always(function () {
-            if (typeof hideSpinner === 'function') {
-                hideSpinner($overlay);
-            }
-        });
+        await refreshMajordomeAfterImageMutation(stock, { keepGalleryTab: true });
+        $("#close").click();
+    } catch (err) {
+        console.error("DeleteImage failed:", err);
+        alert(err.message || "Failed to delete image on the server.");
+    } finally {
+        endMajordomeImageAction($overlay);
+    }
 }
 
-function rotateImage(file, degrees) {
+async function rotateImage(file, degrees, triggerElement) {
     const stock = getActiveMajordomeStock();
     if (!stock) {
         alert("Please select a vehicle first.");
@@ -561,48 +752,34 @@ function rotateImage(file, degrees) {
     }
 
     const $overlay = $("#inventoryOverlay");
-    showSpinner($overlay);
+    if (!beginMajordomeImageAction($overlay)) {
+        return;
+    }
+
     window.majordomeSelectedStock = stock;
     window.majordomeForceActiveTab = "gallery-tab";
 
-    $.post(`${root}Majordome/RotateImage`, { file, stock, degrees: rotationDegrees })
-        .done(function (response) {
-            if (response && response.success) {
-                getUpdatedItems()
-                    .then(data => {
-                        const targetStock = String(stock).trim().toUpperCase();
-                        const vehicle = (Array.isArray(data) ? data : []).find(v => String(v && v.Stock || "").trim().toUpperCase() === targetStock);
+    const $card = triggerElement ? $(triggerElement).closest(".majordome-photo-card") : $();
 
-                        if (vehicle) {
-                            loadGallery(vehicle);
-                        } else {
-                            console.warn(`Vehicle with stock ${stock} not found in updated items.`);
-                        }
+    try {
+        const response = await postMajordome(`${root}Majordome/RotateImage`, { file, stock, degrees: rotationDegrees });
+        if (!response || !response.success) {
+            throw new Error((response && response.message) || "Failed to rotate image.");
+        }
 
-                        updateRow(data);
-                        $("#gallery-tab").tab("show");
-                    })
-                    .catch(err => {
-                        console.error('Error refreshing updated items after rotateImage:', err);
-                        alert('Image rotated, but failed to refresh items.');
-                        if (typeof hideSpinner === 'function') {
-                            hideSpinner($overlay);
-                        }
-                    });
-            } else {
-                alert((response && response.message) || 'Failed to rotate image.');
-                if (typeof hideSpinner === 'function') {
-                    hideSpinner($overlay);
-                }
-            }
-        })
-        .fail(function (xhr, status, error) {
-            console.error('RotateImage failed:', status, error, xhr.responseText);
-            alert('Failed to rotate image on the server.');
-            if (typeof hideSpinner === 'function') {
-                hideSpinner($overlay);
-            }
-        });
+        if ($card.length) {
+            await refreshMajordomePhotoCardImage($card, file);
+            updateGalleryDisplay();
+            $("#gallery-tab").tab("show");
+        } else {
+            await refreshMajordomeAfterImageMutation(stock, { keepGalleryTab: true });
+        }
+    } catch (err) {
+        console.error("RotateImage failed:", err);
+        alert(err.message || "Failed to rotate image on the server.");
+    } finally {
+        endMajordomeImageAction($overlay);
+    }
 }
 
 function createStory(stock) {
@@ -676,40 +853,41 @@ function deleteStory(stock) {
         });
 }
 
-function saveOrder(sorted) {
+async function saveOrder(sorted, options) {
+    var settings = options || {};
+    var fastMode = settings.fastMode === true;
+    const stock = getActiveMajordomeStock();
     const $overlay = $("#inventoryOverlay");
-    showSpinner($overlay);
+    if (!beginMajordomeImageAction($overlay)) {
+        return;
+    }
 
-    $.ajax({
-        url: `${root}Majordome/SaveOrder`,
-        type: "POST",
-        data: { sorted },
-        traditional: true
-    })
-        .done(function (response) {
-            if (response && response.success) {
-                getUpdatedItems()
-                    .then(data => {
-                        updateRow(data);
-                    })
-                    .catch(err => {
-                        console.error('Error refreshing updated items after saveOrder:', err);
-                        alert('Order saved, but failed to refresh items.');
-                    });
+    try {
+        const response = await postMajordome(
+            `${root}Majordome/SaveOrder`,
+            { sorted: sorted },
+            { traditional: true }
+        );
 
-            } else {
-                alert((response && response.message) || 'Failed to save order.');
-            }
-        })
-        .fail(function (xhr, status, error) {
-            console.error('SaveOrder failed:', status, error, xhr.responseText);
-            alert('Failed to save order on the server.');
-        })
-        .always(function () {
-            if (typeof hideSpinner === 'function') {
-                hideSpinner($overlay);
-            }
-        });
+        if (!response || !response.success) {
+            throw new Error((response && response.message) || "Failed to save order.");
+        }
+
+        if (fastMode) {
+            reorderMajordomeSelectedVehicleImages(sorted, stock);
+            refreshMajordomeSelectedRowThumbnail(stock);
+            window.majordomeForceActiveTab = "gallery-tab";
+            $("#gallery-tab").tab("show");
+            return;
+        }
+
+        await refreshMajordomeAfterImageMutation(stock, { keepGalleryTab: true });
+    } catch (err) {
+        console.error("SaveOrder failed:", err);
+        alert(err.message || "Failed to save order on the server.");
+    } finally {
+        endMajordomeImageAction($overlay);
+    }
 }
 
 async function getUpdatedItems() {
@@ -793,27 +971,53 @@ function setControls(json) {
     }
 }
 
-function deleteOverlayData() {
-    showSpinner($("#inventoryOverlay"));
-    const overlay = $("#overlay");
-    $.post(`${root}Majordome/DeleteOverlay`, { id })
-        .done(function (response) {
-            if (response.success) {
-                fetch('/Majordome/GetUpdatedItems')
-                    .then(res => res.json())
-                    .then(data => {
-                        const vehicle = data.find(v => v.Stock === stock);
-                        loadGallery(vehicle);
-                        updateRow(data);
-                        hideSpinner($("#inventoryOverlay"));
-                        $("#close").click();
-                    });
-            }
-        })
+async function deleteOverlayData() {
+    const context = getMajordomeOverlayContext();
+    const overlayId = context && context.id ? context.id : "";
+    const stock = context && context.stock ? context.stock : getActiveMajordomeStock();
+
+    if (!overlayId) {
+        alert("Overlay context is missing.");
+        return;
+    }
+
+    const $overlay = $("#inventoryOverlay");
+    if (!beginMajordomeImageAction($overlay)) {
+        return;
+    }
+
+    try {
+        const response = await postMajordome(`${root}Majordome/DeleteOverlay`, { id: overlayId, stock: stock });
+        if (!response || !response.success) {
+            throw new Error((response && response.message) || "Failed to delete overlay.");
+        }
+
+        await refreshMajordomeAfterImageMutation(stock, { keepGalleryTab: true });
+        $("#close").click();
+    } catch (err) {
+        console.error("DeleteOverlay failed:", err);
+        alert(err.message || "Failed to delete overlay.");
+    } finally {
+        endMajordomeImageAction($overlay);
+    }
 }
 
-function saveOverlayData() {
-    showSpinner($("#inventoryOverlay"));
+async function saveOverlayData() {
+    const context = getMajordomeOverlayContext();
+    const overlayId = context && context.id ? context.id : "";
+    const stock = context && context.stock ? context.stock : getActiveMajordomeStock();
+    const imagePath = context && context.imagePath ? context.imagePath : "";
+
+    if (!overlayId || !stock || !imagePath) {
+        alert("Overlay context is missing.");
+        return;
+    }
+
+    const $overlaySpinner = $("#inventoryOverlay");
+    if (!beginMajordomeImageAction($overlaySpinner)) {
+        return;
+    }
+
     const overlay = $("#overlay");
     const overlayStyle = `background-color: ${$("#backgroundColor").val()}`;
 
@@ -845,19 +1049,25 @@ function saveOverlayData() {
         }
     };
 
-    $.post(`${root}Majordome/SaveOverlay`, { id, overlay: JSON.stringify(json), stock, imagePath: imagePath })
-        .done(function (response) {
-            if (response.success) {
-                fetch('/Majordome/GetUpdatedItems')
-                    .then(res => res.json())
-                    .then(data => {
-                        const vehicle = data.find(v => v.Stock === stock);
-                        loadGallery(vehicle);
-                        updateRow(data);
-                        hideSpinner($("#inventoryOverlay"));
-                        $("#close").click();
-                    });
-            }
-        })
+    try {
+        const response = await postMajordome(`${root}Majordome/SaveOverlay`, {
+            id: overlayId,
+            overlay: JSON.stringify(json),
+            stock: stock,
+            imagePath: imagePath
+        });
+
+        if (!response || !response.success) {
+            throw new Error((response && response.message) || "Failed to save overlay.");
+        }
+
+        await refreshMajordomeAfterImageMutation(stock, { keepGalleryTab: true });
+        $("#close").click();
+    } catch (err) {
+        console.error("SaveOverlay failed:", err);
+        alert(err.message || "Failed to save overlay.");
+    } finally {
+        endMajordomeImageAction($overlaySpinner);
+    }
 }
 

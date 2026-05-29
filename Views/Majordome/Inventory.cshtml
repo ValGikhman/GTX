@@ -323,23 +323,57 @@
             }
 
         .majordome-actions {
-            display: inline-flex;
+            display: inline-grid;
+            grid-template-columns: repeat(3, max-content);
+            gap: .2rem;
+            min-width: 0;
+            width: auto;
+            text-align: left;
+        }
+
+        .majordome-action-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: .15rem;
+            padding: .2rem .25rem;
+            border: 1px solid rgba(15, 23, 42, .12);
+            border-radius: .55rem;
+            background: #f8fafc;
+        }
+
+        .majordome-action-title {
+            font-size: .56rem;
+            line-height: 1.1;
+            letter-spacing: .02em;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #475569;
+        }
+
+        .majordome-action-buttons {
+            display: flex;
             align-items: center;
-            justify-content: flex-end;
-            gap: .35rem;
+            justify-content: flex-start;
+            gap: .2rem;
             flex-wrap: nowrap;
-            white-space: nowrap;
         }
 
             .majordome-actions .btn {
-                width: 2rem;
-                height: 2rem;
+                width: 1.7rem;
+                height: 1.7rem;
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
                 padding: 0;
-                border-radius: .5rem;
+                border-radius: .4rem;
             }
+
+        #majordomeInventoryTable th.majordome-actions-col,
+        #majordomeInventoryTable td.majordome-actions-cell {
+            width: 1%;
+            white-space: nowrap;
+        }
 
         @@media (max-width: 991.98px) {
             .this-container {
@@ -375,8 +409,8 @@
             }
 
             .majordome-actions {
-                flex-wrap: wrap;
-                gap: .25rem;
+                grid-template-columns: 1fr;
+                min-width: 0;
             }
 
                 .majordome-actions .btn {
@@ -491,7 +525,7 @@
                                     <th class="text-center d-none d-md-table-cell majordome-sortable-th" data-sort-key="upload" style="width:80px;">Upload <span class="majordome-sort-indicator"></span></th>
                                     <th class="text-center d-none d-md-table-cell majordome-sortable-th" data-sort-key="story" style="width:80px;">Story <span class="majordome-sort-indicator"></span></th>
                                     <th class="text-center d-none d-md-table-cell majordome-sortable-th" data-sort-key="dataone" style="width:90px;">DataOne <span class="majordome-sort-indicator"></span></th>
-                                    <th class="text-center" style="min-width:220px;">Actions</th>
+                                    <th class="text-center majordome-actions-col" style="min-width:250px;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="majordomeInventoryBody"></tbody>
@@ -677,13 +711,17 @@
         $(document).on("click", ".rotate-image", function () {
             var file = $(this).data("filename");
             var degrees = parseInt($(this).data("degrees"), 10) || 90;
-            rotateImage(file, degrees);
+            rotateImage(file, degrees, this);
         });
 
         $(document).on("click", ".rotate-image-ccw", function () {
             var file = $(this).data("filename");
             var degrees = parseInt($(this).data("degrees"), 10) || -90;
-            rotateImage(file, degrees);
+            rotateImage(file, degrees, this);
+        });
+
+        $(document).on("hidden.bs.modal", "#overlayModal", function () {
+            window.majordomeOverlayContext = null;
         });
 
         $(document).on("click", ".move-to-top", function (e) {
@@ -696,7 +734,7 @@
             $item.prependTo("#sortable-gallery");
 
             const sorted = getSortedIds();
-            saveOrder(sorted);
+            saveOrder(sorted, { fastMode: true });
             updateGalleryDisplay();
         });
 
@@ -1135,29 +1173,47 @@
         const stock = escapeHtml(vehicle.Stock);
         const vin = escapeHtml(vehicle.VIN);
         const imagesCount = vehicle.Images ? vehicle.Images.length : 0;
+        const canDeleteImages = imagesCount > 0;
+        const deleteImagesTitle = canDeleteImages
+            ? `Delete all ${imagesCount} pictures for Stock# ${stock}`
+            : `No images to delete for Stock# ${stock}`;
 
         return `
             <div class="majordome-actions">
-                <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-upload-trigger" title="Upload images for Stock# ${stock}">
-                    <i class="bi bi-upload"></i>
-                </button>
-                <input type="file" class="js-amm-upload-input d-none" data-stock="${stock}" multiple accept="image/*" />
-                ${imagesCount > 0 ? `
-                <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-delete-images" data-stock="${stock}" data-images-count="${imagesCount}" title="Delete all ${imagesCount} pictures for Stock# ${stock}">
-                    <i class="bi bi-trash"></i>
-                </button>` : ""}
-                <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-create-story" data-stock="${stock}" title="Create story for Stock# ${stock}">
-                    <i class="bi bi-book"></i>
-                </button>
-                <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-delete-story" data-stock="${stock}" title="Delete story for Stock# ${stock}">
-                    <i class="bi bi-book-fill"></i>
-                </button>
-                <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-decode-dataone" data-vin="${vin}" title="Decode and override for VIN# ${vin}">
-                    <i class="bi bi-car-front"></i>
-                </button>
-                <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-delete-dataone" data-stock="${stock}" title="Delete DataOne for stock# ${stock}">
-                    <i class="bi bi-car-front-fill"></i>
-                </button>
+                <div class="majordome-action-group">
+                    <div class="majordome-action-title">Images</div>
+                    <div class="majordome-action-buttons">
+                        <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-upload-trigger" title="Upload images for Stock# ${stock}">
+                            <i class="bi bi-upload"></i>
+                        </button>
+                        <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-delete-images" data-stock="${stock}" data-images-count="${imagesCount}" title="${deleteImagesTitle}" ${canDeleteImages ? "" : "disabled"}>
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                    <input type="file" class="js-amm-upload-input d-none" data-stock="${stock}" multiple accept="image/*" />
+                </div>
+                <div class="majordome-action-group">
+                    <div class="majordome-action-title">Story</div>
+                    <div class="majordome-action-buttons">
+                        <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-create-story" data-stock="${stock}" title="Create story for Stock# ${stock}">
+                            <i class="bi bi-book"></i>
+                        </button>
+                        <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-delete-story" data-stock="${stock}" title="Delete story for Stock# ${stock}">
+                            <i class="bi bi-book-fill"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="majordome-action-group">
+                    <div class="majordome-action-title">DataOne</div>
+                    <div class="majordome-action-buttons">
+                        <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-decode-dataone" data-vin="${vin}" title="Decode and override for VIN# ${vin}">
+                            <i class="bi bi-car-front"></i>
+                        </button>
+                        <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-delete-dataone" data-stock="${stock}" title="Delete DataOne for stock# ${stock}">
+                            <i class="bi bi-car-front-fill"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         `;
     }
@@ -1200,7 +1256,7 @@
                 <td class="text-center d-none d-md-table-cell">
                     <span class="majordome-status-pill ${dataOne ? "is-on" : ""}">${dataOne ? "Y" : "N"}</span>
                 </td>
-                <td class="text-end">${renderMajordomeActionButtons(row)}</td>
+                <td class="text-start majordome-actions-cell">${renderMajordomeActionButtons(row)}</td>
             </tr>
         `;
     }
@@ -1436,10 +1492,14 @@
         delay: 100,
         touchStartThreshold: 5,
         onEnd: function (event) {
+            if (event && event.oldIndex === event.newIndex) {
+                return;
+            }
+
             let sorted = $("#sortable-gallery li").map(function () {
                 return $(this).attr("id")
             }).get();
-            saveOrder(sorted);
+            saveOrder(sorted, { fastMode: true });
             updateGalleryDisplay();
         }
     });
@@ -1447,15 +1507,21 @@
     // Show Bootstrap modal with images
     function showOverlayModal(id) {
         const stock = safeText(selectedVehicle?.Stock || selectedVehicleStock || window.majordomeSelectedStock || "").trim();
-        if (stock) {
-            showSpinner($("#inventoryOverlay"));
-            $.get(`${root}Majordome/OverlayModal`, { id })
-                .done(function (html) {
-                    $("#vehicle-overlay").html(html);
-                    $("#overlayModal").modal("show");
-                    hideSpinner($("#inventoryOverlay"));
-                })
-        };
+        if (!stock) return;
+
+        showSpinner($("#inventoryOverlay"));
+        $.get(`${root}Majordome/OverlayModal`, { id })
+            .done(function (html) {
+                $("#vehicle-overlay").html(html);
+                $("#overlayModal").modal("show");
+            })
+            .fail(function (xhr, status, error) {
+                console.error("OverlayModal failed:", status, error, xhr && xhr.responseText);
+                alert("Failed to load overlay editor.");
+            })
+            .always(function () {
+                hideSpinner($("#inventoryOverlay"));
+            });
     }
 
     function showVehicleDetails(vehicle) {
