@@ -550,7 +550,7 @@
                     <div class="row">
                         @Html.Label("Title", new { @class = "text-shadow" })
                         <div class="input-group mb-3">
-                            <input id="title" class="form-control shadow pull-right" placeholder="Title" aria-label="Title" aria-describedby="title" />
+                            <input id="storyTitle" class="form-control shadow pull-right" placeholder="Title" aria-label="Title" aria-describedby="storyTitle" />
                             <button id="createStory" class="btn btn-light bi bi-book input-group-text "></button>
                             <button id="deleteStory" class="btn btn-light bi bi-book-fill input-group-text"></button>
                             <button id="saveStory" class="btn btn-light bi bi-save input-group-text"></button>
@@ -776,41 +776,37 @@
             }
         });
 
-        $("#saveStory").on("click", function () {
+        $("#saveStory").on("click", async function () {
             const stock = getSelectedVehicleStockOrWarn();
             if (!stock) return;
-            var story = quill.root.innerHTML;
-            const title = $("#title").val();
+            const story = quill.root.innerHTML;
+            const title = $("#storyTitle").val();
 
-            if (confirm(`Do you want to save story for Stock# ${stock}`)) {
-                showSpinner($("#inventoryOverlay"));
+            if (!confirm(`Do you want to save story for Stock# ${stock}`)) {
+                return;
+            }
 
-                fetch('/Majordome/SaveStory', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ stock, story, title })
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error("Server error");
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        console.log("✅ Story saved:", data.message);
-                        fetch('/Majordome/GetUpdatedItems')
-                            .then(res => res.json())
-                            .then(data => {
-                                updateRow(data);
-                        });
-                    } else {
-                        console.log("❌ Server returned error:", data.message);
-                    }
-                })
-                .catch(error => {
-                    console.log("❌ Error submitting:", error);
-                });
+            const $overlay = $("#inventoryOverlay");
+            showSpinner($overlay);
+
+            try {
+                const data = await postMajordome(`${root}Majordome/SaveStory`, { stock, story, title });
+                if (!data || !data.success) {
+                    throw new Error((data && data.message) || "Failed to save story.");
+                }
+
+                const savedTitle = safeText(data.Title || title);
+                const savedStory = safeText(data.Story || story);
+
+                $("#storyTitle").val(savedTitle);
+                quill.setContents([]);
+                quill.clipboard.dangerouslyPasteHTML(0, savedStory || "", "api");
+                syncMajordomeStoryLocalState(stock, savedTitle, savedStory);
+            } catch (error) {
+                console.error("SaveStory failed:", error);
+                alert((error && error.message) || "Failed to save story.");
+            } finally {
+                hideSpinner($overlay);
             }
         });
 
@@ -926,6 +922,7 @@
             e.preventDefault();
             e.stopPropagation();
             const stock = $(this).attr("data-stock");
+            selectMajordomeVehicle(stock);
             if (confirm(`Do you want to create story for Stock# ${stock}`)) {
                 createStory(stock);
             }
@@ -935,6 +932,7 @@
             e.preventDefault();
             e.stopPropagation();
             const stock = $(this).attr("data-stock");
+            selectMajordomeVehicle(stock);
             if (confirm(`Do you want to delete story for Stock# ${stock}`)) {
                 deleteStory(stock);
             }
@@ -987,6 +985,61 @@
     function hasStory(vehicle) {
         const title = safeText(vehicle?.Story?.Title).trim();
         return title.length > 0;
+    }
+
+    function hasStoryContent(title, storyHtml) {
+        const titleText = safeText(title).trim();
+        if (titleText.length > 0) return true;
+
+        const plainStory = $("<div>").html(safeText(storyHtml)).text().replace(/\u00a0/g, " ").trim();
+        return plainStory.length > 0;
+    }
+
+    function syncMajordomeStoryLocalState(stock, title, storyHtml) {
+        const stockKey = safeText(stock).trim().toUpperCase();
+        if (!stockKey) return;
+
+        const normalizedTitle = safeText(title);
+        const normalizedStory = safeText(storyHtml);
+        const storyExists = hasStoryContent(normalizedTitle, normalizedStory);
+        const storyValue = storyExists
+            ? { Title: normalizedTitle, HtmlContent: normalizedStory }
+            : null;
+
+        const applyStory = function (vehicle) {
+            if (!vehicle) return;
+            vehicle.Story = storyValue;
+        };
+
+        if (selectedVehicle && safeText(selectedVehicle.Stock).trim().toUpperCase() === stockKey) {
+            applyStory(selectedVehicle);
+        }
+
+        if (Array.isArray(inventoryVehiclesSource)) {
+            inventoryVehiclesSource.forEach(function (vehicle) {
+                if (safeText(vehicle?.Stock).trim().toUpperCase() === stockKey) {
+                    applyStory(vehicle);
+                }
+            });
+        }
+
+        if (Array.isArray(inventoryVehicles)) {
+            inventoryVehicles.forEach(function (vehicle) {
+                if (safeText(vehicle?.Stock).trim().toUpperCase() === stockKey) {
+                    applyStory(vehicle);
+                }
+            });
+        }
+
+        const $row = $("#majordomeInventoryBody .majordome-vehicle-row").filter(function () {
+            return safeText($(this).attr("data-stock")).trim().toUpperCase() === stockKey;
+        }).first();
+
+        if ($row.length) {
+            $row.find(".majordome-status-story")
+                .text(storyExists ? "Y" : "N")
+                .toggleClass("is-on", storyExists);
+        }
     }
 
     function hasDataOne(vehicle) {
@@ -1245,16 +1298,16 @@
                 <td class="d-none d-lg-table-cell">${escapeHtml(purchaseDate)}</td>
                 <td><span class="fw-semibold">${escapeHtml(stock)}</span></td>
                 <td class="text-center d-none d-xl-table-cell">
-                    <span class="majordome-status-pill ${escapeHtml(gtxBadge.toneClass)}">${escapeHtml(gtxBadge.label)}</span>
+                    <span class="majordome-status-pill majordome-status-location ${escapeHtml(gtxBadge.toneClass)}">${escapeHtml(gtxBadge.label)}</span>
                 </td>
                 <td class="text-center d-none d-md-table-cell">
-                    <span class="majordome-status-pill ${upload ? "is-on" : ""}">${upload ? "Y" : "N"}</span>
+                    <span class="majordome-status-pill majordome-status-upload ${upload ? "is-on" : ""}">${upload ? "Y" : "N"}</span>
                 </td>
                 <td class="text-center d-none d-md-table-cell">
-                    <span class="majordome-status-pill ${story ? "is-on" : ""}">${story ? "Y" : "N"}</span>
+                    <span class="majordome-status-pill majordome-status-story ${story ? "is-on" : ""}">${story ? "Y" : "N"}</span>
                 </td>
                 <td class="text-center d-none d-md-table-cell">
-                    <span class="majordome-status-pill ${dataOne ? "is-on" : ""}">${dataOne ? "Y" : "N"}</span>
+                    <span class="majordome-status-pill majordome-status-dataone ${dataOne ? "is-on" : ""}">${dataOne ? "Y" : "N"}</span>
                 </td>
                 <td class="text-start majordome-actions-cell">${renderMajordomeActionButtons(row)}</td>
             </tr>
@@ -1531,8 +1584,9 @@
         const restoreEnd = shouldRestoreFilterFocus && typeof activeElement.selectionEnd === "number" ? activeElement.selectionEnd : null;
 
         $('#vin').val(vehicle.VIN);
-        $('#title').val(vehicle.Story?.Title);
-        quill.clipboard.dangerouslyPasteHTML(0, vehicle?.Story?.HtmlContent || "");
+        $('#storyTitle').val(vehicle.Story?.Title);
+        quill.setContents([]);
+        quill.clipboard.dangerouslyPasteHTML(0, vehicle?.Story?.HtmlContent || "", "api");
 
         if (shouldRestoreFilterFocus) {
             activeElement.focus({ preventScroll: true });

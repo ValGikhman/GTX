@@ -28,9 +28,19 @@ namespace GTX.Controllers
 
         private const string HeaderFileVirtualPath = "~/App_Data/Inventory/header.csv";
 
+        public sealed class SaveStoryRequest {
+            public string Stock { get; set; }
+
+            [AllowHtml]
+            public string Story { get; set; }
+
+            public string Title { get; set; }
+        }
+
         // Optional: cache header bytes to avoid disk I/O on every request
         private static byte[] _cachedHeaderBytes;
         private static readonly object _headerLock = new object();
+        private static readonly object _storyCacheLock = new object();
 
         public MajordomeController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService
                 , ILogService logService, IEmployeesService employeesService
@@ -63,7 +73,7 @@ namespace GTX.Controllers
                 var vehicle = Model.Inventory.Vehicles.FirstOrDefault(m => m.Stock == stock);
                 var story = await GetChatGptResponse(GetPrompt(vehicle));
                 var response = SplitResponse(story);
-                return SaveStory(vehicle.Stock, response.story, response.title);
+                return SaveStoryCore(vehicle.Stock, response.story, response.title);
             }
 
             catch (Exception ex) {
@@ -74,8 +84,8 @@ namespace GTX.Controllers
         [HttpPost]
         public JsonResult DeleteStory(string stock) {
             try {
-                var vehicle = Model.Inventory.Vehicles.FirstOrDefault(m => m.Stock == stock);
                 InventoryService.DeleteStory(stock);
+                SyncCachedStoryForStock(stock, null, null);
                 return Json(new { success = true, message = "Story deleted successfully." });
             }
 
@@ -98,9 +108,18 @@ namespace GTX.Controllers
         }
 
         [HttpPost]
-        public JsonResult SaveStory(string stock, string story, string title) {
+        [ValidateInput(false)]
+        public JsonResult SaveStory(SaveStoryRequest request) {
+            var stock = request?.Stock;
+            var story = request?.Story;
+            var title = request?.Title;
+            return SaveStoryCore(stock, story, title);
+        }
+
+        private JsonResult SaveStoryCore(string stock, string story, string title) {
             try {
                 InventoryService.SaveStory(stock, story, title);
+                SyncCachedStoryForStock(stock, title, story);
                 return Json(new { success = true, message = "Story saved successfully.", Title = title, Story = story });
             }
 
@@ -286,6 +305,43 @@ namespace GTX.Controllers
             }
             catch (Exception ex) {
                 return Json(new { success = false, message = $"Error saving image order: {ex.Message}" });
+            }
+        }
+
+        private void SyncCachedStoryForStock(string stock, string title, string storyHtml) {
+            var stockKey = (stock ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(stockKey) || Model?.Inventory == null) {
+                return;
+            }
+
+            var hasStory = !string.IsNullOrWhiteSpace(title) || !string.IsNullOrWhiteSpace(storyHtml);
+            var normalizedTitle = title ?? string.Empty;
+            var normalizedStory = storyHtml ?? string.Empty;
+
+            lock (_storyCacheLock) {
+                ApplyStoryToVehicles(Model.Inventory.All, stockKey, hasStory, normalizedTitle, normalizedStory);
+                ApplyStoryToVehicles(Model.Inventory.Vehicles, stockKey, hasStory, normalizedTitle, normalizedStory);
+            }
+        }
+
+        private static void ApplyStoryToVehicles(Models.GTX[] vehicles, string stock, bool hasStory, string title, string storyHtml) {
+            if (vehicles == null || vehicles.Length == 0) {
+                return;
+            }
+
+            foreach (var vehicle in vehicles) {
+                if (vehicle == null || !string.Equals(vehicle.Stock, stock, StringComparison.OrdinalIgnoreCase)) {
+                    continue;
+                }
+
+                vehicle.Story = hasStory
+                    ? new Story {
+                        Stock = stock,
+                        Title = title,
+                        HtmlContent = storyHtml,
+                        DateCreated = DateTime.Now
+                    }
+                    : null;
             }
         }
 
@@ -691,11 +747,11 @@ namespace GTX.Controllers
             story = story.Replace("<head>", "").Replace("</head>", "");
             story = story.Replace("<body>", "").Replace("</body>", "");
 
-            string pattern = @"<title>(.*?)</title>";
-            Match match = Regex.Match(story, pattern, RegexOptions.IgnoreCase);
+            string pattern = @"<title>\s*(.*?)\s*</title>";
+            Match match = Regex.Match(story, pattern, RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
             if (match.Success) {
-                title = match.Groups[1].Value;  // Extracted inner text
+                title = (match.Groups[1].Value ?? string.Empty).Trim();  // Extracted inner text
 
                 // Remove the entire <h5>...</h5> from the HTML
                 story = Regex.Replace(story, pattern, string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline);

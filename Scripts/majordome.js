@@ -782,75 +782,83 @@ async function rotateImage(file, degrees, triggerElement) {
     }
 }
 
-function createStory(stock) {
+async function createStory(stock) {
+    var targetStock = (stock || "").toString().trim();
+    if (!targetStock) {
+        alert("Please select a vehicle first.");
+        return;
+    }
+
     const $overlay = $("#inventoryOverlay");
     showSpinner($overlay);
 
-    $.post(`${root}Majordome/CreateStory`, { stock })
-        .done(function (response) {
-            if (response && response.success) {
+    try {
+        const response = await postMajordome(`${root}Majordome/CreateStory`, { stock: targetStock });
+        if (!response || !response.success) {
+            throw new Error((response && response.message) || "Failed to create story.");
+        }
 
-                quill.setContents([]);
-                quill.clipboard.dangerouslyPasteHTML(0, response?.Story || "", 'api');
+        const storyTitle = (response.Title || "").toString();
+        const storyHtml = (response.Story || "").toString();
 
-                $("#title").val(response.Title || "");
+        if (typeof quill !== "undefined" && quill && quill.clipboard) {
+            quill.setContents([]);
+            quill.clipboard.dangerouslyPasteHTML(0, storyHtml, "api");
+        }
+        $("#storyTitle").val(storyTitle);
 
-                getUpdatedItems()
-                    .then(data => {
-                        updateRow(data);
-                    })
-                    .catch(err => {
-                        console.error('Error refreshing updated items after createStory:', err);
-                        alert('Story created, but failed to refresh items.');
-                    });
-            } else {
-                alert((response && response.message) || 'Failed to create story.');
-            }
-        })
-
-        .fail(function (xhr, status, error) {
-            console.error('CreateStory failed:', status, error, xhr.responseText);
-            alert('Failed to create story on the server.');
-        })
-
-        .always(function () {
-            if (typeof hideSpinner === 'function') {
-                hideSpinner($overlay);
-            }
-        });
+        if (typeof syncMajordomeStoryLocalState === "function") {
+            syncMajordomeStoryLocalState(targetStock, storyTitle, storyHtml);
+        } else {
+            const data = await getUpdatedItems();
+            updateRow(data);
+        }
+    } catch (err) {
+        console.error("CreateStory failed:", err);
+        alert((err && err.message) || "Failed to create story on the server.");
+    } finally {
+        if (typeof hideSpinner === "function") {
+            hideSpinner($overlay);
+        }
+    }
 }
 
-function deleteStory(stock) {
+async function deleteStory(stock) {
+    var targetStock = (stock || "").toString().trim();
+    if (!targetStock) {
+        alert("Please select a vehicle first.");
+        return;
+    }
+
     const $overlay = $("#inventoryOverlay");
     showSpinner($overlay);
 
-    $.post(`${root}Majordome/DeleteStory`, { stock })
-        .done(function (response) {
-            if (response && response.success) {
-                quill.clipboard.dangerouslyPasteHTML(0, "");
-                $("#title").val("");
+    try {
+        const response = await postMajordome(`${root}Majordome/DeleteStory`, { stock: targetStock });
+        if (!response || !response.success) {
+            throw new Error((response && response.message) || "Failed to delete story.");
+        }
 
-                getUpdatedItems()
-                    .then(data => {
-                        updateRow(data);
-                    })
-                    .catch(err => {
-                        console.error('Error refreshing updated items after deleteStory:', err);
-                        alert('Story deleted, but failed to refresh items.');
-                    });
-            } else {
-                alert((response && response.message) || 'Failed to delete story.');
-            }
-        })
-        .fail(function (xhr, status, error) {
-            console.error('DeleteStory failed:', status, error, xhr.responseText);
-            alert('Failed to delete story on the server.');
-        })
-        .always(function () {
-            if (typeof hideSpinner === 'function') {
-                hideSpinner($overlay);
-            }
-        });
+        if (typeof quill !== "undefined" && quill && quill.clipboard) {
+            quill.setContents([]);
+            quill.clipboard.dangerouslyPasteHTML(0, "", "api");
+        }
+        $("#storyTitle").val("");
+
+        if (typeof syncMajordomeStoryLocalState === "function") {
+            syncMajordomeStoryLocalState(targetStock, "", "");
+        } else {
+            const data = await getUpdatedItems();
+            updateRow(data);
+        }
+    } catch (err) {
+        console.error("DeleteStory failed:", err);
+        alert((err && err.message) || "Failed to delete story on the server.");
+    } finally {
+        if (typeof hideSpinner === "function") {
+            hideSpinner($overlay);
+        }
+    }
 }
 
 async function saveOrder(sorted, options) {
