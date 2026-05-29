@@ -18,8 +18,6 @@ namespace GTX.Models
 
         public bool IsMajordome { get; set; }
 
-        public bool IsEZ360 { get; set; }
-
         public bool IsDataOne { get; set; }
 
         public bool IsDevelopment { get; set; }
@@ -49,8 +47,6 @@ namespace GTX.Models
         public GTX VehicleDetails { get; set; }
 
         public DecodedData VehicleDataOneDetails { get; set; }
-
-        public bool DisplayEZ360Player { get; set; }
 
         public GTX[] VehicleSuggesion { get; set; }
     }

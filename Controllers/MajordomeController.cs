@@ -33,10 +33,9 @@ namespace GTX.Controllers
         private static readonly object _headerLock = new object();
 
         public MajordomeController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService
-                , IEZ360Service _ez360Service
                 , ILogService logService, IEmployeesService employeesService
             )
-            : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService, employeesService) {
+            : base(sessionData, inventoryService, vinDecoderService, logService, employeesService) {
         }
 
         [HttpGet]
@@ -211,21 +210,6 @@ namespace GTX.Controllers
             };
         }
 
-        [HttpGet]
-        public string GetEZ360Vehicle(string stock)
-        {
-            try
-            {
-                var details = EZ360Service.GetVehicle(ez360ProjectId, stock);
-                var res = RenderViewToString(ControllerContext, "_EZ360Vehicle", details);
-                return res;
-            }
-            catch (Exception ex)
-            {
-                return "Error: " + ex.Message;
-            }
-        }
-
         [HttpPost]
         public async Task<ActionResult> Upload(IEnumerable<HttpPostedFileBase> files, string stock) {
             try {
@@ -333,6 +317,57 @@ namespace GTX.Controllers
 
             InventoryService.DeleteImage(id);
             return Json(new { success = true });
+        }
+
+        [HttpPost]
+        public JsonResult RotateImage(string file, string stock, int? degrees) {
+            try {
+                var path = ResolveInventoryImagePhysicalPath(file);
+
+                if ((string.IsNullOrWhiteSpace(path) || !System.IO.File.Exists(path)) &&
+                    !string.IsNullOrWhiteSpace(stock) &&
+                    !string.IsNullOrWhiteSpace(file)) {
+                    path = CombineUnderInventoryImagesRoot(stock, Path.GetFileName(file));
+                }
+
+                if (string.IsNullOrWhiteSpace(path) || !System.IO.File.Exists(path)) {
+                    return Json(new { success = false, message = "Image file not found." });
+                }
+
+                using (var image = new MagickImage(path)) {
+                    var rotationDegrees = (degrees.HasValue && degrees.Value == -90) ? -90 : 90;
+
+                    image.AutoOrient();
+                    image.Orientation = OrientationType.TopLeft;
+                    TrimTransparentBorder(image);
+
+                    image.Rotate(rotationDegrees);
+                    image.Orientation = OrientationType.TopLeft;
+                    TrimTransparentBorder(image);
+                    image.ResetPage();
+
+                    image.Write(path);
+                }
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex) {
+                return Json(new { success = false, message = $"Error rotating image: {ex.Message}" });
+            }
+        }
+
+        private static void TrimTransparentBorder(MagickImage image)
+        {
+            if (image == null)
+            {
+                return;
+            }
+
+            image.Alpha(AlphaOption.Set);
+            image.BackgroundColor = MagickColors.Transparent;
+            image.ColorFuzz = new Percentage(0);
+            image.Trim();
+            image.ResetPage();
         }
 
         [HttpPost]

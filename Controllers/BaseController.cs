@@ -25,7 +25,6 @@ namespace GTX.Controllers
         public readonly string openAiApiKey = ConfigurationManager.AppSettings["OpenAI:ApiKey"];
         public readonly string dataOneApiKey = ConfigurationManager.AppSettings["DataOne:AccessKey"];
         public readonly string dataOneSecretApiKey = ConfigurationManager.AppSettings["DataOne:SecretAccessKey"];
-        public readonly string ez360ProjectId = ConfigurationManager.AppSettings["EZ360:ProjectId"];
 
         private static readonly object _sync = new object();
         private static readonly Random _rand = new Random();
@@ -39,8 +38,6 @@ namespace GTX.Controllers
 
         public ISessionData SessionData { get; private set; }
 
-        public IEZ360Service EZ360Service { get; private set; }
-
         public IEmployeesService EmployeesService { get; set; }
 
         public BaseModel Model { get; set; }
@@ -49,12 +46,11 @@ namespace GTX.Controllers
 
         #region Construtors
 
-        public BaseController(ISessionData _sessionData, IInventoryService _invntoryService, IVinDecoderService _vinDecoderService, IEZ360Service _ez360Service, ILogService _logService, IEmployeesService employeesService) {
+        public BaseController(ISessionData _sessionData, IInventoryService _invntoryService, IVinDecoderService _vinDecoderService, ILogService _logService, IEmployeesService employeesService) {
             SessionData = _sessionData;
             LogService = _logService;
             InventoryService = _invntoryService;
             VinDecoderService = _vinDecoderService;
-            EZ360Service = _ez360Service;
             EmployeesService = employeesService;
         }
         public BaseController(ISessionData _sessionData)
@@ -77,7 +73,6 @@ namespace GTX.Controllers
                 Model = new BaseModel();
 
                 Model.IsDevelopment = (Environment.GetEnvironmentVariable("COMPUTERNAME") == devComputer);
-                Model.IsEZ360 = ConfigurationManager.AppSettings["isEZ360"] == "true";
                 Model.IsDataOne = ConfigurationManager.AppSettings["isDataOne"] == "true";
 
                 SessionData.SetSession(Constants.SESSION_ENVIRONMENT, Model.IsDevelopment ? "Development" : "Production");
@@ -280,61 +275,19 @@ namespace GTX.Controllers
             // Compute once instead of per vehicle
             var defaultImage = $"{imageFolder}no-image-{Version()}.jpg";
 
-            var isEz360 = Model.IsEZ360;
-
             foreach (var vehicle in vehicles)
             {
                 vehicle.Image = defaultImage;
                 var stockImages = InventoryService.GetImages(vehicle.Stock);
 
-                if (!isEz360)
+                if (stockImages != null && stockImages.Length > 0)
                 {
-                    if (stockImages != null && stockImages.Length > 0)
-                    {
-                        vehicle.Images = stockImages;
-                        vehicle.Image = $"{imageFolder}{stockImages[0].Source}";
-                    }
-                    else
-                    {
-                        vehicle.Images = Array.Empty<Image>();
-                    }
+                    vehicle.Images = stockImages;
+                    vehicle.Image = $"{imageFolder}{stockImages[0].Source}";
                 }
                 else
                 {
-                    var ez360 = vehicle.EZ360;
-                    var ezImages = PickPrimaryImages(ez360);
-                    //var ezImages = PickDisplayImages(ez360);
-
-                    // Normalize to avoid repeated null checks
-                    var hasEz = ezImages is { Length: > 0 };
-                    var hasStock = stockImages is { Length: > 0 };
-
-                    if (!hasEz && !hasStock)
-                    {
-                        vehicle.Images = Array.Empty<Image>();
-                    }
-                    else if (hasEz && !hasStock)
-                    {
-                        vehicle.Images = ezImages;
-                    }
-                    else if (!hasEz && hasStock)
-                    {
-                        vehicle.Images = stockImages;
-                    }
-                    else
-                    {
-                        // both have values: ez + stock
-                        var merged = new Image[ezImages.Length + stockImages.Length];
-                        Array.Copy(ezImages, 0, merged, 0, ezImages.Length);
-                        Array.Copy(stockImages, 0, merged, ezImages.Length, stockImages.Length);
-                        vehicle.Images = merged;
-                    }
-
-                    var chosen = PickPrimaryImage(ez360, 200);
-                    if (!string.IsNullOrWhiteSpace(chosen))
-                    {
-                        vehicle.Image = chosen;
-                    }
+                    vehicle.Images = Array.Empty<Image>();
                 }
             }
 
@@ -542,56 +495,6 @@ namespace GTX.Controllers
             Models.GTX[] arr;
             if (dict.TryGetValue(key, out arr)) return arr;
             return empty;
-        }
-
-        private static string? PickPrimaryImage(EZ360.Vehicle? ez, int height = 200)
-        {
-            if (ez == null) return null;
-
-            var display = ez.DisplayPics?.FirstOrDefault();
-            if (!string.IsNullOrWhiteSpace(display)) {
-                var finalUrl = display.Contains("?")
-                    ? display + "&h=200"
-                    : display + "?h=200";
-                return finalUrl;
-            }
-
-            var third = ez.ThirdPartyPics?.FirstOrDefault();
-            if (!string.IsNullOrWhiteSpace(third)) return third;
-
-            return null;
-        }
-
-        private Image[] PickDisplayImages(EZ360.Vehicle? ez)
-        {
-            if (ez == null) return null;
-
-            if (ez.DisplayPics != null && ez.DisplayPics.Any())
-            {
-                return ez.DisplayPics.Select(m => new Image() { Id = Guid.Empty, Stock = ez.StockNo, DateCreated = DateTime.Now, Order = 0, Source = m }).ToArray();
-            }
-
-            if (ez.ThirdPartyPics != null && ez.ThirdPartyPics.Any())
-            {
-                return ez.ThirdPartyPics.Select(m => new Image() { Id = Guid.Empty, Stock = ez.StockNo, DateCreated = DateTime.Now, Order = 0, Source = m }).ToArray();
-            }
-
-            return null;
-        }
-        private Image[] PickPrimaryImages(EZ360.Vehicle? ez)
-        {
-            if (ez == null) return null;
-
-            if (ez.DetailPics != null && ez.DetailPics.Any())
-            {
-                return ez.DetailPics.Select(m => new Image() { Id = Guid.Empty, Stock = ez.StockNo, DateCreated = DateTime.Now, Order = 0, Source = m }).ToArray();
-            }
-
-            if (ez.ThirdPartyPics != null && ez.ThirdPartyPics.Any()) {
-                return ez.ThirdPartyPics.Select(m => new Image() { Id = Guid.Empty, Stock = ez.StockNo, DateCreated = DateTime.Now, Order = 0, Source = m }).ToArray();
-            }
-
-            return null;
         }
 
         private static string[] BuildFilter<T>(IEnumerable<T> source, Func<T, string> selector, bool ignoreNullOrWhiteSpace = true)

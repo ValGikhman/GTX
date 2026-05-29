@@ -1,4 +1,16 @@
-﻿var selectedVehicle;
+var selectedVehicle;
+
+function getActiveMajordomeStock() {
+    var fromVehicle = selectedVehicle && selectedVehicle.Stock ? selectedVehicle.Stock : "";
+    fromVehicle = (fromVehicle || "").toString().trim();
+    if (fromVehicle) return fromVehicle;
+
+    if (typeof window !== "undefined" && window.majordomeSelectedStock) {
+        return window.majordomeSelectedStock.toString().trim();
+    }
+
+    return "";
+}
 
 function toInventoryImageUrl(source) {
     var raw = (source || "").toString().trim();
@@ -17,6 +29,73 @@ function toInventoryImageUrl(source) {
     normalized = normalized.replace(/^Pictures\//i, "");
 
     return "/InventoryImages/Get?path=" + encodeURIComponent(normalized);
+}
+
+function appendCacheBust(url, token) {
+    if (!url) return "";
+    var separator = url.indexOf("?") >= 0 ? "&" : "?";
+    return url + separator + "v=" + encodeURIComponent(token);
+}
+
+function decodeUriComponentSafe(value) {
+    try {
+        return decodeURIComponent(value);
+    } catch (e) {
+        return value;
+    }
+}
+
+function getMajordomeFileNameOnly(source) {
+    var raw = (source || "").toString().trim();
+    if (!raw) return "";
+
+    var pathMatch = raw.match(/[?&]path=([^&]+)/i);
+    if (pathMatch && pathMatch[1]) {
+        raw = decodeUriComponentSafe(pathMatch[1]);
+    }
+
+    raw = raw.split("#")[0];
+    raw = raw.split("?")[0];
+    raw = raw.replace(/\\/g, "/").replace(/\/+$/, "");
+
+    var parts = raw.split("/");
+    return parts.length ? parts[parts.length - 1] : raw;
+}
+
+function escapeHtml(value) {
+    return (value || "").toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+function applyMajordomePhotoCardOrientation($image) {
+    var imageEl = $image && $image.length ? $image.get(0) : null;
+    if (!imageEl) return;
+
+    var $card = $image.closest(".majordome-photo-card");
+    if (!$card.length) return;
+
+    var setOrientation = function () {
+        var naturalWidth = imageEl.naturalWidth || 0;
+        var naturalHeight = imageEl.naturalHeight || 0;
+
+        $card.removeClass("is-landscape is-portrait");
+        if (!naturalWidth || !naturalHeight) return;
+
+        if (naturalWidth >= naturalHeight) {
+            $card.addClass("is-landscape");
+        } else {
+            $card.addClass("is-portrait");
+        }
+    };
+
+    $image.off("load.majordomeOrientation").on("load.majordomeOrientation", setOrientation);
+    if (imageEl.complete) {
+        setOrientation();
+    }
 }
 
 class StyleParser {
@@ -77,6 +156,7 @@ function loadGallery(vehicle) {
     var container = $("#sortable-gallery");
     container.empty();
     var i = 0;
+    var cacheToken = Date.now();
     vehicle.Images.forEach(function (img) {
         var source = (img.Source || "").toString();
         var showImageEdit = "";
@@ -90,20 +170,33 @@ function loadGallery(vehicle) {
             imageIcon = "bi bi-image-fill";
         }
 
-        var imagePath = toInventoryImageUrl(source);
+        var imagePath = appendCacheBust(toInventoryImageUrl(source), cacheToken);
+        var fileNameOnly = getMajordomeFileNameOnly(source) || "image";
+        var safeFileNameOnly = escapeHtml(fileNameOnly);
 
         var item = `
-        <li id="${img.Id}" class="col-lg-2 col-md-3 col-sm-4 pt-2 shadow" data-filename="${source}" style="width:245px!important;height:245px !important;">
-            <a href="${imagePath}" data-lightbox="gallery">
-                <img class="edit-image" src="${imagePath}"/>
+        <li id="${img.Id}" class="majordome-photo-card" data-filename="${source}">
+            <a href="${imagePath}" class="majordome-photo-link" data-lightbox="gallery" title="${safeFileNameOnly}">
+                <div class="majordome-photo-media">
+                    <img class="majordome-photo-image" src="${imagePath}" alt="${safeFileNameOnly}" title="${safeFileNameOnly}" />
+                </div>
             </a>
-            <span id="${img.Id}" class="delete-image bi bi-trash btn btn-light shadow my-2" data-filename="${source}" title="Delete image"></span>
-            <span id="${img.Id}" class="overlay-image ${imageIcon} btn btn-light shadow my-2 ${showImageEdit}" data-filename="${source}" title="Add overlay"></span>
-            <span class="move-to-top bi bi-front btn btn-light shadow my-2 pull-right" title="Make it default image"></span>
+            <div class="majordome-photo-footer">
+                <div class="majordome-photo-title" title="${safeFileNameOnly}">${safeFileNameOnly}</div>
+                <div class="majordome-photo-actions">
+                    <button type="button" id="${img.Id}" class="delete-image bi bi-trash btn btn-light shadow-sm" data-filename="${source}" title="Delete image"></button>
+                    <button type="button" id="${img.Id}" class="overlay-image ${imageIcon} btn btn-light shadow-sm ${showImageEdit}" data-filename="${source}" title="Add overlay"></button>
+                    <button type="button" id="${img.Id}" class="rotate-image-ccw bi bi-arrow-counterclockwise btn btn-light shadow-sm ${showImageEdit}" data-filename="${source}" data-degrees="-90" title="Rotate image left"></button>
+                    <button type="button" id="${img.Id}" class="rotate-image bi bi-arrow-clockwise btn btn-light shadow-sm ${showImageEdit}" data-filename="${source}" data-degrees="90" title="Rotate image right"></button>
+                    <button type="button" class="move-to-top bi bi-front btn btn-light shadow-sm" title="Make it default image"></button>
+                </div>
+            </div>
         </li>
         `;
 
-        container.append(item);
+        var $item = $(item);
+        container.append($item);
+        applyMajordomePhotoCardOrientation($item.find(".majordome-photo-image"));
         i++;
     });
 
@@ -114,6 +207,11 @@ function updateGalleryDisplay() {
     $("#sortable-gallery li").each(function (index) {
         const $li = $(this);
         const $btn = $li.find(".move-to-top");
+        const source = ($li.attr("data-filename") || "").toString();
+        const fileNameOnly = getMajordomeFileNameOnly(source) || "image";
+        const orderedTitle = "#" + (index + 1) + " - " + fileNameOnly;
+
+        $li.find(".majordome-photo-title").text(orderedTitle).attr("title", orderedTitle);
 
         if (index === 0) {
             $btn.addClass("d-none").hide();
@@ -359,33 +457,6 @@ async function deleteDataOne(stock) {
     }
 }
 
-async function showEZ360(stock) {
-    const $overlay = $("#inventoryOverlay");
-    showSpinner($overlay);
-
-    try {
-        const res = await fetch(`${root}Majordome/GetEZ360Vehicle?stock=${encodeURIComponent(stock)}`);
-
-        if (!res.ok) {
-            throw new Error(`Server returned ${res.status}`);
-        }
-
-        const html = await res.text();
-
-        $("#tab-ez360").html(html);
-
-    }
-
-    catch (err) {
-        console.error("Show EZ360 vehicle details failed:", err);
-        alert("Failed to get details.");
-    }
-
-    finally {
-        hideSpinner($overlay);
-    }
-}
-
 function deleteImages(stock) {
     const $overlay = $("#inventoryOverlay");
     showSpinner($overlay);
@@ -428,10 +499,15 @@ function deleteImages(stock) {
 }
 
 function deleteImage(id, file, object) {
+    const stock = getActiveMajordomeStock();
+    if (!stock) {
+        alert("Please select a vehicle first.");
+        return;
+    }
+
     const $overlay = $("#inventoryOverlay");
     showSpinner($overlay);
 
-    const stock = selectedVehicle.Stock;
     const $item = $(object).closest('li');
 
     $.post(`${root}Majordome/DeleteImage`, { id, file, stock })
@@ -466,6 +542,63 @@ function deleteImage(id, file, object) {
             alert('Failed to delete image on the server.');
         })
         .always(function () {
+            if (typeof hideSpinner === 'function') {
+                hideSpinner($overlay);
+            }
+        });
+}
+
+function rotateImage(file, degrees) {
+    const stock = getActiveMajordomeStock();
+    if (!stock) {
+        alert("Please select a vehicle first.");
+        return;
+    }
+
+    var rotationDegrees = parseInt(degrees, 10);
+    if (rotationDegrees !== -90 && rotationDegrees !== 90) {
+        rotationDegrees = 90;
+    }
+
+    const $overlay = $("#inventoryOverlay");
+    showSpinner($overlay);
+    window.majordomeSelectedStock = stock;
+    window.majordomeForceActiveTab = "gallery-tab";
+
+    $.post(`${root}Majordome/RotateImage`, { file, stock, degrees: rotationDegrees })
+        .done(function (response) {
+            if (response && response.success) {
+                getUpdatedItems()
+                    .then(data => {
+                        const targetStock = String(stock).trim().toUpperCase();
+                        const vehicle = (Array.isArray(data) ? data : []).find(v => String(v && v.Stock || "").trim().toUpperCase() === targetStock);
+
+                        if (vehicle) {
+                            loadGallery(vehicle);
+                        } else {
+                            console.warn(`Vehicle with stock ${stock} not found in updated items.`);
+                        }
+
+                        updateRow(data);
+                        $("#gallery-tab").tab("show");
+                    })
+                    .catch(err => {
+                        console.error('Error refreshing updated items after rotateImage:', err);
+                        alert('Image rotated, but failed to refresh items.');
+                        if (typeof hideSpinner === 'function') {
+                            hideSpinner($overlay);
+                        }
+                    });
+            } else {
+                alert((response && response.message) || 'Failed to rotate image.');
+                if (typeof hideSpinner === 'function') {
+                    hideSpinner($overlay);
+                }
+            }
+        })
+        .fail(function (xhr, status, error) {
+            console.error('RotateImage failed:', status, error, xhr.responseText);
+            alert('Failed to rotate image on the server.');
             if (typeof hideSpinner === 'function') {
                 hideSpinner($overlay);
             }
@@ -727,3 +860,4 @@ function saveOverlayData() {
             }
         })
 }
+

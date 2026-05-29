@@ -14,8 +14,8 @@ namespace GTX.Controllers {
         private readonly IEmployeesService _employeesService;
 
         public EmployeesController(ISessionData sessionData, IEmployeesService employeesService, IInventoryService inventoryService, IVinDecoderService vinDecoderService
-            , IEZ360Service eZ360Service,  ILogService logService) :
-            base(sessionData, inventoryService, vinDecoderService, eZ360Service, logService, employeesService)  {
+            , ILogService logService) :
+            base(sessionData, inventoryService, vinDecoderService, logService, employeesService)  {
             _employeesService = employeesService;
         }
         public ActionResult ListPartial()
