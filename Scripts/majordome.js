@@ -457,6 +457,60 @@ function updateGalleryDisplay() {
     });
 }
 
+function applyUploadedImagesToMajordomeState(stock, images) {
+    var targetStock = normalizeMajordomeStockKey(stock);
+    if (!targetStock || !Array.isArray(images)) {
+        return false;
+    }
+
+    var vehicle = null;
+    if (selectedVehicle && normalizeMajordomeStockKey(selectedVehicle.Stock) === targetStock) {
+        vehicle = selectedVehicle;
+    }
+
+    if (!vehicle && typeof inventoryVehicles !== "undefined" && Array.isArray(inventoryVehicles)) {
+        vehicle = findMajordomeVehicleByStock(inventoryVehicles, targetStock);
+    }
+
+    if (!vehicle && typeof inventoryVehiclesSource !== "undefined" && Array.isArray(inventoryVehiclesSource)) {
+        vehicle = findMajordomeVehicleByStock(inventoryVehiclesSource, targetStock);
+    }
+
+    if (!vehicle) {
+        return false;
+    }
+
+    vehicle.Images = images;
+    if (images.length > 0 && images[0] && images[0].Source) {
+        vehicle.Image = images[0].Source;
+    }
+
+    selectedVehicle = vehicle;
+    if (typeof selectedVehicleStock !== "undefined") {
+        selectedVehicleStock = (vehicle.Stock || stock || "").toString().trim();
+        window.majordomeSelectedStock = selectedVehicleStock;
+    }
+
+    loadGallery(vehicle);
+    refreshMajordomeSelectedRowThumbnail(stock);
+
+    var $row = $("#majordomeInventoryBody .majordome-vehicle-row").filter(function () {
+        return normalizeMajordomeStockKey($(this).attr("data-stock")) === targetStock;
+    }).first();
+
+    if ($row.length) {
+        $row.find(".js-amm-delete-images").attr("data-images-count", images.length);
+        if (images.length > 0 && images[0] && images[0].Source) {
+            var freshThumb = appendCacheBust(toInventoryImageUrl(images[0].Source), Date.now());
+            $row.find(".majordome-row-image").attr("src", freshThumb);
+        }
+    }
+
+    $("#gallery-tab").text("Photos (" + images.length + ")");
+    $("#gallery-tab").tab("show");
+    return true;
+}
+
 function uploadFiles(stock, input) {
     const files = input.files;
 
@@ -494,6 +548,26 @@ async function upload(formData, stock) {
 
         if (!response.ok) {
             throw new Error("Upload failed.");
+        }
+
+        let payload = null;
+        try {
+            payload = await response.json();
+        } catch (jsonError) {
+            payload = null;
+        }
+
+        if (payload && payload.success === false) {
+            throw new Error(payload.message || "Upload failed.");
+        }
+
+        const uploadStock = normalizeMajordomeStockKey(stock);
+        const activeStock = normalizeMajordomeStockKey(getActiveMajordomeStock());
+        const hasImages = payload && Array.isArray(payload.images);
+        const sameStock = uploadStock && activeStock && uploadStock === activeStock;
+
+        if (hasImages && sameStock && applyUploadedImagesToMajordomeState(stock, payload.images)) {
+            return;
         }
 
         await refreshMajordomeAfterImageMutation(stock, { keepGalleryTab: true });

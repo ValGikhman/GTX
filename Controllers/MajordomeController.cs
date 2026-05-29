@@ -27,6 +27,30 @@ namespace GTX.Controllers
     public class MajordomeController : BaseController {
 
         private const string HeaderFileVirtualPath = "~/App_Data/Inventory/header.csv";
+        private const int UploadImageWidth = 800;
+        private const int UploadImageHeight = 600;
+        private const int UploadPngCompressionLevel = 2;
+
+        private static readonly HashSet<string> UploadImageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {
+            ".jpg",
+            ".jpeg",
+            ".png",
+            ".gif",
+            ".bmp",
+            ".webp",
+            ".tif",
+            ".tiff",
+            ".heic",
+            ".heif"
+        };
+
+        private sealed class UploadImageResponseDto {
+            public Guid Id { get; set; }
+            public string Stock { get; set; }
+            public string Source { get; set; }
+            public string Overlay { get; set; }
+            public int? Order { get; set; }
+        }
 
         public sealed class SaveStoryRequest {
             public string Stock { get; set; }
@@ -41,6 +65,7 @@ namespace GTX.Controllers
         private static byte[] _cachedHeaderBytes;
         private static readonly object _headerLock = new object();
         private static readonly object _storyCacheLock = new object();
+        private static readonly object _imageCacheLock = new object();
 
         public MajordomeController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService
                 , ILogService logService, IEmployeesService employeesService
@@ -232,46 +257,86 @@ namespace GTX.Controllers
         [HttpPost]
         public async Task<ActionResult> Upload(IEnumerable<HttpPostedFileBase> files, string stock) {
             try {
-                if (files != null && files.Any()) {
-                    var uploadPath = CombineUnderInventoryImagesRoot(stock);
-                    Directory.CreateDirectory(uploadPath);
-                    
-                    int total = files?.Count() ?? 0;
+                var normalizedStock = (stock ?? string.Empty).Trim();
+                if (string.IsNullOrWhiteSpace(normalizedStock)) {
+                    return new HttpStatusCodeResult(400, "Stock is required.");
+                }
 
-                    foreach (var f in files) {
-                        if (f == null || f.ContentLength <= 0) {
+                var uploadPath = CombineUnderInventoryImagesRoot(normalizedStock);
+                Directory.CreateDirectory(uploadPath);
+
+                var fileList = (files ?? Enumerable.Empty<HttpPostedFileBase>())
+                    .Where(f => f != null && f.ContentLength > 0)
+                    .ToList();
+
+                var uploadedCount = 0;
+                var skippedCount = 0;
+                var failedFiles = new List<string>();
+
+                foreach (var file in fileList) {
+                    try {
+                        var originalExtension = Path.GetExtension(file.FileName);
+                        if (string.IsNullOrWhiteSpace(originalExtension) || !UploadImageExtensions.Contains(originalExtension)) {
+                            skippedCount++;
                             continue;
                         }
-                        
-                        string fileName = Path.GetFileNameWithoutExtension(f.FileName) + ".png";
-                        string fullPath = Path.Combine(uploadPath, fileName);
-                        
-                        // Do now override existing files
-                        if(  System.IO.File.Exists(fullPath)) {
+
+                        var fileName = Path.GetFileNameWithoutExtension(file.FileName) + ".png";
+                        var fullPath = Path.Combine(uploadPath, fileName);
+
+                        // Do not override existing files
+                        if (System.IO.File.Exists(fullPath)) {
+                            skippedCount++;
                             continue;
                         }
 
-                        using var memoryStream = new MemoryStream();
-                        await f.InputStream.CopyToAsync(memoryStream);
-                        memoryStream.Position = 0;
+                        var inputStream = file.InputStream;
+                        if (inputStream.CanSeek) {
+                            inputStream.Position = 0;
+                        }
 
-                        using (var image = new MagickImage(memoryStream)) {
+                        using (var image = new MagickImage(inputStream)) {
+                            image.AutoOrient();
                             image.Strip();
-                            image.Resize(new MagickGeometry(800, 600) { IgnoreAspectRatio = false });
-                            image.Extent(800, 600, Gravity.Center, MagickColors.Transparent);
+                            image.Resize(new MagickGeometry(UploadImageWidth, UploadImageHeight) { IgnoreAspectRatio = false });
+                            image.Extent(UploadImageWidth, UploadImageHeight, Gravity.Center, MagickColors.Transparent);
+                            image.Orientation = OrientationType.TopLeft;
 
-                            image.ColorType = ColorType.TrueColorAlpha; // RGBA (non-indexed)
+                            image.ColorType = ColorType.TrueColorAlpha;
                             image.Format = MagickFormat.Png32;
-                            image.Settings.SetDefine(MagickFormat.Png, "png:compression-level", "9");
+                            image.Settings.SetDefine(MagickFormat.Png, "png:compression-level", UploadPngCompressionLevel.ToString());
 
                             await image.WriteAsync(fullPath);
                         }
 
-                        InventoryService.SaveImage(stock, fileName);
+                        InventoryService.SaveImage(normalizedStock, fileName);
+                        uploadedCount++;
+                    }
+                    catch (Exception fileEx) {
+                        failedFiles.Add($"{file?.FileName}: {fileEx.Message}");
                     }
                 }
 
-                return Json(new { Message = "Upload completed with possible errors" });
+                var images = InventoryService.GetImages(normalizedStock) ?? Array.Empty<Services.Image>();
+                SyncCachedImagesForStock(normalizedStock, images);
+                var responseImages = images.Select(m => new UploadImageResponseDto {
+                    Id = m.Id,
+                    Stock = m.Stock,
+                    Source = m.Source,
+                    Overlay = m.Overlay,
+                    Order = m.Order
+                }).ToArray();
+
+                return Json(new {
+                    success = failedFiles.Count == 0,
+                    uploaded = uploadedCount,
+                    skipped = skippedCount,
+                    failed = failedFiles.Count,
+                    errors = failedFiles,
+                    images = responseImages,
+                    message = failedFiles.Count == 0 ? "Upload completed." : "Upload completed with some errors.",
+                    Message = failedFiles.Count == 0 ? "Upload completed." : "Upload completed with some errors."
+                });
             }
             catch (Exception ex) {
                 System.Diagnostics.Debug.WriteLine("Upload failed completely: " + ex.Message);
@@ -342,6 +407,39 @@ namespace GTX.Controllers
                         DateCreated = DateTime.Now
                     }
                     : null;
+            }
+        }
+
+        private void SyncCachedImagesForStock(string stock, Services.Image[] images) {
+            var stockKey = (stock ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(stockKey) || Model?.Inventory == null) {
+                return;
+            }
+
+            var normalizedImages = images ?? Array.Empty<Services.Image>();
+            var defaultImage = $"{imageFolder}no-image-1.jpg";
+            var leadImage = normalizedImages.Length > 0
+                ? $"{imageFolder}{normalizedImages[0].Source}"
+                : defaultImage;
+
+            lock (_imageCacheLock) {
+                ApplyImagesToVehicles(Model.Inventory.All, stockKey, normalizedImages, leadImage);
+                ApplyImagesToVehicles(Model.Inventory.Vehicles, stockKey, normalizedImages, leadImage);
+            }
+        }
+
+        private static void ApplyImagesToVehicles(Models.GTX[] vehicles, string stock, Services.Image[] images, string leadImage) {
+            if (vehicles == null || vehicles.Length == 0) {
+                return;
+            }
+
+            foreach (var vehicle in vehicles) {
+                if (vehicle == null || !string.Equals(vehicle.Stock, stock, StringComparison.OrdinalIgnoreCase)) {
+                    continue;
+                }
+
+                vehicle.Images = images;
+                vehicle.Image = leadImage;
             }
         }
 
