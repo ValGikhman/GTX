@@ -1,6 +1,111 @@
-﻿@model GTX.Models.GTX
+@model GTX.Models.GTX
 @{
+    const int adCardImageWidth = 280;
+
+    string EnsureAdCardImageWidth(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+        {
+            return url;
+        }
+
+        var hashIndex = url.IndexOf('#');
+        var fragment = hashIndex >= 0 ? url.Substring(hashIndex) : string.Empty;
+        var value = hashIndex >= 0 ? url.Substring(0, hashIndex) : url;
+        var queryIndex = value.IndexOf('?');
+        if (queryIndex < 0)
+        {
+            return value + "?width=" + adCardImageWidth + fragment;
+        }
+
+        var basePath = value.Substring(0, queryIndex);
+        var query = value.Substring(queryIndex + 1);
+        var queryPairs = query.Split(new[] { '&' }, StringSplitOptions.RemoveEmptyEntries);
+        var updatedQuery = string.Empty;
+
+        foreach (var pair in queryPairs)
+        {
+            if (pair.StartsWith("width=", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (!string.IsNullOrWhiteSpace(updatedQuery))
+            {
+                updatedQuery += "&";
+            }
+
+            updatedQuery += pair;
+        }
+
+        if (!string.IsNullOrWhiteSpace(updatedQuery))
+        {
+            updatedQuery += "&";
+        }
+
+        updatedQuery += "width=" + adCardImageWidth;
+        return basePath + "?" + updatedQuery + fragment;
+    }
+
+    string NormalizeInventoryImagePath(string source)
+    {
+        var value = (source ?? string.Empty).Trim().Replace('\\', '/');
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        value = value.TrimStart('/');
+
+        const string legacyPrefix = "GTXImages/Inventory/";
+        const string picturesPrefix = "Pictures/";
+
+        if (value.StartsWith(legacyPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return value.Substring(legacyPrefix.Length);
+        }
+
+        if (value.StartsWith(picturesPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return value.Substring(picturesPrefix.Length);
+        }
+
+        return null;
+    }
+
+    string BuildAdCardImageUrl(string source)
+    {
+        var value = (source ?? string.Empty).Trim();
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return value;
+        }
+
+        if (value.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            value.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            return value;
+        }
+
+        if (value.StartsWith("/InventoryImages/Get", StringComparison.OrdinalIgnoreCase) ||
+            value.StartsWith("InventoryImages/Get", StringComparison.OrdinalIgnoreCase))
+        {
+            var inventoryUrl = value.StartsWith("/") ? value : "/" + value;
+            return EnsureAdCardImageWidth(inventoryUrl);
+        }
+
+        var normalizedPath = NormalizeInventoryImagePath(value);
+        if (string.IsNullOrWhiteSpace(normalizedPath))
+        {
+            return value;
+        }
+
+        return EnsureAdCardImageWidth("/InventoryImages/Get?path=" + Uri.EscapeDataString(normalizedPath));
+    }
+
     var detailsUrl = Url.Action("Details", "Inventory", new { stock = Model.Stock });
+    var adCardImageUrl = BuildAdCardImageUrl(Model.Image);
+    var adCardTitle = $"{Model.Year} {Model.Make} {Model.Model} {Model.VehicleStyle}".Trim();
 }
 
 <div id="@Model.Stock"
@@ -16,7 +121,13 @@
 
     <a class="d-flex align-items-center btn btn-outline-light text-start" style="text-decoration: none;">
         <!-- Image Left -->
-        <img src="@Model.Image" class="rounded-3 me-3" style="width: 100px; height: auto; object-fit: cover; max-height: 76px;">
+        <img src="@adCardImageUrl"
+             alt="@adCardTitle"
+             class="rounded-3 me-3"
+             style="width: 100px; height: auto; object-fit: cover; max-height: 76px;"
+             loading="lazy"
+             decoding="async"
+             fetchpriority="low">
 
         <!-- Details Right -->
         <div class="flex-grow-1 p-0">

@@ -24,7 +24,8 @@
             return value;
         }
 
-        if (value.StartsWith("https:", StringComparison.OrdinalIgnoreCase))
+        if (value.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            value.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
         {
             return value;
         }
@@ -315,10 +316,14 @@
                         {
                             string imageBig = $"{image.Source}?h=800";
                             string imagePath = $"{image.Source}?h=200";
-                            if (image.Source?.StartsWith("https:", StringComparison.OrdinalIgnoreCase) == false)
+                            var sourceValue = image.Source ?? string.Empty;
+                            var isAbsoluteExternal = sourceValue.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                                                     sourceValue.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
+                            if (!isAbsoluteExternal)
                             {
-                                imageBig = BuildInventoryImageUrl(image.Source);
-                                imagePath = $"{imageBig}";
+                                var baseImageUrl = BuildInventoryImageUrl(image.Source);
+                                imageBig = $"{baseImageUrl}&width=1600";
+                                imagePath = $"{baseImageUrl}&width=320";
                             }
 
 
@@ -560,7 +565,7 @@
 
     var VIN = "@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.CurrentVehicle.VehicleDetails.VIN ?? string.Empty))";
     var stock = "@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.CurrentVehicle.VehicleDetails.Stock ?? string.Empty))";
-    var make = "@Html.Raw(HttpUtility.JavaScriptStringEncode((Model.CurrentVehicle.VehicleDetails.Make ?? string.Empty).Replace(" ", "-")))";
+    var make = "@Html.Raw(HttpUtility.JavaScriptStringEncode((Model.CurrentVehicle.VehicleDetails.Make ?? string.Empty).Replace(' ', '-')))";
     var model = "@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.CurrentVehicle.VehicleDetails.Model ?? string.Empty))";
     var year = "@Model.CurrentVehicle.VehicleDetails.Year";
     var vehicle = "@Html.Raw(HttpUtility.JavaScriptStringEncode(Convert.ToString(ViewBag.Title) ?? string.Empty))";

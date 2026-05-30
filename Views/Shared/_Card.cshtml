@@ -110,9 +110,9 @@
     var cardImageUrl = BuildInventoryCardImageUrl(Model.Image);
     var cardIndexRaw = ViewData["InventoryCardIndex"];
     var cardIndex = cardIndexRaw is int cardIndexValue ? cardIndexValue : int.MaxValue;
-    var isPriorityCardImage = cardIndex >= 0 && cardIndex < 8;
+    var isPriorityCardImage = cardIndex >= 0 && cardIndex < 4;
     var imageLoadingMode = isPriorityCardImage ? "eager" : "lazy";
-    var imageFetchPriority = isPriorityCardImage ? "high" : "auto";
+    var imageFetchPriority = isPriorityCardImage ? "high" : "low";
     var logoLoadingMode = cardIndex >= 0 && cardIndex < 16 ? "eager" : "lazy";
     var renderCardStyles = Context.Items["__gtx_card_styles_rendered"] == null;
 

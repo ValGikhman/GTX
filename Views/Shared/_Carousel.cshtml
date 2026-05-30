@@ -2,6 +2,7 @@
 <div id="detailsCarousel" class="carousel slide" data-bs-ride="carousel">
     <div class="carousel-inner">
         @{
+            const int carouselRenderWidth = 1400;
             var i = 0;
             string NormalizeInventoryImagePath(string source)
             {
@@ -31,14 +32,22 @@
         @foreach (var image in Model.VehicleDetails.Images) {
             var imagePath = $"{image.Source}";
 
-            if (image.Source?.StartsWith("https:", StringComparison.OrdinalIgnoreCase) == false)
+            var sourceValue = image.Source ?? string.Empty;
+            var isAbsoluteExternal = sourceValue.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                                     sourceValue.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
+
+            if (!isAbsoluteExternal)
             {
                 var normalizedPath = NormalizeInventoryImagePath(image.Source);
-                imagePath = $"/InventoryImages/Get?path={Uri.EscapeDataString(normalizedPath)}";
+                imagePath = $"/InventoryImages/Get?path={Uri.EscapeDataString(normalizedPath)}&width={carouselRenderWidth}";
             }
             <div class="carousel-item @(i == 0 ? "active" : "")">
                 <div class="slide-box">
-                    <img src="@imagePath" alt="Vehicle image @i" loading="@(i == 0 ? "eager" : "lazy")" decoding="async" />
+                    <img src="@imagePath"
+                         alt="Vehicle image @i"
+                         loading="@(i == 0 ? "eager" : "lazy")"
+                         decoding="async"
+                         fetchpriority="@(i == 0 ? "high" : "low")" />
                 </div>
             </div>
             i++;

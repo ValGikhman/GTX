@@ -37,6 +37,44 @@ function appendCacheBust(url, token) {
     return url + separator + "v=" + encodeURIComponent(token);
 }
 
+function appendImageWidth(url, width) {
+    var value = (url || "").toString().trim();
+    var requestedWidth = parseInt(width, 10);
+    if (!value || !requestedWidth || requestedWidth < 1) {
+        return value;
+    }
+
+    if (!/^\/?InventoryImages\/Get\?path=/i.test(value)) {
+        return value;
+    }
+
+    var hashIndex = value.indexOf("#");
+    var fragment = hashIndex >= 0 ? value.substring(hashIndex) : "";
+    var baseValue = hashIndex >= 0 ? value.substring(0, hashIndex) : value;
+    var queryIndex = baseValue.indexOf("?");
+
+    if (queryIndex < 0) {
+        return baseValue + "?width=" + encodeURIComponent(requestedWidth) + fragment;
+    }
+
+    var basePath = baseValue.substring(0, queryIndex);
+    var query = baseValue.substring(queryIndex + 1);
+    var pairs = query.split("&");
+    var updated = [];
+
+    for (var i = 0; i < pairs.length; i++) {
+        var pair = (pairs[i] || "").trim();
+        if (!pair || /^width=/i.test(pair)) {
+            continue;
+        }
+
+        updated.push(pair);
+    }
+
+    updated.push("width=" + encodeURIComponent(requestedWidth));
+    return basePath + "?" + updated.join("&") + fragment;
+}
+
 function decodeUriComponentSafe(value) {
     try {
         return decodeURIComponent(value);
@@ -207,19 +245,21 @@ function refreshMajordomePhotoCardImage($card, file) {
         return Promise.resolve();
     }
 
-    var freshUrl = appendCacheBust(toInventoryImageUrl(file), Date.now());
+    var baseUrl = toInventoryImageUrl(file);
+    var freshLinkUrl = appendCacheBust(appendImageWidth(baseUrl, 1600), Date.now());
+    var freshThumbUrl = appendCacheBust(appendImageWidth(baseUrl, 640), Date.now());
     var $link = $card.find(".majordome-photo-link");
     var $image = $card.find(".majordome-photo-image");
 
     if ($link.length) {
-        $link.attr("href", freshUrl);
+        $link.attr("href", freshLinkUrl);
     }
 
     if (!$image.length) {
         return Promise.resolve();
     }
 
-    $image.attr("src", freshUrl);
+    $image.attr("src", freshThumbUrl);
     applyMajordomePhotoCardOrientation($image);
     return waitForMajordomeImageToLoad($image);
 }
@@ -286,7 +326,7 @@ function refreshMajordomeSelectedRowThumbnail(stock) {
         return;
     }
 
-    var freshThumb = appendCacheBust(toInventoryImageUrl(source), Date.now());
+    var freshThumb = appendCacheBust(appendImageWidth(toInventoryImageUrl(source), 320), Date.now());
     var $row = $("#majordomeInventoryBody .majordome-vehicle-row").filter(function () {
         return normalizeMajordomeStockKey($(this).attr("data-stock")) === targetStock;
     }).first();
@@ -403,15 +443,17 @@ function loadGallery(vehicle) {
             imageIcon = "bi bi-image-fill";
         }
 
-        var imagePath = appendCacheBust(toInventoryImageUrl(source), cacheToken);
+        var baseImagePath = toInventoryImageUrl(source);
+        var imageHref = appendCacheBust(appendImageWidth(baseImagePath, 1600), cacheToken);
+        var imageThumb = appendCacheBust(appendImageWidth(baseImagePath, 640), cacheToken);
         var fileNameOnly = getMajordomeFileNameOnly(source) || "image";
         var safeFileNameOnly = escapeHtml(fileNameOnly);
 
         var item = `
         <li id="${img.Id}" class="majordome-photo-card" data-filename="${source}">
-            <a href="${imagePath}" class="majordome-photo-link" data-lightbox="gallery" title="${safeFileNameOnly}">
+            <a href="${imageHref}" class="majordome-photo-link" data-lightbox="gallery" title="${safeFileNameOnly}">
                 <div class="majordome-photo-media">
-                    <img class="majordome-photo-image" src="${imagePath}" alt="${safeFileNameOnly}" title="${safeFileNameOnly}" />
+                    <img class="majordome-photo-image" src="${imageThumb}" alt="${safeFileNameOnly}" title="${safeFileNameOnly}" loading="lazy" decoding="async" />
                 </div>
             </a>
             <div class="majordome-photo-footer">
@@ -501,7 +543,7 @@ function applyUploadedImagesToMajordomeState(stock, images) {
     if ($row.length) {
         $row.find(".js-amm-delete-images").attr("data-images-count", images.length);
         if (images.length > 0 && images[0] && images[0].Source) {
-            var freshThumb = appendCacheBust(toInventoryImageUrl(images[0].Source), Date.now());
+            var freshThumb = appendCacheBust(appendImageWidth(toInventoryImageUrl(images[0].Source), 320), Date.now());
             $row.find(".majordome-row-image").attr("src", freshThumb);
         }
     }
