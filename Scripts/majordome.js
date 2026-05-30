@@ -1,4 +1,5 @@
 var selectedVehicle;
+var photosInventoryImagesBaseUrl = "https://photos.usedcarscincinnati.com/Images";
 
 function getActiveMajordomeStock() {
     var fromVehicle = selectedVehicle && selectedVehicle.Stock ? selectedVehicle.Stock : "";
@@ -20,15 +21,40 @@ function toInventoryImageUrl(source) {
         return raw;
     }
 
-    if (/^\/?InventoryImages\/Get\?path=/i.test(raw)) {
-        return raw.charAt(0) === "/" ? raw : "/" + raw;
+    if (/^\/?InventoryImages\/Get\?/i.test(raw)) {
+        var queryIndex = raw.indexOf("?");
+        if (queryIndex >= 0) {
+            var query = raw.substring(queryIndex + 1).split("&");
+            for (var i = 0; i < query.length; i++) {
+                var part = (query[i] || "").split("=");
+                if (part.length < 2) continue;
+
+                var key = decodeUriComponentSafe((part[0] || "").replace(/\+/g, " "));
+                if (key.toLowerCase() !== "path") continue;
+
+                var pathValue = decodeUriComponentSafe((part.slice(1).join("=") || "").replace(/\+/g, " "));
+                raw = pathValue;
+                break;
+            }
+        }
     }
 
     var normalized = raw.replace(/\\/g, "/").replace(/^\/+/, "");
     normalized = normalized.replace(/^GTXImages\/Inventory\//i, "");
     normalized = normalized.replace(/^Pictures\//i, "");
+    normalized = normalized.replace(/^Images\//i, "");
+    normalized = normalized.replace(/^\/+/, "").replace(/\/+$/, "");
 
-    return "/InventoryImages/Get?path=" + encodeURIComponent(normalized);
+    if (!normalized) return "";
+
+    var segments = normalized.split("/").filter(function (segment) {
+        return !!segment;
+    }).map(function (segment) {
+        return encodeURIComponent(segment);
+    });
+
+    if (!segments.length) return "";
+    return photosInventoryImagesBaseUrl + "/" + segments.join("/");
 }
 
 function appendCacheBust(url, token) {
@@ -38,41 +64,7 @@ function appendCacheBust(url, token) {
 }
 
 function appendImageWidth(url, width) {
-    var value = (url || "").toString().trim();
-    var requestedWidth = parseInt(width, 10);
-    if (!value || !requestedWidth || requestedWidth < 1) {
-        return value;
-    }
-
-    if (!/^\/?InventoryImages\/Get\?path=/i.test(value)) {
-        return value;
-    }
-
-    var hashIndex = value.indexOf("#");
-    var fragment = hashIndex >= 0 ? value.substring(hashIndex) : "";
-    var baseValue = hashIndex >= 0 ? value.substring(0, hashIndex) : value;
-    var queryIndex = baseValue.indexOf("?");
-
-    if (queryIndex < 0) {
-        return baseValue + "?width=" + encodeURIComponent(requestedWidth) + fragment;
-    }
-
-    var basePath = baseValue.substring(0, queryIndex);
-    var query = baseValue.substring(queryIndex + 1);
-    var pairs = query.split("&");
-    var updated = [];
-
-    for (var i = 0; i < pairs.length; i++) {
-        var pair = (pairs[i] || "").trim();
-        if (!pair || /^width=/i.test(pair)) {
-            continue;
-        }
-
-        updated.push(pair);
-    }
-
-    updated.push("width=" + encodeURIComponent(requestedWidth));
-    return basePath + "?" + updated.join("&") + fragment;
+    return (url || "").toString().trim();
 }
 
 function decodeUriComponentSafe(value) {

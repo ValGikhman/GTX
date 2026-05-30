@@ -4,6 +4,7 @@
 @model GTX.Models.BaseModel
 @{
     var vehicle = Model.CurrentVehicle?.VehicleDetails;
+    const string photosInventoryImagesBaseUrl = "https://photos.usedcarscincinnati.com/Images";
 
     string JoinClean(params string[] parts)
     {
@@ -30,10 +31,26 @@
             return value;
         }
 
+        if (value.StartsWith("/InventoryImages/Get", StringComparison.OrdinalIgnoreCase) ||
+            value.StartsWith("InventoryImages/Get", StringComparison.OrdinalIgnoreCase))
+        {
+            var queryIndex = value.IndexOf('?');
+            if (queryIndex >= 0 && queryIndex < value.Length - 1)
+            {
+                var query = HttpUtility.ParseQueryString(value.Substring(queryIndex));
+                var queryPath = query["path"];
+                if (!string.IsNullOrWhiteSpace(queryPath))
+                {
+                    value = HttpUtility.UrlDecode(queryPath).Trim().Replace('\\', '/');
+                }
+            }
+        }
+
         value = value.TrimStart('/');
 
         const string legacyPrefix = "GTXImages/Inventory/";
         const string picturesPrefix = "Pictures/";
+        const string imagesPrefix = "Images/";
 
         if (value.StartsWith(legacyPrefix, StringComparison.OrdinalIgnoreCase))
         {
@@ -43,8 +60,19 @@
         {
             value = value.Substring(picturesPrefix.Length);
         }
+        else if (value.StartsWith(imagesPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            value = value.Substring(imagesPrefix.Length);
+        }
 
-        return $"/InventoryImages/Get?path={Uri.EscapeDataString(value)}";
+        var encodedPath = string.Join(
+            "/",
+            value
+                .Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(Uri.EscapeDataString)
+        );
+
+        return $"{photosInventoryImagesBaseUrl}/{encodedPath}";
     }
 
     var title = string.Join(" ", new[] { vehicle?.Year.ToString(), vehicle?.Make, vehicle?.Model, vehicle?.VehicleStyle }.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim()));
@@ -322,8 +350,8 @@
                             if (!isAbsoluteExternal)
                             {
                                 var baseImageUrl = BuildInventoryImageUrl(image.Source);
-                                imageBig = $"{baseImageUrl}&width=1600";
-                                imagePath = $"{baseImageUrl}&width=320";
+                                imageBig = baseImageUrl;
+                                imagePath = baseImageUrl;
                             }
 
 

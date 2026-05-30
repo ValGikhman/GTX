@@ -1,50 +1,29 @@
 @model GTX.Models.GTX
 @{
-    const int adCardImageWidth = 280;
+    const string photosInventoryImagesBaseUrl = "https://photos.usedcarscincinnati.com/Images";
 
-    string EnsureAdCardImageWidth(string url)
+    string ExtractPathFromInventoryImageUrl(string source)
     {
-        if (string.IsNullOrWhiteSpace(url))
+        var value = (source ?? string.Empty).Trim();
+        if (string.IsNullOrWhiteSpace(value))
         {
-            return url;
+            return null;
         }
 
-        var hashIndex = url.IndexOf('#');
-        var fragment = hashIndex >= 0 ? url.Substring(hashIndex) : string.Empty;
-        var value = hashIndex >= 0 ? url.Substring(0, hashIndex) : url;
         var queryIndex = value.IndexOf('?');
-        if (queryIndex < 0)
+        if (queryIndex < 0 || queryIndex >= value.Length - 1)
         {
-            return value + "?width=" + adCardImageWidth + fragment;
+            return null;
         }
 
-        var basePath = value.Substring(0, queryIndex);
-        var query = value.Substring(queryIndex + 1);
-        var queryPairs = query.Split(new[] { '&' }, StringSplitOptions.RemoveEmptyEntries);
-        var updatedQuery = string.Empty;
-
-        foreach (var pair in queryPairs)
+        var query = System.Web.HttpUtility.ParseQueryString(value.Substring(queryIndex));
+        var pathValue = query["path"];
+        if (string.IsNullOrWhiteSpace(pathValue))
         {
-            if (pair.StartsWith("width=", StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
-            if (!string.IsNullOrWhiteSpace(updatedQuery))
-            {
-                updatedQuery += "&";
-            }
-
-            updatedQuery += pair;
+            return null;
         }
 
-        if (!string.IsNullOrWhiteSpace(updatedQuery))
-        {
-            updatedQuery += "&";
-        }
-
-        updatedQuery += "width=" + adCardImageWidth;
-        return basePath + "?" + updatedQuery + fragment;
+        return System.Web.HttpUtility.UrlDecode(pathValue);
     }
 
     string NormalizeInventoryImagePath(string source)
@@ -55,10 +34,21 @@
             return null;
         }
 
+        if (value.StartsWith("/InventoryImages/Get", StringComparison.OrdinalIgnoreCase) ||
+            value.StartsWith("InventoryImages/Get", StringComparison.OrdinalIgnoreCase))
+        {
+            var pathFromQuery = ExtractPathFromInventoryImageUrl(value);
+            if (!string.IsNullOrWhiteSpace(pathFromQuery))
+            {
+                value = pathFromQuery.Trim().Replace('\\', '/');
+            }
+        }
+
         value = value.TrimStart('/');
 
         const string legacyPrefix = "GTXImages/Inventory/";
         const string picturesPrefix = "Pictures/";
+        const string imagesPrefix = "Images/";
 
         if (value.StartsWith(legacyPrefix, StringComparison.OrdinalIgnoreCase))
         {
@@ -70,7 +60,30 @@
             return value.Substring(picturesPrefix.Length);
         }
 
-        return null;
+        if (value.StartsWith(imagesPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return value.Substring(imagesPrefix.Length);
+        }
+
+        return value;
+    }
+
+    string BuildPhotosImageUrl(string relativePath)
+    {
+        var normalized = (relativePath ?? string.Empty).Trim().Replace('\\', '/').Trim('/');
+        if (string.IsNullOrWhiteSpace(normalized))
+        {
+            return string.Empty;
+        }
+
+        var encodedPath = string.Join(
+            "/",
+            normalized
+                .Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(Uri.EscapeDataString)
+        );
+
+        return photosInventoryImagesBaseUrl + "/" + encodedPath;
     }
 
     string BuildAdCardImageUrl(string source)
@@ -87,20 +100,13 @@
             return value;
         }
 
-        if (value.StartsWith("/InventoryImages/Get", StringComparison.OrdinalIgnoreCase) ||
-            value.StartsWith("InventoryImages/Get", StringComparison.OrdinalIgnoreCase))
-        {
-            var inventoryUrl = value.StartsWith("/") ? value : "/" + value;
-            return EnsureAdCardImageWidth(inventoryUrl);
-        }
-
         var normalizedPath = NormalizeInventoryImagePath(value);
         if (string.IsNullOrWhiteSpace(normalizedPath))
         {
             return value;
         }
 
-        return EnsureAdCardImageWidth("/InventoryImages/Get?path=" + Uri.EscapeDataString(normalizedPath));
+        return BuildPhotosImageUrl(normalizedPath);
     }
 
     var detailsUrl = Url.Action("Details", "Inventory", new { stock = Model.Stock });
