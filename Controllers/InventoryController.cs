@@ -1,4 +1,4 @@
-﻿using GTX.Helpers;
+using GTX.Helpers;
 using GTX.Models;
 using Services;
 using System;

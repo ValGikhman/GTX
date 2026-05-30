@@ -1,4 +1,4 @@
-﻿using GTX;
+using GTX;
 using GTX.Controllers;
 using Services;
 using System;

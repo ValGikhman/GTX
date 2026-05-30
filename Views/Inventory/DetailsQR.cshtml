@@ -106,17 +106,36 @@
 <script type="text/javascript">
     $("#shorts").removeClass("d-xl-flex d-md-flex d-sm-flex"); // removing it hides the shortcuts
 
-    var stock = "@Model.CurrentVehicle.VehicleDetails.Stock";
-    var make = "@Model.CurrentVehicle.VehicleDetails.Make.Replace(' ', '-')";
-    var vehicle = "@ViewBag.Title";
+    var stock = "@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(Model.CurrentVehicle.VehicleDetails.Stock ?? string.Empty))";
+    var make = "@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode((Model.CurrentVehicle.VehicleDetails.Make ?? string.Empty).Replace(" ", "-")))";
+    var vehicle = "@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(Convert.ToString(ViewBag.Title) ?? string.Empty))";
+    var vehicleTitleText = "@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(Convert.ToString(ViewBag.Title) ?? string.Empty))";
+    var vehiclePriceText = "@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(Convert.ToString(ViewBag.Price) ?? string.Empty))";
     var makeImg = `/GTXImages/makes/${make}.png`;
-    var title = `
-            <img src="${makeImg}" alt="${make} logo" class="make img-fluid gradient mx-3 rounded-5 px-2 shadow" style="height: 30px;">@ViewBag.Title</image>
-            <button class="make mx-3 btn btn-gradient-grey border-black shadow rounded-4 text-dark"><strong>@ViewBag.Price</strong></button>
-    `;
+
+    function renderFancyTitle() {
+        var $fancy = $(".fancy");
+        if (!$fancy.length) return;
+
+        var $img = $("<img>", {
+            src: makeImg,
+            alt: `${make} logo`,
+            class: "make img-fluid gradient mx-3 rounded-5 px-2 shadow"
+        }).css("height", "30px");
+
+        var $titleText = $("<span>", {
+            class: "mx-1"
+        }).text(vehicleTitleText);
+
+        var $priceButton = $("<button>", {
+            class: "make mx-3 btn btn-gradient-grey border-black shadow rounded-4 text-dark"
+        }).append($("<strong>").text(vehiclePriceText));
+
+        $fancy.empty().append($img, $titleText, $priceButton);
+    }
 
     $(function () {
-        $(".fancy").html(title);
+        renderFancyTitle();
 
         lc_lightbox(".elem", {
             wrap_class: "lcl_fade_oc",

@@ -1,4 +1,5 @@
-﻿using GTX.Common;
+using GTX.Common;
+using GTX.Helpers;
 using GTX.Models;
 using ImageMagick;
 using Newtonsoft.Json;
@@ -96,6 +97,10 @@ namespace GTX.Controllers
         public async Task<ActionResult> CreateStory(string stock) {
             try {
                 var vehicle = Model.Inventory.Vehicles.FirstOrDefault(m => m.Stock == stock);
+                if (vehicle == null) {
+                    return Json(new { success = false, message = "Vehicle not found." });
+                }
+
                 var story = await GetChatGptResponse(GetPrompt(vehicle));
                 var response = SplitResponse(story);
                 return SaveStoryCore(vehicle.Stock, response.story, response.title);
@@ -133,7 +138,6 @@ namespace GTX.Controllers
         }
 
         [HttpPost]
-        [ValidateInput(false)]
         public JsonResult SaveStory(SaveStoryRequest request) {
             var stock = request?.Stock;
             var story = request?.Story;
@@ -143,9 +147,17 @@ namespace GTX.Controllers
 
         private JsonResult SaveStoryCore(string stock, string story, string title) {
             try {
-                InventoryService.SaveStory(stock, story, title);
-                SyncCachedStoryForStock(stock, title, story);
-                return Json(new { success = true, message = "Story saved successfully.", Title = title, Story = story });
+                var normalizedStock = (stock ?? string.Empty).Trim().ToUpperInvariant();
+                if (string.IsNullOrWhiteSpace(normalizedStock)) {
+                    return Json(new { success = false, message = "Stock is required." });
+                }
+
+                var sanitizedTitle = string.IsNullOrWhiteSpace(title) ? string.Empty : HttpUtility.HtmlEncode(title.Trim());
+                var sanitizedStory = SecuritySanitizer.SanitizeRichHtml(story);
+
+                InventoryService.SaveStory(normalizedStock, sanitizedStory, sanitizedTitle);
+                SyncCachedStoryForStock(normalizedStock, sanitizedTitle, sanitizedStory);
+                return Json(new { success = true, message = "Story saved successfully.", Title = sanitizedTitle, Story = sanitizedStory });
             }
 
             catch (Exception ex) {
@@ -163,7 +175,11 @@ namespace GTX.Controllers
                     if (vehicle.Story == null || (vehicle.Story != null && vehicle.Story.HtmlContent.ToUpper().Contains("ERROR"))) {
                         var story = await GetChatGptResponse(GetPrompt(vehicle));
                         var response = SplitResponse(story);
-                        InventoryService.SaveStory(vehicle.Stock, response.story, response.title);
+                        var sanitizedTitle = string.IsNullOrWhiteSpace(response.title) ? string.Empty : HttpUtility.HtmlEncode(response.title.Trim());
+                        var sanitizedStory = SecuritySanitizer.SanitizeRichHtml(response.story);
+
+                        InventoryService.SaveStory(vehicle.Stock, sanitizedStory, sanitizedTitle);
+                        SyncCachedStoryForStock(vehicle.Stock, sanitizedTitle, sanitizedStory);
 
                         // Add a delay to avoid hitting RPM limits
                         await Task.Delay(1100); // ~55 requests/min
@@ -212,7 +228,7 @@ namespace GTX.Controllers
         }
 
         [HttpGet]
-        public string DecodeDataOneByAnyVin(string vin)
+        public ActionResult DecodeDataOneByAnyVin(string vin)
         {
             try
             {
@@ -220,12 +236,12 @@ namespace GTX.Controllers
                 var vehicle = Model.Inventory.All?.FirstOrDefault(m => m.VIN == vin);
                 Model.CurrentVehicle.VehicleDetails = vehicle;
                 Model.CurrentVehicle.VehicleDataOneDetails = Models.GTX.SetDecodedData(details);
-                var res = RenderViewToString(ControllerContext, "_DetailsDataOne", Model);
-                return res;
+                return PartialView("_DetailsDataOne", Model);
             }
             catch (Exception ex)
             {
-                return "Error: " + ex.Message;
+                base.Log(ex);
+                return new HttpStatusCodeResult(500, "Unable to decode VIN.");
             }
         }
 
@@ -344,6 +360,7 @@ namespace GTX.Controllers
             }
         }
 
+        [HttpPost]
         public void SetDetails(string stock) {
             stock = stock?.Trim().ToUpper();
             Model.CurrentVehicle.VehicleDetails = Model.Inventory.All.FirstOrDefault(m => m.Stock == stock);
@@ -709,7 +726,7 @@ namespace GTX.Controllers
             return bmp;
         }
 
-        public void CreateImageWithOverlay(string stock, string baseImagePath, string overlayJson) {
+        private void CreateImageWithOverlay(string stock, string baseImagePath, string overlayJson) {
             string baseImage = ResolveInventoryImagePhysicalPath(baseImagePath);
             if (string.IsNullOrWhiteSpace(baseImage) || !System.IO.File.Exists(baseImage))
             {
@@ -1004,3 +1021,5 @@ namespace GTX.Controllers
         }
     }
 }
+
+

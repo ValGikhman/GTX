@@ -1,4 +1,4 @@
-﻿using GTX.Common;
+using GTX.Common;
 using GTX.Controllers;
 using GTX.Models;
 using Services;

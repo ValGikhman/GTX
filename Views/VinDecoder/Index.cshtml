@@ -159,7 +159,13 @@
 
                 const html = await res.text();
                 $empty.hide();
-                $result.html(html).addClass("fade-in");
+                if (window.gtxSecurity && typeof window.gtxSecurity.setSafeHtml === "function") {
+                    window.gtxSecurity.setSafeHtml($result, html);
+                } else {
+                    $result.text(html);
+                }
+
+                $result.addClass("fade-in");
                 setTimeout(() => $result.removeClass("fade-in"), 250);
             }
             catch (err) {

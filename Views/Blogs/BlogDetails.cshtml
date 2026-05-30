@@ -1,9 +1,11 @@
-﻿@model GTX.Models.BlogPostModel
+@model GTX.Models.BlogPostModel
 
 @{
     ViewBag.Title = string.IsNullOrWhiteSpace(Model?.Title) ? "Blog Post" : Model.Title;
 
-    bool hasImg = !string.IsNullOrWhiteSpace(Model?.MediaURL);
+    string safeMediaUrl = SecuritySanitizer.SanitizeHttpOrRelativeUrl(Model?.MediaURL);
+    string safeArticleUrl = SecuritySanitizer.SanitizeHttpOrRelativeUrl(Model?.ArticleURL);
+    bool hasImg = !string.IsNullOrWhiteSpace(safeMediaUrl);
     string safeAuthor = string.IsNullOrWhiteSpace(Model?.Author) ? "Staff" : Model.Author;
     string safeTitle = string.IsNullOrWhiteSpace(Model?.Title) ? "Untitled" : Model.Title;
 
@@ -30,7 +32,7 @@
                 <div class="blog-hero position-relative">
                     @if (hasImg)
                     {
-                        <img src="@Model.MediaURL"
+                        <img src="@safeMediaUrl"
                              alt="@safeTitle"
                              class="w-100 blog-hero-img" />
                         <div class="blog-hero-overlay"></div>
@@ -62,15 +64,15 @@
                 <!-- Body -->
                 <div class="p-4 p-md-5">
                     <div class="blog-content">
-                        @Html.Raw(Model.Content)
+                        @Html.Raw(SecuritySanitizer.SanitizeRichHtml(Model.Content))
                     </div>
 
                     <hr class="my-4" />
 
                     <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
-                        @if (!string.IsNullOrWhiteSpace(Model.ArticleURL))
+                        @if (!string.IsNullOrWhiteSpace(safeArticleUrl))
                         {
-                            <a href="@Model.ArticleURL"  target="_blank" rel="noopener" class="btn btn-gradient-grey border-dark rounded-4 text-shadow-small">
+                            <a href="@safeArticleUrl"  target="_blank" rel="noopener" class="btn btn-gradient-grey border-dark rounded-4 text-shadow-small">
                                 Open Original →
                             </a>
                         }
@@ -213,3 +215,4 @@
         }
     }
 </style>
+

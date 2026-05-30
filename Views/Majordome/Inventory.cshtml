@@ -613,7 +613,8 @@
 
 <script type="text/javascript">
     const $dropzone = $("#dropzone");
-    let inventoryVehiclesSource = @Html.Raw(JsonConvert.SerializeObject(Model.Inventory.Vehicles));
+    const inventoryVehiclesSourceJson = "@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(JsonConvert.SerializeObject(Model.Inventory.Vehicles ?? Array.Empty<GTX.Models.GTX>())))";
+    let inventoryVehiclesSource = JSON.parse(inventoryVehiclesSourceJson);
     let inventoryVehicles = [];
     let selectedVehicleStock = null;
     window.majordomeSelectedStock = "";
@@ -738,7 +739,7 @@
             updateGalleryDisplay();
         });
 
-        $("#specials").html($("#actions").html());
+        $("#specials").empty().append($("#actions").contents().clone());
 
         $("#btnReStoryAll").on("click", function () {
             if (confirm("Restory all vehicles")) {
@@ -991,7 +992,8 @@
         const titleText = safeText(title).trim();
         if (titleText.length > 0) return true;
 
-        const plainStory = $("<div>").html(safeText(storyHtml)).text().replace(/\u00a0/g, " ").trim();
+        const parsedStory = new DOMParser().parseFromString(`<div>${safeText(storyHtml)}</div>`, "text/html");
+        const plainStory = (parsedStory.body.textContent || "").replace(/\u00a0/g, " ").trim();
         return plainStory.length > 0;
     }
 
@@ -1355,7 +1357,14 @@
 
         inventoryVehicles = sortMajordomeVehicles(inventoryVehiclesSource);
         const rowsHtml = inventoryVehicles.map(renderMajordomeInventoryRow).join("");
-        $("#majordomeInventoryBody").html(rowsHtml);
+        if (window.gtxSecurity && typeof window.gtxSecurity.setSafeHtml === "function") {
+            window.gtxSecurity.setSafeHtml($("#majordomeInventoryBody"), rowsHtml);
+        } else {
+            const bodyElement = document.getElementById("majordomeInventoryBody");
+            if (bodyElement) {
+                bodyElement.innerHTML = rowsHtml;
+            }
+        }
         updateMajordomeSortHeaders();
         syncMajordomeEmptyState();
         markSelectedRow(selectedVehicleStock);
@@ -1459,7 +1468,7 @@
         const qrText = `https://usedcarscincinnati.com/Inventory/Details?stock=${vehicle.Stock}&QR=${encodeURIComponent(vehicle.VIN)}`;
         const qrUrl = "/Majordome/Qr?text=" + encodeURIComponent(qrText);
         $("#qrImg").attr("src", qrUrl);
-        $("#qrText").html(`<div>${vehicle.Year} ${vehicle.Make} ${vehicle.Model} Stock# ${vehicle.Stock}</div>`);
+        $("#qrText").text(`${vehicle.Year} ${vehicle.Make} ${vehicle.Model} Stock# ${vehicle.Stock}`);
         $("#QR-code-tab").removeClass("d-none");
     }
 
@@ -1602,7 +1611,11 @@
                 data: { stock: vehicle.Stock },
                 success: function (html) {
                     // Replace or inject the partial view HTML
-                    $('#dataOneDetails').html(html);
+                    if (window.gtxSecurity && typeof window.gtxSecurity.setSafeHtml === "function") {
+                        window.gtxSecurity.setSafeHtml($('#dataOneDetails'), html);
+                    } else {
+                        $('#dataOneDetails').text(html);
+                    }
                 },
                 error: function () {
                     alert("Error loading vehicle details");

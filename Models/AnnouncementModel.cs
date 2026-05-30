@@ -1,6 +1,8 @@
-﻿using System;
-using System.Web.Mvc;
+using GTX.Helpers;
 using Services;
+using System;
+using System.Web.Mvc;
+
 namespace GTX.Models
 {
     public enum AnnouncementType { Info = 0, Success = 1, Warning = 2, Danger = 3, Promo = 4 }
@@ -62,7 +64,7 @@ namespace GTX.Models
             {
                 Id = model.Id,
                 Title = model.Title?.Trim(),
-                MessageHtml = model.MessageHtml,
+                MessageHtml = SecuritySanitizer.SanitizeRichHtml(model.MessageHtml),
 
                 // enums -> int columns
                 Type = (int)model.Type,

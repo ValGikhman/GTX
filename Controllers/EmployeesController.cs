@@ -1,4 +1,4 @@
-﻿using GTX.Models;
+using GTX.Models;
 using Services;
 using System;
 using System.IO;
@@ -10,7 +10,8 @@ using System.Web.Mvc;
 namespace GTX.Controllers {
 
     public class EmployeesController : BaseController {
-        private readonly string uploadPath = "~/GTXImages/staff/";
+        private const string UploadVirtualPath = "~/GTXImages/staff/";
+        private const string UploadRelativePath = "/GTXImages/staff/";
         private readonly IEmployeesService _employeesService;
 
         public EmployeesController(ISessionData sessionData, IEmployeesService employeesService, IInventoryService inventoryService, IVinDecoderService vinDecoderService
@@ -89,7 +90,13 @@ namespace GTX.Controllers {
 
                 // 1) if file chosen => upload and overwrite PhotoPath
                 if (PhotoFile != null && PhotoFile.ContentLength > 0)
+                {
                     model.PhotoPath = SaveEmployeePhoto(PhotoFile);
+                }
+                else
+                {
+                    model.PhotoPath = NormalizeEmployeePhotoPath(model.PhotoPath);
+                }
 
                 // 2) create entity and save
                 var entity = EmployeeModel.ToEntity(model);
@@ -145,7 +152,13 @@ namespace GTX.Controllers {
                 {
                     // no file: keep existing if user left PhotoPath empty
                     if (string.IsNullOrWhiteSpace(model.PhotoPath))
+                    {
                         model.PhotoPath = entity.PhotoPath;
+                    }
+                    else
+                    {
+                        model.PhotoPath = NormalizeEmployeePhotoPath(model.PhotoPath) ?? entity.PhotoPath;
+                    }
                 }
 
                 // map fields
@@ -155,7 +168,7 @@ namespace GTX.Controllers {
                 entity.Phone = model.Phone?.Trim();
                 entity.Email = model.Email?.Trim();
                 entity.Active = model.Active;
-                entity.PhotoPath = string.IsNullOrWhiteSpace(model.PhotoPath) ? null : model.PhotoPath.Trim();
+                entity.PhotoPath = NormalizeEmployeePhotoPath(model.PhotoPath);
 
                 _employeesService.SaveEmployee(entity);
 
@@ -177,7 +190,7 @@ namespace GTX.Controllers {
                 throw new Exception("Unsupported image type. Allowed: jpg, jpeg, png, webp, gif.");
 
             // folder
-            var folderPhysical = Server.MapPath(uploadPath);
+            var folderPhysical = Server.MapPath(UploadVirtualPath);
             if (!Directory.Exists(folderPhysical))
                 Directory.CreateDirectory(folderPhysical);
 
@@ -188,19 +201,17 @@ namespace GTX.Controllers {
             file.SaveAs(physicalPath);
 
             // return URL to store in DB
-            return Url.Content(uploadPath + name);
+            return UploadRelativePath + name;
         }
 
         private void TryDeleteLocalEmployeePhoto(string photoPath)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(photoPath)) return;
+                var normalized = NormalizeEmployeePhotoPath(photoPath);
+                if (string.IsNullOrWhiteSpace(normalized)) return;
 
-                // only delete if it's our uploads folder (avoid deleting external URLs)
-                if (!photoPath.StartsWith(uploadPath, StringComparison.OrdinalIgnoreCase)) return;
-
-                var physical = Server.MapPath("~" + photoPath);
+                var physical = Server.MapPath("~" + normalized);
                 if (System.IO.File.Exists(physical))
                     System.IO.File.Delete(physical);
             }
@@ -209,12 +220,48 @@ namespace GTX.Controllers {
 
         private void DeletePhoto(string photoPath) {
             try {
-                var physical = Server.MapPath(photoPath);
+                var normalized = NormalizeEmployeePhotoPath(photoPath);
+                if (string.IsNullOrWhiteSpace(normalized)) return;
+
+                var physical = Server.MapPath("~" + normalized);
                 if (System.IO.File.Exists(physical))
                     System.IO.File.Delete(physical);
             }
             catch {
             }
+        }
+
+        private string NormalizeEmployeePhotoPath(string photoPath)
+        {
+            if (string.IsNullOrWhiteSpace(photoPath))
+            {
+                return null;
+            }
+
+            var value = photoPath.Trim();
+            if (Uri.TryCreate(value, UriKind.Absolute, out var absoluteUri))
+            {
+                value = absoluteUri.AbsolutePath;
+            }
+
+            value = value.Replace('\\', '/');
+            if (value.StartsWith("~/", StringComparison.Ordinal))
+            {
+                value = value.Substring(1);
+            }
+
+            if (!value.StartsWith(UploadRelativePath, StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+
+            var fileName = Path.GetFileName(value);
+            if (string.IsNullOrWhiteSpace(fileName))
+            {
+                return null;
+            }
+
+            return UploadRelativePath + fileName;
         }
     }
 }

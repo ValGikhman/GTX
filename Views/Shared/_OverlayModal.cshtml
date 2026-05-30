@@ -145,7 +145,7 @@
 
         var sv = selectedVehicle || {};
         var car = `${sv.Year || ""}-${sv.Make || ""} ${sv.Model || ""} ${sv.VehicleStyle || ""}`.trim();
-        $("#overlayTitle").html(car);
+        $("#overlayTitle").text(car);
 
         $("#saveOverlay").on("click", function () {
             saveOverlayData();

@@ -31,6 +31,8 @@ namespace GTX
 
         protected void Application_BeginRequest(object sender, EventArgs e)
         {
+            ApplySecurityHeaders(Response);
+
             var path = (Request.Path ?? "").ToLowerInvariant();
             if (path == "/out-of-service.html") return; // prevent loop
             if (path.StartsWith("/content") || path.StartsWith("/scripts") || path.StartsWith("/bundles")) return;
@@ -47,6 +49,14 @@ namespace GTX
 
             var culture = CultureHelper.GetCultureFromRequest(Request);
             CultureHelper.ApplyCulture(culture);
+        }
+
+        private static void ApplySecurityHeaders(HttpResponse response)
+        {
+            if (response == null) return;
+
+            response.AppendHeader("X-Content-Type-Options", "nosniff");
+            response.AppendHeader("Referrer-Policy", "strict-origin-when-cross-origin");
         }
 
         private static bool TryServeSharedInventoryImage(HttpContext context, string requestPathLower)

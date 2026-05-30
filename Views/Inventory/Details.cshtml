@@ -1,5 +1,6 @@
-﻿@using Services;
+@using Services;
 @using System.Text.RegularExpressions
+@using System.Web
 @model GTX.Models.BaseModel
 @{
     var vehicle = Model.CurrentVehicle?.VehicleDetails;
@@ -300,7 +301,7 @@
                         </button>
 
                         <div class="collapse show p-3 text-shadow-small well" id="story">
-                            @Html.Raw(@Model.CurrentVehicle.VehicleDetails.Story.HtmlContent)
+                            @Html.Raw(SecuritySanitizer.SanitizeRichHtml(Model.CurrentVehicle.VehicleDetails.Story.HtmlContent))
                         </div>
                     </div>
                 }
@@ -557,17 +558,39 @@
     $("#shorts").removeClass("d-xl-flex d-md-flex d-sm-flex"); // removing it hides the shortcuts
     $("#btnPrev, #btnNext, #btnUp").removeClass("d-none");
 
-    var VIN = "@Model.CurrentVehicle.VehicleDetails.VIN";
-    var stock = "@Model.CurrentVehicle.VehicleDetails.Stock";
-    var make = "@Model.CurrentVehicle.VehicleDetails.Make.Replace(' ', '-')";
-    var model = "@Model.CurrentVehicle.VehicleDetails.Model";
+    var VIN = "@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.CurrentVehicle.VehicleDetails.VIN ?? string.Empty))";
+    var stock = "@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.CurrentVehicle.VehicleDetails.Stock ?? string.Empty))";
+    var make = "@Html.Raw(HttpUtility.JavaScriptStringEncode((Model.CurrentVehicle.VehicleDetails.Make ?? string.Empty).Replace(" ", "-")))";
+    var model = "@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.CurrentVehicle.VehicleDetails.Model ?? string.Empty))";
     var year = "@Model.CurrentVehicle.VehicleDetails.Year";
-    var vehicle = "@ViewBag.Title";
+    var vehicle = "@Html.Raw(HttpUtility.JavaScriptStringEncode(Convert.ToString(ViewBag.Title) ?? string.Empty))";
+    var vehicleTitleText = "@Html.Raw(HttpUtility.JavaScriptStringEncode(Convert.ToString(ViewBag.Title) ?? string.Empty))";
+    var vehiclePriceText = "@Html.Raw(HttpUtility.JavaScriptStringEncode(Convert.ToString(ViewBag.Price) ?? string.Empty))";
+    var allFromLabel = "@Html.Raw(HttpUtility.JavaScriptStringEncode(I18n.R("All_From")))";
+    var allVehiclesLabel = "@Html.Raw(HttpUtility.JavaScriptStringEncode(I18n.R("All_Vehicles")))";
     var makeImg = `/GTXImages/makes/${make}.png`;
-    var title = `
-            <img src="${makeImg}" alt="${make} logo" class="make img-fluid gradient mx-3 rounded-5 px-2 shadow" style="height: 30px;">@ViewBag.Title</image>
-            <button id="price_p" class="p-1 mx-3 btn btn-gradient-grey border-black shadow rounded-4 text-danger"><strong class="fs-5">@ViewBag.Price</strong></button>
-    `;
+
+    function renderFancyTitle() {
+        var $fancy = $(".fancy");
+        if (!$fancy.length) return;
+
+        var $img = $("<img>", {
+            src: makeImg,
+            alt: `${make} logo`,
+            class: "make img-fluid gradient mx-3 rounded-5 px-2 shadow"
+        }).css("height", "30px");
+
+        var $titleText = $("<span>", {
+            class: "mx-1"
+        }).text(vehicleTitleText);
+
+        var $priceButton = $("<button>", {
+            id: "price_p",
+            class: "p-1 mx-3 btn btn-gradient-grey border-black shadow rounded-4 text-danger"
+        }).append($("<strong>", { class: "fs-5" }).text(vehiclePriceText));
+
+        $fancy.empty().append($img, $titleText, $priceButton);
+    }
 
     let startX = 0;
     let scrollLeft = 0;
@@ -587,7 +610,7 @@
 
         setQrCode(selectedVehicle);
         setNavigationButtons();
-        $(".fancy").html(title);
+        renderFancyTitle();
 
         updateLastCars(stock);
 
@@ -598,7 +621,7 @@
             $.get(`${root}${url}`)
                 .done(function (result) {
                     $("#messageBody").html(result);
-                    $("#titleModal").html(`${title}`);
+                    $("#titleModal").text(title);
                     $("#dynamicModal").modal("show");
                 })
                 .fail(function () {
@@ -653,14 +676,14 @@
         });
 
         $("#shareToFacebook").on("click", function () {
-            var shareUrl = "@canonicalURL";
+            var shareUrl = "@Html.Raw(HttpUtility.JavaScriptStringEncode(canonicalURL))";
             var facebookShareUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl);
             window.open(facebookShareUrl, 'facebook-share-dialog', 'width=800,height=600');
         });
 
         $("#shareToTwitter").on("click", function () {
-            var shareUrl = "@canonicalURL";
-            var tweetText = 'Check out this amazing @title for sale!'
+            var shareUrl = "@Html.Raw(HttpUtility.JavaScriptStringEncode(canonicalURL))";
+            var tweetText = "@Html.Raw(HttpUtility.JavaScriptStringEncode($"Check out this amazing {title} for sale!"))";
             var twitterShareUrl = 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(shareUrl) + '&text=' + encodeURIComponent(tweetText);
             window.open(twitterShareUrl, 'twitter-share-dialog', 'width=800,height=400');
         });
@@ -687,13 +710,13 @@
         const amount = @Model.CurrentVehicle.VehicleDetails.InternetPrice - $("#downPayment").val() - $("#tradeIn").val();
         const term = $("#month").val();
 
-        $("#monthTerms").html(term);
+        $("#monthTerms").text(term);
 
         const rate = getInterestRate(score);
-        $("#apr").html(rate);
+        $("#apr").text(rate);
 
         const monthly = calculateMonthlyPayment(amount, rate, term);
-        $("#monthlyAmount").html(monthly.toFixed(2));
+        $("#monthlyAmount").text(monthly.toFixed(2));
     }
 
     function scrollSuggestions(amount) {
@@ -737,7 +760,12 @@
                 $("#btnNext").attr("href", `/Inventory/Details?stock=${nextStock}`);
             }
 
-            $("#status").html(`<strong class="text-danger">#${index + 1}</strong> @I18n.R("All_From") <strong class="text-danger">${savedStocks.length}</strong> @I18n.R("All_Vehicles")`)
+            $("#status")
+                .empty()
+                .append($("<strong>", { class: "text-danger" }).text(`#${index + 1}`))
+                .append(document.createTextNode(` ${allFromLabel} `))
+                .append($("<strong>", { class: "text-danger" }).text(savedStocks.length))
+                .append(document.createTextNode(` ${allVehiclesLabel}`));
         }
     }
 </script>
@@ -745,6 +773,7 @@
 @*<script src="https://max-allowance.s3.us-east-2.amazonaws.com/trade-in-maxallowance.js"></script>
 *@
 <script src="https://widget.mycreditdriveapp.com/offerlogix/js/OfferLogixWidgetForm.js?_=1770841571886"></script>
+
 
 
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Web;
 using System.Web.Mvc;
 
@@ -9,10 +9,16 @@ namespace GTX.Controllers
         [HttpPost]
         public ActionResult SetLanguage(string lang)
         {
-            var cookie = new HttpCookie("lang", lang)
+            var normalizedLang = (lang ?? string.Empty).Trim().ToLowerInvariant();
+            if (normalizedLang != "en" && normalizedLang != "es" && normalizedLang != "ua")
+            {
+                normalizedLang = "en";
+            }
+
+            var cookie = new HttpCookie("lang", normalizedLang)
             {
                 Expires = DateTime.UtcNow.AddYears(1),
-                HttpOnly = false,
+                HttpOnly = true,
                 Path = "/", // site-wide
                 SameSite = SameSiteMode.Lax
             };

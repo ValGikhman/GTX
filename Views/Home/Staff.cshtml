@@ -67,7 +67,7 @@
         $.get(`${root}Home/ContactForm`, { "id": id })
             .done(function (result) {
                 $("#messageBody").html(result);
-                $("#titleModal").html(`Contact ${name}`);
+                $("#titleModal").text(`Contact ${name}`);
                 $("#message").modal("show");
             })
             .fail(function () {

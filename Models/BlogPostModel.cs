@@ -1,4 +1,5 @@
-﻿using Services;
+using GTX.Helpers;
+using Services;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
@@ -20,7 +21,7 @@ namespace GTX.Models
         [AllowHtml]
         public string Content { get; set; } = "";
 
-        public string? Author { get; set; }
+        public string Author { get; set; }
 
         public bool IsPublished { get; set; }
 
@@ -33,11 +34,11 @@ namespace GTX.Models
             return new BlogPost
             {
                 Id = m.Id,
-                Title = m.Title,
-                ArticleURL = m.ArticleURL,
-                MediaURL = m.MediaURL,
-                Content = m.Content,
-                Author = m.Author,
+                Title = m.Title?.Trim(),
+                ArticleURL = SecuritySanitizer.SanitizeHttpOrRelativeUrl(m.ArticleURL),
+                MediaURL = SecuritySanitizer.SanitizeHttpOrRelativeUrl(m.MediaURL),
+                Content = SecuritySanitizer.SanitizeRichHtml(m.Content),
+                Author = string.IsNullOrWhiteSpace(m.Author) ? null : m.Author.Trim(),
                 IsPublished = m.IsPublished,
                 CreatedAt = m.CreatedAt
             };

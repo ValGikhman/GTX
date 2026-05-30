@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 @using System.Threading
 @{
     var t = (Request.Cookies["gtx-theme"]?.Value ?? "blue").ToLowerInvariant();
@@ -76,6 +76,64 @@
     <script type="text/javascript">
         var root = "@Url.Content("~/")";
         var images = "/InventoryImages/Get?path=";
+    </script>
+    <script type="text/javascript">
+        (function (window) {
+            function sanitizeHtmlFragment(html) {
+                var template = document.createElement("template");
+                template.innerHTML = String(html || "");
+
+                var blockedNodes = template.content.querySelectorAll("script, iframe, object, embed, link[rel='import'], meta[http-equiv='refresh']");
+                for (var i = 0; i < blockedNodes.length; i++) {
+                    blockedNodes[i].remove();
+                }
+
+                var allNodes = template.content.querySelectorAll("*");
+                for (var n = 0; n < allNodes.length; n++) {
+                    var node = allNodes[n];
+                    var attrs = Array.prototype.slice.call(node.attributes || []);
+                    for (var a = 0; a < attrs.length; a++) {
+                        var attr = attrs[a];
+                        var attrName = (attr.name || "").toLowerCase();
+                        var attrValue = (attr.value || "").trim();
+
+                        if (attrName.indexOf("on") === 0) {
+                            node.removeAttribute(attr.name);
+                            continue;
+                        }
+
+                        if ((attrName === "href" || attrName === "src" || attrName === "xlink:href" || attrName === "formaction") &&
+                            /^javascript:/i.test(attrValue)) {
+                            node.removeAttribute(attr.name);
+                            continue;
+                        }
+
+                        if (attrName === "srcdoc") {
+                            node.removeAttribute(attr.name);
+                        }
+                    }
+                }
+
+                return template.innerHTML;
+            }
+
+            function setSafeHtml(target, html) {
+                var element = target;
+                if (window.jQuery && target && target.jquery) {
+                    element = target.get(0);
+                }
+
+                if (!element) {
+                    return;
+                }
+
+                element.innerHTML = sanitizeHtmlFragment(html);
+            }
+
+            window.gtxSecurity = window.gtxSecurity || {};
+            window.gtxSecurity.sanitizeHtmlFragment = sanitizeHtmlFragment;
+            window.gtxSecurity.setSafeHtml = setSafeHtml;
+        })(window);
     </script>
     <script src="~/Scripts/inventory.js"></script>
 </head>

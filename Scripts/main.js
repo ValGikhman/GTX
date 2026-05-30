@@ -20,10 +20,10 @@
     });
 
     $(".copyable").on("dblclick", function () {
-        const htmlContent = $(this).html();
+        const textContent = $(this).text();
         const temp = $('<textarea>');
         $('body').append(temp);
-        temp.val(htmlContent).select();
+        temp.val(textContent).select();
         document.execCommand('copy');
         temp.remove();
         playBeep();
@@ -347,7 +347,9 @@ function getNow() {
 }
 
 function printQrArea() {
-    var printContents = $("#qrPrintArea").html();
+    var $printArea = $("#qrPrintArea").clone();
+    $printArea.find("script, iframe, object, embed").remove();
+    var printContents = $printArea.prop("outerHTML") || "";
 
     // Create hidden iframe
     var iframe = $('<iframe>', {
@@ -378,7 +380,7 @@ function printQrArea() {
 
                 </head>
                 <body>
-                    <div id="qrPrintArea">${printContents}</div>
+                    ${printContents}
                 </body>
             </html>
         `);
@@ -398,7 +400,7 @@ function setQrCode(vehicle) {
     var qrText = `https://usedcarscincinnati.com/Inventory/Details?stock=${vehicle.Stock}&QR=${encodeURIComponent(vehicle.VIN)}`;
     var qrUrl = "/Majordome/Qr?text=" + encodeURIComponent(qrText);
     $("#qrImg").attr("src", qrUrl);
-    $("#qrText").html(`<div>${vehicle.Year} ${vehicle.Make} ${vehicle.Model} Stock# ${vehicle.Stock}</div>`);
+    $("#qrText").text(`${vehicle.Year} ${vehicle.Make} ${vehicle.Model} Stock# ${vehicle.Stock}`);
 }
 
 function previewAnnouncementPopup(id) {
@@ -409,7 +411,12 @@ function previewAnnouncementPopup(id) {
 
     $.get(root + "Announcements/PreviewAlert", { id: id })
         .done(function (html) {
-            $("#announcementPreviewHostPopup").html(html);
+            if (window.gtxSecurity && typeof window.gtxSecurity.setSafeHtml === "function") {
+                window.gtxSecurity.setSafeHtml($("#announcementPreviewHostPopup"), html);
+                return;
+            }
+
+            $("#announcementPreviewHostPopup").text(html);
         })
         .fail(function (xhr) {
             $("#announcementPreviewHostPopup").html("<div class='alert alert-danger shadow mb-0'>Preview failed. Status: " + xhr.status + "</div>");
@@ -424,7 +431,12 @@ function previewAnnouncementBanner(id) {
 
     $.get(root + "Announcements/PreviewAlert", { id: id })
         .done(function (html) {
-            $("#announcementPreviewHostBanner").html(html);
+            if (window.gtxSecurity && typeof window.gtxSecurity.setSafeHtml === "function") {
+                window.gtxSecurity.setSafeHtml($("#announcementPreviewHostBanner"), html);
+                return;
+            }
+
+            $("#announcementPreviewHostBanner").text(html);
         })
         .fail(function (xhr) {
             $("#announcementPreviewHostBanner").html("<div class='alert alert-danger shadow mb-0'>Preview failed. Status: " + xhr.status + "</div>");

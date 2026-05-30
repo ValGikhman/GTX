@@ -50,7 +50,7 @@
     <a id="title" href="@titleHref" class="text-decoration-none d-flex align-items-center justify-content-center gap-2 w-75 position-relative px-2">
         <!-- Centered title (stays centered even with the icon) -->
         <h5 class="@titleClass" style="max-width: 85vw;">
-            @Html.Raw(ViewBag.Title)
+            @ViewBag.Title
         </h5>
         <img src="~/GTXImages/GTX-White.png" alt="GTX" class="@mobileLogoClass" />
 
@@ -78,4 +78,5 @@
         <i class="bi bi-caret-right-fill"></i>
     </a>
 </section>
+
 

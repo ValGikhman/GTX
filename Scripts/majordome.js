@@ -630,7 +630,7 @@ function setQrCode(vehicle) {
     var qrText = `https://usedcarscincinnati.com/Inventory/Details?stock=${vehicle.Stock}&QR=${encodeURIComponent(vehicle.VIN)}`;
     var qrUrl = "/Majordome/Qr?text=" + encodeURIComponent(qrText);
     $("#qrImg").attr("src", qrUrl);
-    $("#qrText").html(`<div>${vehicle.Year} ${vehicle.Make} ${vehicle.Model} Stock# ${vehicle.Stock}</div>`);
+    $("#qrText").text(`${vehicle.Year} ${vehicle.Make} ${vehicle.Model} Stock# ${vehicle.Stock}`);
     $("#QR-code-tab").removeClass("d-none");
 }
 
