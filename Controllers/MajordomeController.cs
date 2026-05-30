@@ -383,6 +383,17 @@ namespace GTX.Controllers
                 }
 
                 InventoryService.UpdateOrder(sorted);
+                var firstImageId = sorted.FirstOrDefault(id => id != Guid.Empty);
+                if (firstImageId != Guid.Empty) {
+                    var firstImage = InventoryService.GetImage(firstImageId);
+                    var stock = (firstImage?.Stock ?? string.Empty).Trim();
+
+                    if (!string.IsNullOrWhiteSpace(stock)) {
+                        var images = InventoryService.GetImages(stock) ?? Array.Empty<Services.Image>();
+                        SyncCachedImagesForStock(stock, images);
+                    }
+                }
+
                 return Json(new { success = true });
             }
             catch (Exception ex) {
