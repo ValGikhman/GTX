@@ -651,13 +651,15 @@ function restoreBackUpInventory() {
 }
 
 function setDetails(stock) {
-    fetch('/Majordome/SetDetails', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stock: stock })
-    })
-    .then(data => {
-    });
+    var targetStock = (stock || "").toString().trim();
+    if (!targetStock) {
+        return;
+    }
+
+    postMajordome(`${root}Majordome/SetDetails`, { stock: targetStock })
+        .catch(function (err) {
+            console.warn("SetDetails failed:", err);
+        });
 }
 
 function setQrCode(vehicle) {
