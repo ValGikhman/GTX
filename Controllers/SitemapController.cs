@@ -17,8 +17,8 @@ namespace GTX.Controllers
         private static readonly ObjectCache Cache = MemoryCache.Default;
         private const string CacheKey = "SitemapViewer";
 
-        public SitemapController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service eZ360Service, ILogService logService, IEmployeesService employeesService) :
-            base(sessionData, inventoryService, vinDecoderService, eZ360Service, logService, employeesService)
+        public SitemapController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, ILogService logService, IEmployeesService employeesService) :
+            base(sessionData, inventoryService, vinDecoderService, logService, employeesService)
         {
         }
 

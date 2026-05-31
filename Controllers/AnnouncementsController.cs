@@ -1,4 +1,4 @@
-﻿using GTX.Common;
+using GTX.Common;
 using GTX.Models;
 using Services;
 using System;
@@ -10,8 +10,8 @@ namespace GTX.Controllers
     public class AnnouncementsController : BaseController
     {
         private readonly IAnnouncementService _announcementService;
-        public AnnouncementsController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service _ez360Service,
-                    ILogService logService, IAnnouncementService announcementService, IEmployeesService employeesService) : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService, employeesService) {
+        public AnnouncementsController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService,
+                    ILogService logService, IAnnouncementService announcementService, IEmployeesService employeesService) : base(sessionData, inventoryService, vinDecoderService, logService, employeesService) {
             _announcementService = announcementService;
         }
 

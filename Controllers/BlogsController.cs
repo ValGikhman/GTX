@@ -1,4 +1,4 @@
-﻿using GTX.Common;
+using GTX.Common;
 using GTX.Controllers;
 using GTX.Models;
 using Services;
@@ -16,10 +16,9 @@ namespace GTX
             ISessionData sessionData,
             IInventoryService inventoryService,
             IVinDecoderService vinDecoderService,
-            IEZ360Service _ez360Service,
             ILogService logService,
             IBlogsService blogsService, IEmployeesService employeesService)
-            : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService, employeesService)
+            : base(sessionData, inventoryService, vinDecoderService, logService, employeesService)
         {
             _blogsService = blogsService;
         }

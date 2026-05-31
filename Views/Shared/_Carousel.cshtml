@@ -2,7 +2,33 @@
 <div id="detailsCarousel" class="carousel slide" data-bs-ride="carousel">
     <div class="carousel-inner">
         @{
+            const string photosInventoryImagesBaseUrl = "https://photos.usedcarscincinnati.com/Images";
             var i = 0;
+
+            string ExtractPathFromInventoryImageUrl(string source)
+            {
+                var value = (source ?? string.Empty).Trim();
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    return null;
+                }
+
+                var queryIndex = value.IndexOf('?');
+                if (queryIndex < 0 || queryIndex >= value.Length - 1)
+                {
+                    return null;
+                }
+
+                var query = System.Web.HttpUtility.ParseQueryString(value.Substring(queryIndex));
+                var pathValue = query["path"];
+                if (string.IsNullOrWhiteSpace(pathValue))
+                {
+                    return null;
+                }
+
+                return System.Web.HttpUtility.UrlDecode(pathValue);
+            }
+
             string NormalizeInventoryImagePath(string source)
             {
                 var value = (source ?? string.Empty).Trim().Replace('\\', '/');
@@ -11,10 +37,21 @@
                     return value;
                 }
 
+                if (value.StartsWith("/InventoryImages/Get", StringComparison.OrdinalIgnoreCase) ||
+                    value.StartsWith("InventoryImages/Get", StringComparison.OrdinalIgnoreCase))
+                {
+                    var pathFromQuery = ExtractPathFromInventoryImageUrl(value);
+                    if (!string.IsNullOrWhiteSpace(pathFromQuery))
+                    {
+                        value = pathFromQuery.Trim().Replace('\\', '/');
+                    }
+                }
+
                 value = value.TrimStart('/');
 
                 const string legacyPrefix = "GTXImages/Inventory/";
                 const string picturesPrefix = "Pictures/";
+                const string imagesPrefix = "Images/";
 
                 if (value.StartsWith(legacyPrefix, StringComparison.OrdinalIgnoreCase))
                 {
@@ -24,21 +61,51 @@
                 {
                     value = value.Substring(picturesPrefix.Length);
                 }
+                else if (value.StartsWith(imagesPrefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    value = value.Substring(imagesPrefix.Length);
+                }
 
                 return value;
+            }
+
+            string BuildPhotosImageUrl(string relativePath)
+            {
+                var normalized = (relativePath ?? string.Empty).Trim().Replace('\\', '/').Trim('/');
+                if (string.IsNullOrWhiteSpace(normalized))
+                {
+                    return string.Empty;
+                }
+
+                var encodedPath = string.Join(
+                    "/",
+                    normalized
+                        .Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(Uri.EscapeDataString)
+                );
+
+                return photosInventoryImagesBaseUrl + "/" + encodedPath;
             }
         }
         @foreach (var image in Model.VehicleDetails.Images) {
             var imagePath = $"{image.Source}";
 
-            if (image.Source?.StartsWith("https:", StringComparison.OrdinalIgnoreCase) == false)
+            var sourceValue = image.Source ?? string.Empty;
+            var isAbsoluteExternal = sourceValue.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                                     sourceValue.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
+
+            if (!isAbsoluteExternal)
             {
                 var normalizedPath = NormalizeInventoryImagePath(image.Source);
-                imagePath = $"/InventoryImages/Get?path={Uri.EscapeDataString(normalizedPath)}";
+                imagePath = BuildPhotosImageUrl(normalizedPath);
             }
             <div class="carousel-item @(i == 0 ? "active" : "")">
                 <div class="slide-box">
-                    <img src="@imagePath" alt="Vehicle image @i" loading="@(i == 0 ? "eager" : "lazy")" decoding="async" />
+                    <img src="@imagePath"
+                         alt="Vehicle image @i"
+                         loading="@(i == 0 ? "eager" : "lazy")"
+                         decoding="async"
+                         fetchpriority="@(i == 0 ? "high" : "low")" />
                 </div>
             </div>
             i++;

@@ -1,4 +1,4 @@
-﻿using GTX.Helpers;
+using GTX.Helpers;
 using GTX.Models;
 using Services;
 using System;
@@ -11,8 +11,8 @@ namespace GTX.Controllers
 
     public class InventoryController : BaseController {
 
-    public InventoryController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service _ez360Service, ILogService logService, IEmployeesService employeesService)
-            : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService, employeesService) {
+    public InventoryController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, ILogService logService, IEmployeesService employeesService)
+            : base(sessionData, inventoryService, vinDecoderService, logService, employeesService) {
         }
 
         [HttpGet]
@@ -125,16 +125,6 @@ namespace GTX.Controllers
                 }
                 else {
                     Model.CurrentVehicle.VehicleDataOneDetails = vehicle.DataOne;
-                }
-            }
-
-            if (Model.IsEZ360)
-            {
-                Model.CurrentVehicle.DisplayEZ360Player = false;
-                var ez360 = vehicle.EZ360;
-                if (ez360 != null)
-                {
-                    Model.CurrentVehicle.DisplayEZ360Player = (ez360.DetailPics.Length > 0 && ez360.IsPublishable);
                 }
             }
 

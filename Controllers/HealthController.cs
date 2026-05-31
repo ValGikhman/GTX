@@ -1,4 +1,4 @@
-﻿using GTX;
+using GTX;
 using GTX.Controllers;
 using Services;
 using System;
@@ -21,10 +21,9 @@ public class HealthController : BaseController
         ISessionData sessionData,
         IInventoryService inventoryService,
         IVinDecoderService vinDecoderService,
-        IEZ360Service _ez360Service,
         ILogService logService, 
         IEmployeesService employeesService)
-    : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService, employeesService)  { }
+    : base(sessionData, inventoryService, vinDecoderService, logService, employeesService)  { }
 
     public ActionResult ActiveSessions()
     {

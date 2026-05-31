@@ -1,4 +1,4 @@
-﻿@model List<GTX.Models.AnnouncementModel>
+@model List<GTX.Models.AnnouncementModel>
 <link href="~/Content/majordome.css" rel="stylesheet" />
 
 <div class="shadow rounded-4 overflow-hidden">
@@ -83,7 +83,7 @@
 
                                 <td>
                                     <div class="text-truncate" style="max-width: 520px;" title="@(announcement.MessageHtml ?? "")">
-                                        @Html.Raw(announcement.MessageHtml)
+                                        @Html.Raw(SecuritySanitizer.SanitizeRichHtml(announcement.MessageHtml))
                                     </div>
                                 </td>
 
@@ -253,3 +253,4 @@
 
     $(applyAnnouncements);
 </script>
+

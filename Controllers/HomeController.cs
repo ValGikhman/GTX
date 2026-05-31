@@ -1,4 +1,4 @@
-﻿using GTX.Helpers;
+using GTX.Helpers;
 using GTX.Models;
 using Services;
 using System;
@@ -17,10 +17,9 @@ namespace GTX.Controllers
         private readonly IAnnouncementService _announcementService;
 
         public HomeController(ISessionData sessionData, ContactService contactService, IInventoryService inventoryService, IVinDecoderService vinDecoderService
-                , IEZ360Service eZ360Service
                 , ILogService logService
                 , IAnnouncementService announcementService, IEmployeesService employeesService) :
-            base(sessionData, inventoryService, vinDecoderService, eZ360Service, logService, employeesService)  {
+            base(sessionData, inventoryService, vinDecoderService, logService, employeesService)  {
             _contactService = contactService;
             _announcementService = announcementService;
         }

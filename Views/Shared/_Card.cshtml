@@ -1,5 +1,33 @@
 ﻿@model GTX.Models.GTX
 @{
+    const int cardImageRenderWidth = 640;
+    const int cardImageRenderHeight = 360;
+    const string photosInventoryImagesBaseUrl = "https://photos.usedcarscincinnati.com/Images";
+
+    string ExtractPathFromInventoryImageUrl(string source)
+    {
+        var value = (source ?? string.Empty).Trim();
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        var queryIndex = value.IndexOf('?');
+        if (queryIndex < 0 || queryIndex >= value.Length - 1)
+        {
+            return null;
+        }
+
+        var query = System.Web.HttpUtility.ParseQueryString(value.Substring(queryIndex));
+        var pathValue = query["path"];
+        if (string.IsNullOrWhiteSpace(pathValue))
+        {
+            return null;
+        }
+
+        return System.Web.HttpUtility.UrlDecode(pathValue);
+    }
+
     string NormalizeInventoryImagePath(string source)
     {
         var value = (source ?? string.Empty).Trim().Replace('\\', '/');
@@ -8,10 +36,21 @@
             return null;
         }
 
+        if (value.StartsWith("/InventoryImages/Get", StringComparison.OrdinalIgnoreCase) ||
+            value.StartsWith("InventoryImages/Get", StringComparison.OrdinalIgnoreCase))
+        {
+            var pathFromQuery = ExtractPathFromInventoryImageUrl(value);
+            if (!string.IsNullOrWhiteSpace(pathFromQuery))
+            {
+                value = pathFromQuery.Trim().Replace('\\', '/');
+            }
+        }
+
         value = value.TrimStart('/');
 
         const string legacyPrefix = "GTXImages/Inventory/";
         const string picturesPrefix = "Pictures/";
+        const string imagesPrefix = "Images/";
 
         if (value.StartsWith(legacyPrefix, StringComparison.OrdinalIgnoreCase))
         {
@@ -23,7 +62,30 @@
             return value.Substring(picturesPrefix.Length);
         }
 
-        return null;
+        if (value.StartsWith(imagesPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return value.Substring(imagesPrefix.Length);
+        }
+
+        return value;
+    }
+
+    string BuildPhotosImageUrl(string relativePath)
+    {
+        var normalized = (relativePath ?? string.Empty).Trim().Replace('\\', '/').Trim('/');
+        if (string.IsNullOrWhiteSpace(normalized))
+        {
+            return string.Empty;
+        }
+
+        var encodedPath = string.Join(
+            "/",
+            normalized
+                .Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(Uri.EscapeDataString)
+        );
+
+        return photosInventoryImagesBaseUrl + "/" + encodedPath;
     }
 
     string BuildInventoryCardImageUrl(string source)
@@ -40,19 +102,13 @@
             return value;
         }
 
-        if (value.StartsWith("/InventoryImages/Get", StringComparison.OrdinalIgnoreCase) ||
-            value.StartsWith("InventoryImages/Get", StringComparison.OrdinalIgnoreCase))
-        {
-            return value.StartsWith("/") ? value : "/" + value;
-        }
-
         var normalizedPath = NormalizeInventoryImagePath(value);
         if (string.IsNullOrWhiteSpace(normalizedPath))
         {
             return value;
         }
 
-        return "/InventoryImages/Get?path=" + Uri.EscapeDataString(normalizedPath);
+        return BuildPhotosImageUrl(normalizedPath);
     }
 
     var detailsUrl = Url.Action("Details", "Inventory", new { stock = Model.Stock });
@@ -61,9 +117,9 @@
     var cardImageUrl = BuildInventoryCardImageUrl(Model.Image);
     var cardIndexRaw = ViewData["InventoryCardIndex"];
     var cardIndex = cardIndexRaw is int cardIndexValue ? cardIndexValue : int.MaxValue;
-    var isPriorityCardImage = cardIndex >= 0 && cardIndex < 8;
+    var isPriorityCardImage = cardIndex >= 0 && cardIndex < 4;
     var imageLoadingMode = isPriorityCardImage ? "eager" : "lazy";
-    var imageFetchPriority = isPriorityCardImage ? "high" : "auto";
+    var imageFetchPriority = isPriorityCardImage ? "high" : "low";
     var logoLoadingMode = cardIndex >= 0 && cardIndex < 16 ? "eager" : "lazy";
     var renderCardStyles = Context.Items["__gtx_card_styles_rendered"] == null;
 
@@ -379,7 +435,7 @@
 
 
         <!-- IMAGE -->
-        <div class="card-body p-0  ez360-srp-pic gtx-media" data-vin="@Model.VIN">
+        <div class="card-body p-0 gtx-media" data-vin="@Model.VIN">
             <!-- badges use your data flags; optional but helpful visually -->
             <div class="gtx-badges" style="top: 2px">
                 <!-- Like badge (hidden by default) -->
@@ -401,8 +457,8 @@
             <img class="gtx-img"
                  src="@cardImageUrl"
                  alt="@carTitle"
-                 width="640"
-                 height="360"
+                 width="@cardImageRenderWidth"
+                 height="@cardImageRenderHeight"
                  loading="@imageLoadingMode"
                  fetchpriority="@imageFetchPriority"
                  decoding="async" />

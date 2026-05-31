@@ -1,9 +1,9 @@
-﻿@using Newtonsoft.Json
+@using Newtonsoft.Json
 @model GTX.Models.BaseModel
 <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
     <script src="~/Scripts/just-validate/just-validate.production.min.js"></script>
-    <script src="~/Scripts/majordome.js"></script>
+    <script src="~/Scripts/majordome.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome.js")).Ticks)"></script>
 
     <style>
         #dataOneContainer {
@@ -47,9 +47,106 @@
                     opacity: 1;
                 }
 
-        #sortable-gallery > li {
-            list-style: none;
+        #sortable-gallery {
+            margin: 0;
+            padding: 0;
+            gap: .85rem;
         }
+
+            #sortable-gallery > li.majordome-photo-card {
+                list-style: none;
+                width: 320px;
+                max-width: 100%;
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
+                padding: 0;
+                border: 1px solid rgba(15, 23, 42, .14);
+                border-radius: .75rem;
+                overflow: hidden;
+                background: #fff;
+                box-shadow: 0 .45rem 1rem rgba(15, 23, 42, .12);
+            }
+
+        .majordome-photo-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .majordome-photo-media {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #eef2f7;
+            border-bottom: 1px solid rgba(15, 23, 42, .1);
+            overflow: hidden;
+        }
+
+        .majordome-photo-image {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: contain;
+            object-position: center;
+            background: #fff;
+        }
+
+        .majordome-photo-card.is-landscape .majordome-photo-media {
+            padding: 0;
+        }
+
+        .majordome-photo-card.is-landscape .majordome-photo-image {
+            object-fit: cover;
+            background: transparent;
+        }
+
+        .majordome-photo-card.is-portrait .majordome-photo-image {
+            object-fit: contain;
+        }
+
+        .majordome-photo-footer {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            gap: .45rem;
+            padding: .5rem .55rem;
+            background: #f8fafc;
+            border-top: 1px solid rgba(15, 23, 42, .1);
+        }
+
+        .majordome-photo-title {
+            width: 100%;
+            font-size: .72rem;
+            line-height: 1.2;
+            font-weight: 600;
+            color: #475569;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .majordome-photo-actions {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: .4rem;
+        }
+
+            .majordome-photo-actions .btn {
+                width: 2rem;
+                height: 2rem;
+                padding: 0;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: .5rem;
+            }
 
         .sortable-placeholder {
             border: 2px dashed #bbb;
@@ -226,23 +323,57 @@
             }
 
         .majordome-actions {
-            display: inline-flex;
+            display: inline-grid;
+            grid-template-columns: repeat(3, max-content);
+            gap: .2rem;
+            min-width: 0;
+            width: auto;
+            text-align: left;
+        }
+
+        .majordome-action-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: .15rem;
+            padding: .2rem .25rem;
+            border: 1px solid rgba(15, 23, 42, .12);
+            border-radius: .55rem;
+            background: #f8fafc;
+        }
+
+        .majordome-action-title {
+            font-size: .56rem;
+            line-height: 1.1;
+            letter-spacing: .02em;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #475569;
+        }
+
+        .majordome-action-buttons {
+            display: flex;
             align-items: center;
-            justify-content: flex-end;
-            gap: .35rem;
+            justify-content: flex-start;
+            gap: .2rem;
             flex-wrap: nowrap;
-            white-space: nowrap;
         }
 
             .majordome-actions .btn {
-                width: 2rem;
-                height: 2rem;
+                width: 1.7rem;
+                height: 1.7rem;
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
                 padding: 0;
-                border-radius: .5rem;
+                border-radius: .4rem;
             }
+
+        #majordomeInventoryTable th.majordome-actions-col,
+        #majordomeInventoryTable td.majordome-actions-cell {
+            width: 1%;
+            white-space: nowrap;
+        }
 
         @@media (max-width: 991.98px) {
             .this-container {
@@ -278,8 +409,8 @@
             }
 
             .majordome-actions {
-                flex-wrap: wrap;
-                gap: .25rem;
+                grid-template-columns: 1fr;
+                min-width: 0;
             }
 
                 .majordome-actions .btn {
@@ -360,18 +491,12 @@
         <button class="btn btn-gradient-grey text-shadow-small" id="details-tab" data-bs-toggle="tab" data-bs-target="#tab-details" type="button" role="tab">
             Details
         </button>
-        @if (!@Model.IsEZ360)
-        {
-            <button class="btn btn-gradient-grey text-shadow-small" id="gallery-tab" data-bs-toggle="tab" data-bs-target="#tab-gallery" type="button" role="tab">
-                Photos
-            </button>
-        }
+        <button class="btn btn-gradient-grey text-shadow-small" id="gallery-tab" data-bs-toggle="tab" data-bs-target="#tab-gallery" type="button" role="tab">
+            Photos
+        </button>
 
         <button class="btn btn-gradient-grey text-shadow-small d-none" id="QR-code-tab" data-bs-toggle="tab" data-bs-target="#tab-qr-code" type="button" role="tab">
             QR Code
-        </button>
-        <button class="btn btn-gradient-grey text-shadow-small d-none" id="EZ360-tab" data-bs-toggle="tab" data-bs-target="#tab-ez360" type="button" role="tab">
-            EZ360 Vehicle info
         </button>
         <div id="specials" class="d-none d-lg-block d-flex ms-auto"></div>
     </nav>
@@ -400,7 +525,7 @@
                                     <th class="text-center d-none d-md-table-cell majordome-sortable-th" data-sort-key="upload" style="width:80px;">Upload <span class="majordome-sort-indicator"></span></th>
                                     <th class="text-center d-none d-md-table-cell majordome-sortable-th" data-sort-key="story" style="width:80px;">Story <span class="majordome-sort-indicator"></span></th>
                                     <th class="text-center d-none d-md-table-cell majordome-sortable-th" data-sort-key="dataone" style="width:90px;">DataOne <span class="majordome-sort-indicator"></span></th>
-                                    <th class="text-center" style="min-width:220px;">Actions</th>
+                                    <th class="text-center majordome-actions-col" style="min-width:250px;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="majordomeInventoryBody"></tbody>
@@ -425,7 +550,7 @@
                     <div class="row">
                         @Html.Label("Title", new { @class = "text-shadow" })
                         <div class="input-group mb-3">
-                            <input id="title" class="form-control shadow pull-right" placeholder="Title" aria-label="Title" aria-describedby="title" />
+                            <input id="storyTitle" class="form-control shadow pull-right" placeholder="Title" aria-label="Title" aria-describedby="storyTitle" />
                             <button id="createStory" class="btn btn-light bi bi-book input-group-text "></button>
                             <button id="deleteStory" class="btn btn-light bi bi-book-fill input-group-text"></button>
                             <button id="saveStory" class="btn btn-light bi bi-save input-group-text"></button>
@@ -440,24 +565,21 @@
         </div>
 
         <!-- Gallery Tab -->
-        @if (!@Model.IsEZ360)
-        {
-            <div class="tab-pane fade" id="tab-gallery" role="tabpanel">
-                <div class="d-flex flex-column align-items-center">
-                    <div class="d-flex justify-content-center w-100 p-3">
-                        <button id="upload" class="btn btn-light shadow mx-2 bi bi-upload">&nbsp;Upload stock images</button>
-                        <button id="deleteAll" class="btn btn-light shadow bi bi-trash">&nbsp;Delete stock all images</button>
-                        <input type="file" id="fileInput" class="d-none" multiple accept="image/*">
-                    </div>
-                    <div id="dropzone" class="dropzone w-100">
-                        <div id="gallery-content" class="flex-grow-1 w-100 px-3 pb-3">
-                            <ul id="sortable-gallery" class="row justify-content-center">
-                            </ul>
-                        </div>
+        <div class="tab-pane fade" id="tab-gallery" role="tabpanel">
+            <div class="d-flex flex-column align-items-center">
+                <div class="d-flex justify-content-center w-100 p-3">
+                    <button id="upload" class="btn btn-light shadow mx-2 bi bi-upload">&nbsp;Upload stock images</button>
+                    <button id="deleteAll" class="btn btn-light shadow bi bi-trash">&nbsp;Delete stock all images</button>
+                    <input type="file" id="fileInput" class="d-none" multiple accept="image/*">
+                </div>
+                <div id="dropzone" class="dropzone w-100">
+                    <div id="gallery-content" class="flex-grow-1 w-100 px-3 pb-3">
+                        <ul id="sortable-gallery" class="row justify-content-center">
+                        </ul>
                     </div>
                 </div>
             </div>
-        }
+        </div>
 
         <!-- QR Code Tab -->
         <div class="tab-pane fade" id="tab-qr-code" role="tabpanel">
@@ -477,9 +599,6 @@
             </div>
         </div>
 
-        <!-- EZ360 info -->
-        <div class="tab-pane fade d-none" id="tab-ez360" role="tabpanel">
-        </div>
     </div>
 </div>
 <template id="actions">
@@ -494,9 +613,11 @@
 
 <script type="text/javascript">
     const $dropzone = $("#dropzone");
-    let inventoryVehiclesSource = @Html.Raw(JsonConvert.SerializeObject(Model.Inventory.Vehicles));
+    const inventoryVehiclesSourceJson = "@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(JsonConvert.SerializeObject(Model.Inventory.Vehicles ?? Array.Empty<GTX.Models.GTX>())))";
+    let inventoryVehiclesSource = JSON.parse(inventoryVehiclesSourceJson);
     let inventoryVehicles = [];
     let selectedVehicleStock = null;
+    window.majordomeSelectedStock = "";
     const majordomeSortState = { key: "", direction: "" };
 
     const toolbarOptions = [
@@ -588,6 +709,22 @@
             showOverlayModal(id);
         });
 
+        $(document).on("click", ".rotate-image", function () {
+            var file = $(this).data("filename");
+            var degrees = parseInt($(this).data("degrees"), 10) || 90;
+            rotateImage(file, degrees, this);
+        });
+
+        $(document).on("click", ".rotate-image-ccw", function () {
+            var file = $(this).data("filename");
+            var degrees = parseInt($(this).data("degrees"), 10) || -90;
+            rotateImage(file, degrees, this);
+        });
+
+        $(document).on("hidden.bs.modal", "#overlayModal", function () {
+            window.majordomeOverlayContext = null;
+        });
+
         $(document).on("click", ".move-to-top", function (e) {
             e.stopPropagation();
 
@@ -598,11 +735,11 @@
             $item.prependTo("#sortable-gallery");
 
             const sorted = getSortedIds();
-            saveOrder(sorted);
+            saveOrder(sorted, { fastMode: true });
             updateGalleryDisplay();
         });
 
-        $("#specials").html($("#actions").html());
+        $("#specials").empty().append($("#actions").contents().clone());
 
         $("#btnReStoryAll").on("click", function () {
             if (confirm("Restory all vehicles")) {
@@ -617,60 +754,60 @@
         });
 
         $("#deleteAll").on("click", function () {
-            const stock = selectedVehicle.Stock;
+            const stock = getSelectedVehicleStockOrWarn();
+            if (!stock) return;
             if (confirm(`Deleting all images for Stock# ${stock}`)) {
                 deleteImages(stock);
             }
         });
 
         $("#createStory").on("click", function () {
-            const stock = selectedVehicle.Stock;
+            const stock = getSelectedVehicleStockOrWarn();
+            if (!stock) return;
             if (confirm(`Do you want to create story for Stock# ${stock}`)) {
                 createStory(stock);
             }
         });
 
         $("#deleteStory").on("click", function () {
-            const stock = selectedVehicle.Stock;
+            const stock = getSelectedVehicleStockOrWarn();
+            if (!stock) return;
             if (confirm(`Do you want to delete story for Stock# ${stock}`)) {
                 deleteStory(stock);
             }
         });
 
-        $("#saveStory").on("click", function () {
-            const stock = selectedVehicle.Stock;
-            var story = quill.root.innerHTML;
-            const title = $("#title").val();
+        $("#saveStory").on("click", async function () {
+            const stock = getSelectedVehicleStockOrWarn();
+            if (!stock) return;
+            const story = quill.root.innerHTML;
+            const title = $("#storyTitle").val();
 
-            if (confirm(`Do you want to save story for Stock# ${stock}`)) {
-                showSpinner($("#inventoryOverlay"));
+            if (!confirm(`Do you want to save story for Stock# ${stock}`)) {
+                return;
+            }
 
-                fetch('/Majordome/SaveStory', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ stock, story, title })
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error("Server error");
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        console.log("✅ Story saved:", data.message);
-                        fetch('/Majordome/GetUpdatedItems')
-                            .then(res => res.json())
-                            .then(data => {
-                                updateRow(data);
-                        });
-                    } else {
-                        console.log("❌ Server returned error:", data.message);
-                    }
-                })
-                .catch(error => {
-                    console.log("❌ Error submitting:", error);
-                });
+            const $overlay = $("#inventoryOverlay");
+            showSpinner($overlay);
+
+            try {
+                const data = await postMajordome(`${root}Majordome/SaveStory`, { stock, story, title });
+                if (!data || !data.success) {
+                    throw new Error((data && data.message) || "Failed to save story.");
+                }
+
+                const savedTitle = safeText(data.Title || title);
+                const savedStory = safeText(data.Story || story);
+
+                $("#storyTitle").val(savedTitle);
+                quill.setContents([]);
+                quill.clipboard.dangerouslyPasteHTML(0, savedStory || "", "api");
+                syncMajordomeStoryLocalState(stock, savedTitle, savedStory);
+            } catch (error) {
+                console.error("SaveStory failed:", error);
+                alert((error && error.message) || "Failed to save story.");
+            } finally {
+                hideSpinner($overlay);
             }
         });
 
@@ -680,11 +817,12 @@
 
         $("#fileInput").on("change", function () {
             const files = Array.from(fileInput.files);
-            const stock = selectedVehicle.Stock;
+            if (files.length === 0) return;
 
-            if (files.length > 0) {
-                uploadFiles(stock, fileInput);
-            }
+            const stock = getSelectedVehicleStockOrWarn();
+            if (!stock) return;
+
+            uploadFiles(stock, fileInput);
         });
 
         $("#btnRestoreBackUpInventory").on("click", function () {
@@ -705,13 +843,6 @@
                 }
             }
         });
-
-@*        $("#EZ360-tab").on("click", function () {
-            const stock = selectedVehicle?.Stock || "";
-            if (stock.length > 0) {
-                showEZ360(stock);
-            }
-        });*@
 
         $("#filterTerm").on("input", function () {
             const inputEl = this;
@@ -743,14 +874,14 @@
 
         $("#majordomeInventoryBody").on("click", ".majordome-vehicle-row", function (e) {
             if ($(e.target).closest(".majordome-actions").length) return;
-            const stock = $(this).data("stock");
+            const stock = $(this).attr("data-stock");
             selectMajordomeVehicle(stock);
         });
 
         $("#majordomeInventoryBody").on("dblclick", ".majordome-row-details", function (e) {
             e.preventDefault();
             e.stopPropagation();
-            const stock = $(this).closest(".majordome-vehicle-row").data("stock");
+            const stock = $(this).closest(".majordome-vehicle-row").attr("data-stock");
             selectMajordomeVehicle(stock);
             $("#details-tab").tab("show");
         });
@@ -758,7 +889,7 @@
         $("#majordomeInventoryBody").on("dblclick", ".majordome-row-image", function (e) {
             e.preventDefault();
             e.stopPropagation();
-            const stock = $(this).closest(".majordome-vehicle-row").data("stock");
+            const stock = $(this).closest(".majordome-vehicle-row").attr("data-stock");
             selectMajordomeVehicle(stock);
             $("#gallery-tab").tab("show");
         });
@@ -771,7 +902,7 @@
 
         $("#majordomeInventoryBody").on("change", ".js-amm-upload-input", function (e) {
             e.stopPropagation();
-            const stock = $(this).data("stock");
+            const stock = $(this).attr("data-stock");
             const files = this.files ? Array.from(this.files) : [];
             if (stock && files.length) {
                 uploadFiles(stock, this);
@@ -781,7 +912,7 @@
         $("#majordomeInventoryBody").on("click", ".js-amm-delete-images", function (e) {
             e.preventDefault();
             e.stopPropagation();
-            const stock = $(this).data("stock");
+            const stock = $(this).attr("data-stock");
             const count = parseInt($(this).data("images-count"), 10) || 0;
             if (confirm(`Deleting all ${count} pictures for Stock# ${stock}`)) {
                 deleteImages(stock);
@@ -791,7 +922,8 @@
         $("#majordomeInventoryBody").on("click", ".js-amm-create-story", function (e) {
             e.preventDefault();
             e.stopPropagation();
-            const stock = $(this).data("stock");
+            const stock = $(this).attr("data-stock");
+            selectMajordomeVehicle(stock);
             if (confirm(`Do you want to create story for Stock# ${stock}`)) {
                 createStory(stock);
             }
@@ -800,7 +932,8 @@
         $("#majordomeInventoryBody").on("click", ".js-amm-delete-story", function (e) {
             e.preventDefault();
             e.stopPropagation();
-            const stock = $(this).data("stock");
+            const stock = $(this).attr("data-stock");
+            selectMajordomeVehicle(stock);
             if (confirm(`Do you want to delete story for Stock# ${stock}`)) {
                 deleteStory(stock);
             }
@@ -818,7 +951,7 @@
         $("#majordomeInventoryBody").on("click", ".js-amm-delete-dataone", function (e) {
             e.preventDefault();
             e.stopPropagation();
-            const stock = $(this).data("stock");
+            const stock = $(this).attr("data-stock");
             if (confirm(`Do you want to delete DataOne  for Stock# ${stock}`)) {
                 deleteDataOne(stock);
             }
@@ -853,6 +986,62 @@
     function hasStory(vehicle) {
         const title = safeText(vehicle?.Story?.Title).trim();
         return title.length > 0;
+    }
+
+    function hasStoryContent(title, storyHtml) {
+        const titleText = safeText(title).trim();
+        if (titleText.length > 0) return true;
+
+        const parsedStory = new DOMParser().parseFromString(`<div>${safeText(storyHtml)}</div>`, "text/html");
+        const plainStory = (parsedStory.body.textContent || "").replace(/\u00a0/g, " ").trim();
+        return plainStory.length > 0;
+    }
+
+    function syncMajordomeStoryLocalState(stock, title, storyHtml) {
+        const stockKey = safeText(stock).trim().toUpperCase();
+        if (!stockKey) return;
+
+        const normalizedTitle = safeText(title);
+        const normalizedStory = safeText(storyHtml);
+        const storyExists = hasStoryContent(normalizedTitle, normalizedStory);
+        const storyValue = storyExists
+            ? { Title: normalizedTitle, HtmlContent: normalizedStory }
+            : null;
+
+        const applyStory = function (vehicle) {
+            if (!vehicle) return;
+            vehicle.Story = storyValue;
+        };
+
+        if (selectedVehicle && safeText(selectedVehicle.Stock).trim().toUpperCase() === stockKey) {
+            applyStory(selectedVehicle);
+        }
+
+        if (Array.isArray(inventoryVehiclesSource)) {
+            inventoryVehiclesSource.forEach(function (vehicle) {
+                if (safeText(vehicle?.Stock).trim().toUpperCase() === stockKey) {
+                    applyStory(vehicle);
+                }
+            });
+        }
+
+        if (Array.isArray(inventoryVehicles)) {
+            inventoryVehicles.forEach(function (vehicle) {
+                if (safeText(vehicle?.Stock).trim().toUpperCase() === stockKey) {
+                    applyStory(vehicle);
+                }
+            });
+        }
+
+        const $row = $("#majordomeInventoryBody .majordome-vehicle-row").filter(function () {
+            return safeText($(this).attr("data-stock")).trim().toUpperCase() === stockKey;
+        }).first();
+
+        if ($row.length) {
+            $row.find(".majordome-status-story")
+                .text(storyExists ? "Y" : "N")
+                .toggleClass("is-on", storyExists);
+        }
     }
 
     function hasDataOne(vehicle) {
@@ -1025,37 +1214,61 @@
     }
 
     function syncMajordomeEmptyState() {
-        const visibleRows = $("#majordomeInventoryBody .majordome-vehicle-row:visible").length;
-        $("#majordomeInventoryEmpty").toggleClass("d-none", visibleRows > 0);
+        const matchedRows = getMajordomeFilterMatchedRows().length;
+        $("#majordomeInventoryEmpty").toggleClass("d-none", matchedRows > 0);
+    }
+
+    function getMajordomeFilterMatchedRows() {
+        return $("#majordomeInventoryBody .majordome-vehicle-row").filter(function () {
+            return !$(this).hasClass("is-filter-hidden");
+        });
     }
 
     function renderMajordomeActionButtons(vehicle) {
         const stock = escapeHtml(vehicle.Stock);
         const vin = escapeHtml(vehicle.VIN);
         const imagesCount = vehicle.Images ? vehicle.Images.length : 0;
+        const canDeleteImages = imagesCount > 0;
+        const deleteImagesTitle = canDeleteImages
+            ? `Delete all ${imagesCount} pictures for Stock# ${stock}`
+            : `No images to delete for Stock# ${stock}`;
 
         return `
             <div class="majordome-actions">
-                <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-upload-trigger" title="Upload images for Stock# ${stock}">
-                    <i class="bi bi-upload"></i>
-                </button>
-                <input type="file" class="js-amm-upload-input d-none" data-stock="${stock}" multiple accept="image/*" />
-                ${imagesCount > 0 ? `
-                <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-delete-images" data-stock="${stock}" data-images-count="${imagesCount}" title="Delete all ${imagesCount} pictures for Stock# ${stock}">
-                    <i class="bi bi-trash"></i>
-                </button>` : ""}
-                <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-create-story" data-stock="${stock}" title="Create story for Stock# ${stock}">
-                    <i class="bi bi-book"></i>
-                </button>
-                <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-delete-story" data-stock="${stock}" title="Delete story for Stock# ${stock}">
-                    <i class="bi bi-book-fill"></i>
-                </button>
-                <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-decode-dataone" data-vin="${vin}" title="Decode and override for VIN# ${vin}">
-                    <i class="bi bi-car-front"></i>
-                </button>
-                <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-delete-dataone" data-stock="${stock}" title="Delete DataOne for stock# ${stock}">
-                    <i class="bi bi-car-front-fill"></i>
-                </button>
+                <div class="majordome-action-group">
+                    <div class="majordome-action-title">Images</div>
+                    <div class="majordome-action-buttons">
+                        <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-upload-trigger" title="Upload images for Stock# ${stock}">
+                            <i class="bi bi-upload"></i>
+                        </button>
+                        <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-delete-images" data-stock="${stock}" data-images-count="${imagesCount}" title="${deleteImagesTitle}" ${canDeleteImages ? "" : "disabled"}>
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                    <input type="file" class="js-amm-upload-input d-none" data-stock="${stock}" multiple accept="image/*" />
+                </div>
+                <div class="majordome-action-group">
+                    <div class="majordome-action-title">Story</div>
+                    <div class="majordome-action-buttons">
+                        <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-create-story" data-stock="${stock}" title="Create story for Stock# ${stock}">
+                            <i class="bi bi-book"></i>
+                        </button>
+                        <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-delete-story" data-stock="${stock}" title="Delete story for Stock# ${stock}">
+                            <i class="bi bi-book-fill"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="majordome-action-group">
+                    <div class="majordome-action-title">DataOne</div>
+                    <div class="majordome-action-buttons">
+                        <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-decode-dataone" data-vin="${vin}" title="Decode and override for VIN# ${vin}">
+                            <i class="bi bi-car-front"></i>
+                        </button>
+                        <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-delete-dataone" data-stock="${stock}" title="Delete DataOne for stock# ${stock}">
+                            <i class="bi bi-car-front-fill"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         `;
     }
@@ -1087,29 +1300,54 @@
                 <td class="d-none d-lg-table-cell">${escapeHtml(purchaseDate)}</td>
                 <td><span class="fw-semibold">${escapeHtml(stock)}</span></td>
                 <td class="text-center d-none d-xl-table-cell">
-                    <span class="majordome-status-pill ${escapeHtml(gtxBadge.toneClass)}">${escapeHtml(gtxBadge.label)}</span>
+                    <span class="majordome-status-pill majordome-status-location ${escapeHtml(gtxBadge.toneClass)}">${escapeHtml(gtxBadge.label)}</span>
                 </td>
                 <td class="text-center d-none d-md-table-cell">
-                    <span class="majordome-status-pill ${upload ? "is-on" : ""}">${upload ? "Y" : "N"}</span>
+                    <span class="majordome-status-pill majordome-status-upload ${upload ? "is-on" : ""}">${upload ? "Y" : "N"}</span>
                 </td>
                 <td class="text-center d-none d-md-table-cell">
-                    <span class="majordome-status-pill ${story ? "is-on" : ""}">${story ? "Y" : "N"}</span>
+                    <span class="majordome-status-pill majordome-status-story ${story ? "is-on" : ""}">${story ? "Y" : "N"}</span>
                 </td>
                 <td class="text-center d-none d-md-table-cell">
-                    <span class="majordome-status-pill ${dataOne ? "is-on" : ""}">${dataOne ? "Y" : "N"}</span>
+                    <span class="majordome-status-pill majordome-status-dataone ${dataOne ? "is-on" : ""}">${dataOne ? "Y" : "N"}</span>
                 </td>
-                <td class="text-end">${renderMajordomeActionButtons(row)}</td>
+                <td class="text-start majordome-actions-cell">${renderMajordomeActionButtons(row)}</td>
             </tr>
         `;
     }
 
     function markSelectedRow(stock) {
-        const key = safeText(stock).toUpperCase();
+        const key = safeText(stock).trim().toUpperCase();
 
         $("#majordomeInventoryBody .majordome-vehicle-row").each(function () {
-            const rowKey = safeText($(this).data("stock")).toUpperCase();
+            const rowKey = safeText($(this).attr("data-stock")).trim().toUpperCase();
             $(this).toggleClass("is-selected", rowKey === key);
         });
+    }
+
+    function syncMajordomeGalleryAvailability() {
+        const hasSelectedStock = safeText(selectedVehicleStock || selectedVehicle?.Stock || window.majordomeSelectedStock || "").trim().length > 0;
+        const $galleryTab = $("#gallery-tab");
+        const $galleryPane = $("#tab-gallery");
+        const $uploadBtn = $("#upload");
+        const $deleteAllBtn = $("#deleteAll");
+
+        if (hasSelectedStock) {
+            $galleryTab.removeClass("d-none");
+            $galleryPane.removeClass("d-none");
+            $uploadBtn.prop("disabled", false);
+            $deleteAllBtn.prop("disabled", false);
+            $dropzone.removeClass("opacity-50");
+            return;
+        }
+
+        $galleryTab.addClass("d-none").removeClass("active");
+        $galleryPane.addClass("d-none").removeClass("show active");
+        $uploadBtn.prop("disabled", true);
+        $deleteAllBtn.prop("disabled", true);
+        $dropzone.removeClass("dragover").addClass("opacity-50");
+        $("#sortable-gallery").empty();
+        $galleryTab.text("Photos");
     }
 
     function renderMajordomeInventoryRows(data) {
@@ -1119,56 +1357,79 @@
 
         inventoryVehicles = sortMajordomeVehicles(inventoryVehiclesSource);
         const rowsHtml = inventoryVehicles.map(renderMajordomeInventoryRow).join("");
-        $("#majordomeInventoryBody").html(rowsHtml);
+        if (window.gtxSecurity && typeof window.gtxSecurity.setSafeHtml === "function") {
+            window.gtxSecurity.setSafeHtml($("#majordomeInventoryBody"), rowsHtml);
+        } else {
+            const bodyElement = document.getElementById("majordomeInventoryBody");
+            if (bodyElement) {
+                bodyElement.innerHTML = rowsHtml;
+            }
+        }
         updateMajordomeSortHeaders();
         syncMajordomeEmptyState();
         markSelectedRow(selectedVehicleStock);
+        syncMajordomeGalleryAvailability();
     }
 
     function selectMajordomeVehicle(stock) {
-        const stockKey = safeText(stock).toUpperCase();
+        const stockKey = safeText(stock).trim().toUpperCase();
         if (!stockKey) return;
 
         const vehicle = inventoryVehicles.find(function (item) {
-            return safeText(item.Stock).toUpperCase() === stockKey;
+            return safeText(item.Stock).trim().toUpperCase() === stockKey;
         });
 
         if (!vehicle) return;
 
         selectedVehicle = vehicle;
-        selectedVehicleStock = vehicle.Stock;
+        selectedVehicleStock = safeText(vehicle.Stock).trim();
+        window.majordomeSelectedStock = selectedVehicleStock;
         markSelectedRow(selectedVehicleStock);
 
         showVehicleDetails(selectedVehicle);
         loadGallery(selectedVehicle);
-        setDetails(selectedVehicle.Stock);
+        setDetails(vehicle.Stock);
         syncMajordomeQrCode(selectedVehicle);
+        syncMajordomeGalleryAvailability();
     }
 
     function selectFirstVisibleMajordomeVehicle(keepCurrent) {
         const keep = keepCurrent !== false;
-        const $rows = $("#majordomeInventoryBody .majordome-vehicle-row:visible");
+        const $rows = getMajordomeFilterMatchedRows();
 
         if ($rows.length === 0) {
             selectedVehicle = null;
             selectedVehicleStock = null;
+            window.majordomeSelectedStock = "";
             markSelectedRow("");
+            syncMajordomeGalleryAvailability();
             return;
         }
 
         if (keep && selectedVehicleStock) {
-            const currentKey = safeText(selectedVehicleStock).toUpperCase();
+            const currentKey = safeText(selectedVehicleStock).trim().toUpperCase();
             const $current = $rows.filter(function () {
-                return safeText($(this).data("stock")).toUpperCase() === currentKey;
+                return safeText($(this).attr("data-stock")).trim().toUpperCase() === currentKey;
             }).first();
 
             if ($current.length) {
+                const currentVehicle = inventoryVehicles.find(function (item) {
+                    return safeText(item.Stock).trim().toUpperCase() === currentKey;
+                });
+
+                if (currentVehicle) {
+                    selectedVehicle = currentVehicle;
+                    selectedVehicleStock = safeText(currentVehicle.Stock).trim();
+                    window.majordomeSelectedStock = selectedVehicleStock;
+                }
+
                 markSelectedRow(selectedVehicleStock);
+                syncMajordomeGalleryAvailability();
                 return;
             }
         }
 
-        const firstStock = $rows.first().data("stock");
+        const firstStock = $rows.first().attr("data-stock");
         selectMajordomeVehicle(firstStock);
     }
 
@@ -1184,11 +1445,12 @@
         $("#majordomeInventoryBody .majordome-vehicle-row").each(function () {
             const haystack = safeText($(this).data("search")).toUpperCase();
             const matched = terms.length === 0 || terms.every(function (t) { return haystack.includes(t); });
+            $(this).toggleClass("is-filter-hidden", !matched);
             $(this).toggle(matched);
         });
 
-        const stocks = $("#majordomeInventoryBody .majordome-vehicle-row:visible").map(function () {
-            return $(this).data("stock");
+        const stocks = getMajordomeFilterMatchedRows().map(function () {
+            return $(this).attr("data-stock");
         }).get();
 
         if (stocks.length > 0) {
@@ -1206,24 +1468,52 @@
         const qrText = `https://usedcarscincinnati.com/Inventory/Details?stock=${vehicle.Stock}&QR=${encodeURIComponent(vehicle.VIN)}`;
         const qrUrl = "/Majordome/Qr?text=" + encodeURIComponent(qrText);
         $("#qrImg").attr("src", qrUrl);
-        $("#qrText").html(`<div>${vehicle.Year} ${vehicle.Make} ${vehicle.Model} Stock# ${vehicle.Stock}</div>`);
+        $("#qrText").text(`${vehicle.Year} ${vehicle.Make} ${vehicle.Model} Stock# ${vehicle.Stock}`);
         $("#QR-code-tab").removeClass("d-none");
     }
 
+    function getSelectedVehicleStockOrWarn() {
+        const stock = safeText(selectedVehicle?.Stock || selectedVehicleStock || window.majordomeSelectedStock || "").trim();
+        if (!stock) {
+            alert("Please select a vehicle first.");
+            return "";
+        }
+
+        if (!selectedVehicle || safeText(selectedVehicle.Stock).trim().toUpperCase() !== stock.toUpperCase()) {
+            const current = inventoryVehicles.find(function (item) {
+                return safeText(item.Stock).trim().toUpperCase() === stock.toUpperCase();
+            });
+
+            if (current) {
+                selectedVehicle = current;
+            }
+        }
+
+        return stock;
+    }
+
     function updateRow(data) {
-        const preferredStock = selectedVehicleStock || selectedVehicle?.Stock || "";
+        const preferredStock = safeText(selectedVehicleStock || selectedVehicle?.Stock || window.majordomeSelectedStock || "").trim();
+        const forcedTabId = safeText(window.majordomeForceActiveTab || "").trim();
+        const activeTabId = forcedTabId || $("#myTab button.active").attr("id") || "inventory-tab";
         const currentFilter = $("#filterTerm").val() || "";
+
+        if (preferredStock) {
+            window.majordomeSelectedStock = preferredStock;
+        }
 
         renderMajordomeInventoryRows(data);
         applyFilterTerm(currentFilter);
 
+        let hasSelectedVehicle = false;
         if (preferredStock) {
-            const isVisible = $("#majordomeInventoryBody .majordome-vehicle-row:visible").filter(function () {
-                return safeText($(this).data("stock")).toUpperCase() === safeText(preferredStock).toUpperCase();
+            const isVisible = getMajordomeFilterMatchedRows().filter(function () {
+                return safeText($(this).attr("data-stock")).trim().toUpperCase() === safeText(preferredStock).trim().toUpperCase();
             }).length > 0;
 
             if (isVisible) {
                 selectMajordomeVehicle(preferredStock);
+                hasSelectedVehicle = true;
             } else {
                 selectFirstVisibleMajordomeVehicle(false);
             }
@@ -1231,6 +1521,22 @@
             selectFirstVisibleMajordomeVehicle(false);
         }
 
+        if (!hasSelectedVehicle && safeText(selectedVehicleStock || selectedVehicle?.Stock || "").trim()) {
+            hasSelectedVehicle = true;
+        }
+
+        if (hasSelectedVehicle && activeTabId === "gallery-tab") {
+            $("#gallery-tab").tab("show");
+        } else if (hasSelectedVehicle && activeTabId === "details-tab") {
+            $("#details-tab").tab("show");
+        } else if (hasSelectedVehicle && activeTabId === "QR-code-tab") {
+            $("#QR-code-tab").tab("show");
+        }
+
+        syncMajordomeGalleryAvailability();
+        if (window.majordomeForceActiveTab) {
+            window.majordomeForceActiveTab = "";
+        }
         hideSpinner($("#inventoryOverlay"));
     }
 
@@ -1248,26 +1554,36 @@
         delay: 100,
         touchStartThreshold: 5,
         onEnd: function (event) {
+            if (event && event.oldIndex === event.newIndex) {
+                return;
+            }
+
             let sorted = $("#sortable-gallery li").map(function () {
                 return $(this).attr("id")
             }).get();
-            saveOrder(sorted);
+            saveOrder(sorted, { fastMode: true });
             updateGalleryDisplay();
         }
     });
 
     // Show Bootstrap modal with images
     function showOverlayModal(id) {
-        const stock = selectedVehicle?.Stock || "";
-        if (stock) {
-            showSpinner($("#inventoryOverlay"));
-            $.get(`${root}Majordome/OverlayModal`, { id })
-                .done(function (html) {
-                    $("#vehicle-overlay").html(html);
-                    $("#overlayModal").modal("show");
-                    hideSpinner($("#inventoryOverlay"));
-                })
-        };
+        const stock = safeText(selectedVehicle?.Stock || selectedVehicleStock || window.majordomeSelectedStock || "").trim();
+        if (!stock) return;
+
+        showSpinner($("#inventoryOverlay"));
+        $.get(`${root}Majordome/OverlayModal`, { id })
+            .done(function (html) {
+                $("#vehicle-overlay").html(html);
+                $("#overlayModal").modal("show");
+            })
+            .fail(function (xhr, status, error) {
+                console.error("OverlayModal failed:", status, error, xhr && xhr.responseText);
+                alert("Failed to load overlay editor.");
+            })
+            .always(function () {
+                hideSpinner($("#inventoryOverlay"));
+            });
     }
 
     function showVehicleDetails(vehicle) {
@@ -1277,8 +1593,9 @@
         const restoreEnd = shouldRestoreFilterFocus && typeof activeElement.selectionEnd === "number" ? activeElement.selectionEnd : null;
 
         $('#vin').val(vehicle.VIN);
-        $('#title').val(vehicle.Story?.Title);
-        quill.clipboard.dangerouslyPasteHTML(0, vehicle?.Story?.HtmlContent || "");
+        $('#storyTitle').val(vehicle.Story?.Title);
+        quill.setContents([]);
+        quill.clipboard.dangerouslyPasteHTML(0, vehicle?.Story?.HtmlContent || "", "api");
 
         if (shouldRestoreFilterFocus) {
             activeElement.focus({ preventScroll: true });
@@ -1294,7 +1611,11 @@
                 data: { stock: vehicle.Stock },
                 success: function (html) {
                     // Replace or inject the partial view HTML
-                    $('#dataOneDetails').html(html);
+                    if (window.gtxSecurity && typeof window.gtxSecurity.setSafeHtml === "function") {
+                        window.gtxSecurity.setSafeHtml($('#dataOneDetails'), html);
+                    } else {
+                        $('#dataOneDetails').text(html);
+                    }
                 },
                 error: function () {
                     alert("Error loading vehicle details");
@@ -1311,7 +1632,7 @@
             const n = (f.name || '').toLowerCase();
             return f.type.startsWith('image/') || /\.(heic|heif|jpg|jpeg|png|webp|gif|bmp|tiff)$/.test(n);
         });
-        const stock = selectedVehicle?.Stock || "";
+        const stock = safeText(selectedVehicle?.Stock || selectedVehicleStock || window.majordomeSelectedStock || "").trim();
         if (!files.length) return;
         if (!stock) return;
         uploadDroppedFiles(stock, files);

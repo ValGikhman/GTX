@@ -9,8 +9,8 @@ namespace GTX.Controllers
     [RequireAdminRole]
     public class VinDecoderController : BaseController
     {
-        public VinDecoderController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, IEZ360Service _ez360Service, ILogService logService, IEmployeesService employeesService)
-        : base(sessionData, inventoryService, vinDecoderService, _ez360Service, logService, employeesService) {}
+        public VinDecoderController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, ILogService logService, IEmployeesService employeesService)
+        : base(sessionData, inventoryService, vinDecoderService, logService, employeesService) {}
         // GET: VinDecoder
         public ActionResult Index()
         {
@@ -18,7 +18,7 @@ namespace GTX.Controllers
         }
 
         [HttpGet]
-        public string DecodeDataOneByAnyVin(string vin)
+        public ActionResult DecodeDataOneByAnyVin(string vin)
         {
             try
             {
@@ -26,12 +26,12 @@ namespace GTX.Controllers
                 var vehicle = Model.Inventory.All?.FirstOrDefault(m => m.VIN == vin);
                 Model.CurrentVehicle.VehicleDetails = vehicle;
                 Model.CurrentVehicle.VehicleDataOneDetails = Models.GTX.SetDecodedData(details);
-                var res = RenderViewToString(ControllerContext, "_DetailsDataOne", Model);
-                return res;
+                return PartialView("_DetailsDataOne", Model);
             }
             catch (Exception ex)
             {
-                return "Error: " + ex.Message;
+                base.Log(ex);
+                return new HttpStatusCodeResult(500, "Unable to decode VIN.");
             }
         }
     }

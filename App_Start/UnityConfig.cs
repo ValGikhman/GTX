@@ -18,7 +18,6 @@ namespace GTX
             container.RegisterType<IContactService, ContactService>();
             container.RegisterType<ILogService, LogService>();
             container.RegisterType<IInventoryService, InventoryService>();
-            container.RegisterType<IEZ360Service, EZ360Service>();
             container.RegisterType<IHttpContextProvider, HttpContextProvider>();
             container.RegisterType<ISessionData, SessionData>();
             container.RegisterType<IBlogsService, BlogsService>();

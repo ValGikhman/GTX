@@ -91,9 +91,11 @@
 </div>
 
 <script type="text/javascript">
-    var id = "@Model.Id";
-    var stock = "@stock"
-    var imagePath = "/InventoryImages/Get?path=@encodedOverlayPath";
+    window.majordomeOverlayContext = {
+        id: @Html.Raw(Json.Encode(Model.Id.ToString())),
+        stock: @Html.Raw(Json.Encode(stock)),
+        imagePath: @Html.Raw(Json.Encode("/InventoryImages/Get?path=" + encodedOverlayPath))
+    };
     var overlay = @Html.Raw(Json.Encode(Model.Overlay));
 
     if (overlay) {
@@ -117,7 +119,9 @@
     }
 
     $(function () {
-        $(document).on("dblclick", ".overlay-text", function () {
+        $(document)
+            .off("dblclick.majordomeOverlayEdit", ".overlay-text")
+            .on("dblclick.majordomeOverlayEdit", ".overlay-text", function () {
             const currentText = $(this).text();
 
             // Replace <p> with <input>
@@ -139,8 +143,9 @@
             });
         });
 
-        var car = `${selectedVehicle.Year}-${selectedVehicle.Make} ${selectedVehicle.Model} ${selectedVehicle.VehicleStyle}`;
-        $("#overlayTitle").html(car);
+        var sv = selectedVehicle || {};
+        var car = `${sv.Year || ""}-${sv.Make || ""} ${sv.Model || ""} ${sv.VehicleStyle || ""}`.trim();
+        $("#overlayTitle").text(car);
 
         $("#saveOverlay").on("click", function () {
             saveOverlayData();
