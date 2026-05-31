@@ -361,9 +361,15 @@ namespace GTX.Controllers
         }
 
         [HttpPost]
-        public void SetDetails(string stock) {
-            stock = stock?.Trim().ToUpper();
-            Model.CurrentVehicle.VehicleDetails = Model.Inventory.All.FirstOrDefault(m => m.Stock == stock);
+        public JsonResult SetDetails(string stock) {
+            try {
+                stock = (stock ?? string.Empty).Trim().ToUpperInvariant();
+                Model.CurrentVehicle.VehicleDetails = Model.Inventory.All.FirstOrDefault(m => m.Stock == stock);
+                return Json(new { success = true });
+            }
+            catch (Exception ex) {
+                return Json(new { success = false, message = $"Error setting details: {ex.Message}" });
+            }
         }
 
         public ActionResult OverlayModal(Guid id) {
