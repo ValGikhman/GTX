@@ -74,6 +74,10 @@ function applyFilterTerm(term) {
     }
 
     sessionStorage.setItem("term", term);
+
+    if (window.refreshInventoryCardImages) {
+        window.refreshInventoryCardImages();
+    }
 }
 
 function applyFilterLiked() {
@@ -93,6 +97,10 @@ function applyFilterLiked() {
             item.style.display = "";
         }
     });
+
+    if (window.refreshInventoryCardImages) {
+        window.refreshInventoryCardImages();
+    }
 }
 
 function applyFilterLast() {
@@ -112,6 +120,10 @@ function applyFilterLast() {
             item.style.display = "";
         }
     });
+
+    if (window.refreshInventoryCardImages) {
+        window.refreshInventoryCardImages();
+    }
 }
 
 function getInterestRate(creditScore) {
@@ -151,6 +163,151 @@ function calculateMonthlyPayment(P, rate, month) {
     function normalizeInventoryValue(value) {
         return $.trim(String(value || "")).toUpperCase();
     }
+
+    var inventoryImageObserver = null;
+    var inventoryImageObserverRoot = undefined;
+    var inventoryImageRefreshTimer = 0;
+
+    function getInventoryImageRoot() {
+        var root = document.getElementById("inventory");
+        if (!root) return null;
+
+        return root.scrollHeight > root.clientHeight + 1 ? root : null;
+    }
+
+    function isInventoryCardImageVisible(img) {
+        return $(img).closest("li.card").is(":visible");
+    }
+
+    function isInventoryCardImageNearViewport(img, root) {
+        if (!isInventoryCardImageVisible(img)) return false;
+
+        var margin = 900;
+        var rect = img.getBoundingClientRect();
+
+        if (root) {
+            var rootRect = root.getBoundingClientRect();
+            return rect.top <= rootRect.bottom + margin && rect.bottom >= rootRect.top - margin;
+        }
+
+        var viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+        return rect.top <= viewportHeight + margin && rect.bottom >= -margin;
+    }
+
+    function setInventoryCardImageSource(img, source) {
+        if (!source || img.getAttribute("src") === source) return;
+        img.setAttribute("src", source);
+    }
+
+    function loadInventoryCardImage(img) {
+        var source = img.getAttribute("data-src");
+        if (!source) return;
+
+        img.removeAttribute("data-src");
+        img.setAttribute("data-inventory-image-loaded", "1");
+        setInventoryCardImageSource(img, source);
+    }
+
+    function handleInventoryCardImageError() {
+        var img = this;
+        var current = img.getAttribute("src") || "";
+        var fallback = img.getAttribute("data-fallback-src") || "";
+        var finalFallback = img.getAttribute("data-final-fallback-src") || "";
+        var state = img.getAttribute("data-fallback-state") || "";
+
+        img.removeAttribute("data-src");
+
+        if (fallback && state !== "proxy" && current !== fallback) {
+            img.setAttribute("data-fallback-state", "proxy");
+            setInventoryCardImageSource(img, fallback);
+            return;
+        }
+
+        if (finalFallback && state !== "final" && current !== finalFallback) {
+            img.setAttribute("data-fallback-state", "final");
+            setInventoryCardImageSource(img, finalFallback);
+        }
+    }
+
+    function bindInventoryCardImage(img) {
+        if (img.getAttribute("data-inventory-image-bound") === "1") return;
+
+        img.setAttribute("data-inventory-image-bound", "1");
+        img.addEventListener("error", handleInventoryCardImageError);
+
+        if (img.complete && img.naturalWidth === 0) {
+            handleInventoryCardImageError.call(img);
+        }
+    }
+
+    function refreshInventoryCardImagesNow() {
+        var root = getInventoryImageRoot();
+        var allImages = document.querySelectorAll("#inventory .gtx-img");
+        var pendingImages = document.querySelectorAll("#inventory .gtx-img[data-src]");
+
+        Array.prototype.forEach.call(allImages, bindInventoryCardImage);
+
+        if ("IntersectionObserver" in window) {
+            if (inventoryImageObserver && inventoryImageObserverRoot !== root) {
+                inventoryImageObserver.disconnect();
+                inventoryImageObserver = null;
+            }
+
+            if (!inventoryImageObserver) {
+                inventoryImageObserverRoot = root;
+                inventoryImageObserver = new IntersectionObserver(function (entries) {
+                    entries.forEach(function (entry) {
+                        if (!entry.isIntersecting || !isInventoryCardImageVisible(entry.target)) return;
+
+                        loadInventoryCardImage(entry.target);
+                        inventoryImageObserver.unobserve(entry.target);
+                    });
+                }, {
+                    root: root,
+                    rootMargin: "900px 0px",
+                    threshold: 0.01
+                });
+            }
+
+            Array.prototype.forEach.call(pendingImages, function (img) {
+                if (isInventoryCardImageNearViewport(img, root)) {
+                    loadInventoryCardImage(img);
+                    return;
+                }
+
+                if (isInventoryCardImageVisible(img)) {
+                    inventoryImageObserver.observe(img);
+                }
+            });
+
+            return;
+        }
+
+        Array.prototype.forEach.call(pendingImages, function (img) {
+            if (isInventoryCardImageNearViewport(img, root)) {
+                loadInventoryCardImage(img);
+            }
+        });
+    }
+
+    function scheduleInventoryCardImageRefresh() {
+        window.clearTimeout(inventoryImageRefreshTimer);
+        inventoryImageRefreshTimer = window.setTimeout(refreshInventoryCardImagesNow, 40);
+    }
+
+    function initInventoryCardImages() {
+        refreshInventoryCardImagesNow();
+
+        $("#inventory")
+            .off("scroll.inventoryImages")
+            .on("scroll.inventoryImages", scheduleInventoryCardImageRefresh);
+
+        $(window)
+            .off("resize.inventoryImages pageshow.inventoryImages")
+            .on("resize.inventoryImages pageshow.inventoryImages", scheduleInventoryCardImageRefresh);
+    }
+
+    window.refreshInventoryCardImages = scheduleInventoryCardImageRefresh;
 
     function splitInventoryTerms(value) {
         return normalizeInventoryValue(value).split(/\s+/).filter(function (term) {
@@ -607,9 +764,12 @@ function calculateMonthlyPayment(P, rate, month) {
         }
 
         updateInventoryFilterCounts(selected, filter, ranges);
+        scheduleInventoryCardImageRefresh();
     };
 
     $(function () {
+        initInventoryCardImages();
+
         if (!$("#inventoryFilterRail").length) {
             document.documentElement.classList.remove("inventory-page-loading");
             return;

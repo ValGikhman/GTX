@@ -651,29 +651,6 @@ namespace GTX.Controllers
 
             var vehicles = inventory.Vehicles.Where(m => m.SetToUpload == "Y").ToArray();
 
-            var saveDir = Server.MapPath("~/App_Data/Inventory/");
-            var inventoryDir = saveDir + "Current";
-
-            Directory.CreateDirectory(saveDir);
-
-            var fileName = "GTX-Inventory-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss") + ".xml";
-            var backup = Path.Combine(inventoryDir, "GTX-Inventory.bak");
-            var inventoryFleName = "GTX-Inventory.xml";
-            var fullPath = Path.Combine(saveDir, fileName);
-            var inventoryFullPath = Path.Combine(inventoryDir, inventoryFleName);
-
-            if (System.IO.File.Exists(backup))
-            {
-                System.IO.File.Delete(backup);
-            }
-            System.IO.File.Copy(inventoryFullPath, backup);
-
-            CsvToXmlHelper.SaveXmlToFile(doc, fullPath);
-            CsvToXmlHelper.SaveXmlToFile(doc, inventoryFullPath);
-
-            // Generates/updates physical /sitemap.xml
-            SitemapWriter.Write();
-
             InventoryService.AddInventory(Models.GTX.ToDTOs(vehicles));
 
             TerminateSession();

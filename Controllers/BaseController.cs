@@ -78,27 +78,21 @@ namespace GTX.Controllers
                 SessionData.SetSession(Constants.SESSION_ENVIRONMENT, Model.IsDevelopment ? "Development" : "Production");
                 ViewBag.Environment = SessionData.Environment;
 
-                /* if (SessionData == null || SessionData?.IsMajordome == null)
-                {
-                    Model.IsMajordome = false;
-                    SessionData.SetSession(Constants.SESSION_MAJORDOME, Model.IsMajordome);
-                }
-
-                Model.IsMajordome = (bool)SessionData.IsMajordome; */
+                var published = Model.Inventory?.Published ?? DateTime.Now;
+                ViewBag.Published = Model.IsDevelopment ? published : published.AddHours(-5);
 
                 Model.Inventory = AppCache.GetOrCreate(Constants.INVENTORY_CACHE, () => SetModel(), minutes: 60);
                 Model.Employers = AppCache.GetOrCreate(Constants.EMPLOYERS_CACHE, () => GetEmployers(), minutes: 60);
                 Model.OpenHours = AppCache.GetOrCreate(Constants.OPENHOURS_CACHE, () => Utility.XMLHelpers.XmlRepository.GetOpenHours(), minutes: 60);
-                Model.Filters = AppCache.GetOrCreate(Constants.FILTERS_CACHE, () => BuildFilters(Model.Inventory), minutes: 60);
                 Model.Categories = AppCache.GetOrCreate(Constants.CATEGORIES_CACHE, () => GetCategories(), minutes: 60);
                 Model.Passwords = AppCache.GetOrCreate(Constants.PASSWORDS_CACHE, () => GetPasswords(), minutes: 60);
                 var role = RoleCookie.GetCurrentRole(Request, Session);
+
                 ViewBag.CurrentRole = role.ToString();
                 Model.IsMajordome = (role != CommonUnit.Roles.User);
                 ViewBag.IsMajordome = Model.IsMajordome;
 
-                var published = Model.Inventory?.Published ?? DateTime.Now;
-                ViewBag.Published = Model.IsDevelopment ? published : published.AddHours(-5);
+                Model.Filters = AppCache.GetOrCreate(Constants.FILTERS_CACHE, () => BuildFilters(Model.Inventory), minutes: 60);
 
             }
             catch (Exception ex) {
