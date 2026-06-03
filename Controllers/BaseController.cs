@@ -78,14 +78,18 @@ namespace GTX.Controllers
                 SessionData.SetSession(Constants.SESSION_ENVIRONMENT, Model.IsDevelopment ? "Development" : "Production");
                 ViewBag.Environment = SessionData.Environment;
 
-                var published = Model.Inventory?.Published ?? DateTime.Now;
-                ViewBag.Published = Model.IsDevelopment ? published : published.AddHours(-5);
-
                 Model.Inventory = AppCache.GetOrCreate(Constants.INVENTORY_CACHE, () => SetModel(), minutes: 60);
                 Model.Employers = AppCache.GetOrCreate(Constants.EMPLOYERS_CACHE, () => GetEmployers(), minutes: 60);
                 Model.OpenHours = AppCache.GetOrCreate(Constants.OPENHOURS_CACHE, () => Utility.XMLHelpers.XmlRepository.GetOpenHours(), minutes: 60);
                 Model.Categories = AppCache.GetOrCreate(Constants.CATEGORIES_CACHE, () => GetCategories(), minutes: 60);
                 Model.Passwords = AppCache.GetOrCreate(Constants.PASSWORDS_CACHE, () => GetPasswords(), minutes: 60);
+                var published = Model.Inventory?.Published ?? DateTime.Now;
+                if (published == default(DateTime))
+                {
+                    published = DateTime.Now;
+                }
+
+                ViewBag.Published = Model.IsDevelopment ? published : published.AddHours(-5);
                 var role = RoleCookie.GetCurrentRole(Request, Session);
 
                 ViewBag.CurrentRole = role.ToString();

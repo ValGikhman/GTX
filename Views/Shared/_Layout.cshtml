@@ -7,6 +7,32 @@
     var isHomeIndexPage = controllerName.Equals("Home", StringComparison.OrdinalIgnoreCase)
         && actionName.Equals("Index", StringComparison.OrdinalIgnoreCase);
     var current = Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName;
+    var publishedValue = ViewData["Published"];
+    var publishedAt = DateTime.Now;
+
+    if (publishedValue is DateTime)
+    {
+        publishedAt = (DateTime)publishedValue;
+    }
+    else if (publishedValue != null)
+    {
+        DateTime parsedPublished;
+        if (DateTime.TryParse(
+            Convert.ToString(publishedValue, System.Globalization.CultureInfo.InvariantCulture),
+            System.Globalization.CultureInfo.InvariantCulture,
+            System.Globalization.DateTimeStyles.AssumeLocal,
+            out parsedPublished))
+        {
+            publishedAt = parsedPublished;
+        }
+    }
+
+    if (publishedAt == DateTime.MinValue)
+    {
+        publishedAt = DateTime.Now;
+    }
+
+    var publishedIso = publishedAt.ToString("yyyy-MM-ddTHH:mm", System.Globalization.CultureInfo.InvariantCulture);
     // allow only known themes
     switch (t)
     {
@@ -664,7 +690,7 @@
     var lastCars = [];
     loadLastCars();
 
-    const published = new Date("@ViewBag.Published.ToString("yyyy-MM-ddTHH:mm")");
+    const published = new Date("@publishedIso");
     const now = new Date();
 
     const hours = Math.max(0, Math.floor((now - published) / 3600000));
