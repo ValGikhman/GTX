@@ -27,8 +27,16 @@ function applyFilterTerm(term) {
     const filter = rawTerm.trim().toUpperCase();
     const terms = filter.split(/\s+/).filter(Boolean);
 
-    if (filter === undefined || filter === "" || filter === null) {
+    if (!filter) {
         sessionStorage.removeItem("term");
+    } else {
+        sessionStorage.setItem("term", rawTerm);
+    }
+
+    if (window.applyInventoryPanelFilters && document.getElementById("inventory")) {
+        $("#filterTerm").removeClass("text-info").removeClass("border-info");
+        window.applyInventoryPanelFilters();
+        return;
     }
 
     const vehicles = document.querySelectorAll(".card");
@@ -73,16 +81,20 @@ function applyFilterTerm(term) {
         localStorage.removeItem("matchedStocks"); // Clear old if none matched
     }
 
-    sessionStorage.setItem("term", term);
-
     if (window.refreshInventoryCardImages) {
         window.refreshInventoryCardImages();
     }
 }
 
 function applyFilterLiked() {
-    const items = document.querySelectorAll("#inventory > li");
     updateFilterLiked();
+
+    if (window.applyInventoryPanelFilters && document.getElementById("inventory")) {
+        window.applyInventoryPanelFilters();
+        return;
+    }
+
+    const items = document.querySelectorAll("#inventory > li");
     items.forEach(item => {
         if ($("#filterLiked").hasClass("bi-heart-fill")) {
             var heart = $(item).find(".liked");
@@ -105,6 +117,12 @@ function applyFilterLiked() {
 
 function applyFilterLast() {
     updateFilterLast();
+
+    if (window.applyInventoryPanelFilters && document.getElementById("inventory")) {
+        window.applyInventoryPanelFilters();
+        return;
+    }
+
     const items = document.querySelectorAll("#inventory > li");
     items.forEach(item => {
         if ($("#filterLast").hasClass("bi-journal-album")) {
@@ -578,6 +596,167 @@ function calculateMonthlyPayment(P, rate, month) {
         $(".main-title").text(title);
     }
 
+    var inventoryPageSizes = [20, 40, 60, 80];
+    var inventoryDefaultPageSize = 20;
+    var inventoryCurrentPage = 1;
+    var inventoryPaginationResizeTimer = 0;
+
+    function isInventoryCardMatched($vehicle) {
+        return $vehicle.attr("data-inventory-filter-match") !== "0";
+    }
+
+    function inventoryMatchedCards() {
+        return $("#inventory > li.card").filter(function () {
+            return isInventoryCardMatched($(this));
+        });
+    }
+
+    function inventoryMatchedStocks($items) {
+        return $items.map(function () {
+            return $(this).data("stock");
+        }).get();
+    }
+
+    function syncInventoryMatchedStocks($items) {
+        var stocks = inventoryMatchedStocks($items);
+
+        if (stocks.length > 0) {
+            localStorage.setItem("matchedStocks", JSON.stringify(stocks));
+        } else {
+            localStorage.removeItem("matchedStocks");
+        }
+
+        return stocks;
+    }
+
+    function validInventoryPageSize(value) {
+        return $.inArray(value, inventoryPageSizes) !== -1;
+    }
+
+    function inventoryPageSize() {
+        var selected = parseInt($("#inventoryPageSize").val(), 10);
+
+        return validInventoryPageSize(selected) ? selected : inventoryDefaultPageSize;
+    }
+
+    function setInventoryPagerDisabled($button, disabled) {
+        $button.prop("disabled", disabled).attr("aria-disabled", disabled ? "true" : "false");
+    }
+
+    function syncInventoryPager(totalCount, pageSize, totalPages, startIndex, endIndex) {
+        var hasRows = totalCount > 0;
+        var pageText = hasRows ? "Page " + inventoryCurrentPage + " of " + totalPages : "Page 0 of 0";
+        var rangeText = hasRows ? (startIndex + 1) + "-" + endIndex + " of " + totalCount : "0 of 0";
+
+        $("#inventoryPageStatus").text(pageText);
+        $("#inventoryPageRange").text(rangeText);
+
+        setInventoryPagerDisabled($("#inventoryPager [data-page-action='first']"), !hasRows || inventoryCurrentPage <= 1);
+        setInventoryPagerDisabled($("#inventoryPager [data-page-action='prev']"), !hasRows || inventoryCurrentPage <= 1);
+        setInventoryPagerDisabled($("#inventoryPager [data-page-action='next']"), !hasRows || inventoryCurrentPage >= totalPages);
+        setInventoryPagerDisabled($("#inventoryPager [data-page-action='last']"), !hasRows || inventoryCurrentPage >= totalPages);
+        $("#inventoryPageSize").prop("disabled", !hasRows);
+    }
+
+    function isInventoryPagingEnabled() {
+        return $("#inventoryPageSize").length > 0 &&
+            $("#inventoryPager").length > 0 &&
+            $("#inventory").length > 0 &&
+            isInventoryDesktopLayout();
+    }
+
+    function scrollInventoryGridToTop() {
+        var grid = document.getElementById("inventory");
+        if (grid) grid.scrollTop = 0;
+    }
+
+    function applyInventoryPagination(options) {
+        options = options || {};
+
+        var $allItems = $("#inventory > li.card");
+        if (!$allItems.length) return;
+
+        var $matched = inventoryMatchedCards();
+        var totalCount = $matched.length;
+        var pageSize = inventoryPageSize();
+        var totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+        var pagingEnabled = isInventoryPagingEnabled();
+
+        syncInventoryMatchedStocks($matched);
+
+        if (options.resetPage) {
+            inventoryCurrentPage = 1;
+        }
+
+        if (!pagingEnabled) {
+            $allItems.each(function () {
+                var $vehicle = $(this);
+                $vehicle.toggle(isInventoryCardMatched($vehicle));
+            });
+            inventoryCurrentPage = Math.min(inventoryCurrentPage, totalPages);
+            syncInventoryPager(totalCount, pageSize, totalPages, 0, totalCount);
+            scheduleInventoryCardImageRefresh();
+            return;
+        }
+
+        inventoryCurrentPage = Math.max(1, Math.min(inventoryCurrentPage, totalPages));
+
+        var startIndex = (inventoryCurrentPage - 1) * pageSize;
+        var endIndex = Math.min(startIndex + pageSize, totalCount);
+
+        $allItems.hide();
+        $matched.slice(startIndex, endIndex).show();
+        syncInventoryPager(totalCount, pageSize, totalPages, startIndex, endIndex);
+
+        if (options.scrollToTop) {
+            scrollInventoryGridToTop();
+        }
+
+        scheduleInventoryCardImageRefresh();
+    }
+
+    function initInventoryPaginationControls() {
+        var $pageSize = $("#inventoryPageSize");
+        var $pager = $("#inventoryPager");
+
+        if (!$pageSize.length || !$pager.length || !$("#inventory").length) return;
+
+        var savedPageSize = parseInt(localStorage.getItem("inventoryPageSize"), 10);
+        $pageSize.val(validInventoryPageSize(savedPageSize) ? savedPageSize : inventoryDefaultPageSize);
+
+        $pageSize.off("change.inventoryPagination").on("change.inventoryPagination", function () {
+            var nextPageSize = inventoryPageSize();
+
+            localStorage.setItem("inventoryPageSize", nextPageSize);
+            applyInventoryPagination({ resetPage: true, scrollToTop: true });
+        });
+
+        $pager.off("click.inventoryPagination").on("click.inventoryPagination", "[data-page-action]", function () {
+            var totalPages = Math.max(1, Math.ceil(inventoryMatchedCards().length / inventoryPageSize()));
+            var action = $(this).data("page-action");
+
+            if (action === "first") inventoryCurrentPage = 1;
+            if (action === "prev") inventoryCurrentPage--;
+            if (action === "next") inventoryCurrentPage++;
+            if (action === "last") inventoryCurrentPage = totalPages;
+
+            applyInventoryPagination({ scrollToTop: true });
+        });
+
+        $(window).off("resize.inventoryPagination").on("resize.inventoryPagination", function () {
+            window.clearTimeout(inventoryPaginationResizeTimer);
+            inventoryPaginationResizeTimer = window.setTimeout(function () {
+                applyInventoryPagination();
+            }, 80);
+        });
+    }
+
+    window.getInventoryMatchedStocks = function () {
+        return inventoryMatchedStocks(inventoryMatchedCards());
+    };
+
+    window.refreshInventoryPagination = applyInventoryPagination;
+
     function activeInventoryFilterCount(selected, ranges, filter) {
         var count = filter ? 1 : 0;
 
@@ -745,6 +924,7 @@ function calculateMonthlyPayment(P, rate, month) {
                 inventoryLikedMatches($vehicle) &&
                 inventoryLastMatches($vehicle);
 
+            $vehicle.attr("data-inventory-filter-match", isMatch ? "1" : "0");
             $vehicle.toggle(isMatch);
             if (isMatch) visibleCount++;
         });
@@ -753,18 +933,8 @@ function calculateMonthlyPayment(P, rate, month) {
         syncInventoryMobileFilterState(visibleCount, selected, ranges, filter);
         $(".inventory-empty-filter").toggle(visibleCount === 0);
 
-        var stocks = $(".card:visible").map(function () {
-            return $(this).data("stock");
-        }).get();
-
-        if (stocks.length > 0) {
-            localStorage.setItem("matchedStocks", JSON.stringify(stocks));
-        } else {
-            localStorage.removeItem("matchedStocks");
-        }
-
         updateInventoryFilterCounts(selected, filter, ranges);
-        scheduleInventoryCardImageRefresh();
+        applyInventoryPagination({ resetPage: true });
     };
 
     $(function () {
@@ -776,6 +946,7 @@ function calculateMonthlyPayment(P, rate, month) {
         }
 
         initInventorySplitPanel();
+        initInventoryPaginationControls();
 
         syncInventoryRangeLabels();
 

@@ -282,9 +282,11 @@
         }
 
         // For navivation on details page
-        let stocks = $(".card:visible").map(function () {
-            return $(this).data("stock");
-        }).get();
+        let stocks = window.getInventoryMatchedStocks
+            ? window.getInventoryMatchedStocks()
+            : $("#inventory > li.card").map(function () {
+                return $(this).data("stock");
+            }).get();
 
         if (stocks.length > 0) {
             localStorage.setItem("matchedStocks", JSON.stringify(stocks));
@@ -386,6 +388,10 @@
         });
 
         $container.append($items);
+
+        if (window.refreshInventoryPagination) {
+            window.refreshInventoryPagination({ resetPage: true, scrollToTop: true });
+        }
     }
 
     function updateSortDirectionLabel() {
