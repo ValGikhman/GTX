@@ -2,8 +2,8 @@
     var isPublicInventoryToolbar = string.Equals((ViewContext.RouteData.Values["controller"] ?? string.Empty).ToString(), "Inventory", StringComparison.OrdinalIgnoreCase);
 }
 
-<div id="filterByTerm" class="inventory-result-toolbar d-flex align-items-center justify-content-center gap-2 gap-xl-3 flex-wrap w-100 mt-3 pb-4">
-    <div class="inventory-toolbar-shell d-flex align-items-center justify-content-center gap-2 gap-xl-3 flex-wrap">
+<div id="filterByTerm" class="inventory-result-toolbar d-flex align-items-center justify-content-centerf lex-wrap w-100 mt-3 pb-4">
+    <div class="inventory-toolbar-shell d-flex align-items-center justify-content-center gap-5 flex-wrap">
         <!-- Sort -->
         <div class="sort d-none d-lg-flex align-items-center gap-2 z-3">
             <label for="sortField" class="fw-bold mb-0">@I18n.R("Filter_SortBy")</label>
@@ -125,7 +125,7 @@
     }
 
     .inventory-page-size .form-select {
-        width: 4.75rem;
+        width: 4rem;
         min-height: 1.9rem;
         padding-top: .2rem;
         padding-bottom: .2rem;
