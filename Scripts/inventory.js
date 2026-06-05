@@ -666,8 +666,8 @@ function calculateMonthlyPayment(P, rate, month) {
             : (hasRows ? "Page " + inventoryCurrentPage + " of " + totalPages : "Page 0 of 0");
         var rangeText = hasRows ? (startIndex + 1) + "-" + endIndex + " of " + totalCount : "0 of 0";
 
-        $("#inventoryPageStatus").text(pageText);
-        $("#inventoryPageRange").text(rangeText);
+        $("#inventoryPageStatus").text(pageText).toggle(!showAll);
+        $("#inventoryPageRange").text(rangeText).toggle(!showAll);
         $("#inventoryPager [data-page-action]").toggle(!showAll);
 
         setInventoryPagerDisabled($("#inventoryPager [data-page-action='first']"), !hasRows || inventoryCurrentPage <= 1);
