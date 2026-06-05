@@ -596,6 +596,7 @@ function calculateMonthlyPayment(P, rate, month) {
         $(".main-title").text(title);
     }
 
+    var inventoryAllPageSize = "all";
     var inventoryPageSizes = [20, 40, 60, 80];
     var inventoryDefaultPageSize = 20;
     var inventoryCurrentPage = 1;
@@ -629,14 +630,28 @@ function calculateMonthlyPayment(P, rate, month) {
         return stocks;
     }
 
+    function isInventoryAllPageSize(value) {
+        return String(value || "").toLowerCase() === inventoryAllPageSize;
+    }
+
     function validInventoryPageSize(value) {
-        return $.inArray(value, inventoryPageSizes) !== -1;
+        if (isInventoryAllPageSize(value)) return true;
+
+        return $.inArray(parseInt(value, 10), inventoryPageSizes) !== -1;
     }
 
     function inventoryPageSize() {
-        var selected = parseInt($("#inventoryPageSize").val(), 10);
+        var selectedValue = $("#inventoryPageSize").val();
+        if (isInventoryAllPageSize(selectedValue)) return inventoryAllPageSize;
 
+        var selected = parseInt(selectedValue, 10);
         return validInventoryPageSize(selected) ? selected : inventoryDefaultPageSize;
+    }
+
+    function inventoryTotalPages(totalCount, pageSize) {
+        if (isInventoryAllPageSize(pageSize)) return 1;
+
+        return Math.max(1, Math.ceil(totalCount / pageSize));
     }
 
     function setInventoryPagerDisabled($button, disabled) {
@@ -645,11 +660,15 @@ function calculateMonthlyPayment(P, rate, month) {
 
     function syncInventoryPager(totalCount, pageSize, totalPages, startIndex, endIndex) {
         var hasRows = totalCount > 0;
-        var pageText = hasRows ? "Page " + inventoryCurrentPage + " of " + totalPages : "Page 0 of 0";
+        var showAll = isInventoryAllPageSize(pageSize);
+        var pageText = showAll
+            ? (hasRows ? "All vehicles" : "No vehicles")
+            : (hasRows ? "Page " + inventoryCurrentPage + " of " + totalPages : "Page 0 of 0");
         var rangeText = hasRows ? (startIndex + 1) + "-" + endIndex + " of " + totalCount : "0 of 0";
 
         $("#inventoryPageStatus").text(pageText);
         $("#inventoryPageRange").text(rangeText);
+        $("#inventoryPager [data-page-action]").toggle(!showAll);
 
         setInventoryPagerDisabled($("#inventoryPager [data-page-action='first']"), !hasRows || inventoryCurrentPage <= 1);
         setInventoryPagerDisabled($("#inventoryPager [data-page-action='prev']"), !hasRows || inventoryCurrentPage <= 1);
@@ -679,8 +698,8 @@ function calculateMonthlyPayment(P, rate, month) {
         var $matched = inventoryMatchedCards();
         var totalCount = $matched.length;
         var pageSize = inventoryPageSize();
-        var totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
-        var pagingEnabled = isInventoryPagingEnabled();
+        var totalPages = inventoryTotalPages(totalCount, pageSize);
+        var pagingEnabled = isInventoryPagingEnabled() && !isInventoryAllPageSize(pageSize);
 
         syncInventoryMatchedStocks($matched);
 
@@ -695,6 +714,9 @@ function calculateMonthlyPayment(P, rate, month) {
             });
             inventoryCurrentPage = Math.min(inventoryCurrentPage, totalPages);
             syncInventoryPager(totalCount, pageSize, totalPages, 0, totalCount);
+            if (options.scrollToTop) {
+                scrollInventoryGridToTop();
+            }
             scheduleInventoryCardImageRefresh();
             return;
         }
@@ -721,7 +743,7 @@ function calculateMonthlyPayment(P, rate, month) {
 
         if (!$pageSize.length || !$pager.length || !$("#inventory").length) return;
 
-        var savedPageSize = parseInt(localStorage.getItem("inventoryPageSize"), 10);
+        var savedPageSize = localStorage.getItem("inventoryPageSize");
         $pageSize.val(validInventoryPageSize(savedPageSize) ? savedPageSize : inventoryDefaultPageSize);
 
         $pageSize.off("change.inventoryPagination").on("change.inventoryPagination", function () {
@@ -732,7 +754,8 @@ function calculateMonthlyPayment(P, rate, month) {
         });
 
         $pager.off("click.inventoryPagination").on("click.inventoryPagination", "[data-page-action]", function () {
-            var totalPages = Math.max(1, Math.ceil(inventoryMatchedCards().length / inventoryPageSize()));
+            var pageSize = inventoryPageSize();
+            var totalPages = inventoryTotalPages(inventoryMatchedCards().length, pageSize);
             var action = $(this).data("page-action");
 
             if (action === "first") inventoryCurrentPage = 1;
