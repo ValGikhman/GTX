@@ -180,6 +180,7 @@
     }
 
     .gtx-title {
+        font-size: clamp(1.06rem, 1.25vw, 1.18rem);
         font-weight: 600;
         line-height: 1.05;
     }
@@ -188,6 +189,10 @@
         font-weight: 700;
         opacity: .92;
         line-height: 1.1;
+    }
+
+    .gtx-card .gtx-trimline {
+        font-size: .88rem !important;
     }
 
     .gtx-truncate-1 {
@@ -213,7 +218,7 @@
         background: rgba(255,255,255,.75);
         backdrop-filter: blur(6px);
         -webkit-backdrop-filter: blur(6px);
-        font-size: .72rem;
+        font-size: .78rem;
         font-weight: 800;
         color: #222;
         user-select: none;
@@ -314,24 +319,24 @@
         justify-content: space-between;
         align-items: baseline;
         gap: .5rem;
-        font-size: .82rem;
+        font-size: .9rem;
         white-space: nowrap;
     }
 
     .gtx-price-muted {
         opacity: .88;
-        font-size: .76rem;
+        font-size: .82rem;
     }
 
     .gtx-transparent-line {
         border-top: 1px solid rgba(255,255,255,.28);
         margin-top: .28rem;
         padding-top: .32rem;
-        font-size: .96rem;
+        font-size: 1rem;
     }
 
     .gtx-transparent-line .gtx-price-amount {
-        font-size: 1.08rem;
+        font-size: 1.18rem;
         font-weight: 900;
     }
 
@@ -343,7 +348,7 @@
         border-radius: .45rem;
         background: rgba(20,108,67,.78);
         color: #fff;
-        font-size: .72rem;
+        font-size: .8rem;
         font-weight: 800;
         padding: 5px;
     }
@@ -356,13 +361,13 @@
     }
 
     .gtx-card-action {
-        min-height: 30px;
+        min-height: 34px;
         border-radius: .45rem;
         border: 1px solid rgba(255,255,255,.24);
         background: rgba(255,255,255,.88);
         color: #1f2933;
         text-decoration: none;
-        font-size: .72rem;
+        font-size: .82rem;
         font-weight: 900;
         line-height: 1;
         overflow: hidden;
@@ -377,7 +382,7 @@
 
     .gtx-card-action img {
         max-width: 78px;
-        height: 16px;
+        height: 18px;
         width: auto;
         display: block;
     }
@@ -385,7 +390,12 @@
     .gtx-meta {
         font-weight: 800;
         opacity: .95;
-        font-size: .85rem;
+        font-size: .96rem;
+    }
+
+    .gtx-footer .very-small-text {
+        color: inherit;
+        opacity: .95;
     }
 
     .gtx-kv {
@@ -461,6 +471,63 @@
         z-index: 1;
         border-radius: inherit;
         overflow: hidden;                     /* keep image corners clean */
+    }
+
+    @@media (max-width: 575.98px) {
+        .gtx-card .gtx-header {
+            padding: .5rem .6rem !important;
+        }
+
+        .gtx-title {
+            font-size: 1.28rem;
+            line-height: 1.02;
+        }
+
+        .gtx-card .gtx-trimline {
+            font-size: 1rem !important;
+            line-height: 1.08 !important;
+        }
+
+        .gtx-chip {
+            font-size: .86rem;
+        }
+
+        .gtx-price-panel {
+            padding: .58rem .65rem;
+        }
+
+        .gtx-price-line {
+            font-size: 1rem;
+        }
+
+        .gtx-price-muted {
+            font-size: .9rem;
+        }
+
+        .gtx-transparent-line {
+            font-size: 1.08rem;
+        }
+
+        .gtx-transparent-line .gtx-price-amount {
+            font-size: 1.32rem;
+        }
+
+        .gtx-no-hidden-fees {
+            font-size: .9rem;
+        }
+
+        .gtx-meta {
+            font-size: 1.08rem;
+        }
+
+        .gtx-card-action {
+            min-height: 40px;
+            font-size: .92rem;
+        }
+
+        .gtx-card-action img {
+            height: 20px;
+        }
     }
 </style>
 }

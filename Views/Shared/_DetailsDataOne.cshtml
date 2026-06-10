@@ -114,8 +114,11 @@
 <div class="row justify-content-center well mb-3">
     @if (headerStyle != null)
     {
-        <span class="d-flex justify-content-center text-shadow mt-3 fs-5 text-shadow-small mb-4">
-            <strong>@Safe(headerStyle.BasicData?.Year) @Safe(headerStyle.BasicData?.Make) @Safe(headerStyle.BasicData?.Model) @Safe(headerStyle.Name)</strong>
+        <span class="vehicle-style-heading mt-3 mb-4 mx-auto text-shadow-small">
+            <strong>
+                <i class="bi bi-stars" aria-hidden="true"></i>
+                <span class="vehicle-style-heading-text">@Safe(headerStyle.BasicData?.Year) @Safe(headerStyle.BasicData?.Make) @Safe(headerStyle.BasicData?.Model) @Safe(headerStyle.Name)</span>
+            </strong>
         </span>
     }
     <button class="w-100 btn btn-gradient position-relative collapse-toggle"
