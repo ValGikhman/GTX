@@ -182,7 +182,7 @@
                                     aria-controls="@prId">
 
                                 <span class="d-flex justify-content-center text-shadow">
-                                    <strong>Transparent Price</strong>
+                                    <strong><i class="bi bi-patch-check-fill text-warning me-1"></i>@I18n.R("All_TransparentPrice")</strong>
                                 </span>
 
                                 <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
@@ -206,21 +206,21 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold text-danger fs-5">Internet Price</td>
+                                                <td class="fw-bold text-danger fs-5">@I18n.R("All_InternetPrice")</td>
                                                 <td class="fw-bold text-danger fs-5">@(internetPrice.ToString("C0", usCulture))</td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold">Documentary Fee</td>
+                                                <td class="fw-bold"><i class="bi bi-file-earmark-text me-1"></i>@I18n.R("All_DocumentaryFee")</td>
                                                 <td>@(documentaryFee.ToString("C0", usCulture))</td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold">Transparent Price</td>
+                                                <td class="fw-bold"><i class="bi bi-patch-check-fill text-warning me-1"></i>@I18n.R("All_TransparentPrice")</td>
                                                 <td class="fw-bold">@(transparentPrice.ToString("C0", usCulture))</td>
                                             </tr>
                                             <tr class="gtx-no-hidden-fees-row">
                                                 <td class="fw-bold text-center" colspan="2">
                                                     <i class="bi bi-shield-check"></i>
-                                                    <span>No Hidden Fees</span>
+                                                    <span>@I18n.R("All_NoHiddenFees")</span>
                                                 </td>
                                             </tr>
                                         </tbody>

@@ -287,12 +287,26 @@
     }
 
     .gtx-price-panel {
+        display: block;
         border: 1px solid rgba(255,255,255,.22);
         border-radius: .65rem;
         background: rgba(0,0,0,.18);
         box-shadow: inset 0 1px 0 rgba(255,255,255,.16);
         padding: .45rem .55rem;
         line-height: 1.15;
+        color: inherit;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background .12s ease, border-color .12s ease, transform .12s ease;
+    }
+
+    .gtx-price-panel:hover,
+    .gtx-price-panel:focus {
+        background: rgba(0,0,0,.24);
+        border-color: rgba(255,255,255,.36);
+        color: inherit;
+        text-decoration: none;
+        transform: translateY(-1px);
     }
 
     .gtx-price-line {
@@ -326,14 +340,12 @@
         align-items: center;
         justify-content: center;
         gap: .25rem;
-        width: 45%;
-        margin-top: .28rem;
         border-radius: .45rem;
         background: rgba(20,108,67,.78);
         color: #fff;
         font-size: .72rem;
         font-weight: 800;
-        padding: 3px;
+        padding: 5px;
     }
 
     .gtx-card-actions {
@@ -557,24 +569,27 @@
                     @Model.Stock
                 </span>
             </div>
-            <div class="gtx-price-panel">
+            <a class="gtx-price-panel"
+               href="@detailsUrl"
+               onclick="event.stopPropagation();"
+               title="Click here to see details.">
                 <div class="gtx-price-line">
-                    <span><i class="bi bi-car-front me-1"></i>Internet Price</span>
+                    <span><i class="bi bi-car-front me-1"></i>@I18n.R("All_InternetPrice")</span>
                     <span class="gtx-price-amount">@Model.InternetPrice.ToString("C0", usCulture)</span>
                 </div>
                 <div class="gtx-price-line gtx-price-muted">
-                    <span>Documentary Fee</span>
+                    <span><i class="bi bi-file-earmark-text me-1"></i>@I18n.R("All_DocumentaryFee")</span>
                     <span>@documentaryFee.ToString("C0", usCulture)</span>
                 </div>
                 <div class="gtx-price-line gtx-transparent-line">
-                    <span>Transparent Price</span>
+                    <span><i class="bi bi-patch-check-fill text-warning me-1"></i>@I18n.R("All_TransparentPrice")</span>
                     <span class="gtx-price-amount">@transparentPrice.ToString("C0", usCulture)</span>
                 </div>
-                <span class="gtx-no-hidden-fees">
+                <span class="gtx-no-hidden-fees shadow">
                     <i class="bi bi-shield-check"></i>
-                    No Hidden Fees
+                    @I18n.R("All_NoHiddenFees")
                 </span>
-            </div>
+            </a>
 
             <div class="d-flex justify-content-center align-items-center mt-1">
                 <span class="gtx-meta">
