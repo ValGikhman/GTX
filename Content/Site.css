@@ -1116,8 +1116,8 @@
     display: flex;
     justify-content: center;
     width: fit-content;
-    max-width: min(100%, 64rem);
-    padding: .72rem 1.35rem;
+    max-width: min(100%, 70rem);
+    padding: .9rem 1.7rem;
     overflow: hidden;
     color: #fff;
     background:
@@ -1161,11 +1161,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: .55rem;
+    gap: .7rem;
     max-width: 100%;
     margin: 0;
-
-    line-height: 1.15;
+    font-size: clamp(1.18rem, 3vw, 1.7rem);
+    line-height: 1.12;
     text-align: center;
     text-wrap: balance;
 }
@@ -1178,7 +1178,7 @@
 .vehicle-style-heading .bi {
     flex: 0 0 auto;
     color: #ffc107;
-    font-size: 1.05em;
+    font-size: 1.15em;
     filter: drop-shadow(0 1px 4px rgba(255, 193, 7, .55));
 }
 
@@ -1202,13 +1202,13 @@
 @media (max-width: 991px) {
     .vehicle-style-heading {
         max-width: calc(100% - 1rem);
-        padding: .65rem .9rem;
-        border-radius: .7rem;
+        padding: .82rem 1rem;
+        border-radius: .82rem;
     }
 
     .vehicle-style-heading strong {
-        gap: .4rem;
-        font-size: clamp(.95rem, 4.4vw, 1.15rem);
+        gap: .5rem;
+        font-size: clamp(1.12rem, 5.4vw, 1.42rem);
     }
 }
 
