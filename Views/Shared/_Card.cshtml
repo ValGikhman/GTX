@@ -112,9 +112,14 @@
     }
 
     var detailsUrl = Url.Action("Details", "Inventory", new { stock = Model.Stock });
+    var creditApplicationUrl = Url.Action("Application", "Home");
+    var creditApplicationText = I18n.R("Nav_GetPrequalified");
     var makeImg = $"/GTXImages/makes/{Model.Make.Replace(" ", "-")}.png";
     var carTitle = $"{Model.Year} {Model.Make} {Model.Model}";
     var cardImageUrl = BuildInventoryCardImageUrl(Model.Image);
+    var usCulture = System.Globalization.CultureInfo.GetCultureInfo("en-US");
+    var documentaryFee = Constants.DOCUMENTARY_FEE;
+    var transparentPrice = Model.InternetPrice + documentaryFee;
     var cardIndexRaw = ViewData["InventoryCardIndex"];
     var cardIndex = cardIndexRaw is int cardIndexValue ? cardIndexValue : int.MaxValue;
     var isPriorityCardImage = cardIndex >= 0 && cardIndex < 4;
@@ -279,6 +284,90 @@
         font-weight: 900;
         letter-spacing: .2px;
         font-size: 1.05rem;
+    }
+
+    .gtx-price-panel {
+        border: 1px solid rgba(255,255,255,.22);
+        border-radius: .65rem;
+        background: rgba(0,0,0,.18);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.16);
+        padding: .45rem .55rem;
+        line-height: 1.15;
+    }
+
+    .gtx-price-line {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: .5rem;
+        font-size: .82rem;
+        white-space: nowrap;
+    }
+
+    .gtx-price-muted {
+        opacity: .88;
+        font-size: .76rem;
+    }
+
+    .gtx-transparent-line {
+        border-top: 1px solid rgba(255,255,255,.28);
+        margin-top: .28rem;
+        padding-top: .32rem;
+        font-size: .96rem;
+    }
+
+    .gtx-transparent-line .gtx-price-amount {
+        font-size: 1.08rem;
+        font-weight: 900;
+    }
+
+    .gtx-no-hidden-fees {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .25rem;
+        width: 45%;
+        margin-top: .28rem;
+        border-radius: .45rem;
+        background: rgba(20,108,67,.78);
+        color: #fff;
+        font-size: .72rem;
+        font-weight: 800;
+        padding: 3px;
+    }
+
+    .gtx-card-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: .45rem;
+        margin-top: .35rem;
+    }
+
+    .gtx-card-action {
+        min-height: 30px;
+        border-radius: .45rem;
+        border: 1px solid rgba(255,255,255,.24);
+        background: rgba(255,255,255,.88);
+        color: #1f2933;
+        text-decoration: none;
+        font-size: .72rem;
+        font-weight: 900;
+        line-height: 1;
+        overflow: hidden;
+    }
+
+    .gtx-card-action:hover,
+    .gtx-card-action:focus {
+        color: #111827;
+        background: #fff;
+        text-decoration: none;
+    }
+
+    .gtx-card-action img {
+        max-width: 78px;
+        height: 16px;
+        width: auto;
+        display: block;
     }
 
     .gtx-meta {
@@ -457,32 +546,57 @@
             <img class="gtx-img" src="@cardImageUrl" alt="@carTitle" width="@cardImageRenderWidth" height="@cardImageRenderHeight" loading="@imageLoadingMode" fetchpriority="@imageFetchPriority" decoding="async" />
         </div>
 
-        <!-- FOOTER (3 rows, keeps gradient) -->
-        <div class="card-footer gradient no-click py-1 fs-6 fw-bold text-shadow">
-            <!-- Row 1: Price + Miles (like before) -->
-            <div class="d-flex justify-content-between align-items-baseline">
-                <span>
-                    <i class="bi bi-car-front"></i>
-                    @I18n.R("All_Price"): @Model.InternetPrice.ToString("C0", new System.Globalization.CultureInfo("en-US"))
+        <!-- FOOTER -->
+        <div class="card-footer gradient no-click pb-2 pt-1 fs-6 fw-bold text-shadow gtx-footer">
+            <!-- VIN + Stock -->
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="copyable very-small-text hand-pointer text-truncate" style="max-width: 70%;" title="Copy VIN">
+                    @Model.VIN
                 </span>
-                <span>
+                <span class="copyable very-small-text hand-pointer text-truncate" style="max-width: 70%;" title="Copy Stock#">
+                    @Model.Stock
+                </span>
+            </div>
+            <div class="gtx-price-panel">
+                <div class="gtx-price-line">
+                    <span><i class="bi bi-car-front me-1"></i>Internet Price</span>
+                    <span class="gtx-price-amount">@Model.InternetPrice.ToString("C0", usCulture)</span>
+                </div>
+                <div class="gtx-price-line gtx-price-muted">
+                    <span>Documentary Fee</span>
+                    <span>@documentaryFee.ToString("C0", usCulture)</span>
+                </div>
+                <div class="gtx-price-line gtx-transparent-line">
+                    <span>Transparent Price</span>
+                    <span class="gtx-price-amount">@transparentPrice.ToString("C0", usCulture)</span>
+                </div>
+                <span class="gtx-no-hidden-fees">
+                    <i class="bi bi-shield-check"></i>
+                    No Hidden Fees
+                </span>
+            </div>
+
+            <div class="d-flex justify-content-center align-items-center mt-1">
+                <span class="gtx-meta">
                     <i class="bi bi-speedometer2 me-1"></i>@Model.Mileage.ToString("N0") @I18n.R("All_Miles")
                 </span>
             </div>
 
-            <!-- Row 2: VIN + Stock -->
-            <div class="d-flex justify-content-between align-items-center" style="margin-top: -5px;">
-                <span class="copyable very-small-text hand-pointer text-truncate style="max-width: 70%;" title="Copy VIN">
-                    @Model.VIN
-                </span>
-                <span class="copyable very-small-text hand-pointer text-truncate style="max-width: 70%;" title="Copy Stock#">
-                    @Model.Stock
-                </span>
-            </div>
-            <!-- Row 3 : Carfax (centered) -->
-            <div class="d-flex justify-content-center align-items-center">
-                <a class="d-inline-flex align-items-center" href="http://www.carfax.com/VehicleHistory/p/Report.cfx?partner=DVW_1&vin=@Model.VIN" target="_blank" rel="noopener" onclick="event.stopPropagation();" title="Open Carfax">
-                    <img src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report" style="height:18px; width:auto;">
+            <div class="gtx-card-actions">
+                <a class="gtx-card-action d-inline-flex align-items-center justify-content-center gap-1 px-2 shadow"
+                   href="@creditApplicationUrl"
+                   onclick="event.stopPropagation();"
+                   title="@creditApplicationText">
+                    <i class="bi bi-currency-dollar"></i>
+                    <span class="text-truncate">@creditApplicationText</span>
+                </a>
+                <a class="gtx-card-action d-inline-flex align-items-center justify-content-center px-2 shadow"
+                   href="http://www.carfax.com/VehicleHistory/p/Report.cfx?partner=DVW_1&vin=@Model.VIN"
+                   target="_blank"
+                   rel="noopener"
+                   onclick="event.stopPropagation();"
+                   title="Open Carfax">
+                    <img src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report">
                 </a>
             </div>
         </div>
