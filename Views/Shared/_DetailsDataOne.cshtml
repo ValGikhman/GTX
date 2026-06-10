@@ -33,6 +33,14 @@
     }
 }
 
+@{
+    const int documentaryFee = 399;
+    var vehicleDetails = Model?.CurrentVehicle?.VehicleDetails;
+    var internetPrice = vehicleDetails?.InternetPrice ?? 0;
+    var transparentPrice = internetPrice + documentaryFee;
+    var usCulture = CultureInfo.GetCultureInfo("en-US");
+}
+
 <style>
     .toggle {
         text-decoration: none;
@@ -73,6 +81,27 @@
 
     .w-20 {
         width: 20% !important;
+    }
+
+    .gtx-price-table-wrap {
+        border: 1px solid rgba(0, 0, 0, .12);
+        border-radius: .5rem;
+        box-shadow: 0 .35rem .85rem rgba(0, 0, 0, .08);
+        overflow: hidden;
+    }
+
+    .gtx-price-table {
+        margin-bottom: 0;
+    }
+
+    .gtx-price-table td {
+        vertical-align: middle;
+    }
+
+    .kv .gtx-no-hidden-fees-row td,
+    .kv .gtx-no-hidden-fees-row td:first-child {
+        color: #146c43;
+        background: #eaf7ef;
     }
 </style>
 
@@ -125,112 +154,159 @@
                         var greenId = Id("green", sId);
                         var nhtsaId = Id("nhtsa", sId);
 
+                        <!-- Transparent Price -->
+                        <div class="section">
+                            <button class="article w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#@prId"
+                                    aria-expanded="true"
+                                    aria-controls="@prId">
+
+                                <span class="d-flex justify-content-center text-shadow">
+                                    <strong>Transparent Price</strong>
+                                </span>
+
+                                <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
+                                    <i class="bi bi-plus-lg icon-plus"></i>
+                                    <i class="bi bi-dash-lg icon-minus"></i>
+                                </span>
+                            </button>
+
+                            <div id="@prId" class="collapse show">
+                                <div class="gtx-price-table-wrap mt-3">
+                                    <table class="table table-sm kv gtx-price-table">
+                                        <tbody>
+                                            <tr>
+                                                <td class="w-15">
+                                                    <span class="text-decoration-line-through" style="color: slategrey">Retail price</span>
+                                                </td>
+                                                <td>
+                                                    <span class="text-decoration-line-through" style="color: slategrey">
+                                                        @(vehicleDetails?.RetailPrice.ToString("C0", usCulture))
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold text-danger fs-5">Internet Price</td>
+                                                <td class="fw-bold text-danger fs-5">@(internetPrice.ToString("C0", usCulture))</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Documentary Fee</td>
+                                                <td>@(documentaryFee.ToString("C0", usCulture))</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Transparent Price</td>
+                                                <td class="fw-bold">@(transparentPrice.ToString("C0", usCulture))</td>
+                                            </tr>
+                                            <tr class="gtx-no-hidden-fees-row">
+                                                <td class="fw-bold text-center" colspan="2">
+                                                    <i class="bi bi-shield-check"></i>
+                                                    <span>No Hidden Fees</span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Basic -->
-        <div class="section">
-            <button class="article w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#@bdId"
-                    aria-expanded="true"
-                    aria-controls="@bdId">
+                        <div class="section">
+                            <button class="article w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#@bdId"
+                                    aria-expanded="true"
+                                    aria-controls="@bdId">
 
-                <span class="d-flex justify-content-center text-shadow">
-                    <strong>Basic summary</strong>
-                </span>
+                                <span class="d-flex justify-content-center text-shadow">
+                                    <strong>Basic summary</strong>
+                                </span>
 
-                <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
-                    <i class="bi bi-plus-lg icon-plus"></i>
-                    <i class="bi bi-dash-lg icon-minus"></i>
-                </span>
-            </button>
+                                <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
+                                    <i class="bi bi-plus-lg icon-plus"></i>
+                                    <i class="bi bi-dash-lg icon-minus"></i>
+                                </span>
+                            </button>
 
-            <div id="@bdId" class="collapse show">
+                            <div id="@bdId" class="collapse show">
 
-                <span class="d-flex justify-content-center text-shadow mt-3">
-                    <strong>@Safe(style.BasicData.Year) @Safe(style.BasicData.Make) @Safe(style.BasicData.Model) @Safe(style.Name)</strong>
-                </span>
-                @if (style?.BasicData == null)
-                {<div class="muted">No data</div> }
-                else
-                {
-                    <table class="table table-sm kv mt-3">
-                        <tbody>
-                            <tr>
-                                <td class="w-15">
-                                    <span class="text-decoration-line-through" style="color: slategrey">Retail price</span><br />
-                                    <span class="fw-bold text-danger fs-5">Internet price</span>
-                                </td>
-                                <td class="w-15">
-                                    <span class="text-decoration-line-through" style="color: slategrey">
-                                        @(Model?.CurrentVehicle?.VehicleDetails?.RetailPrice.ToString("C0"))
-                                    </span><br />
-                                    <span class="fw-bold text-danger fs-5">@(Model?.CurrentVehicle?.VehicleDetails?.InternetPrice.ToString("C0", new System.Globalization.CultureInfo("en-US")))</span>
-                                </td>
-                                <td class="fw-bold">MSRP</td>
-                                <td>@Safe(Money(style.Pricing.Msrp))</td>
-                            </tr>
-                            <tr>
-                            <tr>
-                                <td class="fw-bold">Miles: </td>
-                                <td>@(Model?.CurrentVehicle?.VehicleDetails?.Mileage.ToString("N0"))</td>
-                                <td class="fw-bold w-15">VIN#: </td>
-                                <td class="copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.VIN)</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">Seats (Rows)</td>
-                                <td>@Specs(style.StandardSpecifications.Categories, "Seating", "Max Seating") (@Specs(style.StandardSpecifications.Categories, "Seating", "Seating Rows"))</td>
-                                <td class="fw-bold w-15">Stock#</td>
-                                <td class="copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.Stock)</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">Doors</td>
-                                <td>@Safe(style.BasicData.Doors)</td>
-                                <td class="fw-bold">Body Type</td>
-                                <td>@Safe(style.BasicData.BodyType)</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">Cylinders</td>
-                                <td>@Safe(style.Engines.Items[0].IceCylinders)</td>
-                                <td class="fw-bold">Drive Type</td>
-                                <td>@Safe(style.BasicData.DriveType)</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">Engine</td>
-                                <td>@Safe(style.Engines.Items[0].IceDisplacement)L @Safe(style.Engines.Items[0].IceBlockType)-@Safe(style.Engines.Items[0].IceCylinders)</td>
-                                <td class="fw-bold">Fuel efficiency (combined)</td>
-                                <td>@Safe(style.EpaFuelEfficiency?.Records?.FirstOrDefault()?.Combined) mpg</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">Front tires</td>
-                                <td>@Specs(style.StandardSpecifications.Categories, "Wheels and Tires", "Front Tire Description")</td>
-                                <td class="fw-bold">Rear tires</td>
-                                <td>@Specs(style.StandardSpecifications.Categories, "Wheels and Tires", "Rear Tire Description")</td>
-                            </tr>
-                            <tr>
-                                @if (!string.IsNullOrWhiteSpace(Model?.CurrentVehicle?.VehicleDetails?.Color))
-                                {
-                                    <td class="fw-bold">Exterior color</td>
-                                    <td><span style="width:36px;height:36px;border-radius:4px;border:1px solid #ccc; display:inline-block; background-color:@(Model?.CurrentVehicle?.VehicleDetails?.Color)"></span></td>
-                                }
+                                <span class="d-flex justify-content-center text-shadow mt-3 fs-5 text-shadow-small">
+                                    <strong>@Safe(style.BasicData.Year) @Safe(style.BasicData.Make) @Safe(style.BasicData.Model) @Safe(style.Name)</strong>
+                                </span>
+                                @if (style?.BasicData == null)
+                                {<div class="muted">No data</div> }
                                 else
                                 {
-                                    <td colspan="2"></td>
-                                }
+                                    <table class="table table-sm kv mt-3">
+                                        <tbody>
+                                            <tr>
+                                                <td class="fw-bold">MSRP</td>
+                                                <td>@Safe(Money(style.Pricing.Msrp))</td>
+                                                <td colspan="2"></td>
+                                            </tr>
+                                            <tr>
+                                            <tr>
+                                                <td class="fw-bold">Miles: </td>
+                                                <td>@(Model?.CurrentVehicle?.VehicleDetails?.Mileage.ToString("N0"))</td>
+                                                <td class="fw-bold w-15">VIN#: </td>
+                                                <td class="copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.VIN)</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Seats (Rows)</td>
+                                                <td>@Specs(style.StandardSpecifications.Categories, "Seating", "Max Seating") (@Specs(style.StandardSpecifications.Categories, "Seating", "Seating Rows"))</td>
+                                                <td class="fw-bold w-15">Stock#</td>
+                                                <td class="copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.Stock)</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Doors</td>
+                                                <td>@Safe(style.BasicData.Doors)</td>
+                                                <td class="fw-bold">Body Type</td>
+                                                <td>@Safe(style.BasicData.BodyType)</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Cylinders</td>
+                                                <td>@Safe(style.Engines.Items[0].IceCylinders)</td>
+                                                <td class="fw-bold">Drive Type</td>
+                                                <td>@Safe(style.BasicData.DriveType)</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Engine</td>
+                                                <td>@Safe(style.Engines.Items[0].IceDisplacement)L @Safe(style.Engines.Items[0].IceBlockType)-@Safe(style.Engines.Items[0].IceCylinders)</td>
+                                                <td class="fw-bold">Fuel efficiency (combined)</td>
+                                                <td>@Safe(style.EpaFuelEfficiency?.Records?.FirstOrDefault()?.Combined) mpg</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Front tires</td>
+                                                <td>@Specs(style.StandardSpecifications.Categories, "Wheels and Tires", "Front Tire Description")</td>
+                                                <td class="fw-bold">Rear tires</td>
+                                                <td>@Specs(style.StandardSpecifications.Categories, "Wheels and Tires", "Rear Tire Description")</td>
+                                            </tr>
+                                            <tr>
+                                                @if (!string.IsNullOrWhiteSpace(Model?.CurrentVehicle?.VehicleDetails?.Color))
+                                                {
+                                                    <td class="fw-bold">Exterior color</td>
+                                                    <td><span style="width:36px;height:36px;border-radius:4px;border:1px solid #ccc; display:inline-block; background-color:@(Model?.CurrentVehicle?.VehicleDetails?.Color)"></span></td>
+                                                }
+                                                else
+                                                {
+                                                    <td colspan="2"></td>
+                                                }
 
-                                @if (!string.IsNullOrWhiteSpace(Model?.CurrentVehicle?.VehicleDetails?.Color2))
-                                {
-                                    <td class="fw-bold">Interior color</td>
-                                    <td><span style="width:36px;height:36px;border-radius:4px;border:1px solid #ccc; display:inline-block; background-color:@(Model?.CurrentVehicle?.VehicleDetails?.Color2)"></span></td>
+                                                @if (!string.IsNullOrWhiteSpace(Model?.CurrentVehicle?.VehicleDetails?.Color2))
+                                                {
+                                                    <td class="fw-bold">Interior color</td>
+                                                    <td><span style="width:36px;height:36px;border-radius:4px;border:1px solid #ccc; display:inline-block; background-color:@(Model?.CurrentVehicle?.VehicleDetails?.Color2)"></span></td>
+                                                }
+                                                else
+                                                {
+                                                    <td colspan="2"></td>
+                                                }
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 }
-                                else
-                                {
-                                    <td colspan="2"></td>
-                                }
-                            </tr>
-                        </tbody>
-                    </table>
-                }
-            </div>
-        </div>
+                            </div>
+                        </div>
 
                         <!-- EPA MPG -->
                         <div class="section">

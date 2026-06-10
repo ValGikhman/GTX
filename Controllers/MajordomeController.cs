@@ -28,9 +28,12 @@ namespace GTX.Controllers
     public class MajordomeController : BaseController {
 
         private const string HeaderFileVirtualPath = "~/App_Data/Inventory/header.csv";
-        private const int UploadImageWidth = 800;
-        private const int UploadImageHeight = 600;
-        private const int UploadPngCompressionLevel = 2;
+        private const int UploadImageMaxWidth = 800;
+        private const int UploadImageMaxHeight = 600;
+        private const int UploadJpegQuality = 84;
+        private const int UploadPngCompressionLevel = 9;
+        private const string UploadJpegExtension = ".jpg";
+        private const string UploadPngExtension = ".png";
 
         private static readonly HashSet<string> UploadImageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {
             ".jpg",
@@ -271,7 +274,7 @@ namespace GTX.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Upload(IEnumerable<HttpPostedFileBase> files, string stock) {
+        public async Task<ActionResult> UploadInventoryFiles(IEnumerable<HttpPostedFileBase> files, string stock) {
             try {
                 var normalizedStock = (stock ?? string.Empty).Trim();
                 if (string.IsNullOrWhiteSpace(normalizedStock)) {
@@ -297,15 +300,6 @@ namespace GTX.Controllers
                             continue;
                         }
 
-                        var fileName = Path.GetFileNameWithoutExtension(file.FileName) + ".png";
-                        var fullPath = Path.Combine(uploadPath, fileName);
-
-                        // Do not override existing files
-                        if (System.IO.File.Exists(fullPath)) {
-                            skippedCount++;
-                            continue;
-                        }
-
                         var inputStream = file.InputStream;
                         if (inputStream.CanSeek) {
                             inputStream.Position = 0;
@@ -313,19 +307,28 @@ namespace GTX.Controllers
 
                         using (var image = new MagickImage(inputStream)) {
                             image.AutoOrient();
-                            image.Strip();
-                            image.Resize(new MagickGeometry(UploadImageWidth, UploadImageHeight) { IgnoreAspectRatio = false });
-                            image.Extent(UploadImageWidth, UploadImageHeight, Gravity.Center, MagickColors.Transparent);
                             image.Orientation = OrientationType.TopLeft;
+                            image.ColorSpace = ColorSpace.sRGB;
 
-                            image.ColorType = ColorType.TrueColorAlpha;
-                            image.Format = MagickFormat.Png32;
-                            image.Settings.SetDefine(MagickFormat.Png, "png:compression-level", UploadPngCompressionLevel.ToString());
+                            ResizeInventoryUploadImage(image);
+
+                            var preservesTransparency = image.HasAlpha && !image.IsOpaque;
+                            var targetExtension = preservesTransparency ? UploadPngExtension : UploadJpegExtension;
+                            var fileName = BuildInventoryUploadFileName(file.FileName, targetExtension);
+                            var fullPath = Path.Combine(uploadPath, fileName);
+
+                            // Do not override existing files.
+                            if (System.IO.File.Exists(fullPath)) {
+                                skippedCount++;
+                                continue;
+                            }
+
+                            ConfigureInventoryUploadOutput(image, preservesTransparency);
 
                             await image.WriteAsync(fullPath);
+                            InventoryService.SaveImage(normalizedStock, fileName);
                         }
 
-                        InventoryService.SaveImage(normalizedStock, fileName);
                         uploadedCount++;
                     }
                     catch (Exception fileEx) {
@@ -358,6 +361,54 @@ namespace GTX.Controllers
                 System.Diagnostics.Debug.WriteLine("Upload failed completely: " + ex.Message);
                 return new HttpStatusCodeResult(500, "Upload failed: " + ex.Message);
             }
+        }
+
+        private static void ResizeInventoryUploadImage(MagickImage image) {
+            image.Resize(new MagickGeometry(UploadImageMaxWidth, UploadImageMaxHeight) {
+                Greater = true,
+                IgnoreAspectRatio = false
+            });
+        }
+
+        private static void ConfigureInventoryUploadOutput(MagickImage image, bool preservesTransparency) {
+            image.Strip();
+            image.Depth = 8;
+
+            if (preservesTransparency) {
+                image.ColorType = ColorType.TrueColorAlpha;
+                image.Format = MagickFormat.Png32;
+                image.Settings.SetDefine(MagickFormat.Png, "png:compression-level", UploadPngCompressionLevel.ToString());
+                return;
+            }
+
+            image.BackgroundColor = MagickColors.White;
+            image.Alpha(AlphaOption.Remove);
+            image.ColorType = ColorType.TrueColor;
+            image.Format = MagickFormat.Jpeg;
+            image.Settings.Interlace = Interlace.Jpeg;
+            image.Quality = UploadJpegQuality;
+            image.Settings.SetDefine(MagickFormat.Jpeg, "sampling-factor", "4:2:0");
+        }
+
+        private static string BuildInventoryUploadFileName(string originalFileName, string extension) {
+            var baseName = Path.GetFileNameWithoutExtension(originalFileName);
+            baseName = Regex.Replace(baseName ?? string.Empty, @"[^\w\-. ]+", "-").Trim();
+            baseName = Regex.Replace(baseName, @"\s+", "-");
+            baseName = Regex.Replace(baseName, @"-+", "-").Trim('-', '.');
+
+            if (string.IsNullOrWhiteSpace(baseName)) {
+                baseName = "inventory-image";
+            }
+
+            if (baseName.Length > 80) {
+                baseName = baseName.Substring(0, 80).Trim('-', '.');
+            }
+
+            if (string.IsNullOrWhiteSpace(baseName)) {
+                baseName = "inventory-image";
+            }
+
+            return baseName + extension;
         }
 
         [HttpPost]
@@ -650,29 +701,6 @@ namespace GTX.Controllers
             }
 
             var vehicles = inventory.Vehicles.Where(m => m.SetToUpload == "Y").ToArray();
-
-            var saveDir = Server.MapPath("~/App_Data/Inventory/");
-            var inventoryDir = saveDir + "Current";
-
-            Directory.CreateDirectory(saveDir);
-
-            var fileName = "GTX-Inventory-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss") + ".xml";
-            var backup = Path.Combine(inventoryDir, "GTX-Inventory.bak");
-            var inventoryFleName = "GTX-Inventory.xml";
-            var fullPath = Path.Combine(saveDir, fileName);
-            var inventoryFullPath = Path.Combine(inventoryDir, inventoryFleName);
-
-            if (System.IO.File.Exists(backup))
-            {
-                System.IO.File.Delete(backup);
-            }
-            System.IO.File.Copy(inventoryFullPath, backup);
-
-            CsvToXmlHelper.SaveXmlToFile(doc, fullPath);
-            CsvToXmlHelper.SaveXmlToFile(doc, inventoryFullPath);
-
-            // Generates/updates physical /sitemap.xml
-            SitemapWriter.Write();
 
             InventoryService.AddInventory(Models.GTX.ToDTOs(vehicles));
 

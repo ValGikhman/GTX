@@ -572,7 +572,7 @@ async function upload(formData, stock) {
     }
 
     try {
-        const response = await fetch("/Majordome/Upload", {
+        const response = await fetch("/Majordome/UploadInventoryFiles", {
             method: "POST",
             body: formData,
             headers: {
