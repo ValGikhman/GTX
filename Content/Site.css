@@ -2808,6 +2808,16 @@ a, u {
 
 /* Wide Mobile = 480px-767px */
 @media only screen and (max-width: 767px) {
+    #dataOneContainer {
+        font-size: 1.15rem;
+        line-height: 1.45;
+    }
+
+        #dataOneContainer .article,
+        #dataOneContainer .table {
+            font-size: inherit;
+        }
+
     #gtxDevelopment {
         width: 75%
     }

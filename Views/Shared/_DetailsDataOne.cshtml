@@ -104,6 +104,29 @@
         vertical-align: middle;
     }
 
+        .gtx-price-table td:nth-child(2) {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+    .gtx-basic-table {
+        table-layout: fixed;
+        width: 100%;
+    }
+
+        .gtx-basic-table td {
+            width: 25%;
+            padding: .45rem .5rem;
+            vertical-align: middle;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+
+        .gtx-basic-table td:first-child {
+            width: 25%;
+            white-space: normal;
+        }
+
     .kv .gtx-no-hidden-fees-row td,
     .kv .gtx-no-hidden-fees-row td:first-child {
         color: #146c43;
@@ -176,6 +199,17 @@
                         var greenId = Id("green", sId);
                         var nhtsaId = Id("nhtsa", sId);
 
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <td class="fw-bold">VIN#</td>
+                                    <td class="copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.VIN)</td>
+                                    <td class="fw-bold">Stock#</td>
+                                    <td class="copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.Stock)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
                         <!-- Transparent Price -->
                         <div class="section">
                             <button class="article w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
@@ -209,8 +243,8 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold text-danger fs-5">@I18n.R("All_InternetPrice")</td>
-                                                <td class="fw-bold text-danger fs-5">@(internetPrice.ToString("C0", usCulture))</td>
+                                                <td class="fw-bold text-danger">@I18n.R("All_InternetPrice")</td>
+                                                <td class="fw-bold text-danger">@(internetPrice.ToString("C0", usCulture))</td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-bold"><i class="bi bi-file-earmark-text me-1"></i>@I18n.R("All_DocumentaryFee")</td>
@@ -255,25 +289,18 @@
                                 {<div class="muted">No data</div> }
                                 else
                                 {
-                                    <table class="table table-sm kv mt-3">
+                                    <table class="table align-middle mb-0">
                                         <tbody>
                                             <tr>
                                                 <td class="fw-bold">MSRP</td>
                                                 <td>@Safe(Money(style.Pricing.Msrp))</td>
-                                                <td colspan="2"></td>
-                                            </tr>
-                                            <tr>
-                                            <tr>
                                                 <td class="fw-bold">Miles: </td>
                                                 <td>@(Model?.CurrentVehicle?.VehicleDetails?.Mileage.ToString("N0"))</td>
-                                                <td class="fw-bold w-15">VIN#: </td>
-                                                <td class="copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.VIN)</td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-bold">Seats (Rows)</td>
                                                 <td>@Specs(style.StandardSpecifications.Categories, "Seating", "Max Seating") (@Specs(style.StandardSpecifications.Categories, "Seating", "Seating Rows"))</td>
-                                                <td class="fw-bold w-15">Stock#</td>
-                                                <td class="copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.Stock)</td>
+                                                <td colspan="2"></td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-bold">Doors</td>
@@ -302,7 +329,7 @@
                                             <tr>
                                                 @if (!string.IsNullOrWhiteSpace(Model?.CurrentVehicle?.VehicleDetails?.Color))
                                                 {
-                                                    <td class="fw-bold">Exterior color</td>
+                                                    <td class="fw-bold">Exterior</td>
                                                     <td><span style="width:36px;height:36px;border-radius:4px;border:1px solid #ccc; display:inline-block; background-color:@(Model?.CurrentVehicle?.VehicleDetails?.Color)"></span></td>
                                                 }
                                                 else
@@ -312,7 +339,7 @@
 
                                                 @if (!string.IsNullOrWhiteSpace(Model?.CurrentVehicle?.VehicleDetails?.Color2))
                                                 {
-                                                    <td class="fw-bold">Interior color</td>
+                                                    <td class="fw-bold">Interior</td>
                                                     <td><span style="width:36px;height:36px;border-radius:4px;border:1px solid #ccc; display:inline-block; background-color:@(Model?.CurrentVehicle?.VehicleDetails?.Color2)"></span></td>
                                                 }
                                                 else
