@@ -213,16 +213,6 @@
                         var greenId = Id("green", sId);
                         var nhtsaId = Id("nhtsa", sId);
 
-                        <table class="table table-sm">
-                            <tbody>
-                                <tr>
-                                    <td class="fw-bold">VIN#</td>
-                                    <td class="copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.VIN)</td>
-                                    <td class="fw-bold">Stock#</td>
-                                    <td class="copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.Stock)</td>
-                                </tr>
-                            </tbody>
-                        </table>
 
                         <!-- Transparent Price -->
                         <div class="section">
@@ -279,6 +269,18 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- VIN STOCK -->
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <td class="fw-bold">VIN#</td>
+                                    <td class="copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.VIN)</td>
+                                    <td class="fw-bold">Stock#</td>
+                                    <td class="copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.Stock)</td>
+                                </tr>
+                            </tbody>
+                        </table>
 
                         <!-- Basic -->
                         <div class="section">
