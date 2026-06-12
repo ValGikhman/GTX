@@ -328,6 +328,10 @@
         font-size: .82rem;
     }
 
+    .gtx-retail-line .gtx-price-amount {
+        text-decoration: line-through;
+    }
+
     .gtx-transparent-line {
         border-top: 1px solid rgba(255,255,255,.28);
         margin-top: .28rem;
@@ -640,7 +644,14 @@
                href="@detailsUrl"
                onclick="event.stopPropagation();"
                title="Click here to see details.">
-                <div class="gtx-price-line">
+                @if (Model.RetailPrice > 0)
+                {
+                    <div class="gtx-price-line gtx-price-muted gtx-retail-line">
+                        <span><i class="bi bi-tag me-1"></i>@I18n.R("All_RetailPrice")</span>
+                        <span class="gtx-price-amount">@Model.RetailPrice.ToString("C0", usCulture)</span>
+                    </div>
+                }
+                <div class="gtx-price-line gtx-price-muted">
                     <span><i class="bi bi-car-front me-1"></i>@I18n.R("All_InternetPrice")</span>
                     <span class="gtx-price-amount">@Model.InternetPrice.ToString("C0", usCulture)</span>
                 </div>

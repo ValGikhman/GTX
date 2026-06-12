@@ -1175,11 +1175,17 @@
     overflow-wrap: anywhere;
 }
 
-.vehicle-style-heading .bi {
+.vehicle-style-heading-logo {
     flex: 0 0 auto;
-    color: #ffc107;
-    font-size: 1.15em;
-    filter: drop-shadow(0 1px 4px rgba(255, 193, 7, .55));
+    display: block;
+    width: auto;
+    height: 30px !important;
+    max-width: 8.5rem;
+    margin-left: 0 !important;
+    margin-right: .2rem !important;
+    object-fit: contain;
+    border: 1px solid rgba(255, 255, 255, .7);
+    filter: drop-shadow(0 1px 4px rgba(255, 255, 255, .35));
 }
 
 @keyframes vehicle-style-heading-shine {

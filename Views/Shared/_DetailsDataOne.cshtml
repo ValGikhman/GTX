@@ -45,6 +45,13 @@
         .UsStyles?
         .Styles?
         .FirstOrDefault();
+    var headingMake = Safe(headerStyle?.BasicData?.Make);
+    if (string.IsNullOrWhiteSpace(headingMake))
+    {
+        headingMake = Safe(vehicleDetails?.Make);
+    }
+    var headingMakeLogo = headingMake.Replace(" ", "-").ToLowerInvariant();
+    var headingMakeAlt = headingMake.ToUpperInvariant();
 }
 
 <style>
@@ -139,7 +146,14 @@
     {
         <span class="vehicle-style-heading mt-3 mb-4 mx-auto text-shadow-small">
             <strong>
-                <i class="bi bi-stars" aria-hidden="true"></i>
+                @if (!string.IsNullOrWhiteSpace(headingMakeLogo))
+                {
+                    <img src="@Url.Content("~/GTXImages/makes/" + headingMakeLogo + ".png")"
+                         alt="@headingMakeAlt logo"
+                         class="make img-fluid gradient mx-3 rounded-5 px-2 shadow vehicle-style-heading-logo"
+                         loading="lazy"
+                         onerror="this.remove();" />
+                }
                 <span class="vehicle-style-heading-text">@Safe(headerStyle.BasicData?.Year) @Safe(headerStyle.BasicData?.Make) @Safe(headerStyle.BasicData?.Model) @Safe(headerStyle.Name)</span>
             </strong>
         </span>
@@ -234,7 +248,7 @@
                                         <tbody>
                                             <tr>
                                                 <td class="w-15">
-                                                    <span class="text-decoration-line-through" style="color: slategrey">Retail price</span>
+                                                    <span class="text-decoration-line-through" style="color: slategrey">@I18n.R("All_RetailPrice")</span>
                                                 </td>
                                                 <td>
                                                     <span class="text-decoration-line-through" style="color: slategrey">
