@@ -112,6 +112,7 @@
     var detailsUrl = Url.Action("Details", "Inventory", new { stock = Model.Stock });
     var adCardImageUrl = BuildAdCardImageUrl(Model.Image);
     var adCardTitle = $"{Model.Year} {Model.Make} {Model.Model} {Model.VehicleStyle}".Trim();
+    var usCulture = System.Globalization.CultureInfo.GetCultureInfo("en-US");
 }
 
 <div id="@Model.Stock"
@@ -145,9 +146,17 @@
                     @Model.Model - @Model.VehicleStyle
                 </h8>
             </div>
+            @if (Model.RetailPrice > 0)
+            {
+                <div>
+                    <h8 class="fw-bold mb-1">
+                        <strong>@I18n.R("All_RetailPrice"): </strong><span class="text-decoration-line-through text-secondary">@Model.RetailPrice.ToString("C0", usCulture)</span>
+                    </h8>
+                </div>
+            }
             <div>
                 <h8 class="fw-bold mb-1">
-                    <strong>@I18n.R("All_Price"): </strong>@Model.InternetPrice.ToString("C0", new System.Globalization.CultureInfo("en-US"))
+                    <strong>@I18n.R("All_InternetPrice"): </strong>@Model.InternetPrice.ToString("C0", usCulture)
                 </h8>
             </div>
             <div>

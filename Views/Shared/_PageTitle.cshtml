@@ -9,7 +9,7 @@
             || actionName.Equals("DetailsQR", StringComparison.OrdinalIgnoreCase));
     var showInventoryDesktopAddress = controllerName.Equals("Inventory", StringComparison.OrdinalIgnoreCase)
         && inventoryListActions.Any(a => a.Equals(actionName, StringComparison.OrdinalIgnoreCase));
-    var titleClass = "m-0 text-dark fancy text-truncate text-center main-title"
+    var titleClass = "d-none m-0 text-dark fancy text-truncate text-center main-title"
         + (hideInventoryListTitle ? " d-none" : string.Empty)
         + (isInventoryDetailsTitle ? " inventory-details-page-title" : string.Empty);
     var mobileLogoClass = "page-title-mobile-logo" + (hideInventoryListTitle ? " d-inline-block d-md-none" : " d-none");

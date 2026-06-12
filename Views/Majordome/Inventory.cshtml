@@ -234,13 +234,20 @@
 
             .majordome-sortable-th .majordome-sort-indicator {
                 display: inline-block;
-                min-width: .9rem;
+                width: 1rem;
                 margin-left: .3rem;
                 font-size: .9rem;
                 font-weight: 900;
                 line-height: 1;
+                text-align: center;
                 vertical-align: middle;
                 color: #0f172a;
+                opacity: .45;
+                transition: opacity .15s;
+            }
+
+            .majordome-sortable-th.is-active .majordome-sort-indicator {
+                opacity: 1;
             }
 
         #majordomeInventoryBody .majordome-vehicle-row {
@@ -517,14 +524,14 @@
                         <table id="majordomeInventoryTable" class="table table-hover align-middle m-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th class="majordome-sortable-th" data-sort-key="image" style="width:100px;">Image <span class="majordome-sort-indicator"></span></th>
-                                    <th class="majordome-sortable-th" data-sort-key="vehicle" style="min-width:220px;">Vehicle <span class="majordome-sort-indicator"></span></th>
-                                    <th class="d-none d-lg-table-cell majordome-sortable-th" data-sort-key="purchased" style="min-width:120px;">Purchased <span class="majordome-sort-indicator"></span></th>
-                                    <th class="majordome-sortable-th" data-sort-key="stock" style="min-width:110px;">Stock <span class="majordome-sort-indicator"></span></th>
-                                    <th class="text-center d-none d-xl-table-cell majordome-sortable-th" data-sort-key="gtx" style="min-width:120px;">GTX <span class="majordome-sort-indicator"></span></th>
-                                    <th class="text-center d-none d-md-table-cell majordome-sortable-th" data-sort-key="upload" style="width:80px;">Upload <span class="majordome-sort-indicator"></span></th>
-                                    <th class="text-center d-none d-md-table-cell majordome-sortable-th" data-sort-key="story" style="width:80px;">Story <span class="majordome-sort-indicator"></span></th>
-                                    <th class="text-center d-none d-md-table-cell majordome-sortable-th" data-sort-key="dataone" style="width:90px;">DataOne <span class="majordome-sort-indicator"></span></th>
+                                    <th class="majordome-sortable-th" data-sort-key="image" style="width:100px;">Image <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
+                                    <th class="majordome-sortable-th" data-sort-key="vehicle" style="min-width:220px;">Vehicle <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
+                                    <th class="d-none d-lg-table-cell majordome-sortable-th" data-sort-key="purchased" style="min-width:120px;">Purchased <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
+                                    <th class="majordome-sortable-th" data-sort-key="stock" style="min-width:110px;">Stock <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
+                                    <th class="text-center d-none d-xl-table-cell majordome-sortable-th" data-sort-key="gtx" style="min-width:120px;">GTX <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
+                                    <th class="text-center d-none d-md-table-cell majordome-sortable-th" data-sort-key="upload" style="width:80px;">Upload <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
+                                    <th class="text-center d-none d-md-table-cell majordome-sortable-th" data-sort-key="story" style="width:80px;">Story <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
+                                    <th class="text-center d-none d-md-table-cell majordome-sortable-th" data-sort-key="dataone" style="width:90px;">DataOne <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
                                     <th class="text-center majordome-actions-col" style="min-width:250px;">Actions</th>
                                 </tr>
                             </thead>
@@ -1150,10 +1157,12 @@
         $("#majordomeInventoryTable th.majordome-sortable-th").each(function () {
             const $header = $(this);
             const key = safeText($header.attr("data-sort-key")).toLowerCase();
+            const $icon = $header.find(".majordome-sort-indicator");
             const isActive = key === majordomeSortState.key && !!majordomeSortState.direction;
-            const arrow = !isActive ? "" : (majordomeSortState.direction === "asc" ? "▲" : "▼");
 
-            $header.find(".majordome-sort-indicator").text(arrow);
+            $header.toggleClass("is-active", isActive);
+            $icon.removeClass("bi-arrow-down-up bi-arrow-up bi-arrow-down");
+            $icon.addClass(!isActive ? "bi-arrow-down-up" : (majordomeSortState.direction === "asc" ? "bi-arrow-up" : "bi-arrow-down"));
             $header.attr("aria-sort", !isActive ? "none" : (majordomeSortState.direction === "asc" ? "ascending" : "descending"));
         });
     }

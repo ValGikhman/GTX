@@ -1110,6 +1110,114 @@
     min-width: 0;
 }
 
+.vehicle-style-heading {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    justify-content: center;
+    width: fit-content;
+    max-width: min(100%, 70rem);
+    padding: .9rem 1.7rem;
+    overflow: hidden;
+    color: #fff;
+    background:
+        radial-gradient(circle at 14% 18%, rgba(255, 193, 7, .34), transparent 28%),
+        linear-gradient(135deg, rgba(13, 18, 27, .98) 0%, rgba(21, 90, 150, .96) 54%, rgba(124, 21, 29, .96) 100%);
+    border: 1px solid rgba(255, 255, 255, .48);
+    border-radius: .85rem;
+    box-shadow:
+        0 .75rem 1.65rem rgba(0, 0, 0, .24),
+        inset 0 1px 0 rgba(255, 255, 255, .38),
+        inset 0 -1px 0 rgba(0, 0, 0, .25);
+}
+
+.vehicle-style-heading::before {
+    content: "";
+    position: absolute;
+    top: -40%;
+    bottom: -40%;
+    left: -55%;
+    z-index: 0;
+    width: 42%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .32), transparent);
+    transform: skewX(-18deg);
+    animation: vehicle-style-heading-shine 5.5s ease-in-out infinite;
+}
+
+.vehicle-style-heading::after {
+    content: "";
+    position: absolute;
+    right: 1.1rem;
+    bottom: 0;
+    left: 1.1rem;
+    z-index: 1;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #ffc107, rgba(255, 255, 255, .92), #b11226, transparent);
+}
+
+.vehicle-style-heading strong {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .7rem;
+    max-width: 100%;
+    margin: 0;
+    font-size: clamp(1.18rem, 3vw, 1.7rem);
+    line-height: 1.12;
+    text-align: center;
+    text-wrap: balance;
+}
+
+.vehicle-style-heading-text {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.vehicle-style-heading-logo {
+    flex: 0 0 auto;
+    display: block;
+    width: auto;
+    height: 30px !important;
+    max-width: 8.5rem;
+    margin-left: 0 !important;
+    margin-right: .2rem !important;
+    object-fit: contain;
+    border: 1px solid rgba(255, 255, 255, .7);
+    filter: drop-shadow(0 1px 4px rgba(255, 255, 255, .35));
+}
+
+@keyframes vehicle-style-heading-shine {
+    0%, 58% {
+        left: -55%;
+    }
+
+    82%, 100% {
+        left: 115%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vehicle-style-heading::before {
+        animation: none;
+        opacity: .35;
+    }
+}
+
+@media (max-width: 991px) {
+    .vehicle-style-heading {
+        max-width: calc(100% - 1rem);
+        padding: .82rem 1rem;
+        border-radius: .82rem;
+    }
+
+    .vehicle-style-heading strong {
+        gap: .5rem;
+        font-size: clamp(1.12rem, 5.4vw, 1.42rem);
+    }
+}
+
 .details-suggestions {
     width: 100%;
     padding-bottom: 1.5rem;
@@ -1276,10 +1384,14 @@ input::placeholder {
 }
 
 .page-title-mobile-logo {
+    display: block;
     height: 2rem;
     width: auto;
     max-width: 8rem;
+    flex-shrink: 0;
     object-fit: contain;
+    vertical-align: middle;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .35));
 }
 
 .page-title-mobile-call {
@@ -1423,8 +1535,8 @@ input::placeholder {
     }
 
     .page-title-mobile-logo {
-        height: 1.55rem;
-        max-width: 6.4rem;
+        height: clamp(1.65rem, 5.6vw, 2.15rem);
+        max-width: min(38vw, 7.25rem);
     }
 
     #price_p {
@@ -1442,8 +1554,6 @@ input::placeholder {
     }
 
     .make.img-fluid {
-        height: 2rem !important;
-        max-width: 5rem;
         padding-right: .34rem !important;
         padding-left: .34rem !important;
         margin-right: .35rem !important;
@@ -1536,8 +1646,8 @@ input::placeholder {
     }
 
     .page-title-mobile-logo {
-        height: 1.35rem;
-        max-width: 5.6rem;
+        height: clamp(1.9rem, 10vw, 2.5rem);
+        max-width: min(44vw, 7.4rem);
     }
 
     #price_p {
@@ -2702,6 +2812,16 @@ a, u {
 
 /* Wide Mobile = 480px-767px */
 @media only screen and (max-width: 767px) {
+    #dataOneContainer {
+        font-size: 1.1rem;
+        line-height: 1.45;
+    }
+
+        #dataOneContainer .article,
+        #dataOneContainer .table {
+            font-size: inherit;
+        }
+
     #gtxDevelopment {
         width: 75%
     }
@@ -2967,8 +3087,6 @@ a, u {
 
     .make.img-fluid {
         display: inline-block !important;
-        height: 1.5rem !important;
-        max-width: 4.2rem;
         padding-right: .24rem !important;
         padding-left: .24rem !important;
         margin-right: .2rem !important;

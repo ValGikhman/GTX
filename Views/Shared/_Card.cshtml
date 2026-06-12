@@ -112,9 +112,14 @@
     }
 
     var detailsUrl = Url.Action("Details", "Inventory", new { stock = Model.Stock });
+    var creditApplicationUrl = Url.Action("Application", "Home");
+    var creditApplicationText = I18n.R("Nav_GetPrequalified");
     var makeImg = $"/GTXImages/makes/{Model.Make.Replace(" ", "-")}.png";
     var carTitle = $"{Model.Year} {Model.Make} {Model.Model}";
     var cardImageUrl = BuildInventoryCardImageUrl(Model.Image);
+    var usCulture = System.Globalization.CultureInfo.GetCultureInfo("en-US");
+    var documentaryFee = Constants.DOCUMENTARY_FEE;
+    var transparentPrice = Model.InternetPrice + documentaryFee;
     var cardIndexRaw = ViewData["InventoryCardIndex"];
     var cardIndex = cardIndexRaw is int cardIndexValue ? cardIndexValue : int.MaxValue;
     var isPriorityCardImage = cardIndex >= 0 && cardIndex < 4;
@@ -175,6 +180,7 @@
     }
 
     .gtx-title {
+        font-size: clamp(1.06rem, 1.25vw, 1.18rem);
         font-weight: 600;
         line-height: 1.05;
     }
@@ -183,6 +189,10 @@
         font-weight: 700;
         opacity: .92;
         line-height: 1.1;
+    }
+
+    .gtx-card .gtx-trimline {
+        font-size: .88rem !important;
     }
 
     .gtx-truncate-1 {
@@ -208,7 +218,7 @@
         background: rgba(255,255,255,.75);
         backdrop-filter: blur(6px);
         -webkit-backdrop-filter: blur(6px);
-        font-size: .72rem;
+        font-size: .78rem;
         font-weight: 800;
         color: #222;
         user-select: none;
@@ -281,10 +291,115 @@
         font-size: 1.05rem;
     }
 
+    .gtx-price-panel {
+        display: block;
+        border: 1px solid rgba(255,255,255,.22);
+        border-radius: .65rem;
+        background: rgba(0,0,0,.18);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.16);
+        padding: .45rem .55rem;
+        line-height: 1.15;
+        color: inherit;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background .12s ease, border-color .12s ease, transform .12s ease;
+    }
+
+    .gtx-price-panel:hover,
+    .gtx-price-panel:focus {
+        background: rgba(0,0,0,.24);
+        border-color: rgba(255,255,255,.36);
+        color: inherit;
+        text-decoration: none;
+        transform: translateY(-1px);
+    }
+
+    .gtx-price-line {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: .5rem;
+        font-size: .9rem;
+        white-space: nowrap;
+    }
+
+    .gtx-price-muted {
+        opacity: .88;
+        font-size: .82rem;
+    }
+
+    .gtx-retail-line .gtx-price-amount {
+        text-decoration: line-through;
+    }
+
+    .gtx-transparent-line {
+        border-top: 1px solid rgba(255,255,255,.28);
+        margin-top: .28rem;
+        padding-top: .32rem;
+        font-size: 1rem;
+    }
+
+    .gtx-transparent-line .gtx-price-amount {
+        font-size: 1.18rem;
+        font-weight: 900;
+    }
+
+    .gtx-no-hidden-fees {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .25rem;
+        border-radius: .45rem;
+        background: rgba(20,108,67,.78);
+        color: #fff;
+        font-size: .8rem;
+        font-weight: 800;
+        padding: 5px;
+    }
+
+    .gtx-card-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: .45rem;
+        margin-top: .35rem;
+    }
+
+    .gtx-card-action {
+        min-height: 34px;
+        border-radius: .45rem;
+        border: 1px solid rgba(255,255,255,.24);
+        background: rgba(255,255,255,.88);
+        color: #1f2933;
+        text-decoration: none;
+        font-size: .82rem;
+        font-weight: 900;
+        line-height: 1;
+        overflow: hidden;
+    }
+
+    .gtx-card-action:hover,
+    .gtx-card-action:focus {
+        color: #111827;
+        background: #fff;
+        text-decoration: none;
+    }
+
+    .gtx-card-action img {
+        max-width: 78px;
+        height: 18px;
+        width: auto;
+        display: block;
+    }
+
     .gtx-meta {
         font-weight: 800;
         opacity: .95;
-        font-size: .85rem;
+        font-size: .96rem;
+    }
+
+    .gtx-footer .very-small-text {
+        color: inherit;
+        opacity: .95;
     }
 
     .gtx-kv {
@@ -360,6 +475,63 @@
         z-index: 1;
         border-radius: inherit;
         overflow: hidden;                     /* keep image corners clean */
+    }
+
+    @@media (max-width: 575.98px) {
+        .gtx-card .gtx-header {
+            padding: .5rem .6rem !important;
+        }
+
+        .gtx-title {
+            font-size: 1.28rem;
+            line-height: 1.02;
+        }
+
+        .gtx-card .gtx-trimline {
+            font-size: 1rem !important;
+            line-height: 1.08 !important;
+        }
+
+        .gtx-chip {
+            font-size: .86rem;
+        }
+
+        .gtx-price-panel {
+            padding: .58rem .65rem;
+        }
+
+        .gtx-price-line {
+            font-size: 1rem;
+        }
+
+        .gtx-price-muted {
+            font-size: .9rem;
+        }
+
+        .gtx-transparent-line {
+            font-size: 1.08rem;
+        }
+
+        .gtx-transparent-line .gtx-price-amount {
+            font-size: 1.32rem;
+        }
+
+        .gtx-no-hidden-fees {
+            font-size: .9rem;
+        }
+
+        .gtx-meta {
+            font-size: 1.08rem;
+        }
+
+        .gtx-card-action {
+            min-height: 40px;
+            font-size: .92rem;
+        }
+
+        .gtx-card-action img {
+            height: 20px;
+        }
     }
 </style>
 }
@@ -457,32 +629,67 @@
             <img class="gtx-img" src="@cardImageUrl" alt="@carTitle" width="@cardImageRenderWidth" height="@cardImageRenderHeight" loading="@imageLoadingMode" fetchpriority="@imageFetchPriority" decoding="async" />
         </div>
 
-        <!-- FOOTER (3 rows, keeps gradient) -->
-        <div class="card-footer gradient no-click py-1 fs-6 fw-bold text-shadow">
-            <!-- Row 1: Price + Miles (like before) -->
-            <div class="d-flex justify-content-between align-items-baseline">
-                <span>
-                    <i class="bi bi-car-front"></i>
-                    @I18n.R("All_Price"): @Model.InternetPrice.ToString("C0", new System.Globalization.CultureInfo("en-US"))
+        <!-- FOOTER -->
+        <div class="card-footer gradient no-click pb-2 pt-1 fs-6 fw-bold text-shadow gtx-footer">
+            <!-- VIN + Stock -->
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="copyable very-small-text hand-pointer text-truncate" style="max-width: 70%;" title="Copy VIN">
+                    @Model.VIN
                 </span>
-                <span>
+                <span class="copyable very-small-text hand-pointer text-truncate" style="max-width: 70%;" title="Copy Stock#">
+                    @Model.Stock
+                </span>
+            </div>
+            <a class="gtx-price-panel"
+               href="@detailsUrl"
+               onclick="event.stopPropagation();"
+               title="Click here to see details.">
+                @if (Model.RetailPrice > 0)
+                {
+                    <div class="gtx-price-line gtx-price-muted gtx-retail-line">
+                        <span><i class="bi bi-tag me-1"></i>@I18n.R("All_RetailPrice")</span>
+                        <span class="gtx-price-amount">@Model.RetailPrice.ToString("C0", usCulture)</span>
+                    </div>
+                }
+                <div class="gtx-price-line gtx-price-muted">
+                    <span><i class="bi bi-car-front me-1"></i>@I18n.R("All_InternetPrice")</span>
+                    <span class="gtx-price-amount">@Model.InternetPrice.ToString("C0", usCulture)</span>
+                </div>
+                <div class="gtx-price-line gtx-price-muted">
+                    <span><i class="bi bi-file-earmark-text me-1"></i>@I18n.R("All_DocumentaryFee")</span>
+                    <span>@documentaryFee.ToString("C0", usCulture)</span>
+                </div>
+                <div class="gtx-price-line gtx-transparent-line">
+                    <span><i class="bi bi-patch-check-fill text-warning me-1"></i>@I18n.R("All_TransparentPrice")</span>
+                    <span class="gtx-price-amount">@transparentPrice.ToString("C0", usCulture)</span>
+                </div>
+                <span class="gtx-no-hidden-fees shadow">
+                    <i class="bi bi-shield-check"></i>
+                    @I18n.R("All_NoHiddenFees")
+                </span>
+            </a>
+
+            <div class="d-flex justify-content-center align-items-center mt-1">
+                <span class="gtx-meta">
                     <i class="bi bi-speedometer2 me-1"></i>@Model.Mileage.ToString("N0") @I18n.R("All_Miles")
                 </span>
             </div>
 
-            <!-- Row 2: VIN + Stock -->
-            <div class="d-flex justify-content-between align-items-center" style="margin-top: -5px;">
-                <span class="copyable very-small-text hand-pointer text-truncate style="max-width: 70%;" title="Copy VIN">
-                    @Model.VIN
-                </span>
-                <span class="copyable very-small-text hand-pointer text-truncate style="max-width: 70%;" title="Copy Stock#">
-                    @Model.Stock
-                </span>
-            </div>
-            <!-- Row 3 : Carfax (centered) -->
-            <div class="d-flex justify-content-center align-items-center">
-                <a class="d-inline-flex align-items-center" href="http://www.carfax.com/VehicleHistory/p/Report.cfx?partner=DVW_1&vin=@Model.VIN" target="_blank" rel="noopener" onclick="event.stopPropagation();" title="Open Carfax">
-                    <img src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report" style="height:18px; width:auto;">
+            <div class="gtx-card-actions">
+                <a class="gtx-card-action d-inline-flex align-items-center justify-content-center gap-1 px-2 shadow"
+                   href="@creditApplicationUrl"
+                   onclick="event.stopPropagation();"
+                   title="@creditApplicationText">
+                    <i class="bi bi-currency-dollar"></i>
+                    <span class="text-truncate">@creditApplicationText</span>
+                </a>
+                <a class="gtx-card-action d-inline-flex align-items-center justify-content-center px-2 shadow"
+                   href="http://www.carfax.com/VehicleHistory/p/Report.cfx?partner=DVW_1&vin=@Model.VIN"
+                   target="_blank"
+                   rel="noopener"
+                   onclick="event.stopPropagation();"
+                   title="Open Carfax">
+                    <img src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report">
                 </a>
             </div>
         </div>

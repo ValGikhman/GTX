@@ -34,11 +34,24 @@
 }
 
 @{
-    const int documentaryFee = 399;
+    var documentaryFee = Constants.DOCUMENTARY_FEE;
     var vehicleDetails = Model?.CurrentVehicle?.VehicleDetails;
     var internetPrice = vehicleDetails?.InternetPrice ?? 0;
     var transparentPrice = internetPrice + documentaryFee;
     var usCulture = CultureInfo.GetCultureInfo("en-US");
+    var headerStyle = Model?.CurrentVehicle?.VehicleDataOneDetails?.QueryResponses?.Items?
+        .FirstOrDefault(qr => qr?.UsMarketData?.UsStyles?.Styles?.Any() == true)?
+        .UsMarketData?
+        .UsStyles?
+        .Styles?
+        .FirstOrDefault();
+    var headingMake = Safe(headerStyle?.BasicData?.Make);
+    if (string.IsNullOrWhiteSpace(headingMake))
+    {
+        headingMake = Safe(vehicleDetails?.Make);
+    }
+    var headingMakeLogo = headingMake.Replace(" ", "-").ToLowerInvariant();
+    var headingMakeAlt = headingMake.ToUpperInvariant();
 }
 
 <style>
@@ -98,6 +111,29 @@
         vertical-align: middle;
     }
 
+        .gtx-price-table td:nth-child(2) {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+    .gtx-basic-table {
+        table-layout: fixed;
+        width: 100%;
+    }
+
+        .gtx-basic-table td {
+            width: 25%;
+            padding: .45rem .5rem;
+            vertical-align: middle;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+
+        .gtx-basic-table td:first-child {
+            width: 25%;
+            white-space: normal;
+        }
+
     .kv .gtx-no-hidden-fees-row td,
     .kv .gtx-no-hidden-fees-row td:first-child {
         color: #146c43;
@@ -106,6 +142,22 @@
 </style>
 
 <div class="row justify-content-center well mb-3">
+    @if (headerStyle != null)
+    {
+        <span class="vehicle-style-heading mt-3 mb-4 mx-auto text-shadow-small">
+            <strong>
+                @if (!string.IsNullOrWhiteSpace(headingMakeLogo))
+                {
+                    <img src="@Url.Content("~/GTXImages/makes/" + headingMakeLogo + ".png")"
+                         alt="@headingMakeAlt logo"
+                         class="make img-fluid gradient mx-3 rounded-5 px-2 shadow vehicle-style-heading-logo"
+                         loading="lazy"
+                         onerror="this.remove();" />
+                }
+                <span class="vehicle-style-heading-text">@Safe(headerStyle.BasicData?.Year) @Safe(headerStyle.BasicData?.Make) @Safe(headerStyle.BasicData?.Model) @Safe(headerStyle.Name)</span>
+            </strong>
+        </span>
+    }
     <button class="w-100 btn btn-gradient position-relative collapse-toggle"
             data-bs-toggle="collapse"
             data-bs-target="#details"
@@ -124,22 +176,29 @@
 
     <div class="text-shadow-small show" id="details">
         <div class="mt-2  px-3" id="dataOneContainer">
-            @if (Model.CurrentVehicle.VehicleDataOneDetails?.QueryResponses?.Items == null || !Model.CurrentVehicle.VehicleDataOneDetails.QueryResponses.Items.Any()) {
+            @if (Model.CurrentVehicle.VehicleDataOneDetails?.QueryResponses?.Items == null || !Model.CurrentVehicle.VehicleDataOneDetails.QueryResponses.Items.Any())
+            {
                 <div class="alert alert-warning">No query responses.</div>
             }
-            else {
+            else
+            {
                 var qi = 0;
-                foreach (var qr in Model.CurrentVehicle.VehicleDataOneDetails.QueryResponses.Items) {
+                foreach (var qr in Model.CurrentVehicle.VehicleDataOneDetails.QueryResponses.Items)
+                {
                     var qrId = Id("qr", qi++);
 
-                    if (!string.IsNullOrWhiteSpace(qr?.QueryError?.ErrorCode)) {<span class="badge bg-danger">Error @qr.QueryError.ErrorCode</span>}
+                    if (!string.IsNullOrWhiteSpace(qr?.QueryError?.ErrorCode))
+                    {<span class="badge bg-danger">Error @qr.QueryError.ErrorCode</span>}
 
-                if (qr?.UsMarketData?.UsStyles?.Styles == null || !qr.UsMarketData.UsStyles.Styles.Any()) {
+                if (qr?.UsMarketData?.UsStyles?.Styles == null || !qr.UsMarketData.UsStyles.Styles.Any())
+                {
                     <div class="muted">No US market styles.</div>
                 }
-                else {
+                else
+                {
                     var si = 0;
-                    foreach (var style in qr.UsMarketData.UsStyles.Styles) {
+                    foreach (var style in qr.UsMarketData.UsStyles.Styles)
+                    {
                         var sId = Id(qrId, "s", si++);
                         var bdId = Id("bd", sId);
                         var prId = Id("pr", sId);
@@ -154,6 +213,7 @@
                         var greenId = Id("green", sId);
                         var nhtsaId = Id("nhtsa", sId);
 
+
                         <!-- Transparent Price -->
                         <div class="section">
                             <button class="article w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
@@ -163,7 +223,7 @@
                                     aria-controls="@prId">
 
                                 <span class="d-flex justify-content-center text-shadow">
-                                    <strong>Transparent Price</strong>
+                                    <strong><i class="bi bi-patch-check-fill text-warning me-1"></i>@I18n.R("All_TransparentPrice")</strong>
                                 </span>
 
                                 <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
@@ -178,7 +238,7 @@
                                         <tbody>
                                             <tr>
                                                 <td class="w-15">
-                                                    <span class="text-decoration-line-through" style="color: slategrey">Retail price</span>
+                                                    <span class="text-decoration-line-through" style="color: slategrey">@I18n.R("All_RetailPrice")</span>
                                                 </td>
                                                 <td>
                                                     <span class="text-decoration-line-through" style="color: slategrey">
@@ -187,21 +247,21 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold text-danger fs-5">Internet Price</td>
-                                                <td class="fw-bold text-danger fs-5">@(internetPrice.ToString("C0", usCulture))</td>
+                                                <td class="fw-bold text-danger">@I18n.R("All_InternetPrice")</td>
+                                                <td class="fw-bold text-danger">@(internetPrice.ToString("C0", usCulture))</td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold">Documentary Fee</td>
+                                                <td class="fw-bold"><i class="bi bi-file-earmark-text me-1"></i>@I18n.R("All_DocumentaryFee")</td>
                                                 <td>@(documentaryFee.ToString("C0", usCulture))</td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold">Transparent Price</td>
+                                                <td class="fw-bold"><i class="bi bi-patch-check-fill text-warning me-1"></i>@I18n.R("All_TransparentPrice")</td>
                                                 <td class="fw-bold">@(transparentPrice.ToString("C0", usCulture))</td>
                                             </tr>
                                             <tr class="gtx-no-hidden-fees-row">
                                                 <td class="fw-bold text-center" colspan="2">
                                                     <i class="bi bi-shield-check"></i>
-                                                    <span>No Hidden Fees</span>
+                                                    <span>@I18n.R("All_NoHiddenFees")</span>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -229,44 +289,51 @@
                             </button>
 
                             <div id="@bdId" class="collapse show">
-
-                                <span class="d-flex justify-content-center text-shadow mt-3 fs-5 text-shadow-small">
-                                    <strong>@Safe(style.BasicData.Year) @Safe(style.BasicData.Make) @Safe(style.BasicData.Model) @Safe(style.Name)</strong>
-                                </span>
                                 @if (style?.BasicData == null)
                                 {<div class="muted">No data</div> }
                                 else
                                 {
-                                    <table class="table table-sm kv mt-3">
+                                    <table class="table align-middle mb-0">
                                         <tbody>
+                                            <tr class="d-none d-sm-table-row">
+                                                <td class="fw-bold">VIN#</td>
+                                                <td class="copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.VIN)</td>
+                                                <td class="fw-bold">Stock#</td>
+                                                <td class="copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.Stock)</td>
+                                            </tr>
+
+                                            <tr class="d-table-row d-sm-none">
+                                                <td class="fw-bold">VIN#</td>
+                                                <td> @(Model?.CurrentVehicle?.VehicleDetails?.VIN)</td>
+                                                <td colspan="2"></td>
+                                            </tr>
+                                            <tr class="d-table-row d-sm-none">
+                                                <td class="fw-bold">Stock#</td>
+                                                <td> @(Model?.CurrentVehicle?.VehicleDetails?.Stock)</td>
+                                                <td colspan="2"></td>
+                                            </tr>
+
                                             <tr>
                                                 <td class="fw-bold">MSRP</td>
                                                 <td>@Safe(Money(style.Pricing.Msrp))</td>
-                                                <td colspan="2"></td>
-                                            </tr>
-                                            <tr>
-                                            <tr>
                                                 <td class="fw-bold">Miles: </td>
                                                 <td>@(Model?.CurrentVehicle?.VehicleDetails?.Mileage.ToString("N0"))</td>
-                                                <td class="fw-bold w-15">VIN#: </td>
-                                                <td class="copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.VIN)</td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-bold">Seats (Rows)</td>
                                                 <td>@Specs(style.StandardSpecifications.Categories, "Seating", "Max Seating") (@Specs(style.StandardSpecifications.Categories, "Seating", "Seating Rows"))</td>
-                                                <td class="fw-bold w-15">Stock#</td>
-                                                <td class="copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.Stock)</td>
+                                                <td colspan="2"></td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-bold">Doors</td>
                                                 <td>@Safe(style.BasicData.Doors)</td>
-                                                <td class="fw-bold">Body Type</td>
+                                                <td class="fw-bold">Body</td>
                                                 <td>@Safe(style.BasicData.BodyType)</td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-bold">Cylinders</td>
                                                 <td>@Safe(style.Engines.Items[0].IceCylinders)</td>
-                                                <td class="fw-bold">Drive Type</td>
+                                                <td class="fw-bold">Drive</td>
                                                 <td>@Safe(style.BasicData.DriveType)</td>
                                             </tr>
                                             <tr>
@@ -284,7 +351,7 @@
                                             <tr>
                                                 @if (!string.IsNullOrWhiteSpace(Model?.CurrentVehicle?.VehicleDetails?.Color))
                                                 {
-                                                    <td class="fw-bold">Exterior color</td>
+                                                    <td class="fw-bold">Exterior</td>
                                                     <td><span style="width:36px;height:36px;border-radius:4px;border:1px solid #ccc; display:inline-block; background-color:@(Model?.CurrentVehicle?.VehicleDetails?.Color)"></span></td>
                                                 }
                                                 else
@@ -294,7 +361,7 @@
 
                                                 @if (!string.IsNullOrWhiteSpace(Model?.CurrentVehicle?.VehicleDetails?.Color2))
                                                 {
-                                                    <td class="fw-bold">Interior color</td>
+                                                    <td class="fw-bold">Interior</td>
                                                     <td><span style="width:36px;height:36px;border-radius:4px;border:1px solid #ccc; display:inline-block; background-color:@(Model?.CurrentVehicle?.VehicleDetails?.Color2)"></span></td>
                                                 }
                                                 else
@@ -328,16 +395,30 @@
                             </button>
 
                             <div id="@epaId" class="collapse show mt-2">
-                                @if (style?.EpaFuelEfficiency?.Records == null || !style.EpaFuelEfficiency.Records.Any()) {<div class="muted">No records</div> }
-                                else {
+                                @if (style?.EpaFuelEfficiency?.Records == null || !style.EpaFuelEfficiency.Records.Any())
+                                {<div class="muted">No records</div> }
+                                else
+                                {
                                     <table class="table align-middle mb-0">
                                         <thead>
                                             <tr>
-                                            <th>Fuel</th><th>Grade</th><th>City</th><th>Hwy</th><th>Comb</th></tr></thead>
+                                                <th>Fuel</th>
+                                                <th>Grade</th>
+                                                <th>City</th>
+                                                <th>Hwy</th>
+                                                <th>Comb</th>
+                                            </tr>
+                                        </thead>
                                         <tbody>
-                                            @foreach (var r in style.EpaFuelEfficiency.Records) {
+                                            @foreach (var r in style.EpaFuelEfficiency.Records)
+                                            {
                                                 <tr>
-                                            <td>@Safe(r?.FuelType)</td><td>@Safe(r?.FuelGrade)</td><td>@Safe(r?.City)</td><td>@Safe(r?.Highway)</td><td>@Safe(r?.Combined)</td></tr>
+                                                    <td>@Safe(r?.FuelType)</td>
+                                                    <td>@Safe(r?.FuelGrade)</td>
+                                                    <td>@Safe(r?.City)</td>
+                                                    <td>@Safe(r?.Highway)</td>
+                                                    <td>@Safe(r?.Combined)</td>
+                                                </tr>
                                                 break;
                                             }
                                         </tbody>
@@ -366,10 +447,13 @@
                             </button>
 
                             <div id="@enId" class="collapse show mt-2">
-                                @if (style?.Engines?.Items == null || !style.Engines.Items.Any()) {<div class="muted">No engines</div> }
-                                else {
+                                @if (style?.Engines?.Items == null || !style.Engines.Items.Any())
+                                {<div class="muted">No engines</div> }
+                                else
+                                {
                                     var ei = 0;
-                                    foreach (var e in style.Engines.Items) {
+                                    foreach (var e in style.Engines.Items)
+                                    {
                                         <table class="table table-sm kv mb-0 mt-1">
                                             <tbody>
                                                 <!-- Elements -->
@@ -397,7 +481,8 @@
                                                     <td class="fw-bold">Type</td>
                                                     <td>@Safe(e.EngineType)</td>
                                                 </tr>
-                                                @if (e.ElectricMaxHp != "0") {
+                                                @if (e.ElectricMaxHp != "0")
+                                                {
                                                     <tr>
                                                         <td class="fw-bold">Electric Max HP</td>
                                                         <td>@Safe(e.ElectricMaxHp)</td>
@@ -489,10 +574,13 @@
                             </button>
 
                             <div id="@trId" class="collapse mt-2 show">
-                                @if (style?.Transmissions?.Items == null || !style.Transmissions.Items.Any()) {<div class="muted">No transmissions</div> }
-                                else {
+                                @if (style?.Transmissions?.Items == null || !style.Transmissions.Items.Any())
+                                {<div class="muted">No transmissions</div> }
+                                else
+                                {
                                     var ti = 0;
-                                    foreach (var t in style.Transmissions.Items) {
+                                    foreach (var t in style.Transmissions.Items)
+                                    {
                                         <table class="table table-sm kv mb-0 mt-1">
                                             <tbody>
                                                 <!-- Elements -->
@@ -535,22 +623,28 @@
                                 </span>
                             </button>
                             <div id="@ssId" class="collapse mt-2 show">
-                                @if (style?.StandardSpecifications?.Categories == null || !style.StandardSpecifications.Categories.Any()) {<div class="muted">No specifications</div> }
-                                else {
+                                @if (style?.StandardSpecifications?.Categories == null || !style.StandardSpecifications.Categories.Any())
+                                {<div class="muted">No specifications</div> }
+                                else
+                                {
                                     var ci = 0;
-                                    foreach (var cat in style.StandardSpecifications.Categories) {
+                                    foreach (var cat in style.StandardSpecifications.Categories)
+                                    {
                                         var catId = Id("spec", sId, ci++);
                                         <div class="mb-1">
                                             <a class="toggle" data-bs-toggle="collapse" href="#@catId" aria-expanded="false">
                                                 <span class="pm"></span> @(!string.IsNullOrWhiteSpace(cat?.Name) ? cat.Name : "Category")
                                             </a>
                                             <div id="@catId" class="collapse mt-2 ms-3">
-                                                @if (cat?.Values == null || !cat.Values.Any()) {<div class="muted">No values</div> }
-                                                else {
+                                                @if (cat?.Values == null || !cat.Values.Any())
+                                                {<div class="muted">No values</div> }
+                                                else
+                                                {
                                                     <table class="table align-middle mb-0">
                                                         <thead><tr><th style="width:35%">Name</th><th>Value</th></tr></thead>
                                                         <tbody>
-                                                            @foreach (var v in cat.Values) {
+                                                            @foreach (var v in cat.Values)
+                                                            {
                                                                 <tr><td class="fw-bold">@Safe(v?.Name)</td><td><code>@Safe(v?.Value)</code></td></tr>
                                                             }
                                                         </tbody>

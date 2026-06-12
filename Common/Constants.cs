@@ -9,6 +9,8 @@ public static class Constants {
     public const string SESSION_ENVIRONMENT = "SessionENVIRONMENT";
     public const string SESSION_MAJORDOME = "SessionMAJORDOME";
 
+    public const int DOCUMENTARY_FEE = 398;
+
 
     // Cache keys - you can include tenant/store id etc. if needed
     public const string INVENTORY_CACHE = "GTX:Inventory";
