@@ -271,25 +271,26 @@
                 if (qr?.UsMarketData?.UsStyles?.Styles == null || !qr.UsMarketData.UsStyles.Styles.Any())
                 {
                     <div class="muted">No US market styles.</div>
-                }
-                else
-                {
-                    var si = 0;
-                    foreach (var style in qr.UsMarketData.UsStyles.Styles)
+                    }
+                    else
                     {
-                        var sId = Id(qrId, "s", si++);
-                        var bdId = Id("bd", sId);
-                        var prId = Id("pr", sId);
-                        var enId = Id("en", sId);
-                        var trId = Id("tr", sId);
-                        var ssId = Id("ss", sId);
-                        var geStdId = Id("geStd", sId);
-                        var geOptId = Id("geOpt", sId);
-                        var colId = Id("col", sId);
-                        var wId = Id("wr", sId);
-                        var epaId = Id("epa", sId);
-                        var greenId = Id("green", sId);
-                        var nhtsaId = Id("nhtsa", sId);
+                        var si = 0;
+                        foreach (var style in qr.UsMarketData.UsStyles.Styles)
+                        {
+                            var sId = Id(qrId, "s", si++);
+                            var bdId = Id("bd", sId);
+                            var prId = Id("pr", sId);
+                            var enId = Id("en", sId);
+                            var trId = Id("tr", sId);
+                            var ssId = Id("ss", sId);
+                            var geStdId = Id("geStd", sId);
+                            var geOptId = Id("geOpt", sId);
+                            var colId = Id("col", sId);
+                            var wId = Id("wr", sId);
+                            var epaId = Id("epa", sId);
+                            var greenId = Id("green", sId);
+                            var nhtsaId = Id("nhtsa", sId);
+                            var tiresId = Id("tires", sId);
 
 
                         <!-- Transparent Price -->
@@ -420,12 +421,6 @@
                                                 <td>@Safe(style.EpaFuelEfficiency?.Records?.FirstOrDefault()?.Combined) mpg</td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold">Front tires</td>
-                                                <td>@Specs(style.StandardSpecifications.Categories, "Wheels and Tires", "Front Tire Description")</td>
-                                                <td class="fw-bold">Rear tires</td>
-                                                <td>@Specs(style.StandardSpecifications.Categories, "Wheels and Tires", "Rear Tire Description")</td>
-                                            </tr>
-                                            <tr>
                                                 @if (!string.IsNullOrWhiteSpace(Model?.CurrentVehicle?.VehicleDetails?.Color))
                                                 {
                                                     <td class="fw-bold">Exterior color</td>
@@ -449,6 +444,43 @@
                                         </tbody>
                                     </table>
                                 }
+                            </div>
+                        </div>
+
+                        <!-- Tires -->
+                        <div class="section">
+                            <button class="article w-100 btn btn-gradient-grey border-black shadow rounded-4 position-relative collapse-toggle"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#@tiresId"
+                                    aria-expanded="true"
+                                    aria-controls="@tiresId">
+
+                                <span class="d-flex justify-content-center text-shadow">
+                                    <strong>Tires</strong>
+                                </span>
+
+                                <span class="toggle-icons position-absolute mx-3 start-0 top-50 translate-middle-y pe-3" aria-hidden="true">
+                                    <i class="bi bi-plus-lg icon-plus"></i>
+                                    <i class="bi bi-dash-lg icon-minus"></i>
+                                </span>
+                            </button>
+
+                            <div id="@tiresId" class="collapse show mt-2">
+                                <table class="table align-middle mb-0 gtx-detail-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Front</th>
+                                            <th>Rear</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>@Specs(style.StandardSpecifications.Categories, "Wheels and Tires", "Front Tire Description")</td>
+                                            <td>@Specs(style.StandardSpecifications.Categories, "Wheels and Tires", "Rear Tire Description")</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
 
