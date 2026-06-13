@@ -107,29 +107,21 @@
         margin-bottom: 0;
     }
 
-    .gtx-price-table td {
-        vertical-align: middle;
-    }
-
         .gtx-price-table td:nth-child(2) {
             text-align: right;
             white-space: nowrap;
         }
 
+    .gtx-detail-table,
     .gtx-basic-table {
         table-layout: fixed;
         width: 100%;
         max-width: 100%;
     }
 
-        .gtx-basic-table .gtx-basic-label-col {
-            width: 9rem;
-        }
-
-        .gtx-basic-table .gtx-basic-value-col {
-            width: auto;
-        }
-
+        .gtx-detail-table th,
+        .gtx-detail-table td,
+        .gtx-basic-table th,
         .gtx-basic-table td {
             padding: .45rem .5rem;
             vertical-align: middle;
@@ -137,29 +129,86 @@
             overflow-wrap: anywhere;
         }
 
-        .gtx-basic-table td:nth-child(1),
-        .gtx-basic-table td:nth-child(3) {
-            width: 9rem;
+        .gtx-detail-table.kv td:first-child {
+            width: auto;
             white-space: normal;
         }
 
-    @@media (max-width: 575.98px) {
+        .gtx-detail-pair-table .gtx-label-col,
         .gtx-basic-table .gtx-basic-label-col {
-            width: 4.75rem;
+            width: 9rem;
         }
 
+        .gtx-detail-pair-table .gtx-value-col,
         .gtx-basic-table .gtx-basic-value-col {
             width: auto;
         }
 
+        .gtx-detail-pair-table td:nth-child(1),
+        .gtx-detail-pair-table td:nth-child(3),
+        .gtx-basic-table td:nth-child(1),
+        .gtx-basic-table td:nth-child(3) {
+            width: 9rem !important;
+            white-space: normal;
+        }
+
+        .gtx-detail-pair-table td:nth-child(2),
+        .gtx-detail-pair-table td:nth-child(4) {
+            width: auto !important;
+        }
+
+        .gtx-detail-keyvalue-table .gtx-label-col {
+            width: 9rem;
+        }
+
+        .gtx-detail-keyvalue-table .gtx-value-col {
+            width: auto;
+        }
+
+        .gtx-detail-keyvalue-table td:first-child,
+        .gtx-detail-keyvalue-table th:first-child {
+            width: 9rem !important;
+            white-space: normal;
+        }
+
+        .gtx-detail-keyvalue-table td:last-child,
+        .gtx-detail-keyvalue-table th:last-child {
+            width: auto !important;
+        }
+
+    @@media (max-width: 575.98px) {
+        .gtx-detail-table th,
+        .gtx-detail-table td,
+        .gtx-basic-table th,
         .gtx-basic-table td {
             padding: .35rem .25rem;
             line-height: 1.25;
         }
 
+        .gtx-detail-pair-table .gtx-label-col,
+        .gtx-basic-table .gtx-basic-label-col {
+            width: 4.75rem;
+        }
+
+        .gtx-detail-pair-table .gtx-value-col,
+        .gtx-basic-table .gtx-basic-value-col {
+            width: auto;
+        }
+
+        .gtx-detail-pair-table td:nth-child(1),
+        .gtx-detail-pair-table td:nth-child(3),
         .gtx-basic-table td:nth-child(1),
         .gtx-basic-table td:nth-child(3) {
-            width: 4.75rem;
+            width: 4.75rem !important;
+        }
+
+        .gtx-detail-keyvalue-table .gtx-label-col {
+            width: 6rem;
+        }
+
+        .gtx-detail-keyvalue-table td:first-child,
+        .gtx-detail-keyvalue-table th:first-child {
+            width: 6rem !important;
         }
     }
 
@@ -263,7 +312,11 @@
 
                             <div id="@prId" class="collapse show">
                                 <div class="gtx-price-table-wrap mt-3">
-                                    <table class="table table-sm kv gtx-price-table">
+                                    <table class="table table-sm kv gtx-price-table gtx-detail-table gtx-detail-keyvalue-table">
+                                        <colgroup>
+                                            <col class="gtx-label-col" />
+                                            <col class="gtx-value-col" />
+                                        </colgroup>
                                         <tbody>
                                             <tr>
                                                 <td class="w-15">
@@ -322,12 +375,12 @@
                                 {<div class="muted">No data</div> }
                                 else
                                 {
-                                    <table class="table align-middle mb-0 gtx-basic-table">
+                                    <table class="table align-middle mb-0 gtx-basic-table gtx-detail-table gtx-detail-pair-table">
                                         <colgroup>
-                                            <col class="gtx-basic-label-col" />
-                                            <col class="gtx-basic-value-col" />
-                                            <col class="gtx-basic-label-col" />
-                                            <col class="gtx-basic-value-col" />
+                                            <col class="gtx-label-col" />
+                                            <col class="gtx-value-col" />
+                                            <col class="gtx-label-col" />
+                                            <col class="gtx-value-col" />
                                         </colgroup>
                                         <tbody>
                                             <tr class="d-none d-sm-table-row">
@@ -432,7 +485,7 @@
                                 {<div class="muted">No records</div> }
                                 else
                                 {
-                                    <table class="table align-middle mb-0">
+                                    <table class="table align-middle mb-0 gtx-detail-table">
                                         <thead>
                                             <tr>
                                                 <th>Fuel</th>
@@ -487,7 +540,13 @@
                                     var ei = 0;
                                     foreach (var e in style.Engines.Items)
                                     {
-                                        <table class="table table-sm kv mb-0 mt-1">
+                                        <table class="table table-sm kv mb-0 mt-1 gtx-detail-table gtx-detail-pair-table">
+                                            <colgroup>
+                                                <col class="gtx-label-col" />
+                                                <col class="gtx-value-col" />
+                                                <col class="gtx-label-col" />
+                                                <col class="gtx-value-col" />
+                                            </colgroup>
                                             <tbody>
                                                 <!-- Elements -->
                                                 <tr>
@@ -614,7 +673,13 @@
                                     var ti = 0;
                                     foreach (var t in style.Transmissions.Items)
                                     {
-                                        <table class="table table-sm kv mb-0 mt-1">
+                                        <table class="table table-sm kv mb-0 mt-1 gtx-detail-table gtx-detail-pair-table">
+                                            <colgroup>
+                                                <col class="gtx-label-col" />
+                                                <col class="gtx-value-col" />
+                                                <col class="gtx-label-col" />
+                                                <col class="gtx-value-col" />
+                                            </colgroup>
                                             <tbody>
                                                 <!-- Elements -->
                                                 <tr>
@@ -673,8 +738,12 @@
                                                 {<div class="muted">No values</div> }
                                                 else
                                                 {
-                                                    <table class="table align-middle mb-0">
-                                                        <thead><tr><th style="width:35%">Name</th><th>Value</th></tr></thead>
+                                                    <table class="table align-middle mb-0 gtx-detail-table gtx-detail-keyvalue-table">
+                                                        <colgroup>
+                                                            <col class="gtx-label-col" />
+                                                            <col class="gtx-value-col" />
+                                                        </colgroup>
+                                                        <thead><tr><th>Name</th><th>Value</th></tr></thead>
                                                         <tbody>
                                                             @foreach (var v in cat.Values)
                                                             {
