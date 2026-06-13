@@ -402,11 +402,6 @@
                                                 <td>@(Model?.CurrentVehicle?.VehicleDetails?.Mileage.ToString("N0"))</td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold">Seats (Rows)</td>
-                                                <td>@Specs(style.StandardSpecifications.Categories, "Seating", "Max Seating") (@Specs(style.StandardSpecifications.Categories, "Seating", "Seating Rows"))</td>
-                                                <td colspan="2"></td>
-                                            </tr>
-                                            <tr>
                                                 <td class="fw-bold">Doors</td>
                                                 <td>@Safe(style.BasicData.Doors)</td>
                                                 <td class="fw-bold">Body</td>
@@ -421,7 +416,7 @@
                                             <tr>
                                                 <td class="fw-bold">Engine</td>
                                                 <td>@Safe(style.Engines.Items[0].IceDisplacement)L @Safe(style.Engines.Items[0].IceBlockType)-@Safe(style.Engines.Items[0].IceCylinders)</td>
-                                                <td class="fw-bold">MPG (combined)</td>
+                                                <td class="fw-bold">MPG (comb)</td>
                                                 <td>@Safe(style.EpaFuelEfficiency?.Records?.FirstOrDefault()?.Combined) mpg</td>
                                             </tr>
                                             <tr>
