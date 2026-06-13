@@ -421,7 +421,7 @@
                                             <tr>
                                                 <td class="fw-bold">Engine</td>
                                                 <td>@Safe(style.Engines.Items[0].IceDisplacement)L @Safe(style.Engines.Items[0].IceBlockType)-@Safe(style.Engines.Items[0].IceCylinders)</td>
-                                                <td class="fw-bold">Fuel efficiency (combined)</td>
+                                                <td class="fw-bold">MPG (combined)</td>
                                                 <td>@Safe(style.EpaFuelEfficiency?.Records?.FirstOrDefault()?.Combined) mpg</td>
                                             </tr>
                                             <tr>
@@ -433,7 +433,7 @@
                                             <tr>
                                                 @if (!string.IsNullOrWhiteSpace(Model?.CurrentVehicle?.VehicleDetails?.Color))
                                                 {
-                                                    <td class="fw-bold">Exterior</td>
+                                                    <td class="fw-bold">Exterior color</td>
                                                     <td><span style="width:36px;height:36px;border-radius:4px;border:1px solid #ccc; display:inline-block; background-color:@(Model?.CurrentVehicle?.VehicleDetails?.Color)"></span></td>
                                                 }
                                                 else
@@ -443,7 +443,7 @@
 
                                                 @if (!string.IsNullOrWhiteSpace(Model?.CurrentVehicle?.VehicleDetails?.Color2))
                                                 {
-                                                    <td class="fw-bold">Interior</td>
+                                                    <td class="fw-bold">Interior color</td>
                                                     <td><span style="width:36px;height:36px;border-radius:4px;border:1px solid #ccc; display:inline-block; background-color:@(Model?.CurrentVehicle?.VehicleDetails?.Color2)"></span></td>
                                                 }
                                                 else
