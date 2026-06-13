@@ -119,20 +119,49 @@
     .gtx-basic-table {
         table-layout: fixed;
         width: 100%;
+        max-width: 100%;
     }
 
+        .gtx-basic-table .gtx-basic-label-col {
+            width: 9rem;
+        }
+
+        .gtx-basic-table .gtx-basic-value-col {
+            width: auto;
+        }
+
         .gtx-basic-table td {
-            width: 25%;
             padding: .45rem .5rem;
             vertical-align: middle;
             white-space: normal;
             overflow-wrap: anywhere;
         }
 
-        .gtx-basic-table td:first-child {
-            width: 25%;
+        .gtx-basic-table td:nth-child(1),
+        .gtx-basic-table td:nth-child(3) {
+            width: 9rem;
             white-space: normal;
         }
+
+    @@media (max-width: 575.98px) {
+        .gtx-basic-table .gtx-basic-label-col {
+            width: 4.75rem;
+        }
+
+        .gtx-basic-table .gtx-basic-value-col {
+            width: auto;
+        }
+
+        .gtx-basic-table td {
+            padding: .35rem .25rem;
+            line-height: 1.25;
+        }
+
+        .gtx-basic-table td:nth-child(1),
+        .gtx-basic-table td:nth-child(3) {
+            width: 4.75rem;
+        }
+    }
 
     .kv .gtx-no-hidden-fees-row td,
     .kv .gtx-no-hidden-fees-row td:first-child {
@@ -293,7 +322,13 @@
                                 {<div class="muted">No data</div> }
                                 else
                                 {
-                                    <table class="table align-middle mb-0">
+                                    <table class="table align-middle mb-0 gtx-basic-table">
+                                        <colgroup>
+                                            <col class="gtx-basic-label-col" />
+                                            <col class="gtx-basic-value-col" />
+                                            <col class="gtx-basic-label-col" />
+                                            <col class="gtx-basic-value-col" />
+                                        </colgroup>
                                         <tbody>
                                             <tr class="d-none d-sm-table-row">
                                                 <td class="fw-bold">VIN#</td>
@@ -308,8 +343,7 @@
                                             </tr>
                                             <tr class="d-table-row d-sm-none">
                                                 <td class="fw-bold">Stock#</td>
-                                                <td> @(Model?.CurrentVehicle?.VehicleDetails?.Stock)</td>
-                                                <td colspan="2"></td>
+                                                <td colspan="3"> @(Model?.CurrentVehicle?.VehicleDetails?.Stock)</td>
                                             </tr>
 
                                             <tr>
