@@ -107,32 +107,110 @@
         margin-bottom: 0;
     }
 
-    .gtx-price-table td {
-        vertical-align: middle;
-    }
-
         .gtx-price-table td:nth-child(2) {
             text-align: right;
             white-space: nowrap;
         }
 
+    .gtx-detail-table,
     .gtx-basic-table {
         table-layout: fixed;
         width: 100%;
+        max-width: 100%;
     }
 
+        .gtx-detail-table th,
+        .gtx-detail-table td,
+        .gtx-basic-table th,
         .gtx-basic-table td {
-            width: 25%;
             padding: .45rem .5rem;
             vertical-align: middle;
             white-space: normal;
             overflow-wrap: anywhere;
         }
 
-        .gtx-basic-table td:first-child {
-            width: 25%;
+        .gtx-detail-table.kv td:first-child {
+            width: auto;
             white-space: normal;
         }
+
+        .gtx-detail-pair-table .gtx-label-col,
+        .gtx-basic-table .gtx-basic-label-col {
+            width: 9rem;
+        }
+
+        .gtx-detail-pair-table .gtx-value-col,
+        .gtx-basic-table .gtx-basic-value-col {
+            width: auto;
+        }
+
+        .gtx-detail-pair-table td:nth-child(1),
+        .gtx-detail-pair-table td:nth-child(3),
+        .gtx-basic-table td:nth-child(1),
+        .gtx-basic-table td:nth-child(3) {
+            width: 9rem !important;
+            white-space: normal;
+        }
+
+        .gtx-detail-pair-table td:nth-child(2),
+        .gtx-detail-pair-table td:nth-child(4) {
+            width: auto !important;
+        }
+
+        .gtx-detail-keyvalue-table .gtx-label-col {
+            width: 9rem;
+        }
+
+        .gtx-detail-keyvalue-table .gtx-value-col {
+            width: auto;
+        }
+
+        .gtx-detail-keyvalue-table td:first-child,
+        .gtx-detail-keyvalue-table th:first-child {
+            width: 9rem !important;
+            white-space: normal;
+        }
+
+        .gtx-detail-keyvalue-table td:last-child,
+        .gtx-detail-keyvalue-table th:last-child {
+            width: auto !important;
+        }
+
+    @@media (max-width: 575.98px) {
+        .gtx-detail-table th,
+        .gtx-detail-table td,
+        .gtx-basic-table th,
+        .gtx-basic-table td {
+            padding: .35rem .25rem;
+            line-height: 1.25;
+        }
+
+        .gtx-detail-pair-table .gtx-label-col,
+        .gtx-basic-table .gtx-basic-label-col {
+            width: 4.75rem;
+        }
+
+        .gtx-detail-pair-table .gtx-value-col,
+        .gtx-basic-table .gtx-basic-value-col {
+            width: auto;
+        }
+
+        .gtx-detail-pair-table td:nth-child(1),
+        .gtx-detail-pair-table td:nth-child(3),
+        .gtx-basic-table td:nth-child(1),
+        .gtx-basic-table td:nth-child(3) {
+            width: 4.75rem !important;
+        }
+
+        .gtx-detail-keyvalue-table .gtx-label-col {
+            width: 6rem;
+        }
+
+        .gtx-detail-keyvalue-table td:first-child,
+        .gtx-detail-keyvalue-table th:first-child {
+            width: 6rem !important;
+        }
+    }
 
     .kv .gtx-no-hidden-fees-row td,
     .kv .gtx-no-hidden-fees-row td:first-child {
@@ -234,10 +312,10 @@
 
                             <div id="@prId" class="collapse show">
                                 <div class="gtx-price-table-wrap mt-3">
-                                    <table class="table table-sm kv gtx-price-table">
+                                    <table class="table table-sm kv gtx-price-table gtx-detail-table">
                                         <tbody>
                                             <tr>
-                                                <td class="w-15">
+                                                <td>
                                                     <span class="text-decoration-line-through" style="color: slategrey">@I18n.R("All_RetailPrice")</span>
                                                 </td>
                                                 <td>
@@ -293,7 +371,13 @@
                                 {<div class="muted">No data</div> }
                                 else
                                 {
-                                    <table class="table align-middle mb-0">
+                                    <table class="table align-middle mb-0 gtx-basic-table gtx-detail-table gtx-detail-pair-table">
+                                        <colgroup>
+                                            <col class="gtx-label-col" />
+                                            <col class="gtx-value-col" />
+                                            <col class="gtx-label-col" />
+                                            <col class="gtx-value-col" />
+                                        </colgroup>
                                         <tbody>
                                             <tr class="d-none d-sm-table-row">
                                                 <td class="fw-bold">VIN#</td>
@@ -308,8 +392,7 @@
                                             </tr>
                                             <tr class="d-table-row d-sm-none">
                                                 <td class="fw-bold">Stock#</td>
-                                                <td> @(Model?.CurrentVehicle?.VehicleDetails?.Stock)</td>
-                                                <td colspan="2"></td>
+                                                <td colspan="3"> @(Model?.CurrentVehicle?.VehicleDetails?.Stock)</td>
                                             </tr>
 
                                             <tr>
@@ -317,11 +400,6 @@
                                                 <td>@Safe(Money(style.Pricing.Msrp))</td>
                                                 <td class="fw-bold">Miles: </td>
                                                 <td>@(Model?.CurrentVehicle?.VehicleDetails?.Mileage.ToString("N0"))</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-bold">Seats (Rows)</td>
-                                                <td>@Specs(style.StandardSpecifications.Categories, "Seating", "Max Seating") (@Specs(style.StandardSpecifications.Categories, "Seating", "Seating Rows"))</td>
-                                                <td colspan="2"></td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-bold">Doors</td>
@@ -338,7 +416,7 @@
                                             <tr>
                                                 <td class="fw-bold">Engine</td>
                                                 <td>@Safe(style.Engines.Items[0].IceDisplacement)L @Safe(style.Engines.Items[0].IceBlockType)-@Safe(style.Engines.Items[0].IceCylinders)</td>
-                                                <td class="fw-bold">Fuel efficiency (combined)</td>
+                                                <td class="fw-bold">MPG (comb)</td>
                                                 <td>@Safe(style.EpaFuelEfficiency?.Records?.FirstOrDefault()?.Combined) mpg</td>
                                             </tr>
                                             <tr>
@@ -350,7 +428,7 @@
                                             <tr>
                                                 @if (!string.IsNullOrWhiteSpace(Model?.CurrentVehicle?.VehicleDetails?.Color))
                                                 {
-                                                    <td class="fw-bold">Exterior</td>
+                                                    <td class="fw-bold">Exterior color</td>
                                                     <td><span style="width:36px;height:36px;border-radius:4px;border:1px solid #ccc; display:inline-block; background-color:@(Model?.CurrentVehicle?.VehicleDetails?.Color)"></span></td>
                                                 }
                                                 else
@@ -360,7 +438,7 @@
 
                                                 @if (!string.IsNullOrWhiteSpace(Model?.CurrentVehicle?.VehicleDetails?.Color2))
                                                 {
-                                                    <td class="fw-bold">Interior</td>
+                                                    <td class="fw-bold">Interior color</td>
                                                     <td><span style="width:36px;height:36px;border-radius:4px;border:1px solid #ccc; display:inline-block; background-color:@(Model?.CurrentVehicle?.VehicleDetails?.Color2)"></span></td>
                                                 }
                                                 else
@@ -398,7 +476,7 @@
                                 {<div class="muted">No records</div> }
                                 else
                                 {
-                                    <table class="table align-middle mb-0">
+                                    <table class="table align-middle mb-0 gtx-detail-table">
                                         <thead>
                                             <tr>
                                                 <th>Fuel</th>
@@ -453,7 +531,13 @@
                                     var ei = 0;
                                     foreach (var e in style.Engines.Items)
                                     {
-                                        <table class="table table-sm kv mb-0 mt-1">
+                                        <table class="table table-sm kv mb-0 mt-1 gtx-detail-table gtx-detail-pair-table">
+                                            <colgroup>
+                                                <col class="gtx-label-col" />
+                                                <col class="gtx-value-col" />
+                                                <col class="gtx-label-col" />
+                                                <col class="gtx-value-col" />
+                                            </colgroup>
                                             <tbody>
                                                 <!-- Elements -->
                                                 <tr>
@@ -580,7 +664,13 @@
                                     var ti = 0;
                                     foreach (var t in style.Transmissions.Items)
                                     {
-                                        <table class="table table-sm kv mb-0 mt-1">
+                                        <table class="table table-sm kv mb-0 mt-1 gtx-detail-table gtx-detail-pair-table">
+                                            <colgroup>
+                                                <col class="gtx-label-col" />
+                                                <col class="gtx-value-col" />
+                                                <col class="gtx-label-col" />
+                                                <col class="gtx-value-col" />
+                                            </colgroup>
                                             <tbody>
                                                 <!-- Elements -->
                                                 <tr>
@@ -639,8 +729,12 @@
                                                 {<div class="muted">No values</div> }
                                                 else
                                                 {
-                                                    <table class="table align-middle mb-0">
-                                                        <thead><tr><th style="width:35%">Name</th><th>Value</th></tr></thead>
+                                                    <table class="table align-middle mb-0 gtx-detail-table gtx-detail-keyvalue-table">
+                                                        <colgroup>
+                                                            <col class="gtx-label-col" />
+                                                            <col class="gtx-value-col" />
+                                                        </colgroup>
+                                                        <thead><tr><th>Name</th><th>Value</th></tr></thead>
                                                         <tbody>
                                                             @foreach (var v in cat.Values)
                                                             {
