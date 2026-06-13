@@ -369,12 +369,32 @@ function calculateMonthlyPayment(P, rate, month) {
             var field = $panel.data("range-field");
             var minLimit = parseInventoryNumber($panel.data("range-min"));
             var maxLimit = parseInventoryNumber($panel.data("range-max"));
-            var max = parseInventoryNumber($panel.find(".inventory-range-input").val());
+            var rangeFilter = $panel.data("gtx.rangeFilter") || this.__gtxRangeFilter;
+            var rangeValues = rangeFilter && typeof rangeFilter.value === "function" ? rangeFilter.value() : null;
+            var min = rangeValues ? parseInventoryNumber(rangeValues.min) : parseInventoryNumber($panel.find(".inventory-range-min-input").val());
+            var max = rangeValues ? parseInventoryNumber(rangeValues.max) : parseInventoryNumber($panel.find(".inventory-range-max-input").val());
 
-            if (!field || max === null || minLimit === null || maxLimit === null) return;
+            if (min === null) {
+                min = minLimit;
+            }
+
+            if (max === null) {
+                max = parseInventoryNumber($panel.find(".inventory-range-input").val());
+            }
+
+            if (!field || min === null || max === null || minLimit === null || maxLimit === null) return;
+
+            min = Math.max(minLimit, Math.min(maxLimit, min));
+            max = Math.max(minLimit, Math.min(maxLimit, max));
+
+            if (min > max) {
+                var swap = min;
+                min = max;
+                max = swap;
+            }
 
             ranges[field] = {
-                min: minLimit,
+                min: min,
                 max: max,
                 minLimit: minLimit,
                 maxLimit: maxLimit,
@@ -391,7 +411,7 @@ function calculateMonthlyPayment(P, rate, month) {
         $.each(ranges, function (field, range) {
             var value = parseInventoryNumber($vehicle.data(field));
 
-            if (value === null || value > range.max) {
+            if (value === null || value < range.min || value > range.max) {
                 matched = false;
                 return false;
             }
@@ -405,28 +425,69 @@ function calculateMonthlyPayment(P, rate, month) {
             var $panel = $(this);
             var field = $panel.data("range-field");
             var format = $panel.data("range-format");
+            var minLimit = parseInventoryNumber($panel.data("range-min"));
             var maxLimit = parseInventoryNumber($panel.data("range-max"));
-            var $input = $panel.find(".inventory-range-input");
-            var max = parseInventoryNumber($input.val());
+            var rangeFilter = $panel.data("gtx.rangeFilter") || this.__gtxRangeFilter;
 
-            if (max === null || maxLimit === null) return;
+            if (rangeFilter && typeof rangeFilter.value === "function") {
+                return;
+            }
+
+            if ($.fn.gtxRangeFilter && $panel.find("[data-range-slider]").length) {
+                $panel.gtxRangeFilter();
+                return;
+            }
+
+            var $minInput = $panel.find(".inventory-range-min-input");
+            var $maxInput = $panel.find(".inventory-range-max-input");
+            var min = parseInventoryNumber($minInput.val());
+            var max = parseInventoryNumber($maxInput.val());
+
+            if (rangeFilter && typeof rangeFilter.value === "function") {
+                var value = rangeFilter.value();
+                min = parseInventoryNumber(value.min);
+                max = parseInventoryNumber(value.max);
+            }
+
+            if (min === null) min = minLimit;
+            if (max === null) max = maxLimit;
+            if (min === null || max === null || minLimit === null || maxLimit === null) return;
 
             if (max > maxLimit) {
                 max = maxLimit;
-                $input.val(max);
+                $maxInput.val(max);
             }
 
+            if (min < minLimit) {
+                min = minLimit;
+                $minInput.val(min);
+            }
+
+            var minText = formatInventoryRangeValue(min, format);
             var maxText = formatInventoryRangeValue(max, format);
 
-            $panel.find("[data-range-value-label='" + field + "']").text(maxText);
+            $panel.find("[data-range-value-label-min='" + field + "'], [data-range-value-label='" + field + "-min']").text(minText);
+            $panel.find("[data-range-value-label-max='" + field + "'], [data-range-value-label='" + field + "-max'], [data-range-value-label='" + field + "']").text(maxText);
         });
     }
 
     function resetInventoryRanges() {
         $(".inventory-range-filter").each(function () {
             var $panel = $(this);
+            var rangeFilter = $panel.data("gtx.rangeFilter") || this.__gtxRangeFilter;
 
-            $panel.find(".inventory-range-input").val($panel.data("range-max"));
+            if (rangeFilter && typeof rangeFilter.reset === "function") {
+                rangeFilter.reset(true);
+                return;
+            }
+
+            if ($.fn.gtxRangeFilter && $panel.find("[data-range-slider]").length) {
+                $panel.gtxRangeFilter("reset", true);
+                return;
+            }
+
+            $panel.find(".inventory-range-min-input").val($panel.data("range-min"));
+            $panel.find(".inventory-range-max-input, .inventory-range-input").val($panel.data("range-max"));
         });
 
         syncInventoryRangeLabels();
@@ -601,6 +662,7 @@ function calculateMonthlyPayment(P, rate, month) {
     var inventoryDefaultPageSize = 20;
     var inventoryCurrentPage = 1;
     var inventoryPaginationResizeTimer = 0;
+    var inventoryRangeFilterApplyTimer = 0;
 
     function isInventoryCardMatched($vehicle) {
         return $vehicle.attr("data-inventory-filter-match") !== "0";
@@ -780,6 +842,13 @@ function calculateMonthlyPayment(P, rate, month) {
 
     window.refreshInventoryPagination = applyInventoryPagination;
 
+    function scheduleInventoryRangeFilterApply() {
+        window.clearTimeout(inventoryRangeFilterApplyTimer);
+        inventoryRangeFilterApplyTimer = window.setTimeout(function () {
+            window.applyInventoryPanelFilters();
+        }, 0);
+    }
+
     function activeInventoryFilterCount(selected, ranges, filter) {
         var count = filter ? 1 : 0;
 
@@ -788,7 +857,7 @@ function calculateMonthlyPayment(P, rate, month) {
         });
 
         $.each(ranges, function (_, range) {
-            if (range.max < range.maxLimit) {
+            if (range.min > range.minLimit || range.max < range.maxLimit) {
                 count++;
             }
         });
@@ -971,6 +1040,7 @@ function calculateMonthlyPayment(P, rate, month) {
         initInventorySplitPanel();
         initInventoryPaginationControls();
 
+        ensureInventoryDualRangeSlidersReady();
         syncInventoryRangeLabels();
 
         $(document).on("shown.bs.offcanvas", "#inventorySidebarPane", function () {
@@ -987,7 +1057,13 @@ function calculateMonthlyPayment(P, rate, month) {
 
         $(document).on("change", ".inventory-filter-check", window.applyInventoryPanelFilters);
 
+        $(document).on("gtxrangefilterinput gtxrangefilterchange", ".inventory-range-filter", scheduleInventoryRangeFilterApply);
+
         $(document).on("input change", ".inventory-range-input", function () {
+            if ($(this).closest(".inventory-range-filter").data("gtx.rangeFilter")) {
+                return;
+            }
+
             syncInventoryRangeLabels();
             window.applyInventoryPanelFilters();
         });
