@@ -118,7 +118,7 @@
     var carTitle = $"{Model.Year} {Model.Make} {Model.Model}";
     var cardImageUrl = BuildInventoryCardImageUrl(Model.Image);
     var usCulture = System.Globalization.CultureInfo.GetCultureInfo("en-US");
-    var documentaryFee = Constants.DOCUMENTARY_FEE;
+    var documentaryFee = Model.RetailPrice > 0 ? Constants.DOCUMENTARY_FEE : 0;
     var transparentPrice = Model.InternetPrice + documentaryFee;
     var cardIndexRaw = ViewData["InventoryCardIndex"];
     var cardIndex = cardIndexRaw is int cardIndexValue ? cardIndexValue : int.MaxValue;
