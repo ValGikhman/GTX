@@ -491,12 +491,14 @@ function updateGalleryDisplay() {
     });
 }
 
-function applyUploadedImagesToMajordomeState(stock, images) {
+function applyUploadedImagesToMajordomeState(stock, images, options) {
+    var settings = options || {};
     var targetStock = normalizeMajordomeStockKey(stock);
     if (!targetStock || !Array.isArray(images)) {
         return false;
     }
 
+    var leadImage = (settings.image || settings.leadImage || "").toString().trim();
     var vehicle = null;
     if (selectedVehicle && normalizeMajordomeStockKey(selectedVehicle.Stock) === targetStock) {
         vehicle = selectedVehicle;
@@ -515,8 +517,12 @@ function applyUploadedImagesToMajordomeState(stock, images) {
     }
 
     vehicle.Images = images;
-    if (images.length > 0 && images[0] && images[0].Source) {
+    if (leadImage) {
+        vehicle.Image = leadImage;
+    } else if (images.length > 0 && images[0] && images[0].Source) {
         vehicle.Image = images[0].Source;
+    } else {
+        vehicle.Image = "";
     }
 
     selectedVehicle = vehicle;
@@ -533,14 +539,25 @@ function applyUploadedImagesToMajordomeState(stock, images) {
     }).first();
 
     if ($row.length) {
-        $row.find(".js-amm-delete-images").attr("data-images-count", images.length);
-        if (images.length > 0 && images[0] && images[0].Source) {
-            var freshThumb = appendCacheBust(appendImageWidth(toInventoryImageUrl(images[0].Source), 320), Date.now());
+        var deleteTitle = images.length > 0
+            ? "Delete all " + images.length + " pictures for Stock# " + (vehicle.Stock || stock || "")
+            : "No images to delete for Stock# " + (vehicle.Stock || stock || "");
+        $row.find(".js-amm-delete-images")
+            .attr("data-images-count", images.length)
+            .attr("title", deleteTitle)
+            .prop("disabled", images.length === 0);
+
+        var thumbSource = leadImage || (images.length > 0 && images[0] ? images[0].Source : "") || vehicle.Image;
+        if (thumbSource) {
+            var freshThumb = appendCacheBust(appendImageWidth(toInventoryImageUrl(thumbSource), 320), Date.now());
             $row.find(".majordome-row-image").attr("src", freshThumb);
         }
     }
 
     $("#gallery-tab").text("Photos (" + images.length + ")");
+    if (typeof syncMajordomeGalleryAvailability === "function") {
+        syncMajordomeGalleryAvailability();
+    }
     $("#gallery-tab").tab("show");
     return true;
 }
@@ -617,7 +634,7 @@ async function upload(formData, stock) {
         const hasImages = payload && Array.isArray(payload.images);
         const sameStock = uploadStock && activeStock && uploadStock === activeStock;
 
-        if (hasImages && sameStock && applyUploadedImagesToMajordomeState(stock, payload.images)) {
+        if (hasImages && sameStock && applyUploadedImagesToMajordomeState(stock, payload.images, { image: payload.image })) {
             return;
         }
 
@@ -793,8 +810,12 @@ async function deleteDataOne(stock) {
             throw new Error(response.message || 'Delete failed.');
         }
 
-        const data = await getUpdatedItems();
-        updateRow(data);
+        if (typeof syncMajordomeDataOneDeletedLocalState === "function") {
+            syncMajordomeDataOneDeletedLocalState(response.stock || stock);
+        } else {
+            const data = await getUpdatedItems();
+            updateRow(data);
+        }
     }
 
     catch (err) {
@@ -819,6 +840,10 @@ async function deleteImages(stock) {
         const response = await postMajordome(`${root}Majordome/DeleteImages`, { stock });
         if (!response || !response.success) {
             throw new Error((response && response.message) || "Failed to delete images.");
+        }
+
+        if (Array.isArray(response.images) && applyUploadedImagesToMajordomeState(response.stock || stock, response.images, { image: response.image })) {
+            return;
         }
 
         await refreshMajordomeAfterImageMutation(stock, { keepGalleryTab: true });
@@ -846,6 +871,11 @@ async function deleteImage(id, file, object) {
         const response = await postMajordome(`${root}Majordome/DeleteImage`, { id, file, stock });
         if (!response || !response.success) {
             throw new Error((response && response.message) || "Failed to delete image.");
+        }
+
+        if (Array.isArray(response.images) && applyUploadedImagesToMajordomeState(response.stock || stock, response.images, { image: response.image })) {
+            $("#close").click();
+            return;
         }
 
         await refreshMajordomeAfterImageMutation(stock, { keepGalleryTab: true });

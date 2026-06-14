@@ -1195,6 +1195,48 @@
         }
     }
 
+    function syncMajordomeDataOneDeletedLocalState(stock) {
+        const stockKey = safeText(stock).trim().toUpperCase();
+        if (!stockKey) return;
+
+        const clearDataOne = function (vehicle) {
+            if (!vehicle) return;
+            vehicle.DataOne = null;
+        };
+
+        const isSelectedStock = selectedVehicle && safeText(selectedVehicle.Stock).trim().toUpperCase() === stockKey;
+        if (isSelectedStock) {
+            clearDataOne(selectedVehicle);
+            $("#dataOneDetails").empty();
+        }
+
+        if (Array.isArray(inventoryVehiclesSource)) {
+            inventoryVehiclesSource.forEach(function (vehicle) {
+                if (safeText(vehicle?.Stock).trim().toUpperCase() === stockKey) {
+                    clearDataOne(vehicle);
+                }
+            });
+        }
+
+        if (Array.isArray(inventoryVehicles)) {
+            inventoryVehicles.forEach(function (vehicle) {
+                if (safeText(vehicle?.Stock).trim().toUpperCase() === stockKey) {
+                    clearDataOne(vehicle);
+                }
+            });
+        }
+
+        const $row = $("#majordomeInventoryBody .majordome-vehicle-row").filter(function () {
+            return safeText($(this).attr("data-stock")).trim().toUpperCase() === stockKey;
+        }).first();
+
+        if ($row.length) {
+            $row.find(".majordome-status-dataone")
+                .text("N")
+                .removeClass("is-on");
+        }
+    }
+
     async function uploadMajordomeBulkImageFile(stock, file) {
         const formData = new FormData();
         formData.append("files", file, file.name);
@@ -1888,12 +1930,13 @@
         const $galleryPane = $("#tab-gallery");
         const $uploadBtn = $("#upload");
         const $deleteAllBtn = $("#deleteAll");
+        const selectedImageCount = Array.isArray(selectedVehicle?.Images) ? selectedVehicle.Images.length : 0;
 
         if (hasSelectedStock) {
             $galleryTab.removeClass("d-none");
             $galleryPane.removeClass("d-none");
             $uploadBtn.prop("disabled", false);
-            $deleteAllBtn.prop("disabled", false);
+            $deleteAllBtn.prop("disabled", selectedImageCount === 0);
             $dropzone.removeClass("opacity-50");
             return;
         }
