@@ -125,13 +125,13 @@
         }
 
         #modalShortcuts {
-            height: 15rem;
+            height: auto;
         }
     }
 
     @@media only screen and (max-width: 767px) {
         #modalShortcuts {
-            height: 40rem;
+            height: auto;
         }
     }
 </style>
@@ -511,7 +511,7 @@
 
         </div>
         @*May also like*@
-        <div class="details-suggestions mb-5 d-none d-lg-block">
+        <div class="details-suggestions mb-5">
             <button class="w-100 btn btn-gradient position-relative collapse-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#suggestion" aria-expanded="true" aria-controls="suggestion">
                 <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
                     <i class="bi bi-hand-thumbs-up mx-2"></i>@I18n.R("All_YouMayLike")
@@ -628,6 +628,7 @@
     let startX = 0;
     let scrollLeft = 0;
     const scrollContainer = document.getElementById('suggestionScroll');
+    const detailsMobileOrderQuery = window.matchMedia('(max-width: 991.98px)');
     const request = `Subject: Test Drive Request — ${vehicle}\n\nDear GTX Crew!\nI have an unbearable interest in test driving this ${vehicle} [${stock}].`;
     const schedule = `I will be extremely happy to schedule the test drive for:`;
 
@@ -644,6 +645,7 @@
         setQrCode(selectedVehicle);
         setNavigationButtons();
         renderFancyTitle();
+        updateMobileDetailsOrder();
 
         updateLastCars(stock);
 
@@ -737,6 +739,30 @@
         });
 
     });
+
+    if (detailsMobileOrderQuery.addEventListener) {
+        detailsMobileOrderQuery.addEventListener("change", updateMobileDetailsOrder);
+    } else {
+        detailsMobileOrderQuery.addListener(updateMobileDetailsOrder);
+    }
+
+    function updateMobileDetailsOrder() {
+        const $suggestions = $(".details-suggestions");
+        const $actions = $("#modalShortcuts");
+        const $main = $(".inventory-details-main");
+
+        if (!$suggestions.length || !$actions.length || !$main.length) {
+            return;
+        }
+
+        if (detailsMobileOrderQuery.matches) {
+            if (!$actions.next(".details-suggestions").length) {
+                $suggestions.insertAfter($actions);
+            }
+        } else if (!$main.children(".details-suggestions").length) {
+            $main.append($suggestions);
+        }
+    }
 
     function calculate() {
         const score = $("input[name='scores']:checked").val();

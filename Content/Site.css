@@ -1099,6 +1099,24 @@
 @media (max-width: 991px) {
     .inventory-details-layout {
         width: 100%;
+        gap: 1rem !important;
+        padding-right: .75rem;
+        padding-left: .75rem;
+    }
+
+    .inventory-details-actions > .btn,
+    .inventory-details-actions > a.btn,
+    .inventory-details-actions + .details-suggestions {
+        margin-bottom: 1rem !important;
+    }
+
+    .inventory-details-actions > .btn:last-child,
+    .inventory-details-actions > a.btn:last-child {
+        margin-bottom: 0 !important;
+    }
+
+    .inventory-details-main #nav-details > .row.justify-content-center.well.mb-3:last-child {
+        margin-bottom: 0 !important;
     }
 }
 
@@ -1264,6 +1282,80 @@
 
 .details-suggestion-list .hover-bw {
     width: 100%;
+}
+
+@media (max-width: 991.98px) {
+    .details-suggestion-rail {
+        display: block !important;
+    }
+
+    .details-suggestion-rail .scroll-button {
+        display: none;
+    }
+
+    .details-suggestion-rail .scroll-container {
+        overflow: visible;
+    }
+
+    .details-suggestion-list {
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .details-suggestion-list .card-wrapper {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+
+    .details-suggestions .gtx-ad-card {
+        grid-template-columns: 118px minmax(0, 1fr);
+        gap: .55rem;
+        min-height: 126px;
+        padding: .5rem;
+    }
+
+    .details-suggestions .gtx-ad-card-media {
+        min-height: 112px;
+    }
+
+    .details-suggestions .gtx-ad-card-body {
+        gap: .18rem;
+    }
+
+    .details-suggestions .gtx-ad-card-mileage {
+        padding: .12rem .32rem;
+        font-size: .68rem;
+    }
+
+    .details-suggestions .gtx-ad-card-title {
+        font-size: .98rem;
+        line-height: 1.08;
+    }
+
+    .details-suggestions .gtx-ad-card-subtitle {
+        font-size: .8rem;
+        line-height: 1.1;
+    }
+
+    .details-suggestions .gtx-ad-price-panel {
+        gap: .12rem;
+        padding: .32rem .38rem;
+    }
+
+    .details-suggestions .gtx-ad-price-row {
+        font-size: .72rem;
+        line-height: 1.08;
+    }
+
+    .details-suggestions .gtx-ad-transparent {
+        font-size: .78rem;
+    }
+
+    .details-suggestions .gtx-ad-transparent .gtx-ad-price-amount {
+        font-size: .92rem;
+    }
 }
 
 .gtx-ad-card {
