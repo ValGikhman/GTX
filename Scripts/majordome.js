@@ -499,6 +499,11 @@ function applyUploadedImagesToMajordomeState(stock, images, options) {
     }
 
     var leadImage = (settings.image || settings.leadImage || "").toString().trim();
+    var activeStock = normalizeMajordomeStockKey(getActiveMajordomeStock());
+    var shouldSelectVehicle = settings.selectVehicle !== false;
+    var isActiveStock = activeStock && activeStock === targetStock;
+    var shouldUpdateGallery = settings.updateGallery !== false && (shouldSelectVehicle || isActiveStock);
+    var shouldActivateGallery = settings.activateGallery !== false;
     var vehicle = null;
     if (selectedVehicle && normalizeMajordomeStockKey(selectedVehicle.Stock) === targetStock) {
         vehicle = selectedVehicle;
@@ -525,14 +530,19 @@ function applyUploadedImagesToMajordomeState(stock, images, options) {
         vehicle.Image = "";
     }
 
-    selectedVehicle = vehicle;
-    if (typeof selectedVehicleStock !== "undefined") {
+    if (shouldSelectVehicle || isActiveStock) {
+        selectedVehicle = vehicle;
+    }
+
+    if ((shouldSelectVehicle || isActiveStock) && typeof selectedVehicleStock !== "undefined") {
         selectedVehicleStock = (vehicle.Stock || stock || "").toString().trim();
         window.majordomeSelectedStock = selectedVehicleStock;
     }
 
-    loadGallery(vehicle);
-    refreshMajordomeSelectedRowThumbnail(stock);
+    if (shouldUpdateGallery) {
+        loadGallery(vehicle);
+        refreshMajordomeSelectedRowThumbnail(stock);
+    }
 
     var $row = $("#majordomeInventoryBody .majordome-vehicle-row").filter(function () {
         return normalizeMajordomeStockKey($(this).attr("data-stock")) === targetStock;
@@ -554,11 +564,15 @@ function applyUploadedImagesToMajordomeState(stock, images, options) {
         }
     }
 
-    $("#gallery-tab").text("Photos (" + images.length + ")");
+    if (shouldSelectVehicle || isActiveStock) {
+        $("#gallery-tab").text("Photos (" + images.length + ")");
+    }
     if (typeof syncMajordomeGalleryAvailability === "function") {
         syncMajordomeGalleryAvailability();
     }
-    $("#gallery-tab").tab("show");
+    if (shouldActivateGallery) {
+        $("#gallery-tab").tab("show");
+    }
     return true;
 }
 

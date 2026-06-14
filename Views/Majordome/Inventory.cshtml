@@ -815,9 +815,7 @@
         $("#deleteAll").on("click", function () {
             const stock = getSelectedVehicleStockOrWarn();
             if (!stock) return;
-            if (confirm(`Deleting all images for Stock# ${stock}`)) {
-                deleteImages(stock);
-            }
+            openMajordomeImageDeleteProgressModal(stock);
         });
 
         $("#createStory").on("click", function () {
@@ -973,9 +971,7 @@
             e.stopPropagation();
             const stock = $(this).attr("data-stock");
             const count = parseInt($(this).data("images-count"), 10) || 0;
-            if (confirm(`Deleting all ${count} pictures for Stock# ${stock}`)) {
-                deleteImages(stock);
-            }
+            openMajordomeImageDeleteProgressModal(stock, count);
         });
 
         $("#majordomeInventoryBody").on("click", ".js-amm-create-story", function (e) {
@@ -1129,6 +1125,40 @@
         return !hasDataOne(vehicle) && safeText(vehicle?.VIN).trim().length > 0;
     }
 
+    function getMajordomeImageCount(vehicle) {
+        if (Array.isArray(vehicle?.Images)) {
+            return vehicle.Images.length;
+        }
+
+        return hasMajordomeImage(vehicle) ? 1 : 0;
+    }
+
+    function hasMajordomeBulkImages(vehicle) {
+        return getMajordomeImageCount(vehicle) > 0;
+    }
+
+    function getMajordomeBulkImageDeleteItems(settings) {
+        const stock = safeText(settings?.stock).trim();
+        const fallbackCount = Math.max(0, parseInt(settings?.count, 10) || 0);
+
+        if (stock) {
+            const stockKey = stock.toUpperCase();
+            const vehicle = getMajordomeBulkInventoryVehicles().find(function (item) {
+                return safeText(item?.Stock).trim().toUpperCase() === stockKey;
+            });
+
+            if (vehicle) {
+                return hasMajordomeBulkImages(vehicle) ? [vehicle] : [];
+            }
+
+            return fallbackCount > 0
+                ? [{ Stock: stock, Images: new Array(fallbackCount) }]
+                : [];
+        }
+
+        return getMajordomeBulkInventoryVehicles().filter(hasMajordomeBulkImages);
+    }
+
     function getMajordomeBulkVehicleLabel(vehicle) {
         const stock = safeText(vehicle?.Stock).trim();
         const description = [
@@ -1280,6 +1310,36 @@
         return { status: "success", message: `${getMajordomeBulkFileLabel(file)} completed.` };
     }
 
+    async function deleteMajordomeBulkImagesForVehicle(vehicle, options) {
+        const settings = options || {};
+        const stock = safeText(vehicle?.Stock).trim();
+        if (!stock) {
+            throw new Error("Stock is required.");
+        }
+
+        const deletedCount = getMajordomeImageCount(vehicle);
+        const response = await postMajordome(`${root}Majordome/DeleteImages`, { stock: stock });
+        if (!response || !response.success) {
+            throw new Error((response && response.message) || "Failed to delete images.");
+        }
+
+        if (Array.isArray(response.images) && typeof applyUploadedImagesToMajordomeState === "function") {
+            const focusStock = settings.focusStock === true;
+            applyUploadedImagesToMajordomeState(response.stock || stock, response.images, {
+                image: response.image,
+                selectVehicle: focusStock,
+                updateGallery: focusStock,
+                activateGallery: focusStock
+            });
+        }
+
+        const suffix = deletedCount === 1 ? "image" : "images";
+        return {
+            status: "success",
+            message: `${stock}: deleted ${deletedCount} ${suffix}.`
+        };
+    }
+
     function getMajordomeBulkConfig(actionKey, options) {
         const settings = options || {};
 
@@ -1332,12 +1392,13 @@
         if (actionKey === "images") {
             const stock = safeText(settings.stock).trim();
             const files = getMajordomeImageUploadFiles(settings.files);
-            const concurrency = Math.max(1, Math.min(3, files.length));
+            const concurrency = Math.max(1, Math.min(5, files.length));
 
             return {
                 title: `Upload images for Stock# ${stock}`,
                 emptyText: "No image files were selected.",
                 concurrency: concurrency,
+                concurrentLabel: "uploads",
                 cancelMessage: "Cancel requested. Active uploads will finish, then the remaining files will stop.",
                 intro: function (count) {
                     const suffix = count === 1
@@ -1362,6 +1423,38 @@
 
                     const data = await getUpdatedItems();
                     updateRow(data);
+                }
+            };
+        }
+
+        if (actionKey === "delete-images") {
+            const stock = safeText(settings.stock).trim();
+            if (!stock) return null;
+
+            const items = getMajordomeBulkImageDeleteItems(settings);
+            const concurrency = Math.max(1, Math.min(5, items.length));
+
+            return {
+                title: `Delete images for Stock# ${stock}`,
+                emptyText: `No images to delete for Stock# ${stock}.`,
+                concurrency: concurrency,
+                concurrentLabel: "deletions",
+                cancelMessage: "Cancel requested. Active deletions will finish, then the remaining vehicles will stop.",
+                intro: function (count) {
+                    const imageCount = items.length ? getMajordomeImageCount(items[0]) : count;
+                    const suffix = imageCount === 1 ? "1 image" : `${imageCount} images`;
+                    return `Ready to delete ${suffix} for Stock# ${stock}.`;
+                },
+                getItems: function () {
+                    return items;
+                },
+                run: async function (vehicle) {
+                    return deleteMajordomeBulkImagesForVehicle(vehicle, { focusStock: true });
+                },
+                afterCompleteStatus: "Updating image counts...",
+                afterComplete: async function () {
+                    syncMajordomeGalleryAvailability();
+                    syncMajordomeEmptyState();
                 }
             };
         }
@@ -1398,9 +1491,16 @@
     }
 
     function setMajordomeBulkToolbarBusy(isBusy) {
-        $("#btnReStoryAll, #btnDecodeAll, #upload, .js-amm-upload-trigger, .js-amm-upload-input")
+        $("#btnReStoryAll, #btnDecodeAll, #upload, #deleteAll, .js-amm-upload-trigger, .js-amm-upload-input")
             .prop("disabled", isBusy)
             .toggleClass("disabled", isBusy);
+
+        $(".js-amm-delete-images").each(function () {
+            const imageCount = parseInt($(this).attr("data-images-count"), 10) || 0;
+            $(this)
+                .prop("disabled", isBusy || imageCount <= 0)
+                .toggleClass("disabled", isBusy);
+        });
 
         if (typeof setMajordomeImageActionsBusy === "function") {
             setMajordomeImageActionsBusy(isBusy);
@@ -1505,7 +1605,21 @@
         });
     }
 
+    function openMajordomeImageDeleteProgressModal(stock, count) {
+        const normalizedStock = safeText(stock).trim();
+        if (!normalizedStock) {
+            alert("Please select a vehicle first.");
+            return;
+        }
+
+        openMajordomeBulkProgressModal("delete-images", {
+            stock: normalizedStock,
+            count: count
+        });
+    }
+
     window.openMajordomeImageUploadProgressModal = openMajordomeImageUploadProgressModal;
+    window.openMajordomeImageDeleteProgressModal = openMajordomeImageDeleteProgressModal;
 
     function getMajordomeBulkItemLabel(job, item) {
         if (job && job.config && typeof job.config.getLabel === "function") {
@@ -1583,7 +1697,7 @@
         try {
             const workerCount = Math.min(job.concurrency, job.items.length);
             if (workerCount > 1) {
-                setMajordomeBulkStatus(`Starting ${workerCount} uploads at a time...`);
+                setMajordomeBulkStatus(`Starting ${workerCount} ${job.config.concurrentLabel || "requests"} at a time...`);
             }
 
             const workers = [];
@@ -1594,7 +1708,7 @@
             await Promise.all(workers);
 
             if (typeof job.config.afterComplete === "function" && job.processed > 0) {
-                setMajordomeBulkStatus("Refreshing inventory list...");
+                setMajordomeBulkStatus(job.config.afterCompleteStatus || "Refreshing inventory list...");
                 try {
                     await job.config.afterComplete(job);
                 } catch (error) {
