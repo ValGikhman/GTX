@@ -462,6 +462,21 @@
         .strong-story {
             color: black;
         }
+
+        .majordome-bulk-progress-log {
+            max-height: 12rem;
+            overflow-y: auto;
+        }
+
+            .majordome-bulk-progress-log .list-group-item {
+                padding: .4rem .55rem;
+            }
+
+        #majordomeBulkProgressBar {
+            background: var(--gtx-grad, var(--bs-primary, #0d6efd));
+            color: #fff;
+        }
+
     </style>
 
     <!-- Lightbox2 JS -->
@@ -486,6 +501,32 @@
 <div class="modal modal-xl" id="overlayModal" data-bs-keyboard="true" tabindex="-1" aria-labelledby="overlayModal" aria-hidden="true">
     <div class=" modal-dialog modal-dialog-centered">
         <div id="vehicle-overlay" class="modal-content">
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="majordomeBulkProgressModal" tabindex="-1" aria-labelledby="majordomeBulkProgressTitle" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="majordomeBulkProgressTitle">Bulk update</h5>
+            </div>
+            <div class="modal-body">
+                <p id="majordomeBulkProgressIntro" class="mb-2"></p>
+                <div class="d-flex justify-content-between small text-muted mb-1">
+                    <span id="majordomeBulkProgressCounts">0 of 0</span>
+                    <span id="majordomeBulkProgressPercent">0%</span>
+                </div>
+                <div id="majordomeBulkProgressTrack" class="progress" role="progressbar" aria-label="Bulk update progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                    <div id="majordomeBulkProgressBar" class="progress-bar progress-bar-striped" style="width: 0%"></div>
+                </div>
+                <div id="majordomeBulkProgressStatus" class="small mt-3"></div>
+                <div id="majordomeBulkProgressLog" class="majordome-bulk-progress-log list-group small mt-3" aria-live="polite"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="majordomeBulkCancel" class="btn btn-outline-secondary">Cancel</button>
+                <button type="button" id="majordomeBulkStart" class="btn btn-gradient">Start</button>
+            </div>
         </div>
     </div>
 </div>
@@ -624,6 +665,7 @@
     let inventoryVehiclesSource = JSON.parse(inventoryVehiclesSourceJson);
     let inventoryVehicles = [];
     let selectedVehicleStock = null;
+    let majordomeBulkJob = null;
     window.majordomeSelectedStock = "";
     const majordomeSortState = { key: "", direction: "" };
 
@@ -749,14 +791,24 @@
         $("#specials").empty().append($("#actions").contents().clone());
 
         $("#btnReStoryAll").on("click", function () {
-            if (confirm("Restory all vehicles")) {
-                reStoryAll();
-            }
+            openMajordomeBulkProgressModal("restory");
         });
 
         $("#btnDecodeAll").on("click", function () {
-            if (confirm("Decode all vehicles")) {
-                decodeAll();
+            openMajordomeBulkProgressModal("dataone");
+        });
+
+        $("#majordomeBulkStart").on("click", function () {
+            startMajordomeBulkJob();
+        });
+
+        $("#majordomeBulkCancel").on("click", function () {
+            cancelMajordomeBulkJob();
+        });
+
+        $("#majordomeBulkProgressModal").on("hidden.bs.modal", function () {
+            if (!majordomeBulkJob || !majordomeBulkJob.running) {
+                majordomeBulkJob = null;
             }
         });
 
@@ -1053,6 +1105,502 @@
 
     function hasDataOne(vehicle) {
         return !!vehicle?.DataOne;
+    }
+
+    function getMajordomeBulkInventoryVehicles() {
+        if (Array.isArray(inventoryVehiclesSource)) {
+            return inventoryVehiclesSource;
+        }
+
+        if (Array.isArray(inventoryVehicles)) {
+            return inventoryVehicles;
+        }
+
+        return [];
+    }
+
+    function needsMajordomeBulkStory(vehicle) {
+        const story = vehicle?.Story;
+        const storyHtml = safeText(story?.HtmlContent).toUpperCase();
+        return !story || storyHtml.indexOf("ERROR") >= 0;
+    }
+
+    function needsMajordomeBulkDataOne(vehicle) {
+        return !hasDataOne(vehicle) && safeText(vehicle?.VIN).trim().length > 0;
+    }
+
+    function getMajordomeBulkVehicleLabel(vehicle) {
+        const stock = safeText(vehicle?.Stock).trim();
+        const description = [
+            safeText(vehicle?.Year).trim(),
+            safeText(vehicle?.Make).trim(),
+            safeText(vehicle?.Model).trim()
+        ].filter(function (part) {
+            return part.length > 0;
+        }).join(" ");
+
+        if (stock && description) return `${stock} - ${description}`;
+        return stock || description || safeText(vehicle?.VIN).trim() || "vehicle";
+    }
+
+    function getMajordomeBulkFileLabel(file) {
+        return safeText(file?.name).trim() || "image";
+    }
+
+    function getMajordomeImageUploadFiles(files) {
+        return Array.from(files || []).filter(function (file) {
+            const name = safeText(file?.name).toLowerCase();
+            const type = safeText(file?.type).toLowerCase();
+            return type.indexOf("image/") === 0 || /\.(heic|heif|jpg|jpeg|png|webp|gif|bmp|tiff)$/.test(name);
+        });
+    }
+
+    function syncMajordomeDataOneBulkLocalState(stock) {
+        const stockKey = safeText(stock).trim().toUpperCase();
+        if (!stockKey) return;
+
+        const markDataOne = function (vehicle) {
+            if (!vehicle) return;
+            vehicle.DataOne = vehicle.DataOne || {};
+        };
+
+        if (selectedVehicle && safeText(selectedVehicle.Stock).trim().toUpperCase() === stockKey) {
+            markDataOne(selectedVehicle);
+        }
+
+        if (Array.isArray(inventoryVehiclesSource)) {
+            inventoryVehiclesSource.forEach(function (vehicle) {
+                if (safeText(vehicle?.Stock).trim().toUpperCase() === stockKey) {
+                    markDataOne(vehicle);
+                }
+            });
+        }
+
+        if (Array.isArray(inventoryVehicles)) {
+            inventoryVehicles.forEach(function (vehicle) {
+                if (safeText(vehicle?.Stock).trim().toUpperCase() === stockKey) {
+                    markDataOne(vehicle);
+                }
+            });
+        }
+
+        const $row = $("#majordomeInventoryBody .majordome-vehicle-row").filter(function () {
+            return safeText($(this).attr("data-stock")).trim().toUpperCase() === stockKey;
+        }).first();
+
+        if ($row.length) {
+            $row.find(".majordome-status-dataone")
+                .text("Y")
+                .addClass("is-on");
+        }
+    }
+
+    async function uploadMajordomeBulkImageFile(stock, file) {
+        const formData = new FormData();
+        formData.append("files", file, file.name);
+        formData.append("stock", stock);
+
+        const response = await fetch(`${root}Majordome/UploadInventoryFiles`, {
+            method: "POST",
+            body: formData,
+            headers: {
+                "Cache-Control": "no-cache"
+            }
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || `Upload failed: ${response.status} ${response.statusText}`);
+        }
+
+        let payload = null;
+        try {
+            payload = await response.json();
+        } catch (jsonError) {
+            payload = null;
+        }
+
+        if (payload && payload.success === false) {
+            const errors = Array.isArray(payload.errors) && payload.errors.length
+                ? payload.errors.join("; ")
+                : "";
+            throw new Error(errors || payload.message || "Upload failed.");
+        }
+
+        if (payload && payload.uploaded > 0) {
+            return { status: "success", message: `${getMajordomeBulkFileLabel(file)} uploaded.` };
+        }
+
+        if (payload && payload.skipped > 0) {
+            return { status: "warning", message: `${getMajordomeBulkFileLabel(file)} skipped.` };
+        }
+
+        return { status: "success", message: `${getMajordomeBulkFileLabel(file)} completed.` };
+    }
+
+    function getMajordomeBulkConfig(actionKey, options) {
+        const settings = options || {};
+
+        if (actionKey === "restory") {
+            return {
+                title: "Re-story all vehicles",
+                emptyText: "No vehicles need a re-story.",
+                intro: function (count) {
+                    return `Ready to create stories for ${count} vehicles missing a story.`;
+                },
+                delayAfterMs: 1100,
+                getItems: function () {
+                    return getMajordomeBulkInventoryVehicles().filter(needsMajordomeBulkStory);
+                },
+                run: async function (vehicle) {
+                    const stock = safeText(vehicle?.Stock).trim();
+                    const response = await postMajordome(`${root}Majordome/CreateStory`, { stock });
+                    if (!response || !response.success) {
+                        throw new Error((response && response.message) || "Story creation failed.");
+                    }
+
+                    syncMajordomeStoryLocalState(stock, response.Title, response.Story);
+                }
+            };
+        }
+
+        if (actionKey === "dataone") {
+            return {
+                title: "Decode DataOne for all vehicles",
+                emptyText: "No vehicles need DataOne decoding.",
+                intro: function (count) {
+                    return `Ready to decode DataOne for ${count} vehicles without saved DataOne details.`;
+                },
+                delayAfterMs: 0,
+                getItems: function () {
+                    return getMajordomeBulkInventoryVehicles().filter(needsMajordomeBulkDataOne);
+                },
+                run: async function (vehicle) {
+                    const vin = safeText(vehicle?.VIN).trim();
+                    const response = await postMajordome(`${root}Majordome/DecodeDataOne`, { vin });
+                    if (!response || !response.success) {
+                        throw new Error((response && response.message) || "DataOne decoding failed.");
+                    }
+
+                    syncMajordomeDataOneBulkLocalState(vehicle?.Stock);
+                }
+            };
+        }
+
+        if (actionKey === "images") {
+            const stock = safeText(settings.stock).trim();
+            const files = getMajordomeImageUploadFiles(settings.files);
+            const concurrency = Math.max(1, Math.min(3, files.length));
+
+            return {
+                title: `Upload images for Stock# ${stock}`,
+                emptyText: "No image files were selected.",
+                concurrency: concurrency,
+                cancelMessage: "Cancel requested. Active uploads will finish, then the remaining files will stop.",
+                intro: function (count) {
+                    const suffix = count === 1
+                        ? "1 image"
+                        : `${count} images, up to ${concurrency} at a time`;
+                    return `Ready to upload ${suffix} for Stock# ${stock}.`;
+                },
+                getItems: function () {
+                    return files;
+                },
+                getLabel: getMajordomeBulkFileLabel,
+                run: async function (file) {
+                    return uploadMajordomeBulkImageFile(stock, file);
+                },
+                afterComplete: async function () {
+                    window.majordomeSelectedStock = stock;
+                    window.majordomeForceActiveTab = "gallery-tab";
+                    if (typeof refreshMajordomeAfterImageMutation === "function") {
+                        await refreshMajordomeAfterImageMutation(stock, { keepGalleryTab: true });
+                        return;
+                    }
+
+                    const data = await getUpdatedItems();
+                    updateRow(data);
+                }
+            };
+        }
+
+        return null;
+    }
+
+    function showMajordomeBulkModal() {
+        const modalEl = document.getElementById("majordomeBulkProgressModal");
+        if (!modalEl) return;
+
+        if (window.bootstrap && bootstrap.Modal) {
+            bootstrap.Modal.getOrCreateInstance(modalEl, { backdrop: "static", keyboard: false }).show();
+            return;
+        }
+
+        if ($.fn.modal) {
+            $("#majordomeBulkProgressModal").modal({ backdrop: "static", keyboard: false }).modal("show");
+        }
+    }
+
+    function hideMajordomeBulkModal() {
+        const modalEl = document.getElementById("majordomeBulkProgressModal");
+        if (!modalEl) return;
+
+        if (window.bootstrap && bootstrap.Modal) {
+            bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+            return;
+        }
+
+        if ($.fn.modal) {
+            $("#majordomeBulkProgressModal").modal("hide");
+        }
+    }
+
+    function setMajordomeBulkToolbarBusy(isBusy) {
+        $("#btnReStoryAll, #btnDecodeAll, #upload, .js-amm-upload-trigger, .js-amm-upload-input")
+            .prop("disabled", isBusy)
+            .toggleClass("disabled", isBusy);
+
+        if (typeof setMajordomeImageActionsBusy === "function") {
+            setMajordomeImageActionsBusy(isBusy);
+        }
+    }
+
+    function updateMajordomeBulkProgress(processed, total) {
+        const percent = total > 0 ? Math.round((processed / total) * 100) : 0;
+        $("#majordomeBulkProgressCounts").text(`${processed} of ${total}`);
+        $("#majordomeBulkProgressPercent").text(`${percent}%`);
+        $("#majordomeBulkProgressTrack").attr("aria-valuenow", percent);
+        $("#majordomeBulkProgressBar")
+            .css("width", `${percent}%`)
+            .text(percent > 0 ? `${percent}%` : "");
+    }
+
+    function setMajordomeBulkStatus(message) {
+        $("#majordomeBulkProgressStatus").text(message || "");
+    }
+
+    function appendMajordomeBulkLog(message, status) {
+        const statusClass = status === "success"
+            ? "list-group-item-success"
+            : status === "error"
+                ? "list-group-item-danger"
+                : status === "warning"
+                    ? "list-group-item-warning"
+                    : "list-group-item-light";
+
+        const $log = $("#majordomeBulkProgressLog");
+        const $item = $("<div></div>")
+            .addClass(`list-group-item ${statusClass}`)
+            .text(message);
+        $log.append($item);
+        $log.scrollTop($log.prop("scrollHeight"));
+    }
+
+    function waitMajordomeBulkDelay(ms, job) {
+        return new Promise(function (resolve) {
+            const started = Date.now();
+            const tick = function () {
+                if (!job || job.cancelRequested || Date.now() - started >= ms) {
+                    resolve();
+                    return;
+                }
+
+                setTimeout(tick, Math.min(200, ms));
+            };
+
+            tick();
+        });
+    }
+
+    function openMajordomeBulkProgressModal(actionKey, options) {
+        if (majordomeBulkJob && majordomeBulkJob.running) return;
+
+        const config = getMajordomeBulkConfig(actionKey, options);
+        if (!config) return;
+
+        const items = config.getItems();
+        majordomeBulkJob = {
+            config: config,
+            items: items,
+            processed: 0,
+            completed: 0,
+            failed: 0,
+            warnings: 0,
+            nextIndex: 0,
+            active: 0,
+            concurrency: Math.max(1, Math.min(config.concurrency || 1, items.length || 1)),
+            running: false,
+            cancelRequested: false
+        };
+
+        $("#majordomeBulkProgressTitle").text(config.title);
+        $("#majordomeBulkProgressIntro").text(items.length > 0 ? config.intro(items.length) : config.emptyText);
+        $("#majordomeBulkProgressLog").empty();
+        setMajordomeBulkStatus(items.length > 0 ? "Review the job, then press Start." : "Nothing to update.");
+        updateMajordomeBulkProgress(0, items.length);
+
+        $("#majordomeBulkStart")
+            .removeClass("d-none")
+            .prop("disabled", items.length === 0)
+            .text("Start");
+        $("#majordomeBulkCancel")
+            .prop("disabled", false)
+            .text(items.length > 0 ? "Cancel" : "Close");
+
+        showMajordomeBulkModal();
+    }
+
+    function openMajordomeImageUploadProgressModal(stock, files) {
+        const normalizedStock = safeText(stock).trim();
+        if (!normalizedStock) {
+            alert("Please select a vehicle first.");
+            return;
+        }
+
+        openMajordomeBulkProgressModal("images", {
+            stock: normalizedStock,
+            files: files
+        });
+    }
+
+    window.openMajordomeImageUploadProgressModal = openMajordomeImageUploadProgressModal;
+
+    function getMajordomeBulkItemLabel(job, item) {
+        if (job && job.config && typeof job.config.getLabel === "function") {
+            return job.config.getLabel(item);
+        }
+
+        return getMajordomeBulkVehicleLabel(item);
+    }
+
+    function updateMajordomeBulkActiveStatus(job, label) {
+        if (!job || job.cancelRequested) return;
+
+        if (job.concurrency > 1) {
+            setMajordomeBulkStatus(`${job.active} active, ${job.processed} of ${job.items.length} done.`);
+            return;
+        }
+
+        if (label) {
+            setMajordomeBulkStatus(`Working on ${label}...`);
+        }
+    }
+
+    async function runMajordomeBulkItem(job, item) {
+        const label = getMajordomeBulkItemLabel(job, item);
+        job.active++;
+        updateMajordomeBulkActiveStatus(job, label);
+
+        try {
+            const result = await job.config.run(item, job);
+            const status = result && result.status ? result.status : "success";
+            const message = result && result.message ? result.message : `${label} completed.`;
+
+            job.completed++;
+            if (status === "warning") {
+                job.warnings++;
+            }
+            appendMajordomeBulkLog(message, status);
+        } catch (error) {
+            job.failed++;
+            appendMajordomeBulkLog(`${label} failed: ${(error && error.message) || "Unknown error."}`, "error");
+            console.error("Majordome bulk update failed:", error);
+        } finally {
+            job.active--;
+            job.processed = job.completed + job.failed;
+            updateMajordomeBulkProgress(job.processed, job.items.length);
+            updateMajordomeBulkActiveStatus(job);
+        }
+    }
+
+    async function runMajordomeBulkWorker(job) {
+        while (!job.cancelRequested) {
+            const index = job.nextIndex++;
+            if (index >= job.items.length) break;
+
+            await runMajordomeBulkItem(job, job.items[index]);
+
+            if (job.cancelRequested) break;
+
+            if (job.config.delayAfterMs > 0 && job.processed < job.items.length) {
+                setMajordomeBulkStatus("Waiting before the next request...");
+                await waitMajordomeBulkDelay(job.config.delayAfterMs, job);
+            }
+        }
+    }
+
+    async function startMajordomeBulkJob() {
+        const job = majordomeBulkJob;
+        if (!job || job.running || !job.items.length) return;
+
+        job.running = true;
+        setMajordomeBulkToolbarBusy(true);
+        $("#majordomeBulkStart").prop("disabled", true);
+        $("#majordomeBulkCancel").prop("disabled", false).text("Cancel");
+
+        try {
+            const workerCount = Math.min(job.concurrency, job.items.length);
+            if (workerCount > 1) {
+                setMajordomeBulkStatus(`Starting ${workerCount} uploads at a time...`);
+            }
+
+            const workers = [];
+            for (let i = 0; i < workerCount; i++) {
+                workers.push(runMajordomeBulkWorker(job));
+            }
+
+            await Promise.all(workers);
+
+            if (typeof job.config.afterComplete === "function" && job.processed > 0) {
+                setMajordomeBulkStatus("Refreshing inventory list...");
+                try {
+                    await job.config.afterComplete(job);
+                } catch (error) {
+                    appendMajordomeBulkLog(`Inventory refresh failed: ${(error && error.message) || "Unknown error."}`, "error");
+                    console.error("Majordome bulk refresh failed:", error);
+                }
+            } else if (job.completed > 0) {
+                setMajordomeBulkStatus("Refreshing inventory list...");
+                try {
+                    const data = await getUpdatedItems();
+                    updateRow(data);
+                } catch (error) {
+                    appendMajordomeBulkLog(`Inventory refresh failed: ${(error && error.message) || "Unknown error."}`, "error");
+                    console.error("Majordome bulk refresh failed:", error);
+                }
+            }
+
+            if (job.cancelRequested && job.processed < job.items.length) {
+                setMajordomeBulkStatus(`Canceled after ${job.processed} of ${job.items.length}. Completed changes were kept.`);
+            } else if (job.failed > 0) {
+                setMajordomeBulkStatus(`Finished with ${job.failed} error${job.failed === 1 ? "" : "s"}.`);
+            } else if (job.warnings > 0) {
+                setMajordomeBulkStatus(`Completed ${job.completed} of ${job.items.length} with ${job.warnings} warning${job.warnings === 1 ? "" : "s"}.`);
+            } else {
+                setMajordomeBulkStatus(`Completed ${job.completed} of ${job.items.length}.`);
+            }
+        } finally {
+            job.running = false;
+            setMajordomeBulkToolbarBusy(false);
+            $("#majordomeBulkStart").prop("disabled", true).addClass("d-none");
+            $("#majordomeBulkCancel").prop("disabled", false).text("Close");
+        }
+    }
+
+    function cancelMajordomeBulkJob() {
+        if (!majordomeBulkJob) {
+            hideMajordomeBulkModal();
+            return;
+        }
+
+        if (majordomeBulkJob.running) {
+            majordomeBulkJob.cancelRequested = true;
+            $("#majordomeBulkCancel").prop("disabled", true).text("Stopping...");
+            setMajordomeBulkStatus(majordomeBulkJob.config.cancelMessage || "Cancel requested. The current item will finish, then the job will stop.");
+            return;
+        }
+
+        hideMajordomeBulkModal();
     }
 
     function hasMajordomeImage(vehicle) {

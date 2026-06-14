@@ -546,7 +546,16 @@ function applyUploadedImagesToMajordomeState(stock, images) {
 }
 
 function uploadFiles(stock, input) {
-    const files = input.files;
+    const files = Array.from((input && input.files) || []);
+    if (!files.length) return;
+
+    if (typeof window.openMajordomeImageUploadProgressModal === "function") {
+        window.openMajordomeImageUploadProgressModal(stock, files);
+        if (input) {
+            input.value = "";
+        }
+        return;
+    }
 
     const formData = new FormData();
     for (let i = 0; i < files.length; i++) {
@@ -558,8 +567,16 @@ function uploadFiles(stock, input) {
 }
 
 function uploadDroppedFiles(stock, files) {
+    const fileList = Array.from(files || []);
+    if (!fileList.length) return;
+
+    if (typeof window.openMajordomeImageUploadProgressModal === "function") {
+        window.openMajordomeImageUploadProgressModal(stock, fileList);
+        return;
+    }
+
     const formData = new FormData();
-    files.forEach(f => formData.append("files", f, f.name));
+    fileList.forEach(f => formData.append("files", f, f.name));
     formData.append("stock", stock);
 
     upload(formData, stock);
