@@ -21,6 +21,13 @@ namespace GTX.Common
             // Don’t break child actions, ajax, etc. (optional rules)
             if (filterContext.IsChildAction) return;
 
+            if (filterContext.ActionDescriptor.IsDefined(typeof(AllowAnonymousAttribute), true) ||
+                filterContext.ActionDescriptor.ControllerDescriptor.IsDefined(typeof(AllowAnonymousAttribute), true))
+            {
+                base.OnActionExecuting(filterContext);
+                return;
+            }
+
             var role = RoleCookie.GetCurrentRole(
                 filterContext.HttpContext.Request,
                 filterContext.HttpContext.Session

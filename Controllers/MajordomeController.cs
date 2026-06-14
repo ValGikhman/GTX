@@ -34,6 +34,7 @@ namespace GTX.Controllers
         private const int UploadPngCompressionLevel = 9;
         private const string UploadJpegExtension = ".jpg";
         private const string UploadPngExtension = ".png";
+        private const int QrTextMaxLength = 2048;
 
         private static readonly HashSet<string> UploadImageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {
             ".jpg",
@@ -1042,11 +1043,32 @@ namespace GTX.Controllers
 
         }
 
-        [OutputCache(Duration = 86400, VaryByParam = "text")] // cache for speed
-        public ActionResult Qr(string text)
+        [AllowAnonymous]
+        [HttpGet]
+        [OutputCache(Duration = 86400, VaryByParam = "text;stock;vin")] // cache for speed
+        public ActionResult Qr(string text, string stock, string vin)
         {
+            text = (text ?? string.Empty).Trim();
+
             if (string.IsNullOrWhiteSpace(text))
-                return new HttpStatusCodeResult(400, "QR text is required");
+            {
+                stock = (stock ?? string.Empty).Trim();
+                vin = (vin ?? string.Empty).Trim();
+
+                if (string.IsNullOrWhiteSpace(stock))
+                    return new HttpStatusCodeResult(400, "QR text or stock is required");
+
+                var query = "stock=" + HttpUtility.UrlEncode(stock);
+                if (!string.IsNullOrWhiteSpace(vin))
+                {
+                    query += "&QR=" + HttpUtility.UrlEncode(vin);
+                }
+
+                text = "https://usedcarscincinnati.com/Inventory/Details?" + query;
+            }
+
+            if (text.Length > QrTextMaxLength)
+                return new HttpStatusCodeResult(400, "QR text is too long");
 
             using (var qrGenerator = new QRCodeGenerator())
             using (var qrData = qrGenerator.CreateQrCode(text, QRCodeGenerator.ECCLevel.Q))

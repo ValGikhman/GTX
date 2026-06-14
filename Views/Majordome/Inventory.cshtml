@@ -1945,7 +1945,6 @@
 
         showVehicleDetails(selectedVehicle);
         loadGallery(selectedVehicle);
-        setDetails(vehicle.Stock);
         syncMajordomeQrCode(selectedVehicle);
         syncMajordomeGalleryAvailability();
     }
@@ -2022,8 +2021,7 @@
 
     function syncMajordomeQrCode(vehicle) {
         if (!vehicle) return;
-        const qrText = `https://usedcarscincinnati.com/Inventory/Details?stock=${vehicle.Stock}&QR=${encodeURIComponent(vehicle.VIN)}`;
-        const qrUrl = "/Majordome/Qr?text=" + encodeURIComponent(qrText);
+        const qrUrl = "/Majordome/Qr?stock=" + encodeURIComponent(vehicle.Stock || "") + "&vin=" + encodeURIComponent(vehicle.VIN || "");
         $("#qrImg").attr("src", qrUrl);
         $("#qrText").text(`${vehicle.Year} ${vehicle.Make} ${vehicle.Model} Stock# ${vehicle.Stock}`);
         $("#QR-code-tab").removeClass("d-none");
