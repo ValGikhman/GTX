@@ -72,10 +72,9 @@
         </button>
         <div id="@panelId" class="collapse">
             <div class="inventory-filter-panel-body inventory-range-panel-body">
-                <div class="inventory-range-values">
-                    <output class="inventory-range-output shadow" for="@($"{panelId}Min")" data-range-value-label-min="@field"></output>
-                    <span class="inventory-range-separator">-</span>
-                    <output class="inventory-range-output shadow" for="@($"{panelId}Max")" data-range-value-label-max="@field"></output>
+                <div class="inventory-range-values pb-2">
+                    <output class="inventory-range-output" for="@($"{panelId}Min")" data-range-value-label-min="@field"></output>
+                    <output class="inventory-range-output" for="@($"{panelId}Max")" data-range-value-label-max="@field"></output>
                 </div>
                 <div id="@($"{panelId}Slider")" class="inventory-dual-range-slider" data-range-slider></div>
                 <input id="@($"{panelId}Min")"
@@ -458,8 +457,8 @@
     .inventory-range-values {
         display: flex;
         align-items: center;
-        justify-content: center;
-        gap: .32rem;
+        justify-content: space-between;
+        gap: .4rem;
         margin-bottom: .35rem;
         color: #1f2937;
         font-size: .72rem;
@@ -467,6 +466,7 @@
     }
 
     .inventory-range-separator {
+        display: none;
         flex: 0 0 auto;
         color: #6b7280;
     }
@@ -477,12 +477,19 @@
         max-width: 6.4rem;
         padding: .08rem .32rem;
         border-radius: .38rem;
-        background: #e5e7eb;
         color: #1f2937;
         text-align: center;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+    }
+
+    .inventory-range-output:first-of-type {
+        text-align: left;
+    }
+
+    .inventory-range-output:last-of-type {
+        text-align: right;
     }
 
     .inventory-range-input {
@@ -508,10 +515,10 @@
     }
 
     .inventory-dual-range-slider .noUi-handle {
-        width: 14px;
-        height: 14px;
-        right: -7px;
-        top: -7px;
+        width: 18px;
+        height: 18px;
+        right: -9px;
+        top: -9px;
         border-radius: 999px;
         border: 1px solid rgba(15, 23, 42, .22);
         background: linear-gradient(180deg, #ffffff, #e5e7eb);
