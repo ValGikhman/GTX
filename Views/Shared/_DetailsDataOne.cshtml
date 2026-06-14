@@ -316,19 +316,16 @@
                                 <div class="gtx-price-table-wrap mt-3">
                                     <table class="table table-sm kv gtx-price-table gtx-detail-table">
                                         <tbody>
-                                            @if (retailPrice > 0)
-                                            {
-                                                <tr>
-                                                    <td>
-                                                        <span class="text-decoration-line-through" style="color: slategrey"><i class="bi bi-tag me-1"></i>@I18n.R("All_RetailPrice")</span>
-                                                    </td>
-                                                    <td>
-                                                        <span class="text-decoration-line-through" style="color: slategrey">
-                                                            @(retailPrice.ToString("C0", usCulture))
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                            }
+                                            <tr>
+                                                <td>
+                                                    <span class="text-decoration-line-through" style="color: slategrey"><i class="bi bi-tag me-1"></i>@I18n.R("All_RetailPrice")</span>
+                                                </td>
+                                                <td>
+                                                    <span class="text-decoration-line-through" style="color: slategrey">
+                                                        @(retailPrice.ToString("C0", usCulture))
+                                                    </span>
+                                                </td>
+                                            </tr>
                                             <tr>
                                                 <td class="fw-bold text-danger"><i class="bi bi-car-front me-1"></i>@I18n.R("All_InternetPrice")</td>
                                                 <td class="fw-bold text-danger">@(internetPrice.ToString("C0", usCulture))</td>
