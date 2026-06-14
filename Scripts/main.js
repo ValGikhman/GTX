@@ -338,11 +338,24 @@ function hideSpinner(object) {
 }
 
 function getNow() {
-    $.get(`${root}Inventory/GetNow`, {
-        offset: new Date().getTimezoneOffset() 
+    var $schedule = $(".schedule");
+    if (!$schedule.length) return;
+
+    $.ajax({
+        url: `${root}Inventory/GetNow`,
+        type: "GET",
+        data: {
+            offset: new Date().getTimezoneOffset()
+        },
+        timeout: 10000
     })
     .done(function (html) {
-        $(".schedule").text(html.Now);
+        if (html && typeof html.Now !== "undefined") {
+            $schedule.text(html.Now);
+        }
+    })
+    .fail(function () {
+        // Non-critical header poll; keep the page usable if the request is interrupted.
     });
 }
 

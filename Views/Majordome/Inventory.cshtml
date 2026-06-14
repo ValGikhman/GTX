@@ -668,6 +668,9 @@
     let majordomeBulkJob = null;
     window.majordomeSelectedStock = "";
     const majordomeSortState = { key: "", direction: "" };
+    const majordomeImageUploadConcurrency = 3;
+    const majordomeUploadMaxAttempts = 3;
+    const majordomeUploadRequestTimeoutMs = 120000;
 
     const toolbarOptions = [
         ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
@@ -1267,47 +1270,146 @@
         }
     }
 
-    async function uploadMajordomeBulkImageFile(stock, file) {
+    function buildMajordomeUploadFormData(stock, file) {
         const formData = new FormData();
         formData.append("files", file, file.name);
         formData.append("stock", stock);
+        return formData;
+    }
 
-        const response = await fetch(`${root}Majordome/UploadInventoryFiles`, {
-            method: "POST",
-            body: formData,
-            headers: {
-                "Cache-Control": "no-cache"
+    function getMajordomeBulkUploadErrorMessage(error) {
+        const message = safeText(error?.message).trim();
+        if (!message || /^failed to fetch$/i.test(message)) {
+            return "Upload connection was interrupted. The server may have reset the HTTP/2 upload request.";
+        }
+
+        return message;
+    }
+
+    function isMajordomeTransientUploadError(error) {
+        const message = safeText(error?.message).toLowerCase();
+        return error?.name === "AbortError" ||
+            message.indexOf("failed to fetch") >= 0 ||
+            message.indexOf("network") >= 0 ||
+            message.indexOf("protocol") >= 0 ||
+            message.indexOf("connection") >= 0 ||
+            message.indexOf("timeout") >= 0 ||
+            message.indexOf("interrupted") >= 0;
+    }
+
+    async function fetchMajordomeUploadWithTimeout(url, options, job) {
+        const fetchOptions = Object.assign({}, options || {});
+        const canAbort = typeof AbortController !== "undefined";
+        let controller = null;
+        let timeoutId = null;
+
+        if (canAbort) {
+            controller = new AbortController();
+            fetchOptions.signal = controller.signal;
+
+            if (job) {
+                job.abortControllers = job.abortControllers || new Set();
+                job.abortControllers.add(controller);
             }
-        });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || `Upload failed: ${response.status} ${response.statusText}`);
+            timeoutId = setTimeout(function () {
+                controller.abort();
+            }, majordomeUploadRequestTimeoutMs);
         }
 
-        let payload = null;
         try {
-            payload = await response.json();
-        } catch (jsonError) {
-            payload = null;
+            return await fetch(url, fetchOptions);
+        } catch (error) {
+            if (error && error.name === "AbortError" && !(job && job.cancelRequested)) {
+                throw new Error(`Upload timed out after ${Math.round(majordomeUploadRequestTimeoutMs / 1000)} seconds.`);
+            }
+
+            throw error;
+        } finally {
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+
+            if (job && job.abortControllers && controller) {
+                job.abortControllers.delete(controller);
+            }
+        }
+    }
+
+    async function uploadMajordomeBulkImageFile(stock, file, job) {
+        const label = getMajordomeBulkFileLabel(file);
+        let lastError = null;
+
+        for (let attempt = 1; attempt <= majordomeUploadMaxAttempts; attempt++) {
+            if (job && job.cancelRequested) {
+                throw new Error("Canceled.");
+            }
+
+            try {
+                const response = await fetchMajordomeUploadWithTimeout(`${root}Majordome/UploadInventoryFiles`, {
+                    method: "POST",
+                    body: buildMajordomeUploadFormData(stock, file),
+                    credentials: "same-origin",
+                    headers: {
+                        "Cache-Control": "no-cache"
+                    }
+                }, job);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    const error = new Error(errorText || `Upload failed: ${response.status} ${response.statusText}`);
+                    error.isHttpError = true;
+                    throw error;
+                }
+
+                let payload = null;
+                try {
+                    payload = await response.json();
+                } catch (jsonError) {
+                    payload = null;
+                }
+
+                if (payload && payload.success === false) {
+                    const errors = Array.isArray(payload.errors) && payload.errors.length
+                        ? payload.errors.join("; ")
+                        : "";
+                    const error = new Error(errors || payload.message || "Upload failed.");
+                    error.isHttpError = true;
+                    throw error;
+                }
+
+                const retrySuffix = attempt > 1 ? ` after retry ${attempt - 1}` : "";
+                if (payload && payload.uploaded > 0) {
+                    return { status: "success", message: `${label} uploaded${retrySuffix}.` };
+                }
+
+                if (payload && payload.skipped > 0) {
+                    return { status: "warning", message: `${label} skipped${retrySuffix}.` };
+                }
+
+                return { status: "success", message: `${label} completed${retrySuffix}.` };
+            } catch (error) {
+                lastError = error;
+
+                if (job && job.cancelRequested) {
+                    throw new Error("Canceled.");
+                }
+
+                const canRetry = attempt < majordomeUploadMaxAttempts &&
+                    !error?.isHttpError &&
+                    isMajordomeTransientUploadError(error);
+
+                if (!canRetry) {
+                    break;
+                }
+
+                const delayMs = 700 + (attempt * 900) + Math.floor(Math.random() * 600);
+                appendMajordomeBulkLog(`${label}: upload connection interrupted, retrying ${attempt + 1} of ${majordomeUploadMaxAttempts}...`, "warning");
+                await waitMajordomeBulkDelay(delayMs, job);
+            }
         }
 
-        if (payload && payload.success === false) {
-            const errors = Array.isArray(payload.errors) && payload.errors.length
-                ? payload.errors.join("; ")
-                : "";
-            throw new Error(errors || payload.message || "Upload failed.");
-        }
-
-        if (payload && payload.uploaded > 0) {
-            return { status: "success", message: `${getMajordomeBulkFileLabel(file)} uploaded.` };
-        }
-
-        if (payload && payload.skipped > 0) {
-            return { status: "warning", message: `${getMajordomeBulkFileLabel(file)} skipped.` };
-        }
-
-        return { status: "success", message: `${getMajordomeBulkFileLabel(file)} completed.` };
+        throw new Error(getMajordomeBulkUploadErrorMessage(lastError));
     }
 
     async function deleteMajordomeBulkImagesForVehicle(vehicle, options) {
@@ -1392,14 +1494,14 @@
         if (actionKey === "images") {
             const stock = safeText(settings.stock).trim();
             const files = getMajordomeImageUploadFiles(settings.files);
-            const concurrency = Math.max(1, Math.min(5, files.length));
+            const concurrency = Math.max(1, Math.min(majordomeImageUploadConcurrency, files.length));
 
             return {
                 title: `Upload images for Stock# ${stock}`,
                 emptyText: "No image files were selected.",
                 concurrency: concurrency,
                 concurrentLabel: "uploads",
-                cancelMessage: "Cancel requested. Active uploads will finish, then the remaining files will stop.",
+                cancelMessage: "Cancel requested. Active uploads will stop if possible, then the remaining files will stop.",
                 intro: function (count) {
                     const suffix = count === 1
                         ? "1 image"
@@ -1410,8 +1512,8 @@
                     return files;
                 },
                 getLabel: getMajordomeBulkFileLabel,
-                run: async function (file) {
-                    return uploadMajordomeBulkImageFile(stock, file);
+                run: async function (file, job) {
+                    return uploadMajordomeBulkImageFile(stock, file, job);
                 },
                 afterComplete: async function () {
                     window.majordomeSelectedStock = stock;
@@ -1751,6 +1853,15 @@
 
         if (majordomeBulkJob.running) {
             majordomeBulkJob.cancelRequested = true;
+            if (majordomeBulkJob.abortControllers) {
+                majordomeBulkJob.abortControllers.forEach(function (controller) {
+                    try {
+                        controller.abort();
+                    } catch (error) {
+                    }
+                });
+                majordomeBulkJob.abortControllers.clear();
+            }
             $("#majordomeBulkCancel").prop("disabled", true).text("Stopping...");
             setMajordomeBulkStatus(majordomeBulkJob.config.cancelMessage || "Cancel requested. The current item will finish, then the job will stop.");
             return;
