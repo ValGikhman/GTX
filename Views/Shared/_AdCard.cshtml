@@ -113,57 +113,60 @@
     var adCardImageUrl = BuildAdCardImageUrl(Model.Image);
     var adCardTitle = $"{Model.Year} {Model.Make} {Model.Model} {Model.VehicleStyle}".Trim();
     var usCulture = System.Globalization.CultureInfo.GetCultureInfo("en-US");
+    var documentaryFee = Model.RetailPrice > 0 ? Constants.DOCUMENTARY_FEE : 0;
+    var transparentPrice = Model.InternetPrice + documentaryFee;
+    var stockValue = (Model.Stock ?? string.Empty).ToUpperInvariant();
+    var makeValue = (Model.Make ?? string.Empty).ToUpperInvariant();
+    var modelValue = (Model.Model ?? string.Empty).ToUpperInvariant();
+    var styleValue = (Model.VehicleStyle ?? string.Empty).ToUpperInvariant();
+    var typeValue = (Model.VehicleType ?? string.Empty).ToUpperInvariant();
 }
 
 <div id="@Model.Stock"
-    class="btn btn-light hover-bw"
-    title="Click here to see details."
-    data-url="@detailsUrl"
-    data-year="@Model.Year"
-    data-stock="@Model.Stock.ToUpper()"
-    data-make="@Model.Make.ToUpper()"
-    data-model="@Model.Model.ToUpper()"
-    data-style="@Model.VehicleStyle.ToUpper()"
-    data-type="@Model.VehicleType.ToUpper()">
-
-    <a class="d-flex align-items-center btn btn-outline-light text-start" style="text-decoration: none;">
-        <!-- Image Left -->
+     class="gtx-ad-card hover-bw"
+     title="Click here to see details."
+     data-url="@detailsUrl"
+     data-year="@Model.Year"
+     data-stock="@stockValue"
+     data-make="@makeValue"
+     data-model="@modelValue"
+     data-style="@styleValue"
+     data-type="@typeValue">
+    <div class="gtx-ad-card-media">
         <img src="@adCardImageUrl"
              alt="@adCardTitle"
-             class="rounded-3 me-3"
-             style="width: 100px; height: auto; object-fit: cover; max-height: 76px;"
+             class="gtx-ad-card-img"
              loading="lazy"
              decoding="async"
-             fetchpriority="low">
+             fetchpriority="low" />
+        <span class="gtx-ad-card-mileage">@Model.Mileage.ToString("N0") @I18n.R("All_Miles")</span>
+    </div>
 
-        <!-- Details Right -->
-        <div class="flex-grow-1 p-0">
-            <h6>
-                <strong>@Model.Year @Model.Make</strong>
-            </h6>
-            <div>
-                <h8 class="fw-bold mb-1">
-                    @Model.Model - @Model.VehicleStyle
-                </h8>
-            </div>
+    <div class="gtx-ad-card-body">
+        <h6 class="gtx-ad-card-title">@Model.Year @Model.Make @Model.Model</h6>
+        <div class="gtx-ad-card-subtitle">@Model.VehicleStyle</div>
+
+        <div class="gtx-ad-price-panel">
             @if (Model.RetailPrice > 0)
             {
-                <div>
-                    <h8 class="fw-bold mb-1">
-                        <strong>@I18n.R("All_RetailPrice"): </strong><span class="text-decoration-line-through text-secondary">@Model.RetailPrice.ToString("C0", usCulture)</span>
-                    </h8>
+                <div class="gtx-ad-price-row gtx-ad-retail">
+                    <span>@I18n.R("All_RetailPrice")</span>
+                    <span class="gtx-ad-price-amount">@Model.RetailPrice.ToString("C0", usCulture)</span>
                 </div>
             }
-            <div>
-                <h8 class="fw-bold mb-1">
-                    <strong>@I18n.R("All_InternetPrice"): </strong>@Model.InternetPrice.ToString("C0", usCulture)
-                </h8>
+            <div class="gtx-ad-price-row">
+                <span>@I18n.R("All_InternetPrice")</span>
+                <span class="gtx-ad-price-amount">@Model.InternetPrice.ToString("C0", usCulture)</span>
             </div>
-            <div>
-                <h8 class="fw-bold mb-1">
-                    <strong>@I18n.R("All_Miles"): </strong>@Model.Mileage.ToString("N0")
-                </h8>
+            <div class="gtx-ad-price-row">
+                <span>@I18n.R("All_DocumentaryFee")</span>
+                <span class="gtx-ad-price-amount">@documentaryFee.ToString("C0", usCulture)</span>
+            </div>
+            <div class="gtx-ad-price-row gtx-ad-transparent">
+                <span><i class="bi bi-patch-check-fill text-warning me-1"></i>@I18n.R("All_TransparentPrice")</span>
+                <span class="gtx-ad-price-amount">@transparentPrice.ToString("C0", usCulture)</span>
             </div>
         </div>
-    </a>
+
+    </div>
 </div>

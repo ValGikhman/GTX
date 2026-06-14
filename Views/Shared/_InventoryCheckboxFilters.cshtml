@@ -134,7 +134,7 @@
         </div>
 
         <div class="inventory-filter-scroll">
-            @RangePanel("invFilterYearRange", "Year", "bi-calendar3", "year", minYear, maxYear, 1m, "year")
+            @RangePanel("invFilterYearRange", I18n.R("All_Year"), "bi-calendar3", "year", minYear, maxYear, 1m, "year")
             @FilterPanel("invFilterMakes", I18n.R("All_Makes"), "bi-building", "make", Model.Filters?.Makes)
             @FilterPanel("invFilterModels", I18n.R("All_Models"), "bi-car-front", "model", Model.Filters?.Models, "Choose a make to see available models.")
             @FilterPanel("invFilterBody", I18n.R("All_Body"), "bi-truck-front", "body", Model.Filters?.BodyTypes)

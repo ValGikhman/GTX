@@ -118,7 +118,7 @@
     var carTitle = $"{Model.Year} {Model.Make} {Model.Model}";
     var cardImageUrl = BuildInventoryCardImageUrl(Model.Image);
     var usCulture = System.Globalization.CultureInfo.GetCultureInfo("en-US");
-    var documentaryFee = Constants.DOCUMENTARY_FEE;
+    var documentaryFee = Model.RetailPrice > 0 ? Constants.DOCUMENTARY_FEE : 0;
     var transparentPrice = Model.InternetPrice + documentaryFee;
     var cardIndexRaw = ViewData["InventoryCardIndex"];
     var cardIndex = cardIndexRaw is int cardIndexValue ? cardIndexValue : int.MaxValue;
@@ -644,13 +644,12 @@
                href="@detailsUrl"
                onclick="event.stopPropagation();"
                title="Click here to see details.">
-                @if (Model.RetailPrice > 0)
-                {
-                    <div class="gtx-price-line gtx-price-muted gtx-retail-line">
-                        <span><i class="bi bi-tag me-1"></i>@I18n.R("All_RetailPrice")</span>
-                        <span class="gtx-price-amount">@Model.RetailPrice.ToString("C0", usCulture)</span>
-                    </div>
-                }
+
+                <div class="gtx-price-line gtx-price-muted gtx-retail-line">
+                    <span><i class="bi bi-tag me-1"></i>@I18n.R("All_RetailPrice")</span>
+                    <span class="gtx-price-amount">@Model.RetailPrice.ToString("C0", usCulture)</span>
+                </div>
+ 
                 <div class="gtx-price-line gtx-price-muted">
                     <span><i class="bi bi-car-front me-1"></i>@I18n.R("All_InternetPrice")</span>
                     <span class="gtx-price-amount">@Model.InternetPrice.ToString("C0", usCulture)</span>
