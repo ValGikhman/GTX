@@ -146,14 +146,13 @@
                     @Model.Model - @Model.VehicleStyle
                 </h8>
             </div>
-            @if (Model.RetailPrice > 0)
-            {
-                <div>
-                    <h8 class="fw-bold mb-1">
-                        <strong>@I18n.R("All_RetailPrice"): </strong><span class="text-decoration-line-through text-secondary">@Model.RetailPrice.ToString("C0", usCulture)</span>
-                    </h8>
-                </div>
-            }
+
+            <div>
+                <h8 class="fw-bold mb-1">
+                    <strong>@I18n.R("All_RetailPrice"): </strong><span class="text-decoration-line-through text-secondary">@Model.RetailPrice.ToString("C0", usCulture)</span>
+                </h8>
+            </div>
+
             <div>
                 <h8 class="fw-bold mb-1">
                     <strong>@I18n.R("All_InternetPrice"): </strong>@Model.InternetPrice.ToString("C0", usCulture)
