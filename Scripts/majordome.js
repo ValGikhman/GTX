@@ -420,9 +420,10 @@ function saveDetails(model) {
 function loadGallery(vehicle) {
     var container = $("#sortable-gallery");
     container.empty();
-    var i = 0;
-    var cacheToken = Date.now();
-    vehicle.Images.forEach(function (img) {
+    var images = Array.isArray(vehicle && vehicle.Images) ? vehicle.Images : [];
+    var items = [];
+
+    images.forEach(function (img, index) {
         var source = (img.Source || "").toString();
         var showImageEdit = "";
         var imageIcon = "bi bi-image";
@@ -436,37 +437,42 @@ function loadGallery(vehicle) {
         }
 
         var baseImagePath = toInventoryImageUrl(source);
-        var imageHref = appendCacheBust(appendImageWidth(baseImagePath, 1600), cacheToken);
-        var imageThumb = appendCacheBust(appendImageWidth(baseImagePath, 640), cacheToken);
+        var imageHref = appendImageWidth(baseImagePath, 1600);
+        var imageThumb = appendImageWidth(baseImagePath, 640);
         var fileNameOnly = getMajordomeFileNameOnly(source) || "image";
+        var safeId = escapeHtml(img.Id);
+        var safeSource = escapeHtml(source);
+        var safeImageHref = escapeHtml(imageHref);
+        var safeImageThumb = escapeHtml(imageThumb);
         var safeFileNameOnly = escapeHtml(fileNameOnly);
+        var loadingMode = index < 4 ? "eager" : "lazy";
+        var fetchPriority = index === 0 ? "high" : "low";
 
-        var item = `
-        <li id="${img.Id}" class="majordome-photo-card" data-filename="${source}">
-            <a href="${imageHref}" class="majordome-photo-link" data-lightbox="gallery" title="${safeFileNameOnly}">
+        items.push(`
+        <li id="${safeId}" class="majordome-photo-card" data-filename="${safeSource}">
+            <a href="${safeImageHref}" class="majordome-photo-link" data-lightbox="gallery" title="${safeFileNameOnly}">
                 <div class="majordome-photo-media">
-                    <img class="majordome-photo-image" src="${imageThumb}" alt="${safeFileNameOnly}" title="${safeFileNameOnly}" loading="lazy" decoding="async" />
+                    <img class="majordome-photo-image" src="${safeImageThumb}" alt="${safeFileNameOnly}" title="${safeFileNameOnly}" loading="${loadingMode}" decoding="async" fetchpriority="${fetchPriority}" />
                 </div>
             </a>
             <div class="majordome-photo-footer">
                 <div class="majordome-photo-title" title="${safeFileNameOnly}">${safeFileNameOnly}</div>
                 <div class="majordome-photo-actions">
-                    <button type="button" id="${img.Id}" class="delete-image bi bi-trash btn btn-light shadow-sm" data-filename="${source}" title="Delete image"></button>
-                    <button type="button" id="${img.Id}" class="overlay-image ${imageIcon} btn btn-light shadow-sm ${showImageEdit}" data-filename="${source}" title="Add overlay"></button>
-                    <button type="button" id="${img.Id}" class="rotate-image-ccw bi bi-arrow-counterclockwise btn btn-light shadow-sm ${showImageEdit}" data-filename="${source}" data-degrees="-90" title="Rotate image left"></button>
-                    <button type="button" id="${img.Id}" class="rotate-image bi bi-arrow-clockwise btn btn-light shadow-sm ${showImageEdit}" data-filename="${source}" data-degrees="90" title="Rotate image right"></button>
+                    <button type="button" id="${safeId}" class="delete-image bi bi-trash btn btn-light shadow-sm" data-filename="${safeSource}" title="Delete image"></button>
+                    <button type="button" id="${safeId}" class="overlay-image ${imageIcon} btn btn-light shadow-sm ${showImageEdit}" data-filename="${safeSource}" title="Add overlay"></button>
+                    <button type="button" id="${safeId}" class="rotate-image-ccw bi bi-arrow-counterclockwise btn btn-light shadow-sm ${showImageEdit}" data-filename="${safeSource}" data-degrees="-90" title="Rotate image left"></button>
+                    <button type="button" id="${safeId}" class="rotate-image bi bi-arrow-clockwise btn btn-light shadow-sm ${showImageEdit}" data-filename="${safeSource}" data-degrees="90" title="Rotate image right"></button>
                     <button type="button" class="move-to-top bi bi-front btn btn-light shadow-sm" title="Make it default image"></button>
                 </div>
             </div>
         </li>
-        `;
-
-        var $item = $(item);
-        container.append($item);
-        applyMajordomePhotoCardOrientation($item.find(".majordome-photo-image"));
-        i++;
+        `);
     });
 
+    container.html(items.join(""));
+    container.find(".majordome-photo-image").each(function () {
+        applyMajordomePhotoCardOrientation($(this));
+    });
     updateGalleryDisplay();
 }
 
