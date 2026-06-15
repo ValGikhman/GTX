@@ -1170,8 +1170,8 @@
         return null;
     }
 
-    function applyMajordomeBulkUploadPayload(stock, payload, job) {
-        if (!payload || !Array.isArray(payload.images) || typeof applyUploadedImagesToMajordomeState !== "function") {
+    function recordMajordomeBulkUploadPayload(stock, payload, job) {
+        if (!job || !payload || !Array.isArray(payload.images)) {
             return false;
         }
 
@@ -1181,16 +1181,33 @@
             return false;
         }
 
-        const applied = applyUploadedImagesToMajordomeState(stock, payload.images, {
+        const currentPayload = job.latestUploadPayload;
+        const currentPayloadCount = Array.isArray(currentPayload?.images) ? currentPayload.images.length : -1;
+        if (payload.images.length < currentPayloadCount) {
+            return false;
+        }
+
+        job.latestUploadPayload = {
+            stock: stock,
+            images: payload.images,
+            image: payload.image
+        };
+
+        return true;
+    }
+
+    function applyMajordomeBulkStoredUploadPayload(job) {
+        const payload = job?.latestUploadPayload;
+        if (!payload || !Array.isArray(payload.images) || typeof applyUploadedImagesToMajordomeState !== "function") {
+            return false;
+        }
+
+        const applied = applyUploadedImagesToMajordomeState(payload.stock, payload.images, {
             image: payload.image,
             selectVehicle: true,
             updateGallery: true,
             activateGallery: true
         });
-
-        if (applied && job) {
-            job.localStateUpdated = true;
-        }
 
         return applied;
     }
@@ -1438,16 +1455,16 @@
                 }
 
                 const retrySuffix = attempt > 1 ? ` after retry ${attempt - 1}` : "";
-                const localStateUpdated = applyMajordomeBulkUploadPayload(stock, payload, job);
+                const uploadPayloadRecorded = recordMajordomeBulkUploadPayload(stock, payload, job);
                 if (payload && payload.uploaded > 0) {
-                    return { status: "success", message: `${label} uploaded${retrySuffix}.`, localStateUpdated: localStateUpdated };
+                    return { status: "success", message: `${label} uploaded${retrySuffix}.`, uploadPayloadRecorded: uploadPayloadRecorded };
                 }
 
                 if (payload && payload.skipped > 0) {
-                    return { status: "warning", message: `${label} skipped${retrySuffix}.`, localStateUpdated: localStateUpdated };
+                    return { status: "warning", message: `${label} skipped${retrySuffix}.`, uploadPayloadRecorded: uploadPayloadRecorded };
                 }
 
-                return { status: "success", message: `${label} completed${retrySuffix}.`, localStateUpdated: localStateUpdated };
+                return { status: "success", message: `${label} completed${retrySuffix}.`, uploadPayloadRecorded: uploadPayloadRecorded };
             } catch (error) {
                 lastError = error;
 
@@ -1581,7 +1598,7 @@
                     window.majordomeSelectedStock = stock;
                     window.majordomeForceActiveTab = "gallery-tab";
 
-                    if (job && job.localStateUpdated) {
+                    if (job && applyMajordomeBulkStoredUploadPayload(job)) {
                         syncMajordomeGalleryAvailability();
                         syncMajordomeEmptyState();
                         $("#gallery-tab").tab("show");
@@ -1871,8 +1888,8 @@
             if (status === "warning") {
                 job.warnings++;
             }
-            if (result && result.localStateUpdated) {
-                job.localStateUpdated = true;
+            if (result && result.uploadPayloadRecorded) {
+                job.uploadPayloadRecorded = true;
             }
             progressUnits = getMajordomeBulkProgressUnits(job, result);
             appendMajordomeBulkLog(message, status);
