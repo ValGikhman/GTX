@@ -291,7 +291,8 @@ namespace GTX.Controllers
             try {
                 var normalizedStock = (stock ?? string.Empty).Trim();
                 if (string.IsNullOrWhiteSpace(normalizedStock)) {
-                    return new HttpStatusCodeResult(400, "Stock is required.");
+                    Response.StatusCode = 400;
+                    return Json(new { success = false, message = "Stock is required." });
                 }
 
                 var uploadPath = CombineUnderInventoryImagesRoot(normalizedStock);
@@ -366,7 +367,8 @@ namespace GTX.Controllers
             }
             catch (Exception ex) {
                 System.Diagnostics.Debug.WriteLine("Upload failed completely: " + ex.Message);
-                return new HttpStatusCodeResult(500, "Upload failed: " + ex.Message);
+                Response.StatusCode = 500;
+                return Json(new { success = false, message = "Upload failed: " + ex.Message });
             }
         }
 

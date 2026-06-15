@@ -628,10 +628,7 @@ async function upload(formData, stock) {
     try {
         const response = await fetch("/Majordome/UploadInventoryFiles", {
             method: "POST",
-            body: formData,
-            headers: {
-                "Cache-Control": "no-cache"
-            }
+            body: formData
         });
 
         if (!response.ok) {
