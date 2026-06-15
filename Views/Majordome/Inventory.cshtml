@@ -1145,6 +1145,56 @@
         return getMajordomeImageCount(vehicle) > 0;
     }
 
+    function getMajordomeBulkVehicleByStock(stock) {
+        const stockKey = safeText(stock).trim().toUpperCase();
+        if (!stockKey) return null;
+
+        if (selectedVehicle && safeText(selectedVehicle.Stock).trim().toUpperCase() === stockKey) {
+            return selectedVehicle;
+        }
+
+        const sources = [inventoryVehicles, inventoryVehiclesSource];
+        for (let i = 0; i < sources.length; i++) {
+            const source = sources[i];
+            if (!Array.isArray(source)) continue;
+
+            const vehicle = source.find(function (item) {
+                return safeText(item?.Stock).trim().toUpperCase() === stockKey;
+            });
+
+            if (vehicle) {
+                return vehicle;
+            }
+        }
+
+        return null;
+    }
+
+    function applyMajordomeBulkUploadPayload(stock, payload, job) {
+        if (!payload || !Array.isArray(payload.images) || typeof applyUploadedImagesToMajordomeState !== "function") {
+            return false;
+        }
+
+        const vehicle = getMajordomeBulkVehicleByStock(stock);
+        const currentCount = getMajordomeImageCount(vehicle);
+        if (payload.images.length < currentCount) {
+            return false;
+        }
+
+        const applied = applyUploadedImagesToMajordomeState(stock, payload.images, {
+            image: payload.image,
+            selectVehicle: true,
+            updateGallery: true,
+            activateGallery: true
+        });
+
+        if (applied && job) {
+            job.localStateUpdated = true;
+        }
+
+        return applied;
+    }
+
     function getMajordomeBulkImageDeleteItems(settings) {
         const stock = safeText(settings?.stock).trim();
         const fallbackCount = Math.max(0, parseInt(settings?.count, 10) || 0);
@@ -1388,15 +1438,16 @@
                 }
 
                 const retrySuffix = attempt > 1 ? ` after retry ${attempt - 1}` : "";
+                const localStateUpdated = applyMajordomeBulkUploadPayload(stock, payload, job);
                 if (payload && payload.uploaded > 0) {
-                    return { status: "success", message: `${label} uploaded${retrySuffix}.` };
+                    return { status: "success", message: `${label} uploaded${retrySuffix}.`, localStateUpdated: localStateUpdated };
                 }
 
                 if (payload && payload.skipped > 0) {
-                    return { status: "warning", message: `${label} skipped${retrySuffix}.` };
+                    return { status: "warning", message: `${label} skipped${retrySuffix}.`, localStateUpdated: localStateUpdated };
                 }
 
-                return { status: "success", message: `${label} completed${retrySuffix}.` };
+                return { status: "success", message: `${label} completed${retrySuffix}.`, localStateUpdated: localStateUpdated };
             } catch (error) {
                 lastError = error;
 
@@ -1447,7 +1498,8 @@
         const suffix = deletedCount === 1 ? "image" : "images";
         return {
             status: "success",
-            message: `${stock}: deleted ${deletedCount} ${suffix}.`
+            message: `${stock}: deleted ${deletedCount} ${suffix}.`,
+            progressUnits: deletedCount
         };
     }
 
@@ -1524,14 +1576,25 @@
                 run: async function (file, job) {
                     return uploadMajordomeBulkImageFile(stock, file, job);
                 },
-                afterComplete: async function () {
+                afterCompleteStatus: "Updating image counts...",
+                afterComplete: async function (job) {
                     window.majordomeSelectedStock = stock;
                     window.majordomeForceActiveTab = "gallery-tab";
+
+                    if (job && job.localStateUpdated) {
+                        syncMajordomeGalleryAvailability();
+                        syncMajordomeEmptyState();
+                        $("#gallery-tab").tab("show");
+                        return;
+                    }
+
                     if (typeof refreshMajordomeAfterImageMutation === "function") {
+                        setMajordomeBulkStatus("Refreshing inventory list...");
                         await refreshMajordomeAfterImageMutation(stock, { keepGalleryTab: true });
                         return;
                     }
 
+                    setMajordomeBulkStatus("Refreshing inventory list...");
                     const data = await getUpdatedItems();
                     updateRow(data);
                 }
@@ -1544,6 +1607,12 @@
 
             const items = getMajordomeBulkImageDeleteItems(settings);
             const concurrency = Math.max(1, Math.min(5, items.length));
+            const explicitCount = Math.max(0, parseInt(settings.count, 10) || 0);
+            const imageCount = explicitCount > 0
+                ? explicitCount
+                : items.length
+                    ? getMajordomeBulkDeleteImageCount(items[0])
+                    : 0;
 
             return {
                 title: `Delete images for Stock# ${stock}`,
@@ -1551,14 +1620,10 @@
                 concurrency: concurrency,
                 concurrentLabel: "deletions",
                 cancelMessage: "Cancel requested. Active deletions will finish, then the remaining vehicles will stop.",
+                progressTotal: imageCount,
                 intro: function (count) {
-                    const explicitCount = Math.max(0, parseInt(settings.count, 10) || 0);
-                    const imageCount = explicitCount > 0
-                        ? explicitCount
-                        : items.length
-                            ? getMajordomeBulkDeleteImageCount(items[0])
-                            : count;
-                    const suffix = imageCount === 1 ? "1 image" : `${imageCount} images`;
+                    const totalImages = imageCount > 0 ? imageCount : count;
+                    const suffix = totalImages === 1 ? "1 image" : `${totalImages} images`;
                     return `Ready to delete ${suffix} for Stock# ${stock}.`;
                 },
                 getItems: function () {
@@ -1633,6 +1698,31 @@
             .text(percent > 0 ? `${percent}%` : "");
     }
 
+    function getMajordomeBulkProgressTotal(config, items) {
+        const configuredTotal = parseInt(config?.progressTotal, 10) || 0;
+        return configuredTotal > 0 ? configuredTotal : items.length;
+    }
+
+    function getMajordomeBulkProgressUnits(job, result) {
+        const configuredTotal = parseInt(job?.config?.progressTotal, 10) || 0;
+        if (configuredTotal > 0) {
+            const units = parseInt(result?.progressUnits, 10) || 0;
+            return units > 0 ? units : 0;
+        }
+
+        return 1;
+    }
+
+    function getMajordomeBulkDisplayProcessed(job) {
+        const configuredTotal = parseInt(job?.config?.progressTotal, 10) || 0;
+        return configuredTotal > 0 ? job.progressProcessed : job.processed;
+    }
+
+    function getMajordomeBulkDisplayTotal(job) {
+        const configuredTotal = parseInt(job?.config?.progressTotal, 10) || 0;
+        return configuredTotal > 0 ? job.progressTotal : job.items.length;
+    }
+
     function setMajordomeBulkStatus(message) {
         $("#majordomeBulkProgressStatus").text(message || "");
     }
@@ -1677,10 +1767,13 @@
         if (!config) return;
 
         const items = config.getItems();
+        const progressTotal = getMajordomeBulkProgressTotal(config, items);
         majordomeBulkJob = {
             config: config,
             items: items,
             processed: 0,
+            progressProcessed: 0,
+            progressTotal: progressTotal,
             completed: 0,
             canceled: 0,
             failed: 0,
@@ -1696,7 +1789,7 @@
         $("#majordomeBulkProgressIntro").text(items.length > 0 ? config.intro(items.length) : config.emptyText);
         $("#majordomeBulkProgressLog").empty();
         setMajordomeBulkStatus(items.length > 0 ? "Review the job, then press Start." : "Nothing to update.");
-        updateMajordomeBulkProgress(0, items.length);
+        updateMajordomeBulkProgress(0, progressTotal);
 
         $("#majordomeBulkStart")
             .removeClass("d-none")
@@ -1754,7 +1847,7 @@
         if (!job || job.cancelRequested) return;
 
         if (job.concurrency > 1) {
-            setMajordomeBulkStatus(`${job.active} active, ${job.processed} of ${job.items.length} done.`);
+            setMajordomeBulkStatus(`${job.active} active, ${getMajordomeBulkDisplayProcessed(job)} of ${getMajordomeBulkDisplayTotal(job)} done.`);
             return;
         }
 
@@ -1765,6 +1858,7 @@
 
     async function runMajordomeBulkItem(job, item) {
         const label = getMajordomeBulkItemLabel(job, item);
+        let progressUnits = 0;
         job.active++;
         updateMajordomeBulkActiveStatus(job, label);
 
@@ -1777,6 +1871,10 @@
             if (status === "warning") {
                 job.warnings++;
             }
+            if (result && result.localStateUpdated) {
+                job.localStateUpdated = true;
+            }
+            progressUnits = getMajordomeBulkProgressUnits(job, result);
             appendMajordomeBulkLog(message, status);
         } catch (error) {
             if (job.cancelRequested && isMajordomeBulkCancelError(error)) {
@@ -1791,7 +1889,8 @@
         } finally {
             job.active--;
             job.processed = job.completed + job.failed + job.canceled;
-            updateMajordomeBulkProgress(job.processed, job.items.length);
+            job.progressProcessed = Math.min(job.progressTotal, job.progressProcessed + progressUnits);
+            updateMajordomeBulkProgress(job.progressProcessed, job.progressTotal);
             updateMajordomeBulkActiveStatus(job);
         }
     }
@@ -1853,14 +1952,17 @@
                 }
             }
 
+            const displayProcessed = getMajordomeBulkDisplayProcessed(job);
+            const displayTotal = getMajordomeBulkDisplayTotal(job);
+
             if (job.cancelRequested) {
-                setMajordomeBulkStatus(`Canceled after ${job.processed} of ${job.items.length}. Completed changes were kept.`);
+                setMajordomeBulkStatus(`Canceled after ${displayProcessed} of ${displayTotal}. Completed changes were kept.`);
             } else if (job.failed > 0) {
                 setMajordomeBulkStatus(`Finished with ${job.failed} error${job.failed === 1 ? "" : "s"}.`);
             } else if (job.warnings > 0) {
-                setMajordomeBulkStatus(`Completed ${job.completed} of ${job.items.length} with ${job.warnings} warning${job.warnings === 1 ? "" : "s"}.`);
+                setMajordomeBulkStatus(`Completed ${displayProcessed} of ${displayTotal} with ${job.warnings} warning${job.warnings === 1 ? "" : "s"}.`);
             } else {
-                setMajordomeBulkStatus(`Completed ${job.completed} of ${job.items.length}.`);
+                setMajordomeBulkStatus(`Completed ${displayProcessed} of ${displayTotal}.`);
             }
         } finally {
             job.running = false;
