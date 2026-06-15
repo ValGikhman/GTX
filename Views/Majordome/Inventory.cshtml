@@ -973,7 +973,7 @@
             e.preventDefault();
             e.stopPropagation();
             const stock = $(this).attr("data-stock");
-            const count = parseInt($(this).data("images-count"), 10) || 0;
+            const count = parseInt($(this).attr("data-images-count"), 10) || 0;
             openMajordomeImageDeleteProgressModal(stock, count);
         });
 
@@ -1136,6 +1136,11 @@
         return hasMajordomeImage(vehicle) ? 1 : 0;
     }
 
+    function getMajordomeBulkDeleteImageCount(vehicle) {
+        const explicitCount = parseInt(vehicle?.MajordomeImageDeleteCount, 10) || 0;
+        return explicitCount > 0 ? explicitCount : getMajordomeImageCount(vehicle);
+    }
+
     function hasMajordomeBulkImages(vehicle) {
         return getMajordomeImageCount(vehicle) > 0;
     }
@@ -1151,11 +1156,15 @@
             });
 
             if (vehicle) {
+                if (fallbackCount > 0) {
+                    vehicle.MajordomeImageDeleteCount = fallbackCount;
+                }
+
                 return hasMajordomeBulkImages(vehicle) ? [vehicle] : [];
             }
 
             return fallbackCount > 0
-                ? [{ Stock: stock, Images: new Array(fallbackCount) }]
+                ? [{ Stock: stock, Images: new Array(fallbackCount), MajordomeImageDeleteCount: fallbackCount }]
                 : [];
         }
 
@@ -1419,7 +1428,7 @@
             throw new Error("Stock is required.");
         }
 
-        const deletedCount = getMajordomeImageCount(vehicle);
+        const deletedCount = getMajordomeBulkDeleteImageCount(vehicle);
         const response = await postMajordome(`${root}Majordome/DeleteImages`, { stock: stock });
         if (!response || !response.success) {
             throw new Error((response && response.message) || "Failed to delete images.");
@@ -1543,7 +1552,12 @@
                 concurrentLabel: "deletions",
                 cancelMessage: "Cancel requested. Active deletions will finish, then the remaining vehicles will stop.",
                 intro: function (count) {
-                    const imageCount = items.length ? getMajordomeImageCount(items[0]) : count;
+                    const explicitCount = Math.max(0, parseInt(settings.count, 10) || 0);
+                    const imageCount = explicitCount > 0
+                        ? explicitCount
+                        : items.length
+                            ? getMajordomeBulkDeleteImageCount(items[0])
+                            : count;
                     const suffix = imageCount === 1 ? "1 image" : `${imageCount} images`;
                     return `Ready to delete ${suffix} for Stock# ${stock}.`;
                 },
@@ -1668,6 +1682,7 @@
             items: items,
             processed: 0,
             completed: 0,
+            canceled: 0,
             failed: 0,
             warnings: 0,
             nextIndex: 0,
@@ -1731,6 +1746,10 @@
         return getMajordomeBulkVehicleLabel(item);
     }
 
+    function isMajordomeBulkCancelError(error) {
+        return safeText(error?.message).trim().toLowerCase() === "canceled.";
+    }
+
     function updateMajordomeBulkActiveStatus(job, label) {
         if (!job || job.cancelRequested) return;
 
@@ -1760,12 +1779,18 @@
             }
             appendMajordomeBulkLog(message, status);
         } catch (error) {
+            if (job.cancelRequested && isMajordomeBulkCancelError(error)) {
+                job.canceled++;
+                appendMajordomeBulkLog(`${label} canceled.`, "warning");
+                return;
+            }
+
             job.failed++;
             appendMajordomeBulkLog(`${label} failed: ${(error && error.message) || "Unknown error."}`, "error");
             console.error("Majordome bulk update failed:", error);
         } finally {
             job.active--;
-            job.processed = job.completed + job.failed;
+            job.processed = job.completed + job.failed + job.canceled;
             updateMajordomeBulkProgress(job.processed, job.items.length);
             updateMajordomeBulkActiveStatus(job);
         }
@@ -1809,7 +1834,7 @@
 
             await Promise.all(workers);
 
-            if (typeof job.config.afterComplete === "function" && job.processed > 0) {
+            if (!job.cancelRequested && typeof job.config.afterComplete === "function" && job.processed > 0) {
                 setMajordomeBulkStatus(job.config.afterCompleteStatus || "Refreshing inventory list...");
                 try {
                     await job.config.afterComplete(job);
@@ -1817,7 +1842,7 @@
                     appendMajordomeBulkLog(`Inventory refresh failed: ${(error && error.message) || "Unknown error."}`, "error");
                     console.error("Majordome bulk refresh failed:", error);
                 }
-            } else if (job.completed > 0) {
+            } else if (!job.cancelRequested && job.completed > 0) {
                 setMajordomeBulkStatus("Refreshing inventory list...");
                 try {
                     const data = await getUpdatedItems();
@@ -1828,7 +1853,7 @@
                 }
             }
 
-            if (job.cancelRequested && job.processed < job.items.length) {
+            if (job.cancelRequested) {
                 setMajordomeBulkStatus(`Canceled after ${job.processed} of ${job.items.length}. Completed changes were kept.`);
             } else if (job.failed > 0) {
                 setMajordomeBulkStatus(`Finished with ${job.failed} error${job.failed === 1 ? "" : "s"}.`);
