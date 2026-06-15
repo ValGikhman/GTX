@@ -1135,11 +1135,6 @@
         return hasMajordomeImage(vehicle) ? 1 : 0;
     }
 
-    function getMajordomeBulkDeleteImageCount(vehicle) {
-        const explicitCount = parseInt(vehicle?.MajordomeImageDeleteCount, 10) || 0;
-        return explicitCount > 0 ? explicitCount : getMajordomeImageCount(vehicle);
-    }
-
     function hasMajordomeBulkImages(vehicle) {
         return getMajordomeImageCount(vehicle) > 0;
     }
@@ -1213,7 +1208,24 @@
 
     function getMajordomeBulkImageDeleteItems(settings) {
         const stock = safeText(settings?.stock).trim();
-        const fallbackCount = Math.max(0, parseInt(settings?.count, 10) || 0);
+        const buildItems = function (vehicle) {
+            const targetStock = safeText(vehicle?.Stock || stock).trim();
+            const images = Array.isArray(vehicle?.Images) ? vehicle.Images : [];
+
+            return images.map(function (image, index) {
+                const source = safeText(image?.Source).trim();
+                const label = getMajordomeImageFileLabel(source) || `image ${index + 1}`;
+
+                return {
+                    Stock: targetStock,
+                    Id: safeText(image?.Id).trim(),
+                    Source: source,
+                    Label: label
+                };
+            }).filter(function (item) {
+                return item.Stock && (item.Id || item.Source);
+            });
+        };
 
         if (stock) {
             const stockKey = stock.toUpperCase();
@@ -1222,19 +1234,17 @@
             });
 
             if (vehicle) {
-                if (fallbackCount > 0) {
-                    vehicle.MajordomeImageDeleteCount = fallbackCount;
-                }
-
-                return hasMajordomeBulkImages(vehicle) ? [vehicle] : [];
+                return buildItems(vehicle);
             }
 
-            return fallbackCount > 0
-                ? [{ Stock: stock, Images: new Array(fallbackCount), MajordomeImageDeleteCount: fallbackCount }]
-                : [];
+            return [];
         }
 
-        return getMajordomeBulkInventoryVehicles().filter(hasMajordomeBulkImages);
+        return getMajordomeBulkInventoryVehicles()
+            .filter(hasMajordomeBulkImages)
+            .reduce(function (items, vehicle) {
+                return items.concat(buildItems(vehicle));
+            }, []);
     }
 
     function getMajordomeBulkVehicleLabel(vehicle) {
@@ -1253,6 +1263,10 @@
 
     function getMajordomeBulkFileLabel(file) {
         return safeText(file?.name).trim() || "image";
+    }
+
+    function getMajordomeImageFileLabel(file) {
+        return getMajordomeFileNameOnly(safeText(file).trim()) || "image";
     }
 
     function getMajordomeImageUploadFiles(files) {
@@ -1490,34 +1504,37 @@
         throw new Error(getMajordomeBulkUploadErrorMessage(lastError));
     }
 
-    async function deleteMajordomeBulkImagesForVehicle(vehicle, options) {
-        const settings = options || {};
-        const stock = safeText(vehicle?.Stock).trim();
+    async function deleteMajordomeBulkImageFile(item) {
+        const stock = safeText(item?.Stock).trim();
+        const id = safeText(item?.Id).trim() || "00000000-0000-0000-0000-000000000000";
+        const file = safeText(item?.Source).trim();
+        const label = safeText(item?.Label).trim() || getMajordomeImageFileLabel(file);
+
         if (!stock) {
             throw new Error("Stock is required.");
         }
 
-        const deletedCount = getMajordomeBulkDeleteImageCount(vehicle);
-        const response = await postMajordome(`${root}Majordome/DeleteImages`, { stock: stock });
+        if (!file && id === "00000000-0000-0000-0000-000000000000") {
+            throw new Error("Image is required.");
+        }
+
+        const response = await postMajordome(`${root}Majordome/DeleteImage`, { id: id, file: file, stock: stock });
         if (!response || !response.success) {
-            throw new Error((response && response.message) || "Failed to delete images.");
+            throw new Error((response && response.message) || "Failed to delete image.");
         }
 
         if (Array.isArray(response.images) && typeof applyUploadedImagesToMajordomeState === "function") {
-            const focusStock = settings.focusStock === true;
             applyUploadedImagesToMajordomeState(response.stock || stock, response.images, {
                 image: response.image,
-                selectVehicle: focusStock,
-                updateGallery: focusStock,
-                activateGallery: focusStock
+                selectVehicle: true,
+                updateGallery: true,
+                activateGallery: true
             });
         }
 
-        const suffix = deletedCount === 1 ? "image" : "images";
         return {
             status: "success",
-            message: `${stock}: deleted ${deletedCount} ${suffix}.`,
-            progressUnits: deletedCount
+            message: `${label} deleted.`
         };
     }
 
@@ -1619,28 +1636,23 @@
             if (!stock) return null;
 
             const items = getMajordomeBulkImageDeleteItems(settings);
-            const explicitCount = Math.max(0, parseInt(settings.count, 10) || 0);
-            const imageCount = explicitCount > 0
-                ? explicitCount
-                : items.length
-                    ? getMajordomeBulkDeleteImageCount(items[0])
-                    : 0;
 
             return {
                 title: `Delete images for Stock# ${stock}`,
                 emptyText: `No images to delete for Stock# ${stock}.`,
-                cancelMessage: "Cancel requested. The current deletion will finish, then the remaining vehicles will stop.",
-                progressTotal: imageCount,
+                cancelMessage: "Cancel requested. The current deletion will finish, then the remaining images will stop.",
                 intro: function (count) {
-                    const totalImages = imageCount > 0 ? imageCount : count;
-                    const suffix = totalImages === 1 ? "1 image" : `${totalImages} images`;
+                    const suffix = count === 1 ? "1 image" : `${count} images`;
                     return `Ready to delete ${suffix} for Stock# ${stock}.`;
                 },
                 getItems: function () {
                     return items;
                 },
-                run: async function (vehicle) {
-                    return deleteMajordomeBulkImagesForVehicle(vehicle, { focusStock: true });
+                getLabel: function (item) {
+                    return safeText(item?.Label).trim() || getMajordomeImageFileLabel(item?.Source);
+                },
+                run: async function (item) {
+                    return deleteMajordomeBulkImageFile(item);
                 },
                 afterCompleteStatus: "Updating image counts...",
                 afterComplete: async function () {

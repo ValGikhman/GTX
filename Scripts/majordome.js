@@ -564,9 +564,12 @@ function applyUploadedImagesToMajordomeState(stock, images, options) {
             .prop("disabled", images.length === 0);
 
         var thumbSource = leadImage || (images.length > 0 && images[0] ? images[0].Source : "") || vehicle.Image;
+        var $rowImage = $row.find(".majordome-row-image");
         if (thumbSource) {
             var freshThumb = appendCacheBust(appendImageWidth(toInventoryImageUrl(thumbSource), 320), Date.now());
-            $row.find(".majordome-row-image").attr("src", freshThumb);
+            $rowImage.attr("src", freshThumb);
+        } else {
+            $rowImage.attr("src", "");
         }
     }
 
