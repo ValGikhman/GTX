@@ -668,7 +668,6 @@
     let majordomeBulkJob = null;
     window.majordomeSelectedStock = "";
     const majordomeSortState = { key: "", direction: "" };
-    const majordomeImageUploadConcurrency = 3;
     const majordomeUploadMaxAttempts = 3;
     const majordomeUploadRequestTimeoutMs = 120000;
 
@@ -1574,18 +1573,13 @@
         if (actionKey === "images") {
             const stock = safeText(settings.stock).trim();
             const files = getMajordomeImageUploadFiles(settings.files);
-            const concurrency = Math.max(1, Math.min(majordomeImageUploadConcurrency, files.length));
 
             return {
                 title: `Upload images for Stock# ${stock}`,
                 emptyText: "No image files were selected.",
-                concurrency: concurrency,
-                concurrentLabel: "uploads",
-                cancelMessage: "Cancel requested. Active uploads will stop if possible, then the remaining files will stop.",
+                cancelMessage: "Cancel requested. The current upload will stop if possible, then the remaining files will stop.",
                 intro: function (count) {
-                    const suffix = count === 1
-                        ? "1 image"
-                        : `${count} images, up to ${concurrency} at a time`;
+                    const suffix = count === 1 ? "1 image" : `${count} images`;
                     return `Ready to upload ${suffix} for Stock# ${stock}.`;
                 },
                 getItems: function () {
@@ -1625,7 +1619,6 @@
             if (!stock) return null;
 
             const items = getMajordomeBulkImageDeleteItems(settings);
-            const concurrency = Math.max(1, Math.min(5, items.length));
             const explicitCount = Math.max(0, parseInt(settings.count, 10) || 0);
             const imageCount = explicitCount > 0
                 ? explicitCount
@@ -1636,9 +1629,7 @@
             return {
                 title: `Delete images for Stock# ${stock}`,
                 emptyText: `No images to delete for Stock# ${stock}.`,
-                concurrency: concurrency,
-                concurrentLabel: "deletions",
-                cancelMessage: "Cancel requested. Active deletions will finish, then the remaining vehicles will stop.",
+                cancelMessage: "Cancel requested. The current deletion will finish, then the remaining vehicles will stop.",
                 progressTotal: imageCount,
                 intro: function (count) {
                     const totalImages = imageCount > 0 ? imageCount : count;
@@ -1797,9 +1788,6 @@
             canceled: 0,
             failed: 0,
             warnings: 0,
-            nextIndex: 0,
-            active: 0,
-            concurrency: Math.max(1, Math.min(config.concurrency || 1, items.length || 1)),
             running: false,
             cancelRequested: false
         };
@@ -1865,20 +1853,17 @@
     function updateMajordomeBulkActiveStatus(job, label) {
         if (!job || job.cancelRequested) return;
 
-        if (job.concurrency > 1) {
-            setMajordomeBulkStatus(`${job.active} active, ${getMajordomeBulkDisplayProcessed(job)} of ${getMajordomeBulkDisplayTotal(job)} done.`);
+        if (label) {
+            setMajordomeBulkStatus(`Working on ${label}...`);
             return;
         }
 
-        if (label) {
-            setMajordomeBulkStatus(`Working on ${label}...`);
-        }
+        setMajordomeBulkStatus(`${getMajordomeBulkDisplayProcessed(job)} of ${getMajordomeBulkDisplayTotal(job)} done.`);
     }
 
     async function runMajordomeBulkItem(job, item) {
         const label = getMajordomeBulkItemLabel(job, item);
         let progressUnits = 0;
-        job.active++;
         updateMajordomeBulkActiveStatus(job, label);
 
         try {
@@ -1906,7 +1891,6 @@
             appendMajordomeBulkLog(`${label} failed: ${(error && error.message) || "Unknown error."}`, "error");
             console.error("Majordome bulk update failed:", error);
         } finally {
-            job.active--;
             job.processed = job.completed + job.failed + job.canceled;
             job.progressProcessed = Math.min(job.progressTotal, job.progressProcessed + progressUnits);
             updateMajordomeBulkProgress(job.progressProcessed, job.progressTotal);
@@ -1914,10 +1898,9 @@
         }
     }
 
-    async function runMajordomeBulkWorker(job) {
-        while (!job.cancelRequested) {
-            const index = job.nextIndex++;
-            if (index >= job.items.length) break;
+    async function runMajordomeBulkSequential(job) {
+        for (let index = 0; index < job.items.length; index++) {
+            if (job.cancelRequested) break;
 
             await runMajordomeBulkItem(job, job.items[index]);
 
@@ -1940,17 +1923,7 @@
         $("#majordomeBulkCancel").prop("disabled", false).text("Cancel");
 
         try {
-            const workerCount = Math.min(job.concurrency, job.items.length);
-            if (workerCount > 1) {
-                setMajordomeBulkStatus(`Starting ${workerCount} ${job.config.concurrentLabel || "requests"} at a time...`);
-            }
-
-            const workers = [];
-            for (let i = 0; i < workerCount; i++) {
-                workers.push(runMajordomeBulkWorker(job));
-            }
-
-            await Promise.all(workers);
+            await runMajordomeBulkSequential(job);
 
             if (!job.cancelRequested && typeof job.config.afterComplete === "function" && job.processed > 0) {
                 setMajordomeBulkStatus(job.config.afterCompleteStatus || "Refreshing inventory list...");
