@@ -757,13 +757,49 @@ namespace GTX.Controllers
         }
 
         [HttpPost]
+        public ActionResult PreviewInventoryUpload(HttpPostedFileBase dataCsv)
+        {
+            if (dataCsv == null)
+            {
+                Response.StatusCode = 400;
+                return Json(new { success = false, message = "Upload the data CSV." });
+            }
+
+            try {
+                var vehicles = ParseUploadedInventoryVehicles(dataCsv);
+                var result = InventoryService.PreviewInventorySync(Models.GTX.ToDTOs(vehicles));
+
+                return CreateInventoryImportJsonResult(result, "Inventory upload preview ready.");
+            }
+            catch (Exception ex) {
+                Response.StatusCode = 500;
+                return Json(new { success = false, message = "Inventory upload preview failed: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
         public ActionResult ReplaceHeaderAndConvertToXml(HttpPostedFileBase dataCsv)
         {
             if (dataCsv == null)
             {
-                return new HttpStatusCodeResult(400, "Upload the data CSV.");
+                Response.StatusCode = 400;
+                return Json(new { success = false, message = "Upload the data CSV." });
             }
 
+            try {
+                var vehicles = ParseUploadedInventoryVehicles(dataCsv);
+                var result = InventoryService.SyncInventory(Models.GTX.ToDTOs(vehicles));
+                AppCache.ClearAll();
+
+                return CreateInventoryImportJsonResult(result, "Inventory upload completed.");
+            }
+            catch (Exception ex) {
+                Response.StatusCode = 500;
+                return Json(new { success = false, message = "Inventory upload failed: " + ex.Message });
+            }
+        }
+
+        private GTX.Models.GTX[] ParseUploadedInventoryVehicles(HttpPostedFileBase dataCsv) {
             XDocument doc;
             using (var headerStream = GetHeaderStream())
             {
@@ -778,12 +814,24 @@ namespace GTX.Controllers
                 inventory = (GTXInventory)serializer.Deserialize(reader);
             }
 
-            var vehicles = inventory.Vehicles.Where(m => m.SetToUpload == "Y").ToArray();
+            return (inventory.Vehicles ?? Array.Empty<GTX.Models.GTX>())
+                .Where(m => m.SetToUpload == "Y")
+                .ToArray();
+        }
 
-            InventoryService.AddInventory(Models.GTX.ToDTOs(vehicles));
-
-            TerminateSession();
-            return RedirectToAction("Index", "Home");
+        private JsonResult CreateInventoryImportJsonResult(InventoryImportResult result, string message) {
+            return new JsonResult {
+                Data = new {
+                    success = true,
+                    message = message,
+                    imported = result.Imported,
+                    updated = result.Updated,
+                    inserted = result.Inserted,
+                    removed = result.Removed,
+                    skipped = result.Skipped
+                },
+                MaxJsonLength = int.MaxValue
+            };
         }
 
         [HttpPost]

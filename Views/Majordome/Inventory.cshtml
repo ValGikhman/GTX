@@ -167,22 +167,38 @@
         }
 
         .majordome-inventory-shell {
-            background: #fff;
+            --inventory-border: var(--bs-border-color-translucent, rgba(30, 41, 59, .12));
+            --inventory-line: var(--bs-border-color-translucent, rgba(148, 163, 184, .22));
+            --inventory-muted: var(--bs-secondary-color, #64748b);
+            --inventory-ink: var(--bs-body-color, #172033);
+            --inventory-surface: var(--bs-body-bg, #fff);
+            --inventory-surface-alt: var(--bs-tertiary-bg, #f8fafc);
+            --inventory-header-bg: var(--gtx-grad, var(--bs-primary-bg-subtle, #f8fafc));
+            --inventory-header-color: #fff;
+            --inventory-header-border: rgba(255, 255, 255, .24);
+            background: var(--inventory-surface);
             margin-top: .75rem;
-            border-radius: 1rem;
-            box-shadow: 0 .75rem 1.8rem rgba(15, 23, 42, .08);
+            border-radius: .85rem;
+            border: 1px solid var(--inventory-border);
+            box-shadow: 0 .8rem 2rem rgba(15, 23, 42, .09);
         }
 
         .majordome-inventory-header {
-            border-bottom: 1px solid rgba(15, 23, 42, .1);
-            background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+            border-bottom: 1px solid var(--inventory-line);
+            background: linear-gradient(180deg, var(--inventory-surface) 0%, var(--inventory-surface-alt) 100%);
         }
 
         .majordome-inventory-title {
             font-size: 1rem;
             font-weight: 700;
             letter-spacing: .02em;
-            color: #0f172a;
+            color: var(--bs-heading-color, var(--bs-body-color));
+            font-family: inherit;
+        }
+
+        html.theme-silver #inventoryGridShell {
+            --inventory-header-color: #111827;
+            --inventory-header-border: rgba(15, 23, 42, .16);
         }
 
         #inventoryGridShell #filtersWrap {
@@ -210,26 +226,84 @@
 
             #inventoryGridShell #filterByTerm #filterTerm {
                 min-height: 2.5rem;
+                border-color: var(--inventory-border);
+                border-radius: .65rem;
+                box-shadow: 0 .25rem .75rem rgba(15, 23, 42, .06);
+                font-weight: 600;
+            }
+
+                #inventoryGridShell #filterByTerm #filterTerm:focus {
+                    border-color: rgba(37, 99, 235, .5);
+                    box-shadow: 0 0 0 .22rem rgba(37, 99, 235, .12);
+                }
+
+        #majordomeInventoryTable {
+            --bs-table-bg: transparent;
+            --bs-table-hover-bg: rgba(37, 99, 235, .045);
+            --bs-table-color: var(--inventory-ink);
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: .92rem;
+            min-width: 980px;
+        }
+
+            #majordomeInventoryTable th,
+            #majordomeInventoryTable td {
+                border-color: var(--inventory-line);
+            }
+
+            #majordomeInventoryTable tbody td {
+                background: var(--inventory-surface);
+                padding: .72rem .85rem;
+                vertical-align: middle;
+            }
+
+            #majordomeInventoryTable tbody tr:nth-child(even) td {
+                background: var(--inventory-surface-alt);
+            }
+
+            #majordomeInventoryTable tbody tr:first-child td {
+                border-top: 0;
             }
 
         .majordome-inventory-table-wrap {
-            max-height: 66vh;
+            max-height: 65vh;
+            background: var(--inventory-surface-alt);
+            scrollbar-color: rgba(71, 85, 105, .45) transparent;
+            scrollbar-width: thin;
         }
+
+            .majordome-inventory-table-wrap::-webkit-scrollbar {
+                width: .7rem;
+                height: .7rem;
+            }
+
+            .majordome-inventory-table-wrap::-webkit-scrollbar-thumb {
+                background: rgba(71, 85, 105, .35);
+                border: 2px solid #f8fafc;
+                border-radius: 999px;
+            }
 
             .majordome-inventory-table-wrap thead th {
                 position: sticky;
                 top: 0;
                 z-index: 2;
+                padding: .8rem .85rem;
+                background: var(--inventory-header-bg);
+                color: var(--inventory-header-color);
                 font-size: .8rem;
+                font-weight: 700;
                 text-transform: uppercase;
                 letter-spacing: .03em;
-                border-bottom: 1px solid rgba(15, 23, 42, .16);
+                border-bottom: 1px solid var(--inventory-header-border);
+                box-shadow: 0 .35rem .8rem rgba(15, 23, 42, .12);
                 white-space: nowrap;
             }
 
         .majordome-sortable-th {
             cursor: pointer;
             user-select: none;
+            transition: background-color .15s, color .15s;
         }
 
             .majordome-sortable-th .majordome-sort-indicator {
@@ -241,13 +315,14 @@
                 line-height: 1;
                 text-align: center;
                 vertical-align: middle;
-                color: #0f172a;
-                opacity: .45;
-                transition: opacity .15s;
+                color: currentColor;
+                opacity: .62;
+                transition: opacity .15s, transform .15s;
             }
 
             .majordome-sortable-th.is-active .majordome-sort-indicator {
                 opacity: 1;
+                transform: translateY(-1px);
             }
 
         #majordomeInventoryBody .majordome-vehicle-row {
@@ -255,26 +330,37 @@
         }
 
             #majordomeInventoryBody .majordome-vehicle-row.is-selected {
-                background: linear-gradient(180deg, rgba(21, 90, 150, .08) 0%, rgba(30, 115, 190, .1) 100%);
+                box-shadow: inset .32rem 0 #2563eb;
             }
+
+                #majordomeInventoryBody .majordome-vehicle-row.is-selected td {
+                    background: #d9dde2;
+                    border-color: rgba(108, 117, 125, .24);
+                }
+
+                #majordomeInventoryBody .majordome-vehicle-row.is-selected td:first-child {
+                    box-shadow: inset .32rem 0 var(--bs-secondary-color, #6c757d);
+                }
 
         .majordome-thumb {
             width: 88px;
             height: 66px;
             object-fit: cover;
-            border-radius: .5rem;
-            border: 1px solid rgba(15, 23, 42, .16);
-            box-shadow: 0 .3rem .9rem rgba(15, 23, 42, .18);
+            border-radius: .55rem;
+            border: 1px solid rgba(15, 23, 42, .12);
+            box-shadow: 0 .35rem .8rem rgba(15, 23, 42, .15);
             background: #fff;
+            transition: box-shadow .15s, transform .15s;
         }
 
         .majordome-row-details {
-            max-width: 220px;
+            max-width: 260px;
         }
 
         .majordome-vehicle-title {
-            font-size: .95rem;
-            font-weight: 700;
+            color: var(--inventory-ink);
+            font-size: .98rem;
+            font-weight: 800;
             line-height: 1.2;
             white-space: nowrap;
             overflow: hidden;
@@ -282,27 +368,54 @@
         }
 
         .majordome-vehicle-meta {
-            font-size: .8rem;
-            color: #64748b;
+            font-size: .78rem;
+            color: var(--inventory-muted);
             line-height: 1.25;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
+        .majordome-vin-line {
+            font-family: var(--bs-font-monospace);
+            letter-spacing: .01em;
+        }
+
+        .majordome-stock-code {
+            display: inline-flex;
+            align-items: center;
+            min-height: 1.9rem;
+            padding: .2rem .55rem;
+            border: 1px solid rgba(37, 99, 235, .22);
+            border-radius: .5rem;
+            background: rgba(37, 99, 235, .08);
+            color: #1d4ed8;
+            font-family: var(--bs-font-monospace);
+            font-size: .86rem;
+            font-weight: 800;
+        }
+
+        .majordome-date-cell {
+            color: #334155;
+            font-size: .84rem;
+            font-weight: 650;
+            white-space: nowrap;
+        }
+
         .majordome-status-pill {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-width: 1.45rem;
-            min-height: 1.45rem;
+            min-width: 1.8rem;
+            min-height: 1.8rem;
             border-radius: 999px;
             border: 1px solid rgba(15, 23, 42, .18);
             font-size: .75rem;
-            font-weight: 800;
+            font-weight: 900;
             line-height: 1;
-            background: #f8fafc;
-            color: #0f172a;
+            background: #f1f5f9;
+            color: #334155;
+            box-shadow: inset 0 1px rgba(255, 255, 255, .65);
         }
 
             .majordome-status-pill.is-on {
@@ -332,7 +445,7 @@
         .majordome-actions {
             display: inline-grid;
             grid-template-columns: repeat(3, max-content);
-            gap: .2rem;
+            gap: .35rem;
             min-width: 0;
             width: auto;
             text-align: left;
@@ -342,20 +455,21 @@
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-            gap: .15rem;
-            padding: .2rem .25rem;
-            border: 1px solid rgba(15, 23, 42, .12);
-            border-radius: .55rem;
-            background: #f8fafc;
+            gap: .22rem;
+            padding: .28rem .35rem;
+            border: 1px solid rgba(148, 163, 184, .28);
+            border-radius: .6rem;
+            background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+            box-shadow: 0 .15rem .45rem rgba(15, 23, 42, .06);
         }
 
         .majordome-action-title {
-            font-size: .56rem;
+            font-size: .58rem;
             line-height: 1.1;
-            letter-spacing: .02em;
-            font-weight: 700;
+            letter-spacing: .055em;
+            font-weight: 800;
             text-transform: uppercase;
-            color: #475569;
+            color: #64748b;
         }
 
         .majordome-action-buttons {
@@ -367,14 +481,25 @@
         }
 
             .majordome-actions .btn {
-                width: 1.7rem;
-                height: 1.7rem;
+                width: 1.85rem;
+                height: 1.85rem;
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
                 padding: 0;
-                border-radius: .4rem;
+                border-radius: .5rem;
+                border-color: rgba(15, 23, 42, .18) !important;
+                box-shadow: none !important;
+                transition: background-color .15s, border-color .15s, color .15s, transform .15s;
             }
+
+                .majordome-actions .btn:hover:not(:disabled) {
+                    transform: translateY(-1px);
+                }
+
+                .majordome-actions .btn:disabled {
+                    opacity: .38;
+                }
 
         #majordomeInventoryTable th.majordome-actions-col,
         #majordomeInventoryTable td.majordome-actions-cell {
@@ -472,6 +597,33 @@
                 padding: .4rem .55rem;
             }
 
+        .majordome-inventory-status-line {
+            align-items: center;
+            display: flex;
+            flex-wrap: wrap;
+            gap: .5rem;
+            justify-content: space-between;
+        }
+
+        .majordome-inventory-summary {
+            align-items: center;
+            display: flex;
+            flex-wrap: wrap;
+            gap: .35rem;
+        }
+
+        #majordomeBulkProgressSummary {
+            min-height: 1.5rem;
+        }
+
+        .majordome-inventory-log-text {
+            min-width: 0;
+        }
+
+        .majordome-inventory-status-badge {
+            flex: 0 0 auto;
+        }
+
         #majordomeBulkProgressBar {
             background: var(--gtx-grad, var(--bs-primary, #0d6efd));
             color: #fff;
@@ -513,6 +665,7 @@
             </div>
             <div class="modal-body">
                 <p id="majordomeBulkProgressIntro" class="mb-2"></p>
+                <div id="majordomeBulkProgressSummary" class="majordome-inventory-summary small mb-2 d-none" aria-live="polite"></div>
                 <div class="d-flex justify-content-between small text-muted mb-1">
                     <span id="majordomeBulkProgressCounts">0 of 0</span>
                     <span id="majordomeBulkProgressPercent">0%</span>
@@ -553,8 +706,8 @@
         <!-- Inventory Tab -->
         <div class="tab-pane fade show active py-2" id="tab-inventory" role="tabpanel">
             <div class="container-fluid">
-                <div id="inventoryGridShell" class="majordome-inventory-shell rounded-4 overflow-hidden border border-dark-subtle">
-                    <div class="majordome-inventory-header p-3">
+                <div id="inventoryGridShell" class="majordome-inventory-shell overflow-hidden">
+                    <div class="majordome-inventory-header">
                         <div class="d-flex flex-column align-items-center gap-2">
                             <div id="filtersWrap">
                                 @{ Html.RenderPartial("_FilterByTerm"); }
@@ -562,7 +715,7 @@
                         </div>
                     </div>
                     <div class="majordome-inventory-table-wrap table-responsive">
-                        <table id="majordomeInventoryTable" class="table table-hover align-middle m-0">
+                        <table id="majordomeInventoryTable" class="table align-middle m-0">
                             <thead class="table-light">
                                 <tr>
                                     <th class="majordome-sortable-th" data-sort-key="image" style="width:100px;">Image <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
@@ -895,11 +1048,17 @@
         });
 
         $("#dataCsv").on("change", function () {
-            var file = this.files && this.files.length ? this.files[0].name : "";
-            if (file.length > 0) {
-                if (confirm("Do you want to upload a inventory?")) {
-                    uploadInventory(this);
-                }
+            var file = this.files && this.files.length ? this.files[0] : null;
+            if (!file) return;
+
+            if (typeof window.openMajordomeInventoryUploadProgressModal === "function") {
+                window.openMajordomeInventoryUploadProgressModal(file);
+                this.value = "";
+                return;
+            }
+
+            if (confirm("Do you want to upload a inventory?")) {
+                uploadInventory(this);
             }
         });
 
@@ -1366,6 +1525,154 @@
         return formData;
     }
 
+    function buildMajordomeInventoryUploadFormData(file) {
+        const formData = new FormData();
+        formData.append("dataCsv", file, file.name);
+        return formData;
+    }
+
+    function getMajordomeInventoryUploadFileLabel(file) {
+        return safeText(file?.name).trim() || "inventory CSV";
+    }
+
+    function getMajordomeInventoryStatItems(payload, key) {
+        return Array.isArray(payload?.[key]) ? payload[key] : [];
+    }
+
+    function getMajordomeInventoryProgressTotal(payload) {
+        const total =
+            getMajordomeInventoryStatItems(payload, "updated").length +
+            getMajordomeInventoryStatItems(payload, "inserted").length +
+            getMajordomeInventoryStatItems(payload, "removed").length +
+            getMajordomeInventoryStatItems(payload, "skipped").length;
+        const imported = parseInt(payload?.imported ?? payload?.Imported, 10) || 0;
+
+        return total > 0 ? total : imported;
+    }
+
+    function getMajordomeInventoryVehicleStatLabel(item) {
+        const year = parseInt(item?.Year ?? item?.year, 10) || 0;
+        const description = [
+            year > 0 ? year.toString() : "",
+            safeText(item?.Make || item?.make).trim(),
+            safeText(item?.Model || item?.model).trim()
+        ].filter(function (part) {
+            return part.length > 0;
+        }).join(" ");
+
+        return description || "vehicle";
+    }
+
+    function appendMajordomeInventoryStatusLines(title, items) {
+        const label = safeText(title).trim().toLowerCase();
+        items.forEach(function (item) {
+            appendMajordomeInventoryBadgeLog(getMajordomeInventoryVehicleStatLabel(item), label);
+        });
+    }
+
+    function appendMajordomeInventoryPreviewStats(payload) {
+        const updated = getMajordomeInventoryStatItems(payload, "updated");
+        const inserted = getMajordomeInventoryStatItems(payload, "inserted");
+        const removed = getMajordomeInventoryStatItems(payload, "removed");
+        const skipped = getMajordomeInventoryStatItems(payload, "skipped");
+
+        appendMajordomeInventorySummaryBadges("Preview", [
+            { label: "to update", count: updated.length },
+            { label: "to add", count: inserted.length },
+            { label: "to remove", count: removed.length },
+            { label: "to skip", count: skipped.length }
+        ]);
+        appendMajordomeInventoryStatusLines("to be updated", updated);
+        appendMajordomeInventoryStatusLines("to be added", inserted);
+        appendMajordomeInventoryStatusLines("to be removed", removed);
+        appendMajordomeInventoryStatusLines("to be skipped", skipped);
+    }
+
+    function appendMajordomeInventoryImportStats(payload) {
+        const updated = getMajordomeInventoryStatItems(payload, "updated");
+        const inserted = getMajordomeInventoryStatItems(payload, "inserted");
+        const removed = getMajordomeInventoryStatItems(payload, "removed");
+        const skipped = getMajordomeInventoryStatItems(payload, "skipped");
+
+        appendMajordomeInventorySummaryBadges("Synced", [
+            { label: "updated", count: updated.length },
+            { label: "added", count: inserted.length },
+            { label: "removed", count: removed.length },
+            { label: "skipped", count: skipped.length }
+        ]);
+        appendMajordomeInventoryStatusLines("updated", updated);
+        appendMajordomeInventoryStatusLines("added", inserted);
+        appendMajordomeInventoryStatusLines("removed", removed);
+        appendMajordomeInventoryStatusLines("skipped", skipped);
+    }
+
+    function postMajordomeInventoryPreviewFormData(file) {
+        return new Promise(function (resolve, reject) {
+            $.ajax({
+                url: `${root}Majordome/PreviewInventoryUpload`,
+                type: "POST",
+                data: buildMajordomeInventoryUploadFormData(file),
+                processData: false,
+                contentType: false,
+                dataType: "json",
+                timeout: majordomeUploadRequestTimeoutMs,
+                cache: false
+            })
+                .done(function (payload) {
+                    resolve(payload);
+                })
+                .fail(function (xhr, textStatus, errorThrown) {
+                    const message = parseMajordomeUploadErrorResponse(xhr) ||
+                        safeText(errorThrown).trim() ||
+                        safeText(textStatus).trim() ||
+                        "Inventory upload preview failed.";
+                    reject(new Error(message));
+                });
+        });
+    }
+
+    function postMajordomeInventoryUploadFormData(file, job) {
+        return new Promise(function (resolve, reject) {
+            const request = $.ajax({
+                url: `${root}Majordome/ReplaceHeaderAndConvertToXml`,
+                type: "POST",
+                data: buildMajordomeInventoryUploadFormData(file),
+                processData: false,
+                contentType: false,
+                dataType: "json",
+                timeout: majordomeUploadRequestTimeoutMs,
+                cache: false
+            });
+
+            if (job) {
+                job.abortRequests = job.abortRequests || new Set();
+                job.abortRequests.add(request);
+            }
+
+            request
+                .done(function (payload) {
+                    resolve(payload);
+                })
+                .fail(function (xhr, textStatus, errorThrown) {
+                    if (job && job.cancelRequested) {
+                        reject(new Error("Canceled."));
+                        return;
+                    }
+
+                    const message = parseMajordomeUploadErrorResponse(xhr) ||
+                        safeText(errorThrown).trim() ||
+                        safeText(textStatus).trim() ||
+                        "Inventory upload failed.";
+                    reject(new Error(message));
+                })
+                .always(function () {
+                    if (job && job.abortRequests) {
+                        job.abortRequests.delete(request);
+                    }
+                });
+        });
+    }
+
     function getMajordomeBulkUploadErrorMessage(error) {
         const message = safeText(error?.message).trim();
         if (!message || /^failed to fetch$/i.test(message)) {
@@ -1504,6 +1811,26 @@
         throw new Error(getMajordomeBulkUploadErrorMessage(lastError));
     }
 
+    async function uploadMajordomeInventoryFile(file, job) {
+        const label = getMajordomeInventoryUploadFileLabel(file);
+        const payload = await postMajordomeInventoryUploadFormData(file, job);
+
+        if (!payload || payload.success === false) {
+            throw new Error((payload && payload.message) || "Inventory upload failed.");
+        }
+
+        if (job) {
+            job.inventoryImportPayload = payload;
+        }
+
+        return {
+            status: "success",
+            message: `${label} imported.`,
+            logResult: false,
+            progressUnits: getMajordomeInventoryProgressTotal(payload)
+        };
+    }
+
     async function deleteMajordomeBulkImageFile(item) {
         const stock = safeText(item?.Stock).trim();
         const id = safeText(item?.Id).trim() || "00000000-0000-0000-0000-000000000000";
@@ -1631,6 +1958,42 @@
             };
         }
 
+        if (actionKey === "inventory-upload") {
+            const file = settings.file || null;
+            const preview = settings.preview || {};
+
+            return {
+                title: "Upload inventory",
+                emptyText: "No inventory CSV was selected.",
+                cancelMessage: "Cancel requested. The current inventory upload will stop if possible.",
+                initialStatus: "Review the import statistics, then press Start.",
+                clearLogOnStart: true,
+                progressTotal: getMajordomeInventoryProgressTotal(preview),
+                intro: function () {
+                    return `Ready to import ${getMajordomeInventoryUploadFileLabel(file)}.`;
+                },
+                renderPreview: function () {
+                    appendMajordomeInventoryPreviewStats(preview);
+                },
+                getItems: function () {
+                    return file ? [file] : [];
+                },
+                getLabel: getMajordomeInventoryUploadFileLabel,
+                run: async function (item, job) {
+                    return uploadMajordomeInventoryFile(item, job);
+                },
+                afterCompleteStatus: "Refreshing inventory list...",
+                afterComplete: async function (job) {
+                    const payload = job?.inventoryImportPayload || {};
+                    appendMajordomeInventoryImportStats(payload);
+
+                    setMajordomeBulkStatus("Refreshing inventory list...");
+                    const data = await getUpdatedItems();
+                    updateRow(data);
+                }
+            };
+        }
+
         if (actionKey === "delete-images") {
             const stock = safeText(settings.stock).trim();
             if (!stock) return null;
@@ -1694,7 +2057,7 @@
     }
 
     function setMajordomeBulkToolbarBusy(isBusy) {
-        $("#btnReStoryAll, #btnDecodeAll, #upload, #deleteAll, .js-amm-upload-trigger, .js-amm-upload-input")
+        $("#btnReStoryAll, #btnDecodeAll, #btnUploadInventory, #dataCsv, #upload, #deleteAll, .js-amm-upload-trigger, .js-amm-upload-input")
             .prop("disabled", isBusy)
             .toggleClass("disabled", isBusy);
 
@@ -1766,6 +2129,70 @@
         $log.scrollTop($log.prop("scrollHeight"));
     }
 
+    function getMajordomeInventoryBadgeClass(label) {
+        const normalized = safeText(label).trim().toLowerCase();
+        if (normalized.indexOf("add") >= 0) {
+            return "bg-success";
+        }
+        if (normalized.indexOf("remove") >= 0) {
+            return "bg-warning text-dark";
+        }
+        if (normalized.indexOf("skip") >= 0) {
+            return "bg-secondary";
+        }
+        if (normalized.indexOf("update") >= 0) {
+            return "bg-primary";
+        }
+
+        return "bg-secondary";
+    }
+
+    function appendMajordomeInventoryBadgeLog(message, badgeText) {
+        const $log = $("#majordomeBulkProgressLog");
+        const $item = $("<div></div>")
+            .addClass("list-group-item list-group-item-light majordome-inventory-status-line");
+
+        $("<span></span>")
+            .addClass("majordome-inventory-log-text")
+            .text(message)
+            .appendTo($item);
+
+        $("<span></span>")
+            .addClass(`badge rounded-pill majordome-inventory-status-badge ${getMajordomeInventoryBadgeClass(badgeText)}`)
+            .text(badgeText)
+            .appendTo($item);
+
+        $log.append($item);
+        $log.scrollTop($log.prop("scrollHeight"));
+    }
+
+    function appendMajordomeInventorySummaryBadges(title, badges) {
+        const $summary = $("#majordomeBulkProgressSummary")
+            .empty()
+            .removeClass("d-none");
+
+        $("<span></span>")
+            .addClass("fw-semibold me-1")
+            .text(`${title}:`)
+            .appendTo($summary);
+
+        const badgeList = badges || [];
+        badgeList.forEach(function (badge, index) {
+            const label = safeText(badge?.label).trim();
+            const count = parseInt(badge?.count, 10) || 0;
+            $("<span></span>")
+                .addClass(`badge rounded-pill ${getMajordomeInventoryBadgeClass(label)} shadow`)
+                .text(`${count} ${label}`)
+                .appendTo($summary);
+
+            if (index < badgeList.length - 1) {
+                $("<span></span>")
+                    .addClass("text-muted")
+                    .appendTo($summary);
+            }
+        });
+    }
+
     function waitMajordomeBulkDelay(ms, job) {
         return new Promise(function (resolve) {
             const started = Date.now();
@@ -1806,9 +2233,14 @@
 
         $("#majordomeBulkProgressTitle").text(config.title);
         $("#majordomeBulkProgressIntro").text(items.length > 0 ? config.intro(items.length) : config.emptyText);
+        $("#majordomeBulkProgressSummary").empty().addClass("d-none");
         $("#majordomeBulkProgressLog").empty();
-        setMajordomeBulkStatus(items.length > 0 ? "Review the job, then press Start." : "Nothing to update.");
+        setMajordomeBulkStatus(items.length > 0 ? (config.initialStatus || "Review the job, then press Start.") : "Nothing to update.");
         updateMajordomeBulkProgress(0, progressTotal);
+
+        if (items.length > 0 && typeof config.renderPreview === "function") {
+            config.renderPreview(majordomeBulkJob);
+        }
 
         $("#majordomeBulkStart")
             .removeClass("d-none")
@@ -1834,6 +2266,33 @@
         });
     }
 
+    async function openMajordomeInventoryUploadProgressModal(file) {
+        if (!file) {
+            alert("Please select an inventory CSV first.");
+            return;
+        }
+
+        const $overlay = $("#inventoryOverlay");
+        showSpinner($overlay);
+
+        try {
+            const preview = await postMajordomeInventoryPreviewFormData(file);
+            if (!preview || preview.success === false) {
+                throw new Error((preview && preview.message) || "Inventory upload preview failed.");
+            }
+
+            openMajordomeBulkProgressModal("inventory-upload", {
+                file: file,
+                preview: preview
+            });
+        } catch (error) {
+            console.error("Inventory upload preview failed:", error);
+            alert((error && error.message) || "Inventory upload preview failed.");
+        } finally {
+            hideSpinner($overlay);
+        }
+    }
+
     function openMajordomeImageDeleteProgressModal(stock, count) {
         const normalizedStock = safeText(stock).trim();
         if (!normalizedStock) {
@@ -1848,6 +2307,7 @@
     }
 
     window.openMajordomeImageUploadProgressModal = openMajordomeImageUploadProgressModal;
+    window.openMajordomeInventoryUploadProgressModal = openMajordomeInventoryUploadProgressModal;
     window.openMajordomeImageDeleteProgressModal = openMajordomeImageDeleteProgressModal;
 
     function getMajordomeBulkItemLabel(job, item) {
@@ -1891,7 +2351,9 @@
                 job.uploadPayloadRecorded = true;
             }
             progressUnits = getMajordomeBulkProgressUnits(job, result);
-            appendMajordomeBulkLog(message, status);
+            if (!result || result.logResult !== false) {
+                appendMajordomeBulkLog(message, status);
+            }
         } catch (error) {
             if (job.cancelRequested && isMajordomeBulkCancelError(error)) {
                 job.canceled++;
@@ -1933,6 +2395,9 @@
         setMajordomeBulkToolbarBusy(true);
         $("#majordomeBulkStart").prop("disabled", true);
         $("#majordomeBulkCancel").prop("disabled", false).text("Cancel");
+        if (job.config.clearLogOnStart) {
+            $("#majordomeBulkProgressLog").empty();
+        }
 
         try {
             await runMajordomeBulkSequential(job);
@@ -2259,10 +2724,10 @@
                 <td class="majordome-row-details">
                     <div class="majordome-vehicle-title">${escapeHtml(yearMake)}</div>
                     <div class="majordome-vehicle-meta">${escapeHtml(modelStyle)}</div>
-                    <div class="majordome-vehicle-meta">VIN: ${escapeHtml(vin)}</div>
+                    <div class="majordome-vehicle-meta majordome-vin-line">VIN: ${escapeHtml(vin)}</div>
                 </td>
-                <td class="d-none d-lg-table-cell">${escapeHtml(purchaseDate)}</td>
-                <td><span class="fw-semibold">${escapeHtml(stock)}</span></td>
+                <td class="d-none d-lg-table-cell majordome-date-cell">${escapeHtml(purchaseDate)}</td>
+                <td><span class="majordome-stock-code">${escapeHtml(stock)}</span></td>
                 <td class="text-center d-none d-xl-table-cell">
                     <span class="majordome-status-pill majordome-status-location ${escapeHtml(gtxBadge.toneClass)}">${escapeHtml(gtxBadge.label)}</span>
                 </td>
