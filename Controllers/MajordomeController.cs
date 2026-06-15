@@ -34,6 +34,7 @@ namespace GTX.Controllers
         private const int UploadPngCompressionLevel = 9;
         private const string UploadJpegExtension = ".jpg";
         private const string UploadPngExtension = ".png";
+        private const int QrTextMaxLength = 2048;
 
         private static readonly HashSet<string> UploadImageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {
             ".jpg",
@@ -70,6 +71,7 @@ namespace GTX.Controllers
         private static readonly object _headerLock = new object();
         private static readonly object _storyCacheLock = new object();
         private static readonly object _imageCacheLock = new object();
+        private static readonly object _dataOneCacheLock = new object();
 
         public MajordomeController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService
                 , ILogService logService, IEmployeesService employeesService
@@ -251,9 +253,20 @@ namespace GTX.Controllers
         [HttpPost]
         public JsonResult DeleteDataOne(string stock) {
             try {
-                var vehicle = Model.Inventory.Vehicles.FirstOrDefault(m => m.Stock == stock);
-                VinDecoderService.DeleteDataOneDetails(stock);
-                return Json(new { success = true, message = "DataOne details were deleted successfully." });
+                var normalizedStock = (stock ?? string.Empty).Trim();
+                if (string.IsNullOrWhiteSpace(normalizedStock)) {
+                    return Json(new { success = false, message = "Stock is required." });
+                }
+
+                VinDecoderService.DeleteDataOneDetails(normalizedStock);
+                SyncCachedDataOneForStock(normalizedStock, null);
+
+                return Json(new {
+                    success = true,
+                    message = "DataOne details were deleted successfully.",
+                    stock = normalizedStock,
+                    hasDataOne = false
+                });
             }
 
             catch (Exception ex) {
@@ -278,7 +291,8 @@ namespace GTX.Controllers
             try {
                 var normalizedStock = (stock ?? string.Empty).Trim();
                 if (string.IsNullOrWhiteSpace(normalizedStock)) {
-                    return new HttpStatusCodeResult(400, "Stock is required.");
+                    Response.StatusCode = 400;
+                    return Json(new { success = false, message = "Stock is required." });
                 }
 
                 var uploadPath = CombineUnderInventoryImagesRoot(normalizedStock);
@@ -338,13 +352,6 @@ namespace GTX.Controllers
 
                 var images = InventoryService.GetImages(normalizedStock) ?? Array.Empty<Services.Image>();
                 SyncCachedImagesForStock(normalizedStock, images);
-                var responseImages = images.Select(m => new UploadImageResponseDto {
-                    Id = m.Id,
-                    Stock = m.Stock,
-                    Source = m.Source,
-                    Overlay = m.Overlay,
-                    Order = m.Order
-                }).ToArray();
 
                 return Json(new {
                     success = failedFiles.Count == 0,
@@ -352,14 +359,16 @@ namespace GTX.Controllers
                     skipped = skippedCount,
                     failed = failedFiles.Count,
                     errors = failedFiles,
-                    images = responseImages,
+                    images = ToUploadImageResponseDtos(images),
+                    image = GetCachedLeadImageForStock(normalizedStock),
                     message = failedFiles.Count == 0 ? "Upload completed." : "Upload completed with some errors.",
                     Message = failedFiles.Count == 0 ? "Upload completed." : "Upload completed with some errors."
                 });
             }
             catch (Exception ex) {
                 System.Diagnostics.Debug.WriteLine("Upload failed completely: " + ex.Message);
-                return new HttpStatusCodeResult(500, "Upload failed: " + ex.Message);
+                Response.StatusCode = 500;
+                return Json(new { success = false, message = "Upload failed: " + ex.Message });
             }
         }
 
@@ -513,6 +522,59 @@ namespace GTX.Controllers
             }
         }
 
+        private void SyncCachedDataOneForStock(string stock, DecodedData dataOne) {
+            var stockKey = (stock ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(stockKey) || Model?.Inventory == null) {
+                return;
+            }
+
+            lock (_dataOneCacheLock) {
+                ApplyDataOneToVehicles(Model.Inventory.All, stockKey, dataOne);
+                ApplyDataOneToVehicles(Model.Inventory.Vehicles, stockKey, dataOne);
+            }
+        }
+
+        private static void ApplyDataOneToVehicles(Models.GTX[] vehicles, string stock, DecodedData dataOne) {
+            if (vehicles == null || vehicles.Length == 0) {
+                return;
+            }
+
+            foreach (var vehicle in vehicles) {
+                if (vehicle == null || !string.Equals(vehicle.Stock, stock, StringComparison.OrdinalIgnoreCase)) {
+                    continue;
+                }
+
+                vehicle.DataOne = dataOne;
+            }
+        }
+
+        private Models.GTX FindCachedVehicleForStock(string stock) {
+            var stockKey = (stock ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(stockKey) || Model?.Inventory == null) {
+                return null;
+            }
+
+            return (Model.Inventory.Vehicles ?? Array.Empty<Models.GTX>())
+                .Concat(Model.Inventory.All ?? Array.Empty<Models.GTX>())
+                .FirstOrDefault(vehicle => vehicle != null && string.Equals(vehicle.Stock, stockKey, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private string GetCachedLeadImageForStock(string stock) {
+            return FindCachedVehicleForStock(stock)?.Image ?? $"{imageFolder}no-image-1.jpg";
+        }
+
+        private static UploadImageResponseDto[] ToUploadImageResponseDtos(IEnumerable<Services.Image> images) {
+            return (images ?? Array.Empty<Services.Image>())
+                .Select(m => new UploadImageResponseDto {
+                    Id = m.Id,
+                    Stock = m.Stock,
+                    Source = m.Source,
+                    Overlay = m.Overlay,
+                    Order = m.Order
+                })
+                .ToArray();
+        }
+
         private static void ApplyImagesToVehicles(Models.GTX[] vehicles, string stock, Services.Image[] images, string leadImage) {
             if (vehicles == null || vehicles.Length == 0) {
                 return;
@@ -611,12 +673,14 @@ namespace GTX.Controllers
 
         [HttpPost]
         public JsonResult DeleteImage(Guid id, string file, string stock) {
+            var image = id != Guid.Empty ? InventoryService.GetImage(id) : null;
+            var normalizedStock = (stock ?? image?.Stock ?? string.Empty).Trim();
             var path = ResolveInventoryImagePhysicalPath(file);
 
             if ((string.IsNullOrWhiteSpace(path) || !System.IO.File.Exists(path)) &&
-                !string.IsNullOrWhiteSpace(stock) &&
+                !string.IsNullOrWhiteSpace(normalizedStock) &&
                 !string.IsNullOrWhiteSpace(file)) {
-                path = CombineUnderInventoryImagesRoot(stock, Path.GetFileName(file));
+                path = CombineUnderInventoryImagesRoot(normalizedStock, Path.GetFileName(file));
             }
 
             if (System.IO.File.Exists(path)) {
@@ -624,7 +688,21 @@ namespace GTX.Controllers
             }
 
             InventoryService.DeleteImage(id);
-            return Json(new { success = true });
+
+            var images = string.IsNullOrWhiteSpace(normalizedStock)
+                ? Array.Empty<Services.Image>()
+                : InventoryService.GetImages(normalizedStock) ?? Array.Empty<Services.Image>();
+
+            if (!string.IsNullOrWhiteSpace(normalizedStock)) {
+                SyncCachedImagesForStock(normalizedStock, images);
+            }
+
+            return Json(new {
+                success = true,
+                stock = normalizedStock,
+                images = ToUploadImageResponseDtos(images),
+                image = GetCachedLeadImageForStock(normalizedStock)
+            });
         }
 
         [HttpPost]
@@ -679,13 +757,49 @@ namespace GTX.Controllers
         }
 
         [HttpPost]
+        public ActionResult PreviewInventoryUpload(HttpPostedFileBase dataCsv)
+        {
+            if (dataCsv == null)
+            {
+                Response.StatusCode = 400;
+                return Json(new { success = false, message = "Upload the data CSV." });
+            }
+
+            try {
+                var vehicles = ParseUploadedInventoryVehicles(dataCsv);
+                var result = InventoryService.PreviewInventorySync(Models.GTX.ToDTOs(vehicles));
+
+                return CreateInventoryImportJsonResult(result, "Inventory upload preview ready.");
+            }
+            catch (Exception ex) {
+                Response.StatusCode = 500;
+                return Json(new { success = false, message = "Inventory upload preview failed: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
         public ActionResult ReplaceHeaderAndConvertToXml(HttpPostedFileBase dataCsv)
         {
             if (dataCsv == null)
             {
-                return new HttpStatusCodeResult(400, "Upload the data CSV.");
+                Response.StatusCode = 400;
+                return Json(new { success = false, message = "Upload the data CSV." });
             }
 
+            try {
+                var vehicles = ParseUploadedInventoryVehicles(dataCsv);
+                var result = InventoryService.SyncInventory(Models.GTX.ToDTOs(vehicles));
+                AppCache.ClearAll();
+
+                return CreateInventoryImportJsonResult(result, "Inventory upload completed.");
+            }
+            catch (Exception ex) {
+                Response.StatusCode = 500;
+                return Json(new { success = false, message = "Inventory upload failed: " + ex.Message });
+            }
+        }
+
+        private GTX.Models.GTX[] ParseUploadedInventoryVehicles(HttpPostedFileBase dataCsv) {
             XDocument doc;
             using (var headerStream = GetHeaderStream())
             {
@@ -700,12 +814,24 @@ namespace GTX.Controllers
                 inventory = (GTXInventory)serializer.Deserialize(reader);
             }
 
-            var vehicles = inventory.Vehicles.Where(m => m.SetToUpload == "Y").ToArray();
+            return (inventory.Vehicles ?? Array.Empty<GTX.Models.GTX>())
+                .Where(m => m.SetToUpload == "Y")
+                .ToArray();
+        }
 
-            InventoryService.AddInventory(Models.GTX.ToDTOs(vehicles));
-
-            TerminateSession();
-            return RedirectToAction("Index", "Home");
+        private JsonResult CreateInventoryImportJsonResult(InventoryImportResult result, string message) {
+            return new JsonResult {
+                Data = new {
+                    success = true,
+                    message = message,
+                    imported = result.Imported,
+                    updated = result.Updated,
+                    inserted = result.Inserted,
+                    removed = result.Removed,
+                    skipped = result.Skipped
+                },
+                MaxJsonLength = int.MaxValue
+            };
         }
 
         [HttpPost]
@@ -735,24 +861,32 @@ namespace GTX.Controllers
 
         [HttpPost]
         public ActionResult DeleteImages(string stock) {
-            var path = CombineUnderInventoryImagesRoot(stock);
-
-            string[] extensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
-
-            if (!Directory.Exists(path)) {
-                return Json(new { success = false, message = "Directory not found." });
+            var normalizedStock = (stock ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(normalizedStock)) {
+                return Json(new { success = false, message = "Stock is required." });
             }
 
             try {
-                string[] imageFiles = Directory.GetFiles(path).Where(file => extensions.Contains(Path.GetExtension(file).ToLower())).ToArray();
+                var path = CombineUnderInventoryImagesRoot(normalizedStock);
+                var imageFiles = Directory.Exists(path)
+                    ? Directory.GetFiles(path).Where(file => UploadImageExtensions.Contains(Path.GetExtension(file))).ToArray()
+                    : Array.Empty<string>();
 
                 foreach (string file in imageFiles) {
                     System.IO.File.Delete(file);
                 }
 
-                InventoryService.DeleteImages(stock);
-                Model.Inventory.Vehicles = DecideImages(Model.Inventory.Vehicles);
-                return Json(new { success = true, message = "All files deleted successfully." });
+                var images = Array.Empty<Services.Image>();
+                InventoryService.DeleteImages(normalizedStock);
+                SyncCachedImagesForStock(normalizedStock, images);
+
+                return Json(new {
+                    success = true,
+                    message = "All files deleted successfully.",
+                    stock = normalizedStock,
+                    images = ToUploadImageResponseDtos(images),
+                    image = GetCachedLeadImageForStock(normalizedStock)
+                });
             }
 
             catch (Exception ex) {
@@ -1042,11 +1176,32 @@ namespace GTX.Controllers
 
         }
 
-        [OutputCache(Duration = 86400, VaryByParam = "text")] // cache for speed
-        public ActionResult Qr(string text)
+        [AllowAnonymous]
+        [HttpGet]
+        [OutputCache(Duration = 86400, VaryByParam = "text;stock;vin")] // cache for speed
+        public ActionResult Qr(string text, string stock, string vin)
         {
+            text = (text ?? string.Empty).Trim();
+
             if (string.IsNullOrWhiteSpace(text))
-                return new HttpStatusCodeResult(400, "QR text is required");
+            {
+                stock = (stock ?? string.Empty).Trim();
+                vin = (vin ?? string.Empty).Trim();
+
+                if (string.IsNullOrWhiteSpace(stock))
+                    return new HttpStatusCodeResult(400, "QR text or stock is required");
+
+                var query = "stock=" + HttpUtility.UrlEncode(stock);
+                if (!string.IsNullOrWhiteSpace(vin))
+                {
+                    query += "&QR=" + HttpUtility.UrlEncode(vin);
+                }
+
+                text = "https://usedcarscincinnati.com/Inventory/Details?" + query;
+            }
+
+            if (text.Length > QrTextMaxLength)
+                return new HttpStatusCodeResult(400, "QR text is too long");
 
             using (var qrGenerator = new QRCodeGenerator())
             using (var qrData = qrGenerator.CreateQrCode(text, QRCodeGenerator.ECCLevel.Q))

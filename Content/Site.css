@@ -1099,6 +1099,24 @@
 @media (max-width: 991px) {
     .inventory-details-layout {
         width: 100%;
+        gap: 1rem !important;
+        padding-right: .75rem;
+        padding-left: .75rem;
+    }
+
+    .inventory-details-actions > .btn,
+    .inventory-details-actions > a.btn,
+    .inventory-details-actions + .details-suggestions {
+        margin-bottom: 1rem !important;
+    }
+
+    .inventory-details-actions > .btn:last-child,
+    .inventory-details-actions > a.btn:last-child {
+        margin-bottom: 0 !important;
+    }
+
+    .inventory-details-main #nav-details > .row.justify-content-center.well.mb-3:last-child {
+        margin-bottom: 0 !important;
     }
 }
 
@@ -1226,15 +1244,47 @@
 .details-suggestion-rail {
     width: 100%;
     min-width: 0;
-    align-items: stretch;
+    align-items: center;
     gap: .65rem;
 }
 
 .details-suggestion-rail .scroll-button {
-    flex: 0 0 2.5rem;
-    height: auto;
-    min-height: 8rem;
-    align-self: stretch;
+    flex: 0 0 3.25rem;
+    width: 3.25rem;
+    height: 3.25rem;
+    min-height: 3.25rem;
+    align-self: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 !important;
+    border: 1px solid rgba(15, 23, 42, .28) !important;
+    border-radius: 50% !important;
+    background: radial-gradient(circle at 34% 24%, #fff 0%, #f7f9fc 32%, #c9ced8 68%, #8e96a5 100%);
+    color: #111827;
+    font-size: 1.55rem;
+    line-height: 1;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 .45rem 1rem rgba(15, 23, 42, .22);
+    transition: background .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.details-suggestion-rail .scroll-button::before {
+    display: block;
+    line-height: 1;
+    vertical-align: 0;
+}
+
+.details-suggestion-rail .scroll-button:hover,
+.details-suggestion-rail .scroll-button:focus {
+    background: radial-gradient(circle at 34% 24%, #fff 0%, #f2f6fb 30%, #b9c0cc 68%, #7d8797 100%);
+    color: #111827;
+    transform: translateY(-1px);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .95), 0 .65rem 1.25rem rgba(15, 23, 42, .26);
+}
+
+.details-suggestion-rail .scroll-button:active {
+    transform: translateY(0);
+    box-shadow: inset 0 .18rem .35rem rgba(15, 23, 42, .18), 0 .2rem .45rem rgba(15, 23, 42, .18);
 }
 
 .details-suggestion-rail .scroll-container {
@@ -1264,6 +1314,80 @@
 
 .details-suggestion-list .hover-bw {
     width: 100%;
+}
+
+@media (max-width: 991.98px) {
+    .details-suggestion-rail {
+        display: block !important;
+    }
+
+    .details-suggestion-rail .scroll-button {
+        display: none;
+    }
+
+    .details-suggestion-rail .scroll-container {
+        overflow: visible;
+    }
+
+    .details-suggestion-list {
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .details-suggestion-list .card-wrapper {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+
+    .details-suggestions .gtx-ad-card {
+        grid-template-columns: 118px minmax(0, 1fr);
+        gap: .55rem;
+        min-height: 126px;
+        padding: .5rem;
+    }
+
+    .details-suggestions .gtx-ad-card-media {
+        min-height: 112px;
+    }
+
+    .details-suggestions .gtx-ad-card-body {
+        gap: .18rem;
+    }
+
+    .details-suggestions .gtx-ad-card-mileage {
+        padding: .12rem .32rem;
+        font-size: .68rem;
+    }
+
+    .details-suggestions .gtx-ad-card-title {
+        font-size: .98rem;
+        line-height: 1.08;
+    }
+
+    .details-suggestions .gtx-ad-card-subtitle {
+        font-size: .8rem;
+        line-height: 1.1;
+    }
+
+    .details-suggestions .gtx-ad-price-panel {
+        gap: .12rem;
+        padding: .32rem .38rem;
+    }
+
+    .details-suggestions .gtx-ad-price-row {
+        font-size: .72rem;
+        line-height: 1.08;
+    }
+
+    .details-suggestions .gtx-ad-transparent {
+        font-size: .78rem;
+    }
+
+    .details-suggestions .gtx-ad-transparent .gtx-ad-price-amount {
+        font-size: .92rem;
+    }
 }
 
 .gtx-ad-card {
