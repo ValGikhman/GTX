@@ -663,6 +663,8 @@ function calculateMonthlyPayment(P, rate, month) {
     var inventoryCurrentPage = 1;
     var inventoryPaginationResizeTimer = 0;
     var inventoryRangeFilterApplyTimer = 0;
+    var inventoryPageSizeSelector = ".inventory-page-size-select";
+    var inventoryPagerSelector = ".inventory-pager";
 
     function isInventoryCardMatched($vehicle) {
         return $vehicle.attr("data-inventory-filter-match") !== "0";
@@ -703,7 +705,7 @@ function calculateMonthlyPayment(P, rate, month) {
     }
 
     function inventoryPageSize() {
-        var selectedValue = $("#inventoryPageSize").val();
+        var selectedValue = $(inventoryPageSizeSelector).first().val();
         if (isInventoryAllPageSize(selectedValue)) return inventoryAllPageSize;
 
         var selected = parseInt(selectedValue, 10);
@@ -720,6 +722,10 @@ function calculateMonthlyPayment(P, rate, month) {
         $button.prop("disabled", disabled).attr("aria-disabled", disabled ? "true" : "false");
     }
 
+    function syncInventoryPageSizeControls(pageSize) {
+        $(inventoryPageSizeSelector).val(pageSize);
+    }
+
     function syncInventoryPager(totalCount, pageSize, totalPages, startIndex, endIndex) {
         var hasRows = totalCount > 0;
         var showAll = isInventoryAllPageSize(pageSize);
@@ -728,20 +734,22 @@ function calculateMonthlyPayment(P, rate, month) {
             : (hasRows ? "Page " + inventoryCurrentPage + " of " + totalPages : "Page 0 of 0");
         var rangeText = hasRows ? (startIndex + 1) + "-" + endIndex + " of " + totalCount : "0 of 0";
 
-        $("#inventoryPageStatus").text(pageText).toggle(!showAll);
-        $("#inventoryPageRange").text(rangeText).toggle(!showAll);
-        $("#inventoryPager [data-page-action]").toggle(!showAll);
+        syncInventoryPageSizeControls(pageSize);
+        $(".inventory-bottom-paging").toggleClass("is-hidden", showAll);
+        $(".inventory-page-status").text(pageText).toggle(!showAll);
+        $(".inventory-page-range").text(rangeText).toggle(!showAll);
+        $(inventoryPagerSelector + " [data-page-action]").toggle(!showAll);
 
-        setInventoryPagerDisabled($("#inventoryPager [data-page-action='first']"), !hasRows || inventoryCurrentPage <= 1);
-        setInventoryPagerDisabled($("#inventoryPager [data-page-action='prev']"), !hasRows || inventoryCurrentPage <= 1);
-        setInventoryPagerDisabled($("#inventoryPager [data-page-action='next']"), !hasRows || inventoryCurrentPage >= totalPages);
-        setInventoryPagerDisabled($("#inventoryPager [data-page-action='last']"), !hasRows || inventoryCurrentPage >= totalPages);
-        $("#inventoryPageSize").prop("disabled", !hasRows);
+        setInventoryPagerDisabled($(inventoryPagerSelector + " [data-page-action='first']"), !hasRows || inventoryCurrentPage <= 1);
+        setInventoryPagerDisabled($(inventoryPagerSelector + " [data-page-action='prev']"), !hasRows || inventoryCurrentPage <= 1);
+        setInventoryPagerDisabled($(inventoryPagerSelector + " [data-page-action='next']"), !hasRows || inventoryCurrentPage >= totalPages);
+        setInventoryPagerDisabled($(inventoryPagerSelector + " [data-page-action='last']"), !hasRows || inventoryCurrentPage >= totalPages);
+        $(inventoryPageSizeSelector).prop("disabled", !hasRows);
     }
 
     function isInventoryPagingEnabled() {
-        return $("#inventoryPageSize").length > 0 &&
-            $("#inventoryPager").length > 0 &&
+        return $(inventoryPageSizeSelector).length > 0 &&
+            $(inventoryPagerSelector).length > 0 &&
             $("#inventory").length > 0 &&
             isInventoryDesktopLayout();
     }
@@ -800,22 +808,24 @@ function calculateMonthlyPayment(P, rate, month) {
     }
 
     function initInventoryPaginationControls() {
-        var $pageSize = $("#inventoryPageSize");
-        var $pager = $("#inventoryPager");
+        var $pageSize = $(inventoryPageSizeSelector);
+        var $pager = $(inventoryPagerSelector);
 
         if (!$pageSize.length || !$pager.length || !$("#inventory").length) return;
 
         var savedPageSize = localStorage.getItem("inventoryPageSize");
-        $pageSize.val(validInventoryPageSize(savedPageSize) ? savedPageSize : inventoryDefaultPageSize);
+        syncInventoryPageSizeControls(validInventoryPageSize(savedPageSize) ? savedPageSize : inventoryDefaultPageSize);
 
         $pageSize.off("change.inventoryPagination").on("change.inventoryPagination", function () {
+            syncInventoryPageSizeControls($(this).val());
             var nextPageSize = inventoryPageSize();
 
             localStorage.setItem("inventoryPageSize", nextPageSize);
             applyInventoryPagination({ resetPage: true, scrollToTop: true });
         });
 
-        $pager.off("click.inventoryPagination").on("click.inventoryPagination", "[data-page-action]", function () {
+        $pager.off("click.inventoryPagination").on("click.inventoryPagination", "[data-page-action]", function (event) {
+            event.preventDefault();
             var pageSize = inventoryPageSize();
             var totalPages = inventoryTotalPages(inventoryMatchedCards().length, pageSize);
             var action = $(this).data("page-action");
