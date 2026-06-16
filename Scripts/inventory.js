@@ -727,19 +727,44 @@ function calculateMonthlyPayment(P, rate, month) {
         $(inventoryPageSizeSelector).val(pageSize);
     }
 
+    function renderInventoryPageNumberButtons(totalPages, hasRows, showAll) {
+        var $numbers = $(".inventory-page-numbers");
+        $numbers.empty().toggle(!showAll && hasRows);
+
+        if (!$numbers.length || showAll || !hasRows) return;
+
+        for (var page = 1; page <= totalPages; page++) {
+            var isCurrent = page === inventoryCurrentPage;
+            var ariaLabel = isCurrent ? "Page " + page + ", current page" : "Go to page " + page;
+
+            var $button = $("<button>", {
+                type: "button",
+                "class": "inventory-page-number-btn shadow-sm" + (isCurrent ? " is-active" : ""),
+                "data-page-action": "page",
+                "data-page-number": page,
+                "aria-label": ariaLabel,
+                title: "Page " + page,
+                text: page
+            }).appendTo($numbers);
+
+            if (isCurrent) {
+                $button.attr("aria-current", "page");
+            }
+        }
+    }
+
     function syncInventoryPager(totalCount, pageSize, totalPages, startIndex, endIndex) {
         var hasRows = totalCount > 0;
         var showAll = isInventoryAllPageSize(pageSize);
         var pageText = showAll
             ? (hasRows ? "All vehicles" : "No vehicles")
             : (hasRows ? "Page " + inventoryCurrentPage + " of " + totalPages : "Page 0 of 0");
-        var rangeText = hasRows ? (startIndex + 1) + "-" + endIndex + " of " + totalCount : "0 of 0";
 
         syncInventoryPageSizeControls(pageSize);
         $(".inventory-bottom-paging").toggleClass("is-hidden", showAll);
         $(".inventory-page-status").text(pageText).toggle(!showAll);
-        $(".inventory-page-range").text(rangeText).toggle(!showAll);
         $(inventoryPagerSelector + " [data-page-action]").toggle(!showAll);
+        renderInventoryPageNumberButtons(totalPages, hasRows, showAll);
 
         setInventoryPagerDisabled($(inventoryPagerSelector + " [data-page-action='first']"), !hasRows || inventoryCurrentPage <= 1);
         setInventoryPagerDisabled($(inventoryPagerSelector + " [data-page-action='prev']"), !hasRows || inventoryCurrentPage <= 1);
@@ -840,6 +865,11 @@ function calculateMonthlyPayment(P, rate, month) {
             if (action === "prev") inventoryCurrentPage--;
             if (action === "next") inventoryCurrentPage++;
             if (action === "last") inventoryCurrentPage = totalPages;
+            if (action === "page") {
+                var targetPage = parseInt($(this).data("page-number"), 10);
+                if (isNaN(targetPage)) return;
+                inventoryCurrentPage = targetPage;
+            }
 
             applyInventoryPagination({ scrollToTop: true });
         });
