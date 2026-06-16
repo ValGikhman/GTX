@@ -47,12 +47,12 @@
         <div class="inventory-toolbar-paging d-none d-lg-flex align-items-center justify-content-center gap-2">
             <div class="inventory-page-size d-flex align-items-center gap-2 z-3">
                 <label for="inventoryPageSize" class="fw-bold mb-0">Show</label>
-                <select id="inventoryPageSize" class="form-select form-select-sm shadow rounded-4" aria-label="Vehicles per page" title="Vehicles per page">
-                    <option value="20" selected>20</option>
+                <select id="inventoryPageSize" class="inventory-page-size-select form-select form-select-sm shadow rounded-4" aria-label="Vehicles per page" title="Vehicles per page">
+                    <option value="20">20</option>
                     <option value="40">40</option>
                     <option value="60">60</option>
                     <option value="80">80</option>
-                    <option value="all">All</option>
+                    <option value="all" selected>All</option>
                 </select>
             </div>
 
@@ -113,6 +113,18 @@
         flex: 0 0 auto;
         min-width: 0;
         white-space: nowrap;
+    }
+
+    .inventory-bottom-paging {
+        flex: 0 0 100%;
+        width: 100%;
+        list-style: none;
+        margin: .35rem 0 .75rem;
+        padding: .4rem .5rem 0;
+    }
+
+    .inventory-bottom-paging.is-hidden {
+        display: none !important;
     }
 
     .inventory-results-zone #inventory {

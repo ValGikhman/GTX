@@ -206,6 +206,38 @@
                     </li>
                 }
             }
+            @if (Model.Inventory?.Vehicles.Count() > 0)
+            {
+                <li class="inventory-bottom-paging inventory-toolbar-paging d-none d-lg-flex align-items-center justify-content-center gap-2">
+                    <div class="inventory-page-size d-flex align-items-center gap-2 z-3">
+                        <label for="inventoryPageSizeBottom" class="fw-bold mb-0">Show</label>
+                        <select id="inventoryPageSizeBottom" class="inventory-page-size-select form-select form-select-sm shadow rounded-4" aria-label="Vehicles per page" title="Vehicles per page">
+                            <option value="20">20</option>
+                            <option value="40">40</option>
+                            <option value="60">60</option>
+                            <option value="80">80</option>
+                            <option value="all" selected>All</option>
+                        </select>
+                    </div>
+
+                    <nav id="inventoryPagerBottom" class="inventory-pager d-flex align-items-center gap-1 z-3" aria-label="Inventory pages bottom">
+                        <button type="button" class="inventory-pager-btn" data-page-action="first" title="First page" aria-label="First page">
+                            <i class="bi bi-chevron-double-left"></i>
+                        </button>
+                        <button type="button" class="inventory-pager-btn" data-page-action="prev" title="Previous page" aria-label="Previous page">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                        <span id="inventoryPageStatusBottom" class="inventory-page-status" aria-live="polite">Page 1 of 1</span>
+                        <span id="inventoryPageRangeBottom" class="inventory-page-range">0 of 0</span>
+                        <button type="button" class="inventory-pager-btn" data-page-action="next" title="Next page" aria-label="Next page">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                        <button type="button" class="inventory-pager-btn" data-page-action="last" title="Last page" aria-label="Last page">
+                            <i class="bi bi-chevron-double-right"></i>
+                        </button>
+                    </nav>
+                </li>
+            }
         </ul>
     </div>
 </div>
@@ -366,6 +398,7 @@
         if (!field) return; // Do nothing if no field selected
 
         var $items = $container.find('.card').get();
+        var $bottomPaging = $container.find('.inventory-bottom-paging');
         var isTextField = (field === 'make');
         var collator = new Intl.Collator(undefined, { sensitivity: 'base', numeric: true });
 
@@ -388,6 +421,7 @@
         });
 
         $container.append($items);
+        $container.append($bottomPaging);
 
         if (window.refreshInventoryPagination) {
             window.refreshInventoryPagination({ resetPage: true, scrollToTop: true });
