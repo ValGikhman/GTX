@@ -64,7 +64,6 @@
                     <i class="bi bi-chevron-left"></i>
                 </button>
                 <span id="inventoryPageStatus" class="inventory-page-status" aria-live="polite">Page 1 of 1</span>
-                <span id="inventoryPageRange" class="inventory-page-range">0 of 0</span>
                 <button type="button" class="inventory-pager-btn" data-page-action="next" title="Next page" aria-label="Next page">
                     <i class="bi bi-chevron-right"></i>
                 </button>
@@ -142,7 +141,24 @@
         min-height: 1.9rem;
         padding-top: .2rem;
         padding-bottom: .2rem;
+        border-color: rgba(15, 23, 42, .28);
+        background-color: #155a96;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e"), var(--gtx-grad, linear-gradient(180deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1) 94%));
+        background-repeat: no-repeat, no-repeat;
+        background-position: right .75rem center, center;
+        background-size: 16px 12px, cover;
+        color: #fff;
         font-weight: 800;
+    }
+
+    .inventory-page-size .form-select option {
+        background: #fff;
+        color: #111827;
+    }
+
+    .inventory-page-size .form-select:focus {
+        border-color: rgba(0, 0, 0, .35);
+        box-shadow: 0 0 0 .2rem rgba(15, 23, 42, .16);
     }
 
     .inventory-page-size-label {
@@ -180,8 +196,60 @@
         filter: grayscale(.15);
     }
 
-    .inventory-page-status,
-    .inventory-page-range {
+    .inventory-page-numbers {
+        max-width: min(52vw, 42rem);
+        display: inline-flex;
+        align-items: center;
+        gap: .28rem;
+        overflow-x: auto;
+        padding: 0 .1rem;
+        scrollbar-width: thin;
+    }
+
+    .inventory-page-number-btn {
+        min-width: 2rem;
+        height: 2rem;
+        padding: 0 .55rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(15, 23, 42, .18);
+        border-radius: .55rem;
+        background: rgba(255, 255, 255, .88);
+        color: #111827;
+        font-size: .86rem;
+        font-weight: 900;
+        line-height: 1;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8);
+    }
+
+    .inventory-page-number-btn:hover,
+    .inventory-page-number-btn:focus {
+        border-color: rgba(0, 0, 0, .28);
+        background: var(--gtx-grad, linear-gradient(180deg, #267cff 0%, #0d6efd 100%));
+        color: #fff;
+        filter: brightness(1.04);
+    }
+
+    .inventory-page-number-btn.is-active {
+        border-color: rgba(0, 0, 0, .28);
+        background: var(--gtx-grad, linear-gradient(180deg, #267cff 0%, #0d6efd 100%));
+        color: #fff;
+        box-shadow: 0 .35rem .8rem rgba(13, 110, 253, .22);
+    }
+
+    html.theme-silver .inventory-page-size .form-select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23111' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e"), var(--gtx-grad);
+        color: #111;
+    }
+
+    html.theme-silver .inventory-page-number-btn:hover,
+    html.theme-silver .inventory-page-number-btn:focus,
+    html.theme-silver .inventory-page-number-btn.is-active {
+        color: #111;
+    }
+
+    .inventory-page-status {
         min-height: 2rem;
         display: inline-flex;
         align-items: center;
@@ -196,11 +264,6 @@
     .inventory-page-status {
         background: rgba(255, 255, 255, .76);
         border: 1px solid rgba(15, 23, 42, .1);
-    }
-
-    .inventory-page-range {
-        color: #374151;
-        background: rgba(219, 227, 236, .66);
     }
 
     @@media (min-width: 992px) {
@@ -228,14 +291,17 @@
             padding-left: .5rem;
         }
 
-        .inventory-page-size-label,
-        .inventory-page-range {
+        .inventory-page-size-label {
             display: none;
         }
 
         .inventory-page-status {
             padding: 0 .45rem;
             font-size: .8rem;
+        }
+
+        .inventory-page-numbers {
+            max-width: min(50vw, 30rem);
         }
     }
 
