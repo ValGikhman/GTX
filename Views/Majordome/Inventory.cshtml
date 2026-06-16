@@ -1982,6 +1982,7 @@
                 run: async function (item, job) {
                     return uploadMajordomeInventoryFile(item, job);
                 },
+                allowCloseDuringAfterComplete: true,
                 afterCompleteStatus: "Refreshing inventory list...",
                 afterComplete: async function (job) {
                     const payload = job?.inventoryImportPayload || {};
@@ -2110,6 +2111,11 @@
 
     function setMajordomeBulkStatus(message) {
         $("#majordomeBulkProgressStatus").text(message || "");
+    }
+
+    function showMajordomeBulkCloseButton() {
+        $("#majordomeBulkStart").prop("disabled", true).addClass("d-none");
+        $("#majordomeBulkCancel").prop("disabled", false).text("Close");
     }
 
     function appendMajordomeBulkLog(message, status) {
@@ -2404,6 +2410,10 @@
 
             if (!job.cancelRequested && typeof job.config.afterComplete === "function" && job.processed > 0) {
                 setMajordomeBulkStatus(job.config.afterCompleteStatus || "Refreshing inventory list...");
+                if (job.config.allowCloseDuringAfterComplete) {
+                    job.running = false;
+                    showMajordomeBulkCloseButton();
+                }
                 try {
                     await job.config.afterComplete(job);
                 } catch (error) {
@@ -2436,8 +2446,7 @@
         } finally {
             job.running = false;
             setMajordomeBulkToolbarBusy(false);
-            $("#majordomeBulkStart").prop("disabled", true).addClass("d-none");
-            $("#majordomeBulkCancel").prop("disabled", false).text("Close");
+            showMajordomeBulkCloseButton();
         }
     }
 
