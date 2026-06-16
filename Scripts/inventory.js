@@ -659,12 +659,13 @@ function calculateMonthlyPayment(P, rate, month) {
 
     var inventoryAllPageSize = "all";
     var inventoryPageSizes = [20, 40, 60, 80];
-    var inventoryDefaultPageSize = 20;
+    var inventoryDefaultPageSize = inventoryAllPageSize;
     var inventoryCurrentPage = 1;
     var inventoryPaginationResizeTimer = 0;
     var inventoryRangeFilterApplyTimer = 0;
     var inventoryPageSizeSelector = ".inventory-page-size-select";
     var inventoryPagerSelector = ".inventory-pager";
+    var inventoryPageSizeDefaultKey = "inventoryPageSizeDefault";
 
     function isInventoryCardMatched($vehicle) {
         return $vehicle.attr("data-inventory-filter-match") !== "0";
@@ -812,6 +813,11 @@ function calculateMonthlyPayment(P, rate, month) {
         var $pager = $(inventoryPagerSelector);
 
         if (!$pageSize.length || !$pager.length || !$("#inventory").length) return;
+
+        if (localStorage.getItem(inventoryPageSizeDefaultKey) !== inventoryDefaultPageSize) {
+            localStorage.setItem("inventoryPageSize", inventoryDefaultPageSize);
+            localStorage.setItem(inventoryPageSizeDefaultKey, inventoryDefaultPageSize);
+        }
 
         var savedPageSize = localStorage.getItem("inventoryPageSize");
         syncInventoryPageSizeControls(validInventoryPageSize(savedPageSize) ? savedPageSize : inventoryDefaultPageSize);
