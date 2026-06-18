@@ -2260,19 +2260,19 @@
     function getMajordomeInventoryBadgeClass(label) {
         const normalized = safeText(label).trim().toLowerCase();
         if (normalized.indexOf("add") >= 0) {
-            return "bg-success";
+            return "bg-warning p-2";
         }
         if (normalized.indexOf("remove") >= 0) {
-            return "bg-warning text-dark";
+            return "bg-danger p-2";
         }
         if (normalized.indexOf("skip") >= 0) {
-            return "bg-secondary";
+            return "bg-success p-2";
         }
         if (normalized.indexOf("update") >= 0) {
-            return "bg-primary";
+            return "bg-primary p-2";
         }
 
-        return "bg-secondary";
+        return "bg-success p-2";
     }
 
     function appendMajordomeInventoryBadgeLog(message, badgeText) {
