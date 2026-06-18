@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -820,10 +821,19 @@ namespace GTX.Controllers
         }
 
         private JsonResult CreateInventoryImportJsonResult(InventoryImportResult result, string message) {
+            var inventoryDate = result.InventoryDate;
+            if (inventoryDate != default(DateTime) && !(Model?.IsDevelopment ?? false))
+            {
+                inventoryDate = inventoryDate.AddHours(-5);
+            }
+
             return new JsonResult {
                 Data = new {
                     success = true,
                     message = message,
+                    inventoryDate = inventoryDate == default(DateTime)
+                        ? null
+                        : inventoryDate.ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture),
                     imported = result.Imported,
                     updated = result.Updated,
                     inserted = result.Inserted,

@@ -691,22 +691,27 @@
     var lastCars = [];
     loadLastCars();
 
-    const published = new Date("@publishedIso");
-    const now = new Date();
+    function updateInventoryStatus(publishedAt) {
+        const published = publishedAt instanceof Date ? publishedAt : new Date(publishedAt);
+        const now = new Date();
+        const publishedTime = published.getTime();
+        const hours = Number.isNaN(publishedTime) ? 0 : Math.max(0, Math.floor((now - published) / 3600000));
 
-    const hours = Math.max(0, Math.floor((now - published) / 3600000));
+        const bucket =
+            hours < 2  ? "status-h-0"  :
+            hours < 6  ? "status-h-2"  :
+            hours < 24 ? "status-h-6"  :
+            hours < 72 ? "status-h-24" : "status-h-72";
 
-    const bucket =
-        hours < 2  ? "status-h-0"  :
-        hours < 6  ? "status-h-2"  :
-        hours < 24 ? "status-h-6"  :
-        hours < 72 ? "status-h-24" : "status-h-72";
+        $("#inventoryStatus")
+            .attr("title", `The inventory is ${hours} hour${hours === 1 ? "" : "s"} old`)
+            .text(`${hours}h`)
+            .removeClass()
+            .addClass(`status-circle ${bucket}`);
+    }
 
-    $("#inventoryStatus")
-        .attr("title", `The inventory is ${hours} hour${hours === 1 ? "" : "s"} old`)
-        .text(`${hours}h`)
-        .removeClass()
-        .addClass(`status-circle ${bucket}`);
+    window.updateInventoryStatus = updateInventoryStatus;
+    updateInventoryStatus("@publishedIso");
 
     function openFiltersFromOffcanvas(e) {
         e.preventDefault();

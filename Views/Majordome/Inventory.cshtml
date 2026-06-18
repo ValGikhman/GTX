@@ -1945,6 +1945,10 @@
             job.inventoryImportPayload = payload;
         }
 
+        if (typeof window.updateInventoryStatus === "function") {
+            window.updateInventoryStatus(payload.inventoryDate || new Date());
+        }
+
         return {
             status: "success",
             message: `${label} imported.`,
