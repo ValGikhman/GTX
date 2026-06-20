@@ -1,0 +1,1395 @@
+@using Newtonsoft.Json
+@{
+    var managementLogsJson = System.Web.HttpUtility.JavaScriptStringEncode(
+        JsonConvert.SerializeObject(ViewBag.InventoryManagementLogs ?? Array.Empty<object>()));
+}
+
+<style>
+    .majordome-management-shell {
+        --inventory-border: var(--bs-border-color-translucent, rgba(30, 41, 59, .12));
+        --inventory-line: var(--bs-border-color-translucent, rgba(148, 163, 184, .22));
+        --inventory-muted: var(--bs-secondary-color, #64748b);
+        --inventory-ink: var(--bs-body-color, #172033);
+        --inventory-surface: var(--bs-body-bg, #fff);
+        --inventory-surface-alt: var(--bs-tertiary-bg, #f8fafc);
+        --inventory-header-bg: var(--gtx-grad, var(--bs-primary-bg-subtle, #f8fafc));
+        --inventory-header-color: #fff;
+        --inventory-header-border: rgba(255, 255, 255, .24);
+        background: var(--inventory-surface);
+        margin-top: .75rem;
+        border-radius: .85rem;
+        border: 1px solid var(--inventory-border);
+        box-shadow: 0 .8rem 2rem rgba(15, 23, 42, .09);
+        overflow: hidden;
+    }
+
+    html.theme-silver .majordome-management-shell {
+        --inventory-header-color: #111827;
+        --inventory-header-border: rgba(15, 23, 42, .16);
+    }
+
+    .majordome-management-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-start;
+        gap: .75rem;
+        padding: .75rem .85rem;
+        background: linear-gradient(180deg, var(--inventory-surface) 0%, var(--inventory-surface-alt) 100%);
+        border-bottom: 1px solid var(--inventory-line);
+    }
+
+    .inventory-management-upload-button {
+        flex: 0 0 auto;
+        min-height: 2.5rem;
+    }
+
+    .majordome-management-log-picker {
+        flex: 0 1 36rem;
+        min-width: min(100%, 24rem);
+        max-width: 42rem;
+    }
+
+    .majordome-management-log-select {
+        height: 2.5rem;
+        min-height: 2.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .75rem;
+        border-radius: .65rem;
+        border-color: var(--inventory-border);
+        box-shadow: 0 .25rem .75rem rgba(15, 23, 42, .06);
+        font-weight: 650;
+    }
+
+    .majordome-management-search {
+        flex: 0 1 340px;
+        margin-left: auto;
+        max-width: 265px;
+        min-width: 260px;
+        position: relative;
+        border-radius: .65rem;
+    }
+
+        .majordome-management-search .form-control {
+            height: 2.5rem;
+            min-height: 2.5rem;
+            border-color: var(--inventory-border);
+            border-radius: .65rem;
+            box-shadow: 0 .25rem .75rem rgba(15, 23, 42, .06);
+            font-weight: 600;
+            padding-right: 2.55rem;
+        }
+
+        .majordome-management-search-clear {
+            position: absolute;
+            top: 50%;
+            right: .25rem;
+            z-index: 4;
+            width: 2rem;
+            height: 2rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 0;
+            border-radius: .5rem;
+            background: transparent;
+            color: var(--inventory-muted);
+            transform: translateY(-50%);
+        }
+
+            .majordome-management-search-clear:hover,
+            .majordome-management-search-clear:focus {
+                color: var(--inventory-ink);
+                background: rgba(148, 163, 184, .14);
+            }
+
+    .majordome-management-status-filter,
+    .majordome-management-location-filter {
+        flex: 0 0 170px;
+        width: 170px;
+        height: 2.5rem;
+        min-height: 2.5rem;
+        border-color: var(--inventory-border);
+        border-radius: .65rem;
+        box-shadow: 0 .25rem .75rem rgba(15, 23, 42, .06);
+        font-size: .88rem;
+        font-weight: 700;
+    }
+
+    .majordome-management-include-skipped {
+        flex: 0 0 auto;
+        min-height: 2.5rem;
+        display: inline-flex;
+        align-items: center;
+        gap: .45rem;
+        padding: .35rem .75rem;
+        border: 1px solid var(--inventory-border);
+        border-radius: .65rem;
+        background: linear-gradient(180deg, #fff 0%, var(--inventory-surface-alt) 100%);
+        color: var(--inventory-ink);
+        box-shadow: 0 .25rem .75rem rgba(15, 23, 42, .06);
+        white-space: nowrap;
+    }
+
+        .majordome-management-include-skipped .form-check-input {
+            margin: 0;
+        }
+
+        .majordome-management-include-skipped .form-check-label {
+            color: var(--inventory-muted);
+            font-size: .72rem;
+            font-weight: 800;
+            letter-spacing: .03em;
+            text-transform: uppercase;
+        }
+
+        .majordome-management-log-select:focus,
+        .majordome-management-search .form-control:focus,
+        .majordome-management-status-filter:focus,
+        .majordome-management-location-filter:focus {
+            border-color: rgba(37, 99, 235, .5);
+            box-shadow: 0 0 0 .22rem rgba(37, 99, 235, .12);
+        }
+
+    .majordome-management-log-menu {
+        width: min(42rem, calc(100vw - 2rem));
+        max-height: 22rem;
+        overflow-y: auto;
+        padding: .35rem;
+    }
+
+    .majordome-management-log-option {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .75rem;
+        min-height: 2.5rem;
+        border-radius: .5rem;
+    }
+
+    .majordome-management-log-option-date,
+    .majordome-management-log-selected-date {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .majordome-management-log-badges {
+        display: inline-grid;
+        grid-auto-columns: 6.9rem;
+        grid-auto-flow: column;
+        align-items: center;
+        justify-content: flex-end;
+        flex: 0 0 auto;
+        gap: .35rem;
+        white-space: nowrap;
+    }
+
+        .majordome-management-log-badges .badge {
+            width: 100%;
+            min-height: 1.45rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding-left: .55rem;
+            padding-right: .55rem;
+        }
+
+    .majordome-management-summary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .4rem;
+        padding: .35rem .75rem;
+        min-height: 2.5rem;
+        border: 1px solid var(--inventory-border);
+        border-radius: .65rem;
+        background: linear-gradient(180deg, #fff 0%, var(--inventory-surface-alt) 100%);
+        color: var(--inventory-ink);
+        white-space: nowrap;
+        box-shadow: 0 .25rem .75rem rgba(15, 23, 42, .06);
+    }
+
+    .majordome-management-summary-label {
+        color: var(--inventory-muted);
+        font-size: .72rem;
+        font-weight: 800;
+        letter-spacing: .03em;
+        text-transform: uppercase;
+    }
+
+    .majordome-management-table-wrap {
+        max-height: 65vh;
+        background: var(--inventory-surface-alt);
+        scrollbar-color: rgba(71, 85, 105, .45) transparent;
+        scrollbar-width: thin;
+    }
+
+        .majordome-management-table-wrap::-webkit-scrollbar {
+            width: .7rem;
+            height: .7rem;
+        }
+
+        .majordome-management-table-wrap::-webkit-scrollbar-thumb {
+            background: rgba(71, 85, 105, .35);
+            border: 2px solid #f8fafc;
+            border-radius: 999px;
+        }
+
+        .majordome-management-table-wrap thead th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            padding: .8rem .85rem;
+            background: var(--inventory-header-bg);
+            color: var(--inventory-header-color);
+            font-size: .8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+            border-bottom: 1px solid var(--inventory-header-border);
+            box-shadow: 0 .35rem .8rem rgba(15, 23, 42, .12);
+            white-space: nowrap;
+        }
+
+    .majordome-sortable-th {
+        cursor: pointer;
+        user-select: none;
+        transition: background-color .15s, color .15s;
+    }
+
+        .majordome-sortable-th .majordome-sort-indicator {
+            display: inline-block;
+            width: 1rem;
+            margin-left: .3rem;
+            font-size: .9rem;
+            font-weight: 900;
+            line-height: 1;
+            text-align: center;
+            vertical-align: middle;
+            color: currentColor;
+            opacity: .62;
+            transition: opacity .15s, transform .15s;
+        }
+
+        .majordome-sortable-th.is-active .majordome-sort-indicator {
+            opacity: 1;
+            transform: translateY(-1px);
+        }
+
+    #majordomeManagementTable {
+        --bs-table-bg: transparent;
+        --bs-table-hover-bg: rgba(37, 99, 235, .045);
+        --bs-table-color: var(--inventory-ink);
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: .92rem;
+        margin: 0;
+        min-width: 720px;
+        table-layout: fixed;
+        width: 100%;
+    }
+
+        #majordomeManagementTable th,
+        #majordomeManagementTable td {
+            border-color: var(--inventory-line);
+        }
+
+        #majordomeManagementTable tbody td {
+            background: var(--inventory-surface);
+            vertical-align: middle;
+        }
+
+        #majordomeManagementTable tbody tr.majordome-management-row.is-alt td,
+        #majordomeManagementTable tbody tr.majordome-management-detail-row.is-alt td {
+            background: var(--inventory-surface-alt);
+        }
+
+        #majordomeManagementTable tbody tr:first-child td {
+            border-top: 0;
+        }
+
+        #majordomeManagementTable th:nth-child(5),
+        #majordomeManagementTable td:nth-child(5) {
+            padding-right: .35rem;
+        }
+
+        #majordomeManagementTable th:nth-child(6),
+        #majordomeManagementTable td:nth-child(6) {
+            padding-left: .35rem;
+        }
+
+        #majordomeManagementTable .majordome-management-spacer-cell {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+
+    .majordome-management-toggle {
+        width: 2rem;
+        height: 2rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border-radius: .5rem;
+    }
+
+    .majordome-management-row {
+        cursor: pointer;
+        transition: background-color .15s;
+    }
+
+        #majordomeManagementTable tbody tr.majordome-management-row.is-selected {
+            box-shadow: inset .32rem 0 #2563eb;
+        }
+
+            #majordomeManagementTable tbody tr.majordome-management-row.is-selected td {
+                background: #d9dde2;
+                border-color: rgba(108, 117, 125, .24);
+            }
+
+            #majordomeManagementTable tbody tr.majordome-management-row.is-selected td:first-child {
+                box-shadow: inset .32rem 0 var(--bs-secondary-color, #6c757d);
+            }
+
+    .majordome-management-stock {
+        font-family: var(--bs-font-monospace);
+        font-size: .9rem;
+        font-weight: 800;
+        letter-spacing: .01em;
+    }
+
+    .majordome-status-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 1.8rem;
+        min-height: 1.8rem;
+        border-radius: 999px;
+        border: 1px solid rgba(15, 23, 42, .18);
+        font-size: .75rem;
+        font-weight: 900;
+        line-height: 1;
+        background: #f1f5f9;
+        color: #334155;
+        box-shadow: inset 0 1px rgba(255, 255, 255, .65);
+    }
+
+        .majordome-status-pill.is-gtx-x {
+            border-color: rgba(29, 78, 216, .5);
+            background: rgba(37, 99, 235, .14);
+            color: #1d4ed8;
+        }
+
+        .majordome-status-pill.is-gtx-t {
+            border-color: rgba(185, 28, 28, .45);
+            background: rgba(220, 38, 38, .14);
+            color: #b91c1c;
+        }
+
+        .majordome-status-pill.is-gtx-g {
+            border-color: rgba(22, 163, 74, .45);
+            background: rgba(22, 163, 74, .12);
+            color: #166534;
+        }
+
+    .majordome-management-detail-cell {
+        padding: 0 !important;
+    }
+
+    .majordome-management-detail-panel {
+        padding: .9rem 1rem 1rem;
+        border-top: 1px solid var(--inventory-line);
+        background: rgba(248, 250, 252, .82);
+    }
+
+    .majordome-management-change-table {
+        margin: 0 0 0 3rem;
+        font-size: .88rem;
+        max-width: calc(100% - 3rem);
+        min-width: min(420px, calc(100% - 3rem));
+        table-layout: auto;
+        width: auto;
+    }
+
+        .majordome-management-change-table th:nth-child(1),
+        .majordome-management-change-table td:nth-child(1) {
+            min-width: 9rem;
+            white-space: nowrap;
+        }
+
+        .majordome-management-change-table th:nth-child(2),
+        .majordome-management-change-table td:nth-child(2),
+        .majordome-management-change-table th:nth-child(3),
+        .majordome-management-change-table td:nth-child(3) {
+            min-width: 8rem;
+            width: auto;
+        }
+
+        .majordome-management-change-table th {
+            background: linear-gradient(180deg, rgb(255 255 255), #AAAAB3) !important;
+            border-bottom: 1px solid rgba(15, 23, 42, .18);
+            color: #111827;
+            font-size: .72rem;
+            font-weight: 800;
+            letter-spacing: .03em;
+            line-height: 1.15;
+            padding-bottom: .4rem !important;
+            padding-top: .4rem !important;
+            text-transform: uppercase;
+        }
+
+        .majordome-management-change-table td {
+            background: #fff !important;
+            max-width: 34rem;
+            overflow-wrap: anywhere;
+        }
+
+        .majordome-management-change-table td.majordome-management-change-number {
+            font-variant-numeric: tabular-nums;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .majordome-management-change-table .majordome-management-change-spacer-cell {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+
+    .majordome-thumb {
+        width: 88px;
+        height: 66px;
+        object-fit: cover;
+        border-radius: .55rem;
+        border: 1px solid rgba(15, 23, 42, .12);
+        box-shadow: 0 .35rem .8rem rgba(15, 23, 42, .15);
+        background: #fff;
+        transition: box-shadow .15s, transform .15s;
+    }
+
+    #majordomeManagementTable .majordome-row-details {
+        width: 170px;
+        min-width: 170px;
+        max-width: 170px;
+    }
+
+    .majordome-vehicle-title {
+        color: var(--inventory-ink);
+        font-size: .98rem;
+        font-weight: 800;
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .majordome-vehicle-meta {
+        font-size: .78rem;
+        color: var(--inventory-muted);
+        line-height: 1.25;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .majordome-vin-line {
+        font-family: var(--bs-font-monospace);
+        letter-spacing: .01em;
+    }
+
+    @@media (max-width: 767.98px) {
+        .majordome-management-toolbar {
+            align-items: stretch;
+        }
+
+        .majordome-management-search,
+        .majordome-management-log-select,
+        .majordome-management-log-picker,
+        .majordome-management-status-filter,
+        .majordome-management-location-filter,
+        .majordome-management-include-skipped,
+        .majordome-management-summary,
+        .majordome-management-toolbar .btn {
+            flex: 1 1 100%;
+            width: 100%;
+            max-width: none;
+        }
+
+        .majordome-management-status-filter,
+        .majordome-management-summary {
+            margin-left: 0;
+        }
+
+        .majordome-management-summary {
+            justify-content: space-between;
+        }
+
+        .majordome-management-search {
+            margin-left: 0;
+        }
+
+        .majordome-management-table-wrap {
+            max-height: none;
+        }
+
+        .majordome-thumb {
+            width: 76px;
+            height: 56px;
+        }
+
+        .majordome-row-details {
+            max-width: 170px;
+        }
+
+    }
+</style>
+
+<div class="majordome-management-page container-fluid px-4 py-3">
+    <div class="majordome-management-shell">
+        <div class="majordome-management-toolbar">
+            <button type="button" id="inventoryManagementUploadInventoryButton" class="btn btn-gradient shadow inventory-management-upload-button">Upload inventory</button>
+            <input type="file" name="dataCsv" id="inventoryManagementDataCsv" class="d-none" accept=".csv,text/csv" />
+            <div class="dropdown majordome-management-log-picker">
+                <button type="button" id="majordomeManagementLogPickerButton" class="btn btn-light majordome-management-log-select" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span id="majordomeManagementLogPickerLabel" class="majordome-management-log-selected-date">No inventory logs found</span>
+                    <span id="majordomeManagementLogPickerBadges" class="majordome-management-log-badges"></span>
+                </button>
+                <div id="majordomeManagementLogMenu" class="dropdown-menu majordome-management-log-menu shadow" aria-labelledby="majordomeManagementLogPickerButton"></div>
+            </div>
+            <select id="majordomeManagementLogSelect" class="d-none" aria-hidden="true"></select>
+            <div class="majordome-management-search">
+                <input id="majordomeManagementSearch" type="search" class="form-control rounded-start-4 rounded-end-4 shadow" placeholder="Search within results..." autocomplete="off" aria-label="Search inventory management" />
+                <button type="button" id="majordomeManagementClearSearch" class="btn btn-light majordome-management-search-clear" title="Clear search" aria-label="Clear search">
+                    <i class="bi bi-x-lg" aria-hidden="true"></i>
+                </button>
+            </div>
+            <select id="majordomeManagementStatusFilter" class="form-select majordome-management-status-filter" aria-label="Filter inventory management rows by status">
+                <option value="all" selected>All</option>
+                <option value="added">Added</option>
+                <option value="updated">Updated</option>
+                <option value="removed">Removed</option>
+                <option value="skipped">Skipped</option>
+            </select>
+            <select id="majordomeManagementLocationFilter" class="form-select majordome-management-location-filter" aria-label="Filter inventory management rows by location">
+                <option value="all" selected>All locations</option>
+            </select>
+            <div class="form-check majordome-management-include-skipped" title="Show skipped records in the log dropdown and grid">
+                <input id="majordomeManagementIncludeSkipped" class="form-check-input" type="checkbox" value="true" />
+                <label class="form-check-label" for="majordomeManagementIncludeSkipped">Show Skipped</label>
+            </div>
+            <div id="majordomeManagementSummary" class="majordome-management-summary shadow-sm" aria-live="polite">
+                <span class="majordome-management-summary-label">Vehicles</span>
+                <span id="majordomeManagementCount" class="badge bg-secondary shadow">0</span>
+            </div>
+        </div>
+        <div class="majordome-management-table-wrap table-responsive">
+            <table id="majordomeManagementTable" class="table align-middle m-0">
+                <colgroup>
+                    <col style="width:56px;" />
+                    <col style="width:100px;" />
+                    <col style="width:170px;" />
+                    <col style="width:110px;" />
+                    <col style="width:96px;" />
+                    <col style="width:118px;" />
+                    <col />
+                </colgroup>
+                <thead class="table-light">
+                    <tr>
+                        <th style="width:56px;"></th>
+                        <th class="majordome-sortable-th" data-sort-key="image" style="width:100px;">Image <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
+                        <th class="majordome-sortable-th" data-sort-key="vehicle" style="width:170px;">Vehicle <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
+                        <th class="majordome-sortable-th" data-sort-key="stock" style="width:110px;">Stock <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
+                        <th class="text-center majordome-sortable-th" data-sort-key="gtx" style="width:96px;">GTX <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
+                        <th class="text-center majordome-sortable-th" data-sort-key="status" style="width:118px;">Status <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
+                        <th class="majordome-management-spacer-cell" aria-hidden="true"></th>
+                    </tr>
+                </thead>
+                <tbody id="majordomeManagementBody"></tbody>
+            </table>
+        </div>
+        <div id="majordomeManagementEmpty" class="p-4 text-center text-muted d-none">
+            No added, updated, or removed vehicles were found for this inventory date.
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    (function () {
+        const initialMajordomeManagementLogs = JSON.parse("@Html.Raw(managementLogsJson)");
+        let majordomeManagementLogs = Array.isArray(initialMajordomeManagementLogs) ? initialMajordomeManagementLogs : [];
+        let majordomeManagementRows = [];
+        let majordomeManagementSelectedStock = "";
+        const majordomeManagementSortState = { key: "", direction: "" };
+
+        function managementRoot() {
+            return typeof root !== "undefined" ? root : "/";
+        }
+
+        function managementValue(item, key, fallback) {
+            if (!item) return fallback;
+            if (Object.prototype.hasOwnProperty.call(item, key)) return item[key];
+            const camelKey = key.charAt(0).toLowerCase() + key.slice(1);
+            if (Object.prototype.hasOwnProperty.call(item, camelKey)) return item[camelKey];
+            return fallback;
+        }
+
+        function managementText(value) {
+            if (value === null || value === undefined) return "";
+            return value.toString();
+        }
+
+        function managementEscapeHtml(value) {
+            return managementText(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
+        function managementStockKey(stock) {
+            return managementText(stock).trim().toUpperCase();
+        }
+
+        function managementIncludeSkipped() {
+            return $("#majordomeManagementIncludeSkipped").is(":checked");
+        }
+
+        function managementLocationKey(value) {
+            const text = managementText(value).trim();
+            return text ? text.toUpperCase() : "__blank";
+        }
+
+        function managementLocationLabel(value) {
+            const text = managementText(value).trim();
+            return text || "No location";
+        }
+
+        function managementSearchText(value) {
+            return managementText(value).trim().toLowerCase();
+        }
+
+        function managementStatusKey(value) {
+            const status = managementSearchText(value);
+
+            if (status === "new" || status === "insert" || status === "inserted" || status === "add" || status === "added") {
+                return "added";
+            }
+
+            if (status === "update" || status === "updated") {
+                return "updated";
+            }
+
+            if (status === "remove" || status === "removed" || status === "delete" || status === "deleted") {
+                return "removed";
+            }
+
+            if (status === "skip" || status === "skipped") {
+                return "skipped";
+            }
+
+            return status;
+        }
+
+        function managementHasImage(row) {
+            const image = managementImageUrl(managementValue(row, "Stock", ""));
+            if (!image) return false;
+            return !/no[\s\-_]*image/i.test(image);
+        }
+
+        function getMajordomeManagementGtxBadgeInfo(value) {
+            const label = managementText(value).trim();
+            const normalized = label.toUpperCase();
+            let toneClass = "";
+
+            if (normalized.startsWith("X")) {
+                toneClass = "is-gtx-x";
+            } else if (normalized.startsWith("T")) {
+                toneClass = "is-gtx-t";
+            } else if (normalized.startsWith("G")) {
+                toneClass = "is-gtx-g";
+            }
+
+            return {
+                label: label || "-",
+                toneClass: toneClass
+            };
+        }
+
+        function compareMajordomeManagementText(left, right) {
+            return managementText(left).localeCompare(managementText(right), undefined, { numeric: true, sensitivity: "base" });
+        }
+
+        function compareMajordomeManagementRows(left, right, key) {
+            switch (key) {
+                case "image": {
+                    const imagePresence = (managementHasImage(left) ? 1 : 0) - (managementHasImage(right) ? 1 : 0);
+                    if (imagePresence !== 0) return imagePresence;
+                    return compareMajordomeManagementText(managementImageUrl(managementValue(left, "Stock", "")), managementImageUrl(managementValue(right, "Stock", "")));
+                }
+                case "vehicle": {
+                    const makeDiff = compareMajordomeManagementText(managementValue(left, "Make", ""), managementValue(right, "Make", ""));
+                    if (makeDiff !== 0) return makeDiff;
+
+                    const yearLeft = Number.parseInt(managementText(managementValue(left, "Year", "")), 10);
+                    const yearRight = Number.parseInt(managementText(managementValue(right, "Year", "")), 10);
+                    const safeYearLeft = Number.isNaN(yearLeft) ? -1 : yearLeft;
+                    const safeYearRight = Number.isNaN(yearRight) ? -1 : yearRight;
+                    if (safeYearLeft !== safeYearRight) return safeYearLeft - safeYearRight;
+
+                    const modelDiff = compareMajordomeManagementText(managementValue(left, "Model", ""), managementValue(right, "Model", ""));
+                    if (modelDiff !== 0) return modelDiff;
+
+                    return compareMajordomeManagementText(managementValue(left, "VehicleStyle", ""), managementValue(right, "VehicleStyle", ""));
+                }
+                case "stock":
+                    return compareMajordomeManagementText(managementValue(left, "Stock", ""), managementValue(right, "Stock", ""));
+                case "gtx":
+                    return compareMajordomeManagementText(managementValue(left, "LocationCode", ""), managementValue(right, "LocationCode", ""));
+                case "status":
+                    return compareMajordomeManagementText(managementValue(left, "StatusText", ""), managementValue(right, "StatusText", ""));
+                default:
+                    return 0;
+            }
+        }
+
+        function sortMajordomeManagementRows(sourceRows) {
+            const rows = Array.isArray(sourceRows) ? sourceRows.slice() : [];
+
+            if (!majordomeManagementSortState.key || !majordomeManagementSortState.direction) {
+                return rows;
+            }
+
+            const directionMultiplier = majordomeManagementSortState.direction === "desc" ? -1 : 1;
+
+            return rows
+                .map(function (row, index) { return { row: row, index: index }; })
+                .sort(function (left, right) {
+                    const diff = compareMajordomeManagementRows(left.row, right.row, majordomeManagementSortState.key);
+                    if (diff !== 0) return diff * directionMultiplier;
+                    return left.index - right.index;
+                })
+                .map(function (entry) { return entry.row; });
+        }
+
+        function updateMajordomeManagementSortHeaders() {
+            $("#majordomeManagementTable th.majordome-sortable-th").each(function () {
+                const $header = $(this);
+                const key = managementText($header.attr("data-sort-key")).toLowerCase();
+                const $icon = $header.find(".majordome-sort-indicator");
+                const isActive = key === majordomeManagementSortState.key && !!majordomeManagementSortState.direction;
+
+                $header.toggleClass("is-active", isActive);
+                $icon.removeClass("bi-arrow-down-up bi-arrow-up bi-arrow-down");
+                $icon.addClass(!isActive ? "bi-arrow-down-up" : (majordomeManagementSortState.direction === "asc" ? "bi-arrow-up" : "bi-arrow-down"));
+                $header.attr("aria-sort", !isActive ? "none" : (majordomeManagementSortState.direction === "asc" ? "ascending" : "descending"));
+            });
+        }
+
+        function toggleMajordomeManagementSort(key) {
+            const normalizedKey = managementText(key).toLowerCase();
+            if (!normalizedKey) return;
+
+            if (majordomeManagementSortState.key !== normalizedKey) {
+                majordomeManagementSortState.key = normalizedKey;
+                majordomeManagementSortState.direction = "asc";
+                return;
+            }
+
+            if (majordomeManagementSortState.direction === "asc") {
+                majordomeManagementSortState.direction = "desc";
+                return;
+            }
+
+            if (majordomeManagementSortState.direction === "desc") {
+                majordomeManagementSortState.key = "";
+                majordomeManagementSortState.direction = "";
+                return;
+            }
+
+            majordomeManagementSortState.direction = "asc";
+        }
+
+        function managementRowSearchValue(row) {
+            const changes = managementValue(row, "Changes", []) || [];
+            const changeText = Array.isArray(changes)
+                ? changes.map(function (change) {
+                    return [
+                        managementValue(change, "Field", ""),
+                        managementValue(change, "PreviousValue", ""),
+                        managementValue(change, "CurrentValue", "")
+                    ].join(" ");
+                }).join(" ")
+                : "";
+
+            return managementSearchText([
+                managementValue(row, "Stock", ""),
+                managementValue(row, "Year", ""),
+                managementValue(row, "Make", ""),
+                managementValue(row, "Model", ""),
+                managementValue(row, "VehicleStyle", ""),
+                managementValue(row, "VIN", ""),
+                managementValue(row, "LocationCode", ""),
+                managementValue(row, "StatusText", ""),
+                changeText
+            ].join(" "));
+        }
+
+        function getMajordomeManagementFilteredRows() {
+            const term = managementSearchText($("#majordomeManagementSearch").val());
+            const terms = term.split(/\s+/).filter(Boolean);
+            const statusFilter = managementStatusKey($("#majordomeManagementStatusFilter").val() || "all");
+            const locationFilter = $("#majordomeManagementLocationFilter").val() || "all";
+
+            return majordomeManagementRows.filter(function (row) {
+                const rowStatus = managementStatusKey(managementValue(row, "StatusText", ""));
+                const rowLocation = managementLocationKey(managementValue(row, "LocationCode", ""));
+                const matchesStatus = statusFilter === "all" || rowStatus === statusFilter;
+                const matchesLocation = locationFilter === "all" || rowLocation === locationFilter;
+                const searchValue = managementRowSearchValue(row);
+                const matchesTerm = terms.length === 0 || terms.every(function (part) {
+                    return searchValue.indexOf(part) !== -1;
+                });
+
+                return matchesStatus && matchesLocation && matchesTerm;
+            });
+        }
+
+        function updateMajordomeManagementEmptyState(filteredCount, totalCount) {
+            const hasFilteredRows = filteredCount > 0;
+            const message = totalCount > 0
+                ? "No vehicles match the current search, status, or location filter."
+                : "No added, updated, or removed vehicles were found for this inventory date.";
+
+            $("#majordomeManagementEmpty")
+                .toggleClass("d-none", hasFilteredRows)
+                .text(message);
+            $(".majordome-management-table-wrap").toggleClass("d-none", !hasFilteredRows);
+        }
+
+        function updateMajordomeManagementCount(filteredCount, totalCount) {
+            const filteredText = managementFormatInteger(filteredCount);
+            const totalText = managementFormatInteger(totalCount);
+            const countText = filteredCount === totalCount ? filteredText : `${filteredText} / ${totalText}`;
+            $("#majordomeManagementCount").text(countText);
+        }
+
+        function syncMajordomeManagementSkippedFilterOption() {
+            const includeSkipped = managementIncludeSkipped();
+            const $statusFilter = $("#majordomeManagementStatusFilter");
+
+            $statusFilter.find("option[value='skipped']").prop("disabled", !includeSkipped);
+
+            if (!includeSkipped && $statusFilter.val() === "skipped") {
+                $statusFilter.val("all");
+            }
+        }
+
+        function syncMajordomeManagementLocationFilter() {
+            const $locationFilter = $("#majordomeManagementLocationFilter");
+            const selected = $locationFilter.val() || "all";
+            const locationsByKey = {};
+
+            majordomeManagementRows.forEach(function (row) {
+                const location = managementValue(row, "LocationCode", "");
+                const key = managementLocationKey(location);
+
+                if (!locationsByKey[key]) {
+                    locationsByKey[key] = managementLocationLabel(location);
+                }
+            });
+
+            const locations = Object.keys(locationsByKey)
+                .map(function (key) {
+                    return {
+                        key: key,
+                        label: locationsByKey[key]
+                    };
+                })
+                .sort(function (a, b) {
+                    if (a.key === "__blank") return 1;
+                    if (b.key === "__blank") return -1;
+                    return a.label.localeCompare(b.label, undefined, { numeric: true, sensitivity: "base" });
+                });
+
+            $locationFilter.empty().append($("<option>").val("all").text("All locations"));
+
+            locations.forEach(function (location) {
+                $("<option>")
+                    .val(location.key)
+                    .text(location.label)
+                    .appendTo($locationFilter);
+            });
+
+            const hasSelected = selected === "all" || locations.some(function (location) {
+                return location.key === selected;
+            });
+
+            $locationFilter.val(hasSelected ? selected : "all");
+            $locationFilter.prop("disabled", locations.length === 0);
+        }
+
+        function managementVehicleByStock(stock) {
+            const target = managementStockKey(stock);
+            if (!target) return null;
+
+            try {
+                const source = (typeof inventoryVehiclesSource !== "undefined" && Array.isArray(inventoryVehiclesSource))
+                    ? inventoryVehiclesSource
+                    : [];
+
+                for (let i = 0; i < source.length; i++) {
+                    if (managementStockKey(managementValue(source[i], "Stock", "")) === target) {
+                        return source[i];
+                    }
+                }
+            } catch (e) {
+                return null;
+            }
+
+            return null;
+        }
+
+        function managementImageUrl(stock) {
+            const vehicle = managementVehicleByStock(stock);
+            const image = managementValue(vehicle, "Image", "");
+
+            if (image && typeof toInventoryImageUrl === "function") {
+                return toInventoryImageUrl(image);
+            }
+
+            return image || "";
+        }
+
+        function managementParseDate(value) {
+            if (!value) return null;
+            if (value instanceof Date) return value;
+
+            const text = managementText(value).trim();
+            const mvcDateMatch = /\/Date\((-?\d+)(?:[+-]\d+)?\)\//.exec(text);
+            const isoWithoutZone = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?$/.test(text);
+            const date = mvcDateMatch
+                ? new Date(Number(mvcDateMatch[1]))
+                : new Date(isoWithoutZone ? `${text}Z` : text);
+
+            return Number.isNaN(date.getTime()) ? null : date;
+        }
+
+        function managementFormatDate(value) {
+            if (!value) return "No date";
+            const date = managementParseDate(value);
+            if (!date) return managementText(value);
+
+            return date.toLocaleString(undefined, {
+                year: "numeric",
+                month: "short",
+                day: "2-digit",
+                hour: "numeric",
+                minute: "2-digit",
+                timeZoneName: "short"
+            });
+        }
+
+        function managementFormatShortDate(value) {
+            const date = managementParseDate(value);
+            if (!date) return managementText(value);
+
+            return date.toLocaleDateString(undefined, {
+                year: "numeric",
+                month: "short",
+                day: "2-digit"
+            });
+        }
+
+        function managementFormatInteger(value, useGrouping) {
+            const text = managementText(value).trim();
+            if (!text) return "";
+
+            const numeric = Number(text.replace(/[$,\s]/g, ""));
+            if (!Number.isFinite(numeric)) return text;
+
+            return new Intl.NumberFormat(undefined, {
+                maximumFractionDigits: 0,
+                useGrouping: useGrouping !== false
+            }).format(numeric);
+        }
+
+        function managementFormatCurrency(value) {
+            const text = managementText(value).trim();
+            if (!text) return "";
+
+            const numeric = Number(text.replace(/[$,\s]/g, ""));
+            if (!Number.isFinite(numeric)) return text;
+
+            return new Intl.NumberFormat(undefined, {
+                style: "currency",
+                currency: "USD",
+                maximumFractionDigits: 0
+            }).format(numeric);
+        }
+
+        function managementFormatChangeValue(field, value) {
+            const fieldName = managementText(field);
+
+            if (fieldName === "Retail price" || fieldName === "Internet price") {
+                return managementFormatCurrency(value);
+            }
+
+            if (fieldName === "Mileage" || fieldName === "Weight") {
+                return managementFormatInteger(value);
+            }
+
+            if (fieldName === "Year" || fieldName === "Cylinders" || fieldName === "Transmission speed") {
+                return managementFormatInteger(value, false);
+            }
+
+            if (fieldName === "Purchase date" || fieldName === "Arrival date") {
+                return managementFormatShortDate(value);
+            }
+
+            return managementText(value);
+        }
+
+        function managementIsNumericChangeValue(field, value) {
+            const fieldName = managementText(field);
+
+            if (fieldName === "Retail price" || fieldName === "Internet price" ||
+                fieldName === "Mileage" || fieldName === "Weight" ||
+                fieldName === "Year" || fieldName === "Cylinders" || fieldName === "Transmission speed") {
+                return true;
+            }
+
+            return /^-?\$?\s*\d[\d,\s]*(?:\.\d+)?$/.test(managementText(value).trim());
+        }
+
+        function managementLogLabel(log) {
+            const added = Number(managementValue(log, "AddedCount", 0)) || 0;
+            const updated = Number(managementValue(log, "UpdatedCount", 0)) || 0;
+            const removed = Number(managementValue(log, "RemovedCount", 0)) || 0;
+            const skipped = Number(managementValue(log, "SkippedCount", 0)) || 0;
+            const dateCreated = managementValue(log, "DateCreated", "");
+            const skippedText = managementIncludeSkipped() ? `, ${managementFormatInteger(skipped)} skipped` : "";
+            return `${managementFormatDate(dateCreated)} - ${managementFormatInteger(added)} added, ${managementFormatInteger(updated)} updated, ${managementFormatInteger(removed)} removed${skippedText}`;
+        }
+
+        function buildMajordomeManagementLogBadges(log) {
+            const added = Number(managementValue(log, "AddedCount", 0)) || 0;
+            const updated = Number(managementValue(log, "UpdatedCount", 0)) || 0;
+            const removed = Number(managementValue(log, "RemovedCount", 0)) || 0;
+            const skipped = Number(managementValue(log, "SkippedCount", 0)) || 0;
+            const skippedBadge = managementIncludeSkipped()
+                ? `<span class="badge rounded-pill bg-secondary">Skipped ${managementEscapeHtml(managementFormatInteger(skipped))}</span>`
+                : "";
+
+            return `
+                <span class="badge rounded-pill bg-success">Added ${managementEscapeHtml(managementFormatInteger(added))}</span>
+                <span class="badge rounded-pill bg-primary">Updated ${managementEscapeHtml(managementFormatInteger(updated))}</span>
+                <span class="badge rounded-pill bg-danger">Removed ${managementEscapeHtml(managementFormatInteger(removed))}</span>
+                ${skippedBadge}`;
+        }
+
+        function findMajordomeManagementLog(logId) {
+            const target = managementText(logId);
+            return majordomeManagementLogs.find(function (log) {
+                return managementText(managementValue(log, "Id", "")) === target;
+            });
+        }
+
+        function syncMajordomeManagementLogPicker(logId) {
+            const log = findMajordomeManagementLog(logId);
+
+            if (!log) {
+                $("#majordomeManagementLogPickerLabel").text("No inventory logs found");
+                $("#majordomeManagementLogPickerBadges").empty();
+                return;
+            }
+
+            $("#majordomeManagementLogPickerLabel").text(managementFormatDate(managementValue(log, "DateCreated", "")));
+            $("#majordomeManagementLogPickerBadges").html(buildMajordomeManagementLogBadges(log));
+        }
+
+        function renderMajordomeManagementLogs(preferredLogId) {
+            const $select = $("#majordomeManagementLogSelect");
+            const $button = $("#majordomeManagementLogPickerButton");
+            const $menu = $("#majordomeManagementLogMenu");
+            $select.empty();
+            $menu.empty();
+
+            if (!majordomeManagementLogs.length) {
+                $select.prop("disabled", true).append($("<option>").text("No inventory logs found").val(""));
+                $button.prop("disabled", true);
+                syncMajordomeManagementLogPicker("");
+                setMajordomeManagementRows([]);
+                return;
+            }
+
+            $button.prop("disabled", false);
+            $select.prop("disabled", false);
+            majordomeManagementLogs.forEach(function (log) {
+                const id = managementText(managementValue(log, "Id", ""));
+                $("<option>")
+                    .val(id)
+                    .text(managementLogLabel(log))
+                    .appendTo($select);
+
+                $("<button>")
+                    .attr({
+                        type: "button",
+                        "data-log-id": id
+                    })
+                    .addClass("dropdown-item majordome-management-log-option")
+                    .html(`
+                        <span class="majordome-management-log-option-date">${managementEscapeHtml(managementFormatDate(managementValue(log, "DateCreated", "")))}</span>
+                        <span class="majordome-management-log-badges">${buildMajordomeManagementLogBadges(log)}</span>`)
+                    .appendTo($menu);
+            });
+
+            const hasPreferred = preferredLogId && majordomeManagementLogs.some(function (log) {
+                return managementText(managementValue(log, "Id", "")) === managementText(preferredLogId);
+            });
+
+            $select.val(hasPreferred ? preferredLogId : managementValue(majordomeManagementLogs[0], "Id", ""));
+            syncMajordomeManagementLogPicker($select.val());
+            loadMajordomeManagementRows($select.val());
+        }
+
+        function setMajordomeManagementRows(rows) {
+            majordomeManagementRows = Array.isArray(rows) ? rows : [];
+            syncMajordomeManagementLocationFilter();
+            applyMajordomeManagementFilters();
+        }
+
+        function selectMajordomeManagementRow($row) {
+            const stockKey = managementStockKey($row.attr("data-stock"));
+            if (!stockKey) return;
+
+            majordomeManagementSelectedStock = stockKey;
+            $("#majordomeManagementBody .majordome-management-row").removeClass("is-selected");
+            $row.addClass("is-selected");
+        }
+
+        function applyMajordomeManagementFilters() {
+            renderMajordomeManagementRows(getMajordomeManagementFilteredRows(), majordomeManagementRows.length);
+        }
+
+        function renderMajordomeManagementRows(rows, totalCount) {
+            const vehicles = sortMajordomeManagementRows(rows);
+            const total = typeof totalCount === "number" ? totalCount : vehicles.length;
+            const html = vehicles.map(renderMajordomeManagementRow).join("");
+
+            if (window.gtxSecurity && typeof window.gtxSecurity.setSafeHtml === "function") {
+                window.gtxSecurity.setSafeHtml($("#majordomeManagementBody"), html);
+            } else {
+                $("#majordomeManagementBody").html(html);
+            }
+
+            updateMajordomeManagementCount(vehicles.length, total);
+            updateMajordomeManagementEmptyState(vehicles.length, total);
+            updateMajordomeManagementSortHeaders();
+        }
+
+        function renderMajordomeManagementRow(row, index) {
+            const stock = managementValue(row, "Stock", "");
+            const year = managementValue(row, "Year", "");
+            const make = managementValue(row, "Make", "");
+            const model = managementValue(row, "Model", "");
+            const style = managementValue(row, "VehicleStyle", "");
+            const vin = managementValue(row, "VIN", "");
+            const statusText = managementValue(row, "StatusText", "");
+            const statusKey = managementStatusKey(statusText);
+            const locationCode = managementValue(row, "LocationCode", "");
+            const changes = managementValue(row, "Changes", []) || [];
+            const isUpdated = statusKey === "updated";
+            const isRemoved = statusKey === "removed";
+            const isSkipped = statusKey === "skipped";
+            const collapseId = `majordomeManagementChanges${index}`;
+            const image = managementImageUrl(stock);
+            const gtxBadge = getMajordomeManagementGtxBadgeInfo(locationCode);
+            const statusClass = isUpdated ? "bg-primary" : (isRemoved ? "bg-danger" : (isSkipped ? "bg-secondary" : "bg-success"));
+            const rowToneClass = index % 2 === 1 ? "is-alt" : "";
+            const stockKey = managementStockKey(stock);
+            const selectedClass = stockKey && stockKey === majordomeManagementSelectedStock ? "is-selected" : "";
+            const rowSearch = managementEscapeHtml(managementRowSearchValue(row));
+            const displayVehicle = {
+                Stock: stock,
+                Year: year,
+                Make: make,
+                Model: model,
+                VehicleStyle: style,
+                VIN: vin,
+                LocationCode: locationCode,
+                Image: image
+            };
+
+            const toggle = isUpdated
+                ? `<button type="button" class="btn btn-outline-secondary majordome-management-toggle" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="false" aria-controls="${collapseId}" title="Show changed values"><i class="bi bi-chevron-right" aria-hidden="true"></i></button>`
+                : "";
+
+            return `
+                <tr class="majordome-management-row ${rowToneClass} ${selectedClass}" data-stock="${managementEscapeHtml(stockKey)}" data-status="${managementEscapeHtml(statusKey)}" data-search="${rowSearch}">
+                    <td>${toggle}</td>
+                    ${window.renderMajordomeVehicleImageCell(displayVehicle)}
+                    ${window.renderMajordomeVehicleDetailsCell(displayVehicle)}
+                    <td class="text-center"><span class="shadow majordome-status-pill majordome-status-location ${managementEscapeHtml(gtxBadge.toneClass)} px-2">${managementEscapeHtml(stock)}</span></td>
+                    <td class="text-center">
+                        <span class="majordome-status-pill majordome-status-location ${managementEscapeHtml(gtxBadge.toneClass)} shadow">${managementEscapeHtml(gtxBadge.label)}</span>
+                    </td>
+                    <td class="text-center"><span class="badge rounded-pill ${statusClass} shadow">${managementEscapeHtml(statusText)}</span></td>
+                    <td class="majordome-management-spacer-cell" aria-hidden="true"></td>
+                </tr>
+                <tr class="majordome-management-detail-row ${rowToneClass}">
+                    <td class="majordome-management-detail-cell" colspan="7">
+                        <div id="${collapseId}" class="collapse">
+                            ${buildMajordomeManagementDetails(row, changes)}
+                        </div>
+                    </td>
+                </tr>`;
+        }
+
+        function buildMajordomeManagementDetails(row, changes) {
+            const hasPrevious = !!managementValue(row, "HasPreviousState", false);
+            if (!hasPrevious) {
+                return `<div class="majordome-management-detail-panel text-muted">No previous logged state exists for this stock number.</div>`;
+            }
+
+            if (!Array.isArray(changes) || changes.length === 0) {
+                return `<div class="majordome-management-detail-panel text-muted">No field-level differences were found in the logged values.</div>`;
+            }
+
+            const rowsHtml = changes.map(function (change) {
+                const field = managementValue(change, "Field", "");
+                const previousValue = managementValue(change, "PreviousValue", "");
+                const currentValue = managementValue(change, "CurrentValue", "");
+                const previousClass = managementIsNumericChangeValue(field, previousValue) ? ` class="majordome-management-change-number"` : "";
+                const currentClass = managementIsNumericChangeValue(field, currentValue) ? ` class="majordome-management-change-number"` : "";
+
+                return `
+                    <tr>
+                        <td class="fw-semibold">${managementEscapeHtml(field)}</td>
+                        <td${previousClass}>${managementEscapeHtml(managementFormatChangeValue(field, previousValue))}</td>
+                        <td${currentClass}>${managementEscapeHtml(managementFormatChangeValue(field, currentValue))}</td>
+                    </tr>`;
+            }).join("");
+
+            return `
+                <div class="majordome-management-detail-panel">
+                    <div class="table-responsive">
+                        <table class="table table-sm majordome-management-change-table">
+                            <thead>
+                                <tr>
+                                    <th class="text-dark">Field</th>
+                                    <th class="text-dark">Previous</th>
+                                    <th class="text-dark">New</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rowsHtml}</tbody>
+                        </table>
+                    </div>
+                </div>`;
+        }
+
+        function loadMajordomeManagementRows(logId) {
+            if (!logId) {
+                setMajordomeManagementRows([]);
+                return;
+            }
+
+            majordomeManagementRows = [];
+            majordomeManagementSelectedStock = "";
+            syncMajordomeManagementLocationFilter();
+            $("#majordomeManagementBody").html(`<tr><td colspan="7" class="text-center text-muted p-4">Loading management records...</td></tr>`);
+            $("#majordomeManagementEmpty").addClass("d-none");
+            $(".majordome-management-table-wrap").removeClass("d-none");
+
+            $.get(`${managementRoot()}InventoryManagement/GetInventoryManagementLogVehicles`, {
+                inventoryLogId: logId,
+                includeSkipped: managementIncludeSkipped()
+            })
+                .done(function (payload) {
+                    if (!payload || payload.success === false) {
+                        setMajordomeManagementRows([]);
+                        return;
+                    }
+
+                    setMajordomeManagementRows(payload.vehicles || payload.Vehicles || []);
+                })
+                .fail(function () {
+                    majordomeManagementRows = [];
+                    syncMajordomeManagementLocationFilter();
+                    $("#majordomeManagementBody").html(`<tr><td colspan="7" class="text-center text-danger p-4">Unable to load management records.</td></tr>`);
+                    $("#majordomeManagementCount").text("0");
+                });
+        }
+
+        window.refreshMajordomeManagementLogs = function (preferredLogId) {
+            const selectedLogId = preferredLogId === undefined
+                ? $("#majordomeManagementLogSelect").val()
+                : preferredLogId;
+
+            return $.get(`${managementRoot()}InventoryManagement/GetInventoryManagementLogs`, {
+                includeSkipped: managementIncludeSkipped()
+            })
+                .done(function (payload) {
+                    if (!payload || payload.success === false) {
+                        return;
+                    }
+
+                    majordomeManagementLogs = payload.logs || payload.Logs || [];
+                    renderMajordomeManagementLogs(selectedLogId);
+                });
+        };
+
+        $(function () {
+            syncMajordomeManagementSkippedFilterOption();
+            renderMajordomeManagementLogs();
+
+            $("#majordomeManagementLogMenu").on("click", ".majordome-management-log-option", function () {
+                const logId = $(this).attr("data-log-id");
+                $("#majordomeManagementLogSelect").val(logId);
+                syncMajordomeManagementLogPicker(logId);
+                loadMajordomeManagementRows(logId);
+            });
+
+            $("#majordomeManagementIncludeSkipped").on("change", function () {
+                syncMajordomeManagementSkippedFilterOption();
+                window.refreshMajordomeManagementLogs();
+            });
+
+            $("#majordomeManagementSearch").on("input", function () {
+                applyMajordomeManagementFilters();
+            });
+            $("#majordomeManagementClearSearch").on("click", function () {
+                $("#majordomeManagementSearch").val("");
+                applyMajordomeManagementFilters();
+                $("#majordomeManagementSearch").trigger("focus");
+            });
+            $("#majordomeManagementStatusFilter").on("change", applyMajordomeManagementFilters);
+            $("#majordomeManagementLocationFilter").on("change", applyMajordomeManagementFilters);
+
+            $("#majordomeManagementTable").on("click", "th.majordome-sortable-th", function () {
+                const sortKey = managementText($(this).attr("data-sort-key")).toLowerCase();
+                if (!sortKey) return;
+
+                toggleMajordomeManagementSort(sortKey);
+                applyMajordomeManagementFilters();
+            });
+
+            $("#majordomeManagementBody")
+                .on("click", ".majordome-management-row", function () {
+                    selectMajordomeManagementRow($(this));
+                })
+                .on("shown.bs.collapse", ".collapse", function () {
+                    const $toggle = $(`[data-bs-target="#${this.id}"]`);
+                    $toggle.find("i").removeClass("bi-chevron-right").addClass("bi-chevron-down");
+                    selectMajordomeManagementRow($toggle.closest(".majordome-management-row"));
+                })
+                .on("hidden.bs.collapse", ".collapse", function () {
+                    const $toggle = $(`[data-bs-target="#${this.id}"]`);
+                    $toggle.find("i").removeClass("bi-chevron-down").addClass("bi-chevron-right");
+                });
+        });
+    })();
+</script>

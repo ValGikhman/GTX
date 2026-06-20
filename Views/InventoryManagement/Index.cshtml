@@ -1,0 +1,434 @@
+@using Newtonsoft.Json
+@model GTX.Models.BaseModel
+
+@{
+    var inventoryVehiclesJson = System.Web.HttpUtility.JavaScriptStringEncode(
+        JsonConvert.SerializeObject(Model.Inventory.Vehicles ?? Array.Empty<GTX.Models.GTX>()));
+}
+
+<head>
+    <script src="~/Scripts/majordome.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome.js")).Ticks)"></script>
+</head>
+
+<script type="text/javascript">
+    const inventoryVehiclesSourceJson = "@Html.Raw(inventoryVehiclesJson)";
+    let inventoryVehiclesSource = JSON.parse(inventoryVehiclesSourceJson);
+</script>
+
+<style>
+    .inventory-management-upload-summary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .4rem;
+        align-items: center;
+    }
+
+    .inventory-management-upload-log {
+        max-height: 18rem;
+        overflow: auto;
+    }
+
+        .inventory-management-upload-log .list-group-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .75rem;
+        }
+
+    .inventory-management-upload-log-text {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>
+
+<div id="inventoryManagementUploadOverlay" class="spinner-overlay spinner-hidden">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Working...</span>
+    </div>
+</div>
+
+<div class="modal fade" id="inventoryManagementUploadModal" tabindex="-1" aria-labelledby="inventoryManagementUploadTitle" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="inventoryManagementUploadTitle">Upload inventory</h5>
+            </div>
+            <div class="modal-body">
+                <p id="inventoryManagementUploadIntro" class="mb-2"></p>
+                <div id="inventoryManagementUploadSummary" class="inventory-management-upload-summary small mb-2 d-none" aria-live="polite"></div>
+                <div class="d-flex justify-content-between small text-muted mb-1">
+                    <span id="inventoryManagementUploadCounts">0 of 0</span>
+                    <span id="inventoryManagementUploadPercent">0%</span>
+                </div>
+                <div id="inventoryManagementUploadTrack" class="progress" role="progressbar" aria-label="Inventory upload progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                    <div id="inventoryManagementUploadBar" class="progress-bar progress-bar-striped" style="width: 0%"></div>
+                </div>
+                <div id="inventoryManagementUploadStatus" class="small mt-3"></div>
+                <div id="inventoryManagementUploadLog" class="inventory-management-upload-log list-group small mt-3" aria-live="polite"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="inventoryManagementUploadCancel" class="btn btn-outline-secondary">Cancel</button>
+                <button type="button" id="inventoryManagementUploadStart" class="btn btn-gradient">Start</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("~/Views/Majordome/_Majordome-VehicleCellsScript.cshtml")
+@Html.Partial("~/Views/Majordome/_Majordome-Management.cshtml")
+
+<script type="text/javascript">
+    (function () {
+        let inventoryManagementUploadFile = null;
+        let inventoryManagementUploadPreview = null;
+        let inventoryManagementUploadRequest = null;
+        let inventoryManagementUploadRunning = false;
+
+        function uploadText(value) {
+            if (value === null || value === undefined) return "";
+            return value.toString();
+        }
+
+        function uploadRoot() {
+            return typeof root !== "undefined" ? root : "/";
+        }
+
+        function uploadFileLabel(file) {
+            return uploadText(file && file.name).trim() || "inventory CSV";
+        }
+
+        function uploadStatItems(payload, key) {
+            return Array.isArray(payload && payload[key]) ? payload[key] : [];
+        }
+
+        function uploadProgressTotal(payload) {
+            const total =
+                uploadStatItems(payload, "updated").length +
+                uploadStatItems(payload, "inserted").length +
+                uploadStatItems(payload, "removed").length +
+                uploadStatItems(payload, "skipped").length;
+            const imported = parseInt((payload && (payload.imported || payload.Imported)) || 0, 10) || 0;
+
+            return total > 0 ? total : imported;
+        }
+
+        function uploadFormatCount(value) {
+            const number = parseInt(value, 10) || 0;
+            return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(number);
+        }
+
+        function uploadBadgeClass(label) {
+            const normalized = uploadText(label).trim().toLowerCase();
+            if (normalized.indexOf("add") >= 0) return "bg-success p-2";
+            if (normalized.indexOf("remove") >= 0) return "bg-danger p-2";
+            if (normalized.indexOf("skip") >= 0) return "bg-secondary p-2";
+            if (normalized.indexOf("update") >= 0) return "bg-primary p-2";
+            return "bg-success p-2";
+        }
+
+        function uploadVehicleLabel(item) {
+            const year = parseInt((item && (item.Year || item.year)) || 0, 10) || 0;
+            const description = [
+                year > 0 ? year.toString() : "",
+                uploadText(item && (item.Make || item.make)).trim(),
+                uploadText(item && (item.Model || item.model)).trim()
+            ].filter(function (part) {
+                return part.length > 0;
+            }).join(" ");
+
+            return description || "vehicle";
+        }
+
+        function uploadSetBusy(isBusy) {
+            inventoryManagementUploadRunning = isBusy;
+            $("#inventoryManagementUploadInventoryButton, #inventoryManagementDataCsv, #inventoryManagementUploadStart")
+                .prop("disabled", isBusy)
+                .toggleClass("disabled", isBusy);
+        }
+
+        function uploadSetProgress(processed, total) {
+            const percent = total > 0 ? Math.round((processed / total) * 100) : 0;
+            $("#inventoryManagementUploadCounts").text(`${uploadFormatCount(processed)} of ${uploadFormatCount(total)}`);
+            $("#inventoryManagementUploadPercent").text(`${percent}%`);
+            $("#inventoryManagementUploadTrack").attr("aria-valuenow", percent);
+            $("#inventoryManagementUploadBar")
+                .css("width", `${percent}%`)
+                .text(percent > 0 ? `${percent}%` : "");
+        }
+
+        function uploadSetStatus(message) {
+            $("#inventoryManagementUploadStatus").text(message || "");
+        }
+
+        function uploadAppendLog(message, status) {
+            const statusClass = status === "success"
+                ? "list-group-item-success"
+                : status === "error"
+                    ? "list-group-item-danger"
+                    : status === "warning"
+                        ? "list-group-item-warning"
+                        : "list-group-item-light";
+
+            const $log = $("#inventoryManagementUploadLog");
+            $("<div></div>")
+                .addClass(`list-group-item ${statusClass}`)
+                .text(message)
+                .appendTo($log);
+            $log.scrollTop($log.prop("scrollHeight"));
+        }
+
+        function uploadAppendBadgeLog(message, badgeText) {
+            const $item = $("<div></div>").addClass("list-group-item list-group-item-light");
+
+            $("<span></span>")
+                .addClass("inventory-management-upload-log-text")
+                .text(message)
+                .appendTo($item);
+
+            $("<span></span>")
+                .addClass(`badge rounded-pill ${uploadBadgeClass(badgeText)}`)
+                .text(badgeText)
+                .appendTo($item);
+
+            const $log = $("#inventoryManagementUploadLog");
+            $item.appendTo($log);
+            $log.scrollTop($log.prop("scrollHeight"));
+        }
+
+        function uploadRenderSummary(title, badges) {
+            const $summary = $("#inventoryManagementUploadSummary")
+                .empty()
+                .removeClass("d-none");
+
+            $("<span></span>")
+                .addClass("fw-semibold me-1")
+                .text(`${title}:`)
+                .appendTo($summary);
+
+            (badges || []).forEach(function (badge) {
+                const label = uploadText(badge && badge.label).trim();
+                const count = parseInt((badge && badge.count) || 0, 10) || 0;
+                $("<span></span>")
+                    .addClass(`badge rounded-pill ${uploadBadgeClass(label)} shadow`)
+                    .text(`${uploadFormatCount(count)} ${label}`)
+                    .appendTo($summary);
+            });
+        }
+
+        function uploadRenderStatusLines(title, items) {
+            const label = uploadText(title).trim().toLowerCase();
+            (items || []).forEach(function (item) {
+                uploadAppendBadgeLog(uploadVehicleLabel(item), label);
+            });
+        }
+
+        function uploadRenderStats(title, payload) {
+            const updated = uploadStatItems(payload, "updated");
+            const inserted = uploadStatItems(payload, "inserted");
+            const removed = uploadStatItems(payload, "removed");
+            const skipped = uploadStatItems(payload, "skipped");
+            const isPreview = title === "Preview";
+
+            uploadRenderSummary(title, [
+                { label: isPreview ? "to update" : "updated", count: updated.length },
+                { label: isPreview ? "to add" : "added", count: inserted.length },
+                { label: isPreview ? "to remove" : "removed", count: removed.length },
+                { label: isPreview ? "to skip" : "skipped", count: skipped.length }
+            ]);
+            uploadRenderStatusLines(isPreview ? "to be updated" : "updated", updated);
+            uploadRenderStatusLines(isPreview ? "to be added" : "added", inserted);
+            uploadRenderStatusLines(isPreview ? "to be removed" : "removed", removed);
+            uploadRenderStatusLines(isPreview ? "to be skipped" : "skipped", skipped);
+        }
+
+        function uploadFormData(file) {
+            const formData = new FormData();
+            formData.append("dataCsv", file, file.name);
+            return formData;
+        }
+
+        function uploadParseError(xhr, fallback) {
+            const responseText = uploadText(xhr && xhr.responseText).trim();
+            if (responseText) {
+                try {
+                    const payload = JSON.parse(responseText);
+                    return uploadText(payload.message || payload.Message || (payload.errors || []).join("; ")).trim() || fallback;
+                } catch (error) {
+                    return responseText;
+                }
+            }
+
+            return fallback;
+        }
+
+        function uploadPostCsv(actionName, file) {
+            inventoryManagementUploadRequest = $.ajax({
+                url: `${uploadRoot()}InventoryManagement/${actionName}`,
+                type: "POST",
+                data: uploadFormData(file),
+                processData: false,
+                contentType: false,
+                dataType: "json",
+                timeout: 120000,
+                cache: false
+            });
+
+            return inventoryManagementUploadRequest;
+        }
+
+        function uploadShowModal() {
+            const modalEl = document.getElementById("inventoryManagementUploadModal");
+            if (window.bootstrap && bootstrap.Modal) {
+                bootstrap.Modal.getOrCreateInstance(modalEl, { backdrop: "static", keyboard: false }).show();
+                return;
+            }
+
+            if ($.fn.modal) {
+                $("#inventoryManagementUploadModal").modal({ backdrop: "static", keyboard: false }).modal("show");
+            }
+        }
+
+        function uploadHideModal() {
+            const modalEl = document.getElementById("inventoryManagementUploadModal");
+            if (window.bootstrap && bootstrap.Modal) {
+                bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+                return;
+            }
+
+            if ($.fn.modal) {
+                $("#inventoryManagementUploadModal").modal("hide");
+            }
+        }
+
+        function uploadResetModal(file, preview) {
+            const total = uploadProgressTotal(preview);
+            $("#inventoryManagementUploadIntro").text(`Ready to import ${uploadFileLabel(file)}.`);
+            $("#inventoryManagementUploadSummary").empty().addClass("d-none");
+            $("#inventoryManagementUploadLog").empty();
+            $("#inventoryManagementUploadStart").removeClass("d-none").prop("disabled", total === 0).text("Start");
+            $("#inventoryManagementUploadCancel").prop("disabled", false).text(total > 0 ? "Cancel" : "Close");
+            uploadSetProgress(0, total);
+            uploadSetStatus(total > 0 ? "Review the import statistics, then press Start." : "Nothing to import.");
+            uploadRenderStats("Preview", preview);
+        }
+
+        async function uploadRefreshManagementLogs() {
+            if (typeof window.refreshMajordomeManagementLogs !== "function") {
+                return;
+            }
+
+            const refresh = window.refreshMajordomeManagementLogs("");
+            if (refresh && typeof refresh.then === "function") {
+                await refresh;
+            }
+        }
+
+        async function uploadPreviewFile(file) {
+            if (!file) {
+                alert("Please select an inventory CSV first.");
+                return;
+            }
+
+            const $overlay = $("#inventoryManagementUploadOverlay");
+            showSpinner($overlay);
+
+            try {
+                const preview = await uploadPostCsv("PreviewInventoryUpload", file);
+                if (!preview || preview.success === false) {
+                    throw new Error((preview && preview.message) || "Inventory upload preview failed.");
+                }
+
+                inventoryManagementUploadFile = file;
+                inventoryManagementUploadPreview = preview;
+                uploadResetModal(file, preview);
+                uploadShowModal();
+            } catch (error) {
+                if (error && error.statusText === "abort") return;
+                console.error("Inventory upload preview failed:", error);
+                alert((error && error.message) || uploadParseError(error, "Inventory upload preview failed."));
+            } finally {
+                inventoryManagementUploadRequest = null;
+                hideSpinner($overlay);
+            }
+        }
+
+        async function uploadStartImport() {
+            const file = inventoryManagementUploadFile;
+            if (!file || inventoryManagementUploadRunning) return;
+
+            const total = uploadProgressTotal(inventoryManagementUploadPreview);
+            uploadSetBusy(true);
+            $("#inventoryManagementUploadCancel").prop("disabled", false).text("Cancel");
+            $("#inventoryManagementUploadLog").empty();
+            uploadSetProgress(0, total);
+            uploadSetStatus("Uploading inventory CSV...");
+
+            try {
+                const payload = await uploadPostCsv("ReplaceHeaderAndConvertToXml", file);
+                if (!payload || payload.success === false) {
+                    throw new Error((payload && payload.message) || "Inventory upload failed.");
+                }
+
+                const completed = uploadProgressTotal(payload) || total || 1;
+                uploadSetProgress(completed, completed);
+                uploadRenderStats("Synced", payload);
+                uploadAppendLog(`${uploadFileLabel(file)} imported.`, "success");
+
+                if (typeof window.updateInventoryStatus === "function") {
+                    window.updateInventoryStatus(payload.inventoryDate || new Date());
+                }
+
+                uploadSetStatus("Refreshing inventory management logs...");
+                try {
+                    await uploadRefreshManagementLogs();
+                    uploadSetStatus("Inventory upload completed.");
+                } catch (refreshError) {
+                    console.error("Inventory management log refresh failed:", refreshError);
+                    uploadSetStatus("Inventory upload completed, but the management logs did not refresh.");
+                    uploadAppendLog("Refresh the page to load the latest management log.", "warning");
+                }
+
+                $("#inventoryManagementUploadStart").addClass("d-none");
+                $("#inventoryManagementUploadCancel").prop("disabled", false).text("Close");
+            } catch (error) {
+                if (error && error.statusText === "abort") {
+                    uploadSetStatus("Inventory upload canceled.");
+                    uploadAppendLog("Inventory upload canceled.", "warning");
+                } else {
+                    const message = (error && error.message) || uploadParseError(error, "Inventory upload failed.");
+                    uploadSetStatus(message);
+                    uploadAppendLog(message, "error");
+                }
+            } finally {
+                inventoryManagementUploadRequest = null;
+                uploadSetBusy(false);
+                $("#inventoryManagementUploadStart").prop("disabled", false).toggleClass("disabled", false);
+            }
+        }
+
+        $(function () {
+            $("#inventoryManagementUploadInventoryButton").on("click", function () {
+                $("#inventoryManagementDataCsv").trigger("click");
+            });
+
+            $("#inventoryManagementDataCsv").on("change", function () {
+                const file = this.files && this.files.length ? this.files[0] : null;
+                this.value = "";
+                uploadPreviewFile(file);
+            });
+
+            $("#inventoryManagementUploadStart").on("click", uploadStartImport);
+
+            $("#inventoryManagementUploadCancel").on("click", function () {
+                if (inventoryManagementUploadRunning && inventoryManagementUploadRequest) {
+                    inventoryManagementUploadRequest.abort();
+                    return;
+                }
+
+                uploadHideModal();
+            });
+        });
+    })();
+</script>

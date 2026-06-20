@@ -1,0 +1,594 @@
+<style>
+    .filterLiked, .filterLast, .filterHelp, .sort {
+        display: none !important;
+    }
+
+    #filterWrapper {
+        width: min(100%, 520px) !important;
+    }
+
+    #filterByTerm {
+        position: relative !important;
+        background: none;
+        padding: unset;
+        box-shadow: none
+    }
+
+    .majordome-inventory-shell {
+        --inventory-border: var(--bs-border-color-translucent, rgba(30, 41, 59, .12));
+        --inventory-line: var(--bs-border-color-translucent, rgba(148, 163, 184, .22));
+        --inventory-muted: var(--bs-secondary-color, #64748b);
+        --inventory-ink: var(--bs-body-color, #172033);
+        --inventory-surface: var(--bs-body-bg, #fff);
+        --inventory-surface-alt: var(--bs-tertiary-bg, #f8fafc);
+        --inventory-header-bg: var(--gtx-grad, var(--bs-primary-bg-subtle, #f8fafc));
+        --inventory-header-color: #fff;
+        --inventory-header-border: rgba(255, 255, 255, .24);
+        background: var(--inventory-surface);
+        margin-top: .75rem;
+        border-radius: .85rem;
+        border: 1px solid var(--inventory-border);
+        box-shadow: 0 .8rem 2rem rgba(15, 23, 42, .09);
+    }
+
+    .majordome-inventory-header {
+        border-bottom: 1px solid var(--inventory-line);
+        background: linear-gradient(180deg, var(--inventory-surface) 0%, var(--inventory-surface-alt) 100%);
+    }
+
+    .majordome-inventory-title {
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: .02em;
+        color: var(--bs-heading-color, var(--bs-body-color));
+        font-family: inherit;
+    }
+
+    html.theme-silver #inventoryGridShell {
+        --inventory-header-color: #111827;
+        --inventory-header-border: rgba(15, 23, 42, .16);
+    }
+
+    #inventoryGridShell #filtersWrap {
+        width: 100%;
+        max-width: none;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: .75rem;
+        padding: .75rem .85rem;
+    }
+
+    #inventoryGridShell .majordome-gtx-filter {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        min-width: 0;
+        width: auto;
+    }
+
+        #inventoryGridShell .majordome-gtx-filter .input-group-text {
+            height: 2.5rem;
+            min-height: 2.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding-top: 0;
+            padding-bottom: 0;
+            border-color: var(--inventory-border);
+            border-radius: .65rem 0 0 .65rem;
+            background: linear-gradient(180deg, #fff 0%, var(--inventory-surface-alt) 100%);
+            white-space: nowrap;
+        }
+
+    #inventoryGridShell .majordome-gtx-filter-control {
+        width: auto;
+        min-width: 10rem;
+        max-width: 14rem;
+        align-items: stretch;
+        flex-wrap: nowrap;
+        border-radius: .65rem;
+        box-shadow: 0 .25rem .75rem rgba(15, 23, 42, .06);
+    }
+
+    #inventoryGridShell #majordomeGtxFilter {
+        min-width: 6rem;
+        height: 2.5rem;
+        min-height: 2.5rem;
+        border-color: var(--inventory-border);
+        border-left: 0;
+        border-radius: 0 .65rem .65rem 0;
+        box-shadow: none;
+        font-size: .88rem;
+        font-weight: 700;
+        line-height: 1.2;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
+    #inventoryGridShell #filterByTerm {
+        flex: 0 1 540px;
+        min-width: 260px;
+        max-width: 540px;
+        width: auto;
+        margin: 0;
+        padding: 0 !important;
+        justify-content: flex-start;
+        gap: .75rem;
+    }
+
+        #inventoryGridShell #filterByTerm .inventory-toolbar-shell {
+            width: 100%;
+            min-height: 0;
+            padding: 0;
+            justify-content: flex-start !important;
+        }
+
+        #inventoryGridShell #filterByTerm .inventory-term-search {
+            flex: 1 1 auto;
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        #inventoryGridShell #filterByTerm #filterWrapper {
+            width: 100% !important;
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        #inventoryGridShell #filterByTerm #filterTerm {
+            height: 2.5rem;
+            min-height: 2.5rem;
+            border-color: var(--inventory-border);
+            border-radius: .65rem;
+            box-shadow: 0 .25rem .75rem rgba(15, 23, 42, .06);
+            font-weight: 600;
+        }
+
+            #inventoryGridShell #filterByTerm #filterTerm:focus,
+            #inventoryGridShell #majordomeGtxFilter:focus {
+                border-color: rgba(37, 99, 235, .5);
+                box-shadow: 0 0 0 .22rem rgba(37, 99, 235, .12);
+            }
+
+    #inventoryGridShell .majordome-inventory-count {
+        flex: 0 0 auto;
+        margin-left: auto;
+        min-height: 2.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .45rem;
+        padding: .35rem .75rem;
+        border: 1px solid var(--inventory-border);
+        border-radius: .65rem;
+        background: linear-gradient(180deg, #fff 0%, var(--inventory-surface-alt) 100%);
+        color: var(--inventory-ink);
+        box-shadow: 0 .25rem .75rem rgba(15, 23, 42, .06);
+        white-space: nowrap;
+    }
+
+    #inventoryGridShell .majordome-inventory-count-label {
+        color: var(--inventory-muted);
+        font-size: .72rem;
+        font-weight: 800;
+        letter-spacing: .03em;
+        text-transform: uppercase;
+    }
+
+    #majordomeInventoryTable {
+        --bs-table-bg: transparent;
+        --bs-table-hover-bg: rgba(37, 99, 235, .045);
+        --bs-table-color: var(--inventory-ink);
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: .92rem;
+        min-width: 980px;
+    }
+
+        #majordomeInventoryTable th,
+        #majordomeInventoryTable td {
+            border-color: var(--inventory-line);
+        }
+
+        #majordomeInventoryTable tbody td {
+            background: var(--inventory-surface);
+            padding: .72rem .85rem;
+            vertical-align: middle;
+        }
+
+        #majordomeInventoryTable tbody tr:nth-child(even) td {
+            background: var(--inventory-surface-alt);
+        }
+
+        #majordomeInventoryTable tbody tr:first-child td {
+            border-top: 0;
+        }
+
+    .majordome-inventory-table-wrap {
+        max-height: 65vh;
+        background: var(--inventory-surface-alt);
+        scrollbar-color: rgba(71, 85, 105, .45) transparent;
+        scrollbar-width: thin;
+    }
+
+        .majordome-inventory-table-wrap::-webkit-scrollbar {
+            width: .7rem;
+            height: .7rem;
+        }
+
+        .majordome-inventory-table-wrap::-webkit-scrollbar-thumb {
+            background: rgba(71, 85, 105, .35);
+            border: 2px solid #f8fafc;
+            border-radius: 999px;
+        }
+
+        .majordome-inventory-table-wrap thead th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            padding: .8rem .85rem;
+            background: var(--inventory-header-bg);
+            color: var(--inventory-header-color);
+            font-size: .8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+            border-bottom: 1px solid var(--inventory-header-border);
+            box-shadow: 0 .35rem .8rem rgba(15, 23, 42, .12);
+            white-space: nowrap;
+        }
+
+    .majordome-sortable-th {
+        cursor: pointer;
+        user-select: none;
+        transition: background-color .15s, color .15s;
+    }
+
+        .majordome-sortable-th .majordome-sort-indicator {
+            display: inline-block;
+            width: 1rem;
+            margin-left: .3rem;
+            font-size: .9rem;
+            font-weight: 900;
+            line-height: 1;
+            text-align: center;
+            vertical-align: middle;
+            color: currentColor;
+            opacity: .62;
+            transition: opacity .15s, transform .15s;
+        }
+
+        .majordome-sortable-th.is-active .majordome-sort-indicator {
+            opacity: 1;
+            transform: translateY(-1px);
+        }
+
+    #majordomeInventoryBody .majordome-vehicle-row {
+        cursor: pointer;
+    }
+
+        #majordomeInventoryBody .majordome-vehicle-row.is-selected {
+            box-shadow: inset .32rem 0 #2563eb;
+        }
+
+            #majordomeInventoryBody .majordome-vehicle-row.is-selected td {
+                background: #d9dde2;
+                border-color: rgba(108, 117, 125, .24);
+            }
+
+            #majordomeInventoryBody .majordome-vehicle-row.is-selected td:first-child {
+                box-shadow: inset .32rem 0 var(--bs-secondary-color, #6c757d);
+            }
+
+    .majordome-thumb {
+        width: 88px;
+        height: 66px;
+        object-fit: cover;
+        border-radius: .55rem;
+        border: 1px solid rgba(15, 23, 42, .12);
+        box-shadow: 0 .35rem .8rem rgba(15, 23, 42, .15);
+        background: #fff;
+        transition: box-shadow .15s, transform .15s;
+    }
+
+    .majordome-row-details {
+        max-width: 260px;
+    }
+
+    .majordome-vehicle-title {
+        color: var(--inventory-ink);
+        font-size: .98rem;
+        font-weight: 800;
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .majordome-vehicle-meta {
+        font-size: .78rem;
+        color: var(--inventory-muted);
+        line-height: 1.25;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .majordome-vin-line {
+        font-family: var(--bs-font-monospace);
+        letter-spacing: .01em;
+    }
+
+    .majordome-date-cell {
+        color: #334155;
+        font-size: .84rem;
+        font-weight: 650;
+        white-space: nowrap;
+    }
+
+    .majordome-status-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 1.8rem;
+        min-height: 1.8rem;
+        border-radius: 999px;
+        border: 1px solid rgba(15, 23, 42, .18);
+        font-size: .75rem;
+        font-weight: 900;
+        line-height: 1;
+        background: #f1f5f9;
+        color: #334155;
+        box-shadow: inset 0 1px rgba(255, 255, 255, .65);
+    }
+
+        .majordome-status-pill.is-on {
+            border-color: rgba(22, 163, 74, .45);
+            background: rgba(22, 163, 74, .12);
+            color: #166534;
+        }
+
+        .majordome-status-pill.is-gtx-x {
+            border-color: rgba(29, 78, 216, .5);
+            background: rgba(37, 99, 235, .14);
+            color: #1d4ed8;
+        }
+
+        .majordome-status-pill.is-gtx-t {
+            border-color: rgba(185, 28, 28, .45);
+            background: rgba(220, 38, 38, .14);
+            color: #b91c1c;
+        }
+
+        .majordome-status-pill.is-gtx-g {
+            border-color: rgba(22, 163, 74, .45);
+            background: rgba(22, 163, 74, .12);
+            color: #166534;
+        }
+
+    .majordome-actions {
+        display: inline-grid;
+        grid-template-columns: repeat(3, max-content);
+        gap: .35rem;
+        min-width: 0;
+        width: auto;
+        text-align: left;
+    }
+
+    .majordome-action-group {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: .22rem;
+        padding: .28rem .35rem;
+        border: 1px solid rgba(148, 163, 184, .28);
+        border-radius: .6rem;
+        background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+        box-shadow: 0 .15rem .45rem rgba(15, 23, 42, .06);
+    }
+
+    .majordome-action-title {
+        font-size: .58rem;
+        line-height: 1.1;
+        letter-spacing: .055em;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: #64748b;
+    }
+
+    .majordome-action-buttons {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: .2rem;
+        flex-wrap: nowrap;
+    }
+
+        .majordome-actions .btn {
+            width: 1.85rem;
+            height: 1.85rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border-radius: .5rem;
+            border-color: rgba(15, 23, 42, .18) !important;
+            box-shadow: none !important;
+            transition: background-color .15s, border-color .15s, color .15s, transform .15s;
+        }
+
+            .majordome-actions .btn:hover:not(:disabled) {
+                transform: translateY(-1px);
+            }
+
+            .majordome-actions .btn:disabled {
+                opacity: .38;
+            }
+
+    #majordomeInventoryTable th.majordome-actions-col,
+    #majordomeInventoryTable td.majordome-actions-cell {
+        width: 1%;
+        white-space: nowrap;
+    }
+
+    .majordome-bulk-progress-log {
+        max-height: 12rem;
+        overflow-y: auto;
+    }
+
+        .majordome-bulk-progress-log .list-group-item {
+            padding: .4rem .55rem;
+        }
+
+    .majordome-inventory-status-line {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: .5rem;
+        justify-content: space-between;
+    }
+
+    .majordome-inventory-summary {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: .35rem;
+    }
+
+    #majordomeBulkProgressSummary {
+        min-height: 1.5rem;
+    }
+
+    .majordome-inventory-log-text {
+        min-width: 0;
+    }
+
+    .majordome-inventory-status-badge {
+        flex: 0 0 auto;
+    }
+
+    #majordomeBulkProgressBar {
+        background: var(--gtx-grad, var(--bs-primary, #0d6efd));
+        color: #fff;
+    }
+
+    @@media (max-width: 991.98px) {
+        .this-container {
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }
+
+        .majordome-inventory-header .d-flex {
+            align-items: stretch !important;
+        }
+
+        #inventoryGridShell #filterByTerm {
+            justify-content: flex-start;
+        }
+
+            #inventoryGridShell #filterByTerm .inventory-term-search {
+                justify-content: flex-start;
+            }
+
+        .majordome-inventory-table-wrap {
+            max-height: none;
+        }
+    }
+
+    @@media (max-width: 767.98px) {
+        .majordome-thumb {
+            width: 76px;
+            height: 56px;
+        }
+
+        .majordome-row-details {
+            max-width: 170px;
+        }
+
+        .majordome-actions {
+            grid-template-columns: 1fr;
+            min-width: 0;
+        }
+
+            .majordome-actions .btn {
+                width: 1.85rem;
+                height: 1.85rem;
+            }
+
+        #inventoryGridShell #filtersWrap {
+            flex-wrap: wrap;
+            padding: .75rem;
+        }
+
+        #inventoryGridShell .majordome-gtx-filter,
+        #inventoryGridShell #filterByTerm,
+        #inventoryGridShell .majordome-inventory-count {
+            flex: 1 1 100%;
+            max-width: none;
+            width: 100%;
+        }
+
+        #inventoryGridShell .majordome-inventory-count {
+            margin-left: 0;
+            justify-content: space-between;
+        }
+
+        #inventoryGridShell .majordome-gtx-filter-control {
+            max-width: none;
+            width: 100%;
+        }
+
+        #inventoryGridShell #majordomeGtxFilter {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+    }
+</style>
+
+<div class="tab-pane fade show active py-2" id="tab-inventory" role="tabpanel">
+    <div class="container-fluid">
+        <div id="inventoryGridShell" class="majordome-inventory-shell overflow-hidden">
+            <div class="majordome-inventory-header">
+                <div class="d-flex flex-column align-items-stretch gap-2">
+                    <div id="filtersWrap">
+                        <div class="majordome-gtx-filter shadow rounded-4">
+                            <div class="input-group majordome-gtx-filter-control">
+                                <label class="input-group-text majordome-inventory-count-label" for="majordomeGtxFilter">GTX</label>
+                                <select id="majordomeGtxFilter" class="form-select " aria-label="Filter inventory by GTX">
+                                    <option value="">All</option>
+                                </select>
+                            </div>
+                        </div>
+                        @{ Html.RenderPartial("_FilterByTerm"); }
+                        <div id="majordomeInventoryCount" class="majordome-inventory-count shadow rounded-4" aria-live="polite" title="Vehicles shown">
+                            <span class="majordome-inventory-count-label">Vehicles shown</span>
+                            <span id="majordomeShownVehiclesCount" class="badge badge bg-secondary shadow">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="majordome-inventory-table-wrap table-responsive">
+                <table id="majordomeInventoryTable" class="table align-middle m-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="majordome-sortable-th" data-sort-key="image" style="width:100px;">Image <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
+                            <th class="majordome-sortable-th" data-sort-key="vehicle" style="min-width:220px;">Vehicle <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
+                            <th class="d-none d-lg-table-cell majordome-sortable-th" data-sort-key="purchased" style="min-width:120px;">Purchased <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
+                            <th class="majordome-sortable-th" data-sort-key="stock" style="min-width:110px;">Stock <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
+                            <th class="text-center d-none d-xl-table-cell majordome-sortable-th" data-sort-key="gtx" style="min-width:120px;">GTX <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
+                            <th class="text-center d-none d-md-table-cell majordome-sortable-th" data-sort-key="upload" style="width:80px;">Upload <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
+                            <th class="text-center d-none d-md-table-cell majordome-sortable-th" data-sort-key="story" style="width:80px;">Story <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
+                            <th class="text-center d-none d-md-table-cell majordome-sortable-th" data-sort-key="dataone" style="width:90px;">DataOne <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
+                            <th class="text-center majordome-actions-col" style="min-width:250px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="majordomeInventoryBody"></tbody>
+                </table>
+            </div>
+            <div id="majordomeInventoryEmpty" class="p-4 text-center text-muted d-none">
+                No vehicles match the current filter.
+            </div>
+        </div>
+    </div>
+</div>
