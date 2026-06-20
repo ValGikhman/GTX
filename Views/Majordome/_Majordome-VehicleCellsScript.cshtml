@@ -1,0 +1,58 @@
+<script type="text/javascript">
+    (function (window) {
+        function cellText(value) {
+            return value == null ? "" : String(value);
+        }
+
+        function cellEscapeHtml(value) {
+            return cellText(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
+        function cellNormalizeVehicle(vehicle) {
+            const row = vehicle || {};
+            row.Images = Array.isArray(row.Images) ? row.Images : [];
+            return row;
+        }
+
+        function renderImageCell(vehicle) {
+            const row = cellNormalizeVehicle(vehicle);
+            const stock = cellText(row.Stock);
+            const imageSource = cellText(row.Image).trim();
+            const image = imageSource && typeof window.toInventoryImageUrl === "function"
+                ? cellEscapeHtml(window.toInventoryImageUrl(imageSource))
+                : cellEscapeHtml(imageSource);
+            const imageHtml = image
+                ? `<img src="${image}" alt="${cellEscapeHtml(stock)}" class="majordome-thumb majordome-row-image" />`
+                : `<div class="majordome-thumb majordome-row-image d-flex align-items-center justify-content-center text-muted small">No image</div>`;
+
+            return `<td>${imageHtml}</td>`;
+        }
+
+        function renderDetailsCell(vehicle) {
+            const row = cellNormalizeVehicle(vehicle);
+            const yearMake = `${cellText(row.Year)} ${cellText(row.Make)}`.trim();
+            const modelStyle = `${cellText(row.Model)} ${cellText(row.VehicleStyle)}`.trim();
+            const vin = cellText(row.VIN);
+
+            return `
+                <td class="majordome-row-details">
+                    <div class="majordome-vehicle-title">${cellEscapeHtml(yearMake)}</div>
+                    <div class="majordome-vehicle-meta">${cellEscapeHtml(modelStyle)}</div>
+                    <div class="majordome-vehicle-meta majordome-vin-line">VIN: ${cellEscapeHtml(vin)}</div>
+                </td>
+            `;
+        }
+
+        window.majordomeVehicleCells = {
+            renderImageCell: renderImageCell,
+            renderDetailsCell: renderDetailsCell
+        };
+        window.renderMajordomeVehicleImageCell = renderImageCell;
+        window.renderMajordomeVehicleDetailsCell = renderDetailsCell;
+    })(window);
+</script>

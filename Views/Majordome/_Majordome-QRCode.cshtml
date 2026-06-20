@@ -1,0 +1,27 @@
+<style>
+    #qrPrintArea {
+        width: 400px;
+    }
+
+    #qrImg {
+        width: 300px;
+        height: 300px;
+    }
+</style>
+
+<div class="tab-pane fade" id="tab-qr-code" role="tabpanel">
+    <div class="row">
+        <div class="col-3 d-flex flex-column align-items-center text-center">
+            <div id="qrPrintArea" class="m-3">
+                <h3>ATTENTION</h3>
+                <h3>Car shoppers!</h3>
+                <div>Scan the code  with your mobile phone's camera app for more information about this vehicle</div>
+                <img id="qrImg" src="" alt="QR Code" />
+                <div id="qrText" class="very-small-text"></div>
+            </div>
+            <div class="m-3">
+                <button type="button" class="btn btn-gradient shadow" onclick="printQrArea()">Print QR</button>
+            </div>
+        </div>
+    </div>
+</div>

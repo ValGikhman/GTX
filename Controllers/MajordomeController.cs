@@ -10,7 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -19,16 +18,12 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using System.Xml.Linq;
-using System.Xml.Serialization;
-using Utility.XMLHelpers;
 
 namespace GTX.Controllers
 {
     [RequireAdminRole]
     public class MajordomeController : BaseController {
 
-        private const string HeaderFileVirtualPath = "~/App_Data/Inventory/header.csv";
         private const int UploadImageMaxWidth = 800;
         private const int UploadImageMaxHeight = 600;
         private const int UploadJpegQuality = 84;
@@ -67,9 +62,6 @@ namespace GTX.Controllers
             public string Title { get; set; }
         }
 
-        // Optional: cache header bytes to avoid disk I/O on every request
-        private static byte[] _cachedHeaderBytes;
-        private static readonly object _headerLock = new object();
         private static readonly object _storyCacheLock = new object();
         private static readonly object _imageCacheLock = new object();
         private static readonly object _dataOneCacheLock = new object();
@@ -758,93 +750,6 @@ namespace GTX.Controllers
         }
 
         [HttpPost]
-        public ActionResult PreviewInventoryUpload(HttpPostedFileBase dataCsv)
-        {
-            if (dataCsv == null)
-            {
-                Response.StatusCode = 400;
-                return Json(new { success = false, message = "Upload the data CSV." });
-            }
-
-            try {
-                var vehicles = ParseUploadedInventoryVehicles(dataCsv);
-                var result = InventoryService.PreviewInventorySync(Models.GTX.ToDTOs(vehicles));
-
-                return CreateInventoryImportJsonResult(result, "Inventory upload preview ready.");
-            }
-            catch (Exception ex) {
-                Response.StatusCode = 500;
-                return Json(new { success = false, message = "Inventory upload preview failed: " + ex.Message });
-            }
-        }
-
-        [HttpPost]
-        public ActionResult ReplaceHeaderAndConvertToXml(HttpPostedFileBase dataCsv)
-        {
-            if (dataCsv == null)
-            {
-                Response.StatusCode = 400;
-                return Json(new { success = false, message = "Upload the data CSV." });
-            }
-
-            try {
-                var vehicles = ParseUploadedInventoryVehicles(dataCsv);
-                var result = InventoryService.SyncInventory(Models.GTX.ToDTOs(vehicles));
-                AppCache.ClearAll();
-
-                return CreateInventoryImportJsonResult(result, "Inventory upload completed.");
-            }
-            catch (Exception ex) {
-                Response.StatusCode = 500;
-                return Json(new { success = false, message = "Inventory upload failed: " + ex.Message });
-            }
-        }
-
-        private GTX.Models.GTX[] ParseUploadedInventoryVehicles(HttpPostedFileBase dataCsv) {
-            XDocument doc;
-            using (var headerStream = GetHeaderStream())
-            {
-                doc = CsvToXmlHelper.BuildXmlFromCsv(dataCsv.InputStream, headerStream, new CsvXmlOptions());
-            }
-
-            GTXInventory inventory;
-            var serializer = new XmlSerializer(typeof(GTXInventory));
-
-            using (var reader = doc.CreateReader())
-            {
-                inventory = (GTXInventory)serializer.Deserialize(reader);
-            }
-
-            return (inventory.Vehicles ?? Array.Empty<GTX.Models.GTX>())
-                .Where(m => m.SetToUpload == "Y")
-                .ToArray();
-        }
-
-        private JsonResult CreateInventoryImportJsonResult(InventoryImportResult result, string message) {
-            var inventoryDate = result.InventoryDate;
-            if (inventoryDate != default(DateTime) && !(Model?.IsDevelopment ?? false))
-            {
-                inventoryDate = inventoryDate.AddHours(-5);
-            }
-
-            return new JsonResult {
-                Data = new {
-                    success = true,
-                    message = message,
-                    inventoryDate = inventoryDate == default(DateTime)
-                        ? null
-                        : inventoryDate.ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture),
-                    imported = result.Imported,
-                    updated = result.Updated,
-                    inserted = result.Inserted,
-                    removed = result.Removed,
-                    skipped = result.Skipped
-                },
-                MaxJsonLength = int.MaxValue
-            };
-        }
-
-        [HttpPost]
         public ActionResult RestoreBackUpInventory()
         {
             var result = Utility.XMLHelpers.XmlRepository.GetInventory();
@@ -854,19 +759,6 @@ namespace GTX.Controllers
 
             TerminateSession();
             return RedirectToAction("Index", "Home");
-        }
-
-
-        private Stream GetHeaderStream() {
-            if (_cachedHeaderBytes == null) {
-                lock (_headerLock) {
-                    if (_cachedHeaderBytes == null) {
-                        var headerPath = Server.MapPath(HeaderFileVirtualPath);
-                        _cachedHeaderBytes = System.IO.File.ReadAllBytes(headerPath);
-                    }
-                }
-            }
-            return new MemoryStream(_cachedHeaderBytes, writable: false);
         }
 
         [HttpPost]

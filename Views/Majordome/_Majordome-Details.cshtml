@@ -1,0 +1,67 @@
+<style>
+    #dataOneContainer {
+        overflow-y: auto;
+        height: 37rem;
+    }
+
+    #story .ql-editor {
+        min-height: 480px;
+        max-height: 480px;
+        overflow-y: auto;
+    }
+
+        #story .ql-editor p {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            padding: 0;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            text-align: justify;
+        }
+
+        /*So I need to override them for Quill*/
+        #story .ql-editor strong {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            padding: 0;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            text-align: justify;
+        }
+
+    /*Quill strips away p-story and strong-story classes*/
+    .p-story {
+        margin-top: 10px;
+        margin-bottom: 10px;
+        padding: 0;
+        font-size: clamp(0.9rem, 2vw, 1rem);
+        text-align: justify;
+    }
+
+    .strong-story {
+        color: black;
+    }
+</style>
+
+<div class="tab-pane fade" id="tab-details" role="tabpanel">
+    <div class="row">
+        <!-- Left Column: Form -->
+        <div class="col-lg-7">
+            <div id="dataOneDetails" class="row mt-3 d-flex justify-content-center">
+            </div>
+        </div>
+        <div class="col-lg-5 text-shadow-small">
+            <div class="row">
+                @Html.Label("Title", new { @class = "text-shadow" })
+                <div class="input-group mb-3">
+                    <input id="storyTitle" class="form-control shadow pull-right" placeholder="Title" aria-label="Title" aria-describedby="storyTitle" />
+                    <button id="createStory" class="btn btn-light bi bi-book input-group-text "></button>
+                    <button id="deleteStory" class="btn btn-light bi bi-book-fill input-group-text"></button>
+                    <button id="saveStory" class="btn btn-light bi bi-save input-group-text"></button>
+                </div>
+            </div>
+            <div class="row mt-2">
+                @Html.Label("Story", new { @class = "text-shadow" })
+                <div id="story" class="form-control shadow"></div>
+            </div>
+        </div>
+    </div>
+</div>

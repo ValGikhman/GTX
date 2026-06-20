@@ -667,27 +667,6 @@ async function upload(formData, stock) {
     }
 }
 
-function uploadInventory(input) {
-    showSpinner($("#inventoryOverlay"));
-    const formData = new FormData();
-    formData.append("dataCsv", input.files[0]);
-
-    fetch("/Majordome/ReplaceHeaderAndConvertToXml", {
-        method: "POST",
-        body: formData,
-        headers: {
-            "Cache-Control": "no-cache"
-        }
-    })
-    .then(response => {
-        hideSpinner($("#inventoryOverlay"));
-        window.location.href = "/Home";
-    })
-    .catch(error => {
-        alert(error);
-    });
-}
-
 function restoreBackUpInventory() {
     showSpinner($("#inventoryOverlay"));
     fetch("/Majordome/RestoreBackUpInventory", { method: "POST" })
