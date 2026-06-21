@@ -274,6 +274,11 @@
         {
             _class = string.Empty;
         }
+
+        var isOwner = string.Equals(
+            Convert.ToString(ViewBag.CurrentRole ?? string.Empty),
+            CommonUnit.Roles.Owner.ToString(),
+            StringComparison.OrdinalIgnoreCase);
     }
 
     <!-- Header Section Begin -->
@@ -292,7 +297,10 @@
                         </a>
                         <ul class="dropdown rounded">
                             <li id="menuInventory">@Html.ActionLink("Majordome", "Inventory", "Majordome")</li>
-                            <li id="menuInventoryManagement">@Html.ActionLink("Management", "Index", "InventoryManagement")</li>
+                            @if (isOwner)
+                            {
+                                <li id="menuInventoryManagement">@Html.ActionLink("Management", "Index", "InventoryManagement")</li>
+                            }
                             <li id="menuVinDecoder">@Html.ActionLink("Vindecoder", "Index", "Vindecoder")</li>
                             <li id="menuAnnouncements">@Html.ActionLink("Alerts", "Index", "Announcements")</li>
                             <li id="menuBlogs">@Html.ActionLink("Blogs", "Index", "Blogs")</li>
