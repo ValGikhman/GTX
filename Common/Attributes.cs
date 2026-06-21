@@ -33,8 +33,11 @@ namespace GTX.Common
                 filterContext.HttpContext.Session
             );
 
-            // If not required role => redirect to your “login info” page
-            if (role == RequiredRole)
+            var hasAccess = RequiredRole == CommonUnit.Roles.User
+                ? role != CommonUnit.Roles.User
+                : role == RequiredRole;
+
+            if (!hasAccess)
             {
                 // Preserve return url
                 var url = filterContext.HttpContext?.Request?.RawUrl ?? "/";

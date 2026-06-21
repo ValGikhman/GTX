@@ -179,6 +179,7 @@ function setMajordomeMenu(role) {
     switch (r) {
         case "tech":
             $("#menuInventory").show();
+            $("#menuInventoryManagement").hide();
             $("#menuVinDecoder").show();
             $("#menuAnnouncements").hide();
             $("#menuBlogs").hide();
@@ -189,6 +190,7 @@ function setMajordomeMenu(role) {
 
         case "owner":
             $("#menuInventory").show();
+            $("#menuInventoryManagement").show();
             $("#menuVinDecoder").show();
             $("#menuAnnouncements").show();
             $("#menuBlogs").show();
@@ -199,6 +201,7 @@ function setMajordomeMenu(role) {
 
         case "sales":
             $("#menuInventory").hide();
+            $("#menuInventoryManagement").hide();
             $("#menuVinDecoder").hide();
             $("#menuAnnouncements").hide();
             $("#menuBlogs").hide();
@@ -209,6 +212,7 @@ function setMajordomeMenu(role) {
 
         case "manager":
             $("#menuInventory").hide();
+            $("#menuInventoryManagement").hide();
             $("#menuVinDecoder").show();
             $("#menuAnnouncements").show();
             $("#menuBlogs").show();
@@ -219,6 +223,7 @@ function setMajordomeMenu(role) {
 
         case "support":
             $("#menuInventory").hide();
+            $("#menuInventoryManagement").hide();
             $("#menuVinDecoder").hide();
             $("#menuAnnouncements").hide();
             $("#menuBlogs").show();
@@ -227,7 +232,7 @@ function setMajordomeMenu(role) {
             $("#menuSitemap").show();
             break;
         default:
-            $("#menuVinDecoder, #menuInventory, #menuAnnouncements, #menuBlogs, #menuEmployees, #menuHealth, #menuSitemap").hide();
+            $("#menuVinDecoder, #menuInventory, #menuInventoryManagement, #menuAnnouncements, #menuBlogs, #menuEmployees, #menuHealth, #menuSitemap").hide();
             break;
     }
     // text
