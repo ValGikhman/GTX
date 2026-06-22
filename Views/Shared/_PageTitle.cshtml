@@ -1,6 +1,11 @@
 @{
     var controllerName = (ViewContext.RouteData.Values["controller"] ?? string.Empty).ToString();
     var actionName = (ViewContext.RouteData.Values["action"] ?? string.Empty).ToString();
+    var majordomeIndexControllers = new[] { "InventoryManagement", "VinDecoder", "Announcements", "Blogs", "Employees", "Health", "Sitemap" };
+    var isMajordomeMenuPage = (controllerName.Equals("Majordome", StringComparison.OrdinalIgnoreCase)
+            && actionName.Equals("Inventory", StringComparison.OrdinalIgnoreCase))
+        || (actionName.Equals("Index", StringComparison.OrdinalIgnoreCase)
+            && majordomeIndexControllers.Any(c => c.Equals(controllerName, StringComparison.OrdinalIgnoreCase)));
     var inventoryListActions = new[] { "Index", "All", "Suvs", "Sedans", "Wagons", "Trucks", "Vans", "Convertibles", "Hatchbacks", "Coupes" };
     var hideInventoryListTitle = controllerName.Equals("Inventory", StringComparison.OrdinalIgnoreCase)
         && inventoryListActions.Any(a => a.Equals(actionName, StringComparison.OrdinalIgnoreCase));
@@ -16,6 +21,8 @@
     var titleHref = isInventoryDetailsTitle ? "/Inventory/Index" : "/Home";
 }
 
+@if (!isMajordomeMenuPage)
+{
 <section class="container-fluid page-title @(isInventoryDetailsTitle ? string.Empty : "page-title-mobile-call-enabled") position-relative d-flex align-items-center justify-content-center shadow">
 
     <!-- Prev button (far left) -->
@@ -78,5 +85,5 @@
         <i class="bi bi-caret-right-fill"></i>
     </a>
 </section>
-
+}
 
