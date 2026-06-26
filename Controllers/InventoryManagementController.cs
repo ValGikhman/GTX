@@ -36,7 +36,7 @@ namespace GTX.Controllers
         {
             ViewBag.Message = "Inventory management";
             ViewBag.Title = "Inventory management";
-            ViewBag.InventoryManagementLogs = LoadInventoryManagementLogs(false);
+            ViewBag.InventoryManagementLogs = LoadInventoryManagementLogs(true);
 
             Model.Inventory.Vehicles = Model.Inventory.All;
 
