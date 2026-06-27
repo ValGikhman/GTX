@@ -6,6 +6,7 @@
 
 <style>
     .majordome-management-shell {
+        --majordome-management-scroll-height: 78vh;
         --inventory-border: var(--bs-border-color-translucent, rgba(30, 41, 59, .12));
         --inventory-line: var(--bs-border-color-translucent, rgba(148, 163, 184, .22));
         --inventory-muted: var(--bs-secondary-color, #64748b);
@@ -50,9 +51,23 @@
         width: 320px;
         min-width: 280px;
         max-width: 380px;
+        max-height: var(--majordome-management-scroll-height);
+        overflow-x: hidden;
+        overflow-y: auto;
         background: #f8fafc;
         border-right: 1px solid var(--inventory-line);
+        scrollbar-color: rgba(71, 85, 105, .45) transparent;
+        scrollbar-width: thin;
     }
+
+        .majordome-management-sidebar-pane::-webkit-scrollbar {
+            width: .55rem;
+        }
+
+        .majordome-management-sidebar-pane::-webkit-scrollbar-thumb {
+            background: rgba(71, 85, 105, .35);
+            border-radius: 999px;
+        }
 
     .majordome-management-results {
         flex: 1 1 auto;
@@ -252,42 +267,20 @@
         margin-left: auto;
         max-width: 265px;
         min-width: 260px;
-        position: relative;
+        display: block;
         border-radius: .65rem;
     }
 
-        .majordome-management-search .form-control {
+        #majordomeManagementSearch {
+            width: 100%;
             height: 2.5rem;
             min-height: 2.5rem;
             border-color: var(--inventory-border);
-            border-radius: .65rem;
+            border-radius: .65rem !important;
             box-shadow: 0 .25rem .75rem rgba(15, 23, 42, .06);
             font-weight: 600;
-            padding-right: 2.55rem;
+            padding-right: .95rem;
         }
-
-        .majordome-management-search-clear {
-            position: absolute;
-            top: 50%;
-            right: .25rem;
-            z-index: 4;
-            width: 2rem;
-            height: 2rem;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border: 0;
-            border-radius: .5rem;
-            background: transparent;
-            color: var(--inventory-muted);
-            transform: translateY(-50%);
-        }
-
-            .majordome-management-search-clear:hover,
-            .majordome-management-search-clear:focus {
-                color: var(--inventory-ink);
-                background: rgba(148, 163, 184, .14);
-            }
 
     .majordome-management-location-filter {
         flex: 0 0 130px;
@@ -303,7 +296,7 @@
 
         .majordome-management-log-date-toggle:focus,
         .majordome-management-log-status:focus,
-        .majordome-management-search .form-control:focus,
+        #majordomeManagementSearch:focus,
         .majordome-management-location-filter:focus {
             border-color: rgba(37, 99, 235, .5);
             box-shadow: 0 0 0 .22rem rgba(37, 99, 235, .12);
@@ -340,7 +333,8 @@
     }
 
     .majordome-management-table-wrap {
-        max-height: 78vh;
+        max-height: var(--majordome-management-scroll-height);
+        overflow: auto;
         background: var(--inventory-surface-alt);
         scrollbar-color: rgba(71, 85, 105, .45) transparent;
         scrollbar-width: thin;
@@ -627,12 +621,13 @@
             flex: 0 0 auto;
             width: 100%;
             max-width: none;
+            max-height: 22rem;
             border-right: 0;
             border-bottom: 1px solid var(--inventory-line);
         }
 
         .majordome-management-log-picker {
-            max-height: 22rem;
+            max-height: none;
         }
 
         .majordome-management-toolbar {
@@ -642,7 +637,7 @@
         .majordome-management-search,
         .majordome-management-location-filter,
         .majordome-management-summary,
-        .majordome-management-toolbar .btn {
+        .majordome-management-toolbar > .btn {
             flex: 1 1 100%;
             width: 100%;
             max-width: none;
@@ -679,21 +674,18 @@
 <div class="majordome-management-page container-fluid px-4 py-3">
     <div class="majordome-management-shell">
         <div class="majordome-management-workspace">
-            <aside class="majordome-management-sidebar-pane">
+            <aside id="majordome-management-sidebar-pane" class="majordome-management-sidebar-pane">
                 <div class="dropdown majordome-management-log-picker">
                     <select id="majordomeManagementLogSelect" class="d-none" aria-hidden="true"></select>
                     <div id="majordomeManagementLogMenu" class="majordome-management-log-tree" role="tree" aria-label="Inventory management log filters"></div>
                 </div>
             </aside>
-            <div class="majordome-management-results">
+            <div id="majordome-management-results" class="majordome-management-results">
                 <div class="majordome-management-toolbar">
                     <button type="button" id="inventoryManagementUploadInventoryButton" class="btn btn-gradient shadow inventory-management-upload-button">Upload inventory</button>
                     <input type="file" name="dataCsv" id="inventoryManagementDataCsv" class="d-none" accept=".csv,text/csv" />
                     <div class="majordome-management-search">
-                        <input id="majordomeManagementSearch" type="search" class="form-control rounded-start-4 rounded-end-4 shadow" placeholder="Search within results..." autocomplete="off" aria-label="Search inventory management" />
-                        <button type="button" id="majordomeManagementClearSearch" class="btn btn-light majordome-management-search-clear" title="Clear search" aria-label="Clear search">
-                            <i class="bi bi-x-lg" aria-hidden="true"></i>
-                        </button>
+                        <input id="majordomeManagementSearch" type="search" class="form-control shadow" placeholder="Search within results..." autocomplete="off" aria-label="Search inventory management" />
                     </div>
                     <select id="majordomeManagementLocationFilter" class="form-select majordome-management-location-filter" aria-label="Filter inventory management rows by location">
                         <option value="all" selected>All locations</option>
@@ -1573,11 +1565,6 @@
 
             $("#majordomeManagementSearch").on("input", function () {
                 applyMajordomeManagementFilters();
-            });
-            $("#majordomeManagementClearSearch").on("click", function () {
-                $("#majordomeManagementSearch").val("");
-                applyMajordomeManagementFilters();
-                $("#majordomeManagementSearch").trigger("focus");
             });
             $("#majordomeManagementLocationFilter").on("change", applyMajordomeManagementFilters);
 
