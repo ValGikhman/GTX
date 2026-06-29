@@ -199,8 +199,8 @@ namespace GTX.Controllers
             }
         }
 
-        public Inventory SetModel() {
-            var dto = InventoryService.GetInventory();
+        public Inventory SetModel(bool includeHiddenInventory = false) {
+            var dto = InventoryService.GetInventory(includeHiddenInventory);
             var vehicles = Models.GTX.ToGTX(dto.vehicles);
             Model.Inventory.Published = dto.InventoryDate;
             Model.Inventory.All = DecideImages(vehicles);
@@ -210,9 +210,9 @@ namespace GTX.Controllers
             return Model.Inventory;
         }
 
-        public Inventory RefreshModel()
+        public Inventory RefreshModel(bool includeHiddenInventory = false)
         {
-            var dto = InventoryService.GetInventory();
+            var dto = InventoryService.GetInventory(includeHiddenInventory);
             var vehicles = Models.GTX.ToGTX(dto.vehicles);
             Model.Inventory.Published = dto.InventoryDate;
             Model.Inventory.All = DecideImages(vehicles);

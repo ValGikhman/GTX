@@ -5,7 +5,7 @@
 
 <style>
     body {
-        background: #f6f7fb;
+        background: #eef2f7;
     }
 
     .wrap {
@@ -20,6 +20,28 @@
         box-shadow: 0 10px 30px rgba(0,0,0,.06);
     }
 
+    .health-page-head {
+        border: 1px solid rgba(15, 23, 42, .08);
+        border-radius: 22px;
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 52%, #edf7ff 100%);
+        box-shadow: 0 20px 52px rgba(15, 23, 42, .11), 0 3px 12px rgba(15, 23, 42, .06);
+        padding: 1.15rem 1.25rem;
+    }
+
+    .health-page-icon {
+        width: 3.15rem;
+        height: 3.15rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 1rem;
+        color: #fff;
+        background: linear-gradient(135deg, #0f766e, #2563eb);
+        box-shadow: 0 1rem 2rem rgba(37, 99, 235, .22);
+        font-size: 1.45rem;
+        flex: 0 0 auto;
+    }
+
     .health-cards-row {
         display: flex;
         flex-wrap: wrap;
@@ -31,6 +53,98 @@
         min-width: 240px;
     }
 
+    .health-card {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(15, 23, 42, .08);
+        border-radius: 22px !important;
+        background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+        box-shadow: 0 18px 45px rgba(15, 23, 42, .12), 0 2px 8px rgba(15, 23, 42, .06) !important;
+        transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+
+    .health-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(37, 99, 235, .2);
+        box-shadow: 0 24px 58px rgba(15, 23, 42, .16), 0 4px 16px rgba(37, 99, 235, .09) !important;
+    }
+
+    .health-card::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 4px;
+        background: linear-gradient(90deg, #2563eb, #0f766e);
+    }
+
+    .health-card-iis::before {
+        background: linear-gradient(90deg, #2563eb, #06b6d4);
+    }
+
+    .health-card-cpu::before {
+        background: linear-gradient(90deg, #f97316, #ef4444);
+    }
+
+    .health-card-memory::before {
+        background: linear-gradient(90deg, #7c3aed, #2563eb);
+    }
+
+    .health-card-sessions::before {
+        background: linear-gradient(90deg, #16a34a, #0f766e);
+    }
+
+    .health-card-maintenance::before {
+        background: linear-gradient(90deg, #64748b, #334155);
+    }
+
+    .health-card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .85rem;
+        margin-bottom: 1rem;
+    }
+
+    .health-card-title {
+        display: flex;
+        align-items: center;
+        gap: .8rem;
+        min-width: 0;
+    }
+
+    .health-icon {
+        width: 2.85rem;
+        height: 2.85rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: .9rem;
+        color: #fff;
+        box-shadow: 0 .85rem 1.7rem rgba(15, 23, 42, .18);
+        font-size: 1.25rem;
+        flex: 0 0 auto;
+    }
+
+    .health-icon-iis {
+        background: linear-gradient(135deg, #2563eb, #06b6d4);
+    }
+
+    .health-icon-cpu {
+        background: linear-gradient(135deg, #f97316, #ef4444);
+    }
+
+    .health-icon-memory {
+        background: linear-gradient(135deg, #7c3aed, #2563eb);
+    }
+
+    .health-icon-sessions {
+        background: linear-gradient(135deg, #16a34a, #0f766e);
+    }
+
+    .health-icon-maintenance {
+        background: linear-gradient(135deg, #475569, #111827);
+    }
+
     .health-card-maintenance {
         border: 1px solid rgba(0, 0, 0, .08);
         transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease;
@@ -39,7 +153,16 @@
     .health-card-maintenance.is-offline {
         background: linear-gradient(180deg, #fff5f5 0%, #ffe3e3 100%);
         border-color: rgba(220, 53, 69, .6);
-        box-shadow: 0 14px 28px rgba(220, 53, 69, .2);
+        box-shadow: 0 22px 54px rgba(220, 53, 69, .22), 0 4px 18px rgba(220, 53, 69, .12) !important;
+    }
+
+    .health-card-maintenance.is-offline::before {
+        background: linear-gradient(90deg, #dc3545, #f97316);
+    }
+
+    .health-card-maintenance.is-offline .health-icon-maintenance {
+        background: linear-gradient(135deg, #dc3545, #f97316);
+        box-shadow: 0 .85rem 1.7rem rgba(220, 53, 69, .25);
     }
 
     .health-card-maintenance.is-offline .kpi-label,
@@ -152,14 +275,19 @@
 <div class="container py-4 wrap">
 
     <!-- Header -->
-    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-3">
-        <div>
-            <div class="d-flex align-items-center gap-2 flex-wrap">
-                <h2 class="mb-0" style="font-weight:850; letter-spacing:-.03em;">Health</h2>
-                <span id="statusBadge" class="badge text-bg-secondary pill">Idle</span>
+    <div class="health-page-head d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-3">
+        <div class="d-flex align-items-center gap-3">
+            <div class="health-page-icon">
+                <i class="bi bi-activity"></i>
             </div>
-            <div class="text-secondary small">
-                Updated: <span class="mono" id="updated">—</span>
+            <div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <h2 class="mb-0" style="font-weight:850; letter-spacing:-.03em;">Health</h2>
+                    <span id="statusBadge" class="badge text-bg-secondary pill">Idle</span>
+                </div>
+                <div class="text-secondary small">
+                    <i class="bi bi-clock-history me-1"></i>Updated: <span class="mono" id="updated">—</span>
+                </div>
             </div>
         </div>
     </div>
@@ -169,8 +297,18 @@
 
         <!-- IIS Card -->
         <div class="health-card-col">
-            <div class="h-100 shadow well rounded-5 p-5 health-card">
-                <div class="kpi-label">IIS</div>
+            <div class="h-100 well p-4 health-card health-card-iis">
+                <div class="health-card-head">
+                    <div class="health-card-title">
+                        <div class="health-icon health-icon-iis">
+                            <i class="bi bi-hdd-network"></i>
+                        </div>
+                        <div>
+                            <div class="kpi-label">IIS</div>
+                            <div class="kpi-sub">App pool process</div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="mt-3">
                     <div class="d-flex align-items-end justify-content-between">
@@ -201,8 +339,18 @@
 
         <!-- Total CPU Card -->
         <div class="health-card-col">
-            <div class="h-100 shadow well rounded-5 p-5 health-card">
-                <div class="kpi-label">Total CPU</div>
+            <div class="h-100 well p-4 health-card health-card-cpu">
+                <div class="health-card-head">
+                    <div class="health-card-title">
+                        <div class="health-icon health-icon-cpu">
+                            <i class="bi bi-cpu"></i>
+                        </div>
+                        <div>
+                            <div class="kpi-label">Total CPU</div>
+                            <div class="kpi-sub">System load</div>
+                        </div>
+                    </div>
+                </div>
                 <div class="d-flex align-items-end justify-content-between mt-1 flex-wrap gap-2">
                     <div class="kpi-value" id="totCpu">—</div>
                     <div class="kpi-sub" id="statusText">Polling every 2 seconds</div>
@@ -216,8 +364,18 @@
 
         <!-- Total Memory Card -->
         <div class="health-card-col">
-            <div class="h-100 shadow well rounded-5 p-5 health-card">
-                <div class="kpi-label">Total Memory Used</div>
+            <div class="h-100 well p-4 health-card health-card-memory">
+                <div class="health-card-head">
+                    <div class="health-card-title">
+                        <div class="health-icon health-icon-memory">
+                            <i class="bi bi-memory"></i>
+                        </div>
+                        <div>
+                            <div class="kpi-label">Total Memory Used</div>
+                            <div class="kpi-sub">Server memory</div>
+                        </div>
+                    </div>
+                </div>
                 <div class="d-flex align-items-end justify-content-between mt-1 flex-wrap gap-2">
                     <div class="kpi-value" id="totMem">—</div>
                     <div class="kpi-sub mono" id="updated2">—</div>
@@ -232,8 +390,18 @@
 
         <!-- Active Sessions Card -->
         <div class="health-card-col">
-            <div class="h-100 shadow well rounded-5 p-5 health-card">
-                <div class="kpi-label">Active Sessions</div>
+            <div class="h-100 well p-4 health-card health-card-sessions">
+                <div class="health-card-head">
+                    <div class="health-card-title">
+                        <div class="health-icon health-icon-sessions">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                        <div>
+                            <div class="kpi-label">Active Sessions</div>
+                            <div class="kpi-sub">IIS app pool</div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="d-flex align-items-end justify-content-between mt-1">
                     <div class="kpi-value" id="activeSessions">—</div>
@@ -247,9 +415,17 @@
 
         <!-- Offline / Maintenance Mode Card -->
         <div class="health-card-col">
-            <div id="maintenanceCard" class="h-100 shadow well rounded-5 p-5 health-card health-card-maintenance">
-                <div class="d-flex align-items-center justify-content-between gap-3">
-                    <div class="kpi-label mb-0">Maintenance</div>
+            <div id="maintenanceCard" class="h-100 well p-4 health-card health-card-maintenance">
+                <div class="health-card-head">
+                    <div class="health-card-title">
+                        <div class="health-icon health-icon-maintenance">
+                            <i class="bi bi-shield-exclamation"></i>
+                        </div>
+                        <div>
+                            <div class="kpi-label mb-0">Maintenance</div>
+                            <div class="kpi-sub mt-1" id="offlineStatusText">Online</div>
+                        </div>
+                    </div>
 
                     <!-- Bigger switch (top row) -->
                     <div class="form-check form-switch m-0 d-flex align-items-center gap-2">
@@ -261,18 +437,10 @@
                 </div>
 
                 <!-- Body -->
-                <div class="d-flex align-items-start gap-3 mt-4">
-                    <div class="rounded-4 d-flex align-items-center justify-content-center border bg-light flex-shrink-0"
-                         style="width:48px;height:48px;">
-                        <i class="bi bi-shield-exclamation fs-4 text-danger"></i>
-                    </div>
-
-                    <div>
-                        <div class="kpi-value">Offline</div>
-                        <div class="kpi-sub mt-2">
-                            When enabled, visitors are redirected to the out-of-service page.
-                        </div>
-                        <div class="kpi-sub mt-3" id="offlineStatusText">Online</div>
+                <div class="mt-4">
+                    <div class="kpi-value">Offline</div>
+                    <div class="kpi-sub mt-2">
+                        When enabled, visitors are redirected to the out-of-service page.
                     </div>
                 </div>
             </div>

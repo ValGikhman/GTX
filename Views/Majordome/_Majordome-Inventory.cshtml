@@ -9,6 +9,8 @@
 
     #filterByTerm {
         position: relative !important;
+        left: auto !important;
+        transform: none !important;
         background: none;
         padding: unset;
         box-shadow: none
@@ -57,6 +59,7 @@
         justify-content: flex-start;
         gap: .75rem;
         padding: .75rem .85rem;
+        position: relative;
     }
 
     #inventoryGridShell .majordome-gtx-filter {
@@ -107,13 +110,17 @@
     }
 
     #inventoryGridShell #filterByTerm {
-        flex: 0 1 540px;
+        flex: 1 1 360px;
         min-width: 260px;
         max-width: 540px;
-        width: auto;
-        margin: 0;
+        width: min(100%, 540px) !important;
+        margin: 0 auto;
         padding: 0 !important;
-        justify-content: flex-start;
+        position: relative !important;
+        left: auto !important;
+        transform: none !important;
+        z-index: 1;
+        justify-content: center !important;
         gap: .75rem;
     }
 
@@ -121,19 +128,19 @@
             width: 100%;
             min-height: 0;
             padding: 0;
-            justify-content: flex-start !important;
+            justify-content: center !important;
         }
 
         #inventoryGridShell #filterByTerm .inventory-term-search {
             flex: 1 1 auto;
             width: 100%;
-            justify-content: flex-start;
+            justify-content: center !important;
         }
 
         #inventoryGridShell #filterByTerm #filterWrapper {
             width: 100% !important;
-            margin-left: 0;
-            margin-right: 0;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         #inventoryGridShell #filterByTerm #filterTerm {
@@ -153,7 +160,6 @@
 
     #inventoryGridShell .majordome-inventory-count {
         flex: 0 0 auto;
-        margin-left: auto;
         min-height: 2.5rem;
         display: inline-flex;
         align-items: center;
@@ -167,6 +173,25 @@
         box-shadow: 0 .25rem .75rem rgba(15, 23, 42, .06);
         white-space: nowrap;
     }
+
+    #inventoryGridShell .majordome-inventory-bulk-actions {
+        flex: 0 0 auto;
+        margin-left: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: .5rem;
+        min-height: 2.5rem;
+        position: relative;
+        z-index: 3;
+        pointer-events: auto;
+    }
+
+        #inventoryGridShell .majordome-inventory-bulk-actions .btn {
+            position: relative;
+            z-index: 4;
+            pointer-events: auto;
+        }
 
     #inventoryGridShell .majordome-inventory-count-label {
         color: var(--inventory-muted);
@@ -369,7 +394,7 @@
 
     .majordome-actions {
         display: inline-grid;
-        grid-template-columns: repeat(3, max-content);
+        grid-template-columns: repeat(4, max-content);
         gap: .35rem;
         min-width: 0;
         width: auto;
@@ -525,7 +550,8 @@
 
         #inventoryGridShell .majordome-gtx-filter,
         #inventoryGridShell #filterByTerm,
-        #inventoryGridShell .majordome-inventory-count {
+        #inventoryGridShell .majordome-inventory-count,
+        #inventoryGridShell .majordome-inventory-bulk-actions {
             flex: 1 1 100%;
             max-width: none;
             width: 100%;
@@ -535,6 +561,14 @@
             margin-left: 0;
             justify-content: space-between;
         }
+
+        #inventoryGridShell .majordome-inventory-bulk-actions {
+            margin-left: 0;
+        }
+
+            #inventoryGridShell .majordome-inventory-bulk-actions .btn {
+                flex: 1 1 0;
+            }
 
         #inventoryGridShell .majordome-gtx-filter-control {
             max-width: none;
@@ -554,6 +588,10 @@
             <div class="majordome-inventory-header">
                 <div class="d-flex flex-column align-items-stretch gap-2">
                     <div id="filtersWrap">
+                        <div id="majordomeInventoryCount" class="majordome-inventory-count shadow rounded-4" aria-live="polite" title="Vehicles shown">
+                            <span class="majordome-inventory-count-label">Vehicles shown</span>
+                            <span id="majordomeShownVehiclesCount" class="badge badge bg-secondary shadow">0</span>
+                        </div>
                         <div class="majordome-gtx-filter shadow rounded-4">
                             <div class="input-group majordome-gtx-filter-control">
                                 <label class="input-group-text majordome-inventory-count-label" for="majordomeGtxFilter">GTX</label>
@@ -563,10 +601,7 @@
                             </div>
                         </div>
                         @{ Html.RenderPartial("_FilterByTerm"); }
-                        <div id="majordomeInventoryCount" class="majordome-inventory-count shadow rounded-4" aria-live="polite" title="Vehicles shown">
-                            <span class="majordome-inventory-count-label">Vehicles shown</span>
-                            <span id="majordomeShownVehiclesCount" class="badge badge bg-secondary shadow">0</span>
-                        </div>
+                        <div id="majordomeInventoryBulkActions" class="majordome-inventory-bulk-actions"></div>
                     </div>
                 </div>
             </div>
@@ -582,7 +617,7 @@
                             <th class="text-center d-none d-md-table-cell majordome-sortable-th" data-sort-key="upload" style="width:80px;">Upload <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
                             <th class="text-center d-none d-md-table-cell majordome-sortable-th" data-sort-key="story" style="width:80px;">Story <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
                             <th class="text-center d-none d-md-table-cell majordome-sortable-th" data-sort-key="dataone" style="width:90px;">DataOne <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
-                            <th class="text-center majordome-actions-col" style="min-width:250px;">Actions</th>
+                            <th class="text-center majordome-actions-col" style="min-width:320px;">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="majordomeInventoryBody"></tbody>

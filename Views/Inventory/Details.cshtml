@@ -244,7 +244,6 @@
                         <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small" id="nav-pictures-tab" data-bs-toggle="tab" data-bs-target="#nav-pictures" type="button" role="tab" aria-controls="nav-pictures" aria-selected="false"><i class="bi bi-camera"></i>&nbsp; @I18n.R("All_Photos") ( @Model.CurrentVehicle.VehicleDetails.Images.Count())</button>
                     }
                 }
-                <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small" id="nav-location-tab" data-bs-toggle="tab" data-bs-target="#nav-location" type="button" role="tab" aria-controls="nav-location" aria-selected="true"><i class="bi bi-geo-fill"></i>&nbsp; @I18n.R("All_Location")</button>
                 <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small" id="nav-call-tab" data-bs-toggle="tab" data-bs-target="#nav-call" type="button" role="tab" aria-controls="nav-call" aria-selected="false"><i class="bi bi-telephone-fill"></i>&nbsp; @I18n.R("Nav_ContactUs")</button>
                 <button class="nav-item btn btn-gradient-grey border-dark text-shadow-small d-none" id="nav-payment-tab" data-bs-toggle="tab" data-bs-target="#nav-payment" type="button" role="tab" aria-controls="nav-payment" aria-selected="true"><strong><i class="bi bi-calculator"></i>&nbsp; Pay $<span id="monthlyAmount"></span>/mo</strong></button>
                 @if (ViewBag.CurrentRole != CommonUnit.Roles.User.ToString())
@@ -362,44 +361,29 @@
                     </div>
                 </div>
             }
-            <div class="tab-pane fade well" id="nav-location" role="tabpanel" aria-labelledby="nav-location-tab">
-                <div class="d-flex justify-content-evenly mt-4">
-                    @{
-                        GTX.Models.OpenHours[] openHours = Utility.XMLHelpers.XmlRepository.GetOpenHours();
-                        if (openHours != null)
-                        {
-                            foreach (var open in openHours)
-                            {
-                                <span class="btn btn-outline-secondary shadow position-relative details">
-                                    <span class="medium-small-text">@open.Description</span>
-                                    <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
-                                        @open.Day
-                                    </span>
-                                </span>
-                            }
-                        }
-                    }
-                </div>
-                <style>
-                    #video {
-                        display: none;
-                    }
-                </style>
-                <iframe loading="eager"
-                        allowfullscreen
-                        referrerpolicy="no-referrer-when-downgrade"
-                        src="https://www.google.com/maps?q=9516+Prinston+Glendale+Rd,+West+Checter,+OH, 45011&output=embed"
-                        class="well shadow my-3"
-                        width="100%"
-                        height="360">
-                </iframe>
-            </div>
             <div class="tab-pane fade well" id="nav-call" role="tabpanel" aria-labelledby="nav-call-tab">
                 <div class="d-flex flex-column align-items-center justify-content-center py-4 gap-3">
                     <p class="mb-0 text-shadow-small fw-semibold text-center">
                         <i class="bi bi-geo-alt-fill me-1"></i>
                         9516 Princeton Glendale Rd, West Chester, OH 45011
                     </p>
+                    <div class="d-flex flex-wrap justify-content-center gap-3 my-2">
+                        @{
+                            GTX.Models.OpenHours[] openHours = Utility.XMLHelpers.XmlRepository.GetOpenHours();
+                            if (openHours != null)
+                            {
+                                foreach (var open in openHours)
+                                {
+                                    <span class="btn btn-outline-secondary shadow position-relative details">
+                                        <span class="medium-small-text">@open.Description</span>
+                                        <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
+                                            @open.Day
+                                        </span>
+                                    </span>
+                                }
+                            }
+                        }
+                    </div>
                     <div class="d-flex flex-wrap justify-content-center gap-2">
                         <a class="btn btn-gradient-grey border-dark rounded-4 shadow d-inline-flex align-items-center gap-2 px-4 py-2"
                            href="https://www.google.com/maps/search/?api=1&query=9516+Princeton+Glendale+Rd%2C+West+Chester+Township%2C+OH+45011"
