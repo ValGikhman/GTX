@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -62,6 +63,65 @@ namespace GTX.Controllers
             public string Title { get; set; }
         }
 
+        public sealed class InventoryVehicleSaveRequest {
+            public string OriginalStock { get; set; }
+            public string Stock { get; set; }
+            public string Year { get; set; }
+            public string Make { get; set; }
+            public string Model { get; set; }
+            public string VIN { get; set; }
+            public string Mileage { get; set; }
+            public string Cylinders { get; set; }
+            public string Weight { get; set; }
+            public string Color { get; set; }
+            public string Color2 { get; set; }
+            public string Features { get; set; }
+            public string RetailPrice { get; set; }
+            public string InternetPrice { get; set; }
+            public string DriveTrain { get; set; }
+            public string LocationCode { get; set; }
+            public string Body { get; set; }
+            public string Engine { get; set; }
+            public string Transmission { get; set; }
+            public string PurchaseDate { get; set; }
+            public string ArrivalDate { get; set; }
+            public string FuelType { get; set; }
+            public string TransmissionSpeed { get; set; }
+            public string VehicleType { get; set; }
+            public string VehicleStyle { get; set; }
+            public string SetToUpload { get; set; }
+        }
+
+        private static readonly Dictionary<string, int> InventoryStringLimits = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase) {
+            { "Stock", 9 },
+            { "Make", 50 },
+            { "Model", 50 },
+            { "VIN", 17 },
+            { "Color", 50 },
+            { "Color2", 50 },
+            { "DriveTrain", 50 },
+            { "LocationCode", 1 },
+            { "Body", 50 },
+            { "Engine", 50 },
+            { "Transmission", 1 },
+            { "PurchaseDate", 50 },
+            { "ArrivalDate", 50 },
+            { "FuelType", 50 },
+            { "VehicleType", 50 },
+            { "VehicleStyle", 50 },
+            { "SetToUpload", 1 }
+        };
+
+        private static readonly string[] InventoryIntegerFields = {
+            "Year",
+            "Mileage",
+            "Cylinders",
+            "Weight",
+            "RetailPrice",
+            "InternetPrice",
+            "TransmissionSpeed"
+        };
+
         private static readonly object _storyCacheLock = new object();
         private static readonly object _imageCacheLock = new object();
         private static readonly object _dataOneCacheLock = new object();
@@ -80,6 +140,7 @@ namespace GTX.Controllers
             ViewBag.Title = "Inventory management";
             ViewBag.Stock = stock;
 
+            RefreshModel(includeHiddenInventory: true);
             Model.Inventory.Vehicles = Model.Inventory.All;
 
             return View(Model);
@@ -124,7 +185,13 @@ namespace GTX.Controllers
 
         [HttpGet]
         public ActionResult GetDataOneDetails(string stock) {
-            var vehicle = Model.Inventory.Vehicles.FirstOrDefault(m => m.Stock == stock);
+            var normalizedStock = (stock ?? string.Empty).Trim();
+            var vehicle = FindCachedVehicleForStock(normalizedStock);
+
+            if (vehicle == null) {
+                RefreshModel(includeHiddenInventory: true);
+                vehicle = FindCachedVehicleForStock(normalizedStock);
+            }
 
             if (vehicle == null)
                 return HttpNotFound();
@@ -243,6 +310,37 @@ namespace GTX.Controllers
             }
         }
 
+        [HttpGet]
+        public JsonResult DecodeInventoryVehicleByVin(string vin) {
+            try {
+                var normalizedVin = NormalizeInventoryText(vin).ToUpperInvariant();
+                var validationMessage = GetVinValidationMessage(normalizedVin);
+                if (!string.IsNullOrWhiteSpace(validationMessage)) {
+                    Response.StatusCode = 400;
+                    return Json(new { success = false, message = validationMessage }, JsonRequestBehavior.AllowGet);
+                }
+
+                var details = VinDecoderService.DecodeVin(normalizedVin, dataOneApiKey, dataOneSecretApiKey);
+                var decoded = Models.GTX.SetDecodedData(details);
+                var vehicle = CreateInventoryVehicleFromDecodedData(normalizedVin, decoded);
+
+                if (vehicle == null) {
+                    Response.StatusCode = 404;
+                    return Json(new { success = false, message = "No inventory details were decoded for this VIN." }, JsonRequestBehavior.AllowGet);
+                }
+
+                return Json(new {
+                    success = true,
+                    vehicle = ToInventoryEditorDecodeResponse(vehicle)
+                }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex) {
+                Response.StatusCode = 500;
+                Log(ex);
+                return Json(new { success = false, message = "VIN decode failed: " + ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         [HttpPost]
         public JsonResult DeleteDataOne(string stock) {
             try {
@@ -269,7 +367,7 @@ namespace GTX.Controllers
 
         [HttpGet]
         public JsonResult GetUpdatedItems() {
-            RefreshModel();
+            RefreshModel(includeHiddenInventory: true);
 
             return new JsonResult
             {
@@ -277,6 +375,337 @@ namespace GTX.Controllers
                 JsonRequestBehavior = JsonRequestBehavior.AllowGet,
                 MaxJsonLength = int.MaxValue   // or a big number you’re comfortable with
             };
+        }
+
+        [HttpPost]
+        public JsonResult SaveInventoryVehicle(InventoryVehicleSaveRequest request) {
+            try {
+                var validationErrors = ValidateInventoryVehicleSaveRequest(request);
+                if (validationErrors.Any()) {
+                    Response.StatusCode = 400;
+                    return Json(new { success = false, message = string.Join(" ", validationErrors) });
+                }
+
+                var vehicle = ToInventoryVehicle(request);
+                var result = InventoryService.SaveInventoryVehicle(Models.GTX.ToDTO(vehicle), request?.OriginalStock);
+                vehicle.TransmissionWord = Models.GTX.WordIt(vehicle.Transmission);
+                var savedVehicle = DecideImages(new[] { vehicle }).FirstOrDefault();
+
+                InvalidateInventoryCaches();
+
+                return new JsonResult {
+                    Data = new {
+                        success = true,
+                        message = GetInventorySaveMessage(result.Status),
+                        status = (int)result.Status,
+                        statusText = GetInventorySaveStatusText(result.Status),
+                        vehicle = savedVehicle
+                    },
+                    MaxJsonLength = int.MaxValue
+                };
+            }
+            catch (Exception ex) {
+                Response.StatusCode = 500;
+                Log(ex);
+                return Json(new { success = false, message = "Inventory save failed: " + ex.Message });
+            }
+        }
+
+        private static void InvalidateInventoryCaches() {
+            AppCache.Remove(Constants.INVENTORY_CACHE);
+            AppCache.Remove(Constants.CATEGORIES_CACHE);
+            AppCache.Remove(Constants.FILTERS_CACHE);
+        }
+
+        private static List<string> ValidateInventoryVehicleSaveRequest(InventoryVehicleSaveRequest request) {
+            var errors = new List<string>();
+            if (request == null) {
+                errors.Add("Inventory details are required.");
+                return errors;
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Stock)) {
+                errors.Add("Stock is required.");
+            }
+
+            foreach (var limit in InventoryStringLimits) {
+                var value = GetInventoryRequestValue(request, limit.Key);
+                if (!string.IsNullOrEmpty(value) && value.Trim().Length > limit.Value) {
+                    errors.Add($"{SplitInventoryFieldName(limit.Key)} must be {limit.Value} characters or fewer.");
+                }
+            }
+
+            foreach (var field in InventoryIntegerFields) {
+                var value = GetInventoryRequestValue(request, field);
+                if (!IsValidInventoryInt(value)) {
+                    errors.Add($"{SplitInventoryFieldName(field)} must be a whole number inside the SQL int range.");
+                }
+            }
+
+            return errors;
+        }
+
+        private static Models.GTX ToInventoryVehicle(InventoryVehicleSaveRequest request) {
+            return new Models.GTX {
+                Stock = NormalizeInventoryText(request.Stock).ToUpperInvariant(),
+                Year = ParseInventoryInt(request.Year),
+                Make = NormalizeInventoryText(request.Make),
+                Model = NormalizeInventoryText(request.Model),
+                VIN = NormalizeInventoryText(request.VIN).ToUpperInvariant(),
+                Mileage = ParseInventoryInt(request.Mileage),
+                Cylinders = ParseInventoryInt(request.Cylinders),
+                Weight = ParseInventoryInt(request.Weight),
+                Color = NormalizeInventoryText(request.Color),
+                Color2 = NormalizeInventoryText(request.Color2),
+                Features = NormalizeInventoryText(request.Features),
+                RetailPrice = ParseInventoryInt(request.RetailPrice),
+                InternetPrice = ParseInventoryInt(request.InternetPrice),
+                DriveTrain = NormalizeInventoryText(request.DriveTrain),
+                LocationCode = NormalizeInventoryText(request.LocationCode).ToUpperInvariant(),
+                Body = NormalizeInventoryText(request.Body),
+                Engine = NormalizeInventoryText(request.Engine),
+                Transmission = NormalizeInventoryText(request.Transmission).ToUpperInvariant(),
+                PurchaseDate = NormalizeInventoryText(request.PurchaseDate),
+                ArrivalDate = NormalizeInventoryText(request.ArrivalDate),
+                FuelType = NormalizeInventoryText(request.FuelType),
+                TransmissionSpeed = ParseInventoryInt(request.TransmissionSpeed),
+                VehicleType = NormalizeInventoryText(request.VehicleType),
+                VehicleStyle = NormalizeInventoryText(request.VehicleStyle),
+                SetToUpload = NormalizeInventoryUploadFlag(request.SetToUpload)
+            };
+        }
+
+        private static string GetInventoryRequestValue(InventoryVehicleSaveRequest request, string field) {
+            var property = typeof(InventoryVehicleSaveRequest).GetProperty(field);
+            return property == null ? string.Empty : property.GetValue(request, null) as string;
+        }
+
+        private static bool IsValidInventoryInt(string value) {
+            var normalized = NormalizeInventoryNumberText(value);
+            if (string.IsNullOrWhiteSpace(normalized)) {
+                return true;
+            }
+
+            int parsed;
+            return int.TryParse(normalized, NumberStyles.Integer, CultureInfo.InvariantCulture, out parsed);
+        }
+
+        private static int ParseInventoryInt(string value) {
+            var normalized = NormalizeInventoryNumberText(value);
+            if (string.IsNullOrWhiteSpace(normalized)) {
+                return 0;
+            }
+
+            int parsed;
+            return int.TryParse(normalized, NumberStyles.Integer, CultureInfo.InvariantCulture, out parsed) ? parsed : 0;
+        }
+
+        private static string NormalizeInventoryNumberText(string value) {
+            return (value ?? string.Empty).Trim().Replace(",", string.Empty);
+        }
+
+        private static string NormalizeInventoryText(string value) {
+            return (value ?? string.Empty).Trim();
+        }
+
+        private static string NormalizeInventoryUploadFlag(string value) {
+            var normalized = NormalizeInventoryText(value).ToUpperInvariant();
+            return string.IsNullOrWhiteSpace(normalized) ? "Y" : normalized;
+        }
+
+        private static string SplitInventoryFieldName(string field) {
+            return Regex.Replace(field ?? string.Empty, "([a-z])([A-Z])", "$1 $2");
+        }
+
+        private static string GetInventorySaveMessage(InventoryUploadStatus status) {
+            switch (status) {
+                case InventoryUploadStatus.Insert:
+                    return "Inventory item added.";
+                case InventoryUploadStatus.Update:
+                    return "Inventory item updated.";
+                default:
+                    return "No inventory changes detected.";
+            }
+        }
+
+        private static string GetInventorySaveStatusText(InventoryUploadStatus status) {
+            switch (status) {
+                case InventoryUploadStatus.Insert:
+                    return "Added";
+                case InventoryUploadStatus.Update:
+                    return "Updated";
+                default:
+                    return "Skipped";
+            }
+        }
+
+        private static string GetVinValidationMessage(string vin) {
+            if (string.IsNullOrWhiteSpace(vin)) {
+                return "VIN is required.";
+            }
+
+            if (vin.Length != 17) {
+                return "VIN must be exactly 17 characters.";
+            }
+
+            if (Regex.IsMatch(vin, "[IOQ]", RegexOptions.IgnoreCase)) {
+                return "VIN cannot contain I, O, or Q.";
+            }
+
+            return string.Empty;
+        }
+
+        private static object ToInventoryEditorDecodeResponse(Models.GTX vehicle) {
+            return new {
+                VIN = vehicle.VIN,
+                Year = FormatInventoryInt(vehicle.Year),
+                Make = vehicle.Make,
+                Model = vehicle.Model,
+                RetailPrice = FormatInventoryInt(vehicle.RetailPrice),
+                DriveTrain = vehicle.DriveTrain,
+                Body = vehicle.Body,
+                Engine = vehicle.Engine,
+                Transmission = vehicle.Transmission,
+                FuelType = vehicle.FuelType,
+                TransmissionSpeed = FormatInventoryInt(vehicle.TransmissionSpeed),
+                VehicleType = vehicle.VehicleType,
+                VehicleStyle = vehicle.VehicleStyle,
+                Cylinders = FormatInventoryInt(vehicle.Cylinders)
+            };
+        }
+
+        private static string FormatInventoryInt(int value) {
+            return value == 0 ? string.Empty : value.ToString(CultureInfo.InvariantCulture);
+        }
+
+        private static Models.GTX CreateInventoryVehicleFromDecodedData(string vin, DecodedData decoded) {
+            var style = GetFirstDecodedStyle(decoded);
+            if (style == null) {
+                return null;
+            }
+
+            var basic = style.BasicData;
+            var engine = style.Engines?.Items?.FirstOrDefault();
+            var transmission = style.Transmissions?.Items?.FirstOrDefault();
+            var epaFuel = style.EpaFuelEfficiency?.Records?.FirstOrDefault()?.FuelType;
+
+            return new Models.GTX {
+                VIN = LimitInventoryText("VIN", vin),
+                Year = ParseDecodedInventoryInt(basic?.Year),
+                Make = LimitInventoryText("Make", basic?.Make),
+                Model = LimitInventoryText("Model", basic?.Model),
+                RetailPrice = ParseDecodedInventoryInt(style.Pricing?.Msrp),
+                DriveTrain = LimitInventoryText("DriveTrain", basic?.DriveType),
+                Body = LimitInventoryText("Body", FirstInventoryText(basic?.BodyType, basic?.OemBodyStyle, basic?.BodySubtype)),
+                Engine = LimitInventoryText("Engine", BuildDecodedEngineText(engine)),
+                Transmission = LimitInventoryText("Transmission", MapDecodedTransmissionCode(transmission)),
+                FuelType = LimitInventoryText("FuelType", FirstInventoryText(engine?.FuelType, epaFuel)),
+                TransmissionSpeed = ParseDecodedInventoryInt(transmission?.Gears),
+                VehicleType = LimitInventoryText("VehicleType", basic?.VehicleType),
+                VehicleStyle = LimitInventoryText("VehicleStyle", NormalizeDecodedStyleText(FirstInventoryText(basic?.Trim, style.Name, basic?.OemBodyStyle))),
+                Cylinders = ParseDecodedInventoryInt(engine?.IceCylinders)
+            };
+        }
+
+        private static GTX.Models.Style GetFirstDecodedStyle(DecodedData decoded) {
+            return decoded?.QueryResponses?.Items?
+                .SelectMany(response => response?.UsMarketData?.UsStyles?.Styles ?? Enumerable.Empty<GTX.Models.Style>())
+                .FirstOrDefault(style => style?.BasicData != null);
+        }
+
+        private static string BuildDecodedEngineText(Engine engine) {
+            if (engine == null) {
+                return string.Empty;
+            }
+
+            var displacement = NormalizeInventoryText(engine.IceDisplacement);
+            if (!string.IsNullOrWhiteSpace(displacement)) {
+                return NormalizeDecodedEngineText(displacement);
+            }
+
+            return NormalizeDecodedEngineText(FirstInventoryText(engine.MarketingName, engine.Name));
+        }
+
+        private static string NormalizeDecodedEngineText(string value) {
+            var text = NormalizeInventoryText(value).ToUpperInvariant();
+            if (string.IsNullOrWhiteSpace(text)) {
+                return string.Empty;
+            }
+
+            var match = Regex.Match(text, @"\b\d+(?:\.\d+)?\s*L\b", RegexOptions.IgnoreCase);
+            if (match.Success) {
+                return Regex.Replace(match.Value.ToUpperInvariant(), @"\s+", string.Empty);
+            }
+
+            if (Regex.IsMatch(text, @"^\d+(?:\.\d+)?$")) {
+                return text + "L";
+            }
+
+            return text;
+        }
+
+        private static string NormalizeDecodedStyleText(string value) {
+            var text = Regex.Replace(NormalizeInventoryText(value), @"\s+", " ").Trim();
+            return text.ToUpperInvariant();
+        }
+
+        private static string MapDecodedTransmissionCode(Transmission transmission) {
+            var text = FirstInventoryText(transmission?.Type, transmission?.DetailType, transmission?.Name).ToUpperInvariant();
+            if (string.IsNullOrWhiteSpace(text)) {
+                return string.Empty;
+            }
+
+            if (text.Length == 1 && "AMCT".Contains(text)) {
+                return text;
+            }
+
+            if (text.Contains("CONTINU") || text.Contains("CVT")) {
+                return "C";
+            }
+
+            if (text.Contains("MANUAL")) {
+                return "M";
+            }
+
+            if (text.Contains("TRANSVERSE")) {
+                return "T";
+            }
+
+            if (text.Contains("AUTO")) {
+                return "A";
+            }
+
+            return string.Empty;
+        }
+
+        private static string FirstInventoryText(params string[] values) {
+            return (values ?? Array.Empty<string>())
+                .Select(NormalizeInventoryText)
+                .FirstOrDefault(value => !string.IsNullOrWhiteSpace(value)) ?? string.Empty;
+        }
+
+        private static string LimitInventoryText(string field, string value) {
+            var normalized = NormalizeInventoryText(value);
+            int maxLength;
+            if (!string.IsNullOrEmpty(normalized) &&
+                InventoryStringLimits.TryGetValue(field, out maxLength) &&
+                normalized.Length > maxLength) {
+                return normalized.Substring(0, maxLength);
+            }
+
+            return normalized;
+        }
+
+        private static int ParseDecodedInventoryInt(string value) {
+            var normalized = NormalizeInventoryNumberText(value).Replace("$", string.Empty);
+            if (string.IsNullOrWhiteSpace(normalized)) {
+                return 0;
+            }
+
+            decimal parsed;
+            return decimal.TryParse(normalized, NumberStyles.Number, CultureInfo.InvariantCulture, out parsed)
+                ? Convert.ToInt32(Math.Round(parsed, 0, MidpointRounding.AwayFromZero))
+                : 0;
         }
 
         [HttpPost]
