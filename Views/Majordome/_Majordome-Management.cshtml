@@ -16,6 +16,8 @@
         --inventory-header-bg: var(--gtx-grad, var(--bs-primary-bg-subtle, #f8fafc));
         --inventory-header-color: #fff;
         --inventory-header-border: rgba(255, 255, 255, .24);
+        --inventory-selected-accent: var(--bs-primary, #2563eb);
+        --inventory-selected-bg: rgba(var(--bs-primary-rgb, 37, 99, 235), .1);
         background: var(--inventory-surface);
         margin-top: .75rem;
         border-radius: .85rem;
@@ -27,6 +29,34 @@
     html.theme-silver .majordome-management-shell {
         --inventory-header-color: #111827;
         --inventory-header-border: rgba(15, 23, 42, .16);
+        --inventory-selected-accent: #8f98a3;
+        --inventory-selected-bg: rgba(143, 152, 163, .16);
+    }
+
+    html.theme-blue .majordome-management-shell {
+        --inventory-selected-accent: #1e73be;
+        --inventory-selected-bg: rgba(30, 115, 190, .14);
+    }
+
+    html.theme-grey .majordome-management-shell,
+    html.theme-dark .majordome-management-shell {
+        --inventory-selected-accent: darkgray;
+        --inventory-selected-bg: rgba(169, 169, 169, .18);
+    }
+
+    html.theme-pink .majordome-management-shell {
+        --inventory-selected-accent: #c2185b;
+        --inventory-selected-bg: rgba(194, 24, 91, .14);
+    }
+
+    html.theme-deep-purple .majordome-management-shell {
+        --inventory-selected-accent: #6a1bb1;
+        --inventory-selected-bg: rgba(106, 27, 177, .14);
+    }
+
+    html.theme-metallica .majordome-management-shell {
+        --inventory-selected-accent: #9aa0a8;
+        --inventory-selected-bg: rgba(154, 160, 168, .18);
     }
 
     .majordome-management-toolbar {
@@ -235,8 +265,8 @@
         }
 
         .majordome-management-log-status.is-selected {
-            background: rgba(37, 99, 235, .1);
-            box-shadow: inset .22rem 0 #2563eb;
+            background: var(--inventory-selected-bg);
+            box-shadow: inset .22rem 0 var(--inventory-selected-accent);
         }
 
         .majordome-management-log-status[disabled] {
@@ -455,16 +485,17 @@
     }
 
         #majordomeManagementTable tbody tr.majordome-management-row.is-selected {
-            box-shadow: inset .32rem 0 #2563eb;
+            box-shadow: inset .32rem 0 var(--inventory-selected-accent);
         }
 
             #majordomeManagementTable tbody tr.majordome-management-row.is-selected td {
-                background: #d9dde2;
+                background: var(--inventory-selected-bg);
                 border-color: rgba(108, 117, 125, .24);
             }
 
             #majordomeManagementTable tbody tr.majordome-management-row.is-selected td:first-child {
-                box-shadow: inset .32rem 0 var(--bs-secondary-color, #6c757d);
+                background: var(--inventory-selected-bg);
+                box-shadow: inset .22rem 0 var(--inventory-selected-accent);
             }
 
     .majordome-management-stock {
@@ -539,6 +570,14 @@
         .majordome-management-change-table td:nth-child(3) {
             min-width: 8rem;
             width: auto;
+        }
+
+        .majordome-management-change-table th:nth-child(4),
+        .majordome-management-change-table td:nth-child(4) {
+            min-width: 12rem;
+            text-align: center;
+            width: auto;
+            white-space: nowrap;
         }
 
         .majordome-management-change-table th {
@@ -773,6 +812,59 @@
             return managementText(stock).trim().toUpperCase();
         }
 
+        function managementDateSortValue(value) {
+            const date = managementParseDate(value);
+            return date ? date.getTime() : 0;
+        }
+
+        function getMajordomeManagementRowEntries(row) {
+            const entries = managementValue(row, "Entries", null);
+            return Array.isArray(entries) && entries.length ? entries : [row];
+        }
+
+        function groupMajordomeManagementRows(rows) {
+            const groupedRows = [];
+            const updatedRowsByStock = {};
+
+            (Array.isArray(rows) ? rows : []).forEach(function (row) {
+                const statusKey = managementStatusKey(managementValue(row, "StatusText", ""));
+                const stockKey = managementStockKey(managementValue(row, "Stock", ""));
+
+                if (statusKey !== "updated" || !stockKey) {
+                    const singleRow = Object.assign({}, row);
+                    singleRow.Entries = [row];
+                    groupedRows.push(singleRow);
+                    return;
+                }
+
+                let groupedRow = updatedRowsByStock[stockKey];
+                if (!groupedRow) {
+                    groupedRow = Object.assign({}, row);
+                    groupedRow.Entries = [];
+                    updatedRowsByStock[stockKey] = groupedRow;
+                    groupedRows.push(groupedRow);
+                }
+
+                groupedRow.Entries.push(row);
+
+                if (managementDateSortValue(managementValue(row, "DateCreated", "")) >
+                    managementDateSortValue(managementValue(groupedRow, "DateCreated", ""))) {
+                    const entries = groupedRow.Entries;
+                    Object.assign(groupedRow, row);
+                    groupedRow.Entries = entries;
+                }
+            });
+
+            groupedRows.forEach(function (row) {
+                row.Entries = getMajordomeManagementRowEntries(row).slice().sort(function (left, right) {
+                    return managementDateSortValue(managementValue(right, "DateCreated", "")) -
+                        managementDateSortValue(managementValue(left, "DateCreated", ""));
+                });
+            });
+
+            return groupedRows;
+        }
+
         function managementIncludeSkipped() {
             return true;
         }
@@ -956,16 +1048,24 @@
         }
 
         function managementRowSearchValue(row) {
-            const changes = managementValue(row, "Changes", []) || [];
-            const changeText = Array.isArray(changes)
-                ? changes.map(function (change) {
-                    return [
-                        managementValue(change, "Field", ""),
-                        managementValue(change, "PreviousValue", ""),
-                        managementValue(change, "CurrentValue", "")
-                    ].join(" ");
-                }).join(" ")
-                : "";
+            const changeText = getMajordomeManagementRowEntries(row).map(function (entry) {
+                const changes = managementValue(entry, "Changes", []) || [];
+                const entryDate = managementValue(entry, "DateCreated", "");
+                const entryChangeText = Array.isArray(changes)
+                    ? changes.map(function (change) {
+                        return [
+                            managementValue(change, "Field", ""),
+                            managementValue(change, "PreviousValue", ""),
+                            managementValue(change, "CurrentValue", "")
+                        ].join(" ");
+                    }).join(" ")
+                    : "";
+
+                return [
+                    entryDate ? managementFormatDate(entryDate) : "",
+                    entryChangeText
+                ].join(" ");
+            }).join(" ");
 
             return managementSearchText([
                 managementValue(row, "Stock", ""),
@@ -1114,25 +1214,32 @@
             const date = managementParseDate(value);
             if (!date) return managementText(value);
 
-            return date.toLocaleString(undefined, {
-                year: "numeric",
-                month: "short",
-                day: "2-digit",
-                hour: "numeric",
-                minute: "2-digit",
-                timeZoneName: "short"
-            });
+            return `${managementFormatDateOnly(date)} ${managementFormatTimeOnly(date)}`;
         }
 
         function managementFormatShortDate(value) {
             const date = managementParseDate(value);
             if (!date) return managementText(value);
 
-            return date.toLocaleDateString(undefined, {
-                year: "numeric",
-                month: "short",
-                day: "2-digit"
-            });
+            return managementFormatDateOnly(date);
+        }
+
+        function managementFormatDateOnly(date) {
+            const month = managementPadTwo(date.getMonth() + 1);
+            const day = managementPadTwo(date.getDate());
+            return `${month}/${day}/${date.getFullYear()}`;
+        }
+
+        function managementFormatTimeOnly(date) {
+            const hour24 = date.getHours();
+            const hour12 = hour24 % 12 || 12;
+            const minutes = managementPadTwo(date.getMinutes());
+            const period = hour24 >= 12 ? "PM" : "AM";
+            return `${hour12}:${minutes} ${period}`;
+        }
+
+        function managementPadTwo(value) {
+            return value < 10 ? `0${value}` : managementText(value);
         }
 
         function managementFormatInteger(value, useGrouping) {
@@ -1364,7 +1471,7 @@
         }
 
         function setMajordomeManagementRows(rows) {
-            majordomeManagementRows = Array.isArray(rows) ? rows : [];
+            majordomeManagementRows = groupMajordomeManagementRows(rows);
             syncMajordomeManagementLocationFilter();
             applyMajordomeManagementFilters();
         }
@@ -1408,7 +1515,6 @@
             const statusText = managementValue(row, "StatusText", "");
             const statusKey = managementStatusKey(statusText);
             const locationCode = managementValue(row, "LocationCode", "");
-            const changes = managementValue(row, "Changes", []) || [];
             const isUpdated = statusKey === "updated";
             const isRemoved = statusKey === "removed";
             const isSkipped = statusKey === "skipped";
@@ -1450,36 +1556,51 @@
                 <tr class="majordome-management-detail-row ${rowToneClass}">
                     <td class="majordome-management-detail-cell" colspan="7">
                         <div id="${collapseId}" class="collapse">
-                            ${buildMajordomeManagementDetails(row, changes)}
+                            ${buildMajordomeManagementDetails(row)}
                         </div>
                     </td>
                 </tr>`;
         }
 
-        function buildMajordomeManagementDetails(row, changes) {
-            const hasPrevious = !!managementValue(row, "HasPreviousState", false);
+        function buildMajordomeManagementDetails(row) {
+            const entries = getMajordomeManagementRowEntries(row);
+            const hasPrevious = entries.some(function (entry) {
+                return !!managementValue(entry, "HasPreviousState", false);
+            });
+
             if (!hasPrevious) {
                 return `<div class="majordome-management-detail-panel text-muted">No previous logged state exists for this stock number.</div>`;
             }
 
-            if (!Array.isArray(changes) || changes.length === 0) {
+            const rowsHtml = entries.map(function (entry) {
+                const entryChanges = managementValue(entry, "Changes", []) || [];
+                if (!Array.isArray(entryChanges) || entryChanges.length === 0) {
+                    return "";
+                }
+
+                const dateCreated = managementValue(entry, "DateCreated", "");
+                const dateText = dateCreated ? managementFormatDate(dateCreated) : "";
+
+                return entryChanges.map(function (change) {
+                    const field = managementValue(change, "Field", "");
+                    const previousValue = managementValue(change, "PreviousValue", "");
+                    const currentValue = managementValue(change, "CurrentValue", "");
+                    const previousClass = managementIsNumericChangeValue(field, previousValue) ? ` class="majordome-management-change-number"` : "";
+                    const currentClass = managementIsNumericChangeValue(field, currentValue) ? ` class="majordome-management-change-number"` : "";
+
+                    return `
+                        <tr>
+                            <td class="fw-semibold">${managementEscapeHtml(field)}</td>
+                            <td${previousClass}>${managementEscapeHtml(managementFormatChangeValue(field, previousValue))}</td>
+                            <td${currentClass}>${managementEscapeHtml(managementFormatChangeValue(field, currentValue))}</td>
+                            <td>${managementEscapeHtml(dateText)}</td>
+                        </tr>`;
+                }).join("");
+            }).join("");
+
+            if (!rowsHtml) {
                 return `<div class="majordome-management-detail-panel text-muted">No field-level differences were found in the logged values.</div>`;
             }
-
-            const rowsHtml = changes.map(function (change) {
-                const field = managementValue(change, "Field", "");
-                const previousValue = managementValue(change, "PreviousValue", "");
-                const currentValue = managementValue(change, "CurrentValue", "");
-                const previousClass = managementIsNumericChangeValue(field, previousValue) ? ` class="majordome-management-change-number"` : "";
-                const currentClass = managementIsNumericChangeValue(field, currentValue) ? ` class="majordome-management-change-number"` : "";
-
-                return `
-                    <tr>
-                        <td class="fw-semibold">${managementEscapeHtml(field)}</td>
-                        <td${previousClass}>${managementEscapeHtml(managementFormatChangeValue(field, previousValue))}</td>
-                        <td${currentClass}>${managementEscapeHtml(managementFormatChangeValue(field, currentValue))}</td>
-                    </tr>`;
-            }).join("");
 
             return `
                 <div class="majordome-management-detail-panel">
@@ -1490,6 +1611,7 @@
                                     <th class="text-dark">Field</th>
                                     <th class="text-dark">Previous</th>
                                     <th class="text-dark">New</th>
+                                    <th class="text-dark">Updated</th>
                                 </tr>
                             </thead>
                             <tbody>${rowsHtml}</tbody>
