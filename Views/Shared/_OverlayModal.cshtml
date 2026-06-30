@@ -28,8 +28,8 @@
 }
 
 <div class="modal-header">
-    <h5 class="modal-title text-white" id="overlayTitle">
-    </h5>
+    <div class="modal-title text-white" id="overlayTitle">
+    </div>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
@@ -152,8 +152,14 @@
         })
 
 
-        $("#deleteOverlay").on("click", function () {
-            if (confirm(`Do you want to delete overlay for this image`)) {
+        $("#deleteOverlay").on("click", async function () {
+            const confirmed = await window.gtxConfirm({
+                title: "Delete overlay",
+                message: "Do you want to delete overlay for this image?",
+                confirmText: "Delete",
+                variant: "danger"
+            });
+            if (confirmed) {
                 deleteOverlayData();
             }
         })

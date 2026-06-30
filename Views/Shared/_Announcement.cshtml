@@ -192,9 +192,15 @@
         $host.closest(".toast-container").hide();
     });
 
-    function deleteAnnouncement(id) {
+    async function deleteAnnouncement(id) {
         if (!id) return;
-        if (!confirm("Delete this announcement? This cannot be undone.")) return;
+        const confirmed = await window.gtxConfirm({
+            title: "Delete announcement",
+            message: "Delete this announcement? This cannot be undone.",
+            confirmText: "Delete",
+            variant: "danger"
+        });
+        if (!confirmed) return;
 
         $.post(root + "Announcements/Delete", { id: id })
             .done(function (res) {

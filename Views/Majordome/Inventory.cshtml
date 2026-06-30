@@ -290,7 +290,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="majordomeBulkProgressTitle">Bulk update</h5>
+                <div class="modal-title" id="majordomeBulkProgressTitle">Bulk update</div>
             </div>
             <div class="modal-body">
                 <p id="majordomeBulkProgressIntro" class="mb-2"></p>
@@ -701,10 +701,16 @@
             }
         });
 
-        $(document).on("click", ".delete-image", function () {
+        $(document).on("click", ".delete-image", async function () {
             var file = $(this).data("filename");
             var id = $(this).attr("id");
-            if (confirm("Do you want to delete this file?")) {
+            const confirmed = await window.gtxConfirm({
+                title: "Delete image",
+                message: "Do you want to delete this file?",
+                confirmText: "Delete",
+                variant: "danger"
+            });
+            if (confirmed) {
                 deleteImage(id, file, this);
             }
         });
@@ -849,18 +855,30 @@
             openMajordomeImageDeleteProgressModal(stock);
         });
 
-        $("#createStory").on("click", function () {
+        $("#createStory").on("click", async function () {
             const stock = getSelectedVehicleStockOrWarn();
             if (!stock) return;
-            if (confirm(`Do you want to create story for Stock# ${stock}`)) {
+            const confirmed = await window.gtxConfirm({
+                title: "Create story",
+                message: `Do you want to create story for Stock# ${stock}?`,
+                confirmText: "Create",
+                variant: "success"
+            });
+            if (confirmed) {
                 createStory(stock);
             }
         });
 
-        $("#deleteStory").on("click", function () {
+        $("#deleteStory").on("click", async function () {
             const stock = getSelectedVehicleStockOrWarn();
             if (!stock) return;
-            if (confirm(`Do you want to delete story for Stock# ${stock}`)) {
+            const confirmed = await window.gtxConfirm({
+                title: "Delete story",
+                message: `Do you want to delete story for Stock# ${stock}?`,
+                confirmText: "Delete",
+                variant: "danger"
+            });
+            if (confirmed) {
                 deleteStory(stock);
             }
         });
@@ -871,7 +889,14 @@
             const story = quill.root.innerHTML;
             const title = $("#storyTitle").val();
 
-            if (!confirm(`Do you want to save story for Stock# ${stock}`)) {
+            const confirmed = await window.gtxConfirm({
+                title: "Save story",
+                message: `Do you want to save story for Stock# ${stock}?`,
+                confirmText: "Save",
+                variant: "primary"
+            });
+
+            if (!confirmed) {
                 return;
             }
 
@@ -999,40 +1024,64 @@
             openMajordomeImageDeleteProgressModal(stock, count);
         });
 
-        $("#majordomeInventoryBody").on("click", ".js-amm-create-story", function (e) {
+        $("#majordomeInventoryBody").on("click", ".js-amm-create-story", async function (e) {
             e.preventDefault();
             e.stopPropagation();
             const stock = $(this).attr("data-stock");
             selectMajordomeVehicle(stock);
-            if (confirm(`Do you want to create story for Stock# ${stock}`)) {
+            const confirmed = await window.gtxConfirm({
+                title: "Create story",
+                message: `Do you want to create story for Stock# ${stock}?`,
+                confirmText: "Create",
+                variant: "success"
+            });
+            if (confirmed) {
                 createStory(stock);
             }
         });
 
-        $("#majordomeInventoryBody").on("click", ".js-amm-delete-story", function (e) {
+        $("#majordomeInventoryBody").on("click", ".js-amm-delete-story", async function (e) {
             e.preventDefault();
             e.stopPropagation();
             const stock = $(this).attr("data-stock");
             selectMajordomeVehicle(stock);
-            if (confirm(`Do you want to delete story for Stock# ${stock}`)) {
+            const confirmed = await window.gtxConfirm({
+                title: "Delete story",
+                message: `Do you want to delete story for Stock# ${stock}?`,
+                confirmText: "Delete",
+                variant: "danger"
+            });
+            if (confirmed) {
                 deleteStory(stock);
             }
         });
 
-        $("#majordomeInventoryBody").on("click", ".js-amm-decode-dataone", function (e) {
+        $("#majordomeInventoryBody").on("click", ".js-amm-decode-dataone", async function (e) {
             e.preventDefault();
             e.stopPropagation();
             const vin = $(this).data("vin");
-            if (confirm(`Do you want to decode and override DataOne details for VIN# ${vin}`)) {
+            const confirmed = await window.gtxConfirm({
+                title: "Override DataOne",
+                message: `Do you want to decode and override DataOne details for VIN# ${vin}?`,
+                confirmText: "Decode",
+                variant: "warning"
+            });
+            if (confirmed) {
                 decodeDataOne(vin);
             }
         });
 
-        $("#majordomeInventoryBody").on("click", ".js-amm-delete-dataone", function (e) {
+        $("#majordomeInventoryBody").on("click", ".js-amm-delete-dataone", async function (e) {
             e.preventDefault();
             e.stopPropagation();
             const stock = $(this).attr("data-stock");
-            if (confirm(`Do you want to delete DataOne  for Stock# ${stock}`)) {
+            const confirmed = await window.gtxConfirm({
+                title: "Delete DataOne",
+                message: `Do you want to delete DataOne for Stock# ${stock}?`,
+                confirmText: "Delete",
+                variant: "danger"
+            });
+            if (confirmed) {
                 deleteDataOne(stock);
             }
         });

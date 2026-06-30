@@ -760,7 +760,7 @@
                     </table>
                 </div>
                 <div id="majordomeManagementEmpty" class="p-4 text-center text-muted d-none">
-                    No added, updated, removed, or skipped vehicles were found for this inventory date.
+                    No added, updated, removed, or stalled vehicles were found for this inventory date.
                 </div>
             </div>
         </div>
@@ -779,7 +779,7 @@
             { key: "added", label: "Added", countKey: "AddedCount", badgeClass: "bg-success", iconClass: "bi-plus-circle" },
             { key: "updated", label: "Updated", countKey: "UpdatedCount", badgeClass: "bg-primary", iconClass: "bi-pencil-square" },
             { key: "removed", label: "Removed", countKey: "RemovedCount", badgeClass: "bg-danger", iconClass: "bi-trash3" },
-            { key: "skipped", label: "Skipped", countKey: "SkippedCount", badgeClass: "bg-secondary", iconClass: "bi-skip-forward" }
+            { key: "skipped", label: "Stalled", countKey: "SkippedCount", badgeClass: "bg-secondary", iconClass: "bi-pause-circle" }
         ];
 
         function managementRoot() {
@@ -898,7 +898,7 @@
                 return "removed";
             }
 
-            if (status === "skip" || status === "skipped") {
+            if (status === "skip" || status === "skipped" || status === "stall" || status === "stalled") {
                 return "skipped";
             }
 
@@ -1104,7 +1104,7 @@
             const hasFilteredRows = filteredCount > 0;
             const message = totalCount > 0
                 ? "No vehicles match the current search, status, or location filter."
-                : "No added, updated, removed, or skipped vehicles were found for this inventory date.";
+                : "No added, updated, removed, or stalled vehicles were found for this inventory date.";
 
             $("#majordomeManagementEmpty")
                 .toggleClass("d-none", hasFilteredRows)

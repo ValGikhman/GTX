@@ -132,10 +132,17 @@
         };
     }
 
-    function deleteBlog(id) {
+    async function deleteBlog(id) {
         if (!id) return;
 
-        if (!confirm("Delete this blog post? This cannot be undone.")) return;
+        const confirmed = await window.gtxConfirm({
+            title: "Delete blog post",
+            message: "Delete this blog post? This cannot be undone.",
+            confirmText: "Delete",
+            variant: "danger"
+        });
+        if (!confirmed) return;
+
         $.post(`${root}Blogs/Delete`, { id: id })
             .done(function (res) {
                 if (res && res.ok === true) {

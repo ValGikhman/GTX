@@ -1,0 +1,598 @@
+@using Newtonsoft.Json
+@model System.Collections.Generic.IDictionary<int, Services.InventoryDashboardSummary>
+
+@{
+    var dashboards = Model ?? new System.Collections.Generic.Dictionary<int, Services.InventoryDashboardSummary>();
+    var dashboardsJson = JsonConvert.SerializeObject(
+        dashboards,
+        new JsonSerializerSettings { StringEscapeHandling = StringEscapeHandling.EscapeHtml });
+}
+
+<style>
+    .inventory-dashboard {
+        --dashboard-border: var(--bs-border-color-translucent, rgba(30, 41, 59, .12));
+        --dashboard-line: var(--bs-border-color-translucent, rgba(148, 163, 184, .22));
+        --dashboard-muted: var(--bs-secondary-color, #64748b);
+        --dashboard-ink: var(--bs-body-color, #172033);
+        --dashboard-surface: var(--bs-body-bg, #fff);
+        --dashboard-surface-alt: var(--bs-tertiary-bg, #f8fafc);
+        color: var(--dashboard-ink);
+    }
+
+    .inventory-dashboard-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: .75rem;
+        margin-bottom: 1rem;
+        padding: .75rem;
+        border: 1px solid var(--dashboard-border);
+        border-radius: 8px;
+        background: linear-gradient(180deg, var(--dashboard-surface) 0%, var(--dashboard-surface-alt) 100%);
+    }
+
+    .inventory-dashboard-card {
+        height: 100%;
+        min-height: 14rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: .9rem;
+        padding: 1rem;
+        border: 1px solid var(--dashboard-border);
+        border-radius: 8px;
+        background: var(--dashboard-surface);
+        box-shadow: 0 .55rem 1.4rem rgba(15, 23, 42, .07);
+    }
+
+    .inventory-dashboard-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .75rem;
+    }
+
+    .inventory-dashboard-title {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+
+    .inventory-dashboard-subtitle {
+        color: var(--dashboard-muted);
+        font-size: .82rem;
+        line-height: 1.35;
+    }
+
+    .inventory-dashboard-icon {
+        width: 2.35rem;
+        height: 2.35rem;
+        flex: 0 0 2.35rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: color-mix(in srgb, var(--dashboard-accent, #0d6efd) 14%, transparent);
+        color: var(--dashboard-accent, #0d6efd);
+    }
+
+    .inventory-dashboard-donut {
+        --dashboard-accent: #0d6efd;
+        --dashboard-angle: 0deg;
+        width: min(9.5rem, 64vw);
+        aspect-ratio: 1;
+        align-self: center;
+        position: relative;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: conic-gradient(var(--dashboard-accent) 0deg var(--dashboard-angle), #e9eef5 var(--dashboard-angle) 360deg);
+        box-shadow: inset 0 0 0 1px rgba(15, 23, 42, .05);
+    }
+
+        .inventory-dashboard-donut::after {
+            content: "";
+            position: absolute;
+            inset: 1.15rem;
+            border-radius: 50%;
+            background: var(--dashboard-surface);
+            box-shadow: inset 0 0 0 1px rgba(15, 23, 42, .06);
+        }
+
+    .inventory-dashboard-donut-center {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-width: 0;
+        line-height: 1;
+    }
+
+    .inventory-dashboard-number {
+        font-size: 2rem;
+        font-weight: 900;
+        letter-spacing: 0;
+    }
+
+    .inventory-dashboard-center-label {
+        margin-top: .25rem;
+        color: var(--dashboard-muted);
+        font-size: .72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .inventory-dashboard-location-card {
+        min-height: 18rem;
+    }
+
+    .inventory-dashboard-location-layout {
+        display: grid;
+        grid-template-columns: minmax(11rem, 16rem) minmax(0, 1fr);
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .inventory-dashboard-location-donut {
+        width: min(13rem, 68vw);
+    }
+
+    .inventory-dashboard-legend {
+        display: flex;
+        flex-direction: column;
+        gap: .55rem;
+        align-items: stretch;
+    }
+
+    .inventory-dashboard-legend-item {
+        min-width: 0;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .55rem;
+        padding: .55rem .65rem;
+        border: 1px solid var(--dashboard-line);
+        border-radius: 8px;
+        background: var(--dashboard-surface-alt);
+    }
+
+    .inventory-dashboard-swatch {
+        width: .7rem;
+        height: .7rem;
+        flex: 0 0 .7rem;
+        border-radius: 50%;
+        background: var(--dashboard-location-color, #0d6efd);
+    }
+
+    .inventory-dashboard-location-label {
+        min-width: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: .45rem;
+        font-weight: 700;
+    }
+
+    .inventory-dashboard-location-code {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .inventory-dashboard-gtx-code {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 1.8rem;
+        min-height: 1.8rem;
+        max-width: 100%;
+        padding: 0 .55rem;
+        border: 1px solid rgba(15, 23, 42, .18);
+        border-radius: 999px;
+        background: #f1f5f9;
+        color: #334155;
+        font-size: .75rem;
+        font-weight: 900;
+        line-height: 1;
+        text-transform: uppercase;
+        box-shadow: inset 0 1px rgba(255, 255, 255, .65), 0 .15rem .35rem rgba(15, 23, 42, .08);
+    }
+
+        .inventory-dashboard-gtx-code.is-gtx-x {
+            border-color: rgba(29, 78, 216, .5);
+            background: rgba(37, 99, 235, .14);
+            color: #1d4ed8;
+        }
+
+        .inventory-dashboard-gtx-code.is-gtx-t {
+            border-color: rgba(185, 28, 28, .45);
+            background: rgba(220, 38, 38, .14);
+            color: #b91c1c;
+        }
+
+        .inventory-dashboard-gtx-code.is-gtx-g {
+            border-color: rgba(22, 163, 74, .45);
+            background: rgba(22, 163, 74, .12);
+            color: #166534;
+        }
+
+    .inventory-dashboard-location-count {
+        flex: 0 0 auto;
+        font-variant-numeric: tabular-nums;
+        font-weight: 800;
+    }
+
+    @@media (max-width: 767.98px) {
+        .inventory-dashboard-toolbar {
+            align-items: stretch;
+        }
+
+        .inventory-dashboard-toolbar .form-select {
+            width: 100% !important;
+        }
+
+        .inventory-dashboard-location-layout {
+            grid-template-columns: 1fr;
+            justify-items: center;
+        }
+
+        .inventory-dashboard-legend {
+            width: 100%;
+        }
+    }
+</style>
+
+<section class="inventory-dashboard container-fluid py-3">
+    <div class="inventory-dashboard-toolbar">
+        <div>
+            <h1 class="h4 fw-bold mb-1">Inventory Dashboard</h1>
+            <div id="inventoryDashboardRange" class="inventory-dashboard-subtitle"></div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <label for="inventoryDashboardPeriod" class="form-label small fw-bold mb-0">Period</label>
+            <select id="inventoryDashboardPeriod" class="form-select w-auto" aria-label="Inventory dashboard period">
+                <option value="7">Last 7 days</option>
+                <option value="30">Last 30 days</option>
+                <option value="60">Last 60 days</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-12 col-xl-6">
+            <article class="inventory-dashboard-card inventory-dashboard-location-card">
+                <div class="inventory-dashboard-card-header">
+                    <div>
+                        <h2 class="inventory-dashboard-title">Inventory By Status</h2>
+                        <div id="inventoryDashboardStatusCaption" class="inventory-dashboard-subtitle"></div>
+                    </div>
+                    <span class="inventory-dashboard-icon" style="--dashboard-accent: #6f42c1;" aria-hidden="true"><i class="bi bi-pie-chart"></i></span>
+                </div>
+                <div class="inventory-dashboard-location-layout">
+                    <div id="inventoryDashboardStatusDonut" class="inventory-dashboard-donut inventory-dashboard-location-donut" style="--dashboard-accent: #6f42c1;">
+                        <div class="inventory-dashboard-donut-center">
+                            <span id="inventoryDashboardStatusTotal" class="inventory-dashboard-number">0</span>
+                            <span class="inventory-dashboard-center-label">Vehicles</span>
+                        </div>
+                    </div>
+                    <div id="inventoryDashboardStatusLegend" class="inventory-dashboard-legend"></div>
+                </div>
+            </article>
+        </div>
+
+        <div class="col-12 col-xl-6">
+            <article class="inventory-dashboard-card inventory-dashboard-location-card">
+                <div class="inventory-dashboard-card-header">
+                    <div>
+                        <h2 class="inventory-dashboard-title">Inventory By Location Code</h2>
+                        <div id="inventoryDashboardLocationCaption" class="inventory-dashboard-subtitle"></div>
+                    </div>
+                    <span class="inventory-dashboard-icon" style="--dashboard-accent: #0d6efd;" aria-hidden="true"><i class="bi bi-geo-alt"></i></span>
+                </div>
+                <div class="inventory-dashboard-location-layout">
+                    <div id="inventoryDashboardLocationDonut" class="inventory-dashboard-donut inventory-dashboard-location-donut" style="--dashboard-accent: #0d6efd;">
+                        <div class="inventory-dashboard-donut-center">
+                            <span id="inventoryDashboardLocationTotal" class="inventory-dashboard-number">0</span>
+                            <span class="inventory-dashboard-center-label">Vehicles</span>
+                        </div>
+                    </div>
+                    <div id="inventoryDashboardLocationLegend" class="inventory-dashboard-legend"></div>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
+
+<script type="application/json" id="inventoryDashboardData">@Html.Raw(dashboardsJson)</script>
+
+@section scripts {
+    <script>
+        (function ($) {
+            function readDashboardData() {
+                const dashboardDataNode = document.getElementById("inventoryDashboardData");
+                if (!dashboardDataNode) return {};
+
+                try {
+                    return JSON.parse(dashboardDataNode.textContent || "{}");
+                } catch (error) {
+                    return {};
+                }
+            }
+
+            const dashboards = readDashboardData();
+            let dashboardRequest = null;
+            const locationColors = [
+                "#0d6efd",
+                "#198754",
+                "#fd7e14",
+                "#6f42c1",
+                "#20c997",
+                "#dc3545",
+                "#0dcaf0",
+                "#6c757d",
+                "#b7791f",
+                "#d63384"
+            ];
+            const statusColors = {
+                "Added": "#198754",
+                "Skipped": "#6c757d",
+                "Stalled": "#6c757d",
+                "Removed": "#dc3545",
+                "Updated": "#0d6efd"
+            };
+            const locationBadgeColors = {
+                "is-gtx-x": "#1d4ed8",
+                "is-gtx-t": "#b91c1c",
+                "is-gtx-g": "#166534"
+            };
+
+            function valueOf(source, name, fallback) {
+                if (!source) return fallback;
+                if (source[name] !== undefined && source[name] !== null) return source[name];
+                const camel = name.charAt(0).toLowerCase() + name.slice(1);
+                return source[camel] !== undefined && source[camel] !== null ? source[camel] : fallback;
+            }
+
+            function locationBadgeInfo(value, fallbackIndex) {
+                const label = (value || "").toString().trim();
+                const normalized = label.toUpperCase();
+                let toneClass = "";
+
+                if (normalized.startsWith("X")) {
+                    toneClass = "is-gtx-x";
+                } else if (normalized.startsWith("T")) {
+                    toneClass = "is-gtx-t";
+                } else if (normalized.startsWith("G")) {
+                    toneClass = "is-gtx-g";
+                }
+
+                return {
+                    label: label || "N/A",
+                    toneClass: toneClass,
+                    color: locationBadgeColors[toneClass] || locationColors[fallbackIndex % locationColors.length]
+                };
+            }
+
+            function dashboardRoot() {
+                return typeof root !== "undefined" ? root : "/";
+            }
+
+            function asNumber(value) {
+                const number = parseInt(value, 10);
+                return Number.isFinite(number) ? number : 0;
+            }
+
+            function formatNumber(value) {
+                return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(asNumber(value));
+            }
+
+            function formatDate(value) {
+                if (!value) return "";
+                const msJsonDate = /^\/Date\((-?\d+)(?:[+-]\d+)?\)\/$/.exec(value.toString());
+                const date = msJsonDate ? new Date(parseInt(msJsonDate[1], 10)) : new Date(value);
+                if (Number.isNaN(date.getTime())) return "";
+                return date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+            }
+
+            function dashboardFor(days) {
+                return dashboards[String(days)] || dashboards[days] || {};
+            }
+
+            function cacheDashboard(days, data) {
+                if (!data) return;
+                dashboards[String(days)] = data;
+            }
+
+            function setDashboardBusy(isBusy) {
+                $("#inventoryDashboardPeriod").prop("disabled", isBusy);
+                $(".inventory-dashboard-card").toggleClass("opacity-75", isBusy);
+            }
+
+            function locationGradient(locations, total) {
+                if (!locations.length || total <= 0) {
+                    return "conic-gradient(#e9eef5 0deg 360deg)";
+                }
+
+                let cursor = 0;
+                const segments = locations.map(function (location, index) {
+                    const count = asNumber(valueOf(location, "VehicleCount", 0));
+                    const end = index === locations.length - 1 ? 360 : cursor + (count / total * 360);
+                    const color = locationBadgeInfo(valueOf(location, "LocationCode", "N/A"), index).color;
+                    const segment = `${color} ${cursor.toFixed(2)}deg ${end.toFixed(2)}deg`;
+                    cursor = end;
+                    return segment;
+                });
+
+                return `conic-gradient(${segments.join(", ")})`;
+            }
+
+            function statusGradient(statuses, total) {
+                if (!statuses.length || total <= 0) {
+                    return "conic-gradient(#e9eef5 0deg 360deg)";
+                }
+
+                let cursor = 0;
+                const segments = statuses.map(function (status, index) {
+                    const count = asNumber(valueOf(status, "VehicleCount", 0));
+                    const end = index === statuses.length - 1 ? 360 : cursor + (count / total * 360);
+                    const label = (valueOf(status, "StatusText", "Status") || "Status").toString();
+                    const color = statusColors[label] || locationColors[index % locationColors.length];
+                    const segment = `${color} ${cursor.toFixed(2)}deg ${end.toFixed(2)}deg`;
+                    cursor = end;
+                    return segment;
+                });
+
+                return `conic-gradient(${segments.join(", ")})`;
+            }
+
+            function renderStatusBreakdown(data) {
+                const statuses = valueOf(data, "StatusCounts", []) || [];
+                const total = statuses.reduce(function (sum, status) {
+                    return sum + asNumber(valueOf(status, "VehicleCount", 0));
+                }, 0);
+
+                $("#inventoryDashboardStatusTotal").text(formatNumber(total));
+                $("#inventoryDashboardStatusCaption").text(`${statuses.length} status${statuses.length === 1 ? "" : "es"} by distinct stock`);
+                $("#inventoryDashboardStatusDonut").css("background", statusGradient(statuses, total));
+
+                const $legend = $("#inventoryDashboardStatusLegend").empty();
+                if (!statuses.length) {
+                    $("<div></div>")
+                        .addClass("text-muted")
+                        .text("No status data for this period.")
+                        .appendTo($legend);
+                    return;
+                }
+
+                statuses.forEach(function (status, index) {
+                    const label = (valueOf(status, "StatusText", "Status") || "Status").toString();
+                    const count = asNumber(valueOf(status, "VehicleCount", 0));
+                    const color = statusColors[label] || locationColors[index % locationColors.length];
+                    const $item = $("<div></div>").addClass("inventory-dashboard-legend-item");
+                    const $label = $("<span></span>").addClass("inventory-dashboard-location-label");
+
+                    $("<span></span>")
+                        .addClass("inventory-dashboard-swatch")
+                        .css("--dashboard-location-color", color)
+                        .appendTo($label);
+                    $("<span></span>")
+                        .addClass("inventory-dashboard-location-code")
+                        .text(label)
+                        .appendTo($label);
+
+                    $label.appendTo($item);
+                    $("<span></span>")
+                        .addClass("inventory-dashboard-location-count")
+                        .text(formatNumber(count))
+                        .appendTo($item);
+                    $item.appendTo($legend);
+                });
+            }
+
+            function renderLocations(data) {
+                const locations = valueOf(data, "LocationCounts", []) || [];
+                const total = locations.reduce(function (sum, location) {
+                    return sum + asNumber(valueOf(location, "VehicleCount", 0));
+                }, 0);
+
+                $("#inventoryDashboardLocationTotal").text(formatNumber(total));
+                $("#inventoryDashboardLocationCaption").text(`${locations.length} location${locations.length === 1 ? "" : "s"}`);
+                $("#inventoryDashboardLocationDonut").css("background", locationGradient(locations, total));
+
+                const $legend = $("#inventoryDashboardLocationLegend").empty();
+                if (!locations.length) {
+                    $("<div></div>")
+                        .addClass("text-muted")
+                        .text("No location data for this period.")
+                        .appendTo($legend);
+                    return;
+                }
+
+                locations.forEach(function (location, index) {
+                    const badge = locationBadgeInfo(valueOf(location, "LocationCode", "N/A"), index);
+                    const code = badge.label;
+                    const count = asNumber(valueOf(location, "VehicleCount", 0));
+                    const color = badge.color;
+                    const $item = $("<div></div>").addClass("inventory-dashboard-legend-item");
+                    const $label = $("<span></span>").addClass("inventory-dashboard-location-label");
+
+                    $("<span></span>")
+                        .addClass("inventory-dashboard-swatch")
+                        .css("--dashboard-location-color", color)
+                        .appendTo($label);
+                    $("<span></span>")
+                        .addClass(`inventory-dashboard-location-code inventory-dashboard-gtx-code ${badge.toneClass}`)
+                        .text(code)
+                        .appendTo($label);
+
+                    $label.appendTo($item);
+                    $("<span></span>")
+                        .addClass("inventory-dashboard-location-count")
+                        .text(formatNumber(count))
+                        .appendTo($item);
+                    $item.appendTo($legend);
+                });
+            }
+
+            function renderDashboard(days) {
+                const data = dashboardFor(days);
+                const start = formatDate(valueOf(data, "PeriodStartUtc", ""));
+                const end = formatDate(valueOf(data, "PeriodEndUtc", ""));
+
+                $("#inventoryDashboardRange").text(start && end ? `${start} - ${end}` : "");
+                renderStatusBreakdown(data);
+                renderLocations(data);
+            }
+
+            function loadDashboard(days, forceRefresh) {
+                const selectedDays = (days || "7").toString();
+                if (!forceRefresh && dashboardFor(selectedDays)) {
+                    renderDashboard(selectedDays);
+                    return;
+                }
+
+                if (dashboardRequest) {
+                    dashboardRequest.abort();
+                }
+
+                setDashboardBusy(true);
+                dashboardRequest = $.get(`${dashboardRoot()}InventoryManagement/GetInventoryDashboard`, {
+                    days: selectedDays
+                })
+                    .done(function (payload) {
+                        if (!payload || payload.success === false) {
+                            renderDashboard(selectedDays);
+                            $("#inventoryDashboardRange").text("Unable to load this period.");
+                            return;
+                        }
+
+                        const dashboard = valueOf(payload, "dashboard", null);
+                        cacheDashboard(selectedDays, dashboard);
+                        renderDashboard(selectedDays);
+                    })
+                    .fail(function (xhr, statusText) {
+                        if (statusText === "abort") return;
+
+                        renderDashboard(selectedDays);
+                        $("#inventoryDashboardRange").text("Unable to refresh this period.");
+                    })
+                    .always(function () {
+                        dashboardRequest = null;
+                        setDashboardBusy(false);
+                    });
+            }
+
+            $(function () {
+                const $period = $("#inventoryDashboardPeriod");
+                $period.on("change", function () {
+                    loadDashboard(this.value, true);
+                });
+                loadDashboard($period.val() || "7", false);
+            });
+        })(jQuery);
+    </script>
+}
