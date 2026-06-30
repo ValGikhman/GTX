@@ -145,10 +145,16 @@
         };
     }
 
-    function deleteEmployee(id) {
+    async function deleteEmployee(id) {
         if (!id) return;
 
-        if (!confirm("Delete this employee? This cannot be undone.")) return;
+        const confirmed = await window.gtxConfirm({
+            title: "Delete employee",
+            message: "Delete this employee? This cannot be undone.",
+            confirmText: "Delete",
+            variant: "danger"
+        });
+        if (!confirmed) return;
 
         $.post(`${root}Employees/Delete`, { id: id })
             .done(function (res) {

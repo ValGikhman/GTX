@@ -179,6 +179,7 @@ function setMajordomeMenu(role) {
     switch (r) {
         case "tech":
             $("#menuInventory").show();
+            $("#menuInventoryDashboard").hide();
             $("#menuInventoryManagement").hide();
             $("#menuVinDecoder").show();
             $("#menuAnnouncements").hide();
@@ -190,6 +191,7 @@ function setMajordomeMenu(role) {
 
         case "owner":
             $("#menuInventory").show();
+            $("#menuInventoryDashboard").show();
             $("#menuInventoryManagement").show();
             $("#menuVinDecoder").show();
             $("#menuAnnouncements").show();
@@ -201,6 +203,7 @@ function setMajordomeMenu(role) {
 
         case "sales":
             $("#menuInventory").hide();
+            $("#menuInventoryDashboard").hide();
             $("#menuInventoryManagement").hide();
             $("#menuVinDecoder").hide();
             $("#menuAnnouncements").hide();
@@ -212,6 +215,7 @@ function setMajordomeMenu(role) {
 
         case "manager":
             $("#menuInventory").hide();
+            $("#menuInventoryDashboard").hide();
             $("#menuInventoryManagement").hide();
             $("#menuVinDecoder").show();
             $("#menuAnnouncements").show();
@@ -223,6 +227,7 @@ function setMajordomeMenu(role) {
 
         case "support":
             $("#menuInventory").hide();
+            $("#menuInventoryDashboard").hide();
             $("#menuInventoryManagement").hide();
             $("#menuVinDecoder").hide();
             $("#menuAnnouncements").hide();
@@ -232,7 +237,7 @@ function setMajordomeMenu(role) {
             $("#menuSitemap").show();
             break;
         default:
-            $("#menuVinDecoder, #menuInventory, #menuInventoryManagement, #menuAnnouncements, #menuBlogs, #menuEmployees, #menuHealth, #menuSitemap").hide();
+            $("#menuVinDecoder, #menuInventory, #menuInventoryDashboard, #menuInventoryManagement, #menuAnnouncements, #menuBlogs, #menuEmployees, #menuHealth, #menuSitemap").hide();
             break;
     }
     // text

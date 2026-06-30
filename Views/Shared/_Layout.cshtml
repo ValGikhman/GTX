@@ -299,6 +299,7 @@
                             <li id="menuInventory">@Html.ActionLink("Majordome", "Inventory", "Majordome")</li>
                             @if (isOwner)
                             {
+                                <li id="menuInventoryDashboard">@Html.ActionLink("Dashboard", "Dashboard", "InventoryManagement")</li>
                                 <li id="menuInventoryManagement">@Html.ActionLink("Management", "Index", "InventoryManagement")</li>
                             }
                             <li id="menuVinDecoder">@Html.ActionLink("Vindecoder", "Index", "Vindecoder")</li>
@@ -562,6 +563,201 @@
 
     @Scripts.Render("~/scripts/jquery")
     <script src="~/Scripts/jquery.gtx-range-filter.js"></script>
+    <script>
+        (function (window, document) {
+            var activeConfirmation = null;
+
+            function ensureConfirmationStyles() {
+                if (document.getElementById("gtxConfirmStyles")) return;
+
+                var style = document.createElement("style");
+                style.id = "gtxConfirmStyles";
+                style.textContent = [
+                    ".gtx-confirm-modal{--gtx-confirm-accent:#0d6efd;--gtx-confirm-soft:rgba(13,110,253,.12);z-index:1090;}",
+                    ".gtx-confirm-backdrop{z-index:1085;}",
+                    ".gtx-confirm-modal .modal-content{border:1px solid var(--bs-border-color-translucent,rgba(148,163,184,.2));border-radius:12px;background:var(--bs-modal-bg,var(--bs-body-bg,#fff));color:var(--bs-modal-color,var(--bs-body-color,#172033));box-shadow:0 1.25rem 3rem rgba(15,23,42,.22);overflow:hidden;}",
+                    ".gtx-confirm-modal .modal-header{min-height:0;align-items:center;gap:.7rem;padding:.7rem .85rem!important;border-bottom:1px solid var(--bs-border-color-translucent,rgba(148,163,184,.2));background:var(--gtx-grad,linear-gradient(180deg,var(--bs-tertiary-bg,#f8fafc) 0%,var(--bs-body-bg,#fff) 100%))!important;color:#fff;}",
+                    ".gtx-confirm-modal .gtx-confirm-icon{width:2.1rem;height:2.1rem;flex:0 0 2.1rem;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;background:var(--gtx-confirm-soft);color:currentColor;font-size:1rem;}",
+                    ".gtx-confirm-modal .modal-title{margin:0!important;color:inherit;font-size:1rem!important;font-weight:650!important;line-height:1.2!important;}",
+                    ".gtx-confirm-modal .btn-close{flex:0 0 auto;margin:0 0 0 .5rem!important;opacity:.9;filter:invert(1) grayscale(100%) brightness(200%);}",
+                    "html.theme-silver .gtx-confirm-modal .btn-close{filter:none;}",
+                    ".gtx-confirm-modal .modal-body{padding:1rem 1.25rem;color:var(--bs-modal-color,var(--bs-body-color,#172033));background:var(--bs-modal-bg,var(--bs-body-bg,#fff));}",
+                    ".gtx-confirm-modal .modal-footer{gap:.5rem;border-top:1px solid var(--bs-border-color-translucent,rgba(148,163,184,.2));background:var(--bs-modal-bg,var(--bs-body-bg,#fff));}",
+                    ".gtx-confirm-modal[data-gtx-confirm-variant='danger']{--gtx-confirm-accent:#dc3545;--gtx-confirm-soft:rgba(220,53,69,.12);}",
+                    ".gtx-confirm-modal[data-gtx-confirm-variant='warning']{--gtx-confirm-accent:#b7791f;--gtx-confirm-soft:rgba(255,193,7,.18);}",
+                    ".gtx-confirm-modal[data-gtx-confirm-variant='success']{--gtx-confirm-accent:#198754;--gtx-confirm-soft:rgba(25,135,84,.12);}"
+                ].join("");
+                document.head.appendChild(style);
+            }
+
+            function ensureConfirmationModal() {
+                ensureConfirmationStyles();
+
+                var modal = document.getElementById("gtxConfirmModal");
+                if (modal) return modal;
+
+                var wrapper = document.createElement("div");
+                wrapper.innerHTML =
+                    '<div class="modal fade gtx-confirm-modal" id="gtxConfirmModal" tabindex="-1" aria-labelledby="gtxConfirmModalTitle" aria-hidden="true">' +
+                    '  <div class="modal-dialog modal-dialog-centered">' +
+                    '    <div class="modal-content">' +
+                    '      <div class="modal-header">' +
+                    '        <span class="gtx-confirm-icon" aria-hidden="true"><i id="gtxConfirmIcon" class="bi bi-question-circle"></i></span>' +
+                    '        <div class="min-w-0 flex-grow-1">' +
+                    '          <div class="modal-title mb-0" id="gtxConfirmModalTitle">Confirm action</div>' +
+                    '        </div>' +
+                    '        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
+                    '      </div>' +
+                    '      <div class="modal-body">' +
+                    '        <p class="mb-0" id="gtxConfirmMessage"></p>' +
+                    '      </div>' +
+                    '      <div class="modal-footer">' +
+                    '        <button type="button" class="btn btn-outline-secondary" id="gtxConfirmCancel" data-bs-dismiss="modal">Cancel</button>' +
+                    '        <button type="button" class="btn btn-primary" id="gtxConfirmOk">Confirm</button>' +
+                    '      </div>' +
+                    '    </div>' +
+                    '  </div>' +
+                    '</div>';
+
+                document.body.appendChild(wrapper.firstElementChild);
+                return document.getElementById("gtxConfirmModal");
+            }
+
+            function normalizeOptions(messageOrOptions, options) {
+                var result = {};
+                var source = {};
+
+                if (typeof messageOrOptions === "string") {
+                    source = options || {};
+                    result.message = messageOrOptions;
+                } else {
+                    source = messageOrOptions || {};
+                    result.message = source.message;
+                }
+
+                result.title = source.title || "Confirm action";
+                result.message = result.message || "Are you sure you want to continue?";
+                result.confirmText = source.confirmText || "Confirm";
+                result.cancelText = source.cancelText || "Cancel";
+                result.variant = source.variant || "primary";
+                result.iconClass = source.iconClass || "";
+
+                if (!result.iconClass) {
+                    if (result.variant === "danger") {
+                        result.iconClass = "bi bi-exclamation-triangle";
+                    } else if (result.variant === "warning") {
+                        result.iconClass = "bi bi-exclamation-circle";
+                    } else if (result.variant === "success") {
+                        result.iconClass = "bi bi-check2-circle";
+                    } else {
+                        result.iconClass = "bi bi-question-circle";
+                    }
+                }
+
+                return result;
+            }
+
+            function setButtonVariant(button, variant) {
+                var classes = ["btn-primary", "btn-danger", "btn-warning", "btn-success", "btn-dark"];
+                classes.forEach(function (className) {
+                    button.classList.remove(className);
+                });
+
+                if (variant === "danger") {
+                    button.classList.add("btn-danger");
+                } else if (variant === "warning") {
+                    button.classList.add("btn-warning");
+                } else if (variant === "success") {
+                    button.classList.add("btn-success");
+                } else if (variant === "dark") {
+                    button.classList.add("btn-dark");
+                } else {
+                    button.classList.add("btn-primary");
+                }
+            }
+
+            window.gtxConfirm = function (messageOrOptions, options) {
+                var settings = normalizeOptions(messageOrOptions, options);
+
+                return new Promise(function (resolve) {
+                    var modal = ensureConfirmationModal();
+                    if (!window.bootstrap || !window.bootstrap.Modal) {
+                        resolve(false);
+                        return;
+                    }
+
+                    if (activeConfirmation && typeof activeConfirmation.cancel === "function") {
+                        activeConfirmation.cancel();
+                    }
+
+                    var instance = window.bootstrap.Modal.getOrCreateInstance(modal, {
+                        backdrop: "static",
+                        keyboard: true
+                    });
+                    var confirmButton = document.getElementById("gtxConfirmOk");
+                    var cancelButton = document.getElementById("gtxConfirmCancel");
+                    var title = document.getElementById("gtxConfirmModalTitle");
+                    var message = document.getElementById("gtxConfirmMessage");
+                    var icon = document.getElementById("gtxConfirmIcon");
+                    var settled = false;
+
+                    modal.setAttribute("data-gtx-confirm-variant", settings.variant);
+                    title.textContent = settings.title;
+                    message.textContent = settings.message;
+                    confirmButton.textContent = settings.confirmText;
+                    cancelButton.textContent = settings.cancelText;
+                    icon.className = settings.iconClass;
+                    setButtonVariant(confirmButton, settings.variant);
+
+                    function cleanup() {
+                        confirmButton.removeEventListener("click", onConfirm);
+                        modal.removeEventListener("hidden.bs.modal", onHidden);
+                        if (activeConfirmation && activeConfirmation.cleanup === cleanup) {
+                            activeConfirmation = null;
+                        }
+                    }
+
+                    function settle(value) {
+                        if (settled) return;
+                        settled = true;
+                        cleanup();
+                        resolve(value);
+                    }
+
+                    function onConfirm() {
+                        settle(true);
+                        instance.hide();
+                    }
+
+                    function onHidden() {
+                        settle(false);
+                    }
+
+                    function onShown() {
+                        var backdrops = document.querySelectorAll(".modal-backdrop");
+                        var backdrop = backdrops.length ? backdrops[backdrops.length - 1] : null;
+                        if (backdrop) {
+                            backdrop.classList.add("gtx-confirm-backdrop");
+                        }
+                        confirmButton.focus();
+                    }
+
+                    activeConfirmation = {
+                        cleanup: cleanup,
+                        cancel: function () {
+                            settle(false);
+                            instance.hide();
+                        }
+                    };
+
+                    confirmButton.addEventListener("click", onConfirm);
+                    modal.addEventListener("hidden.bs.modal", onHidden);
+                    modal.addEventListener("shown.bs.modal", onShown, { once: true });
+                    instance.show();
+                });
+            };
+        })(window, document);
+    </script>
     @RenderSection("scripts", required: false)
 
     <div class="offcanvas offcanvas-bottom small-offcanvas centered rounded-5 text-white" tabindex="-1" id="gtxDevelopment" aria-labelledby="offcanvasBottomLabel" style="background: aliceblue !important;">

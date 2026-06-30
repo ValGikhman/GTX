@@ -2,6 +2,7 @@ using GTX.Common;
 using GTX.Models;
 using Services;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -17,6 +18,7 @@ namespace GTX.Controllers
     public class InventoryManagementController : BaseController
     {
         private const string HeaderFileVirtualPath = "~/App_Data/Inventory/header.csv";
+        private static readonly int[] DashboardPeriods = { 7, 30, 60 };
 
         private static byte[] _cachedHeaderBytes;
         private static readonly object _headerLock = new object();
@@ -82,6 +84,36 @@ namespace GTX.Controllers
             }
         }
 
+        [HttpGet]
+        public ActionResult Dashboard()
+        {
+            ViewBag.Message = "Inventory dashboard";
+            ViewBag.Title = "Inventory dashboard";
+
+            var dashboards = new Dictionary<int, InventoryDashboardSummary>();
+            foreach (var days in DashboardPeriods)
+            {
+                dashboards[days] = LoadInventoryDashboard(days);
+            }
+
+            return View(dashboards);
+        }
+
+        [HttpGet]
+        public JsonResult GetInventoryDashboard(int days = 7)
+        {
+            return new JsonResult
+            {
+                Data = new
+                {
+                    success = true,
+                    dashboard = LoadInventoryDashboard(days)
+                },
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                MaxJsonLength = int.MaxValue
+            };
+        }
+
         [HttpPost]
         public ActionResult PreviewInventoryUpload(HttpPostedFileBase dataCsv)
         {
@@ -142,6 +174,31 @@ namespace GTX.Controllers
                 Log(ex);
                 return Array.Empty<InventoryManagementLog>();
             }
+        }
+
+        private InventoryDashboardSummary LoadInventoryDashboard(int days)
+        {
+            try
+            {
+                return InventoryService.GetInventoryDashboard(days) ?? CreateEmptyInventoryDashboard(days);
+            }
+            catch (Exception ex)
+            {
+                Log(ex);
+                return CreateEmptyInventoryDashboard(days);
+            }
+        }
+
+        private static InventoryDashboardSummary CreateEmptyInventoryDashboard(int days)
+        {
+            var now = DateTime.UtcNow;
+            return new InventoryDashboardSummary
+            {
+                Days = days,
+                PeriodStartUtc = now.AddDays(-days),
+                PeriodEndUtc = now,
+                LocationCounts = Array.Empty<InventoryDashboardLocationCount>()
+            };
         }
 
         private GTX.Models.GTX[] ParseUploadedInventoryVehicles(HttpPostedFileBase dataCsv)

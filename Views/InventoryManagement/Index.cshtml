@@ -53,7 +53,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="inventoryManagementUploadTitle">Upload inventory</h5>
+                <div class="modal-title" id="inventoryManagementUploadTitle">Upload inventory</div>
             </div>
             <div class="modal-body">
                 <p id="inventoryManagementUploadIntro" class="mb-2"></p>
@@ -124,6 +124,7 @@
             if (normalized.indexOf("add") >= 0) return "bg-success p-2";
             if (normalized.indexOf("remove") >= 0) return "bg-danger p-2";
             if (normalized.indexOf("skip") >= 0) return "bg-secondary p-2";
+            if (normalized.indexOf("stall") >= 0) return "bg-secondary p-2";
             if (normalized.indexOf("update") >= 0) return "bg-primary p-2";
             return "bg-success p-2";
         }
@@ -235,12 +236,12 @@
                 { label: isPreview ? "to update" : "updated", count: updated.length },
                 { label: isPreview ? "to add" : "added", count: inserted.length },
                 { label: isPreview ? "to remove" : "removed", count: removed.length },
-                { label: isPreview ? "to skip" : "skipped", count: skipped.length }
+                { label: isPreview ? "to stall" : "stalled", count: skipped.length }
             ]);
             uploadRenderStatusLines(isPreview ? "to be updated" : "updated", updated);
             uploadRenderStatusLines(isPreview ? "to be added" : "added", inserted);
             uploadRenderStatusLines(isPreview ? "to be removed" : "removed", removed);
-            uploadRenderStatusLines(isPreview ? "to be skipped" : "skipped", skipped);
+            uploadRenderStatusLines(isPreview ? "to be stalled" : "stalled", skipped);
         }
 
         function uploadFormData(file) {
