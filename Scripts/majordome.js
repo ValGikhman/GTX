@@ -1250,6 +1250,11 @@ async function deleteOverlayData() {
             throw new Error((response && response.message) || "Failed to delete overlay.");
         }
 
+        if (Array.isArray(response.images) && applyUploadedImagesToMajordomeState(response.stock || stock, response.images, { image: response.image })) {
+            $("#close").click();
+            return;
+        }
+
         await refreshMajordomeAfterImageMutation(stock, { keepGalleryTab: true });
         $("#close").click();
     } catch (err) {
@@ -1321,6 +1326,11 @@ async function saveOverlayData() {
 
         if (!response || !response.success) {
             throw new Error((response && response.message) || "Failed to save overlay.");
+        }
+
+        if (Array.isArray(response.images) && applyUploadedImagesToMajordomeState(response.stock || stock, response.images, { image: response.image })) {
+            $("#close").click();
+            return;
         }
 
         await refreshMajordomeAfterImageMutation(stock, { keepGalleryTab: true });

@@ -1019,13 +1019,23 @@ namespace GTX.Controllers
                     return Json(new { success = false, message = "Invalid image id." });
                 }
 
-                if (string.IsNullOrWhiteSpace(stock) || string.IsNullOrWhiteSpace(overlay) || string.IsNullOrWhiteSpace(imagePath)) {
+                var normalizedStock = (stock ?? string.Empty).Trim();
+                if (string.IsNullOrWhiteSpace(normalizedStock) || string.IsNullOrWhiteSpace(overlay) || string.IsNullOrWhiteSpace(imagePath)) {
                     return Json(new { success = false, message = "Missing required overlay parameters." });
                 }
 
                 InventoryService.SaveOverlay(id, overlay);
-                CreateImageWithOverlay(stock, imagePath, overlay);
-                return Json(new { success = true });
+                CreateImageWithOverlay(normalizedStock, imagePath, overlay);
+
+                var images = InventoryService.GetImages(normalizedStock) ?? Array.Empty<Services.Image>();
+                SyncCachedImagesForStock(normalizedStock, images);
+
+                return Json(new {
+                    success = true,
+                    stock = normalizedStock,
+                    images = ToUploadImageResponseDtos(images),
+                    image = GetCachedLeadImageForStock(normalizedStock)
+                });
             }
             catch (Exception ex) {
                 return Json(new { success = false, message = $"Error saving overlay: {ex.Message}" });
@@ -1040,10 +1050,24 @@ namespace GTX.Controllers
                 }
 
                 var image = InventoryService.GetImage(id);
+                var normalizedStock = (stock ?? image?.Stock ?? string.Empty).Trim();
                 InventoryService.DeleteOverlay(id);
-                DeleteOverlayRenderedImageFile(image, stock);
+                DeleteOverlayRenderedImageFile(image, normalizedStock);
 
-                return Json(new { success = true });
+                var images = string.IsNullOrWhiteSpace(normalizedStock)
+                    ? Array.Empty<Services.Image>()
+                    : InventoryService.GetImages(normalizedStock) ?? Array.Empty<Services.Image>();
+
+                if (!string.IsNullOrWhiteSpace(normalizedStock)) {
+                    SyncCachedImagesForStock(normalizedStock, images);
+                }
+
+                return Json(new {
+                    success = true,
+                    stock = normalizedStock,
+                    images = ToUploadImageResponseDtos(images),
+                    image = GetCachedLeadImageForStock(normalizedStock)
+                });
             }
             catch (Exception ex) {
                 return Json(new { success = false, message = $"Error deleting overlay: {ex.Message}" });
