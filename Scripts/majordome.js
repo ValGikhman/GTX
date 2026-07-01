@@ -391,7 +391,7 @@ class StyleParser {
     }
 }
 
-const MAJORDOME_OVERLAY_DEFAULT_OPACITY = "0.75";
+const MAJORDOME_OVERLAY_DEFAULT_OPACITY = "1";
 
 function normalizeMajordomeOverlayOpacity(value) {
     var raw = (value == null ? "" : value).toString().trim();

@@ -115,13 +115,13 @@
         $("#fontType").val("normal").trigger("change");
         $("#textColor").val("white").trigger("change");
         $("#backgroundColor").val("black").trigger("change");
-        $("#backgroundOpacity").val("0.75").trigger("change");
+        $("#backgroundOpacity").val("1").trigger("change");
 
         $(".overlay-text").css("color", "white");
         if (typeof applyOverlayBackground === "function") {
             applyOverlayBackground();
         } else {
-            $(".overlay-image-overlay").css("background-color", "rgba(0, 0, 0, 0.75)");
+            $(".overlay-image-overlay").css("background-color", "black");
         }
         $(".overlay-text").css("font-size", "3vw");
         $(".overlay-text").css({

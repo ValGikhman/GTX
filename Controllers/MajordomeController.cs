@@ -1436,7 +1436,7 @@ namespace GTX.Controllers
             }
 
             if (string.IsNullOrWhiteSpace(opacity)) {
-                return 0.75d;
+                return 1d;
             }
 
             opacity = opacity.Trim();
@@ -1449,7 +1449,7 @@ namespace GTX.Controllers
 
             return double.TryParse(opacity, NumberStyles.Float, CultureInfo.InvariantCulture, out var value)
                 ? Math.Max(0d, Math.Min(1d, value))
-                : 0.75d;
+                : 1d;
         }
 
         private (Font font, Color color) GetFontAndColorFromStyle(int width, int overlayHeight, string style) {
