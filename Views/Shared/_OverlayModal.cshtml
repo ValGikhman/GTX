@@ -63,6 +63,14 @@
             }
         </select>
 
+        @Html.Label("Background opacity", new { @class = "text-shadow mt-3" })
+        <select id="backgroundOpacity" class="form-select shadow">
+            <option value="1">Solid</option>
+            <option value="0.75">75%</option>
+            <option value="0.5">50%</option>
+            <option value="0.25">25%</option>
+        </select>
+
         @Html.Label("Font type", new { @class = "text-shadow mt-3" })
         <select id="fontType" class="form-select shadow">
             <option value="normal">Normal</option>
@@ -106,10 +114,15 @@
         $("#fontSize").val("3vw").trigger("change");
         $("#fontType").val("normal").trigger("change");
         $("#textColor").val("white").trigger("change");
-        $("#backgroundColor").val("black").trigger("change")
+        $("#backgroundColor").val("black").trigger("change");
+        $("#backgroundOpacity").val("0.75").trigger("change");
 
         $(".overlay-text").css("color", "white");
-        $(".overlay-image-overlay").css("background-color", "black");
+        if (typeof applyOverlayBackground === "function") {
+            applyOverlayBackground();
+        } else {
+            $(".overlay-image-overlay").css("background-color", "rgba(0, 0, 0, 0.75)");
+        }
         $(".overlay-text").css("font-size", "3vw");
         $(".overlay-text").css({
             "font-weight": "bold",
@@ -138,7 +151,7 @@
                     $(this).replaceWith($p);
                     $p.css("font-size", $("#fontSize").val());
                     $p.css("color", $("#textColor").val());
-                    $(".overlay-image-overlay").css("background-color", $("#backgroundColor").val());
+                    applyOverlayBackground();
                 }
             });
         });
@@ -173,8 +186,11 @@
         })
 
         $("#backgroundColor").on("change", function () {
-            const color = $(this).val();
-            $(".overlay-image-overlay").css("background-color", color);
+            applyOverlayBackground();
+        })
+
+        $("#backgroundOpacity").on("change", function () {
+            applyOverlayBackground();
         })
 
         $("#fontSize").on("change", function () {

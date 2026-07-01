@@ -1256,12 +1256,12 @@ namespace GTX.Controllers
                 // Parse JSON
                 JObject overlayObj = JObject.Parse(overlayJson);
                 var overlay = overlayObj["overlay"];
-                var bgColor = GetColorFromStyle((string)overlay["style"]);
+                var bgColor = GetOverlayBackgroundColor(overlay);
+                var overlayOpacity = GetOverlayBackgroundOpacity(overlay);
 
-                // Semi-transparent overlay (opacity 0.6)
                 int overlayHeight = image.Height / 8;
                 var overlayRect = new Rectangle(0, image.Height - overlayHeight, image.Width, overlayHeight);
-                int alpha = (int)(0.6f * 255);
+                int alpha = (int)Math.Round(overlayOpacity * 255);
                 var bgColorWithAlpha = Color.FromArgb(alpha, bgColor.R, bgColor.G, bgColor.B);
 
                 using (var rectBrush = new SolidBrush(bgColorWithAlpha))
@@ -1390,6 +1390,42 @@ namespace GTX.Controllers
             return styles.TryGetValue("background-color", out var color)
                 ? ParseCssColor(color, Color.Transparent)
                 : Color.Transparent;
+        }
+
+        private Color GetOverlayBackgroundColor(JToken overlay) {
+            var color = (string)overlay?["backgroundColor"];
+            if (!string.IsNullOrWhiteSpace(color)) {
+                return ParseCssColor(color, Color.Transparent);
+            }
+
+            return GetColorFromStyle((string)overlay?["style"]);
+        }
+
+        private double GetOverlayBackgroundOpacity(JToken overlay) {
+            var opacity = (string)overlay?["backgroundOpacity"];
+            if (string.IsNullOrWhiteSpace(opacity)) {
+                var styles = ParseCssStyle((string)overlay?["style"]);
+                styles.TryGetValue("background-opacity", out opacity);
+                if (string.IsNullOrWhiteSpace(opacity)) {
+                    styles.TryGetValue("opacity", out opacity);
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(opacity)) {
+                return 0.75d;
+            }
+
+            opacity = opacity.Trim();
+            if (opacity.EndsWith("%", StringComparison.Ordinal)) {
+                var percentValue = opacity.Substring(0, opacity.Length - 1);
+                if (double.TryParse(percentValue, NumberStyles.Float, CultureInfo.InvariantCulture, out var percent)) {
+                    return Math.Max(0d, Math.Min(1d, percent / 100d));
+                }
+            }
+
+            return double.TryParse(opacity, NumberStyles.Float, CultureInfo.InvariantCulture, out var value)
+                ? Math.Max(0d, Math.Min(1d, value))
+                : 0.75d;
         }
 
         private (Font font, Color color) GetFontAndColorFromStyle(int width, int overlayHeight, string style) {
