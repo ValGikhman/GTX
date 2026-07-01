@@ -151,7 +151,7 @@ function findMajordomeVehicleByStock(data, stock) {
 function setMajordomeImageActionsBusy(isBusy) {
     var busy = !!isBusy;
 
-    $("#sortable-gallery .majordome-photo-actions .btn, #upload, #deleteAll, #saveOverlay, #deleteOverlay")
+    $("#sortable-gallery .majordome-photo-actions .btn, #upload, #deleteAll, #saveOverlayFile")
         .prop("disabled", busy)
         .toggleClass("disabled", busy);
 
@@ -391,6 +391,103 @@ class StyleParser {
     }
 }
 
+const MAJORDOME_OVERLAY_DEFAULT_OPACITY = "1";
+
+function normalizeMajordomeOverlayOpacity(value) {
+    var raw = (value == null ? "" : value).toString().trim();
+    if (!raw) {
+        return MAJORDOME_OVERLAY_DEFAULT_OPACITY;
+    }
+
+    if (raw.endsWith("%")) {
+        var percent = parseFloat(raw.slice(0, -1));
+        if (!isNaN(percent)) {
+            raw = (percent / 100).toString();
+        }
+    }
+
+    var opacity = parseFloat(raw);
+    if (isNaN(opacity)) {
+        return MAJORDOME_OVERLAY_DEFAULT_OPACITY;
+    }
+
+    opacity = Math.max(0, Math.min(1, opacity));
+    if (opacity === 1) return "1";
+    if (opacity === 0.75) return "0.75";
+    if (opacity === 0.5) return "0.5";
+    if (opacity === 0.25) return "0.25";
+
+    return opacity.toString();
+}
+
+function resolveMajordomeCssRgb(color) {
+    var raw = (color || "black").toString().trim();
+    var match = raw.match(/^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})/i);
+    if (match) {
+        return {
+            r: Math.max(0, Math.min(255, parseInt(match[1], 10))),
+            g: Math.max(0, Math.min(255, parseInt(match[2], 10))),
+            b: Math.max(0, Math.min(255, parseInt(match[3], 10)))
+        };
+    }
+
+    var probe = document.createElement("span");
+    probe.style.color = raw;
+    probe.style.display = "none";
+    document.body.appendChild(probe);
+    var computed = window.getComputedStyle(probe).color;
+    document.body.removeChild(probe);
+
+    match = computed.match(/^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})/i);
+    if (!match) {
+        return null;
+    }
+
+    return {
+        r: Math.max(0, Math.min(255, parseInt(match[1], 10))),
+        g: Math.max(0, Math.min(255, parseInt(match[2], 10))),
+        b: Math.max(0, Math.min(255, parseInt(match[3], 10)))
+    };
+}
+
+function buildMajordomeOverlayBackground(color, opacity) {
+    var normalizedOpacity = normalizeMajordomeOverlayOpacity(opacity);
+    var alpha = parseFloat(normalizedOpacity);
+
+    if (alpha >= 1) {
+        return color || "black";
+    }
+
+    var rgb = resolveMajordomeCssRgb(color);
+    if (!rgb) {
+        return color || "black";
+    }
+
+    return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${normalizedOpacity})`;
+}
+
+function applyOverlayBackground() {
+    var color = ($("#backgroundColor").val() || "black").toString();
+    var opacity = normalizeMajordomeOverlayOpacity($("#backgroundOpacity").val());
+
+    $(".overlay-image-overlay")
+        .css("background-color", buildMajordomeOverlayBackground(color, opacity))
+        .attr("data-background-color", color)
+        .attr("data-background-opacity", opacity);
+}
+
+function getOverlayBackgroundSettings(data) {
+    var overlay = (data && data.overlay) || {};
+    var parser = new StyleParser(overlay.style || "");
+    var color = overlay.backgroundColor || parser.get("backgroundColor") || "black";
+    var opacity = overlay.backgroundOpacity || parser.get("backgroundOpacity") || parser.get("opacity") || MAJORDOME_OVERLAY_DEFAULT_OPACITY;
+
+    return {
+        color: color,
+        opacity: normalizeMajordomeOverlayOpacity(opacity)
+    };
+}
+
 function applyFilterTerm(term) {
     if (typeof window.applyMajordomeInventoryFilter === "function") {
         window.applyMajordomeInventoryFilter(term);
@@ -432,10 +529,6 @@ function loadGallery(vehicle) {
             showImageEdit = "visually-hidden";
         }
 
-        if (img.Overlay !== null) {
-            imageIcon = "bi bi-image-fill";
-        }
-
         var baseImagePath = toInventoryImageUrl(source);
         var imageHref = appendImageWidth(baseImagePath, 1600);
         var imageThumb = appendImageWidth(baseImagePath, 640);
@@ -459,7 +552,7 @@ function loadGallery(vehicle) {
                 <div class="majordome-photo-title" title="${safeFileNameOnly}">${safeFileNameOnly}</div>
                 <div class="majordome-photo-actions">
                     <button type="button" id="${safeId}" class="delete-image bi bi-trash btn btn-light shadow-sm" data-filename="${safeSource}" title="Delete image"></button>
-                    <button type="button" id="${safeId}" class="overlay-image ${imageIcon} btn btn-light shadow-sm ${showImageEdit}" data-filename="${safeSource}" title="Add overlay"></button>
+                    <button type="button" id="${safeId}" class="overlay-image ${imageIcon} btn btn-light shadow-sm ${showImageEdit}" data-filename="${safeSource}" title="Create overlay file"></button>
                     <button type="button" id="${safeId}" class="rotate-image-ccw bi bi-arrow-counterclockwise btn btn-light shadow-sm ${showImageEdit}" data-filename="${safeSource}" data-degrees="-90" title="Rotate image left"></button>
                     <button type="button" id="${safeId}" class="rotate-image bi bi-arrow-clockwise btn btn-light shadow-sm ${showImageEdit}" data-filename="${safeSource}" data-degrees="90" title="Rotate image right"></button>
                     <button type="button" class="move-to-top bi bi-front btn btn-light shadow-sm" title="Make it default image"></button>
@@ -1073,9 +1166,13 @@ function wearOverlay(json) {
     try {
         const data = JSON.parse(json);
         const overlay = $("#overlay");
+        const background = getOverlayBackgroundSettings(data);
 
         overlay.empty(); // Clear previous content
-        overlay.attr("style", data.overlay.style); // Apply overlay style
+        overlay.attr("style", data.overlay.style || "");
+        overlay.css("background-color", buildMajordomeOverlayBackground(background.color, background.opacity));
+        overlay.attr("data-background-color", background.color);
+        overlay.attr("data-background-opacity", background.opacity);
 
         data.overlay.children.forEach(function (child) {
             const element = $(`<${child.tag}/>`, {
@@ -1093,12 +1190,13 @@ function wearOverlay(json) {
 
 function setControls(json) {
     const data = JSON.parse(json);
+    const background = getOverlayBackgroundSettings(data);
 
     let styleString = data.overlay.style;
     let parser = new StyleParser(styleString);
 
-    const $backgroundColor = parser.get("backgroundColor");
-    $("#backgroundColor").val($backgroundColor).trigger("change");
+    $("#backgroundColor").val(background.color).trigger("change");
+    $("#backgroundOpacity").val(background.opacity).trigger("change");
 
     styleString = data.overlay.children[0].style;
     parser = new StyleParser(styleString);
@@ -1127,45 +1225,13 @@ function setControls(json) {
     }
 }
 
-async function deleteOverlayData() {
+async function saveOverlayFile() {
     const context = getMajordomeOverlayContext();
-    const overlayId = context && context.id ? context.id : "";
-    const stock = context && context.stock ? context.stock : getActiveMajordomeStock();
-
-    if (!overlayId) {
-        alert("Overlay context is missing.");
-        return;
-    }
-
-    const $overlay = $("#inventoryOverlay");
-    if (!beginMajordomeImageAction($overlay)) {
-        return;
-    }
-
-    try {
-        const response = await postMajordome(`${root}Majordome/DeleteOverlay`, { id: overlayId, stock: stock });
-        if (!response || !response.success) {
-            throw new Error((response && response.message) || "Failed to delete overlay.");
-        }
-
-        await refreshMajordomeAfterImageMutation(stock, { keepGalleryTab: true });
-        $("#close").click();
-    } catch (err) {
-        console.error("DeleteOverlay failed:", err);
-        alert(err.message || "Failed to delete overlay.");
-    } finally {
-        endMajordomeImageAction($overlay);
-    }
-}
-
-async function saveOverlayData() {
-    const context = getMajordomeOverlayContext();
-    const overlayId = context && context.id ? context.id : "";
     const stock = context && context.stock ? context.stock : getActiveMajordomeStock();
     const imagePath = context && context.imagePath ? context.imagePath : "";
 
-    if (!overlayId || !stock || !imagePath) {
-        alert("Overlay context is missing.");
+    if (!stock || !imagePath) {
+        alert("Overlay file context is missing.");
         return;
     }
 
@@ -1175,7 +1241,9 @@ async function saveOverlayData() {
     }
 
     const overlay = $("#overlay");
-    const overlayStyle = `background-color: ${$("#backgroundColor").val()}`;
+    const backgroundColor = ($("#backgroundColor").val() || "black").toString();
+    const backgroundOpacity = normalizeMajordomeOverlayOpacity($("#backgroundOpacity").val());
+    const overlayStyle = `background-color:${backgroundColor};background-opacity:${backgroundOpacity};`;
 
     const children = [];
 
@@ -1201,27 +1269,33 @@ async function saveOverlayData() {
     const json = {
         overlay: {
             style: overlayStyle,
+            backgroundColor: backgroundColor,
+            backgroundOpacity: backgroundOpacity,
             children: children
         }
     };
 
     try {
-        const response = await postMajordome(`${root}Majordome/SaveOverlay`, {
-            id: overlayId,
+        const response = await postMajordome(`${root}Majordome/SaveOverlayFile`, {
             overlay: JSON.stringify(json),
             stock: stock,
             imagePath: imagePath
         });
 
         if (!response || !response.success) {
-            throw new Error((response && response.message) || "Failed to save overlay.");
+            throw new Error((response && response.message) || "Failed to save overlay file.");
+        }
+
+        if (Array.isArray(response.images) && applyUploadedImagesToMajordomeState(response.stock || stock, response.images, { image: response.image })) {
+            $("#close").click();
+            return;
         }
 
         await refreshMajordomeAfterImageMutation(stock, { keepGalleryTab: true });
         $("#close").click();
     } catch (err) {
-        console.error("SaveOverlay failed:", err);
-        alert(err.message || "Failed to save overlay.");
+        console.error("SaveOverlayFile failed:", err);
+        alert(err.message || "Failed to save overlay file.");
     } finally {
         endMajordomeImageAction($overlaySpinner);
     }

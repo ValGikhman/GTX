@@ -18,6 +18,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.Hosting;
 using System.Web.Mvc;
 
 namespace GTX.Controllers
@@ -50,7 +51,6 @@ namespace GTX.Controllers
             public Guid Id { get; set; }
             public string Stock { get; set; }
             public string Source { get; set; }
-            public string Overlay { get; set; }
             public int? Order { get; set; }
         }
 
@@ -991,7 +991,6 @@ namespace GTX.Controllers
                     Id = m.Id,
                     Stock = m.Stock,
                     Source = m.Source,
-                    Overlay = m.Overlay,
                     Order = m.Order
                 })
                 .ToArray();
@@ -1013,75 +1012,35 @@ namespace GTX.Controllers
         }
 
         [HttpPost]
-        public JsonResult SaveOverlay(Guid id, string stock, string overlay, string imagePath) {
+        public JsonResult SaveOverlayFile(string stock, string overlay, string imagePath) {
             try {
-                if (id == Guid.Empty) {
-                    return Json(new { success = false, message = "Invalid image id." });
+                var normalizedStock = (stock ?? string.Empty).Trim();
+                if (string.IsNullOrWhiteSpace(normalizedStock) || string.IsNullOrWhiteSpace(overlay) || string.IsNullOrWhiteSpace(imagePath)) {
+                    return Json(new { success = false, message = "Missing required file parameters." });
                 }
 
-                if (string.IsNullOrWhiteSpace(stock) || string.IsNullOrWhiteSpace(overlay) || string.IsNullOrWhiteSpace(imagePath)) {
-                    return Json(new { success = false, message = "Missing required overlay parameters." });
+                var savedPath = CreateImageWithOverlay(imagePath, overlay);
+                if (string.IsNullOrWhiteSpace(savedPath)) {
+                    return Json(new { success = false, message = "Image file not found." });
                 }
 
-                InventoryService.SaveOverlay(id, overlay);
-                CreateImageWithOverlay(stock, imagePath, overlay);
-                return Json(new { success = true });
+                var savedFileName = Path.GetFileName(savedPath);
+                InventoryService.SaveImage(normalizedStock, savedFileName);
+
+                var images = InventoryService.GetImages(normalizedStock) ?? Array.Empty<Services.Image>();
+                SyncCachedImagesForStock(normalizedStock, images);
+
+                return Json(new {
+                    success = true,
+                    stock = normalizedStock,
+                    file = savedFileName,
+                    images = ToUploadImageResponseDtos(images),
+                    image = GetCachedLeadImageForStock(normalizedStock),
+                    message = "Overlay file saved."
+                });
             }
             catch (Exception ex) {
-                return Json(new { success = false, message = $"Error saving overlay: {ex.Message}" });
-            }
-        }
-
-        [HttpPost]
-        public JsonResult DeleteOverlay(Guid id, string stock) {
-            try {
-                if (id == Guid.Empty) {
-                    return Json(new { success = false, message = "Invalid image id." });
-                }
-
-                var image = InventoryService.GetImage(id);
-                InventoryService.DeleteOverlay(id);
-                DeleteOverlayRenderedImageFile(image, stock);
-
-                return Json(new { success = true });
-            }
-            catch (Exception ex) {
-                return Json(new { success = false, message = $"Error deleting overlay: {ex.Message}" });
-            }
-        }
-
-        private void DeleteOverlayRenderedImageFile(Services.Image image, string stock) {
-            if (image == null) {
-                return;
-            }
-
-            var source = image.Source ?? string.Empty;
-            var resolvedStock = !string.IsNullOrWhiteSpace(stock) ? stock : image.Stock;
-            var basePath = ResolveInventoryImagePhysicalPath(source);
-
-            if ((string.IsNullOrWhiteSpace(basePath) || !System.IO.File.Exists(basePath)) &&
-                !string.IsNullOrWhiteSpace(resolvedStock) &&
-                !string.IsNullOrWhiteSpace(source)) {
-                basePath = CombineUnderInventoryImagesRoot(resolvedStock, Path.GetFileName(source));
-            }
-
-            if (string.IsNullOrWhiteSpace(basePath)) {
-                return;
-            }
-
-            var directory = Path.GetDirectoryName(basePath);
-            if (string.IsNullOrWhiteSpace(directory)) {
-                return;
-            }
-
-            var baseName = Path.GetFileNameWithoutExtension(basePath);
-            if (baseName.EndsWith("-O", StringComparison.OrdinalIgnoreCase)) {
-                baseName = baseName.Substring(0, baseName.Length - 2);
-            }
-
-            var overlayPath = Path.Combine(directory, baseName + "-O.png");
-            if (System.IO.File.Exists(overlayPath)) {
-                System.IO.File.Delete(overlayPath);
+                return Json(new { success = false, message = $"Error saving overlay file: {ex.Message}" });
             }
         }
 
@@ -1236,15 +1195,16 @@ namespace GTX.Controllers
             return bmp;
         }
 
-        private void CreateImageWithOverlay(string stock, string baseImagePath, string overlayJson) {
-            string baseImage = ResolveInventoryImagePhysicalPath(baseImagePath);
+        private string CreateImageWithOverlay(string baseImagePath, string overlayJson) {
+            string baseImage = ResolveExistingInventoryImagePhysicalPath(baseImagePath);
             if (string.IsNullOrWhiteSpace(baseImage) || !System.IO.File.Exists(baseImage))
             {
-                return;
+                return null;
             }
 
             string dir = Path.GetDirectoryName(baseImage);
-            string filename = Path.Combine(dir, Path.GetFileNameWithoutExtension(baseImage) + "-O.png");
+            string suffix = Guid.NewGuid().ToString("N").Substring(0, 5);
+            string filename = Path.Combine(dir, $"{Path.GetFileNameWithoutExtension(baseImage)}-O-{suffix}.png");
 
             using (var src = System.Drawing.Image.FromFile(baseImage))
             using (var image = ToNonIndexedBitmap(src)) // <-- guarantees 32bpp
@@ -1256,12 +1216,12 @@ namespace GTX.Controllers
                 // Parse JSON
                 JObject overlayObj = JObject.Parse(overlayJson);
                 var overlay = overlayObj["overlay"];
-                var bgColor = GetColorFromStyle((string)overlay["style"]);
+                var bgColor = GetOverlayBackgroundColor(overlay);
+                var overlayOpacity = GetOverlayBackgroundOpacity(overlay);
 
-                // Semi-transparent overlay (opacity 0.6)
                 int overlayHeight = image.Height / 8;
                 var overlayRect = new Rectangle(0, image.Height - overlayHeight, image.Width, overlayHeight);
-                int alpha = (int)(0.6f * 255);
+                int alpha = (int)Math.Round(overlayOpacity * 255);
                 var bgColorWithAlpha = Color.FromArgb(alpha, bgColor.R, bgColor.G, bgColor.B);
 
                 using (var rectBrush = new SolidBrush(bgColorWithAlpha))
@@ -1296,7 +1256,96 @@ namespace GTX.Controllers
                 image.Save(filename, ImageFormat.Png);
             }
 
-            InventoryService.SaveImage(stock, Path.GetFileName(filename));
+            return filename;
+        }
+
+        private static string ResolveExistingInventoryImagePhysicalPath(string requestPath) {
+            var currentPath = ResolveInventoryImagePhysicalPath(requestPath);
+            if (!string.IsNullOrWhiteSpace(currentPath) && System.IO.File.Exists(currentPath)) {
+                return currentPath;
+            }
+
+            var relativePath = GetInventoryImageRelativePath(requestPath);
+            if (string.IsNullOrWhiteSpace(relativePath)) {
+                return currentPath;
+            }
+
+            var legacyPath = CombineUnderRoot(LegacyInventoryImagesPhysicalRoot(), relativePath);
+            if (!string.IsNullOrWhiteSpace(legacyPath) && System.IO.File.Exists(legacyPath)) {
+                return legacyPath;
+            }
+
+            return currentPath;
+        }
+
+        private static string GetInventoryImageRelativePath(string requestPath) {
+            if (string.IsNullOrWhiteSpace(requestPath)) {
+                return null;
+            }
+
+            var rawPath = requestPath.Trim();
+            string queryPath = null;
+
+            if (Uri.TryCreate(rawPath, UriKind.Absolute, out var absolute)) {
+                queryPath = HttpUtility.ParseQueryString(absolute.Query)["path"];
+                rawPath = absolute.AbsolutePath;
+            }
+            else {
+                var queryIndex = rawPath.IndexOf('?');
+                if (queryIndex >= 0) {
+                    queryPath = HttpUtility.ParseQueryString(rawPath.Substring(queryIndex))["path"];
+                    rawPath = rawPath.Substring(0, queryIndex);
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(queryPath)) {
+                rawPath = queryPath;
+            }
+
+            rawPath = (HttpUtility.UrlDecode(rawPath) ?? rawPath)
+                .Replace('\\', '/')
+                .Split('#')[0]
+                .Trim()
+                .TrimStart('/');
+
+            var prefixes = new[] {
+                "GTXImages/Inventory/",
+                "Pictures/",
+                "Images/",
+                "InventoryImages/Get/"
+            };
+
+            foreach (var prefix in prefixes) {
+                if (rawPath.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) {
+                    rawPath = rawPath.Substring(prefix.Length);
+                    break;
+                }
+            }
+
+            return rawPath.TrimStart('/');
+        }
+
+        private static string LegacyInventoryImagesPhysicalRoot() {
+            var appRoot = HostingEnvironment.MapPath("~") ?? AppDomain.CurrentDomain.BaseDirectory;
+            return Path.GetFullPath(Path.Combine(appRoot, "GTXImages", "Inventory"));
+        }
+
+        private static string CombineUnderRoot(string root, string relativePath) {
+            if (string.IsNullOrWhiteSpace(root) || string.IsNullOrWhiteSpace(relativePath)) {
+                return null;
+            }
+
+            var fullRoot = Path.GetFullPath(root);
+            var rootWithSeparator = fullRoot.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+            var combined = Path.Combine(fullRoot, relativePath.Replace('/', Path.DirectorySeparatorChar).Trim(Path.DirectorySeparatorChar));
+            var fullPath = Path.GetFullPath(combined);
+
+            if (!fullPath.Equals(fullRoot, StringComparison.OrdinalIgnoreCase) &&
+                !fullPath.StartsWith(rootWithSeparator, StringComparison.OrdinalIgnoreCase)) {
+                return null;
+            }
+
+            return fullPath;
         }
 
         private async Task<string> GetChatGptResponse(string prompt) {
@@ -1390,6 +1439,42 @@ namespace GTX.Controllers
             return styles.TryGetValue("background-color", out var color)
                 ? ParseCssColor(color, Color.Transparent)
                 : Color.Transparent;
+        }
+
+        private Color GetOverlayBackgroundColor(JToken overlay) {
+            var color = (string)overlay?["backgroundColor"];
+            if (!string.IsNullOrWhiteSpace(color)) {
+                return ParseCssColor(color, Color.Transparent);
+            }
+
+            return GetColorFromStyle((string)overlay?["style"]);
+        }
+
+        private double GetOverlayBackgroundOpacity(JToken overlay) {
+            var opacity = (string)overlay?["backgroundOpacity"];
+            if (string.IsNullOrWhiteSpace(opacity)) {
+                var styles = ParseCssStyle((string)overlay?["style"]);
+                styles.TryGetValue("background-opacity", out opacity);
+                if (string.IsNullOrWhiteSpace(opacity)) {
+                    styles.TryGetValue("opacity", out opacity);
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(opacity)) {
+                return 1d;
+            }
+
+            opacity = opacity.Trim();
+            if (opacity.EndsWith("%", StringComparison.Ordinal)) {
+                var percentValue = opacity.Substring(0, opacity.Length - 1);
+                if (double.TryParse(percentValue, NumberStyles.Float, CultureInfo.InvariantCulture, out var percent)) {
+                    return Math.Max(0d, Math.Min(1d, percent / 100d));
+                }
+            }
+
+            return double.TryParse(opacity, NumberStyles.Float, CultureInfo.InvariantCulture, out var value)
+                ? Math.Max(0d, Math.Min(1d, value))
+                : 1d;
         }
 
         private (Font font, Color color) GetFontAndColorFromStyle(int width, int overlayHeight, string style) {

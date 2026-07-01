@@ -63,6 +63,14 @@
             }
         </select>
 
+        @Html.Label("Background opacity", new { @class = "text-shadow mt-3" })
+        <select id="backgroundOpacity" class="form-select shadow">
+            <option value="1">Solid</option>
+            <option value="0.75">75%</option>
+            <option value="0.5">50%</option>
+            <option value="0.25">25%</option>
+        </select>
+
         @Html.Label("Font type", new { @class = "text-shadow mt-3" })
         <select id="fontType" class="form-select shadow">
             <option value="normal">Normal</option>
@@ -82,41 +90,36 @@
 
 <div class="modal-footer well shadow">
     <div class="container-fluid">
-        <button id="deleteOverlay" type="button" class="btn btn-danger rounded-4 shadow"><i class="bi bi-trash flex"></i>&nbsp;Delete overlay</button>
         <span class="pull-right">
             <button id="close" type="button" class="btn btn-close-white rounded-4 shadow" data-bs-dismiss="modal"><i class="bi bi-x-lg flex"></i>&nbsp;Close</button>
-            <button id="saveOverlay" type="button" class="btn btn-gradient-grey border-dark rounded-4 shadow mx-3"><i class="bi bi-save2 flex"></i>&nbsp;Save overlay</button>
+            <button id="saveOverlayFile" type="button" class="btn btn-gradient-grey border-dark rounded-4 shadow mx-3"><i class="bi bi-save2 flex"></i>&nbsp;Save file</button>
         </span>
     </div>
 </div>
 
 <script type="text/javascript">
     window.majordomeOverlayContext = {
-        id: @Html.Raw(Json.Encode(Model.Id.ToString())),
         stock: @Html.Raw(Json.Encode(stock)),
         imagePath: @Html.Raw(Json.Encode("/InventoryImages/Get?path=" + encodedOverlayPath))
     };
-    var overlay = @Html.Raw(Json.Encode(Model.Overlay));
 
-    if (overlay) {
-        wearOverlay(overlay);
-        setControls(overlay);
-    }
-    else {
-        $("#fontSize").val("3vw").trigger("change");
-        $("#fontType").val("normal").trigger("change");
-        $("#textColor").val("white").trigger("change");
-        $("#backgroundColor").val("black").trigger("change")
+    $("#fontSize").val("3vw").trigger("change");
+    $("#fontType").val("normal").trigger("change");
+    $("#textColor").val("white").trigger("change");
+    $("#backgroundColor").val("black").trigger("change");
+    $("#backgroundOpacity").val("1").trigger("change");
 
-        $(".overlay-text").css("color", "white");
+    $(".overlay-text").css("color", "white");
+    if (typeof applyOverlayBackground === "function") {
+        applyOverlayBackground();
+    } else {
         $(".overlay-image-overlay").css("background-color", "black");
-        $(".overlay-text").css("font-size", "3vw");
-        $(".overlay-text").css({
-            "font-weight": "bold",
-            "font-style": "normal"
-        });
-
     }
+    $(".overlay-text").css("font-size", "3vw");
+    $(".overlay-text").css({
+        "font-weight": "bold",
+        "font-style": "normal"
+    });
 
     $(function () {
         $(document)
@@ -138,7 +141,7 @@
                     $(this).replaceWith($p);
                     $p.css("font-size", $("#fontSize").val());
                     $p.css("color", $("#textColor").val());
-                    $(".overlay-image-overlay").css("background-color", $("#backgroundColor").val());
+                    applyOverlayBackground();
                 }
             });
         });
@@ -147,21 +150,8 @@
         var car = `${sv.Year || ""}-${sv.Make || ""} ${sv.Model || ""} ${sv.VehicleStyle || ""}`.trim();
         $("#overlayTitle").text(car);
 
-        $("#saveOverlay").on("click", function () {
-            saveOverlayData();
-        })
-
-
-        $("#deleteOverlay").on("click", async function () {
-            const confirmed = await window.gtxConfirm({
-                title: "Delete overlay",
-                message: "Do you want to delete overlay for this image?",
-                confirmText: "Delete",
-                variant: "danger"
-            });
-            if (confirmed) {
-                deleteOverlayData();
-            }
+        $("#saveOverlayFile").on("click", function () {
+            saveOverlayFile();
         })
 
         $("#text").on("input", function () {
@@ -173,8 +163,11 @@
         })
 
         $("#backgroundColor").on("change", function () {
-            const color = $(this).val();
-            $(".overlay-image-overlay").css("background-color", color);
+            applyOverlayBackground();
+        })
+
+        $("#backgroundOpacity").on("change", function () {
+            applyOverlayBackground();
         })
 
         $("#fontSize").on("change", function () {

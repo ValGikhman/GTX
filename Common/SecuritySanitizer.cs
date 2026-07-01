@@ -18,12 +18,16 @@ namespace GTX.Helpers
             @"\s+on[a-z0-9_-]+\s*=\s*(?:""[^""]*""|'[^']*'|[^\s>]+)",
             RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
 
-        private static readonly Regex DangerousProtocolAttributeRegex = new Regex(
-            @"\s+(href|src|xlink:href)\s*=\s*(['""])\s*(?:javascript|vbscript|data)\s*:[^'""]*\2",
+        private static readonly Regex DangerousQuotedProtocolAttributeRegex = new Regex(
+            @"\s+(?<attr>href|src|xlink:href)\s*=\s*(?<quote>['""])\s*(?<value>(?:javascript|vbscript|data)\s*:[^'""]*)\k<quote>",
             RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
 
         private static readonly Regex DangerousUnquotedProtocolAttributeRegex = new Regex(
-            @"\s+(href|src|xlink:href)\s*=\s*(?:javascript|vbscript|data)\s*:[^\s>]+",
+            @"\s+(?<attr>href|src|xlink:href)\s*=\s*(?<value>(?:javascript|vbscript|data)\s*:[^\s>]+)",
+            RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
+
+        private static readonly Regex SafeImageDataSrcValueRegex = new Regex(
+            @"^\s*data:image/(?:png|jpe?g|gif|webp);base64,[a-z0-9+/=\r\n]+$",
             RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
 
         private static readonly Regex DangerousStyleAttributeRegex = new Regex(
@@ -42,11 +46,25 @@ namespace GTX.Helpers
             html = DangerousContainerTagsRegex.Replace(html, string.Empty);
             html = DangerousSelfClosingTagsRegex.Replace(html, string.Empty);
             html = EventHandlerAttributeRegex.Replace(html, string.Empty);
-            html = DangerousProtocolAttributeRegex.Replace(html, string.Empty);
-            html = DangerousUnquotedProtocolAttributeRegex.Replace(html, string.Empty);
+            html = DangerousQuotedProtocolAttributeRegex.Replace(html, RemoveDangerousProtocolAttribute);
+            html = DangerousUnquotedProtocolAttributeRegex.Replace(html, RemoveDangerousProtocolAttribute);
             html = DangerousStyleAttributeRegex.Replace(html, string.Empty);
 
             return html;
+        }
+
+        private static string RemoveDangerousProtocolAttribute(Match match)
+        {
+            var attr = match.Groups["attr"].Value;
+            var value = match.Groups["value"].Value;
+
+            if (attr.Equals("src", StringComparison.OrdinalIgnoreCase) &&
+                SafeImageDataSrcValueRegex.IsMatch(value))
+            {
+                return match.Value;
+            }
+
+            return string.Empty;
         }
 
         public static string SanitizeHttpOrRelativeUrl(string value)
