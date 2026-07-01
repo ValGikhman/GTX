@@ -50,7 +50,6 @@ namespace GTX.Controllers
             public Guid Id { get; set; }
             public string Stock { get; set; }
             public string Source { get; set; }
-            public string Overlay { get; set; }
             public int? Order { get; set; }
         }
 
@@ -991,7 +990,6 @@ namespace GTX.Controllers
                     Id = m.Id,
                     Stock = m.Stock,
                     Source = m.Source,
-                    Overlay = m.Overlay,
                     Order = m.Order
                 })
                 .ToArray();
@@ -1013,99 +1011,27 @@ namespace GTX.Controllers
         }
 
         [HttpPost]
-        public JsonResult SaveOverlay(Guid id, string stock, string overlay, string imagePath) {
+        public JsonResult SaveOverlayFile(string stock, string overlay, string imagePath) {
             try {
-                if (id == Guid.Empty) {
-                    return Json(new { success = false, message = "Invalid image id." });
-                }
-
                 var normalizedStock = (stock ?? string.Empty).Trim();
                 if (string.IsNullOrWhiteSpace(normalizedStock) || string.IsNullOrWhiteSpace(overlay) || string.IsNullOrWhiteSpace(imagePath)) {
-                    return Json(new { success = false, message = "Missing required overlay parameters." });
+                    return Json(new { success = false, message = "Missing required file parameters." });
                 }
 
-                InventoryService.SaveOverlay(id, overlay);
-                CreateImageWithOverlay(normalizedStock, imagePath, overlay);
-
-                var images = InventoryService.GetImages(normalizedStock) ?? Array.Empty<Services.Image>();
-                SyncCachedImagesForStock(normalizedStock, images);
-
-                return Json(new {
-                    success = true,
-                    stock = normalizedStock,
-                    images = ToUploadImageResponseDtos(images),
-                    image = GetCachedLeadImageForStock(normalizedStock)
-                });
-            }
-            catch (Exception ex) {
-                return Json(new { success = false, message = $"Error saving overlay: {ex.Message}" });
-            }
-        }
-
-        [HttpPost]
-        public JsonResult DeleteOverlay(Guid id, string stock) {
-            try {
-                if (id == Guid.Empty) {
-                    return Json(new { success = false, message = "Invalid image id." });
-                }
-
-                var image = InventoryService.GetImage(id);
-                var normalizedStock = (stock ?? image?.Stock ?? string.Empty).Trim();
-                InventoryService.DeleteOverlay(id);
-                DeleteOverlayRenderedImageFile(image, normalizedStock);
-
-                var images = string.IsNullOrWhiteSpace(normalizedStock)
-                    ? Array.Empty<Services.Image>()
-                    : InventoryService.GetImages(normalizedStock) ?? Array.Empty<Services.Image>();
-
-                if (!string.IsNullOrWhiteSpace(normalizedStock)) {
-                    SyncCachedImagesForStock(normalizedStock, images);
+                var savedPath = CreateImageWithOverlay(imagePath, overlay);
+                if (string.IsNullOrWhiteSpace(savedPath)) {
+                    return Json(new { success = false, message = "Image file not found." });
                 }
 
                 return Json(new {
                     success = true,
                     stock = normalizedStock,
-                    images = ToUploadImageResponseDtos(images),
-                    image = GetCachedLeadImageForStock(normalizedStock)
+                    file = Path.GetFileName(savedPath),
+                    message = "Overlay file saved."
                 });
             }
             catch (Exception ex) {
-                return Json(new { success = false, message = $"Error deleting overlay: {ex.Message}" });
-            }
-        }
-
-        private void DeleteOverlayRenderedImageFile(Services.Image image, string stock) {
-            if (image == null) {
-                return;
-            }
-
-            var source = image.Source ?? string.Empty;
-            var resolvedStock = !string.IsNullOrWhiteSpace(stock) ? stock : image.Stock;
-            var basePath = ResolveInventoryImagePhysicalPath(source);
-
-            if ((string.IsNullOrWhiteSpace(basePath) || !System.IO.File.Exists(basePath)) &&
-                !string.IsNullOrWhiteSpace(resolvedStock) &&
-                !string.IsNullOrWhiteSpace(source)) {
-                basePath = CombineUnderInventoryImagesRoot(resolvedStock, Path.GetFileName(source));
-            }
-
-            if (string.IsNullOrWhiteSpace(basePath)) {
-                return;
-            }
-
-            var directory = Path.GetDirectoryName(basePath);
-            if (string.IsNullOrWhiteSpace(directory)) {
-                return;
-            }
-
-            var baseName = Path.GetFileNameWithoutExtension(basePath);
-            if (baseName.EndsWith("-O", StringComparison.OrdinalIgnoreCase)) {
-                baseName = baseName.Substring(0, baseName.Length - 2);
-            }
-
-            var overlayPath = Path.Combine(directory, baseName + "-O.png");
-            if (System.IO.File.Exists(overlayPath)) {
-                System.IO.File.Delete(overlayPath);
+                return Json(new { success = false, message = $"Error saving overlay file: {ex.Message}" });
             }
         }
 
@@ -1260,11 +1186,11 @@ namespace GTX.Controllers
             return bmp;
         }
 
-        private void CreateImageWithOverlay(string stock, string baseImagePath, string overlayJson) {
+        private string CreateImageWithOverlay(string baseImagePath, string overlayJson) {
             string baseImage = ResolveInventoryImagePhysicalPath(baseImagePath);
             if (string.IsNullOrWhiteSpace(baseImage) || !System.IO.File.Exists(baseImage))
             {
-                return;
+                return null;
             }
 
             string dir = Path.GetDirectoryName(baseImage);
@@ -1320,7 +1246,7 @@ namespace GTX.Controllers
                 image.Save(filename, ImageFormat.Png);
             }
 
-            InventoryService.SaveImage(stock, Path.GetFileName(filename));
+            return filename;
         }
 
         private async Task<string> GetChatGptResponse(string prompt) {

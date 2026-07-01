@@ -151,7 +151,7 @@ function findMajordomeVehicleByStock(data, stock) {
 function setMajordomeImageActionsBusy(isBusy) {
     var busy = !!isBusy;
 
-    $("#sortable-gallery .majordome-photo-actions .btn, #upload, #deleteAll, #saveOverlay, #deleteOverlay")
+    $("#sortable-gallery .majordome-photo-actions .btn, #upload, #deleteAll, #saveOverlayFile")
         .prop("disabled", busy)
         .toggleClass("disabled", busy);
 
@@ -529,10 +529,6 @@ function loadGallery(vehicle) {
             showImageEdit = "visually-hidden";
         }
 
-        if (img.Overlay !== null) {
-            imageIcon = "bi bi-image-fill";
-        }
-
         var baseImagePath = toInventoryImageUrl(source);
         var imageHref = appendImageWidth(baseImagePath, 1600);
         var imageThumb = appendImageWidth(baseImagePath, 640);
@@ -556,7 +552,7 @@ function loadGallery(vehicle) {
                 <div class="majordome-photo-title" title="${safeFileNameOnly}">${safeFileNameOnly}</div>
                 <div class="majordome-photo-actions">
                     <button type="button" id="${safeId}" class="delete-image bi bi-trash btn btn-light shadow-sm" data-filename="${safeSource}" title="Delete image"></button>
-                    <button type="button" id="${safeId}" class="overlay-image ${imageIcon} btn btn-light shadow-sm ${showImageEdit}" data-filename="${safeSource}" title="Add overlay"></button>
+                    <button type="button" id="${safeId}" class="overlay-image ${imageIcon} btn btn-light shadow-sm ${showImageEdit}" data-filename="${safeSource}" title="Create overlay file"></button>
                     <button type="button" id="${safeId}" class="rotate-image-ccw bi bi-arrow-counterclockwise btn btn-light shadow-sm ${showImageEdit}" data-filename="${safeSource}" data-degrees="-90" title="Rotate image left"></button>
                     <button type="button" id="${safeId}" class="rotate-image bi bi-arrow-clockwise btn btn-light shadow-sm ${showImageEdit}" data-filename="${safeSource}" data-degrees="90" title="Rotate image right"></button>
                     <button type="button" class="move-to-top bi bi-front btn btn-light shadow-sm" title="Make it default image"></button>
@@ -1229,50 +1225,13 @@ function setControls(json) {
     }
 }
 
-async function deleteOverlayData() {
+async function saveOverlayFile() {
     const context = getMajordomeOverlayContext();
-    const overlayId = context && context.id ? context.id : "";
-    const stock = context && context.stock ? context.stock : getActiveMajordomeStock();
-
-    if (!overlayId) {
-        alert("Overlay context is missing.");
-        return;
-    }
-
-    const $overlay = $("#inventoryOverlay");
-    if (!beginMajordomeImageAction($overlay)) {
-        return;
-    }
-
-    try {
-        const response = await postMajordome(`${root}Majordome/DeleteOverlay`, { id: overlayId, stock: stock });
-        if (!response || !response.success) {
-            throw new Error((response && response.message) || "Failed to delete overlay.");
-        }
-
-        if (Array.isArray(response.images) && applyUploadedImagesToMajordomeState(response.stock || stock, response.images, { image: response.image })) {
-            $("#close").click();
-            return;
-        }
-
-        await refreshMajordomeAfterImageMutation(stock, { keepGalleryTab: true });
-        $("#close").click();
-    } catch (err) {
-        console.error("DeleteOverlay failed:", err);
-        alert(err.message || "Failed to delete overlay.");
-    } finally {
-        endMajordomeImageAction($overlay);
-    }
-}
-
-async function saveOverlayData() {
-    const context = getMajordomeOverlayContext();
-    const overlayId = context && context.id ? context.id : "";
     const stock = context && context.stock ? context.stock : getActiveMajordomeStock();
     const imagePath = context && context.imagePath ? context.imagePath : "";
 
-    if (!overlayId || !stock || !imagePath) {
-        alert("Overlay context is missing.");
+    if (!stock || !imagePath) {
+        alert("Overlay file context is missing.");
         return;
     }
 
@@ -1317,27 +1276,20 @@ async function saveOverlayData() {
     };
 
     try {
-        const response = await postMajordome(`${root}Majordome/SaveOverlay`, {
-            id: overlayId,
+        const response = await postMajordome(`${root}Majordome/SaveOverlayFile`, {
             overlay: JSON.stringify(json),
             stock: stock,
             imagePath: imagePath
         });
 
         if (!response || !response.success) {
-            throw new Error((response && response.message) || "Failed to save overlay.");
+            throw new Error((response && response.message) || "Failed to save overlay file.");
         }
 
-        if (Array.isArray(response.images) && applyUploadedImagesToMajordomeState(response.stock || stock, response.images, { image: response.image })) {
-            $("#close").click();
-            return;
-        }
-
-        await refreshMajordomeAfterImageMutation(stock, { keepGalleryTab: true });
         $("#close").click();
     } catch (err) {
-        console.error("SaveOverlay failed:", err);
-        alert(err.message || "Failed to save overlay.");
+        console.error("SaveOverlayFile failed:", err);
+        alert(err.message || "Failed to save overlay file.");
     } finally {
         endMajordomeImageAction($overlaySpinner);
     }
