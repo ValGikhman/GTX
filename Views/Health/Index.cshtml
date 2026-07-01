@@ -617,8 +617,11 @@
         dom.chkOffline = $("#chkOffline");
         dom.offlineStatusText = $("#offlineStatusText");
         dom.maintenanceCard = $("#maintenanceCard");
+        let offlineState = false;
+        let offlineConfirmationPending = false;
 
         function setUi(isOffline) {
+            offlineState = !!isOffline;
             dom.chkOffline.prop("checked", isOffline);
             dom.offlineStatusText.text(isOffline ? "Offline (redirecting users)" : "Online");
             dom.maintenanceCard.toggleClass("is-offline", isOffline);
@@ -630,15 +633,44 @@
         });
 
         // Toggle
-        dom.chkOffline.on("change", function () {
+        dom.chkOffline.on("change", async function () {
+            if (offlineConfirmationPending) return;
+
             const on = this.checked;
-            setUi(on); // instant UI feedback
+            const previous = offlineState;
+            offlineConfirmationPending = true;
+            dom.chkOffline.prop("disabled", true);
+
+            const confirmed = await window.gtxConfirm({
+                title: on ? "Enable maintenance mode" : "Disable maintenance mode",
+                message: on
+                    ? "Enable offline mode? Visitors will be redirected to the out-of-service page."
+                    : "Disable offline mode? Visitors will be able to browse the site again.",
+                confirmText: on ? "Enable" : "Disable",
+                variant: on ? "warning" : "primary"
+            });
+
+            if (!confirmed) {
+                setUi(previous);
+                offlineConfirmationPending = false;
+                dom.chkOffline.prop("disabled", false);
+                return;
+            }
+
+            setUi(on);
 
             $.post(setOfflineUrl, { isOffline: on })
+                .done(function (r) {
+                    setUi(!!(r && r.isOffline));
+                })
                 .fail(function (xhr) {
                     // If server rejects, revert UI
-                    setUi(!on);
+                    setUi(previous);
                     alert("Failed to update maintenance mode.\n" + xhr.status + " " + xhr.statusText);
+                })
+                .always(function () {
+                    offlineConfirmationPending = false;
+                    dom.chkOffline.prop("disabled", false);
                 });
         });
 
