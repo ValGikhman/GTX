@@ -1203,7 +1203,8 @@ namespace GTX.Controllers
             }
 
             string dir = Path.GetDirectoryName(baseImage);
-            string filename = Path.Combine(dir, Path.GetFileNameWithoutExtension(baseImage) + "-O.png");
+            string suffix = Guid.NewGuid().ToString("N").Substring(0, 5);
+            string filename = Path.Combine(dir, $"{Path.GetFileNameWithoutExtension(baseImage)}-O-{suffix}.png");
 
             using (var src = System.Drawing.Image.FromFile(baseImage))
             using (var image = ToNonIndexedBitmap(src)) // <-- guarantees 32bpp
