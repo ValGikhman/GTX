@@ -1286,6 +1286,12 @@ async function saveOverlayFile() {
             throw new Error((response && response.message) || "Failed to save overlay file.");
         }
 
+        if (Array.isArray(response.images) && applyUploadedImagesToMajordomeState(response.stock || stock, response.images, { image: response.image })) {
+            $("#close").click();
+            return;
+        }
+
+        await refreshMajordomeAfterImageMutation(stock, { keepGalleryTab: true });
         $("#close").click();
     } catch (err) {
         console.error("SaveOverlayFile failed:", err);
