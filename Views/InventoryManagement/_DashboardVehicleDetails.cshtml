@@ -1,0 +1,65 @@
+@using System.Linq
+@model GTX.Models.BaseModel
+
+@{
+    var vehicle = Model != null && Model.CurrentVehicle != null ? Model.CurrentVehicle.VehicleDetails : null;
+    var hasImages = vehicle != null && vehicle.Images != null && vehicle.Images.Any();
+}
+
+@if (vehicle == null)
+{
+    <div class="alert alert-warning mb-0">Vehicle details are not available.</div>
+}
+else
+{
+    <div class="inventory-dashboard-modal-details">
+        <div class="row justify-content-center well mb-3">
+            <button class="w-100 btn btn-gradient position-relative collapse-toggle"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#dashboardVehiclePictures"
+                    aria-expanded="true"
+                    aria-controls="dashboardVehiclePictures">
+                <div class="bg-lighter py-2 px-3 text-center hand-pointer">
+                    <h5 class="fw-bold text-uppercase text-white">
+                        <i class="bi bi-camera mx-2"></i>Photos
+                    </h5>
+                </div>
+                <span class="toggle-icons position-absolute end-0 top-50 translate-middle-y pe-3" aria-hidden="true">
+                    <i class="bi bi-plus-lg icon-plus"></i>
+                    <i class="bi bi-dash-lg icon-minus"></i>
+                </span>
+            </button>
+
+            <div class="collapse show" id="dashboardVehiclePictures">
+                <div class="p-2">
+                    @if (hasImages)
+                    {
+                        <div class="ratio ratio-carousel overflow-hidden">
+                            @Html.Partial("~/Views/Shared/_Carousel.cshtml", Model.CurrentVehicle)
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="d-flex justify-content-center text-uppercase p-5 text-center">
+                            <h6>
+                                <img class="img-fluid d-block mx-auto" width="85" src="@Url.Content("~/GTXImages/gtx.png")" alt="GTX Autogroup">
+                                <br />
+                                is still working on images
+                            </h6>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @if (Model.CurrentVehicle.VehicleDataOneDetails == null)
+        {
+            @Html.Partial("~/Views/Shared/_Details.cshtml", Model)
+        }
+        else
+        {
+            @Html.Partial("~/Views/Shared/_DetailsDataOne.cshtml", Model)
+        }
+    </div>
+}
