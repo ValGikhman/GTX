@@ -138,6 +138,43 @@ namespace GTX.Controllers
             }
         }
 
+        [HttpGet]
+        public ActionResult GetInventoryDashboardVehicleDetails(string stock)
+        {
+            var stockText = (stock ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(stockText))
+            {
+                Response.StatusCode = 400;
+                return Content("<div class=\"alert alert-warning mb-0\">Stock number is required.</div>", "text/html");
+            }
+
+            var vehicle = Model.Inventory.All?.FirstOrDefault(m =>
+                string.Equals((m.Stock ?? string.Empty).Trim(), stockText, StringComparison.OrdinalIgnoreCase));
+
+            if (vehicle == null)
+            {
+                Response.StatusCode = 404;
+                return Content("<div class=\"alert alert-warning mb-0\">Vehicle details are not available.</div>", "text/html");
+            }
+
+            Model.CurrentVehicle.VehicleDetails = vehicle;
+            Model.CurrentVehicle.VehicleDetails.Story = vehicle.Story;
+            Model.CurrentVehicle.VehicleDataOneDetails = vehicle.DataOne;
+            if (Model.CurrentVehicle.VehicleDataOneDetails == null && Model.IsDataOne)
+            {
+                try
+                {
+                    Model.CurrentVehicle.VehicleDataOneDetails = GetDecodedData(stockText);
+                }
+                catch (Exception ex)
+                {
+                    Log($"Unable to load DataOne details for dashboard stock {stockText}: {ex.Message}");
+                }
+            }
+
+            return PartialView("_DashboardVehicleDetails", Model);
+        }
+
         [HttpPost]
         public ActionResult PreviewInventoryUpload(HttpPostedFileBase dataCsv)
         {

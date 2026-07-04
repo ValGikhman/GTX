@@ -136,36 +136,36 @@
     }
 
     .inventory-dashboard-location-card {
-        min-height: 18rem;
+        min-height: 14rem;
     }
 
     .inventory-dashboard-graphs-card {
         justify-content: flex-start;
-        gap: 1rem;
+        gap: .65rem;
     }
 
     .inventory-dashboard-graph-section {
         display: flex;
         flex-direction: column;
-        gap: .85rem;
+        gap: .55rem;
         min-width: 0;
     }
 
     .inventory-dashboard-graph-divider {
-        margin: .2rem 0;
+        margin: .05rem 0;
         border-color: var(--dashboard-line);
         opacity: 1;
     }
 
     .inventory-dashboard-location-layout {
         display: grid;
-        grid-template-columns: minmax(11rem, 16rem) minmax(0, 1fr);
-        gap: 1rem;
+        grid-template-columns: minmax(8rem, 9.5rem) minmax(0, 1fr);
+        gap: .75rem;
         align-items: center;
     }
 
     .inventory-dashboard-location-donut {
-        width: min(13rem, 68vw);
+        width: min(9.5rem, 58vw);
     }
 
     .inventory-dashboard-grid-card {
@@ -323,7 +323,7 @@
             border-collapse: separate;
             border-spacing: 0;
             font-size: .92rem;
-            min-width: 640px;
+            min-width: 860px;
         }
 
         #inventoryDashboardStatusTable > thead > tr > th,
@@ -452,6 +452,105 @@
     .inventory-dashboard-main-location-cell {
         width: 7.5rem;
         text-align: center;
+    }
+
+    .inventory-dashboard-status-dot-cell {
+        width: 7rem;
+        text-align: center;
+    }
+
+    .inventory-dashboard-status-dots {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .4rem;
+        min-width: 3.4rem;
+    }
+
+    .inventory-dashboard-status-dot {
+        width: .85rem;
+        height: .85rem;
+        display: inline-block;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, .82);
+        box-shadow: 0 .08rem .22rem rgba(15, 23, 42, .24);
+    }
+
+        .inventory-dashboard-status-dot.is-added {
+            background: #198754;
+        }
+
+        .inventory-dashboard-status-dot.is-updated {
+            background: #0d6efd;
+        }
+
+        .inventory-dashboard-status-dot.is-removed {
+            background: #dc3545;
+        }
+
+    .inventory-dashboard-status-empty {
+        color: var(--dashboard-muted);
+        font-weight: 700;
+    }
+
+    .inventory-dashboard-details-cell {
+        width: 5.5rem;
+        text-align: center;
+    }
+
+    .inventory-dashboard-details-button {
+        width: 2.25rem;
+        min-height: 2.25rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        line-height: 1;
+    }
+
+    #inventoryDashboardDetailsModal .modal-header {
+        border-bottom: 1px solid var(--dashboard-line, rgba(148, 163, 184, .22));
+        background: linear-gradient(180deg, var(--dashboard-surface, #fff) 0%, var(--dashboard-surface-alt, #f8fafc) 100%);
+    }
+
+    .inventory-dashboard-details-close {
+        width: 2rem;
+        height: 2rem;
+        margin: 0;
+        border: 1px solid var(--dashboard-border, rgba(30, 41, 59, .12));
+        border-radius: 8px;
+        background-color: var(--dashboard-surface-alt, #f8fafc);
+        background-size: .7rem;
+        box-shadow: none;
+        opacity: 1;
+    }
+
+        .inventory-dashboard-details-close:hover,
+        .inventory-dashboard-details-close:focus {
+            background-color: color-mix(in srgb, var(--dashboard-accent, #0d6efd) 10%, var(--dashboard-surface, #fff));
+            border-color: color-mix(in srgb, var(--dashboard-accent, #0d6efd) 34%, var(--dashboard-border, rgba(30, 41, 59, .12)));
+            opacity: 1;
+        }
+
+        .inventory-dashboard-details-close:focus {
+            box-shadow: 0 0 0 .18rem color-mix(in srgb, var(--dashboard-accent, #0d6efd) 22%, transparent);
+        }
+
+    .inventory-dashboard-details-modal-body {
+        background: var(--dashboard-surface-alt, #f8fafc);
+        padding: 1rem;
+    }
+
+    .inventory-dashboard-details-loading {
+        min-height: 12rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+    }
+
+    .inventory-dashboard-modal-details .ratio-carousel {
+        max-height: 58vh;
     }
 
     .inventory-dashboard-days-number {
@@ -723,7 +822,7 @@
     </div>
 
     <div class="row g-3">
-        <div class="col-12 col-xl-6">
+        <div class="col-12 col-xl-4">
             <article class="inventory-dashboard-card inventory-dashboard-location-card inventory-dashboard-graphs-card">
                 <section class="inventory-dashboard-graph-section" aria-labelledby="inventoryDashboardStatusTitle">
                     <div class="inventory-dashboard-card-header">
@@ -737,7 +836,7 @@
                         <div id="inventoryDashboardStatusDonut" class="inventory-dashboard-donut inventory-dashboard-location-donut" style="--dashboard-accent: #6f42c1;">
                             <div class="inventory-dashboard-donut-center">
                                 <span id="inventoryDashboardStatusTotal" class="inventory-dashboard-number">0</span>
-                                <span class="inventory-dashboard-center-label">Vehicles</span>
+                                <span id="inventoryDashboardStatusCenterLabel" class="inventory-dashboard-center-label">Vehicles</span>
                             </div>
                         </div>
                         <div id="inventoryDashboardStatusLegend" class="inventory-dashboard-legend"></div>
@@ -758,7 +857,7 @@
                         <div id="inventoryDashboardLocationDonut" class="inventory-dashboard-donut inventory-dashboard-location-donut" style="--dashboard-accent: #0d6efd;">
                             <div class="inventory-dashboard-donut-center">
                                 <span id="inventoryDashboardLocationTotal" class="inventory-dashboard-number">0</span>
-                                <span class="inventory-dashboard-center-label">Vehicles</span>
+                                <span id="inventoryDashboardLocationCenterLabel" class="inventory-dashboard-center-label">Vehicles</span>
                             </div>
                         </div>
                         <div id="inventoryDashboardLocationLegend" class="inventory-dashboard-legend"></div>
@@ -767,7 +866,7 @@
             </article>
         </div>
 
-        <div class="col-12 col-xl-6">
+        <div class="col-12 col-xl-8">
             <article class="inventory-dashboard-card inventory-dashboard-grid-card inventory-dashboard-grid-shell" aria-labelledby="inventoryDashboardStatusGridTitle">
                 <div class="inventory-dashboard-grid-header">
                     <div>
@@ -791,6 +890,7 @@
                                         <i class="bi bi-arrow-down-up" aria-hidden="true"></i>
                                     </button>
                                 </th>
+                                <th style="width:110px;" class="text-center">Status</th>
                                 <th style="width:120px;" class="text-center" data-dashboard-sort-column="location" aria-sort="none">
                                     <button type="button" class="inventory-dashboard-sort-button" data-dashboard-sort="location">
                                         <span>Location</span>
@@ -803,6 +903,7 @@
                                         <i class="bi bi-arrow-down-up" aria-hidden="true"></i>
                                     </button>
                                 </th>
+                                <th style="width:88px;" class="text-center">Details</th>
                             </tr>
                         </thead>
                         <tbody id="inventoryDashboardStatusBody"></tbody>
@@ -815,6 +916,20 @@
         </div>
     </div>
 </section>
+
+<div class="modal fade" id="inventoryDashboardDetailsModal" tabindex="-1" aria-labelledby="inventoryDashboardDetailsModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="inventoryDashboardDetailsModalTitle">Vehicle Details</h5>
+                <button type="button" class="btn-close inventory-dashboard-details-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div id="inventoryDashboardDetailsModalBody" class="modal-body inventory-dashboard-details-modal-body">
+                <div class="inventory-dashboard-details-loading text-muted">Loading details...</div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script type="application/json" id="inventoryDashboardData">@Html.Raw(dashboardsJson)</script>
 <script src="~/Scripts/majordome.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome.js")).Ticks)"></script>
@@ -844,7 +959,9 @@
             const dashboardHistoryCache = {};
             const dashboardHistoryRequests = {};
             const expandedDashboardStocks = {};
+            const addedStatusCode = 1;
             const removedStatusCode = 2;
+            const updatedStatusCode = 3;
             const locationColors = [
                 "#0d6efd",
                 "#198754",
@@ -1180,8 +1297,21 @@
                     return sum + asNumber(valueOf(status, "VehicleCount", 0));
                 }, 0);
                 clearMissingStatusFilter(statuses);
+                let centerStatusCount = currentTotal;
+                let centerStatusLabel = "Vehicles";
+                if (activeStatusCode !== null) {
+                    const activeStatus = statuses.find(function (status) {
+                        return getStatusCode(status) === activeStatusCode;
+                    });
 
-                $("#inventoryDashboardStatusTotal").text(formatNumber(currentTotal));
+                    if (activeStatus) {
+                        centerStatusCount = asNumber(valueOf(activeStatus, "VehicleCount", 0));
+                        centerStatusLabel = statusLabel(valueOf(activeStatus, "StatusText", "Status"));
+                    }
+                }
+
+                $("#inventoryDashboardStatusTotal").text(formatNumber(centerStatusCount));
+                $("#inventoryDashboardStatusCenterLabel").text(centerStatusLabel);
                 const currentStatusCount = currentStatuses.length;
                 let caption = `${currentStatusCount} current status${currentStatusCount === 1 ? "" : "es"} by distinct stock`;
                 if (removedStatus) {
@@ -1241,8 +1371,21 @@
                     return sum + asNumber(valueOf(location, "VehicleCount", 0));
                 }, 0);
                 clearMissingLocationFilter(locations);
+                let centerLocationCount = total;
+                let centerLocationLabel = "Vehicles";
+                if (activeLocationCode !== null) {
+                    const activeLocation = locations.find(function (location) {
+                        return normalizeLocationFilterCode(valueOf(location, "LocationCode", "N/A")) === activeLocationCode;
+                    });
 
-                $("#inventoryDashboardLocationTotal").text(formatNumber(total));
+                    if (activeLocation) {
+                        centerLocationCount = asNumber(valueOf(activeLocation, "VehicleCount", 0));
+                        centerLocationLabel = normalizeLocationFilterCode(valueOf(activeLocation, "LocationCode", "N/A"));
+                    }
+                }
+
+                $("#inventoryDashboardLocationTotal").text(formatNumber(centerLocationCount));
+                $("#inventoryDashboardLocationCenterLabel").text(centerLocationLabel);
                 $("#inventoryDashboardLocationCaption").text(`${locations.length} location${locations.length === 1 ? "" : "s"}`);
                 $("#inventoryDashboardLocationDonut")
                     .css("background", locationGradient(locations, total))
@@ -1305,6 +1448,7 @@
                 row.Status = valueOf(row, "Status", null);
                 row.StatusText = statusLabel(valueOf(row, "StatusText", "Status"));
                 row.Statuses = getVehicleStatusCodes(row);
+                row.HistoryStatuses = getVehicleHistoryStatusCodes(row);
                 row.DateCreated = valueOf(row, "DateCreated", "");
                 row.DaysInInventory = valueOf(row, "DaysInInventory", null);
                 row.InventoryStartDate = valueOf(row, "InventoryStartDate", "");
@@ -1324,6 +1468,62 @@
 
                 const statusCode = normalizeStatusCode(valueOf(vehicle, "Status", null));
                 return statusCode === null ? [] : [statusCode];
+            }
+
+            function getVehicleHistoryStatusCodes(vehicle) {
+                const statuses = valueOf(vehicle, "HistoryStatuses", null);
+                const source = Array.isArray(statuses) && statuses.length ? statuses : [];
+                const seen = {};
+                return source
+                    .map(normalizeStatusCode)
+                    .filter(function (statusCode) {
+                        if (statusCode !== addedStatusCode &&
+                            statusCode !== updatedStatusCode &&
+                            statusCode !== removedStatusCode) {
+                            return false;
+                        }
+
+                        if (seen[statusCode]) return false;
+                        seen[statusCode] = true;
+                        return true;
+                    })
+                    .sort(function (left, right) {
+                        return getDashboardHistoryStatusSort(left) - getDashboardHistoryStatusSort(right);
+                    });
+            }
+
+            function getDashboardHistoryStatusSort(statusCode) {
+                if (statusCode === addedStatusCode) return 0;
+                if (statusCode === updatedStatusCode) return 1;
+                if (statusCode === removedStatusCode) return 2;
+                return 3;
+            }
+
+            function dashboardStatusDotInfo(statusCode) {
+                if (statusCode === addedStatusCode) return { label: "Added", className: "is-added" };
+                if (statusCode === updatedStatusCode) return { label: "Updated", className: "is-updated" };
+                if (statusCode === removedStatusCode) return { label: "Removed", className: "is-removed" };
+                return { label: "", className: "" };
+            }
+
+            function renderDashboardStatusDots(statusCodes) {
+                const codes = Array.isArray(statusCodes) ? statusCodes : [];
+                if (!codes.length) {
+                    return `<span class="inventory-dashboard-status-empty">-</span>`;
+                }
+
+                const label = codes
+                    .map(function (statusCode) {
+                        return dashboardStatusDotInfo(statusCode).label;
+                    })
+                    .filter(Boolean)
+                    .join(", ");
+                const dots = codes.map(function (statusCode) {
+                    const info = dashboardStatusDotInfo(statusCode);
+                    return `<span class="inventory-dashboard-status-dot ${info.className}" title="${escapeDashboardHtml(info.label)}" aria-label="${escapeDashboardHtml(info.label)}"></span>`;
+                }).join("");
+
+                return `<span class="inventory-dashboard-status-dots" title="${escapeDashboardHtml(label)}">${dots}</span>`;
             }
 
             function isDashboardVehicleCurrent(vehicle) {
@@ -1488,6 +1688,11 @@
                     ? window.renderMajordomeVehicleDetailsCell(row)
                     : `<td>${escapeDashboardHtml([row.Year, row.Make, row.Model].join(" "))}</td>`;
                 const locationBadge = locationBadgeInfo(locationCode, 0);
+                const vehicleTitle = [row.Year, row.Make, row.Model, row.Stock]
+                    .filter(function (part) {
+                        return part !== null && part !== undefined && part.toString().trim() !== "";
+                    })
+                    .join(" ");
 
                 return `
                     <tr class="inventory-dashboard-main-row ${isExpanded ? "is-expanded" : ""}"
@@ -1509,17 +1714,28 @@
                         </td>
                         ${imageCell}
                         ${detailsCell}
+                        <td class="inventory-dashboard-status-dot-cell">${renderDashboardStatusDots(row.HistoryStatuses)}</td>
                         <td class="inventory-dashboard-main-location-cell">
                             <span class="inventory-dashboard-gtx-code ${locationBadge.toneClass}">${escapeDashboardHtml(locationBadge.label)}</span>
                         </td>
                         <td class="inventory-dashboard-days-cell" title="${escapeDashboardHtml(daysTitle)}">
                             <span class="inventory-dashboard-days-number">${escapeDashboardHtml(daysText)}</span>
                         </td>
+                        <td class="inventory-dashboard-details-cell">
+                            <button type="button"
+                                    class="btn btn-outline-secondary inventory-dashboard-details-button"
+                                    data-dashboard-details-stock="${escapeDashboardHtml(row.Stock)}"
+                                    data-dashboard-details-title="${escapeDashboardHtml(vehicleTitle)}"
+                                    title="Show vehicle details">
+                                <i class="bi bi-card-list" aria-hidden="true"></i>
+                                <span class="visually-hidden">Show vehicle details</span>
+                            </button>
+                        </td>
                     </tr>
                     <tr id="${escapeDashboardHtml(rowId)}"
                         class="inventory-dashboard-history-row ${isExpanded ? "" : "d-none"}"
                         data-history-row-for="${escapeDashboardHtml(stockKey)}">
-                        <td colspan="5">${renderDashboardHistoryPanel(stockKey)}</td>
+                        <td colspan="7">${renderDashboardHistoryPanel(stockKey)}</td>
                     </tr>
                 `;
             }
@@ -1836,6 +2052,41 @@
                 return null;
             }
 
+            function showDashboardDetailsModal() {
+                const modalElement = document.getElementById("inventoryDashboardDetailsModal");
+                if (window.bootstrap && window.bootstrap.Modal && modalElement) {
+                    window.bootstrap.Modal.getOrCreateInstance(modalElement).show();
+                } else if ($.fn.modal) {
+                    $("#inventoryDashboardDetailsModal").modal("show");
+                } else {
+                    $("#inventoryDashboardDetailsModal").addClass("show").show();
+                }
+            }
+
+            function loadDashboardVehicleDetails(stock, title) {
+                const stockText = (stock || "").toString().trim();
+                if (!stockText) return;
+
+                $("#inventoryDashboardDetailsModalTitle").text(title || `Vehicle ${stockText}`);
+                $("#inventoryDashboardDetailsModalBody").html(`<div class="inventory-dashboard-details-loading text-muted">Loading details...</div>`);
+                showDashboardDetailsModal();
+
+                $.get(`${dashboardRoot()}InventoryManagement/GetInventoryDashboardVehicleDetails`, {
+                    stock: stockText
+                })
+                    .done(function (html) {
+                        const $body = $("#inventoryDashboardDetailsModalBody").html(html);
+                        if (window.bootstrap && window.bootstrap.Carousel) {
+                            $body.find(".carousel").each(function () {
+                                window.bootstrap.Carousel.getOrCreateInstance(this);
+                            });
+                        }
+                    })
+                    .fail(function () {
+                        $("#inventoryDashboardDetailsModalBody").html(`<div class="alert alert-warning mb-0">Unable to load vehicle details.</div>`);
+                    });
+            }
+
             function renderDashboard(days) {
                 currentDashboardDays = (days || "7").toString();
                 const data = dashboardFor(days);
@@ -1902,6 +2153,14 @@
                     event.stopPropagation();
                     toggleDashboardHistoryChange($(this));
                 });
+                $("#inventoryDashboardStatusBody").on("click", ".inventory-dashboard-details-button", function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const $button = $(this);
+                    loadDashboardVehicleDetails(
+                        $button.attr("data-dashboard-details-stock"),
+                        $button.attr("data-dashboard-details-title"));
+                });
                 $("#inventoryDashboardStatusBody").on("click", ".inventory-dashboard-main-row", function (event) {
                     if ($(event.target).closest("a").length) return;
                     toggleDashboardHistoryRow($(this));
@@ -1951,6 +2210,9 @@
                     activeStatusCode = null;
                     activeLocationCode = null;
                     renderDashboard(currentDashboardDays);
+                });
+                $("#inventoryDashboardDetailsModal").on("hidden.bs.modal", function () {
+                    $("#inventoryDashboardDetailsModalBody").html(`<div class="inventory-dashboard-details-loading text-muted">Loading details...</div>`);
                 });
                 loadDashboard($period.val() || "7", false);
             });
