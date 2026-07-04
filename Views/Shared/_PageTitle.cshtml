@@ -4,6 +4,8 @@
     var majordomeIndexControllers = new[] { "InventoryManagement", "VinDecoder", "Announcements", "Blogs", "Employees", "Health", "Sitemap" };
     var isMajordomeMenuPage = (controllerName.Equals("Majordome", StringComparison.OrdinalIgnoreCase)
             && actionName.Equals("Inventory", StringComparison.OrdinalIgnoreCase))
+        || (controllerName.Equals("InventoryManagement", StringComparison.OrdinalIgnoreCase)
+            && actionName.Equals("Dashboard", StringComparison.OrdinalIgnoreCase))
         || (actionName.Equals("Index", StringComparison.OrdinalIgnoreCase)
             && majordomeIndexControllers.Any(c => c.Equals(controllerName, StringComparison.OrdinalIgnoreCase)));
     var inventoryListActions = new[] { "Index", "All", "Suvs", "Sedans", "Wagons", "Trucks", "Vans", "Convertibles", "Hatchbacks", "Coupes" };

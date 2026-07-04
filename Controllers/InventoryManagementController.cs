@@ -114,6 +114,30 @@ namespace GTX.Controllers
             };
         }
 
+        [HttpGet]
+        public JsonResult GetInventoryDashboardVehicleHistory(string stock)
+        {
+            try
+            {
+                return new JsonResult
+                {
+                    Data = new
+                    {
+                        success = true,
+                        history = InventoryService.GetInventoryDashboardVehicleHistory(stock)
+                    },
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                    MaxJsonLength = int.MaxValue
+                };
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                Log(ex);
+                return Json(new { success = false, message = "Unable to load inventory history." }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         [HttpPost]
         public ActionResult PreviewInventoryUpload(HttpPostedFileBase dataCsv)
         {
@@ -197,7 +221,9 @@ namespace GTX.Controllers
                 Days = days,
                 PeriodStartUtc = now.AddDays(-days),
                 PeriodEndUtc = now,
-                LocationCounts = Array.Empty<InventoryDashboardLocationCount>()
+                StatusCounts = Array.Empty<InventoryDashboardStatusCount>(),
+                LocationCounts = Array.Empty<InventoryDashboardLocationCount>(),
+                Vehicles = Array.Empty<InventoryDashboardVehicle>()
             };
         }
 
