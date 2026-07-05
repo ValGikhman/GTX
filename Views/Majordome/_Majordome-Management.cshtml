@@ -63,11 +63,39 @@
         display: flex;
         flex-wrap: wrap;
         align-items: center;
-        justify-content: flex-start;
+        justify-content: space-between;
         gap: .75rem;
         padding: .75rem .85rem;
         background: linear-gradient(180deg, var(--inventory-surface) 0%, var(--inventory-surface-alt) 100%);
         border-bottom: 1px solid var(--inventory-line);
+    }
+
+    .majordome-management-toolbar-main,
+    .majordome-management-toolbar-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: .75rem;
+        min-width: 0;
+    }
+
+    .majordome-management-toolbar-main {
+        flex: 0 1 auto;
+    }
+
+    .majordome-management-toolbar-actions {
+        flex: 1 1 520px;
+        justify-content: flex-end;
+        margin-left: auto;
+    }
+
+    .majordome-management-search-slot {
+        flex: 0 0 340px;
+        width: 340px;
+        max-width: min(100%, 340px);
+        min-width: 260px;
+        display: flex;
+        justify-content: flex-end;
     }
 
     .majordome-management-workspace {
@@ -292,16 +320,58 @@
         }
     }
 
-    .majordome-management-search {
-        flex: 0 1 340px;
-        margin-left: auto;
-        max-width: 265px;
-        min-width: 260px;
-        display: block;
-        border-radius: .65rem;
+    #majordomeManagementSearchSlot #filterByTerm.inventory-result-toolbar {
+        flex: 0 0 100%;
+        margin: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        margin-top: 0 !important;
+        max-width: 100%;
+        min-width: 0;
+        min-height: 0 !important;
+        width: 100% !important;
+        padding: 0 !important;
+        position: static !important;
+        top: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        left: auto !important;
+        transform: none !important;
+        background: none;
+        box-shadow: none;
+        z-index: auto;
+        justify-content: flex-end !important;
     }
 
-        #majordomeManagementSearch {
+        #majordomeManagementSearchSlot #filterByTerm.inventory-result-toolbar .inventory-toolbar-shell {
+            flex: 1 1 auto;
+            width: 100% !important;
+            max-width: 100%;
+            min-height: 0;
+            padding: 0 !important;
+            gap: 0 !important;
+            justify-content: flex-end !important;
+        }
+
+        #majordomeManagementSearchSlot #filterByTerm.inventory-result-toolbar .inventory-term-search {
+            flex: 1 1 auto !important;
+            width: 100% !important;
+            max-width: 100%;
+            justify-content: flex-end !important;
+        }
+
+        #majordomeManagementSearchSlot #filterByTerm.inventory-result-toolbar #filterWrapper {
+            position: relative !important;
+            left: auto !important;
+            transform: none !important;
+            width: min(100%, 340px) !important;
+            max-width: 340px !important;
+            margin-left: auto !important;
+            margin-right: 0 !important;
+            flex: 0 0 auto !important;
+        }
+
+        #majordomeManagementSearchSlot #filterByTerm.inventory-result-toolbar #filterTerm {
             width: 100%;
             height: 2.5rem;
             min-height: 2.5rem;
@@ -309,7 +379,14 @@
             border-radius: .65rem !important;
             box-shadow: 0 .25rem .75rem rgba(15, 23, 42, .06);
             font-weight: 600;
-            padding-right: .95rem;
+        }
+
+        #majordomeManagementSearchSlot .filterLiked,
+        #majordomeManagementSearchSlot .filterLast,
+        #majordomeManagementSearchSlot .filterHelp,
+        #majordomeManagementSearchSlot .sort,
+        #majordomeManagementSearchSlot .inventory-toolbar-paging {
+            display: none !important;
         }
 
     .majordome-management-location-filter {
@@ -326,7 +403,7 @@
 
         .majordome-management-log-date-toggle:focus,
         .majordome-management-log-status:focus,
-        #majordomeManagementSearch:focus,
+        .majordome-management-toolbar #filterTerm:focus,
         .majordome-management-location-filter:focus {
             border-color: rgba(37, 99, 235, .5);
             box-shadow: 0 0 0 .22rem rgba(37, 99, 235, .12);
@@ -673,10 +750,17 @@
             align-items: stretch;
         }
 
-        .majordome-management-search,
+        .majordome-management-toolbar-main,
+        .majordome-management-toolbar-actions {
+            width: 100%;
+            margin-left: 0;
+        }
+
+        .majordome-management-search-slot,
+        .majordome-management-search-slot #filterByTerm.inventory-result-toolbar,
         .majordome-management-location-filter,
         .majordome-management-summary,
-        .majordome-management-toolbar > .btn {
+        .majordome-management-toolbar-main > .btn {
             flex: 1 1 100%;
             width: 100%;
             max-width: none;
@@ -690,7 +774,7 @@
             justify-content: space-between;
         }
 
-        .majordome-management-search {
+        #majordomeManagementSearchSlot #filterByTerm.inventory-result-toolbar {
             margin-left: 0;
         }
 
@@ -721,17 +805,59 @@
             </aside>
             <div id="majordome-management-results" class="majordome-management-results">
                 <div class="majordome-management-toolbar">
-                    <button type="button" id="inventoryManagementUploadInventoryButton" class="btn btn-gradient shadow inventory-management-upload-button">Upload inventory</button>
-                    <input type="file" name="dataCsv" id="inventoryManagementDataCsv" class="d-none" accept=".csv,text/csv" />
-                    <div class="majordome-management-search">
-                        <input id="majordomeManagementSearch" type="search" class="form-control shadow" placeholder="Search within results..." autocomplete="off" aria-label="Search inventory management" />
+                    <div class="majordome-management-toolbar-main">
+                        <button type="button" id="inventoryManagementUploadInventoryButton" class="btn btn-gradient shadow inventory-management-upload-button">Upload inventory</button>
+                        <input type="file" name="dataCsv" id="inventoryManagementDataCsv" class="d-none" accept=".csv,text/csv" />
+                        <select id="majordomeManagementLocationFilter" class="form-select majordome-management-location-filter" aria-label="Filter inventory management rows by location">
+                            <option value="all" selected>All locations</option>
+                        </select>
                     </div>
-                    <select id="majordomeManagementLocationFilter" class="form-select majordome-management-location-filter" aria-label="Filter inventory management rows by location">
-                        <option value="all" selected>All locations</option>
-                    </select>
-                    <div id="majordomeManagementSummary" class="majordome-management-summary shadow-sm" aria-live="polite">
-                        <span class="majordome-management-summary-label">Vehicles</span>
-                        <span id="majordomeManagementCount" class="badge bg-secondary shadow">0</span>
+                    <div class="majordome-management-toolbar-actions">
+                        <div id="majordomeManagementSummary" class="majordome-management-summary shadow-sm" aria-live="polite">
+                            <span class="majordome-management-summary-label">Vehicles</span>
+                            <span id="majordomeManagementCount" class="badge bg-secondary shadow">0</span>
+                        </div>
+                        <div id="majordomeManagementSearchSlot" class="majordome-management-search-slot">
+                            @{ Html.RenderPartial("~/Views/Shared/_FilterByTerm.cshtml"); }
+                            <style>
+                                #majordomeManagementSearchSlot > #filterByTerm.inventory-result-toolbar {
+                                    position: static !important;
+                                    left: auto !important;
+                                    right: auto !important;
+                                    top: auto !important;
+                                    transform: none !important;
+                                    width: 100% !important;
+                                    max-width: 100% !important;
+                                    min-width: 0 !important;
+                                    margin: 0 !important;
+                                    padding: 0 !important;
+                                    justify-content: flex-end !important;
+                                }
+
+                                #majordomeManagementSearchSlot #filterByTerm .inventory-toolbar-shell,
+                                #majordomeManagementSearchSlot #filterByTerm .inventory-term-search {
+                                    position: relative !important;
+                                    left: auto !important;
+                                    transform: none !important;
+                                    width: 100% !important;
+                                    max-width: 340px !important;
+                                    margin: 0 !important;
+                                    justify-content: flex-end !important;
+                                }
+
+                                #majordomeManagementSearchSlot #filterByTerm #filterWrapper {
+                                    position: relative !important;
+                                    left: auto !important;
+                                    transform: none !important;
+                                    flex: 0 0 auto !important;
+                                    width: min(100%, 340px) !important;
+                                    max-width: 340px !important;
+                                    margin-left: auto !important;
+                                    margin-right: 0 !important;
+                                    justify-content: flex-end !important;
+                                }
+                            </style>
+                        </div>
                     </div>
                 </div>
                 <div class="majordome-management-table-wrap table-responsive">
@@ -760,7 +886,7 @@
                     </table>
                 </div>
                 <div id="majordomeManagementEmpty" class="p-4 text-center text-muted d-none">
-                    No added, updated, removed, or stalled vehicles were found for this inventory date.
+                    No added, updated, sold, or existing vehicles were found for this inventory date.
                 </div>
             </div>
         </div>
@@ -778,8 +904,8 @@
         const majordomeManagementStatusFilters = [
             { key: "added", label: "Added", countKey: "AddedCount", badgeClass: "bg-success", iconClass: "bi-plus-circle" },
             { key: "updated", label: "Updated", countKey: "UpdatedCount", badgeClass: "bg-primary", iconClass: "bi-pencil-square" },
-            { key: "removed", label: "Removed", countKey: "RemovedCount", badgeClass: "bg-danger", iconClass: "bi-trash3" },
-            { key: "skipped", label: "Stalled", countKey: "SkippedCount", badgeClass: "bg-secondary", iconClass: "bi-pause-circle" }
+            { key: "removed", label: "Sold", countKey: "RemovedCount", badgeClass: "bg-danger", iconClass: "bi-trash3" },
+            { key: "skipped", label: "Existing", countKey: "SkippedCount", badgeClass: "bg-secondary", iconClass: "bi-pause-circle" }
         ];
 
         function managementRoot() {
@@ -883,6 +1009,23 @@
             return managementText(value).trim().toLowerCase();
         }
 
+        function managementVehicleSearchObject(row) {
+            const fields = {
+                Stock: managementValue(row, "Stock", ""),
+                Year: managementValue(row, "Year", ""),
+                Make: managementValue(row, "Make", ""),
+                Model: managementValue(row, "Model", ""),
+                VehicleStyle: managementValue(row, "VehicleStyle", ""),
+                VIN: managementValue(row, "VIN", ""),
+                LocationCode: managementValue(row, "LocationCode", ""),
+                StatusText: managementValue(row, "StatusText", "")
+            };
+
+            return window.gtxInventorySearch
+                ? window.gtxInventorySearch.vehicleObject(fields)
+                : fields;
+        }
+
         function managementStatusKey(value) {
             const status = managementSearchText(value);
 
@@ -894,11 +1037,11 @@
                 return "updated";
             }
 
-            if (status === "remove" || status === "removed" || status === "delete" || status === "deleted") {
+            if (status === "remove" || status === "removed" || status === "sold" || status === "sell" || status === "sale" || status === "delete" || status === "deleted") {
                 return "removed";
             }
 
-            if (status === "skip" || status === "skipped" || status === "stall" || status === "stalled") {
+            if (status === "skip" || status === "skipped" || status === "stall" || status === "stalled" || status === "existing") {
                 return "skipped";
             }
 
@@ -1067,6 +1210,10 @@
                 ].join(" ");
             }).join(" ");
 
+            if (window.gtxInventorySearch) {
+                return window.gtxInventorySearch.buildVehicleSearch(managementVehicleSearchObject(row), [changeText]).text;
+            }
+
             return managementSearchText([
                 managementValue(row, "Stock", ""),
                 managementValue(row, "Year", ""),
@@ -1080,9 +1227,25 @@
             ].join(" "));
         }
 
+        function managementRowTokenSearchValue(row) {
+            if (window.gtxInventorySearch) {
+                return window.gtxInventorySearch.buildVehicleSearch(managementVehicleSearchObject(row)).tokens;
+            }
+
+            return [
+                `@@YR ${managementText(managementValue(row, "Year", ""))}`,
+                `@@MK ${managementText(managementValue(row, "Make", ""))}`,
+                `@@MD ${managementText(managementValue(row, "Model", ""))}`,
+                `@@OW ${managementText(managementValue(row, "LocationCode", ""))}`
+            ].join(" ").toUpperCase();
+        }
+
         function getMajordomeManagementFilteredRows() {
-            const term = managementSearchText($("#majordomeManagementSearch").val());
-            const terms = term.split(/\s+/).filter(Boolean);
+            const rawTerm = managementText($("#filterTerm").val());
+            const term = managementSearchText(rawTerm);
+            const terms = window.gtxInventorySearch
+                ? window.gtxInventorySearch.splitTerms(rawTerm)
+                : term.split(/\s+/).filter(Boolean);
             const statusFilter = managementStatusKey(majordomeManagementSelectedStatus || "all");
             const locationFilter = $("#majordomeManagementLocationFilter").val() || "all";
 
@@ -1092,9 +1255,11 @@
                 const matchesStatus = statusFilter === "all" || rowStatus === statusFilter;
                 const matchesLocation = locationFilter === "all" || rowLocation === locationFilter;
                 const searchValue = managementRowSearchValue(row);
-                const matchesTerm = terms.length === 0 || terms.every(function (part) {
-                    return searchValue.indexOf(part) !== -1;
-                });
+                const matchesTerm = window.gtxInventorySearch
+                    ? window.gtxInventorySearch.matches(searchValue, rawTerm, managementRowTokenSearchValue(row))
+                    : terms.length === 0 || terms.every(function (part) {
+                        return searchValue.indexOf(part) !== -1;
+                    });
 
                 return matchesStatus && matchesLocation && matchesTerm;
             });
@@ -1104,7 +1269,7 @@
             const hasFilteredRows = filteredCount > 0;
             const message = totalCount > 0
                 ? "No vehicles match the current search, status, or location filter."
-                : "No added, updated, removed, or stalled vehicles were found for this inventory date.";
+                : "No added, updated, sold, or existing vehicles were found for this inventory date.";
 
             $("#majordomeManagementEmpty")
                 .toggleClass("d-none", hasFilteredRows)
@@ -1526,6 +1691,7 @@
             const stockKey = managementStockKey(stock);
             const selectedClass = stockKey && stockKey === majordomeManagementSelectedStock ? "is-selected" : "";
             const rowSearch = managementEscapeHtml(managementRowSearchValue(row));
+            const rowTokenSearch = managementEscapeHtml(managementRowTokenSearchValue(row));
             const displayVehicle = {
                 Stock: stock,
                 Year: year,
@@ -1542,7 +1708,7 @@
                 : "";
 
             return `
-                <tr class="majordome-management-row ${rowToneClass} ${selectedClass}" data-stock="${managementEscapeHtml(stockKey)}" data-status="${managementEscapeHtml(statusKey)}" data-search="${rowSearch}">
+                <tr class="majordome-management-row ${rowToneClass} ${selectedClass}" data-stock="${managementEscapeHtml(stockKey)}" data-status="${managementEscapeHtml(statusKey)}" data-search="${rowSearch}" data-search-tokens="${rowTokenSearch}">
                     <td>${toggle}</td>
                     ${window.renderMajordomeVehicleImageCell(displayVehicle)}
                     ${window.renderMajordomeVehicleDetailsCell(displayVehicle)}
@@ -1671,7 +1837,21 @@
                 });
         };
 
+        function applyManagementFilterTerm(term) {
+            $("#filterTerm").val(managementText(term));
+            if (window.gtxInventorySearch) {
+                window.gtxInventorySearch.writeStoredTerm(term || "");
+            }
+            applyMajordomeManagementFilters();
+        }
+
         $(function () {
+            window.applyMajordomeInventoryFilter = applyManagementFilterTerm;
+
+            if (window.gtxInventorySearch) {
+                $("#filterTerm").val(window.gtxInventorySearch.readStoredTerm());
+            }
+
             renderMajordomeManagementLogs();
 
             $("#majordomeManagementLogMenu")
@@ -1685,9 +1865,6 @@
                     selectMajordomeManagementLog($status.attr("data-log-id"), $status.attr("data-status"));
                 });
 
-            $("#majordomeManagementSearch").on("input", function () {
-                applyMajordomeManagementFilters();
-            });
             $("#majordomeManagementLocationFilter").on("change", applyMajordomeManagementFilters);
 
             $("#majordomeManagementTable").on("click", "th.majordome-sortable-th", function () {

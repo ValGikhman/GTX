@@ -535,7 +535,7 @@ namespace GTX.Controllers
                 case InventoryUploadStatus.Update:
                     return "Updated";
                 default:
-                    return "Skipped";
+                    return "Existing";
             }
         }
 

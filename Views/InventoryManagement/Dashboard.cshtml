@@ -88,9 +88,17 @@
         display: grid;
         place-items: center;
         border-radius: 50%;
-        background: conic-gradient(var(--dashboard-accent) 0deg var(--dashboard-angle), #e9eef5 var(--dashboard-angle) 360deg);
+        background: #e9eef5;
         box-shadow: inset 0 0 0 1px rgba(15, 23, 42, .05);
     }
+
+        .inventory-dashboard-donut canvas {
+            position: absolute;
+            inset: 0;
+            z-index: 3;
+            width: 100% !important;
+            height: 100% !important;
+        }
 
         .inventory-dashboard-donut.is-clickable {
             cursor: pointer;
@@ -108,17 +116,20 @@
             border-radius: 50%;
             background: var(--dashboard-surface);
             box-shadow: inset 0 0 0 1px rgba(15, 23, 42, .06);
+            z-index: 1;
+            pointer-events: none;
         }
 
     .inventory-dashboard-donut-center {
         position: relative;
-        z-index: 1;
+        z-index: 2;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         min-width: 0;
         line-height: 1;
+        pointer-events: none;
     }
 
     .inventory-dashboard-number {
@@ -135,13 +146,22 @@
         text-transform: uppercase;
     }
 
-    .inventory-dashboard-location-card {
-        min-height: 14rem;
+    .inventory-dashboard-graph-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: .75rem;
+        align-items: stretch;
     }
 
-    .inventory-dashboard-graphs-card {
+    .inventory-dashboard-graph-card {
+        min-height: 0;
         justify-content: flex-start;
         gap: .65rem;
+        padding: .9rem;
+    }
+
+    .inventory-dashboard-trend-card {
+        grid-column: 1 / -1;
     }
 
     .inventory-dashboard-graph-section {
@@ -159,17 +179,108 @@
 
     .inventory-dashboard-location-layout {
         display: grid;
-        grid-template-columns: minmax(8rem, 9.5rem) minmax(0, 1fr);
-        gap: .75rem;
+        grid-template-columns: 1fr;
+        gap: .65rem;
         align-items: center;
+        justify-items: center;
     }
 
     .inventory-dashboard-location-donut {
-        width: min(9.5rem, 58vw);
+        width: min(11rem, 64vw);
+    }
+
+    .inventory-dashboard-trend-panel {
+        display: flex;
+        flex-direction: column;
+        gap: .55rem;
+        min-width: 0;
+    }
+
+    .inventory-dashboard-trend-chart {
+        position: relative;
+        min-height: 10.75rem;
+        border: 1px solid var(--dashboard-line);
+        border-radius: 8px;
+        background: linear-gradient(180deg, var(--dashboard-surface) 0%, var(--dashboard-surface-alt) 100%);
+        overflow: hidden;
+        padding: .35rem;
+    }
+
+        .inventory-dashboard-trend-chart svg {
+            display: block;
+            width: 100%;
+            height: auto;
+            min-height: 10.75rem;
+        }
+
+        .inventory-dashboard-trend-chart canvas {
+            display: block;
+            width: 100% !important;
+            height: 10.25rem !important;
+            min-height: 10.25rem;
+        }
+
+    .inventory-dashboard-trend-empty {
+        min-height: 10.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        color: var(--dashboard-muted);
+        font-size: .86rem;
+        text-align: center;
+    }
+
+    .inventory-dashboard-trend-axis {
+        stroke: rgba(15, 23, 42, .18);
+        stroke-width: 1;
+    }
+
+    .inventory-dashboard-trend-grid {
+        stroke: rgba(148, 163, 184, .22);
+        stroke-width: 1;
+    }
+
+    .inventory-dashboard-trend-label {
+        fill: var(--dashboard-muted);
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .inventory-dashboard-trend-line {
+        fill: none;
+        stroke-width: 3;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .inventory-dashboard-trend-point {
+        stroke: var(--dashboard-surface);
+        stroke-width: 2;
+    }
+
+    .inventory-dashboard-trend-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .45rem;
+        align-items: center;
+    }
+
+    .inventory-dashboard-trend-legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        min-width: 0;
+        padding: .35rem .55rem;
+        border: 1px solid var(--dashboard-line);
+        border-radius: 999px;
+        background: var(--dashboard-surface-alt);
+        font-size: .78rem;
+        font-weight: 800;
     }
 
     .inventory-dashboard-grid-card {
-        min-height: 18rem;
+        min-height: 14rem;
         justify-content: flex-start;
         gap: 0;
         padding: 0;
@@ -178,24 +289,28 @@
 
     .inventory-dashboard-legend {
         display: flex;
-        flex-direction: column;
-        gap: .55rem;
-        align-items: stretch;
+        flex-wrap: wrap;
+        gap: .4rem;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
     }
 
     .inventory-dashboard-legend-item {
         min-width: 0;
-        width: 100%;
+        width: auto;
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        gap: .55rem;
-        padding: .55rem .65rem;
+        justify-content: center;
+        gap: .4rem;
+        padding: .35rem .55rem;
         border: 1px solid var(--dashboard-line);
-        border-radius: 8px;
+        border-radius: 999px;
         background: var(--dashboard-surface-alt);
         color: inherit;
         font: inherit;
+        font-size: .78rem;
+        font-weight: 800;
         text-align: left;
         cursor: default;
         transition: border-color .15s, box-shadow .15s, transform .15s;
@@ -219,9 +334,9 @@
         }
 
     .inventory-dashboard-swatch {
-        width: .7rem;
-        height: .7rem;
-        flex: 0 0 .7rem;
+        width: .58rem;
+        height: .58rem;
+        flex: 0 0 .58rem;
         border-radius: 50%;
         background: var(--dashboard-location-color, #0d6efd);
     }
@@ -298,8 +413,91 @@
         background: linear-gradient(180deg, var(--dashboard-surface) 0%, var(--dashboard-surface-alt) 100%);
     }
 
+    .inventory-dashboard-grid-title-wrap {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        min-width: 0;
+        flex-wrap: wrap;
+    }
+
+    .inventory-dashboard-grid-actions {
+        flex: 1 1 520px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: .5rem;
+        min-width: 0;
+        margin-left: auto;
+    }
+
+    .inventory-dashboard-summary {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .4rem;
+        padding: .35rem .75rem;
+        min-height: 2.5rem;
+        border: 1px solid var(--dashboard-border);
+        border-radius: .65rem;
+        background: linear-gradient(180deg, var(--dashboard-surface) 0%, var(--dashboard-surface-alt) 100%);
+        color: var(--dashboard-ink);
+        white-space: nowrap;
+        box-shadow: 0 .25rem .75rem rgba(15, 23, 42, .06);
+    }
+
+    .inventory-dashboard-summary-label {
+        color: var(--dashboard-muted);
+        font-size: .72rem;
+        font-weight: 800;
+        letter-spacing: .03em;
+        text-transform: uppercase;
+    }
+
+        .inventory-dashboard-grid-actions #filterByTerm.inventory-result-toolbar {
+            flex: 1 1 340px;
+            max-width: 340px;
+            min-width: 220px;
+            min-height: 0 !important;
+            width: min(100%, 340px) !important;
+            margin: 0 !important;
+            margin-top: 0 !important;
+            padding: 0 !important;
+            position: static !important;
+            top: auto !important;
+            right: auto !important;
+            bottom: auto !important;
+            left: auto !important;
+            transform: none !important;
+            background: none;
+            box-shadow: none;
+            z-index: auto;
+        }
+
+        .inventory-dashboard-grid-actions #filterByTerm.inventory-result-toolbar .inventory-toolbar-shell {
+            width: 100%;
+            min-height: 0;
+            padding: 0;
+            justify-content: flex-end !important;
+        }
+
+        .inventory-dashboard-grid-actions #filterByTerm.inventory-result-toolbar .inventory-term-search,
+        .inventory-dashboard-grid-actions #filterByTerm.inventory-result-toolbar #filterWrapper {
+            width: 100% !important;
+            flex: 1 1 auto;
+        }
+
+        .inventory-dashboard-grid-actions .filterLiked,
+        .inventory-dashboard-grid-actions .filterLast,
+        .inventory-dashboard-grid-actions .filterHelp,
+        .inventory-dashboard-grid-actions .sort,
+        .inventory-dashboard-grid-actions .inventory-toolbar-paging {
+            display: none !important;
+        }
+
     .inventory-dashboard-grid-wrap {
-        max-height: 68vh;
+        max-height: 63vh;
         background: var(--dashboard-surface-alt);
         scrollbar-color: rgba(71, 85, 105, .45) transparent;
         scrollbar-width: thin;
@@ -322,7 +520,7 @@
             --bs-table-color: var(--dashboard-ink);
             border-collapse: separate;
             border-spacing: 0;
-            font-size: .92rem;
+            font-size: .86rem;
             min-width: 860px;
         }
 
@@ -333,7 +531,7 @@
 
         #inventoryDashboardStatusTable > tbody > tr > td {
             background: var(--dashboard-surface);
-            padding: .72rem .85rem;
+            padding: .48rem .65rem;
             vertical-align: middle;
         }
 
@@ -366,10 +564,10 @@
             position: sticky;
             top: 0;
             z-index: 2;
-            padding: .8rem .85rem;
+            padding: .62rem .65rem;
             background: var(--gtx-grad, var(--bs-primary-bg-subtle, #f8fafc));
             color: #fff;
-            font-size: .8rem;
+            font-size: .76rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: .03em;
@@ -415,13 +613,13 @@
     }
 
     .inventory-dashboard-expand-cell {
-        width: 3.25rem;
+        width: 2.75rem;
         text-align: center;
     }
 
     .inventory-dashboard-expand-button {
-        width: 2.25rem;
-        min-height: 2.25rem;
+        width: 1.95rem;
+        min-height: 1.95rem;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -494,13 +692,13 @@
     }
 
     .inventory-dashboard-details-cell {
-        width: 5.5rem;
+        width: 4.75rem;
         text-align: center;
     }
 
     .inventory-dashboard-details-button {
-        width: 2.25rem;
-        min-height: 2.25rem;
+        width: 1.95rem;
+        min-height: 1.95rem;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -723,8 +921,8 @@
     }
 
     .inventory-dashboard .majordome-thumb {
-        width: 88px;
-        height: 66px;
+        width: 72px;
+        height: 52px;
         object-fit: cover;
         border-radius: .55rem;
         border: 1px solid rgba(15, 23, 42, .12);
@@ -733,12 +931,12 @@
     }
 
     .inventory-dashboard .majordome-row-details {
-        max-width: 320px;
+        max-width: 260px;
     }
 
     .inventory-dashboard .majordome-vehicle-title {
         color: var(--dashboard-ink);
-        font-size: .98rem;
+        font-size: .9rem;
         font-weight: 800;
         line-height: 1.2;
         white-space: nowrap;
@@ -760,17 +958,6 @@
         letter-spacing: .01em;
     }
 
-    @@media (max-width: 1599.98px) {
-        .inventory-dashboard-location-layout {
-            grid-template-columns: 1fr;
-            justify-items: center;
-        }
-
-        .inventory-dashboard-legend {
-            width: 100%;
-        }
-    }
-
     @@media (max-width: 767.98px) {
         .inventory-dashboard-toolbar {
             align-items: stretch;
@@ -780,13 +967,8 @@
             width: 100% !important;
         }
 
-        .inventory-dashboard-location-layout {
+        .inventory-dashboard-graph-grid {
             grid-template-columns: 1fr;
-            justify-items: center;
-        }
-
-        .inventory-dashboard-legend {
-            width: 100%;
         }
 
         .inventory-dashboard-grid-header {
@@ -794,9 +976,25 @@
             flex-direction: column;
         }
 
+        .inventory-dashboard-grid-actions,
+        .inventory-dashboard-grid-actions #filterByTerm.inventory-result-toolbar {
+            width: 100%;
+            max-width: none;
+            min-width: 0;
+        }
+
+        .inventory-dashboard-summary {
+            width: auto;
+            justify-content: center;
+        }
+
+        #inventoryDashboardClearStatus {
+            width: 100%;
+        }
+
         .inventory-dashboard .majordome-thumb {
-            width: 76px;
-            height: 56px;
+            width: 68px;
+            height: 50px;
         }
 
         .inventory-dashboard .majordome-row-details {
@@ -822,18 +1020,18 @@
     </div>
 
     <div class="row g-3">
-        <div class="col-12 col-xl-4">
-            <article class="inventory-dashboard-card inventory-dashboard-location-card inventory-dashboard-graphs-card">
-                <section class="inventory-dashboard-graph-section" aria-labelledby="inventoryDashboardStatusTitle">
+        <div class="col-12 col-xl-5">
+            <div class="inventory-dashboard-graph-grid">
+                <article class="inventory-dashboard-card inventory-dashboard-graph-card" aria-labelledby="inventoryDashboardStatusTitle">
                     <div class="inventory-dashboard-card-header">
                         <div>
                             <h2 id="inventoryDashboardStatusTitle" class="inventory-dashboard-title">Inventory By Status</h2>
-                            <div id="inventoryDashboardStatusCaption" class="inventory-dashboard-subtitle"></div>
                         </div>
                         <span class="inventory-dashboard-icon" style="--dashboard-accent: #6f42c1;" aria-hidden="true"><i class="bi bi-pie-chart"></i></span>
                     </div>
                     <div class="inventory-dashboard-location-layout">
                         <div id="inventoryDashboardStatusDonut" class="inventory-dashboard-donut inventory-dashboard-location-donut" style="--dashboard-accent: #6f42c1;">
+                            <canvas id="inventoryDashboardStatusCanvas" aria-hidden="true"></canvas>
                             <div class="inventory-dashboard-donut-center">
                                 <span id="inventoryDashboardStatusTotal" class="inventory-dashboard-number">0</span>
                                 <span id="inventoryDashboardStatusCenterLabel" class="inventory-dashboard-center-label">Vehicles</span>
@@ -841,20 +1039,18 @@
                         </div>
                         <div id="inventoryDashboardStatusLegend" class="inventory-dashboard-legend"></div>
                     </div>
-                </section>
+                </article>
 
-                <hr class="inventory-dashboard-graph-divider" />
-
-                <section class="inventory-dashboard-graph-section" aria-labelledby="inventoryDashboardLocationTitle">
+                <article class="inventory-dashboard-card inventory-dashboard-graph-card" aria-labelledby="inventoryDashboardLocationTitle">
                     <div class="inventory-dashboard-card-header">
                         <div>
                             <h2 id="inventoryDashboardLocationTitle" class="inventory-dashboard-title">Inventory By Location Code</h2>
-                            <div id="inventoryDashboardLocationCaption" class="inventory-dashboard-subtitle"></div>
                         </div>
                         <span class="inventory-dashboard-icon" style="--dashboard-accent: #0d6efd;" aria-hidden="true"><i class="bi bi-geo-alt"></i></span>
                     </div>
                     <div class="inventory-dashboard-location-layout">
                         <div id="inventoryDashboardLocationDonut" class="inventory-dashboard-donut inventory-dashboard-location-donut" style="--dashboard-accent: #0d6efd;">
+                            <canvas id="inventoryDashboardLocationCanvas" aria-hidden="true"></canvas>
                             <div class="inventory-dashboard-donut-center">
                                 <span id="inventoryDashboardLocationTotal" class="inventory-dashboard-number">0</span>
                                 <span id="inventoryDashboardLocationCenterLabel" class="inventory-dashboard-center-label">Vehicles</span>
@@ -862,21 +1058,40 @@
                         </div>
                         <div id="inventoryDashboardLocationLegend" class="inventory-dashboard-legend"></div>
                     </div>
-                </section>
-            </article>
+                </article>
+
+                <article class="inventory-dashboard-card inventory-dashboard-graph-card inventory-dashboard-trend-card" aria-labelledby="inventoryDashboardStatusTrendTitle">
+                    <div class="inventory-dashboard-card-header">
+                        <div>
+                            <h2 id="inventoryDashboardStatusTrendTitle" class="inventory-dashboard-title">Status Dynamics</h2>
+                        </div>
+                        <span class="inventory-dashboard-icon" style="--dashboard-accent: #198754;" aria-hidden="true"><i class="bi bi-graph-up-arrow"></i></span>
+                    </div>
+                    <div class="inventory-dashboard-trend-panel">
+                        <div id="inventoryDashboardStatusTrendChart" class="inventory-dashboard-trend-chart" role="img" aria-label="Status dynamics over time"></div>
+                        <div id="inventoryDashboardStatusTrendLegend" class="inventory-dashboard-trend-legend"></div>
+                    </div>
+                </article>
+            </div>
         </div>
 
-        <div class="col-12 col-xl-8">
+        <div class="col-12 col-xl-7">
             <article class="inventory-dashboard-card inventory-dashboard-grid-card inventory-dashboard-grid-shell" aria-labelledby="inventoryDashboardStatusGridTitle">
                 <div class="inventory-dashboard-grid-header">
-                    <div>
+                    <div class="inventory-dashboard-grid-title-wrap">
                         <h2 id="inventoryDashboardStatusGridTitle" class="inventory-dashboard-title">Inventory Detail</h2>
-                        <div id="inventoryDashboardStatusGridCaption" class="inventory-dashboard-subtitle"></div>
+                        <button type="button" id="inventoryDashboardClearStatus" class="btn btn-outline-secondary btn-sm d-none">
+                            <i class="bi bi-x-circle me-1" aria-hidden="true"></i>
+                            Clear filters
+                        </button>
                     </div>
-                    <button type="button" id="inventoryDashboardClearStatus" class="btn btn-outline-secondary btn-sm d-none">
-                        <i class="bi bi-x-circle me-1" aria-hidden="true"></i>
-                        Clear filters
-                    </button>
+                    <div class="inventory-dashboard-grid-actions">
+                        <div id="inventoryDashboardSummary" class="inventory-dashboard-summary shadow-sm" aria-live="polite">
+                            <span class="inventory-dashboard-summary-label">Vehicles</span>
+                            <span id="inventoryDashboardCount" class="badge bg-secondary shadow">0</span>
+                        </div>
+                        @Html.Partial("~/Views/Shared/_FilterByTerm.cshtml", new GTX.Models.BaseModel())
+                    </div>
                 </div>
                 <div class="inventory-dashboard-grid-wrap table-responsive">
                     <table id="inventoryDashboardStatusTable" class="table align-middle m-0">
@@ -936,6 +1151,7 @@
 @Html.Partial("~/Views/Majordome/_Majordome-VehicleCellsScript.cshtml")
 
 @section scripts {
+    <script src="~/Scripts/chartjs/chart.umd.min.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/chartjs/chart.umd.min.js")).Ticks)"></script>
     <script>
         (function ($) {
             function readDashboardData() {
@@ -954,8 +1170,12 @@
             let currentDashboardDays = "7";
             let activeStatusCode = null;
             let activeLocationCode = null;
+            let activeDashboardSearchText = "";
             let activeGridSortKey = null;
             let activeGridSortDirection = "asc";
+            let dashboardStatusChart = null;
+            let dashboardLocationChart = null;
+            let dashboardStatusTrendChart = null;
             const dashboardHistoryCache = {};
             const dashboardHistoryRequests = {};
             const expandedDashboardStocks = {};
@@ -976,8 +1196,10 @@
             ];
             const statusColors = {
                 "Added": "#198754",
+                "Existing": "#6c757d",
                 "Skipped": "#6c757d",
                 "Stalled": "#6c757d",
+                "Sold": "#dc3545",
                 "Removed": "#dc3545",
                 "Updated": "#0d6efd"
             };
@@ -1005,7 +1227,14 @@
 
             function statusLabel(value) {
                 const label = (value || "Status").toString().trim();
-                return label === "Skipped" ? "Stalled" : (label || "Status");
+                const normalized = label.toLowerCase();
+                if (normalized === "skip" || normalized === "skipped" || normalized === "stall" || normalized === "stalled") {
+                    return "Existing";
+                }
+                if (normalized === "remove" || normalized === "removed") {
+                    return "Sold";
+                }
+                return label || "Status";
             }
 
             function statusColor(status, index) {
@@ -1064,6 +1293,107 @@
                 return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(asNumber(value));
             }
 
+            function dashboardChartsAvailable() {
+                return typeof window.Chart === "function";
+            }
+
+            function destroyDashboardChart(chart) {
+                if (chart && typeof chart.destroy === "function") {
+                    chart.destroy();
+                }
+                return null;
+            }
+
+            function dashboardChartFont(size, weight) {
+                return {
+                    family: window.getComputedStyle(document.body).fontFamily,
+                    size: size,
+                    weight: weight || "600"
+                };
+            }
+
+            function dashboardChartSameKey(left, right) {
+                if (left === null || left === undefined || right === null || right === undefined) return false;
+                return left.toString() === right.toString();
+            }
+
+            function ensureDashboardCanvas(containerSelector, canvasId) {
+                const $container = $(containerSelector);
+                let canvas = document.getElementById(canvasId);
+
+                if (!canvas || !$container[0] || !$.contains($container[0], canvas)) {
+                    $container.children("canvas").remove();
+                    canvas = document.createElement("canvas");
+                    canvas.id = canvasId;
+                    canvas.setAttribute("aria-hidden", "true");
+                    $container.prepend(canvas);
+                }
+
+                return canvas;
+            }
+
+            function renderDashboardDoughnutChart(chart, containerSelector, canvasId, labels, values, colors, keys, activeKey, onSelect, fallbackBackground) {
+                chart = destroyDashboardChart(chart);
+                const $container = $(containerSelector);
+                const canvas = ensureDashboardCanvas(containerSelector, canvasId);
+                const numericValues = values.map(asNumber);
+                const hasData = numericValues.some(function (value) {
+                    return value > 0;
+                });
+                const chartLabels = hasData ? labels : ["No data"];
+                const chartValues = hasData ? numericValues : [1];
+                const chartColors = hasData ? colors : ["#e9eef5"];
+                const chartKeys = hasData ? keys : [null];
+
+                if (!dashboardChartsAvailable()) {
+                    $container.css("background", fallbackBackground || "#e9eef5");
+                    return null;
+                }
+
+                $container.css("background", "transparent");
+
+                return new window.Chart(canvas.getContext("2d"), {
+                    type: "doughnut",
+                    data: {
+                        labels: chartLabels,
+                        datasets: [{
+                            data: chartValues,
+                            backgroundColor: chartColors,
+                            borderColor: "#fff",
+                            borderWidth: 2,
+                            hoverOffset: hasData ? 5 : 0,
+                            offset: chartKeys.map(function (key) {
+                                return dashboardChartSameKey(key, activeKey) ? 8 : 0;
+                            })
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: "68%",
+                        animation: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                enabled: hasData,
+                                callbacks: {
+                                    label: function (context) {
+                                        return `${context.label}: ${formatNumber(context.parsed)}`;
+                                    }
+                                }
+                            }
+                        },
+                        onClick: function (event, elements) {
+                            if (!hasData || !elements.length || typeof onSelect !== "function") return;
+                            const selectedKey = chartKeys[elements[0].index];
+                            if (selectedKey !== null && selectedKey !== undefined) {
+                                onSelect(selectedKey);
+                            }
+                        }
+                    }
+                });
+            }
+
             function formatDate(value) {
                 if (!value) return "";
                 const msJsonDate = /^\/Date\((-?\d+)(?:[+-]\d+)?\)\/$/.exec(value.toString());
@@ -1089,6 +1419,14 @@
             function dashboardText(value) {
                 if (value === null || value === undefined) return "";
                 return value.toString();
+            }
+
+            function normalizeDashboardSearchText(value) {
+                if (window.gtxInventorySearch) {
+                    return window.gtxInventorySearch.normalize(value);
+                }
+
+                return dashboardText(value).trim().replace(/\s+/g, " ").toLowerCase();
             }
 
             function parseDashboardDate(value) {
@@ -1251,13 +1589,366 @@
 
                 return rawRemovedStatus || {
                     Status: removedStatusCode,
-                    StatusText: "Removed",
+                    StatusText: "Sold",
                     VehicleCount: removedCount
                 };
             }
 
             function getDashboardVehicles(data) {
                 return valueOf(data, "Vehicles", []) || [];
+            }
+
+            function getDashboardStatusTrend(data) {
+                return valueOf(data, "StatusTrend", []) || [];
+            }
+
+            function dashboardDayKey(date) {
+                if (!date) return "";
+                const year = date.getFullYear();
+                const month = date.getMonth() + 1;
+                const day = date.getDate();
+                return `${year}-${month < 10 ? `0${month}` : month}-${day < 10 ? `0${day}` : day}`;
+            }
+
+            function dashboardTrendPointDayKey(point) {
+                const dateKey = dashboardText(valueOf(point, "DateKey", "")).trim();
+                if (dateKey) return dateKey;
+
+                const pointDate = parseDashboardDate(valueOf(point, "DateUtc", ""));
+                return dashboardDayKey(pointDate);
+            }
+
+            function getDashboardTrendDays(data) {
+                const dashboardDays = asNumber(valueOf(data, "Days", currentDashboardDays)) || asNumber(currentDashboardDays) || 7;
+                const periodEnd = parseDashboardDate(valueOf(data, "PeriodEndUtc", "")) || new Date();
+                const periodStart = parseDashboardDate(valueOf(data, "PeriodStartUtc", ""));
+                const end = new Date(periodEnd.getFullYear(), periodEnd.getMonth(), periodEnd.getDate());
+                const start = periodStart
+                    ? new Date(periodStart.getFullYear(), periodStart.getMonth(), periodStart.getDate())
+                    : new Date(end);
+
+                if (!periodStart) {
+                    start.setDate(end.getDate() - Math.max(1, dashboardDays) + 1);
+                }
+
+                const days = [];
+                for (let cursor = new Date(start); cursor <= end; cursor.setDate(cursor.getDate() + 1)) {
+                    days.push(new Date(cursor));
+                }
+                return days;
+            }
+
+            function formatDashboardTrendDate(value) {
+                const date = parseDashboardDate(value);
+                if (!date) return dashboardText(value);
+                return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+            }
+
+            function dashboardStatusLabelFromCode(statusCode, data) {
+                const normalized = normalizeStatusCode(statusCode);
+                const status = getDashboardStatuses(data)
+                    .concat(getDashboardStatusTrend(data))
+                    .find(function (candidate) {
+                        return getStatusCode(candidate) === normalized;
+                    });
+                if (status) {
+                    return statusLabel(valueOf(status, "StatusText", "Status"));
+                }
+                if (normalized === addedStatusCode) return "Added";
+                if (normalized === updatedStatusCode) return "Updated";
+                if (normalized === removedStatusCode) return "Sold";
+                return "Existing";
+            }
+
+            function dashboardStatusTrendSort(statusCode) {
+                const normalized = normalizeStatusCode(statusCode);
+                if (normalized === addedStatusCode) return 0;
+                if (normalized === updatedStatusCode) return 1;
+                if (normalized === removedStatusCode) return 2;
+                return 3;
+            }
+
+            function dashboardStatusTrendColor(statusCode, data, index) {
+                return statusColor({
+                    Status: statusCode,
+                    StatusText: dashboardStatusLabelFromCode(statusCode, data)
+                }, index);
+            }
+
+            function isDashboardTrendStatus(statusCode) {
+                const normalized = normalizeStatusCode(statusCode);
+                return normalized === addedStatusCode || normalized === removedStatusCode;
+            }
+
+            function smoothDashboardTrendPath(points) {
+                if (!points.length) return "";
+                if (points.length === 1) {
+                    return `M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;
+                }
+
+                let path = `M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;
+                for (let index = 0; index < points.length - 1; index++) {
+                    const previous = points[index - 1] || points[index];
+                    const current = points[index];
+                    const next = points[index + 1];
+                    const following = points[index + 2] || next;
+                    const firstControl = {
+                        x: current.x + (next.x - previous.x) / 6,
+                        y: current.y + (next.y - previous.y) / 6
+                    };
+                    const secondControl = {
+                        x: next.x - (following.x - current.x) / 6,
+                        y: next.y - (following.y - current.y) / 6
+                    };
+
+                    path += ` C ${firstControl.x.toFixed(2)} ${firstControl.y.toFixed(2)}, ${secondControl.x.toFixed(2)} ${secondControl.y.toFixed(2)}, ${next.x.toFixed(2)} ${next.y.toFixed(2)}`;
+                }
+
+                return path;
+            }
+
+            function buildDashboardStatusTrendSeries(data, days) {
+                const trend = getDashboardStatusTrend(data);
+                const dayIndexes = {};
+                days.forEach(function (day, index) {
+                    dayIndexes[dashboardDayKey(day)] = index;
+                });
+
+                const filteredTrend = trend.filter(function (point) {
+                    const statusCode = getStatusCode(point);
+                    if (!isDashboardTrendStatus(statusCode)) {
+                        return false;
+                    }
+                    if (activeStatusCode !== null && statusCode !== activeStatusCode) {
+                        return false;
+                    }
+                    if (activeLocationCode !== null &&
+                        normalizeLocationFilterCode(valueOf(point, "LocationCode", "N/A")) !== activeLocationCode) {
+                        return false;
+                    }
+                    return dayIndexes[dashboardTrendPointDayKey(point)] !== undefined;
+                });
+
+                const statusCodes = activeStatusCode !== null && isDashboardTrendStatus(activeStatusCode)
+                    ? [activeStatusCode]
+                    : (activeStatusCode !== null ? [] : filteredTrend
+                        .map(getStatusCode)
+                        .filter(function (statusCode, index, source) {
+                            return statusCode !== null && source.indexOf(statusCode) === index;
+                        })
+                        .sort(function (left, right) {
+                            return dashboardStatusTrendSort(left) - dashboardStatusTrendSort(right);
+                        }));
+
+                return statusCodes.map(function (statusCode, index) {
+                    const values = days.map(function () { return 0; });
+                    filteredTrend.forEach(function (point) {
+                        if (getStatusCode(point) !== statusCode) return;
+                        const dayIndex = dayIndexes[dashboardTrendPointDayKey(point)];
+                        if (dayIndex === undefined) return;
+                        values[dayIndex] += asNumber(valueOf(point, "VehicleCount", 0));
+                    });
+
+                    return {
+                        statusCode: statusCode,
+                        label: dashboardStatusLabelFromCode(statusCode, data),
+                        color: dashboardStatusTrendColor(statusCode, data, index),
+                        values: values,
+                        total: values.reduce(function (sum, value) { return sum + value; }, 0)
+                    };
+                });
+            }
+
+            function renderDashboardTrendLegend(series) {
+                const legendHtml = series.map(function (item) {
+                    return `
+                        <span class="inventory-dashboard-trend-legend-item" style="--dashboard-location-color: ${escapeDashboardHtml(item.color)};">
+                            <span class="inventory-dashboard-swatch" aria-hidden="true"></span>
+                            <span>${escapeDashboardHtml(item.label)} ${escapeDashboardHtml(formatNumber(item.total))}</span>
+                        </span>`;
+                }).join("");
+
+                if (window.gtxSecurity && typeof window.gtxSecurity.setSafeHtml === "function") {
+                    window.gtxSecurity.setSafeHtml($("#inventoryDashboardStatusTrendLegend"), legendHtml);
+                } else {
+                    $("#inventoryDashboardStatusTrendLegend").html(legendHtml);
+                }
+            }
+
+            function renderDashboardStatusTrendChart(days, series) {
+                dashboardStatusTrendChart = destroyDashboardChart(dashboardStatusTrendChart);
+
+                if (!dashboardChartsAvailable()) {
+                    return false;
+                }
+
+                const $chart = $("#inventoryDashboardStatusTrendChart").empty();
+                const canvas = document.createElement("canvas");
+                canvas.id = "inventoryDashboardStatusTrendCanvas";
+                canvas.setAttribute("aria-hidden", "true");
+                $chart.append(canvas);
+
+                dashboardStatusTrendChart = new window.Chart(canvas.getContext("2d"), {
+                    type: "line",
+                    data: {
+                        labels: days.map(formatDashboardTrendDate),
+                        datasets: series.map(function (item) {
+                            return {
+                                label: item.label,
+                                data: item.values,
+                                borderColor: item.color,
+                                backgroundColor: item.color,
+                                borderWidth: 3,
+                                pointRadius: 3,
+                                pointHoverRadius: 5,
+                                pointBackgroundColor: item.color,
+                                pointBorderColor: "#fff",
+                                pointBorderWidth: 2,
+                                tension: .35,
+                                fill: false
+                            };
+                        })
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: false,
+                        interaction: {
+                            mode: "index",
+                            intersect: false
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        return `${context.dataset.label}: ${formatNumber(context.parsed.y)}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { color: "rgba(148, 163, 184, .18)" },
+                                ticks: {
+                                    color: "#64748b",
+                                    font: dashboardChartFont(11, "700"),
+                                    maxRotation: 0,
+                                    autoSkip: true,
+                                    maxTicksLimit: 6
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: "rgba(148, 163, 184, .24)" },
+                                ticks: {
+                                    color: "#64748b",
+                                    precision: 0,
+                                    font: dashboardChartFont(11, "700"),
+                                    callback: function (value) {
+                                        return formatNumber(value);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                renderDashboardTrendLegend(series);
+                return true;
+            }
+
+            function updateDashboardSummary(filteredCount, totalCount) {
+                const filteredText = formatNumber(filteredCount);
+                const totalText = formatNumber(totalCount);
+                const countText = asNumber(filteredCount) === asNumber(totalCount) ? filteredText : `${filteredText} / ${totalText}`;
+                $("#inventoryDashboardCount").text(countText);
+            }
+
+            function renderStatusTrend(data) {
+                const days = getDashboardTrendDays(data);
+                const series = buildDashboardStatusTrendSeries(data, days);
+                const hasActivity = series.some(function (item) {
+                    return item.total > 0;
+                });
+
+                if (!days.length || !series.length || !hasActivity) {
+                    dashboardStatusTrendChart = destroyDashboardChart(dashboardStatusTrendChart);
+                    $("#inventoryDashboardStatusTrendChart").html(
+                        `<div class="inventory-dashboard-trend-empty">No status activity for this filter.</div>`);
+                    $("#inventoryDashboardStatusTrendLegend").empty();
+                    return;
+                }
+
+                if (renderDashboardStatusTrendChart(days, series)) {
+                    return;
+                }
+
+                const width = 640;
+                const height = 220;
+                const padding = { top: 18, right: 18, bottom: 40, left: 46 };
+                const plotWidth = width - padding.left - padding.right;
+                const plotHeight = height - padding.top - padding.bottom;
+                const maxValue = Math.max.apply(null, series.reduce(function (values, item) {
+                    return values.concat(item.values);
+                }, [1]));
+                const yTicks = [maxValue, Math.round(maxValue / 2), 0]
+                    .filter(function (value, index, source) {
+                        return source.indexOf(value) === index;
+                    });
+                const xLabelIndexes = [0, Math.floor((days.length - 1) / 2), days.length - 1]
+                    .filter(function (value, index, source) {
+                        return value >= 0 && source.indexOf(value) === index;
+                    });
+                const xForIndex = function (index) {
+                    return days.length === 1
+                        ? padding.left + (plotWidth / 2)
+                        : padding.left + (index / (days.length - 1) * plotWidth);
+                };
+                const yForValue = function (value) {
+                    return padding.top + ((maxValue - value) / maxValue * plotHeight);
+                };
+
+                const gridHtml = yTicks.map(function (tick) {
+                    const y = yForValue(tick);
+                    return `
+                        <line class="inventory-dashboard-trend-grid" x1="${padding.left}" y1="${y.toFixed(2)}" x2="${(width - padding.right).toFixed(2)}" y2="${y.toFixed(2)}"></line>
+                        <text class="inventory-dashboard-trend-label" x="${(padding.left - 10).toFixed(2)}" y="${(y + 4).toFixed(2)}" text-anchor="end">${escapeDashboardHtml(formatNumber(tick))}</text>`;
+                }).join("");
+                const xLabelsHtml = xLabelIndexes.map(function (index) {
+                    const x = xForIndex(index);
+                    return `<text class="inventory-dashboard-trend-label" x="${x.toFixed(2)}" y="${height - 12}" text-anchor="middle">${escapeDashboardHtml(formatDashboardTrendDate(days[index]))}</text>`;
+                }).join("");
+                const linesHtml = series.map(function (item) {
+                    const points = item.values.map(function (value, index) {
+                        return {
+                            x: xForIndex(index),
+                            y: yForValue(value)
+                        };
+                    });
+                    const path = smoothDashboardTrendPath(points);
+                    const circles = item.values.map(function (value, index) {
+                        return `<circle class="inventory-dashboard-trend-point" cx="${xForIndex(index).toFixed(2)}" cy="${yForValue(value).toFixed(2)}" r="2.35" fill="${escapeDashboardHtml(item.color)}"></circle>`;
+                    }).join("");
+
+                    return `
+                        <path class="inventory-dashboard-trend-line" d="${escapeDashboardHtml(path)}" stroke="${escapeDashboardHtml(item.color)}"></path>
+                        ${circles}`;
+                }).join("");
+                const chartHtml = `
+                    <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+                        ${gridHtml}
+                        <line class="inventory-dashboard-trend-axis" x1="${padding.left}" y1="${padding.top}" x2="${padding.left}" y2="${height - padding.bottom}"></line>
+                        <line class="inventory-dashboard-trend-axis" x1="${padding.left}" y1="${height - padding.bottom}" x2="${width - padding.right}" y2="${height - padding.bottom}"></line>
+                        ${linesHtml}
+                        ${xLabelsHtml}
+                    </svg>`;
+                if (window.gtxSecurity && typeof window.gtxSecurity.setSafeHtml === "function") {
+                    window.gtxSecurity.setSafeHtml($("#inventoryDashboardStatusTrendChart"), chartHtml);
+                } else {
+                    $("#inventoryDashboardStatusTrendChart").html(chartHtml);
+                }
+                renderDashboardTrendLegend(series);
             }
 
             function statusExists(statuses, statusCode) {
@@ -1289,7 +1980,6 @@
             function renderStatusBreakdown(data) {
                 const statuses = getDashboardStatuses(data);
                 const currentStatuses = getDashboardCurrentStatuses(data);
-                const removedStatus = getDashboardRemovedStatus(data);
                 const currentTotal = currentStatuses.reduce(function (sum, status) {
                     return sum + asNumber(valueOf(status, "VehicleCount", 0));
                 }, 0);
@@ -1312,18 +2002,28 @@
 
                 $("#inventoryDashboardStatusTotal").text(formatNumber(centerStatusCount));
                 $("#inventoryDashboardStatusCenterLabel").text(centerStatusLabel);
-                const currentStatusCount = currentStatuses.length;
-                let caption = `${currentStatusCount} current status${currentStatusCount === 1 ? "" : "es"} by distinct stock`;
-                if (removedStatus) {
-                    caption += `, ${formatNumber(valueOf(removedStatus, "VehicleCount", 0))} removed`;
-                }
-                $("#inventoryDashboardStatusCaption").text(caption);
                 $("#inventoryDashboardStatusDonut")
-                    .css("background", statusGradient(statuses, graphTotal))
                     .toggleClass("is-clickable", statuses.length > 0)
                     .attr("role", statuses.length > 0 ? "button" : null)
                     .attr("tabindex", statuses.length > 0 ? "0" : null)
                     .attr("title", statuses.length > 0 ? "Filter the grid by status" : "");
+                dashboardStatusChart = renderDashboardDoughnutChart(
+                    dashboardStatusChart,
+                    "#inventoryDashboardStatusDonut",
+                    "inventoryDashboardStatusCanvas",
+                    statuses.map(function (status) {
+                        return statusLabel(valueOf(status, "StatusText", "Status"));
+                    }),
+                    statuses.map(function (status) {
+                        return asNumber(valueOf(status, "VehicleCount", 0));
+                    }),
+                    statuses.map(function (status, index) {
+                        return statusColor(status, index);
+                    }),
+                    statuses.map(getStatusCode),
+                    activeStatusCode,
+                    setActiveStatus,
+                    statusGradient(statuses, graphTotal));
 
                 const $legend = $("#inventoryDashboardStatusLegend").empty();
                 if (!statuses.length) {
@@ -1386,13 +2086,30 @@
 
                 $("#inventoryDashboardLocationTotal").text(formatNumber(centerLocationCount));
                 $("#inventoryDashboardLocationCenterLabel").text(centerLocationLabel);
-                $("#inventoryDashboardLocationCaption").text(`${locations.length} location${locations.length === 1 ? "" : "s"}`);
                 $("#inventoryDashboardLocationDonut")
-                    .css("background", locationGradient(locations, total))
                     .toggleClass("is-clickable", locations.length > 0)
                     .attr("role", locations.length > 0 ? "button" : null)
                     .attr("tabindex", locations.length > 0 ? "0" : null)
                     .attr("title", locations.length > 0 ? "Filter the grid by location" : "");
+                dashboardLocationChart = renderDashboardDoughnutChart(
+                    dashboardLocationChart,
+                    "#inventoryDashboardLocationDonut",
+                    "inventoryDashboardLocationCanvas",
+                    locations.map(function (location, index) {
+                        return locationBadgeInfo(valueOf(location, "LocationCode", "N/A"), index).label;
+                    }),
+                    locations.map(function (location) {
+                        return asNumber(valueOf(location, "VehicleCount", 0));
+                    }),
+                    locations.map(function (location, index) {
+                        return locationBadgeInfo(valueOf(location, "LocationCode", "N/A"), index).color;
+                    }),
+                    locations.map(function (location) {
+                        return normalizeLocationFilterCode(valueOf(location, "LocationCode", "N/A"));
+                    }),
+                    activeLocationCode,
+                    setActiveLocation,
+                    locationGradient(locations, total));
 
                 const $legend = $("#inventoryDashboardLocationLegend").empty();
                 if (!locations.length) {
@@ -1422,7 +2139,7 @@
                         .css("--dashboard-location-color", color)
                         .appendTo($label);
                     $("<span></span>")
-                        .addClass(`inventory-dashboard-location-code inventory-dashboard-gtx-code ${badge.toneClass}`)
+                        .addClass("inventory-dashboard-location-code")
                         .text(code)
                         .appendTo($label);
 
@@ -1502,7 +2219,7 @@
             function dashboardStatusDotInfo(statusCode) {
                 if (statusCode === addedStatusCode) return { label: "Added", className: "is-added" };
                 if (statusCode === updatedStatusCode) return { label: "Updated", className: "is-updated" };
-                if (statusCode === removedStatusCode) return { label: "Removed", className: "is-removed" };
+                if (statusCode === removedStatusCode) return { label: "Sold", className: "is-removed" };
                 return { label: "", className: "" };
             }
 
@@ -1526,6 +2243,100 @@
                 return `<span class="inventory-dashboard-status-dots" title="${escapeDashboardHtml(label)}">${dots}</span>`;
             }
 
+            function getDashboardSearchTerms() {
+                if (window.gtxInventorySearch) {
+                    return window.gtxInventorySearch.splitTerms(activeDashboardSearchText);
+                }
+
+                const searchText = normalizeDashboardSearchText(activeDashboardSearchText);
+                return searchText ? searchText.split(" ") : [];
+            }
+
+            function getDashboardVehicleSearchObject(vehicle) {
+                const row = normalizeDashboardVehicle(vehicle);
+                const fields = {
+                    Stock: row.Stock,
+                    Year: row.Year,
+                    Make: row.Make,
+                    Model: row.Model,
+                    VIN: row.VIN,
+                    VehicleStyle: row.VehicleStyle,
+                    LocationCode: row.LocationCode,
+                    Status: row.Status,
+                    StatusText: row.StatusText,
+                    DaysInInventory: row.DaysInInventory,
+                    InventoryStartSource: row.InventoryStartSource
+                };
+
+                return window.gtxInventorySearch
+                    ? window.gtxInventorySearch.vehicleObject(fields)
+                    : fields;
+            }
+
+            function getDashboardVehicleSearchText(vehicle) {
+                const row = normalizeDashboardVehicle(vehicle);
+                const historyStatusLabels = row.HistoryStatuses.map(function (statusCode) {
+                    return dashboardStatusDotInfo(statusCode).label;
+                }).join(" ");
+                const searchValues = [
+                    row.Stock,
+                    row.Year,
+                    row.Make,
+                    row.Model,
+                    row.VIN,
+                    row.VehicleStyle,
+                    row.LocationCode,
+                    normalizeLocationFilterCode(row.LocationCode),
+                    row.Status,
+                    row.StatusText,
+                    row.DaysInInventory,
+                    row.InventoryStartSource,
+                    formatDate(row.InventoryStartDate),
+                    historyStatusLabels
+                ];
+
+                if (window.gtxInventorySearch) {
+                    return window.gtxInventorySearch.buildVehicleSearch(getDashboardVehicleSearchObject(row), [
+                        normalizeLocationFilterCode(row.LocationCode),
+                        formatDate(row.InventoryStartDate),
+                        historyStatusLabels
+                    ]).text;
+                }
+
+                return normalizeDashboardSearchText(searchValues.join(" "));
+            }
+
+            function getDashboardVehicleTokenSearchText(vehicle) {
+                const row = normalizeDashboardVehicle(vehicle);
+
+                if (window.gtxInventorySearch) {
+                    return window.gtxInventorySearch.buildVehicleSearch(getDashboardVehicleSearchObject(row)).tokens;
+                }
+
+                return normalizeDashboardSearchText([
+                    `@@YR ${row.Year}`,
+                    `@@MK ${row.Make}`,
+                    `@@MD ${row.Model}`,
+                    `@@OW ${row.LocationCode}`
+                ].join(" "));
+            }
+
+            function dashboardVehicleMatchesSearch(vehicle, searchTerms) {
+                if (!searchTerms.length) return true;
+
+                if (window.gtxInventorySearch) {
+                    return window.gtxInventorySearch.matches(
+                        getDashboardVehicleSearchText(vehicle),
+                        activeDashboardSearchText,
+                        getDashboardVehicleTokenSearchText(vehicle));
+                }
+
+                const searchText = getDashboardVehicleSearchText(vehicle);
+                return searchTerms.every(function (term) {
+                    return searchText.indexOf(term) !== -1;
+                });
+            }
+
             function isDashboardVehicleCurrent(vehicle) {
                 return valueOf(vehicle, "IsCurrent", true) !== false;
             }
@@ -1538,7 +2349,7 @@
             function historyStatusClass(label) {
                 const normalized = (label || "").toString().trim().toLowerCase();
                 if (normalized === "added") return "is-added";
-                if (normalized === "removed") return "is-removed";
+                if (normalized === "removed" || normalized === "sold") return "is-removed";
                 if (normalized === "updated") return "is-updated";
                 if (normalized === "purchased") return "is-purchased";
                 return "";
@@ -1815,6 +2626,7 @@
                 const removedVehicles = vehicles.filter(function (vehicle) {
                     return !isDashboardVehicleCurrent(vehicle) && getVehicleStatusCodes(vehicle).indexOf(removedStatusCode) !== -1;
                 });
+                const searchTerms = getDashboardSearchTerms();
                 const filteredVehicles = vehicles.filter(function (vehicle) {
                     const statusCodes = getVehicleStatusCodes(vehicle);
                     const locationCode = normalizeLocationFilterCode(valueOf(vehicle, "LocationCode", ""));
@@ -1830,52 +2642,29 @@
                     }
 
                     const locationMatched = activeLocationCode === null || locationCode === activeLocationCode;
-                    return statusMatched && locationMatched;
+                    const searchMatched = dashboardVehicleMatchesSearch(vehicle, searchTerms);
+                    return statusMatched && locationMatched && searchMatched;
                 });
-                const statuses = getDashboardStatuses(data);
-                const locations = valueOf(data, "LocationCounts", []) || [];
-                const activeStatus = statuses.find(function (status) {
-                    return getStatusCode(status) === activeStatusCode;
-                });
-                const activeLocation = locations.find(function (location) {
-                    return normalizeLocationFilterCode(valueOf(location, "LocationCode", "N/A")) === activeLocationCode;
-                });
-                const activeLabel = activeStatus ? statusLabel(valueOf(activeStatus, "StatusText", "Status")) : "";
-                const activeLocationLabel = activeLocation ? locationBadgeInfo(valueOf(activeLocation, "LocationCode", "N/A"), 0).label : "";
                 const total = activeStatusCode === removedStatusCode
                     ? removedVehicles.length
                     : currentVehicles.length;
                 const filteredTotal = filteredVehicles.length;
-                const statusFilterText = activeStatusCode !== null && activeLabel
-                    ? activeLabel.toLowerCase()
-                    : "";
-                const locationFilterText = activeLocationCode !== null && activeLocationLabel
-                    ? `in ${activeLocationLabel}`
-                    : "";
-                let caption = `Showing all ${formatNumber(total)} current vehicle${total === 1 ? "" : "s"}.`;
-                if (activeStatusCode === removedStatusCode && locationFilterText) {
-                    caption = `Showing ${formatNumber(filteredTotal)} removed vehicle${filteredTotal === 1 ? "" : "s"} ${locationFilterText} of ${formatNumber(total)}.`;
-                } else if (activeStatusCode === removedStatusCode) {
-                    caption = `Showing ${formatNumber(filteredTotal)} removed vehicle${filteredTotal === 1 ? "" : "s"} for this period.`;
-                } else if (statusFilterText && locationFilterText) {
-                    caption = `Showing ${formatNumber(filteredTotal)} ${statusFilterText} vehicle${filteredTotal === 1 ? "" : "s"} ${locationFilterText} of ${formatNumber(total)}.`;
-                } else if (statusFilterText) {
-                    caption = `Showing ${formatNumber(filteredTotal)} ${statusFilterText} vehicle${filteredTotal === 1 ? "" : "s"} of ${formatNumber(total)}.`;
-                } else if (locationFilterText) {
-                    caption = `Showing ${formatNumber(filteredTotal)} vehicle${filteredTotal === 1 ? "" : "s"} ${locationFilterText} of ${formatNumber(total)}.`;
-                }
+                const searchFilterText = activeDashboardSearchText.trim();
                 const sortedVehicles = sortDashboardGridVehicles(filteredVehicles);
                 const rowsHtml = sortedVehicles.map(function (vehicle, index) {
                     return renderDashboardVehicleRow(vehicle, index);
                 }).join("");
 
-                $("#inventoryDashboardStatusGridCaption").text(caption);
-                $("#inventoryDashboardClearStatus").toggleClass("d-none", activeStatusCode === null && activeLocationCode === null);
+                updateDashboardSummary(filteredTotal, total);
+                $("#inventoryDashboardClearStatus").toggleClass("d-none", activeStatusCode === null && activeLocationCode === null && !searchFilterText);
                 if (window.gtxSecurity && typeof window.gtxSecurity.setSafeHtml === "function") {
                     window.gtxSecurity.setSafeHtml($("#inventoryDashboardStatusBody"), rowsHtml);
                 } else {
                     $("#inventoryDashboardStatusBody").html(rowsHtml);
                 }
+                $("#inventoryDashboardStatusEmpty").text(searchFilterText
+                    ? "No vehicles match the selected filters or search."
+                    : "No vehicles match the selected filter.");
                 $("#inventoryDashboardStatusEmpty").toggleClass("d-none", filteredTotal > 0);
                 $("#inventoryDashboardStatusTable").toggleClass("d-none", filteredTotal === 0);
                 renderDashboardGridSortHeaders();
@@ -1990,6 +2779,14 @@
                 renderDashboard(currentDashboardDays);
             }
 
+            function applyDashboardFilterTerm(term) {
+                activeDashboardSearchText = dashboardText(term);
+                if (window.gtxInventorySearch) {
+                    window.gtxInventorySearch.writeStoredTerm(activeDashboardSearchText);
+                }
+                renderDashboard(currentDashboardDays);
+            }
+
             function setActiveStatus(statusCode) {
                 const normalized = normalizeStatusCode(statusCode);
                 activeStatusCode = activeStatusCode === normalized ? null : normalized;
@@ -2095,6 +2892,7 @@
 
                 $("#inventoryDashboardRange").text(start && end ? `${start} - ${end}` : "");
                 renderStatusBreakdown(data);
+                renderStatusTrend(data);
                 renderLocations(data);
                 renderStatusGrid(data);
             }
@@ -2139,6 +2937,14 @@
 
             $(function () {
                 const $period = $("#inventoryDashboardPeriod");
+                const $filterTerm = $("#filterTerm");
+                window.applyMajordomeInventoryFilter = applyDashboardFilterTerm;
+
+                if (window.gtxInventorySearch) {
+                    activeDashboardSearchText = window.gtxInventorySearch.readStoredTerm();
+                    $filterTerm.val(activeDashboardSearchText);
+                }
+
                 $period.on("change", function () {
                     loadDashboard(this.value, true);
                 });
@@ -2175,6 +2981,7 @@
                     setDashboardGridSort($(this).attr("data-dashboard-sort"));
                 });
                 $("#inventoryDashboardStatusDonut").on("click", function (event) {
+                    if (dashboardChartsAvailable()) return;
                     const statusCode = getClickedStatusCode(event, getDashboardStatuses(dashboardFor(currentDashboardDays)));
                     if (statusCode !== null) {
                         setActiveStatus(statusCode);
@@ -2191,6 +2998,7 @@
                     setActiveStatus(firstStatusCode);
                 });
                 $("#inventoryDashboardLocationDonut").on("click", function (event) {
+                    if (dashboardChartsAvailable()) return;
                     const locationCode = getClickedLocationCode(event, valueOf(dashboardFor(currentDashboardDays), "LocationCounts", []) || []);
                     if (locationCode !== null) {
                         setActiveLocation(locationCode);
@@ -2209,6 +3017,11 @@
                 $("#inventoryDashboardClearStatus").on("click", function () {
                     activeStatusCode = null;
                     activeLocationCode = null;
+                    activeDashboardSearchText = "";
+                    $filterTerm.val("");
+                    if (window.gtxInventorySearch) {
+                        window.gtxInventorySearch.writeStoredTerm("");
+                    }
                     renderDashboard(currentDashboardDays);
                 });
                 $("#inventoryDashboardDetailsModal").on("hidden.bs.modal", function () {

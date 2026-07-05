@@ -23,14 +23,19 @@ function applyTerm(term) {
 }
 
 function applyFilterTerm(term) {
+    var search = window.gtxInventorySearch;
     const rawTerm = (term || "").toString();
-    const filter = rawTerm.trim().toUpperCase();
-    const terms = filter.split(/\s+/).filter(Boolean);
+    const filter = search ? search.normalize(rawTerm) : rawTerm.trim().toUpperCase();
+    const terms = search ? search.splitTerms(rawTerm) : filter.split(/\s+/).filter(Boolean);
 
-    if (!filter) {
-        sessionStorage.removeItem("term");
+    if (search) {
+        search.writeStoredTerm(rawTerm);
     } else {
-        sessionStorage.setItem("term", rawTerm);
+        if (!filter) {
+            sessionStorage.removeItem("term");
+        } else {
+            sessionStorage.setItem("term", rawTerm);
+        }
     }
 
     if (window.applyInventoryPanelFilters && document.getElementById("inventory")) {
@@ -40,7 +45,6 @@ function applyFilterTerm(term) {
     }
 
     const vehicles = document.querySelectorAll(".card");
-    let combined;
 
     vehicles.forEach(vehicle => {
         const stock = $(vehicle).data("stock") || "";
@@ -60,9 +64,30 @@ function applyFilterTerm(term) {
         const cylinders = $(vehicle).data("cylinders") || "";
 
         $("#filterTerm").removeClass("text-info").removeClass("border-info");
-        combined = `${stock} ${vin} ${dataone} ${make} ${model} ${style} ${type} ${transmission} ${year} ${color} ${color2} ${location} ${story} ${images} ${cylinders} ${$(vehicle).data("fuel") || ""} ${$(vehicle).data("drive") || ""} ${$(vehicle).data("body") || ""}`.toUpperCase();
-
-        const isMatch = terms.length === 0 || terms.every(t => combined.includes(t));
+        const isMatch = search
+            ? search.vehicleMatches({
+                stock: stock,
+                vin: vin,
+                dataone: dataone,
+                make: make,
+                model: model,
+                style: style,
+                type: type,
+                transmission: transmission,
+                year: year,
+                color: color,
+                color2: color2,
+                location: location,
+                story: story,
+                images: images,
+                cylinders: cylinders,
+                fuel: $(vehicle).data("fuel") || "",
+                drive: $(vehicle).data("drive") || "",
+                body: $(vehicle).data("body") || ""
+            }, rawTerm)
+            : terms.length === 0 || terms.every(function (t) {
+                return `${stock} ${vin} ${dataone} ${make} ${model} ${style} ${type} ${transmission} ${year} ${color} ${color2} ${location} ${story} ${images} ${cylinders} ${$(vehicle).data("fuel") || ""} ${$(vehicle).data("drive") || ""} ${$(vehicle).data("body") || ""}`.toUpperCase().indexOf(t) !== -1;
+            });
 
         if (isMatch) {
             vehicle.style.display = "";
@@ -328,12 +353,20 @@ function calculateMonthlyPayment(P, rate, month) {
     window.refreshInventoryCardImages = scheduleInventoryCardImageRefresh;
 
     function splitInventoryTerms(value) {
+        if (window.gtxInventorySearch) {
+            return window.gtxInventorySearch.splitTerms(value);
+        }
+
         return normalizeInventoryValue(value).split(/\s+/).filter(function (term) {
             return term.length > 0;
         });
     }
 
     function inventoryContainsAllTerms(haystack, terms) {
+        if (window.gtxInventorySearch) {
+            return window.gtxInventorySearch.containsAllTerms(haystack, terms);
+        }
+
         if (!terms.length) return true;
 
         for (var i = 0; i < terms.length; i++) {
@@ -494,56 +527,49 @@ function calculateMonthlyPayment(P, rate, month) {
     }
 
     function inventoryTermMatches($vehicle, filter) {
-        var terms = splitInventoryTerms(filter);
-        if (!terms.length) return true;
-        if (terms.length === 1 && terms[0] === "@@") return false;
-
-        var stock = normalizeInventoryValue($vehicle.data("stock"));
-        var vin = normalizeInventoryValue($vehicle.data("vin"));
-        var dataone = normalizeInventoryValue($vehicle.data("dataone"));
-        var make = normalizeInventoryValue($vehicle.data("make"));
-        var model = normalizeInventoryValue($vehicle.data("model"));
-        var style = normalizeInventoryValue($vehicle.data("style"));
-        var type = normalizeInventoryValue($vehicle.data("type"));
-        var transmission = normalizeInventoryValue($vehicle.data("transmission"));
-        var year = normalizeInventoryValue($vehicle.data("year"));
-        var color = normalizeInventoryValue($vehicle.data("color"));
-        var color2 = normalizeInventoryValue($vehicle.data("color2"));
-        var location = normalizeInventoryValue($vehicle.data("location-code"));
-        var story = normalizeInventoryValue($vehicle.data("story"));
-        var images = normalizeInventoryValue($vehicle.data("images"));
-        var cylinders = normalizeInventoryValue($vehicle.data("cylinders"));
-        var combined;
-
-        if (filter.indexOf("@@") === 0) {
-            var prefixMap = {
-                "@@YR": "@@YR " + year,
-                "@@MK": "@@MK " + make,
-                "@@MD": "@@MD " + model,
-                "@@TR": "@@TR " + transmission,
-                "@@CY": "@@CY " + cylinders,
-                "@@OW": "@@OW " + location
-            };
-
-            combined = "@@" + story + " @@" + images + " @@" + dataone;
-
-            $.each(prefixMap, function (key, text) {
-                if (filter.indexOf(key) === 0) {
-                    combined = text;
-                    return false;
-                }
-            });
-        } else {
-            combined = [
-                stock, vin, make, model, style, type, transmission, year,
-                color, color2, normalizeInventoryValue($vehicle.data("fuel")),
-                normalizeInventoryValue($vehicle.data("drive")),
-                normalizeInventoryValue($vehicle.data("body")),
-                dataone, location, story, images, cylinders
-            ].join(" ");
+        if (window.gtxInventorySearch) {
+            return window.gtxInventorySearch.vehicleMatches({
+                stock: $vehicle.data("stock"),
+                vin: $vehicle.data("vin"),
+                dataone: $vehicle.data("dataone"),
+                make: $vehicle.data("make"),
+                model: $vehicle.data("model"),
+                style: $vehicle.data("style"),
+                type: $vehicle.data("type"),
+                transmission: $vehicle.data("transmission"),
+                year: $vehicle.data("year"),
+                color: $vehicle.data("color"),
+                color2: $vehicle.data("color2"),
+                location: $vehicle.data("location-code"),
+                story: $vehicle.data("story"),
+                images: $vehicle.data("images"),
+                cylinders: $vehicle.data("cylinders"),
+                fuel: $vehicle.data("fuel"),
+                drive: $vehicle.data("drive"),
+                body: $vehicle.data("body")
+            }, filter);
         }
 
-        return inventoryContainsAllTerms(combined, terms);
+        return inventoryContainsAllTerms([
+            normalizeInventoryValue($vehicle.data("stock")),
+            normalizeInventoryValue($vehicle.data("vin")),
+            normalizeInventoryValue($vehicle.data("make")),
+            normalizeInventoryValue($vehicle.data("model")),
+            normalizeInventoryValue($vehicle.data("style")),
+            normalizeInventoryValue($vehicle.data("type")),
+            normalizeInventoryValue($vehicle.data("transmission")),
+            normalizeInventoryValue($vehicle.data("year")),
+            normalizeInventoryValue($vehicle.data("color")),
+            normalizeInventoryValue($vehicle.data("color2")),
+            normalizeInventoryValue($vehicle.data("fuel")),
+            normalizeInventoryValue($vehicle.data("drive")),
+            normalizeInventoryValue($vehicle.data("body")),
+            normalizeInventoryValue($vehicle.data("dataone")),
+            normalizeInventoryValue($vehicle.data("location-code")),
+            normalizeInventoryValue($vehicle.data("story")),
+            normalizeInventoryValue($vehicle.data("images")),
+            normalizeInventoryValue($vehicle.data("cylinders"))
+        ].join(" "), splitInventoryTerms(filter));
     }
 
     function inventoryCheckboxMatches($vehicle, selected) {
