@@ -662,6 +662,13 @@
             $("#filterTerm").val(initialStock);
             applyFilterTerm(initialStock);
             selectFirstVisibleMajordomeVehicle(false);
+        } else if (window.gtxInventorySearch) {
+            const storedTerm = window.gtxInventorySearch.readStoredTerm();
+            if (storedTerm) {
+                $("#filterTerm").val(storedTerm);
+                applyFilterTerm(storedTerm);
+                selectFirstVisibleMajordomeVehicle(false);
+            }
         }
 
         // Drag & drop events
@@ -2955,28 +2962,57 @@
         majordomeSortState.direction = "asc";
     }
 
+    function buildMajordomeVehicleSearchObject(vehicle) {
+        if (window.gtxInventorySearch) {
+            return window.gtxInventorySearch.vehicleObject(vehicle);
+        }
+
+        return vehicle || {};
+    }
+
     function buildVehicleSearch(vehicle) {
+        const searchObject = buildMajordomeVehicleSearchObject(vehicle);
+
+        if (window.gtxInventorySearch) {
+            return window.gtxInventorySearch.buildVehicleSearch(searchObject).text;
+        }
+
         return [
-            vehicle?.Stock,
-            vehicle?.VIN,
-            vehicle?.Year,
-            vehicle?.Make,
-            vehicle?.Model,
-            vehicle?.Trim,
-            vehicle?.VehicleStyle,
-            vehicle?.Type,
-            vehicle?.Transmission,
-            vehicle?.Cylinders,
-            vehicle?.Fuel,
-            vehicle?.FuelType,
-            vehicle?.Drive,
-            vehicle?.DriveType,
-            vehicle?.Body,
-            vehicle?.BodyType,
-            vehicle?.Color,
-            vehicle?.Color2,
-            vehicle?.LocationCode
+            searchObject?.Stock,
+            searchObject?.VIN,
+            searchObject?.Year,
+            searchObject?.Make,
+            searchObject?.Model,
+            searchObject?.Trim,
+            searchObject?.VehicleStyle,
+            searchObject?.VehicleType,
+            searchObject?.Transmission,
+            searchObject?.Cylinders,
+            searchObject?.FuelType,
+            searchObject?.DriveTrain,
+            searchObject?.Body,
+            searchObject?.Engine,
+            searchObject?.Color,
+            searchObject?.Color2,
+            searchObject?.LocationCode
         ].map(safeText).join(" ").toUpperCase();
+    }
+
+    function buildVehicleTokenSearch(vehicle) {
+        const searchObject = buildMajordomeVehicleSearchObject(vehicle);
+
+        if (window.gtxInventorySearch) {
+            return window.gtxInventorySearch.buildVehicleSearch(searchObject).tokens;
+        }
+
+        return [
+            `@@YR ${safeText(searchObject?.Year)}`,
+            `@@MK ${safeText(searchObject?.Make)}`,
+            `@@MD ${safeText(searchObject?.Model)}`,
+            `@@TR ${safeText(searchObject?.Transmission)}`,
+            `@@CY ${safeText(searchObject?.Cylinders)}`,
+            `@@OW ${safeText(searchObject?.LocationCode)}`
+        ].join(" ").toUpperCase();
     }
 
     function formatPurchaseDate(value) {
@@ -3061,8 +3097,10 @@
 
     function renderMajordomeInventoryRow(vehicle) {
         const row = normalizeVehicle(vehicle);
+        const searchObject = buildMajordomeVehicleSearchObject(row);
         const stock = safeText(row.Stock);
-        const search = escapeHtml(buildVehicleSearch(row));
+        const search = escapeHtml(buildVehicleSearch(searchObject));
+        const tokenSearch = escapeHtml(buildVehicleTokenSearch(searchObject));
         const vin = safeText(row.VIN);
         const purchaseDate = formatPurchaseDate(row.PurchaseDate);
         const upload = safeText(row.SetToUpload).toUpperCase() === "Y";
@@ -3072,7 +3110,7 @@
         const gtxValue = normalizeMajordomeGtxFilterValue(row.LocationCode);
 
         return `
-            <tr class="majordome-vehicle-row" data-stock="${escapeHtml(stock)}" data-search="${search}" data-gtx="${escapeHtml(gtxValue)}">
+            <tr class="majordome-vehicle-row" data-stock="${escapeHtml(stock)}" data-search="${search}" data-search-tokens="${tokenSearch}" data-gtx="${escapeHtml(gtxValue)}">
                 ${window.renderMajordomeVehicleImageCell(row)}
                 ${window.renderMajordomeVehicleDetailsCell(row)}
                 <td class="d-none d-lg-table-cell majordome-date-cell">${escapeHtml(purchaseDate)}</td>
@@ -3218,14 +3256,20 @@
         const normalized = raw.trim().toUpperCase();
         const terms = normalized.split(/\s+/).filter(Boolean);
         const selectedGtx = getSelectedMajordomeGtxFilter();
+        const search = window.gtxInventorySearch;
 
-        if (!normalized) {
+        if (search) {
+            search.writeStoredTerm(raw);
+        } else if (!normalized) {
             sessionStorage.removeItem("term");
         }
 
         $("#majordomeInventoryBody .majordome-vehicle-row").each(function () {
             const haystack = safeText($(this).data("search")).toUpperCase();
-            const matchedTerm = terms.length === 0 || terms.every(function (t) { return haystack.includes(t); });
+            const tokenHaystack = safeText($(this).data("search-tokens")).toUpperCase();
+            const matchedTerm = search
+                ? search.matches(haystack, raw, tokenHaystack)
+                : terms.length === 0 || terms.every(function (t) { return haystack.includes(t); });
             const rowGtx = normalizeMajordomeGtxFilterValue($(this).attr("data-gtx"));
             const matchedGtx = !selectedGtx || rowGtx === selectedGtx;
             const matched = matchedTerm && matchedGtx;
@@ -3243,7 +3287,9 @@
             localStorage.removeItem("matchedStocks");
         }
 
-        sessionStorage.setItem("term", raw);
+        if (!search && normalized) {
+            sessionStorage.setItem("term", raw);
+        }
         syncMajordomeEmptyState();
         syncMajordomeInventoryCount();
     }

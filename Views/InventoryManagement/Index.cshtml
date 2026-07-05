@@ -235,13 +235,13 @@
             uploadRenderSummary(title, [
                 { label: isPreview ? "to update" : "updated", count: updated.length },
                 { label: isPreview ? "to add" : "added", count: inserted.length },
-                { label: isPreview ? "to remove" : "removed", count: removed.length },
-                { label: isPreview ? "to stall" : "stalled", count: skipped.length }
+                { label: isPreview ? "to sell" : "sold", count: removed.length },
+                { label: "existing", count: skipped.length }
             ]);
             uploadRenderStatusLines(isPreview ? "to be updated" : "updated", updated);
             uploadRenderStatusLines(isPreview ? "to be added" : "added", inserted);
-            uploadRenderStatusLines(isPreview ? "to be removed" : "removed", removed);
-            uploadRenderStatusLines(isPreview ? "to be stalled" : "stalled", skipped);
+            uploadRenderStatusLines(isPreview ? "to be sold" : "sold", removed);
+            uploadRenderStatusLines("existing", skipped);
         }
 
         function uploadFormData(file) {

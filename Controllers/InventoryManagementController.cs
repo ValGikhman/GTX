@@ -260,6 +260,7 @@ namespace GTX.Controllers
                 PeriodEndUtc = now,
                 StatusCounts = Array.Empty<InventoryDashboardStatusCount>(),
                 LocationCounts = Array.Empty<InventoryDashboardLocationCount>(),
+                StatusTrend = Array.Empty<InventoryDashboardStatusTrendPoint>(),
                 Vehicles = Array.Empty<InventoryDashboardVehicle>()
             };
         }

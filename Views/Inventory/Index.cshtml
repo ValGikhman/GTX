@@ -303,7 +303,9 @@
             copyAddress($(this).data("address"), $(this));
         });
 
-        const term = sessionStorage.getItem("term");
+        const term = window.gtxInventorySearch
+            ? window.gtxInventorySearch.readStoredTerm()
+            : sessionStorage.getItem("term");
         if (term === undefined || term === "" || term === null) {
             sessionStorage.removeItem("term");
         }
