@@ -694,66 +694,6 @@
         font-weight: 700;
     }
 
-    .inventory-dashboard-details-cell {
-        width: 4.75rem;
-        text-align: center;
-    }
-
-    .inventory-dashboard-details-button {
-        width: 1.95rem;
-        min-height: 1.95rem;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-        line-height: 1;
-    }
-
-    #inventoryDashboardDetailsModal .modal-header {
-        border-bottom: 1px solid var(--dashboard-line, rgba(148, 163, 184, .22));
-        background: linear-gradient(180deg, var(--dashboard-surface, #fff) 0%, var(--dashboard-surface-alt, #f8fafc) 100%);
-    }
-
-    .inventory-dashboard-details-close {
-        width: 2rem;
-        height: 2rem;
-        margin: 0;
-        border: 1px solid var(--dashboard-border, rgba(30, 41, 59, .12));
-        border-radius: 8px;
-        background-color: var(--dashboard-surface-alt, #f8fafc);
-        background-size: .7rem;
-        box-shadow: none;
-        opacity: 1;
-    }
-
-        .inventory-dashboard-details-close:hover,
-        .inventory-dashboard-details-close:focus {
-            background-color: color-mix(in srgb, var(--dashboard-accent, #0d6efd) 10%, var(--dashboard-surface, #fff));
-            border-color: color-mix(in srgb, var(--dashboard-accent, #0d6efd) 34%, var(--dashboard-border, rgba(30, 41, 59, .12)));
-            opacity: 1;
-        }
-
-        .inventory-dashboard-details-close:focus {
-            box-shadow: 0 0 0 .18rem color-mix(in srgb, var(--dashboard-accent, #0d6efd) 22%, transparent);
-        }
-
-    .inventory-dashboard-details-modal-body {
-        background: var(--dashboard-surface-alt, #f8fafc);
-        padding: 1rem;
-    }
-
-    .inventory-dashboard-details-loading {
-        min-height: 12rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-    }
-
-    .inventory-dashboard-modal-details .ratio-carousel {
-        max-height: 58vh;
-    }
-
     .inventory-dashboard-days-number {
         display: inline-block;
         min-width: 2.4rem;
@@ -1135,19 +1075,7 @@
     </div>
 </section>
 
-<div class="modal fade" id="inventoryDashboardDetailsModal" tabindex="-1" aria-labelledby="inventoryDashboardDetailsModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="inventoryDashboardDetailsModalTitle">Vehicle Details</h5>
-                <button type="button" class="btn-close inventory-dashboard-details-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div id="inventoryDashboardDetailsModalBody" class="modal-body inventory-dashboard-details-modal-body">
-                <div class="inventory-dashboard-details-loading text-muted">Loading details...</div>
-            </div>
-        </div>
-    </div>
-</div>
+@Html.Partial("~/Views/InventoryManagement/_DashboardVehicleDetailsModal.cshtml")
 
 <script type="application/json" id="inventoryDashboardData">@Html.Raw(dashboardsJson)</script>
 <script src="~/Scripts/majordome.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome.js")).Ticks)"></script>
@@ -2975,41 +2903,6 @@
                 return null;
             }
 
-            function showDashboardDetailsModal() {
-                const modalElement = document.getElementById("inventoryDashboardDetailsModal");
-                if (window.bootstrap && window.bootstrap.Modal && modalElement) {
-                    window.bootstrap.Modal.getOrCreateInstance(modalElement).show();
-                } else if ($.fn.modal) {
-                    $("#inventoryDashboardDetailsModal").modal("show");
-                } else {
-                    $("#inventoryDashboardDetailsModal").addClass("show").show();
-                }
-            }
-
-            function loadDashboardVehicleDetails(stock, title) {
-                const stockText = (stock || "").toString().trim();
-                if (!stockText) return;
-
-                $("#inventoryDashboardDetailsModalTitle").text(title || `Vehicle ${stockText}`);
-                $("#inventoryDashboardDetailsModalBody").html(`<div class="inventory-dashboard-details-loading text-muted">Loading details...</div>`);
-                showDashboardDetailsModal();
-
-                $.get(`${dashboardRoot()}InventoryManagement/GetInventoryDashboardVehicleDetails`, {
-                    stock: stockText
-                })
-                    .done(function (html) {
-                        const $body = $("#inventoryDashboardDetailsModalBody").html(html);
-                        if (window.bootstrap && window.bootstrap.Carousel) {
-                            $body.find(".carousel").each(function () {
-                                window.bootstrap.Carousel.getOrCreateInstance(this);
-                            });
-                        }
-                    })
-                    .fail(function () {
-                        $("#inventoryDashboardDetailsModalBody").html(`<div class="alert alert-warning mb-0">Unable to load vehicle details.</div>`);
-                    });
-            }
-
             function renderDashboard(days) {
                 currentDashboardDays = (days || "7").toString();
                 const data = dashboardFor(days);
@@ -3103,14 +2996,6 @@
                     event.stopPropagation();
                     toggleDashboardHistoryChange($(this));
                 });
-                $("#inventoryDashboardStatusBody").on("click", ".inventory-dashboard-details-button", function (event) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    const $button = $(this);
-                    loadDashboardVehicleDetails(
-                        $button.attr("data-dashboard-details-stock"),
-                        $button.attr("data-dashboard-details-title"));
-                });
                 $("#inventoryDashboardStatusBody").on("click", ".inventory-dashboard-main-row", function (event) {
                     if ($(event.target).closest("a").length) return;
                     toggleDashboardHistoryRow($(this));
@@ -3168,9 +3053,6 @@
                         window.gtxInventorySearch.writeStoredTerm("");
                     }
                     renderDashboard(currentDashboardDays);
-                });
-                $("#inventoryDashboardDetailsModal").on("hidden.bs.modal", function () {
-                    $("#inventoryDashboardDetailsModalBody").html(`<div class="inventory-dashboard-details-loading text-muted">Loading details...</div>`);
                 });
                 loadDashboard($period.val() || "7", false);
             });
