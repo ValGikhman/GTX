@@ -16,7 +16,45 @@
         --dashboard-ink: var(--bs-body-color, #172033);
         --dashboard-surface: var(--bs-body-bg, #fff);
         --dashboard-surface-alt: var(--bs-tertiary-bg, #f8fafc);
+        --dashboard-header-bg: var(--gtx-grad, var(--bs-primary-bg-subtle, #f8fafc));
+        --dashboard-header-color: #fff;
+        --dashboard-header-border: rgba(255, 255, 255, .24);
+        --dashboard-selected-accent: var(--bs-primary, #2563eb);
+        --dashboard-selected-bg: rgba(var(--bs-primary-rgb, 37, 99, 235), .1);
         color: var(--dashboard-ink);
+    }
+
+    html.theme-silver .inventory-dashboard {
+        --dashboard-header-color: #111827;
+        --dashboard-header-border: rgba(15, 23, 42, .16);
+        --dashboard-selected-accent: #8f98a3;
+        --dashboard-selected-bg: rgba(143, 152, 163, .16);
+    }
+
+    html.theme-blue .inventory-dashboard {
+        --dashboard-selected-accent: #1e73be;
+        --dashboard-selected-bg: rgba(30, 115, 190, .14);
+    }
+
+    html.theme-grey .inventory-dashboard,
+    html.theme-dark .inventory-dashboard {
+        --dashboard-selected-accent: darkgray;
+        --dashboard-selected-bg: rgba(169, 169, 169, .18);
+    }
+
+    html.theme-pink .inventory-dashboard {
+        --dashboard-selected-accent: #c2185b;
+        --dashboard-selected-bg: rgba(194, 24, 91, .14);
+    }
+
+    html.theme-deep-purple .inventory-dashboard {
+        --dashboard-selected-accent: #6a1bb1;
+        --dashboard-selected-bg: rgba(106, 27, 177, .14);
+    }
+
+    html.theme-metallica .inventory-dashboard {
+        --dashboard-selected-accent: #9aa0a8;
+        --dashboard-selected-bg: rgba(154, 160, 168, .18);
     }
 
     .inventory-dashboard-toolbar {
@@ -523,8 +561,11 @@
             --bs-table-color: var(--dashboard-ink);
             border-collapse: separate;
             border-spacing: 0;
-            font-size: .86rem;
+            font-size: .84rem;
+            margin: 0;
             min-width: 860px;
+            table-layout: fixed;
+            width: 100%;
         }
 
         #inventoryDashboardStatusTable > thead > tr > th,
@@ -534,11 +575,12 @@
 
         #inventoryDashboardStatusTable > tbody > tr > td {
             background: var(--dashboard-surface);
-            padding: .48rem .65rem;
+            padding: .35rem .5rem;
             vertical-align: middle;
         }
 
-        #inventoryDashboardStatusTable > tbody > tr:nth-child(even) > td {
+        #inventoryDashboardStatusTable > tbody > tr.inventory-dashboard-main-row.is-alt > td,
+        #inventoryDashboardStatusTable > tbody > tr.inventory-dashboard-history-row.is-alt > td {
             background: var(--dashboard-surface-alt);
         }
 
@@ -548,7 +590,22 @@
 
         #inventoryDashboardStatusTable > tbody > tr.inventory-dashboard-main-row {
             cursor: pointer;
+            transition: background-color .15s;
         }
+
+            #inventoryDashboardStatusTable > tbody > tr.inventory-dashboard-main-row.is-expanded {
+                box-shadow: inset .32rem 0 var(--dashboard-selected-accent);
+            }
+
+            #inventoryDashboardStatusTable > tbody > tr.inventory-dashboard-main-row.is-expanded > td {
+                background: var(--dashboard-selected-bg);
+                border-color: rgba(108, 117, 125, .24);
+            }
+
+            #inventoryDashboardStatusTable > tbody > tr.inventory-dashboard-main-row.is-expanded > td:first-child {
+                background: var(--dashboard-selected-bg);
+                box-shadow: inset .22rem 0 var(--dashboard-selected-accent);
+            }
 
             #inventoryDashboardStatusTable > tbody > tr.inventory-dashboard-main-row.is-expanded > td {
                 border-bottom-color: transparent;
@@ -559,22 +616,24 @@
             background: var(--dashboard-surface-alt);
         }
 
-        #inventoryDashboardStatusTable > tbody > tr.inventory-dashboard-history-row:nth-child(even) > td {
-            background: var(--dashboard-surface-alt);
+        #inventoryDashboardStatusTable .inventory-dashboard-spacer-cell {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
         }
 
         #inventoryDashboardStatusTable > thead > tr > th {
             position: sticky;
             top: 0;
             z-index: 2;
-            padding: .62rem .65rem;
-            background: var(--gtx-grad, var(--bs-primary-bg-subtle, #f8fafc));
-            color: #fff;
-            font-size: .76rem;
+            padding: .55rem .65rem;
+            background: var(--dashboard-header-bg);
+            color: var(--dashboard-header-color);
+            font-size: .74rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: .03em;
-            border-bottom: 0 !important;
+            border-bottom: 1px solid var(--dashboard-header-border);
+            box-shadow: 0 .35rem .8rem rgba(15, 23, 42, .12);
             white-space: nowrap;
         }
 
@@ -859,10 +918,6 @@
             white-space: nowrap;
         }
 
-    html.theme-silver #inventoryDashboardStatusTable > thead > tr > th {
-        color: #111827;
-    }
-
     .inventory-dashboard .majordome-thumb {
         width: 72px;
         height: 52px;
@@ -874,7 +929,7 @@
     }
 
     .inventory-dashboard .majordome-row-details {
-        max-width: 260px;
+        max-width: 170px;
     }
 
     .inventory-dashboard .majordome-vehicle-title {
@@ -941,7 +996,7 @@
         }
 
         .inventory-dashboard .majordome-row-details {
-            max-width: 190px;
+            max-width: 170px;
         }
     }
 </style>
@@ -1038,11 +1093,21 @@
                 </div>
                 <div class="inventory-dashboard-grid-wrap table-responsive">
                     <table id="inventoryDashboardStatusTable" class="table align-middle m-0">
+                        <colgroup>
+                            <col style="width:52px;" />
+                            <col style="width:100px;" />
+                            <col style="width:170px;" />
+                            <col style="width:110px;" />
+                            <col style="width:120px;" />
+                            <col style="width:120px;" />
+                            <col style="width:88px;" />
+                            <col />
+                        </colgroup>
                         <thead>
                             <tr>
                                 <th style="width:52px;" aria-label="Expand"></th>
                                 <th style="width:100px;">Image</th>
-                                <th style="min-width:220px;" data-dashboard-sort-column="vehicle" aria-sort="none">
+                                <th style="width:170px;" data-dashboard-sort-column="vehicle" aria-sort="none">
                                     <button type="button" class="inventory-dashboard-sort-button" data-dashboard-sort="vehicle">
                                         <span>Vehicle</span>
                                         <i class="bi bi-arrow-down-up" aria-hidden="true"></i>
@@ -1062,6 +1127,7 @@
                                     </button>
                                 </th>
                                 <th style="width:88px;" class="text-center">Details</th>
+                                <th class="inventory-dashboard-spacer-cell" aria-hidden="true"></th>
                             </tr>
                         </thead>
                         <tbody id="inventoryDashboardStatusBody"></tbody>
@@ -2513,6 +2579,7 @@
                 const rowId = dashboardHistoryRowId(stockKey, index);
                 const isExpanded = !!expandedDashboardStocks[stockKey];
                 const daysValue = row.DaysInInventory;
+                const rowToneClass = index % 2 === 1 ? "is-alt" : "";
                 const daysText = daysValue === null || daysValue === undefined || daysValue === ""
                     ? "-"
                     : formatNumber(daysValue);
@@ -2535,7 +2602,7 @@
                     .join(" ");
 
                 return `
-                    <tr class="inventory-dashboard-main-row ${isExpanded ? "is-expanded" : ""}"
+                    <tr class="inventory-dashboard-main-row ${rowToneClass} ${isExpanded ? "is-expanded" : ""}"
                         data-status-code="${escapeDashboardHtml(statusCodes.join(","))}"
                         data-location-code="${escapeDashboardHtml(locationCode)}"
                         data-stock="${escapeDashboardHtml(row.Stock)}"
@@ -2571,11 +2638,12 @@
                                 <span class="visually-hidden">Show vehicle details</span>
                             </button>
                         </td>
+                        <td class="inventory-dashboard-spacer-cell" aria-hidden="true"></td>
                     </tr>
                     <tr id="${escapeDashboardHtml(rowId)}"
-                        class="inventory-dashboard-history-row ${isExpanded ? "" : "d-none"}"
+                        class="inventory-dashboard-history-row ${rowToneClass} ${isExpanded ? "" : "d-none"}"
                         data-history-row-for="${escapeDashboardHtml(stockKey)}">
-                        <td colspan="7">${renderDashboardHistoryPanel(stockKey)}</td>
+                        <td colspan="8">${renderDashboardHistoryPanel(stockKey)}</td>
                     </tr>
                 `;
             }
