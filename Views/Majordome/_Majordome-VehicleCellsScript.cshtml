@@ -38,12 +38,14 @@
             const yearMake = `${cellText(row.Year)} ${cellText(row.Make)}`.trim();
             const modelStyle = `${cellText(row.Model)} ${cellText(row.VehicleStyle)}`.trim();
             const vin = cellText(row.VIN);
+            const stock = cellText(row.Stock);
 
             return `
                 <td class="majordome-row-details">
                     <div class="majordome-vehicle-title">${cellEscapeHtml(yearMake)}</div>
                     <div class="majordome-vehicle-meta">${cellEscapeHtml(modelStyle)}</div>
                     <div class="majordome-vehicle-meta majordome-vin-line">VIN: ${cellEscapeHtml(vin)}</div>
+                    <div class="majordome-vehicle-meta majordome-vin-line">Stock: ${cellEscapeHtml(stock)}</div>
                 </td>
             `;
         }

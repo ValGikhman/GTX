@@ -148,8 +148,7 @@ namespace GTX.Controllers
                 return Content("<div class=\"alert alert-warning mb-0\">Stock number is required.</div>", "text/html");
             }
 
-            var vehicle = Model.Inventory.All?.FirstOrDefault(m =>
-                string.Equals((m.Stock ?? string.Empty).Trim(), stockText, StringComparison.OrdinalIgnoreCase));
+            var vehicle = FindCurrentInventoryVehicleByStock(stockText) ?? LoadInventoryVehicleSnapshotByStock(stockText);
 
             if (vehicle == null)
             {
@@ -173,6 +172,54 @@ namespace GTX.Controllers
             }
 
             return PartialView("_DashboardVehicleDetails", Model);
+        }
+
+        private Models.GTX FindCurrentInventoryVehicleByStock(string stock)
+        {
+            var stockText = (stock ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(stockText))
+            {
+                return null;
+            }
+
+            return Model.Inventory.All?.FirstOrDefault(m =>
+                string.Equals((m.Stock ?? string.Empty).Trim(), stockText, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private Models.GTX LoadInventoryVehicleSnapshotByStock(string stock)
+        {
+            var snapshot = InventoryService.GetInventoryVehicleSnapshot(stock);
+            var vehicle = Models.GTX.ToGTX(snapshot == null ? null : new[] { snapshot }).FirstOrDefault();
+            if (vehicle == null)
+            {
+                return null;
+            }
+
+            HydrateInventoryVehicleMedia(vehicle, stock);
+
+            return vehicle;
+        }
+
+        private void HydrateInventoryVehicleMedia(Models.GTX vehicle, string requestedStock)
+        {
+            if (vehicle == null)
+            {
+                return;
+            }
+
+            var stock = (vehicle.Stock ?? requestedStock ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(stock))
+            {
+                vehicle.Images = Array.Empty<Services.Image>();
+                vehicle.Image = $"{imageFolder}no-image-1.jpg";
+                return;
+            }
+
+            var images = InventoryService.GetImages(stock) ?? Array.Empty<Services.Image>();
+            vehicle.Images = images;
+            vehicle.Image = images.Length > 0
+                ? $"{imageFolder}{images[0].Source}"
+                : $"{imageFolder}no-image-1.jpg";
         }
 
         [HttpPost]

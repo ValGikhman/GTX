@@ -462,10 +462,10 @@
             position: sticky;
             top: 0;
             z-index: 2;
-            padding: .8rem .85rem;
+            padding: .55rem .65rem;
             background: var(--inventory-header-bg);
             color: var(--inventory-header-color);
-            font-size: .8rem;
+            font-size: .74rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: .03em;
@@ -505,7 +505,7 @@
         --bs-table-color: var(--inventory-ink);
         border-collapse: separate;
         border-spacing: 0;
-        font-size: .92rem;
+        font-size: .84rem;
         margin: 0;
         min-width: 720px;
         table-layout: fixed;
@@ -519,6 +519,7 @@
 
         #majordomeManagementTable tbody td {
             background: var(--inventory-surface);
+            padding: .35rem .5rem;
             vertical-align: middle;
         }
 
@@ -547,8 +548,8 @@
         }
 
     .majordome-management-toggle {
-        width: 2rem;
-        height: 2rem;
+        width: 1.75rem;
+        height: 1.75rem;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -586,11 +587,11 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-width: 1.8rem;
-        min-height: 1.8rem;
+        min-width: 1.55rem;
+        min-height: 1.55rem;
         border-radius: 999px;
         border: 1px solid rgba(15, 23, 42, .18);
-        font-size: .75rem;
+        font-size: .68rem;
         font-weight: 900;
         line-height: 1;
         background: #f1f5f9;
@@ -688,10 +689,10 @@
         }
 
     .majordome-thumb {
-        width: 88px;
-        height: 66px;
+        width: 72px;
+        height: 52px;
         object-fit: cover;
-        border-radius: .55rem;
+        border-radius: .45rem;
         border: 1px solid rgba(15, 23, 42, .12);
         box-shadow: 0 .35rem .8rem rgba(15, 23, 42, .15);
         background: #fff;
@@ -706,21 +707,26 @@
 
     .majordome-vehicle-title {
         color: var(--inventory-ink);
-        font-size: .98rem;
+        font-size: .88rem;
         font-weight: 800;
-        line-height: 1.2;
+        line-height: 1.12;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
 
     .majordome-vehicle-meta {
-        font-size: .78rem;
+        font-size: .7rem;
         color: var(--inventory-muted);
-        line-height: 1.25;
+        line-height: 1.14;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+
+    .majordome-management-shell .inventory-dashboard-details-button {
+        width: 1.75rem;
+        min-height: 1.75rem;
     }
 
     .majordome-vin-line {
@@ -869,6 +875,7 @@
                             <col style="width:110px;" />
                             <col style="width:96px;" />
                             <col style="width:118px;" />
+                            <col style="width:88px;" />
                             <col />
                         </colgroup>
                         <thead class="table-light">
@@ -879,6 +886,7 @@
                                 <th class="majordome-sortable-th" data-sort-key="stock" style="width:110px;">Stock <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
                                 <th class="text-center majordome-sortable-th" data-sort-key="gtx" style="width:96px;">GTX <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
                                 <th class="text-center majordome-sortable-th" data-sort-key="status" style="width:118px;">Status <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
+                                <th class="text-center" style="width:88px;">Details</th>
                                 <th class="majordome-management-spacer-cell" aria-hidden="true"></th>
                             </tr>
                         </thead>
@@ -892,6 +900,8 @@
         </div>
     </div>
 </div>
+
+@Html.Partial("~/Views/InventoryManagement/_DashboardVehicleDetailsModal.cshtml")
 
 <script type="text/javascript">
     (function () {
@@ -1684,7 +1694,7 @@
             const isRemoved = statusKey === "removed";
             const isSkipped = statusKey === "skipped";
             const collapseId = `majordomeManagementChanges${index}`;
-            const image = managementImageUrl(stock);
+            const image = managementValue(row, "Image", "") || managementImageUrl(stock);
             const gtxBadge = getMajordomeManagementGtxBadgeInfo(locationCode);
             const statusClass = isUpdated ? "bg-primary" : (isRemoved ? "bg-danger" : (isSkipped ? "bg-secondary" : "bg-success"));
             const rowToneClass = index % 2 === 1 ? "is-alt" : "";
@@ -1692,6 +1702,11 @@
             const selectedClass = stockKey && stockKey === majordomeManagementSelectedStock ? "is-selected" : "";
             const rowSearch = managementEscapeHtml(managementRowSearchValue(row));
             const rowTokenSearch = managementEscapeHtml(managementRowTokenSearchValue(row));
+            const vehicleTitle = [year, make, model, stock]
+                .filter(function (part) {
+                    return part !== null && part !== undefined && managementText(part).trim() !== "";
+                })
+                .join(" ");
             const displayVehicle = {
                 Stock: stock,
                 Year: year,
@@ -1717,10 +1732,20 @@
                         <span class="majordome-status-pill majordome-status-location ${managementEscapeHtml(gtxBadge.toneClass)} shadow">${managementEscapeHtml(gtxBadge.label)}</span>
                     </td>
                     <td class="text-center"><span class="badge rounded-pill ${statusClass} shadow">${managementEscapeHtml(statusText)}</span></td>
+                    <td class="inventory-dashboard-details-cell majordome-management-details-cell">
+                        <button type="button"
+                                class="btn btn-outline-secondary inventory-dashboard-details-button"
+                                data-dashboard-details-stock="${managementEscapeHtml(stock)}"
+                                data-dashboard-details-title="${managementEscapeHtml(vehicleTitle)}"
+                                title="Show vehicle details">
+                            <i class="bi bi-card-list" aria-hidden="true"></i>
+                            <span class="visually-hidden">Show vehicle details</span>
+                        </button>
+                    </td>
                     <td class="majordome-management-spacer-cell" aria-hidden="true"></td>
                 </tr>
                 <tr class="majordome-management-detail-row ${rowToneClass}">
-                    <td class="majordome-management-detail-cell" colspan="7">
+                    <td class="majordome-management-detail-cell" colspan="8">
                         <div id="${collapseId}" class="collapse">
                             ${buildMajordomeManagementDetails(row)}
                         </div>
@@ -1795,7 +1820,7 @@
             majordomeManagementRows = [];
             majordomeManagementSelectedStock = "";
             syncMajordomeManagementLocationFilter();
-            $("#majordomeManagementBody").html(`<tr><td colspan="7" class="text-center text-muted p-4">Loading management records...</td></tr>`);
+            $("#majordomeManagementBody").html(`<tr><td colspan="8" class="text-center text-muted p-4">Loading management records...</td></tr>`);
             $("#majordomeManagementEmpty").addClass("d-none");
             $(".majordome-management-table-wrap").removeClass("d-none");
 
@@ -1814,7 +1839,7 @@
                 .fail(function () {
                     majordomeManagementRows = [];
                     syncMajordomeManagementLocationFilter();
-                    $("#majordomeManagementBody").html(`<tr><td colspan="7" class="text-center text-danger p-4">Unable to load management records.</td></tr>`);
+                    $("#majordomeManagementBody").html(`<tr><td colspan="8" class="text-center text-danger p-4">Unable to load management records.</td></tr>`);
                     $("#majordomeManagementCount").text("0");
                 });
         }
