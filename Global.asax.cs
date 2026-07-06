@@ -44,9 +44,6 @@ namespace GTX
                 Response.Redirect("/out-of-service.html", true);
             }
 
-            var host = HttpContext.Current.Request.Url.Host;
-            if (host.Equals("admin.usedcarscincinnati.com", StringComparison.OrdinalIgnoreCase)) HttpContext.Current.Response.Redirect("https://usedcarscincinnati.com/Majordome/Inventory", true);
-
             var culture = CultureHelper.GetCultureFromRequest(Request);
             CultureHelper.ApplyCulture(culture);
         }

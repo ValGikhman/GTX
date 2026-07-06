@@ -1,4 +1,5 @@
 using GTX;
+using GTX.Common;
 using GTX.Controllers;
 using Services;
 using System;
@@ -8,6 +9,7 @@ using System.Management;
 using System.Runtime.InteropServices;
 using System.Web.Mvc;
 
+[RequireAdminRole]
 public class HealthController : BaseController
 {
     private static readonly object _cpuLock = new object();
@@ -164,7 +166,6 @@ public class HealthController : BaseController
 
     // ---- Views ----
     [HttpGet]
-    [AllowAnonymous]
     public ActionResult Index()
     {
         return View(); // Views/Health/Index.cshtml
@@ -172,7 +173,6 @@ public class HealthController : BaseController
 
     // ---- JSON endpoint (NO PerformanceCounter) ----
     [HttpGet]
-    [AllowAnonymous]
     public ActionResult HealthJson()
     {
         var (totalPhys, availPhys, memLoadPct) = GetMemory();
