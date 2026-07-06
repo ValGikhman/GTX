@@ -7,6 +7,7 @@ using System.Web.Mvc;
 
 namespace GTX.Controllers
 {
+    [RequireAdminRole]
     public class AnnouncementsController : BaseController
     {
         private readonly IAnnouncementService _announcementService;
@@ -90,6 +91,7 @@ namespace GTX.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public ActionResult PreviewAlert(int id)
         {
             var entity = _announcementService.GetById(id);

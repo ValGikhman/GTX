@@ -1,4 +1,5 @@
 using GTX.Models;
+using GTX.Common;
 using Services;
 using System;
 using System.IO;
@@ -9,6 +10,7 @@ using System.Web.Mvc;
 
 namespace GTX.Controllers {
 
+    [RequireAdminRole]
     public class EmployeesController : BaseController {
         private const string UploadVirtualPath = "~/GTXImages/staff/";
         private const string UploadRelativePath = "/GTXImages/staff/";
