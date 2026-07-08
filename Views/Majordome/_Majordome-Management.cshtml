@@ -4,802 +4,6 @@
         JsonConvert.SerializeObject(ViewBag.InventoryManagementLogs ?? Array.Empty<object>()));
 }
 
-<style>
-    .majordome-management-shell {
-        --majordome-management-scroll-height: 78vh;
-        --inventory-border: var(--bs-border-color-translucent, rgba(30, 41, 59, .12));
-        --inventory-line: var(--bs-border-color-translucent, rgba(148, 163, 184, .22));
-        --inventory-muted: var(--bs-secondary-color, #64748b);
-        --inventory-ink: var(--bs-body-color, #172033);
-        --inventory-surface: var(--bs-body-bg, #fff);
-        --inventory-surface-alt: var(--bs-tertiary-bg, #f8fafc);
-        --inventory-header-bg: var(--gtx-grad, var(--bs-primary-bg-subtle, #f8fafc));
-        --inventory-header-color: #fff;
-        --inventory-header-border: rgba(255, 255, 255, .24);
-        --inventory-selected-accent: var(--bs-primary, #2563eb);
-        --inventory-selected-bg: rgba(var(--bs-primary-rgb, 37, 99, 235), .1);
-        background: var(--inventory-surface);
-        margin-top: .75rem;
-        border-radius: .85rem;
-        border: 1px solid var(--inventory-border);
-        box-shadow: 0 .8rem 2rem rgba(15, 23, 42, .09);
-        overflow: hidden;
-    }
-
-    html.theme-silver .majordome-management-shell {
-        --inventory-header-color: #111827;
-        --inventory-header-border: rgba(15, 23, 42, .16);
-        --inventory-selected-accent: #8f98a3;
-        --inventory-selected-bg: rgba(143, 152, 163, .16);
-    }
-
-    html.theme-blue .majordome-management-shell {
-        --inventory-selected-accent: #1e73be;
-        --inventory-selected-bg: rgba(30, 115, 190, .14);
-    }
-
-    html.theme-grey .majordome-management-shell,
-    html.theme-dark .majordome-management-shell {
-        --inventory-selected-accent: darkgray;
-        --inventory-selected-bg: rgba(169, 169, 169, .18);
-    }
-
-    html.theme-pink .majordome-management-shell {
-        --inventory-selected-accent: #c2185b;
-        --inventory-selected-bg: rgba(194, 24, 91, .14);
-    }
-
-    html.theme-deep-purple .majordome-management-shell {
-        --inventory-selected-accent: #6a1bb1;
-        --inventory-selected-bg: rgba(106, 27, 177, .14);
-    }
-
-    html.theme-metallica .majordome-management-shell {
-        --inventory-selected-accent: #9aa0a8;
-        --inventory-selected-bg: rgba(154, 160, 168, .18);
-    }
-
-    .majordome-management-toolbar {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: space-between;
-        gap: .75rem;
-        padding: .75rem .85rem;
-        background: linear-gradient(180deg, var(--inventory-surface) 0%, var(--inventory-surface-alt) 100%);
-        border-bottom: 1px solid var(--inventory-line);
-    }
-
-    .majordome-management-toolbar-main,
-    .majordome-management-toolbar-actions {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: .75rem;
-        min-width: 0;
-    }
-
-    .majordome-management-toolbar-main {
-        flex: 0 1 auto;
-    }
-
-    .majordome-management-toolbar-actions {
-        flex: 1 1 520px;
-        justify-content: flex-end;
-        margin-left: auto;
-    }
-
-    .majordome-management-search-slot {
-        flex: 0 0 340px;
-        width: 340px;
-        max-width: min(100%, 340px);
-        min-width: 260px;
-        display: flex;
-        justify-content: flex-end;
-    }
-
-    .majordome-management-workspace {
-        display: flex;
-        align-items: stretch;
-        min-height: 0;
-    }
-
-    .majordome-management-sidebar-pane {
-        flex: 0 0 320px;
-        width: 320px;
-        min-width: 280px;
-        max-width: 380px;
-        max-height: var(--majordome-management-scroll-height);
-        overflow-x: hidden;
-        overflow-y: auto;
-        background: #f8fafc;
-        border-right: 1px solid var(--inventory-line);
-        scrollbar-color: rgba(71, 85, 105, .45) transparent;
-        scrollbar-width: thin;
-    }
-
-        .majordome-management-sidebar-pane::-webkit-scrollbar {
-            width: .55rem;
-        }
-
-        .majordome-management-sidebar-pane::-webkit-scrollbar-thumb {
-            background: rgba(71, 85, 105, .35);
-            border-radius: 999px;
-        }
-
-    .majordome-management-results {
-        flex: 1 1 auto;
-        min-width: 0;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .inventory-management-upload-button {
-        flex: 0 0 auto;
-        min-height: 2.5rem;
-    }
-
-    .majordome-management-log-picker {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        padding: .75rem;
-    }
-
-    .majordome-management-log-tree {
-        flex: 1 1 auto;
-        min-height: 0;
-        overflow-y: auto;
-        padding-right: .15rem;
-        scrollbar-color: rgba(71, 85, 105, .45) transparent;
-        scrollbar-width: thin;
-    }
-
-        .majordome-management-log-tree::-webkit-scrollbar {
-            width: .55rem;
-        }
-
-        .majordome-management-log-tree::-webkit-scrollbar-thumb {
-            background: rgba(71, 85, 105, .35);
-            border-radius: 999px;
-        }
-
-    .majordome-management-log-date {
-        border: 1px solid var(--inventory-border);
-        border-radius: .65rem;
-        background: #fff;
-        box-shadow: 0 .3rem .9rem rgba(15, 23, 42, .05);
-        overflow: hidden;
-    }
-
-        .majordome-management-log-date + .majordome-management-log-date {
-            margin-top: .6rem;
-        }
-
-    .majordome-management-log-date-toggle {
-        width: 100%;
-        min-height: 3rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: .55rem;
-        padding: .55rem .65rem;
-        border: 0;
-        background: linear-gradient(180deg, #fff 0%, var(--inventory-surface-alt) 100%);
-        color: var(--inventory-ink);
-        text-align: left;
-    }
-
-        .majordome-management-log-date-toggle:hover,
-        .majordome-management-log-date-toggle:focus {
-            background: #eef2f7;
-            outline: none;
-        }
-
-        .majordome-management-log-date-toggle.is-selected {
-            background: var(--inventory-header-bg);
-            color: var(--inventory-header-color);
-            box-shadow: inset .28rem 0 var(--inventory-header-border), 0 .35rem .8rem rgba(15, 23, 42, .12);
-        }
-
-            .majordome-management-log-date-toggle.is-selected:hover,
-            .majordome-management-log-date-toggle.is-selected:focus {
-                background: var(--inventory-header-bg);
-                color: var(--inventory-header-color);
-            }
-
-            .majordome-management-log-date-toggle.is-selected .majordome-management-log-option-date,
-            .majordome-management-log-date-toggle.is-selected .majordome-management-log-date-chevron {
-                color: var(--inventory-header-color);
-            }
-
-            .majordome-management-log-date-toggle.is-selected .majordome-management-log-date-count {
-                background: rgba(255, 255, 255, .22) !important;
-                border: 1px solid var(--inventory-header-border);
-                color: var(--inventory-header-color);
-            }
-
-    html.theme-silver .majordome-management-log-date-toggle.is-selected .majordome-management-log-date-count {
-        background: rgba(15, 23, 42, .12) !important;
-        border-color: rgba(15, 23, 42, .18);
-        color: #111827;
-    }
-
-    html.theme-silver .majordome-management-log-date-toggle.is-selected .majordome-management-log-date-chevron,
-    html.theme-silver .majordome-management-log-date-toggle.is-selected .majordome-management-log-option-date {
-        color: #111827;
-    }
-
-    .majordome-management-log-date-toggle.is-selected.collapsed,
-    .majordome-management-log-date-toggle.is-selected[aria-expanded="false"] {
-        background: var(--inventory-header-bg);
-        color: var(--inventory-header-color);
-    }
-
-        html.theme-silver .majordome-management-log-date-toggle.is-selected.collapsed,
-        html.theme-silver .majordome-management-log-date-toggle.is-selected[aria-expanded="false"] {
-            color: #111827;
-        }
-
-    .majordome-management-log-date-main {
-        min-width: 0;
-        display: flex;
-        align-items: center;
-        gap: .45rem;
-    }
-
-    .majordome-management-log-date-chevron {
-        flex: 0 0 auto;
-        color: var(--inventory-muted);
-        font-size: .9rem;
-        transition: transform .15s ease;
-    }
-
-    .majordome-management-log-date-toggle[aria-expanded="true"] .majordome-management-log-date-chevron {
-        transform: rotate(90deg);
-    }
-
-    .majordome-management-log-date-count {
-        flex: 0 0 auto;
-    }
-
-    .majordome-management-log-status-list {
-        display: grid;
-        gap: .25rem;
-        padding: .45rem;
-        border-top: 1px solid var(--inventory-line);
-        background: #f8fafc;
-    }
-
-    .majordome-management-log-status {
-        width: 100%;
-        min-height: 2.25rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: .6rem;
-        padding: .4rem .55rem .4rem 1.7rem;
-        border: 0;
-        border-radius: .5rem;
-        background: transparent;
-        color: var(--inventory-ink);
-        text-align: left;
-    }
-
-        .majordome-management-log-status:hover,
-        .majordome-management-log-status:focus {
-            background: rgba(148, 163, 184, .16);
-            outline: none;
-        }
-
-        .majordome-management-log-status.is-selected {
-            background: var(--inventory-selected-bg);
-            box-shadow: inset .22rem 0 var(--inventory-selected-accent);
-        }
-
-        .majordome-management-log-status[disabled] {
-            color: var(--inventory-muted);
-            cursor: default;
-            opacity: .62;
-        }
-
-    .majordome-management-log-status-label {
-        min-width: 0;
-        display: inline-flex;
-        align-items: center;
-        gap: .45rem;
-        overflow: hidden;
-        font-size: .86rem;
-        font-weight: 800;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-        .majordome-management-log-status-label i {
-            flex: 0 0 auto;
-        }
-    }
-
-    #majordomeManagementSearchSlot #filterByTerm.inventory-result-toolbar {
-        flex: 0 0 100%;
-        margin: 0 !important;
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-        margin-top: 0 !important;
-        max-width: 100%;
-        min-width: 0;
-        min-height: 0 !important;
-        width: 100% !important;
-        padding: 0 !important;
-        position: static !important;
-        top: auto !important;
-        right: auto !important;
-        bottom: auto !important;
-        left: auto !important;
-        transform: none !important;
-        background: none;
-        box-shadow: none;
-        z-index: auto;
-        justify-content: flex-end !important;
-    }
-
-        #majordomeManagementSearchSlot #filterByTerm.inventory-result-toolbar .inventory-toolbar-shell {
-            flex: 1 1 auto;
-            width: 100% !important;
-            max-width: 100%;
-            min-height: 0;
-            padding: 0 !important;
-            gap: 0 !important;
-            justify-content: flex-end !important;
-        }
-
-        #majordomeManagementSearchSlot #filterByTerm.inventory-result-toolbar .inventory-term-search {
-            flex: 1 1 auto !important;
-            width: 100% !important;
-            max-width: 100%;
-            justify-content: flex-end !important;
-        }
-
-        #majordomeManagementSearchSlot #filterByTerm.inventory-result-toolbar #filterWrapper {
-            position: relative !important;
-            left: auto !important;
-            transform: none !important;
-            width: min(100%, 340px) !important;
-            max-width: 340px !important;
-            margin-left: auto !important;
-            margin-right: 0 !important;
-            flex: 0 0 auto !important;
-        }
-
-        #majordomeManagementSearchSlot #filterByTerm.inventory-result-toolbar #filterTerm {
-            width: 100%;
-            height: 2.5rem;
-            min-height: 2.5rem;
-            border-color: var(--inventory-border);
-            border-radius: .65rem !important;
-            box-shadow: 0 .25rem .75rem rgba(15, 23, 42, .06);
-            font-weight: 600;
-        }
-
-        #majordomeManagementSearchSlot .filterLiked,
-        #majordomeManagementSearchSlot .filterLast,
-        #majordomeManagementSearchSlot .filterHelp,
-        #majordomeManagementSearchSlot .sort,
-        #majordomeManagementSearchSlot .inventory-toolbar-paging {
-            display: none !important;
-        }
-
-    .majordome-management-location-filter {
-        flex: 0 0 130px;
-        width: 130px;
-        height: 2.5rem;
-        min-height: 2.5rem;
-        border-color: var(--inventory-border);
-        border-radius: .65rem;
-        box-shadow: 0 .25rem .75rem rgba(15, 23, 42, .06);
-        font-size: .88rem;
-        font-weight: 700;
-    }
-
-        .majordome-management-log-date-toggle:focus,
-        .majordome-management-log-status:focus,
-        .majordome-management-toolbar #filterTerm:focus,
-        .majordome-management-location-filter:focus {
-            border-color: rgba(37, 99, 235, .5);
-            box-shadow: 0 0 0 .22rem rgba(37, 99, 235, .12);
-        }
-
-    .majordome-management-log-option-date {
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .majordome-management-summary {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: .4rem;
-        padding: .35rem .75rem;
-        min-height: 2.5rem;
-        border: 1px solid var(--inventory-border);
-        border-radius: .65rem;
-        background: linear-gradient(180deg, #fff 0%, var(--inventory-surface-alt) 100%);
-        color: var(--inventory-ink);
-        white-space: nowrap;
-        box-shadow: 0 .25rem .75rem rgba(15, 23, 42, .06);
-    }
-
-    .majordome-management-summary-label {
-        color: var(--inventory-muted);
-        font-size: .72rem;
-        font-weight: 800;
-        letter-spacing: .03em;
-        text-transform: uppercase;
-    }
-
-    .majordome-management-table-wrap {
-        max-height: var(--majordome-management-scroll-height);
-        overflow: auto;
-        background: var(--inventory-surface-alt);
-        scrollbar-color: rgba(71, 85, 105, .45) transparent;
-        scrollbar-width: thin;
-    }
-
-        .majordome-management-table-wrap::-webkit-scrollbar {
-            width: .7rem;
-            height: .7rem;
-        }
-
-        .majordome-management-table-wrap::-webkit-scrollbar-thumb {
-            background: rgba(71, 85, 105, .35);
-            border: 2px solid #f8fafc;
-            border-radius: 999px;
-        }
-
-        .majordome-management-table-wrap thead th {
-            position: sticky;
-            top: 0;
-            z-index: 2;
-            padding: .55rem .65rem;
-            background: var(--inventory-header-bg);
-            color: var(--inventory-header-color);
-            font-size: .74rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .03em;
-            border-bottom: 1px solid var(--inventory-header-border);
-            box-shadow: 0 .35rem .8rem rgba(15, 23, 42, .12);
-            white-space: nowrap;
-        }
-
-    .majordome-sortable-th {
-        cursor: pointer;
-        user-select: none;
-        transition: background-color .15s, color .15s;
-    }
-
-        .majordome-sortable-th .majordome-sort-indicator {
-            display: inline-block;
-            width: 1rem;
-            margin-left: .3rem;
-            font-size: .9rem;
-            font-weight: 900;
-            line-height: 1;
-            text-align: center;
-            vertical-align: middle;
-            color: currentColor;
-            opacity: .62;
-            transition: opacity .15s, transform .15s;
-        }
-
-        .majordome-sortable-th.is-active .majordome-sort-indicator {
-            opacity: 1;
-            transform: translateY(-1px);
-        }
-
-    #majordomeManagementTable {
-        --bs-table-bg: transparent;
-        --bs-table-hover-bg: rgba(37, 99, 235, .045);
-        --bs-table-color: var(--inventory-ink);
-        border-collapse: separate;
-        border-spacing: 0;
-        font-size: .84rem;
-        margin: 0;
-        min-width: 720px;
-        table-layout: fixed;
-        width: 100%;
-    }
-
-        #majordomeManagementTable th,
-        #majordomeManagementTable td {
-            border-color: var(--inventory-line);
-        }
-
-        #majordomeManagementTable tbody td {
-            background: var(--inventory-surface);
-            padding: .35rem .5rem;
-            vertical-align: middle;
-        }
-
-        #majordomeManagementTable tbody tr.majordome-management-row.is-alt td,
-        #majordomeManagementTable tbody tr.majordome-management-detail-row.is-alt td {
-            background: var(--inventory-surface-alt);
-        }
-
-        #majordomeManagementTable tbody tr:first-child td {
-            border-top: 0;
-        }
-
-        #majordomeManagementTable th:nth-child(5),
-        #majordomeManagementTable td:nth-child(5) {
-            padding-right: .35rem;
-        }
-
-        #majordomeManagementTable th:nth-child(6),
-        #majordomeManagementTable td:nth-child(6) {
-            padding-left: .35rem;
-        }
-
-        #majordomeManagementTable .majordome-management-spacer-cell {
-            padding-left: 0 !important;
-            padding-right: 0 !important;
-        }
-
-    .majordome-management-toggle {
-        width: 1.75rem;
-        height: 1.75rem;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-        border-radius: .5rem;
-    }
-
-    .majordome-management-row {
-        cursor: pointer;
-        transition: background-color .15s;
-    }
-
-        #majordomeManagementTable tbody tr.majordome-management-row.is-selected {
-            box-shadow: inset .32rem 0 var(--inventory-selected-accent);
-        }
-
-            #majordomeManagementTable tbody tr.majordome-management-row.is-selected td {
-                background: var(--inventory-selected-bg);
-                border-color: rgba(108, 117, 125, .24);
-            }
-
-            #majordomeManagementTable tbody tr.majordome-management-row.is-selected td:first-child {
-                background: var(--inventory-selected-bg);
-                box-shadow: inset .22rem 0 var(--inventory-selected-accent);
-            }
-
-    .majordome-management-stock {
-        font-family: var(--bs-font-monospace);
-        font-size: .9rem;
-        font-weight: 800;
-        letter-spacing: .01em;
-    }
-
-    .majordome-status-pill {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 1.55rem;
-        min-height: 1.55rem;
-        border-radius: 999px;
-        border: 1px solid rgba(15, 23, 42, .18);
-        font-size: .68rem;
-        font-weight: 900;
-        line-height: 1;
-        background: #f1f5f9;
-        color: #334155;
-        box-shadow: inset 0 1px rgba(255, 255, 255, .65);
-    }
-
-        .majordome-status-pill.is-gtx-x {
-            border-color: rgba(29, 78, 216, .5);
-            background: rgba(37, 99, 235, .14);
-            color: #1d4ed8;
-        }
-
-        .majordome-status-pill.is-gtx-t {
-            border-color: rgba(185, 28, 28, .45);
-            background: rgba(220, 38, 38, .14);
-            color: #b91c1c;
-        }
-
-        .majordome-status-pill.is-gtx-g {
-            border-color: rgba(22, 163, 74, .45);
-            background: rgba(22, 163, 74, .12);
-            color: #166534;
-        }
-
-    .majordome-management-detail-cell {
-        padding: 0 !important;
-    }
-
-    .majordome-management-detail-panel {
-        padding: .9rem 1rem 1rem;
-        border-top: 1px solid var(--inventory-line);
-        background: rgba(248, 250, 252, .82);
-    }
-
-    .majordome-management-change-table {
-        margin: 0 0 0 3rem;
-        font-size: .88rem;
-        max-width: calc(100% - 3rem);
-        min-width: min(420px, calc(100% - 3rem));
-        table-layout: auto;
-        width: auto;
-    }
-
-        .majordome-management-change-table th:nth-child(1),
-        .majordome-management-change-table td:nth-child(1) {
-            min-width: 9rem;
-            white-space: nowrap;
-        }
-
-        .majordome-management-change-table th:nth-child(2),
-        .majordome-management-change-table td:nth-child(2),
-        .majordome-management-change-table th:nth-child(3),
-        .majordome-management-change-table td:nth-child(3) {
-            min-width: 8rem;
-            width: auto;
-        }
-
-        .majordome-management-change-table th:nth-child(4),
-        .majordome-management-change-table td:nth-child(4) {
-            min-width: 12rem;
-            text-align: center;
-            width: auto;
-            white-space: nowrap;
-        }
-
-        .majordome-management-change-table th {
-            background: linear-gradient(180deg, rgb(255 255 255), #AAAAB3) !important;
-            border-bottom: 1px solid rgba(15, 23, 42, .18);
-            color: #111827;
-            font-size: .72rem;
-            font-weight: 800;
-            letter-spacing: .03em;
-            line-height: 1.15;
-            padding-bottom: .4rem !important;
-            padding-top: .4rem !important;
-            text-transform: uppercase;
-        }
-
-        .majordome-management-change-table td {
-            background: #fff !important;
-            max-width: 34rem;
-            overflow-wrap: anywhere;
-        }
-
-        .majordome-management-change-table td.majordome-management-change-number {
-            font-variant-numeric: tabular-nums;
-            text-align: right;
-            white-space: nowrap;
-        }
-
-        .majordome-management-change-table .majordome-management-change-spacer-cell {
-            padding-left: 0 !important;
-            padding-right: 0 !important;
-        }
-
-    .majordome-thumb {
-        width: 72px;
-        height: 52px;
-        object-fit: cover;
-        border-radius: .45rem;
-        border: 1px solid rgba(15, 23, 42, .12);
-        box-shadow: 0 .35rem .8rem rgba(15, 23, 42, .15);
-        background: #fff;
-        transition: box-shadow .15s, transform .15s;
-    }
-
-    #majordomeManagementTable .majordome-row-details {
-        width: 170px;
-        min-width: 170px;
-        max-width: 170px;
-    }
-
-    .majordome-vehicle-title {
-        color: var(--inventory-ink);
-        font-size: .88rem;
-        font-weight: 800;
-        line-height: 1.12;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .majordome-vehicle-meta {
-        font-size: .7rem;
-        color: var(--inventory-muted);
-        line-height: 1.14;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .majordome-management-shell .inventory-dashboard-details-button {
-        width: 1.75rem;
-        min-height: 1.75rem;
-    }
-
-    .majordome-vin-line {
-        font-family: var(--bs-font-monospace);
-        letter-spacing: .01em;
-    }
-
-    @@media (max-width: 767.98px) {
-        .majordome-management-workspace {
-            flex-direction: column;
-        }
-
-        .majordome-management-sidebar-pane {
-            flex: 0 0 auto;
-            width: 100%;
-            max-width: none;
-            max-height: 22rem;
-            border-right: 0;
-            border-bottom: 1px solid var(--inventory-line);
-        }
-
-        .majordome-management-log-picker {
-            max-height: none;
-        }
-
-        .majordome-management-toolbar {
-            align-items: stretch;
-        }
-
-        .majordome-management-toolbar-main,
-        .majordome-management-toolbar-actions {
-            width: 100%;
-            margin-left: 0;
-        }
-
-        .majordome-management-search-slot,
-        .majordome-management-search-slot #filterByTerm.inventory-result-toolbar,
-        .majordome-management-location-filter,
-        .majordome-management-summary,
-        .majordome-management-toolbar-main > .btn {
-            flex: 1 1 100%;
-            width: 100%;
-            max-width: none;
-        }
-
-        .majordome-management-summary {
-            margin-left: 0;
-        }
-
-        .majordome-management-summary {
-            justify-content: space-between;
-        }
-
-        #majordomeManagementSearchSlot #filterByTerm.inventory-result-toolbar {
-            margin-left: 0;
-        }
-
-        .majordome-management-table-wrap {
-            max-height: none;
-        }
-
-        .majordome-thumb {
-            width: 76px;
-            height: 56px;
-        }
-
-        .majordome-row-details {
-            max-width: 170px;
-        }
-
-    }
-</style>
-
 <div class="majordome-management-page container-fluid px-4 py-3">
     <div class="majordome-management-shell">
         <div class="majordome-management-workspace">
@@ -825,68 +29,30 @@
                         </div>
                         <div id="majordomeManagementSearchSlot" class="majordome-management-search-slot">
                             @{ Html.RenderPartial("~/Views/Shared/_FilterByTerm.cshtml"); }
-                            <style>
-                                #majordomeManagementSearchSlot > #filterByTerm.inventory-result-toolbar {
-                                    position: static !important;
-                                    left: auto !important;
-                                    right: auto !important;
-                                    top: auto !important;
-                                    transform: none !important;
-                                    width: 100% !important;
-                                    max-width: 100% !important;
-                                    min-width: 0 !important;
-                                    margin: 0 !important;
-                                    padding: 0 !important;
-                                    justify-content: flex-end !important;
-                                }
-
-                                #majordomeManagementSearchSlot #filterByTerm .inventory-toolbar-shell,
-                                #majordomeManagementSearchSlot #filterByTerm .inventory-term-search {
-                                    position: relative !important;
-                                    left: auto !important;
-                                    transform: none !important;
-                                    width: 100% !important;
-                                    max-width: 340px !important;
-                                    margin: 0 !important;
-                                    justify-content: flex-end !important;
-                                }
-
-                                #majordomeManagementSearchSlot #filterByTerm #filterWrapper {
-                                    position: relative !important;
-                                    left: auto !important;
-                                    transform: none !important;
-                                    flex: 0 0 auto !important;
-                                    width: min(100%, 340px) !important;
-                                    max-width: 340px !important;
-                                    margin-left: auto !important;
-                                    margin-right: 0 !important;
-                                    justify-content: flex-end !important;
-                                }
-                            </style>
-                        </div>
+                            </div>
                     </div>
                 </div>
                 <div class="majordome-management-table-wrap table-responsive">
                     <table id="majordomeManagementTable" class="table align-middle m-0">
                         <colgroup>
-                            <col style="width:56px;" />
-                            <col style="width:100px;" />
-                            <col style="width:170px;" />
-                            <col style="width:110px;" />
-                            <col style="width:96px;" />
-                            <col style="width:118px;" />
-                            <col style="width:88px;" />
+                            <col class="majordome-management-col-expand" />
+                            <col class="majordome-management-col-image" />
+                            <col class="majordome-management-col-vehicle" />
+                            <col class="majordome-management-col-stock" />
+                            <col class="majordome-management-col-gtx" />
+                            <col class="majordome-management-col-status" />
+                            <col class="majordome-management-col-details" />
                             <col />
                         </colgroup>
                         <thead class="table-light">
                             <tr>
-                                <th style="width:56px;"></th>
-                                <th class="majordome-sortable-th" data-sort-key="image" style="width:100px;">Image <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
-                                <th class="majordome-sortable-th" data-sort-key="vehicle" style="width:170px;">Vehicle <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
-                                <th class="majordome-sortable-th" data-sort-key="stock" style="width:110px;">Stock <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
-                                <th class="text-center majordome-sortable-th" data-sort-key="gtx" style="width:96px;">GTX <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
-                                <th class="text-center majordome-sortable-th" data-sort-key="status" style="width:118px;">Status <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
-                                <th class="text-center" style="width:88px;">Details</th>
+                                <th class="majordome-management-col-expand"></th>
+                                <th class="majordome-sortable-th majordome-management-col-image" data-sort-key="image">Image <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
+                                <th class="majordome-sortable-th majordome-management-col-vehicle" data-sort-key="vehicle">Vehicle <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
+                                <th class="majordome-sortable-th majordome-management-col-stock" data-sort-key="stock">Stock <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
+                                <th class="text-center majordome-sortable-th majordome-management-col-gtx" data-sort-key="gtx">GTX <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
+                                <th class="text-center majordome-sortable-th majordome-management-col-status" data-sort-key="status">Status <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
+                                <th class="text-center majordome-management-col-details">Details</th>
                                 <th class="majordome-management-spacer-cell" aria-hidden="true"></th>
                             </tr>
                         </thead>
@@ -894,7 +60,7 @@
                     </table>
                 </div>
                 <div id="majordomeManagementEmpty" class="p-4 text-center text-muted d-none">
-                    No added, updated, sold, or existing vehicles were found for this inventory date.
+                    No added, updated, sold, or stalled vehicles were found for this inventory date.
                 </div>
             </div>
         </div>
@@ -915,7 +81,7 @@
             { key: "added", label: "Added", countKey: "AddedCount", badgeClass: "bg-success", iconClass: "bi-plus-circle" },
             { key: "updated", label: "Updated", countKey: "UpdatedCount", badgeClass: "bg-primary", iconClass: "bi-pencil-square" },
             { key: "removed", label: "Sold", countKey: "RemovedCount", badgeClass: "bg-danger", iconClass: "bi-trash3" },
-            { key: "skipped", label: "Existing", countKey: "SkippedCount", badgeClass: "bg-secondary", iconClass: "bi-pause-circle" }
+            { key: "skipped", label: "Stalled", countKey: "SkippedCount", badgeClass: "bg-secondary", iconClass: "bi-pause-circle" }
         ];
 
         function managementRoot() {
@@ -1028,7 +194,7 @@
                 VehicleStyle: managementValue(row, "VehicleStyle", ""),
                 VIN: managementValue(row, "VIN", ""),
                 LocationCode: managementValue(row, "LocationCode", ""),
-                StatusText: managementValue(row, "StatusText", "")
+                StatusText: managementDisplayStatusText(managementValue(row, "StatusText", ""))
             };
 
             return window.gtxInventorySearch
@@ -1058,6 +224,14 @@
             return status;
         }
 
+        function managementDisplayStatusText(value) {
+            if (managementStatusKey(value) === "skipped") {
+                return "Stalled";
+            }
+
+            return managementText(value).trim();
+        }
+
         function managementStatusFilterMeta(statusKey) {
             const normalized = managementStatusKey(statusKey);
             return majordomeManagementStatusFilters.find(function (status) {
@@ -1072,9 +246,10 @@
         }
 
         function managementLogTotalCount(log) {
-            return majordomeManagementStatusFilters.reduce(function (total, status) {
-                return total + managementLogStatusCount(log, status.key);
-            }, 0);
+            // Sold rows are inferred from prior inventory and are not present in the current upload.
+            return managementLogStatusCount(log, "skipped") +
+                managementLogStatusCount(log, "added") +
+                managementLogStatusCount(log, "updated");
         }
 
         function managementLogTreeId(logId) {
@@ -1232,7 +407,7 @@
                 managementValue(row, "VehicleStyle", ""),
                 managementValue(row, "VIN", ""),
                 managementValue(row, "LocationCode", ""),
-                managementValue(row, "StatusText", ""),
+                managementDisplayStatusText(managementValue(row, "StatusText", "")),
                 changeText
             ].join(" "));
         }
@@ -1279,7 +454,7 @@
             const hasFilteredRows = filteredCount > 0;
             const message = totalCount > 0
                 ? "No vehicles match the current search, status, or location filter."
-                : "No added, updated, sold, or existing vehicles were found for this inventory date.";
+                : "No added, updated, sold, or stalled vehicles were found for this inventory date.";
 
             $("#majordomeManagementEmpty")
                 .toggleClass("d-none", hasFilteredRows)
@@ -1481,7 +656,7 @@
         function managementLogLabel(log) {
             const dateCreated = managementValue(log, "DateCreated", "");
             const counts = majordomeManagementStatusFilters.map(function (status) {
-                return `${managementFormatInteger(managementLogStatusCount(log, status.key))} ${status.key}`;
+                return `${managementFormatInteger(managementLogStatusCount(log, status.key))} ${managementSearchText(status.label)}`;
             }).join(", ");
 
             return `${managementFormatDate(dateCreated)} - ${counts}`;
@@ -1491,14 +666,37 @@
             syncMajordomeManagementTreeSelection();
         }
 
+        function openMajordomeManagementLogTree(logId) {
+            const selectedTreeId = managementLogTreeId(logId);
+            const selectedTree = document.getElementById(selectedTreeId);
+            if (!selectedTree) return;
+
+            const $menu = $("#majordomeManagementLogMenu");
+            $menu.find(".collapse").not(selectedTree).removeClass("show");
+            $(selectedTree).addClass("show");
+
+            $menu.find(".majordome-management-log-date-toggle").each(function () {
+                const $button = $(this);
+                const isExpanded = managementText($button.attr("aria-controls")) === selectedTreeId;
+                $button
+                    .toggleClass("collapsed", !isExpanded)
+                    .attr("aria-expanded", isExpanded ? "true" : "false");
+            });
+        }
+
         function syncMajordomeManagementTreeSelection() {
             const selectedLogId = managementText($("#majordomeManagementLogSelect").val());
             const selectedStatus = managementStatusKey(majordomeManagementSelectedStatus || "all");
 
             $("#majordomeManagementLogMenu .majordome-management-log-date-toggle").each(function () {
                 const $button = $(this);
-                const isSelected = managementText($button.attr("data-log-id")) === selectedLogId && selectedStatus === "all";
-                $button.toggleClass("is-selected", isSelected);
+                const isSelected = managementText($button.attr("data-log-id")) === selectedLogId;
+                $button
+                    .toggleClass("is-selected", isSelected)
+                    .toggleClass("is-active", isSelected);
+                $button.find(".majordome-management-log-option-date")
+                    .toggleClass("is-selected", isSelected)
+                    .toggleClass("is-active", isSelected);
                 $button.attr("aria-current", isSelected ? "true" : "false");
             });
 
@@ -1506,7 +704,9 @@
                 const $button = $(this);
                 const isSelected = managementText($button.attr("data-log-id")) === selectedLogId &&
                     managementStatusKey($button.attr("data-status")) === selectedStatus;
-                $button.toggleClass("is-selected", isSelected);
+                $button
+                    .toggleClass("is-selected", isSelected)
+                    .toggleClass("is-active", isSelected);
                 $button.attr("aria-current", isSelected ? "true" : "false");
             });
         }
@@ -1558,7 +758,7 @@
                         </span>
                         <span class="badge rounded-pill bg-dark majordome-management-log-date-count">${managementEscapeHtml(managementFormatInteger(total))}</span>
                     </button>
-                    <div id="${managementEscapeHtml(collapseId)}" class="collapse${showClass}">
+                    <div id="${managementEscapeHtml(collapseId)}" class="collapse${showClass}" data-bs-parent="#majordomeManagementLogMenu">
                         <div class="majordome-management-log-status-list" role="group">
                             ${statusesHtml}
                         </div>
@@ -1625,7 +825,7 @@
             loadMajordomeManagementRows($select.val());
         }
 
-        function selectMajordomeManagementLog(logId, statusKey) {
+        function selectMajordomeManagementLog(logId, statusKey, keepLogOpen) {
             const normalizedLogId = managementText(logId);
             if (!normalizedLogId) return;
 
@@ -1635,6 +835,9 @@
             $("#majordomeManagementLogSelect").val(normalizedLogId);
             majordomeManagementSelectedStatus = normalizedStatus;
             majordomeManagementSelectedStock = "";
+            if (keepLogOpen) {
+                openMajordomeManagementLogTree(normalizedLogId);
+            }
             syncMajordomeManagementLogPicker();
 
             if (currentLogId !== normalizedLogId) {
@@ -1687,8 +890,9 @@
             const model = managementValue(row, "Model", "");
             const style = managementValue(row, "VehicleStyle", "");
             const vin = managementValue(row, "VIN", "");
-            const statusText = managementValue(row, "StatusText", "");
-            const statusKey = managementStatusKey(statusText);
+            const rawStatusText = managementValue(row, "StatusText", "");
+            const statusText = managementDisplayStatusText(rawStatusText);
+            const statusKey = managementStatusKey(rawStatusText);
             const locationCode = managementValue(row, "LocationCode", "");
             const isUpdated = statusKey === "updated";
             const isRemoved = statusKey === "removed";
@@ -1746,7 +950,7 @@
                 </tr>
                 <tr class="majordome-management-detail-row ${rowToneClass}">
                     <td class="majordome-management-detail-cell" colspan="8">
-                        <div id="${collapseId}" class="collapse">
+                        <div id="${collapseId}" class="collapse" data-bs-parent="#majordomeManagementBody">
                             ${buildMajordomeManagementDetails(row)}
                         </div>
                     </td>
@@ -1887,7 +1091,7 @@
                     const $status = $(this);
                     if ($status.is(":disabled")) return;
 
-                    selectMajordomeManagementLog($status.attr("data-log-id"), $status.attr("data-status"));
+                    selectMajordomeManagementLog($status.attr("data-log-id"), $status.attr("data-status"), true);
                 });
 
             $("#majordomeManagementLocationFilter").on("change", applyMajordomeManagementFilters);
