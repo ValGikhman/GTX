@@ -1,0 +1,249 @@
+/* ========================================================================
+   Inventory Management Dashboard toolbar polish
+   Scoped to the dashboard so it can safely override the inline view styles.
+   ======================================================================== */
+
+.inventory-dashboard {
+    --dashboard-toolbar-glow: rgba(var(--bs-primary-rgb, 13, 110, 253), .18);
+    --dashboard-toolbar-accent: var(--bs-primary, #0d6efd);
+}
+
+.inventory-dashboard > .inventory-dashboard-toolbar {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    align-items: center;
+    gap: 1rem 1.25rem;
+    margin: 0 0 1.25rem 0;
+    padding: 1rem 1.15rem;
+    min-height: 5.35rem;
+    border: 1px solid rgba(148, 163, 184, .32);
+    border-radius: 1rem;
+    background:
+        radial-gradient(circle at 7% 0%, var(--dashboard-toolbar-glow) 0, transparent 34%),
+        radial-gradient(circle at 96% 8%, rgba(255, 255, 255, .9) 0, transparent 28%),
+        linear-gradient(135deg, rgba(255, 255, 255, .96) 0%, rgba(248, 250, 252, .94) 52%, rgba(241, 245, 249, .98) 100%);
+    box-shadow:
+        0 1.1rem 2.6rem rgba(15, 23, 42, .10),
+        0 .25rem .8rem rgba(15, 23, 42, .06),
+        inset 0 1px rgba(255, 255, 255, .78);
+}
+
+.inventory-dashboard > .inventory-dashboard-toolbar::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: .38rem;
+    background: var(--gtx-grad, linear-gradient(180deg, #155a96 0%, #1e73be 100%));
+    box-shadow: .28rem 0 1.4rem var(--dashboard-toolbar-glow);
+    z-index: -1;
+}
+
+.inventory-dashboard > .inventory-dashboard-toolbar::after {
+    content: "";
+    position: absolute;
+    top: .75rem;
+    right: .85rem;
+    width: 10rem;
+    height: 10rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, .56), rgba(255, 255, 255, 0));
+    transform: translate(32%, -58%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.inventory-dashboard > .inventory-dashboard-toolbar > div:first-child {
+    position: relative;
+    z-index: 1;
+    min-width: min(100%, 18rem);
+    display: grid;
+    gap: .25rem;
+}
+
+.inventory-dashboard > .inventory-dashboard-toolbar h1 {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: .72rem;
+    margin: 0 !important;
+    color: #0f172a;
+    font-size: clamp(1.35rem, 2vw, 1.75rem) !important;
+    font-weight: 900 !important;
+    letter-spacing: -.035em;
+    line-height: 1.08;
+}
+
+.inventory-dashboard > .inventory-dashboard-toolbar h1::before {
+    content: "";
+    width: 2.45rem;
+    height: 2.45rem;
+    flex: 0 0 2.45rem;
+    border-radius: .85rem;
+    background:
+        linear-gradient(rgba(255, 255, 255, .28), rgba(255, 255, 255, 0)),
+        var(--gtx-grad, linear-gradient(180deg, #155a96 0%, #1e73be 100%));
+    box-shadow:
+        0 .65rem 1.25rem rgba(15, 23, 42, .16),
+        inset 0 1px rgba(255, 255, 255, .4);
+}
+
+.inventory-dashboard > .inventory-dashboard-toolbar h1::after {
+    content: "";
+    position: absolute;
+    left: .76rem;
+    width: .92rem;
+    height: .92rem;
+    border-radius: .24rem;
+    border: 2px solid rgba(255, 255, 255, .92);
+    box-shadow:
+        .44rem 0 0 -.08rem rgba(255, 255, 255, .92),
+        0 .44rem 0 -.08rem rgba(255, 255, 255, .92),
+        .44rem .44rem 0 -.08rem rgba(255, 255, 255, .92);
+}
+
+.inventory-dashboard > .inventory-dashboard-toolbar #inventoryDashboardRange {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    width: fit-content;
+    max-width: 100%;
+    margin-left: 3.18rem;
+    padding: .18rem .58rem;
+    border: 1px solid rgba(148, 163, 184, .22);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .62);
+    color: #64748b;
+    font-size: .82rem;
+    font-weight: 800;
+    letter-spacing: .01em;
+    box-shadow: inset 0 1px rgba(255, 255, 255, .62);
+}
+
+.inventory-dashboard > .inventory-dashboard-toolbar #inventoryDashboardRange::before {
+    content: "";
+    width: .48rem;
+    height: .48rem;
+    flex: 0 0 .48rem;
+    border-radius: 999px;
+    background: #22c55e;
+    box-shadow: 0 0 0 .22rem rgba(34, 197, 94, .12);
+}
+
+.inventory-dashboard > .inventory-dashboard-toolbar > .d-flex {
+    position: relative;
+    z-index: 1;
+    align-items: center !important;
+    gap: .7rem !important;
+    margin-left: auto;
+    padding: .52rem .58rem .52rem .78rem;
+    border: 1px solid rgba(148, 163, 184, .28);
+    border-radius: .9rem;
+    background: rgba(255, 255, 255, .74);
+    box-shadow:
+        0 .55rem 1.35rem rgba(15, 23, 42, .08),
+        inset 0 1px rgba(255, 255, 255, .72);
+    backdrop-filter: blur(10px);
+}
+
+.inventory-dashboard > .inventory-dashboard-toolbar label[for="inventoryDashboardPeriod"] {
+    display: inline-flex;
+    align-items: center;
+    gap: .38rem;
+    margin: 0 !important;
+    color: #475569;
+    font-size: .72rem !important;
+    font-weight: 900 !important;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.inventory-dashboard > .inventory-dashboard-toolbar label[for="inventoryDashboardPeriod"]::before {
+    content: "";
+    width: .55rem;
+    height: .55rem;
+    border-radius: .2rem;
+    background: var(--dashboard-toolbar-accent);
+    box-shadow: 0 0 0 .22rem rgba(var(--bs-primary-rgb, 13, 110, 253), .12);
+}
+
+.inventory-dashboard > .inventory-dashboard-toolbar #inventoryDashboardPeriod {
+    width: auto !important;
+    min-width: 10.25rem;
+    min-height: 2.55rem;
+    padding: .45rem 2.3rem .45rem .85rem;
+    border: 1px solid rgba(15, 23, 42, .12);
+    border-radius: .78rem;
+    background-color: #fff;
+    color: #0f172a;
+    font-size: .9rem;
+    font-weight: 800;
+    box-shadow:
+        0 .18rem .55rem rgba(15, 23, 42, .06),
+        inset 0 1px rgba(255, 255, 255, .85);
+    cursor: pointer;
+    transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+}
+
+.inventory-dashboard > .inventory-dashboard-toolbar #inventoryDashboardPeriod:hover {
+    border-color: rgba(var(--bs-primary-rgb, 13, 110, 253), .36);
+    box-shadow:
+        0 .35rem .9rem rgba(15, 23, 42, .10),
+        inset 0 1px rgba(255, 255, 255, .85);
+    transform: translateY(-1px);
+}
+
+.inventory-dashboard > .inventory-dashboard-toolbar #inventoryDashboardPeriod:focus {
+    border-color: rgba(var(--bs-primary-rgb, 13, 110, 253), .52);
+    box-shadow:
+        0 0 0 .22rem rgba(var(--bs-primary-rgb, 13, 110, 253), .14),
+        0 .35rem .9rem rgba(15, 23, 42, .10);
+}
+
+html.theme-grey .inventory-dashboard,
+html.theme-dark .inventory-dashboard,
+html.theme-metallica .inventory-dashboard {
+    --dashboard-toolbar-glow: rgba(148, 163, 184, .24);
+    --dashboard-toolbar-accent: #64748b;
+}
+
+html.theme-pink .inventory-dashboard {
+    --dashboard-toolbar-glow: rgba(194, 24, 91, .20);
+    --dashboard-toolbar-accent: #c2185b;
+}
+
+html.theme-deep-purple .inventory-dashboard {
+    --dashboard-toolbar-glow: rgba(106, 27, 177, .20);
+    --dashboard-toolbar-accent: #6a1bb1;
+}
+
+html.theme-silver .inventory-dashboard > .inventory-dashboard-toolbar {
+    background:
+        radial-gradient(circle at 7% 0%, rgba(143, 152, 163, .16) 0, transparent 34%),
+        linear-gradient(135deg, #fff 0%, #f4f5f7 54%, #e6e8ec 100%);
+}
+
+@media (max-width: 767.98px) {
+    .inventory-dashboard > .inventory-dashboard-toolbar {
+        align-items: stretch !important;
+        padding: .95rem;
+        border-radius: .9rem;
+    }
+
+    .inventory-dashboard > .inventory-dashboard-toolbar #inventoryDashboardRange {
+        margin-left: 0;
+    }
+
+    .inventory-dashboard > .inventory-dashboard-toolbar > .d-flex {
+        width: 100%;
+        align-items: stretch !important;
+        flex-direction: column;
+        margin-left: 0;
+    }
+
+    .inventory-dashboard > .inventory-dashboard-toolbar #inventoryDashboardPeriod {
+        width: 100% !important;
+        min-width: 0;
+    }
+}
