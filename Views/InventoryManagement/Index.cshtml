@@ -122,7 +122,9 @@
         function uploadBadgeClass(label) {
             const normalized = uploadText(label).trim().toLowerCase();
             if (normalized.indexOf("add") >= 0) return "bg-success p-2";
+            if (normalized.indexOf("sell") >= 0 || normalized.indexOf("sold") >= 0) return "bg-danger p-2";
             if (normalized.indexOf("remove") >= 0) return "bg-danger p-2";
+            if (normalized.indexOf("existing") >= 0) return "bg-secondary p-2";
             if (normalized.indexOf("skip") >= 0) return "bg-secondary p-2";
             if (normalized.indexOf("stall") >= 0) return "bg-secondary p-2";
             if (normalized.indexOf("update") >= 0) return "bg-primary p-2";
@@ -236,12 +238,12 @@
                 { label: isPreview ? "to update" : "updated", count: updated.length },
                 { label: isPreview ? "to add" : "added", count: inserted.length },
                 { label: isPreview ? "to sell" : "sold", count: removed.length },
-                { label: "existing", count: skipped.length }
+                { label: "stalled", count: skipped.length }
             ]);
             uploadRenderStatusLines(isPreview ? "to be updated" : "updated", updated);
             uploadRenderStatusLines(isPreview ? "to be added" : "added", inserted);
             uploadRenderStatusLines(isPreview ? "to be sold" : "sold", removed);
-            uploadRenderStatusLines("existing", skipped);
+            uploadRenderStatusLines("stalled", skipped);
         }
 
         function uploadFormData(file) {

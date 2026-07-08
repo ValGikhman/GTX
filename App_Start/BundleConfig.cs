@@ -42,7 +42,11 @@ namespace GTX {
                       "~/Content/Themes/DeepPurple.css",
                       "~/Content/Themes/Dark.css",
                       "~/Content/Themes/Metallica.css",
-                      "~/Content/Themes/Silver.css"
+                      "~/Content/Themes/Silver.css",
+                      "~/Content/inventory-card.css",
+                      "~/Content/dataone-details.css",
+                      "~/Content/majordome.css",
+                      "~/Content/inventory-dashboard.css"
 
                 ));
         }

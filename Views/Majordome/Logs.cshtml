@@ -10,107 +10,6 @@
         .ToList();
 }
 
-<style>
-    .majordome-logs-shell {
-        background: #fff;
-        border-radius: 1rem;
-        box-shadow: 0 .75rem 1.8rem rgba(15, 23, 42, .08);
-    }
-
-    .majordome-logs-header {
-        border-bottom: 1px solid rgba(15, 23, 42, .1);
-        background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
-    }
-
-    .majordome-logs-title {
-        font-size: 1rem;
-        font-weight: 700;
-        letter-spacing: .02em;
-        color: #0f172a;
-    }
-
-    .majordome-logs-search {
-        min-width: 280px;
-        max-width: 540px;
-    }
-
-    .majordome-logs-tools {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .majordome-logs-table-wrap {
-        max-height: 68vh;
-        overflow: auto;
-    }
-
-        .majordome-logs-table-wrap thead th {
-            position: sticky;
-            top: 0;
-            z-index: 2;
-            text-transform: uppercase;
-            font-size: .76rem;
-            letter-spacing: .03em;
-            white-space: nowrap;
-            border-bottom: 1px solid rgba(15, 23, 42, .16);
-        }
-
-    .logs-sort {
-        cursor: pointer;
-        user-select: none;
-    }
-
-    .logs-sort-icon {
-        opacity: .45;
-        transition: opacity .15s;
-    }
-
-    .logs-sort.is-active .logs-sort-icon {
-        opacity: 1;
-    }
-
-    .log-cell {
-        font-size: .92rem;
-        line-height: 1.25rem;
-        vertical-align: top;
-    }
-
-    .log-cell-message,
-    .log-cell-exception,
-    .log-cell-url {
-        max-width: 460px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .log-level-badge {
-        min-width: 70px;
-        text-align: center;
-    }
-
-    @media (max-width: 991.98px) {
-        .majordome-logs-page {
-            padding-left: 1rem !important;
-            padding-right: 1rem !important;
-        }
-
-        .majordome-logs-search {
-            min-width: 220px;
-            width: 100%;
-            max-width: none;
-        }
-
-        .majordome-logs-tools {
-            justify-content: center;
-        }
-
-        .majordome-logs-table-wrap {
-            max-height: none;
-        }
-    }
-</style>
-
 <div class="majordome-logs-page container-fluid px-4 py-3">
     <div class="majordome-logs-shell shadow rounded-4 overflow-hidden border border-dark-subtle">
         <div class="majordome-logs-header p-3">
@@ -123,14 +22,14 @@
                         </span>
                         <input id="logsSearch" type="search" class="form-control" placeholder="Search logs..." aria-label="Search logs">
                     </div>
-                    <select id="logsLevelFilter" class="form-select" style="width:170px;">
+                    <select id="logsLevelFilter" class="form-select">
                         <option value="all" selected>All levels</option>
                         @foreach (var level in levels)
                         {
                             <option value="@level.ToUpperInvariant()">@level</option>
                         }
                     </select>
-                    <select id="logsPageSize" class="form-select" style="width:90px;">
+                    <select id="logsPageSize" class="form-select">
                         <option value="20" selected>20</option>
                         <option value="50">50</option>
                         <option value="100">100</option>
@@ -143,13 +42,13 @@
             <table id="logsTable" class="table table-hover align-middle m-0">
                 <thead class="table-light">
                     <tr>
-                        <th class="logs-sort" data-sort-key="loglevel" style="width:110px;">Level <i class="bi bi-arrow-down-up logs-sort-icon ms-1"></i></th>
-                        <th class="logs-sort" data-sort-key="message" style="min-width:320px;">Message <i class="bi bi-arrow-down-up logs-sort-icon ms-1"></i></th>
-                        <th class="logs-sort d-none d-xl-table-cell" data-sort-key="exception" style="min-width:300px;">Exception <i class="bi bi-arrow-down-up logs-sort-icon ms-1"></i></th>
-                        <th class="logs-sort d-none d-lg-table-cell" data-sort-key="url" style="min-width:280px;">Url <i class="bi bi-arrow-down-up logs-sort-icon ms-1"></i></th>
-                        <th class="logs-sort text-center d-none d-md-table-cell" data-sort-key="method" style="width:100px;">Method <i class="bi bi-arrow-down-up logs-sort-icon ms-1"></i></th>
-                        <th class="logs-sort text-center d-none d-lg-table-cell" data-sort-key="ip" style="min-width:140px;">IP Address <i class="bi bi-arrow-down-up logs-sort-icon ms-1"></i></th>
-                        <th class="logs-sort" data-sort-key="created" style="min-width:190px;">Created <i class="bi bi-arrow-down-up logs-sort-icon ms-1"></i></th>
+                        <th class="logs-sort logs-col-level" data-sort-key="loglevel">Level <i class="bi bi-arrow-down-up logs-sort-icon ms-1"></i></th>
+                        <th class="logs-sort logs-col-message" data-sort-key="message">Message <i class="bi bi-arrow-down-up logs-sort-icon ms-1"></i></th>
+                        <th class="logs-sort logs-col-exception d-none d-xl-table-cell" data-sort-key="exception">Exception <i class="bi bi-arrow-down-up logs-sort-icon ms-1"></i></th>
+                        <th class="logs-sort logs-col-url d-none d-lg-table-cell" data-sort-key="url">Url <i class="bi bi-arrow-down-up logs-sort-icon ms-1"></i></th>
+                        <th class="logs-sort logs-col-method text-center d-none d-md-table-cell" data-sort-key="method">Method <i class="bi bi-arrow-down-up logs-sort-icon ms-1"></i></th>
+                        <th class="logs-sort logs-col-ip text-center d-none d-lg-table-cell" data-sort-key="ip">IP Address <i class="bi bi-arrow-down-up logs-sort-icon ms-1"></i></th>
+                        <th class="logs-sort logs-col-created" data-sort-key="created">Created <i class="bi bi-arrow-down-up logs-sort-icon ms-1"></i></th>
                     </tr>
                 </thead>
                 <tbody id="logsTableBody">

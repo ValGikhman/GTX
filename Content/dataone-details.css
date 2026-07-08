@@ -1,0 +1,177 @@
+/* DataOne details partial styles */
+.toggle {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.pm {
+    display: inline-block;
+    width: 1.5rem;
+    text-align: center;
+    line-height: 1.5rem;
+}
+
+    .pm::before {
+        content: "+";
+    }
+
+.toggle[aria-expanded="true"] .pm::before {
+    content: "–";
+}
+
+
+.kv td:first-child {
+    white-space: nowrap;
+    color: var(--bs-secondary-color);
+    width: 1%;
+}
+
+.muted {
+    color: var(--bs-secondary-color);
+}
+
+.section {
+    margin-bottom: .75rem;
+}
+
+.w-20 {
+    width: 20% !important;
+}
+
+.gtx-price-table-wrap {
+    border: 1px solid rgba(0, 0, 0, .12);
+    border-radius: .5rem;
+    box-shadow: 0 .35rem .85rem rgba(0, 0, 0, .08);
+    overflow: hidden;
+}
+
+.gtx-price-table {
+    margin-bottom: 0;
+}
+
+    .gtx-price-table td:nth-child(2) {
+        text-align: right;
+        white-space: nowrap;
+    }
+
+.gtx-detail-table,
+.gtx-basic-table {
+    table-layout: fixed;
+    width: 100%;
+    max-width: 100%;
+}
+
+    .gtx-detail-table th,
+    .gtx-detail-table td,
+    .gtx-basic-table th,
+    .gtx-basic-table td {
+        padding: .45rem .5rem;
+        vertical-align: middle;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .gtx-detail-table.kv td:first-child {
+        width: auto;
+        white-space: normal;
+    }
+
+    .gtx-detail-pair-table .gtx-label-col,
+    .gtx-basic-table .gtx-basic-label-col {
+        width: 11rem;
+    }
+
+    .gtx-detail-pair-table .gtx-value-col,
+    .gtx-basic-table .gtx-basic-value-col {
+        width: auto;
+    }
+
+    .gtx-detail-pair-table td:nth-child(1),
+    .gtx-detail-pair-table td:nth-child(3),
+    .gtx-basic-table td:nth-child(1),
+    .gtx-basic-table td:nth-child(3) {
+        width: 9rem !important;
+        white-space: normal;
+    }
+
+    .gtx-detail-pair-table td:nth-child(2),
+    .gtx-detail-pair-table td:nth-child(4) {
+        width: auto !important;
+    }
+
+    .gtx-detail-keyvalue-table .gtx-label-col {
+        width: 11rem;
+    }
+
+    .gtx-detail-keyvalue-table .gtx-value-col {
+        width: auto;
+    }
+
+    .gtx-detail-keyvalue-table td:first-child,
+    .gtx-detail-keyvalue-table th:first-child {
+        width: 9rem !important;
+        white-space: normal;
+    }
+
+    .gtx-detail-keyvalue-table td:last-child,
+    .gtx-detail-keyvalue-table th:last-child {
+        width: auto !important;
+    }
+
+@media (max-width: 575.98px) {
+    .gtx-detail-table th,
+    .gtx-detail-table td,
+    .gtx-basic-table th,
+    .gtx-basic-table td {
+        padding: .35rem .25rem;
+        line-height: 1.25;
+    }
+
+    .gtx-detail-pair-table .gtx-label-col,
+    .gtx-basic-table .gtx-basic-label-col {
+        width: 6rem;
+    }
+
+    .gtx-detail-pair-table .gtx-value-col,
+    .gtx-basic-table .gtx-basic-value-col {
+        width: auto;
+    }
+
+    .gtx-detail-pair-table td:nth-child(1),
+    .gtx-detail-pair-table td:nth-child(3),
+    .gtx-basic-table td:nth-child(1),
+    .gtx-basic-table td:nth-child(3) {
+        width: 4.75rem !important;
+    }
+
+    .gtx-detail-keyvalue-table .gtx-label-col {
+        width: 7rem;
+    }
+
+    .gtx-detail-keyvalue-table td:first-child,
+    .gtx-detail-keyvalue-table th:first-child {
+        width: 6rem !important;
+    }
+}
+
+.kv .gtx-no-hidden-fees-row td,
+.kv .gtx-no-hidden-fees-row td:first-child {
+    color: #146c43;
+    background: #eaf7ef;
+}
+
+.gtx-retail-muted {
+color: slategrey;
+}
+
+.gtx-color-swatch {
+width: 36px;
+height: 36px;
+display: inline-block;
+overflow: hidden;
+border: 1px solid #ccc;
+border-radius: 4px;
+vertical-align: middle;
+}
