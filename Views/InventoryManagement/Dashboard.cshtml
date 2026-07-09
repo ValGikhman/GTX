@@ -24,13 +24,18 @@
     <div class="row g-2">
         <div class="col-12 col-xl-5">
             <div class="inventory-dashboard-graph-grid">
-                <div class="inventory-dashboard-period-control">
-                    <label for="inventoryDashboardPeriod" class="form-label small fw-bold mb-0">Period</label>
-                    <select id="inventoryDashboardPeriod" class="form-select" aria-label="Inventory dashboard period">
-                        <option value="7">Last 7 days</option>
-                        <option value="30">Last 30 days</option>
-                        <option value="60">Last 60 days</option>
-                    </select>
+                <div class="inventory-dashboard-period-control d-flex gap-2">
+                    <div class="flex-grow-1">
+                        <select id="inventoryDashboardPeriod" class="form-select" aria-label="Inventory dashboard period">
+                            <option value="7">Last 7 days</option>
+                            <option value="30">Last 30 days</option>
+                            <option value="60">Last 60 days</option>
+                        </select>
+                    </div>
+                    <button type="button" id="inventoryDashboardClearStatus" class="btn btn-outline-secondary btn-sm shadow-sm rounded-pill d-none align-self-end">
+                        <i class="bi bi-x-circle me-1" aria-hidden="true"></i>
+                        Clear filters
+                    </button>
                 </div>
                 <article class="inventory-dashboard-card inventory-dashboard-graph-card" aria-labelledby="inventoryDashboardStatusTitle">
                     <div class="inventory-dashboard-card-header">
@@ -90,10 +95,6 @@
                 <div class="inventory-dashboard-grid-header">
                     <div class="inventory-dashboard-grid-title-wrap">
                         <h2 id="inventoryDashboardStatusGridTitle" class="inventory-dashboard-title">Inventory Detail</h2>
-                        <button type="button" id="inventoryDashboardClearStatus" class="btn btn-outline-secondary btn-sm d-none">
-                            <i class="bi bi-x-circle me-1" aria-hidden="true"></i>
-                            Clear filters
-                        </button>
                     </div>
                     <div class="inventory-dashboard-grid-actions">
                         <div id="inventoryDashboardSummary" class="inventory-dashboard-summary shadow-sm" aria-live="polite">
@@ -1946,7 +1947,7 @@
                 const normalized = normalizeStatusCode(statusCode);
                 if (normalized === null) return;
 
-                activeStatusCode = normalized;
+                activeStatusCode = activeStatusCode === normalized ? null : normalized;
                 activeTrendDateKey = null;
                 renderDashboard(currentDashboardDays);
             }
