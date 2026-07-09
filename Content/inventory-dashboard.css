@@ -55,7 +55,7 @@ html.theme-metallica .inventory-dashboard {
     gap: 1rem;
     position: relative;
     overflow: hidden;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     padding: 1rem 1.15rem 1rem 1.35rem;
     border: 1px solid var(--dashboard-border);
     border-radius: 8px;
@@ -87,9 +87,8 @@ html.theme-metallica .inventory-dashboard {
 }
 
 .inventory-dashboard-toolbar-icon {
-    width: 2.8rem;
-    height: 2.8rem;
-    flex: 0 0 2.8rem;
+    width: 4rem;
+    height: 4rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -134,21 +133,16 @@ html.theme-metallica .inventory-dashboard {
 }
 
 .inventory-dashboard-period-control {
+    grid-column: 1 / -1;
     display: grid;
     grid-template-columns: auto minmax(10rem, max-content);
     align-items: center;
     justify-content: flex-start;
     column-gap: .5rem;
-    row-gap: .75rem;
 }
 
     .inventory-dashboard-period-control .form-select {
         width: auto;
-    }
-
-    .inventory-dashboard-period-control .inventory-dashboard-graph-grid {
-        grid-column: 1 / -1;
-        width: 100%;
     }
 
 .inventory-dashboard-card-header {
@@ -647,7 +641,7 @@ html.theme-metallica .inventory-dashboard {
     }
 
 .inventory-dashboard-grid-wrap {
-    max-height: 63vh;
+    max-height: 68.5vh;
     background: var(--dashboard-surface-alt);
     scrollbar-color: rgba(71, 85, 105, .45) transparent;
     scrollbar-width: thin;
@@ -675,11 +669,6 @@ html.theme-metallica .inventory-dashboard {
         min-width: 860px;
         table-layout: fixed;
         width: 100%;
-    }
-
-    #inventoryDashboardStatusTable > thead > tr > th,
-    #inventoryDashboardStatusTable > tbody > tr > td {
-        border-color: var(--dashboard-line);
     }
 
     #inventoryDashboardStatusTable > tbody > tr > td {
@@ -766,47 +755,36 @@ html.theme-metallica .inventory-dashboard {
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: .03em;
-        border-bottom: 1px solid var(--dashboard-header-border);
-        box-shadow: 0 .35rem .8rem rgba(15, 23, 42, .12);
         white-space: nowrap;
     }
 
-.inventory-dashboard-sort-button {
-    max-width: 100%;
-    display: inline-flex;
-    align-items: center;
-    gap: .35rem;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: inherit;
-    font: inherit;
-    font-weight: inherit;
-    letter-spacing: inherit;
-    line-height: inherit;
-    text-transform: inherit;
+.inventory-dashboard-sortable-th {
+    cursor: pointer;
+    user-select: none;
+    transition: background-color .15s, color .15s;
 }
 
-    .inventory-dashboard-sort-button i {
-        flex: 0 0 auto;
-        font-size: .78rem;
-        opacity: .62;
+    .inventory-dashboard-sortable-th .inventory-dashboard-sort-indicator {
+        display: inline-block;
+        width: 1rem;
+        margin-left: .3rem;
+        font-size: .9rem;
+        font-weight: 900;
+        line-height: 1;
+        text-align: center;
+        vertical-align: middle;
+        opacity: .55;
+        transition: opacity .2s, transform .2s;
     }
 
-    .inventory-dashboard-sort-button.is-active i {
+    .inventory-dashboard-sortable-th.is-active .inventory-dashboard-sort-indicator {
         opacity: 1;
+        transform: translateY(-1px);
     }
 
-    .inventory-dashboard-sort-button:hover,
-    .inventory-dashboard-sort-button:focus-visible {
-        text-decoration: underline;
-        text-underline-offset: .18rem;
+    .inventory-dashboard-sortable-th:hover {
+        background-color: rgba(var(--bs-primary-rgb, 37, 99, 235), .045);
     }
-
-#inventoryDashboardStatusTable > thead > tr > th.text-end .inventory-dashboard-sort-button {
-    width: 100%;
-    justify-content: flex-end;
-}
 
 .inventory-dashboard-expand-cell {
     width: 2.75rem;
@@ -1117,10 +1095,6 @@ html.theme-metallica .inventory-dashboard {
 
     .inventory-dashboard-period-control .form-select {
         width: 100% !important;
-    }
-
-    .inventory-dashboard-period-control .inventory-dashboard-graph-grid {
-        grid-column: 1;
     }
 
     .inventory-dashboard-graph-grid {

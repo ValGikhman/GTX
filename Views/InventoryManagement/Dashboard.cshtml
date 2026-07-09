@@ -8,7 +8,7 @@
         new JsonSerializerSettings { StringEscapeHandling = StringEscapeHandling.EscapeHtml });
 }
 
-<section class="inventory-dashboard container-fluid py-3">
+<section class="inventory-dashboard container-fluid">
     <div class="inventory-dashboard-toolbar">
         <div class="inventory-dashboard-toolbar-heading">
             <span class="inventory-dashboard-toolbar-icon" aria-hidden="true">
@@ -21,15 +21,17 @@
         </div>
     </div>
 
-    <div class="row g-3">
-        <div class="col-12 col-xl-5 inventory-dashboard-period-control">
-            <label for="inventoryDashboardPeriod" class="form-label small fw-bold mb-0">Period</label>
-            <select id="inventoryDashboardPeriod" class="form-select" aria-label="Inventory dashboard period">
-                <option value="7">Last 7 days</option>
-                <option value="30">Last 30 days</option>
-                <option value="60">Last 60 days</option>
-            </select>
+    <div class="row g-2">
+        <div class="col-12 col-xl-5">
             <div class="inventory-dashboard-graph-grid">
+                <div class="inventory-dashboard-period-control">
+                    <label for="inventoryDashboardPeriod" class="form-label small fw-bold mb-0">Period</label>
+                    <select id="inventoryDashboardPeriod" class="form-select" aria-label="Inventory dashboard period">
+                        <option value="7">Last 7 days</option>
+                        <option value="30">Last 30 days</option>
+                        <option value="60">Last 60 days</option>
+                    </select>
+                </div>
                 <article class="inventory-dashboard-card inventory-dashboard-graph-card" aria-labelledby="inventoryDashboardStatusTitle">
                     <div class="inventory-dashboard-card-header">
                         <div>
@@ -117,25 +119,10 @@
                             <tr>
                                 <th class="inventory-dashboard-col-expand" aria-label="Expand"></th>
                                 <th class="inventory-dashboard-col-image">Image</th>
-                                <th class="inventory-dashboard-col-vehicle" data-dashboard-sort-column="vehicle" aria-sort="none">
-                                    <button type="button" class="inventory-dashboard-sort-button" data-dashboard-sort="vehicle">
-                                        <span>Vehicle</span>
-                                        <i class="bi bi-arrow-down-up" aria-hidden="true"></i>
-                                    </button>
-                                </th>
+                                <th class="inventory-dashboard-sortable-th inventory-dashboard-col-vehicle" data-dashboard-sort-column="vehicle" aria-sort="none">Vehicle <i class="bi bi-arrow-down-up inventory-dashboard-sort-indicator" aria-hidden="true"></i></th>
                                 <th class="inventory-dashboard-col-status text-center">Status</th>
-                                <th class="inventory-dashboard-col-location text-center" data-dashboard-sort-column="location" aria-sort="none">
-                                    <button type="button" class="inventory-dashboard-sort-button" data-dashboard-sort="location">
-                                        <span>Location</span>
-                                        <i class="bi bi-arrow-down-up" aria-hidden="true"></i>
-                                    </button>
-                                </th>
-                                <th class="inventory-dashboard-col-days text-end" data-dashboard-sort-column="days" aria-sort="none">
-                                    <button type="button" class="inventory-dashboard-sort-button" data-dashboard-sort="days">
-                                        <span>Days</span>
-                                        <i class="bi bi-arrow-down-up" aria-hidden="true"></i>
-                                    </button>
-                                </th>
+                                <th class="inventory-dashboard-sortable-th inventory-dashboard-col-location text-center" data-dashboard-sort-column="location" aria-sort="none">Location <i class="bi bi-arrow-down-up inventory-dashboard-sort-indicator" aria-hidden="true"></i></th>
+                                <th class="inventory-dashboard-sortable-th inventory-dashboard-col-days text-end" data-dashboard-sort-column="days" aria-sort="none">Days <i class="bi bi-arrow-down-up inventory-dashboard-sort-indicator" aria-hidden="true"></i></th>
                                 <th class="inventory-dashboard-col-details text-center">Details</th>
                                 <th class="inventory-dashboard-spacer-cell" aria-hidden="true"></th>
                             </tr>
@@ -1721,13 +1708,12 @@
                     const key = $header.attr("data-dashboard-sort-column");
                     const isActive = key === activeGridSortKey;
                     const direction = isActive ? activeGridSortDirection : "none";
-                    const iconClass = isActive
-                        ? (activeGridSortDirection === "asc" ? "bi-sort-down" : "bi-sort-up")
-                        : "bi-arrow-down-up";
+                    const $icon = $header.find(".inventory-dashboard-sort-indicator");
 
+                    $header.toggleClass("is-active", isActive);
+                    $icon.removeClass("bi-arrow-down-up bi-arrow-up bi-arrow-down");
+                    $icon.addClass(!isActive ? "bi-arrow-down-up" : (activeGridSortDirection === "asc" ? "bi-arrow-down" : "bi-arrow-up"));
                     $header.attr("aria-sort", direction === "none" ? "none" : (direction === "asc" ? "ascending" : "descending"));
-                    $header.find(".inventory-dashboard-sort-button").toggleClass("is-active", isActive);
-                    $header.find("i").attr("class", `bi ${iconClass}`);
                 });
             }
 
@@ -1922,7 +1908,24 @@
 
             function setDashboardGridSort(key) {
                 if (activeGridSortKey === key) {
-                    activeGridSortDirection = activeGridSortDirection === "asc" ? "desc" : "asc";
+                    // Cycle through states based on column
+                    if (key === "days") {
+                        // Days column: desc → asc → native
+                        if (activeGridSortDirection === "desc") {
+                            activeGridSortDirection = "asc";
+                        } else if (activeGridSortDirection === "asc") {
+                            activeGridSortKey = null;
+                            activeGridSortDirection = "asc";
+                        }
+                    } else {
+                        // Other columns: asc → desc → native
+                        if (activeGridSortDirection === "asc") {
+                            activeGridSortDirection = "desc";
+                        } else if (activeGridSortDirection === "desc") {
+                            activeGridSortKey = null;
+                            activeGridSortDirection = "asc";
+                        }
+                    }
                 } else {
                     activeGridSortKey = key;
                     activeGridSortDirection = key === "days" ? "desc" : "asc";
@@ -2123,8 +2126,12 @@
                     event.preventDefault();
                     toggleDashboardHistoryRow($(this).closest(".inventory-dashboard-main-row"));
                 });
-                $("#inventoryDashboardStatusTable").on("click", ".inventory-dashboard-sort-button", function () {
-                    setDashboardGridSort($(this).attr("data-dashboard-sort"));
+                $("#inventoryDashboardStatusTable").on("click", "th.inventory-dashboard-sortable-th", function () {
+                    setDashboardGridSort($(this).attr("data-dashboard-sort-column"));
+                }).on("keydown", "th.inventory-dashboard-sortable-th", function (event) {
+                    if (event.key !== "Enter" && event.key !== " ") return;
+                    event.preventDefault();
+                    setDashboardGridSort($(this).attr("data-dashboard-sort-column"));
                 });
                 $("#inventoryDashboardStatusDonut").on("click", function (event) {
                     if (dashboardChartsAvailable()) return;

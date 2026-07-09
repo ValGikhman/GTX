@@ -1799,13 +1799,27 @@
             border: 0;
             border-radius: 1rem;
             overflow: hidden;
-            box-shadow: 0 1.5rem 4rem rgba(15, 23, 42, .28);
+            box-shadow: 0 1.75rem 4.5rem rgba(15, 23, 42, .32), 0 0 0 1px rgba(15, 23, 42, .04);
             width: 85%;
             margin-left: auto;
             margin-right: auto;
             max-height: 100%;
             display: flex;
             flex-direction: column;
+        }
+
+        .majordome-editor-modal.fade .modal-dialog {
+            transition: transform .25s ease-out, opacity .2s ease-out;
+        }
+
+        #overlayModal .modal-header,
+        #majordomeBulkProgressModal .modal-header {
+            padding: .55rem 1rem;
+            min-height: 0;
+        }
+
+        #majordomeBulkProgressModal .modal-title {
+            font-size: 1rem;
         }
 
         #majordomeInventoryEditorForm {
@@ -1817,26 +1831,39 @@
         }
 
         .majordome-editor-hero {
-            background: linear-gradient(135deg, #111827 0%, #0f766e 48%, #b91c1c 100%);
+            background: linear-gradient(120deg, #0b1220 0%, #1e293b 55%, #0f766e 100%);
             color: #fff;
-            padding: 1rem 1.25rem;
+            padding: .55rem 1.1rem;
+            position: relative;
+        }
+
+        .majordome-editor-hero::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #facc15 0%, #0f766e 55%, #6366f1 100%);
+            opacity: .9;
         }
 
         .majordome-editor-icon {
-            width: 2.75rem;
-            height: 2.75rem;
+            width: 2.15rem;
+            height: 2.15rem;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: .85rem;
-            background: rgba(255, 255, 255, .16);
-            border: 1px solid rgba(255, 255, 255, .24);
-            box-shadow: inset 0 1px rgba(255, 255, 255, .2);
-            font-size: 1.25rem;
+            border-radius: .65rem;
+            background: rgba(255, 255, 255, .12);
+            border: 1px solid rgba(255, 255, 255, .22);
+            box-shadow: inset 0 1px rgba(255, 255, 255, .18);
+            font-size: 1.02rem;
+            backdrop-filter: blur(2px);
         }
 
         .majordome-editor-title {
-            font-size: 1.15rem;
+            font-size: 1.02rem;
             font-weight: 800;
             letter-spacing: .01em;
         }
@@ -1844,26 +1871,78 @@
         .majordome-editor-body {
             flex: 1 1 auto;
             min-height: 0;
-            background: linear-gradient(180deg, #f8fafc 0%, #fff 100%);
-            padding: .75rem;
+            background: linear-gradient(180deg, #f1f5f9 0%, #f8fafc 55%, #fff 100%);
+            padding: 1rem 1.1rem;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(15, 23, 42, .22) transparent;
+        }
+
+        .majordome-editor-body::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .majordome-editor-body::-webkit-scrollbar-thumb {
+            background: rgba(15, 23, 42, .18);
+            border-radius: 1rem;
+        }
+
+        .majordome-editor-body::-webkit-scrollbar-thumb:hover {
+            background: rgba(15, 23, 42, .3);
         }
 
         .majordome-editor-sections {
             display: grid;
             grid-template-columns: 1fr;
             align-items: start;
-            gap: .75rem;
+            gap: .85rem;
         }
 
         .majordome-editor-section {
-            border: 1px solid rgba(148, 163, 184, .28);
+            border: 1px solid rgba(148, 163, 184, .22);
+            border-left: 3px solid rgba(15, 118, 110, .55);
             border-radius: .85rem;
-            background: rgba(255, 255, 255, .9);
-            box-shadow: 0 .4rem 1.2rem rgba(15, 23, 42, .06);
-            padding: .7rem;
-            margin-bottom: .75rem;
+            background: rgba(255, 255, 255, .95);
+            box-shadow: 0 .5rem 1.4rem rgba(15, 23, 42, .05);
+            padding: .85rem .9rem .75rem;
+            margin-bottom: .85rem;
+            transition: box-shadow .2s ease, transform .2s ease;
+        }
+
+        .majordome-editor-section:hover {
+            box-shadow: 0 .65rem 1.7rem rgba(15, 23, 42, .08);
+        }
+
+        .majordome-editor-section-pricing {
+            border-left-color: rgba(202, 138, 4, .65);
+        }
+
+        .majordome-editor-section-mechanical {
+            border-left-color: rgba(51, 65, 85, .55);
+        }
+
+        .majordome-editor-section-dates {
+            border-left-color: rgba(99, 102, 241, .55);
+        }
+
+        .majordome-editor-section-title {
+            display: flex;
+            align-items: center;
+            gap: .45rem;
+            font-size: .74rem;
+            font-weight: 800;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+            color: #0f172a;
+            margin-bottom: .6rem;
+            padding-bottom: .45rem;
+            border-bottom: 1px dashed rgba(148, 163, 184, .35);
+        }
+
+        .majordome-editor-section-title i {
+            color: var(--gtx-accent-solid, #0f766e);
+            font-size: .9rem;
         }
 
         .majordome-editor-sections .majordome-editor-section {
@@ -1877,7 +1956,8 @@
         }
 
         .majordome-editor-identity-grid {
-            grid-template-columns: repeat(6, minmax(0, 1fr));
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+            grid-auto-flow: dense;
         }
 
         .majordome-editor-mechanical-grid {
@@ -1888,12 +1968,22 @@
             grid-template-columns: repeat(6, minmax(0, 1fr));
         }
 
-        .majordome-editor-field-half {
-            grid-column: span 3;
+        .majordome-editor-id-stock,
+        .majordome-editor-id-upload,
+        .majordome-editor-id-year,
+        .majordome-editor-id-style,
+        .majordome-editor-id-type {
+            grid-column: span 2;
         }
 
-        .majordome-editor-field-wide {
-            grid-column: span 2;
+        .majordome-editor-id-vin {
+            grid-column: span 5;
+        }
+
+        .majordome-editor-id-gtx,
+        .majordome-editor-id-make,
+        .majordome-editor-id-model {
+            grid-column: span 3;
         }
 
         .majordome-editor-field-full {
@@ -1904,7 +1994,7 @@
             display: flex;
             align-items: center;
             gap: .28rem;
-            margin-bottom: .2rem;
+            margin-bottom: .22rem;
             color: #475569;
             font-size: .68rem;
             font-weight: 800;
@@ -1914,18 +2004,20 @@
         }
 
         .majordome-editor-label-icon {
-            color: #0f766e;
+            color: var(--gtx-accent-solid, #0f766e);
             font-size: .82rem;
             line-height: 1;
         }
 
         .majordome-editor-modal .form-control,
         .majordome-editor-modal .form-select {
-            min-height: 2.25rem;
-            border-color: rgba(148, 163, 184, .45);
-            border-radius: .65rem;
+            min-height: 2.3rem;
+            border-color: rgba(148, 163, 184, .4);
+            border-radius: .6rem;
             font-weight: 650;
-            box-shadow: 0 .18rem .55rem rgba(15, 23, 42, .04);
+            color: #1e293b;
+            box-shadow: 0 .15rem .45rem rgba(15, 23, 42, .03);
+            transition: border-color .15s ease, box-shadow .15s ease;
         }
 
         .majordome-editor-modal textarea.form-control {
@@ -1958,8 +2050,13 @@
 
         .majordome-editor-modal .form-control:focus,
         .majordome-editor-modal .form-select:focus {
-            border-color: rgba(15, 118, 110, .65);
-            box-shadow: 0 0 0 .22rem rgba(15, 118, 110, .14);
+            border-color: rgba(15, 118, 110, .7);
+            box-shadow: 0 0 0 .22rem rgba(15, 118, 110, .15);
+        }
+
+        .majordome-editor-modal .form-control:hover,
+        .majordome-editor-modal .form-select:hover {
+            border-color: rgba(15, 118, 110, .5);
         }
 
         .majordome-editor-stock-locked {
@@ -1971,6 +2068,21 @@
             background: #fff;
             border-top: 1px solid rgba(148, 163, 184, .24);
             flex: 0 0 auto;
+            padding: .85rem 1.1rem;
+            gap: .5rem;
+        }
+
+        .majordome-editor-cancel-btn {
+            font-weight: 700;
+            border-radius: .6rem;
+        }
+
+        .majordome-editor-save-btn {
+            font-weight: 700;
+            border-radius: .6rem;
+            padding-left: 1.1rem;
+            padding-right: 1.1rem;
+            letter-spacing: .01em;
         }
 
         @media (max-width: 1199.98px) {
@@ -1980,10 +2092,6 @@
 
             .majordome-editor-grid {
                 grid-template-columns: repeat(4, minmax(0, 1fr));
-            }
-
-            .majordome-editor-identity-grid {
-                grid-template-columns: repeat(6, minmax(0, 1fr));
             }
 
             .majordome-editor-pricing-grid {
@@ -2001,11 +2109,22 @@
             }
 
             .majordome-editor-identity-grid {
-                grid-template-columns: repeat(3, minmax(0, 1fr));
+                grid-template-columns: repeat(6, minmax(0, 1fr));
             }
 
-            .majordome-editor-field-half {
-                grid-column: 1 / -1;
+            .majordome-editor-id-stock,
+            .majordome-editor-id-upload,
+            .majordome-editor-id-year,
+            .majordome-editor-id-style,
+            .majordome-editor-id-type {
+                grid-column: span 3;
+            }
+
+            .majordome-editor-id-vin,
+            .majordome-editor-id-gtx,
+            .majordome-editor-id-make,
+            .majordome-editor-id-model {
+                grid-column: span 6;
             }
         }
 
@@ -2023,9 +2142,12 @@
             .majordome-editor-grid,
             .majordome-editor-identity-grid,
             .majordome-editor-pricing-grid,
-            .majordome-editor-field-half,
-            .majordome-editor-field-wide {
+            .majordome-editor-mechanical-grid {
                 grid-template-columns: 1fr;
+                grid-column: 1 / -1;
+            }
+
+            .majordome-editor-identity-grid > div {
                 grid-column: 1 / -1;
             }
 
