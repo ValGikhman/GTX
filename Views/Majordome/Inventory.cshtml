@@ -81,14 +81,17 @@
                     <input type="hidden" id="majordomeInventoryEditorMode" />
 
                     <div class="majordome-editor-sections">
-                    <div class="majordome-editor-section">
+                    <div class="majordome-editor-section majordome-editor-section-identity">
+                        <div class="majordome-editor-section-title">
+                            <i class="bi bi-card-checklist"></i>Vehicle identity
+                        </div>
                         <div class="majordome-editor-grid majordome-editor-identity-grid">
-                            <div class="majordome-editor-field-wide">
+                            <div class="majordome-editor-id-stock">
                                 <label class="form-label" for="majordomeInventoryEditorStock"><i class="bi bi-hash majordome-editor-label-icon" aria-hidden="true"></i>Stock</label>
                                 <input type="text" class="form-control shadow-sm" id="majordomeInventoryEditorStock" name="Stock" data-inventory-field="Stock" maxlength="9" required />
                                 <div class="invalid-feedback"></div>
                             </div>
-                            <div class="majordome-editor-field-half">
+                            <div class="majordome-editor-id-vin">
                                 <label class="form-label" for="majordomeInventoryEditorVIN"><i class="bi bi-upc-scan majordome-editor-label-icon" aria-hidden="true"></i>VIN</label>
                                 <div class="input-group">
                                     <input type="text" class="form-control shadow-sm" id="majordomeInventoryEditorVIN" name="VIN" data-inventory-field="VIN" maxlength="17" />
@@ -98,7 +101,7 @@
                                 </div>
                                 <div class="invalid-feedback"></div>
                             </div>
-                            <div>
+                            <div class="majordome-editor-id-upload">
                                 <label class="form-label" for="majordomeInventoryEditorSetToUpload"><i class="bi bi-cloud-arrow-up majordome-editor-label-icon" aria-hidden="true"></i>Upload</label>
                                 <select class="form-select majordome-editor-select" id="majordomeInventoryEditorSetToUpload" name="SetToUpload" data-inventory-field="SetToUpload">
                                     <option value="Y">Y</option>
@@ -106,40 +109,43 @@
                                 </select>
                                 <div class="invalid-feedback"></div>
                             </div>
-                            <div>
+                            <div class="majordome-editor-id-gtx">
+                                <label class="form-label" for="majordomeInventoryEditorLocationCode"><i class="bi bi-geo-alt majordome-editor-label-icon" aria-hidden="true"></i>GTX</label>
+                                <select class="form-select majordome-editor-select" id="majordomeInventoryEditorLocationCode" name="LocationCode" data-inventory-field="LocationCode" data-allow-new="true" maxlength="1"></select>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                            <div class="majordome-editor-id-year">
                                 <label class="form-label" for="majordomeInventoryEditorYear"><i class="bi bi-calendar2-event majordome-editor-label-icon" aria-hidden="true"></i>Year</label>
                                 <input type="number" class="form-control shadow-sm" id="majordomeInventoryEditorYear" name="Year" data-inventory-field="Year" step="1" />
                                 <div class="invalid-feedback"></div>
                             </div>
-                            <div class="majordome-editor-field-half">
+                            <div class="majordome-editor-id-make">
                                 <label class="form-label" for="majordomeInventoryEditorMake"><i class="bi bi-building majordome-editor-label-icon" aria-hidden="true"></i>Make</label>
                                 <select class="form-select majordome-editor-select" id="majordomeInventoryEditorMake" name="Make" data-inventory-field="Make" data-allow-new="true" maxlength="50"></select>
                                 <div class="invalid-feedback"></div>
                             </div>
-                            <div class="majordome-editor-field-wide">
+                            <div class="majordome-editor-id-model">
                                 <label class="form-label" for="majordomeInventoryEditorModel"><i class="bi bi-car-front majordome-editor-label-icon" aria-hidden="true"></i>Model</label>
                                 <select class="form-select majordome-editor-select" id="majordomeInventoryEditorModel" name="Model" data-inventory-field="Model" data-allow-new="true" maxlength="50"></select>
                                 <div class="invalid-feedback"></div>
                             </div>
-                            <div class="majordome-editor-field-half">
+                            <div class="majordome-editor-id-style">
                                 <label class="form-label" for="majordomeInventoryEditorVehicleStyle"><i class="bi bi-brush majordome-editor-label-icon" aria-hidden="true"></i>Style</label>
                                 <input type="text" class="form-control shadow-sm" id="majordomeInventoryEditorVehicleStyle" name="VehicleStyle" data-inventory-field="VehicleStyle" maxlength="50" />
                                 <div class="invalid-feedback"></div>
                             </div>
-                            <div class="majordome-editor-field-wide">
+                            <div class="majordome-editor-id-type">
                                 <label class="form-label" for="majordomeInventoryEditorVehicleType"><i class="bi bi-tags majordome-editor-label-icon" aria-hidden="true"></i>Type</label>
                                 <select class="form-select majordome-editor-select" id="majordomeInventoryEditorVehicleType" name="VehicleType" data-inventory-field="VehicleType" data-allow-new="true" maxlength="50"></select>
-                                <div class="invalid-feedback"></div>
-                            </div>
-                            <div>
-                                <label class="form-label" for="majordomeInventoryEditorLocationCode"><i class="bi bi-geo-alt majordome-editor-label-icon" aria-hidden="true"></i>GTX</label>
-                                <select class="form-select majordome-editor-select" id="majordomeInventoryEditorLocationCode" name="LocationCode" data-inventory-field="LocationCode" data-allow-new="true" maxlength="1"></select>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="majordome-editor-section">
+                    <div class="majordome-editor-section majordome-editor-section-pricing">
+                        <div class="majordome-editor-section-title">
+                            <i class="bi bi-cash-stack"></i>Pricing &amp; mileage
+                        </div>
                         <div class="majordome-editor-grid majordome-editor-pricing-grid">
                             <div>
                                 <label class="form-label" for="majordomeInventoryEditorMileage"><i class="bi bi-speedometer2 majordome-editor-label-icon" aria-hidden="true"></i>Mileage</label>
@@ -159,7 +165,10 @@
                         </div>
                     </div>
 
-                    <div class="majordome-editor-section">
+                    <div class="majordome-editor-section majordome-editor-section-mechanical">
+                        <div class="majordome-editor-section-title">
+                            <i class="bi bi-gear-fill"></i>Mechanical specifications
+                        </div>
                         <div class="majordome-editor-grid majordome-editor-mechanical-grid">
                             <div>
                                 <label class="form-label" for="majordomeInventoryEditorCylinders"><i class="bi bi-123 majordome-editor-label-icon" aria-hidden="true"></i>Cylinders</label>
@@ -214,7 +223,10 @@
                         </div>
                     </div>
 
-                    <div class="majordome-editor-section mb-0">
+                    <div class="majordome-editor-section majordome-editor-section-dates mb-0">
+                        <div class="majordome-editor-section-title">
+                            <i class="bi bi-calendar-week"></i>Dates &amp; features
+                        </div>
                         <div class="majordome-editor-grid">
                             <div>
                                 <label class="form-label" for="majordomeInventoryEditorPurchaseDate"><i class="bi bi-calendar-check majordome-editor-label-icon" aria-hidden="true"></i>Purchase date</label>
@@ -236,8 +248,8 @@
                     </div>
                 </div>
                 <div class="modal-footer majordome-editor-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-gradient shadow" id="majordomeInventoryEditorSave">
+                    <button type="button" class="btn btn-outline-secondary majordome-editor-cancel-btn" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-gradient shadow majordome-editor-save-btn" id="majordomeInventoryEditorSave">
                         <i class="bi bi-check2-circle me-1"></i>Save inventory
                     </button>
                 </div>
