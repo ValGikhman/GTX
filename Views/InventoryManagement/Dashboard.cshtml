@@ -21,8 +21,8 @@
         </div>
     </div>
 
-    <div class="row g-2">
-        <div class="col-12 col-xl-5">
+    <div class="row g-2 inventory-dashboard-layout-row">
+        <div class="col-12 inventory-dashboard-graphs-column">
             <div class="inventory-dashboard-graph-grid">
                 <div class="inventory-dashboard-period-control d-flex gap-2">
                     <div class="flex-grow-1">
@@ -75,6 +75,25 @@
                     </div>
                 </article>
 
+                <article class="inventory-dashboard-card inventory-dashboard-graph-card" aria-labelledby="inventoryDashboardTimeTermsTitle">
+                    <div class="inventory-dashboard-card-header">
+                        <div>
+                            <h3 id="inventoryDashboardTimeTermsTitle" class="inventory-dashboard-title">Inventory By Time Terms</h3>
+                        </div>
+                        <span class="inventory-dashboard-icon inventory-dashboard-accent-trend" aria-hidden="true"><i class="bi bi-clock-history"></i></span>
+                    </div>
+                    <div class="inventory-dashboard-location-layout">
+                        <div id="inventoryDashboardTimeTermsDonut" class="inventory-dashboard-donut inventory-dashboard-location-donut inventory-dashboard-accent-trend">
+                            <canvas id="inventoryDashboardTimeTermsCanvas" aria-hidden="true"></canvas>
+                            <div class="inventory-dashboard-donut-center">
+                                <span id="inventoryDashboardTimeTermsTotal" class="inventory-dashboard-number">0</span>
+                                <span id="inventoryDashboardTimeTermsCenterLabel" class="inventory-dashboard-center-label">Vehicles</span>
+                            </div>
+                        </div>
+                        <div id="inventoryDashboardTimeTermsLegend" class="inventory-dashboard-legend"></div>
+                    </div>
+                </article>
+
                 <article class="inventory-dashboard-card inventory-dashboard-graph-card inventory-dashboard-trend-card" aria-labelledby="inventoryDashboardStatusTrendTitle">
                     <div class="inventory-dashboard-card-header">
                         <div>
@@ -89,7 +108,7 @@
             </div>
         </div>
 
-        <div class="col-12 col-xl-7">
+        <div class="col-12 inventory-dashboard-detail-column">
             <article class="inventory-dashboard-card inventory-dashboard-grid-card inventory-dashboard-grid-shell" aria-labelledby="inventoryDashboardStatusGridTitle">
                 <div class="inventory-dashboard-grid-header">
                     <div class="inventory-dashboard-grid-title-wrap">
@@ -113,7 +132,6 @@
                             <col class="inventory-dashboard-col-location" />
                             <col class="inventory-dashboard-col-days" />
                             <col class="inventory-dashboard-col-details" />
-                            <col />
                         </colgroup>
                         <thead>
                             <tr>
@@ -124,7 +142,6 @@
                                 <th class="inventory-dashboard-sortable-th inventory-dashboard-col-location text-center" data-dashboard-sort-column="location" aria-sort="none">Location <i class="bi bi-arrow-down-up inventory-dashboard-sort-indicator" aria-hidden="true"></i></th>
                                 <th class="inventory-dashboard-sortable-th inventory-dashboard-col-days text-end" data-dashboard-sort-column="days" aria-sort="none">Days <i class="bi bi-arrow-down-up inventory-dashboard-sort-indicator" aria-hidden="true"></i></th>
                                 <th class="inventory-dashboard-col-details text-center">Details</th>
-                                <th class="inventory-dashboard-spacer-cell" aria-hidden="true"></th>
                             </tr>
                         </thead>
                         <tbody id="inventoryDashboardStatusBody"></tbody>
@@ -164,12 +181,14 @@
             let currentDashboardDays = "7";
             let activeStatusCode = null;
             let activeLocationCode = null;
+            let activeTimeTermKey = null;
             let activeTrendDateKey = null;
             let activeDashboardSearchText = "";
             let activeGridSortKey = null;
             let activeGridSortDirection = "asc";
             let dashboardStatusChart = null;
             let dashboardLocationChart = null;
+            let dashboardTimeTermsChart = null;
             let dashboardStatusTrendChart = null;
             const dashboardHistoryCache = {};
             const dashboardHistoryRequests = {};
@@ -203,8 +222,14 @@
             const locationBadgeColors = {
                 "is-gtx-x": "#1d4ed8",
                 "is-gtx-t": "#b91c1c",
-                "is-gtx-g": "#166534"
+                "is-gtx-g": "#198754"
             };
+            const timeTerms = [
+                { key: "under-90", label: "Under 90 days", min: 0, max: 89, color: "#198754" },
+                { key: "90-181", label: "90–181 days", min: 90, max: 181, color: "#0d6efd" },
+                { key: "182-364", label: "182–364 days", min: 182, max: 364, color: "#fd7e14" },
+                { key: "365-plus", label: "365+ days", min: 365, max: null, color: "#dc3545" }
+            ];
 
             function valueOf(source, name, fallback) {
                 if (!source) return fallback;
@@ -1293,6 +1318,75 @@
                 });
             }
 
+            function vehicleTimeTermKey(vehicle) {
+                const rawDays = valueOf(vehicle, "DaysInInventory", null);
+                if (rawDays === null || rawDays === undefined || rawDays === "") return null;
+                const days = parseInt(rawDays, 10);
+                if (!Number.isFinite(days) || days < 0) return null;
+
+                const term = timeTerms.find(function (item) {
+                    return days >= item.min && (item.max === null || days <= item.max);
+                });
+                return term ? term.key : null;
+            }
+
+            function setActiveTimeTerm(termKey) {
+                const normalized = (termKey || "").toString();
+                if (!timeTerms.some(function (term) { return term.key === normalized; })) return;
+                activeTimeTermKey = activeTimeTermKey === normalized ? null : normalized;
+                renderDashboard(currentDashboardDays);
+            }
+
+            function renderTimeTerms(data) {
+                const vehicles = getDashboardVehicles(data).filter(isDashboardVehicleCurrent);
+                const terms = timeTerms.map(function (term) {
+                    return {
+                        key: term.key,
+                        label: term.label,
+                        color: term.color,
+                        count: vehicles.filter(function (vehicle) { return vehicleTimeTermKey(vehicle) === term.key; }).length
+                    };
+                });
+                const total = terms.reduce(function (sum, term) { return sum + term.count; }, 0);
+                const activeTerm = terms.find(function (term) { return term.key === activeTimeTermKey; });
+
+                $("#inventoryDashboardTimeTermsTotal").text(formatNumber(activeTerm ? activeTerm.count : total));
+                $("#inventoryDashboardTimeTermsCenterLabel").text(activeTerm ? activeTerm.label : "Vehicles");
+                $("#inventoryDashboardTimeTermsDonut")
+                    .toggleClass("is-clickable", total > 0)
+                    .attr("role", total > 0 ? "button" : null)
+                    .attr("tabindex", total > 0 ? "0" : null)
+                    .attr("title", total > 0 ? "Filter the grid by days in inventory" : "");
+
+                dashboardTimeTermsChart = renderDashboardDoughnutChart(
+                    dashboardTimeTermsChart,
+                    "#inventoryDashboardTimeTermsDonut",
+                    "inventoryDashboardTimeTermsCanvas",
+                    terms.map(function (term) { return term.label; }),
+                    terms.map(function (term) { return term.count; }),
+                    terms.map(function (term) { return term.color; }),
+                    terms.map(function (term) { return term.key; }),
+                    activeTimeTermKey,
+                    setActiveTimeTerm,
+                    "#e9eef5");
+
+                const $legend = $("#inventoryDashboardTimeTermsLegend").empty();
+                terms.forEach(function (term) {
+                    const $item = $("<button></button>")
+                        .attr("type", "button")
+                        .attr("data-time-term", term.key)
+                        .addClass("inventory-dashboard-legend-item")
+                        .toggleClass("is-active", activeTimeTermKey === term.key)
+                        .css("--dashboard-location-color", term.color);
+                    const $label = $("<span></span>").addClass("inventory-dashboard-location-label");
+                    $("<span></span>").addClass("inventory-dashboard-swatch").css("--dashboard-location-color", term.color).appendTo($label);
+                    $("<span></span>").addClass("inventory-dashboard-location-code").text(term.label).appendTo($label);
+                    $label.appendTo($item);
+                    $("<span></span>").addClass("inventory-dashboard-location-count").text(formatNumber(term.count)).appendTo($item);
+                    $item.appendTo($legend);
+                });
+            }
+
             function normalizeDashboardVehicle(vehicle) {
                 const row = vehicle || {};
                 row.Stock = valueOf(row, "Stock", "");
@@ -1649,6 +1743,32 @@
                 `;
             }
 
+            function getDashboardDaysToneClass(daysValue) {
+                if (daysValue === null || daysValue === undefined || daysValue === "") {
+                    return "";
+                }
+                const days = asNumber(daysValue);
+                if (days >= 365) {
+                    return "badge bg-danger border border-light shadow-sm";
+                }
+                if (days >= 182) {
+                    return "badge inventory-dashboard-days-badge-182 border shadow-sm";
+                }
+                if (days >= 90) {
+                    return "badge bg-primary border border-light shadow-sm";
+                }
+                return "badge bg-success border border-light shadow-sm";
+            }
+
+            function getDashboardDaysIconClass(daysValue) {
+                if (daysValue === null || daysValue === undefined || daysValue === "") return "";
+                const days = asNumber(daysValue);
+                if (days >= 365) return "bi-alarm";
+                if (days >= 182) return "bi-exclamation-circle";
+                if (days >= 90) return "bi-clock-history";
+                return "bi-hourglass-split";
+            }
+
             function renderDashboardVehicleRow(vehicle, index) {
                 const row = normalizeDashboardVehicle(vehicle);
                 const statusCodes = getVehicleStatusCodes(row);
@@ -1661,6 +1781,8 @@
                 const daysText = daysValue === null || daysValue === undefined || daysValue === ""
                     ? "-"
                     : formatNumber(daysValue);
+                const daysToneClass = getDashboardDaysToneClass(daysValue);
+                const daysIconClass = getDashboardDaysIconClass(daysValue);
                 const startDate = formatDate(row.InventoryStartDate);
                 const startSource = (row.InventoryStartSource || "").toString().trim();
                 const daysTitle = startDate
@@ -1704,7 +1826,10 @@
                             <span class="inventory-dashboard-gtx-code ${locationBadge.toneClass}">${escapeDashboardHtml(locationBadge.label)}</span>
                         </td>
                         <td class="inventory-dashboard-days-cell" title="${escapeDashboardHtml(daysTitle)}">
-                            <span class="inventory-dashboard-days-number">${escapeDashboardHtml(daysText)}</span>
+                            <span class="inventory-dashboard-days-number ${daysToneClass}">
+                                ${daysIconClass ? `<i class="bi ${daysIconClass}" aria-hidden="true"></i>` : ""}
+                                <span>${escapeDashboardHtml(daysText)}</span>
+                            </span>
                         </td>
                         <td class="inventory-dashboard-details-cell">
                             <button type="button"
@@ -1716,12 +1841,11 @@
                                 <span class="visually-hidden">Show vehicle details</span>
                             </button>
                         </td>
-                        <td class="inventory-dashboard-spacer-cell" aria-hidden="true"></td>
                     </tr>
                     <tr id="${escapeDashboardHtml(rowId)}"
                         class="inventory-dashboard-history-row ${rowToneClass} ${isExpanded ? "" : "d-none"}"
                         data-history-row-for="${escapeDashboardHtml(stockKey)}">
-                        <td colspan="8">${renderDashboardHistoryPanel(stockKey)}</td>
+                        <td colspan="7">${renderDashboardHistoryPanel(stockKey)}</td>
                     </tr>
                 `;
             }
@@ -1821,7 +1945,8 @@
                         activeLocationCode === null ||
                         locationCode === activeLocationCode;
                     const searchMatched = dashboardVehicleMatchesSearch(vehicle, searchTerms);
-                    return statusMatched && locationMatched && searchMatched;
+                    const timeTermMatched = activeTimeTermKey === null || vehicleTimeTermKey(vehicle) === activeTimeTermKey;
+                    return statusMatched && locationMatched && timeTermMatched && searchMatched;
                 });
                 const total = activeTrendDateKey !== null
                     ? vehicles.filter(dashboardVehicleMatchesTrendFilter).length
@@ -1836,7 +1961,7 @@
                 }).join("");
 
                 updateDashboardSummary(filteredTotal, total);
-                $("#inventoryDashboardClearStatus").toggleClass("d-none", activeStatusCode === null && activeLocationCode === null && activeTrendDateKey === null && !searchFilterText);
+                $("#inventoryDashboardClearStatus").toggleClass("d-none", activeStatusCode === null && activeLocationCode === null && activeTimeTermKey === null && activeTrendDateKey === null && !searchFilterText);
                 if (window.gtxSecurity && typeof window.gtxSecurity.setSafeHtml === "function") {
                     window.gtxSecurity.setSafeHtml($("#inventoryDashboardStatusBody"), rowsHtml);
                 } else {
@@ -2112,6 +2237,7 @@
                 renderStatusBreakdown(data);
                 renderStatusTrend(data);
                 renderLocations(data);
+                renderTimeTerms(data);
                 renderStatusGrid(data);
             }
 
@@ -2172,6 +2298,9 @@
                 });
                 $("#inventoryDashboardLocationLegend").on("click", ".inventory-dashboard-legend-item", function () {
                     setActiveLocation($(this).attr("data-location-code"));
+                });
+                $("#inventoryDashboardTimeTermsLegend").on("click", ".inventory-dashboard-legend-item", function () {
+                    setActiveTimeTerm($(this).attr("data-time-term"));
                 });
                 $("#inventoryDashboardStatusTrendChart").on("click", ".inventory-dashboard-trend-bar", function () {
                     if (asNumber($(this).attr("data-dashboard-trend-value")) <= 0) return;
@@ -2244,9 +2373,15 @@
                         : activeLocationCode;
                     setActiveLocation(firstLocationCode);
                 });
+                $("#inventoryDashboardTimeTermsDonut").on("keydown", function (event) {
+                    if (event.key !== "Enter" && event.key !== " ") return;
+                    event.preventDefault();
+                    setActiveTimeTerm(activeTimeTermKey === null ? timeTerms[0].key : activeTimeTermKey);
+                });
                 $("#inventoryDashboardClearStatus").on("click", function () {
                     activeStatusCode = null;
                     activeLocationCode = null;
+                    activeTimeTermKey = null;
                     activeTrendDateKey = null;
                     activeDashboardSearchText = "";
                     $filterTerm.val("");
