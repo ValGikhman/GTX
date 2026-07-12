@@ -293,6 +293,69 @@ html.theme-metallica .inventory-dashboard {
     align-items: stretch;
 }
 
+@media (min-width: 1200px) {
+    .inventory-dashboard-layout-row {
+        justify-content: space-between;
+    }
+
+    .inventory-dashboard-graphs-column {
+        flex: 0 0 55%;
+        width: 55%;
+        max-width: 55%;
+    }
+
+    .inventory-dashboard-detail-column {
+        flex: 0 0 45%;
+        width: 45%;
+        max-width: 45%;
+    }
+
+    .inventory-dashboard-graph-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        max-height: calc(68.5vh + 5.25rem);
+        overflow-x: hidden;
+        overflow-y: auto;
+        padding-right: .25rem;
+        scrollbar-color: rgba(71, 85, 105, .45) transparent;
+        scrollbar-width: thin;
+    }
+
+    .inventory-dashboard-graph-card:not(.inventory-dashboard-trend-card) {
+        min-height: 20rem;
+        height: auto;
+        padding: .7rem;
+        gap: .45rem;
+    }
+
+    .inventory-dashboard-graph-card:not(.inventory-dashboard-trend-card) .inventory-dashboard-card-header {
+        min-height: 2.35rem;
+    }
+
+    .inventory-dashboard-graph-card:not(.inventory-dashboard-trend-card) .inventory-dashboard-location-layout {
+        gap: .45rem;
+    }
+
+    .inventory-dashboard-graph-card:not(.inventory-dashboard-trend-card) .inventory-dashboard-location-donut {
+        width: min(15rem, 100%);
+    }
+
+    .inventory-dashboard-graph-card:not(.inventory-dashboard-trend-card) .inventory-dashboard-donut::after {
+        inset: .85rem;
+    }
+
+    .inventory-dashboard-graph-card:not(.inventory-dashboard-trend-card) .inventory-dashboard-legend {
+        max-height: 6.75rem;
+        overflow-y: auto;
+        align-content: flex-start;
+        scrollbar-width: thin;
+    }
+
+    .inventory-dashboard-graph-card:not(.inventory-dashboard-trend-card) .inventory-dashboard-legend-item {
+        padding: .3rem .45rem;
+        font-size: .72rem;
+    }
+}
+
 .inventory-dashboard-graph-card {
     min-height: 0;
     justify-content: flex-start;
@@ -646,7 +709,7 @@ html.theme-metallica .inventory-dashboard {
         border-spacing: 0;
         font-size: .84rem;
         margin: 0;
-        min-width: 860px;
+        min-width: 0;
         table-layout: fixed;
         width: 100%;
     }
@@ -694,11 +757,6 @@ html.theme-metallica .inventory-dashboard {
         background: var(--dashboard-surface-alt);
     }
 
-    #inventoryDashboardStatusTable .inventory-dashboard-spacer-cell {
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-    }
-
     #inventoryDashboardStatusTable .inventory-dashboard-col-expand {
         width: 52px;
     }
@@ -708,16 +766,19 @@ html.theme-metallica .inventory-dashboard {
     }
 
     #inventoryDashboardStatusTable .inventory-dashboard-col-vehicle {
-        width: 170px;
+        width: auto;
     }
 
     #inventoryDashboardStatusTable .inventory-dashboard-col-status {
         width: 110px;
     }
 
-    #inventoryDashboardStatusTable .inventory-dashboard-col-location,
-    #inventoryDashboardStatusTable .inventory-dashboard-col-days {
+    #inventoryDashboardStatusTable .inventory-dashboard-col-location {
         width: 120px;
+    }
+
+    #inventoryDashboardStatusTable .inventory-dashboard-col-days {
+        width: 100px;
     }
 
     #inventoryDashboardStatusTable .inventory-dashboard-col-details {
@@ -796,9 +857,35 @@ html.theme-metallica .inventory-dashboard {
     }
 
 .inventory-dashboard-days-cell {
-    width: 7.5rem;
+    width: 5rem;
     text-align: right;
     font-weight: 800;
+}
+
+.inventory-dashboard-days-number.badge {
+    width: 4.25rem;
+    min-width: 4.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .3rem;
+    padding: .42rem .58rem;
+    border-radius: .65rem;
+    font-size: .76rem;
+    font-variant-numeric: tabular-nums;
+    box-shadow: 0 .2rem .45rem rgba(15, 23, 42, .2) !important;
+}
+
+.inventory-dashboard-days-number.badge i {
+    font-size: .72rem;
+    line-height: 1;
+    opacity: .9;
+}
+
+.inventory-dashboard-days-badge-182 {
+    background-color: #fd7e14;
+    border-color: rgba(111, 63, 0, .28) !important;
+    color: #212529;
 }
 
 .inventory-dashboard-main-location-cell {
