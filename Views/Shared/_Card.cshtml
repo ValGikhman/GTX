@@ -204,17 +204,20 @@
                 <!-- Like badge (hidden by default) -->
                 <span class="gtx-chip gtx-chip-dark liked shadow" title="Liked">
                     <i class="bi bi-heart-fill text-danger"></i>
-                    <span>Liked</span>
                 </span>
 
                 @if (Model.Story is not null && !(Model.Story.HtmlContent ?? "").ToUpper().Contains("ERROR"))
                 {
-                    <span class="gtx-chip gtx-chip-dark shadow"><i class="bi bi-feather"></i> Story</span>
+                    <span class="gtx-chip gtx-chip-dark shadow" title="Vehicle story available"><i class="bi bi-feather"></i></span>
                 }
                 @if (Model.DataOne is not null)
                 {
-                    <span class="gtx-chip gtx-chip-dark shadow"><i class="bi bi-shield-check"></i> DataOne</span>
+                    <span class="gtx-chip gtx-chip-dark shadow" title="DataOne vehicle details available"><i class="bi bi-shield-check"></i></span>
                 }
+                <span class="gtx-chip gtx-chip-dark shadow" title="@Model.DetailsCounter Details page views">
+                    <i class="bi bi-eye-fill"></i>
+                    <span>@Model.DetailsCounter</span>
+                </span>
             </div>
 
             <img class="gtx-img" src="@cardImageUrl" alt="@carTitle" width="@cardImageRenderWidth" height="@cardImageRenderHeight" loading="@imageLoadingMode" fetchpriority="@imageFetchPriority" decoding="async" />

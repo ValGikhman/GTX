@@ -161,6 +161,13 @@ max-width: 70%;
     pointer-events: none; /* keeps whole card clickable */
 }
 
+.gtx-badges .gtx-chip {
+    pointer-events: auto; /* allows each badge to show its own hover title */
+    gap: .25rem;
+    padding: .15rem .4rem;
+    font-size: .7rem;
+}
+
 /* Footer */
 .gtx-footer {
     border: 0 !important;

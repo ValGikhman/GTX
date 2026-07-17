@@ -202,6 +202,7 @@ namespace GTX.Controllers
         public Inventory SetModel(bool includeHiddenInventory = false) {
             var dto = InventoryService.GetInventory(includeHiddenInventory);
             var vehicles = Models.GTX.ToGTX(dto.vehicles);
+            ApplyDetailsCounters(vehicles);
             Model.Inventory.Published = dto.InventoryDate;
             Model.Inventory.All = DecideImages(vehicles);
 
@@ -214,11 +215,47 @@ namespace GTX.Controllers
         {
             var dto = InventoryService.GetInventory(includeHiddenInventory);
             var vehicles = Models.GTX.ToGTX(dto.vehicles);
+            ApplyDetailsCounters(vehicles);
             Model.Inventory.Published = dto.InventoryDate;
             Model.Inventory.All = DecideImages(vehicles);
 
             Model.Inventory.Vehicles = Model.Inventory.All;
             return Model.Inventory;
+        }
+
+        private void ApplyDetailsCounters(Models.GTX[] vehicles)
+        {
+            if (vehicles == null || vehicles.Length == 0)
+            {
+                return;
+            }
+
+            Dictionary<string, long> counters;
+            try
+            {
+                counters = InventoryService.GetDetailsCounters();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError(
+                    "Unable to load Inventory Details counters: {0}",
+                    ex);
+                return;
+            }
+
+            foreach (var vehicle in vehicles)
+            {
+                if (vehicle == null || string.IsNullOrWhiteSpace(vehicle.Stock))
+                {
+                    continue;
+                }
+
+                long counter;
+                if (counters.TryGetValue(vehicle.Stock.Trim(), out counter))
+                {
+                    vehicle.DetailsCounter = counter;
+                }
+            }
         }
 
         [HttpGet]
