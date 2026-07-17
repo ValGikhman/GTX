@@ -103,6 +103,9 @@ namespace GTX.Models
 
 		public string TransmissionWord { get; set; }
 
+		[XmlIgnore]
+		public long DetailsCounter { get; set; }
+
 		public static GTXDTO ToDTO(GTX g)
 		{
 			if (g == null) return null;

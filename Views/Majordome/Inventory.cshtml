@@ -2550,6 +2550,11 @@
         return Number.isNaN(parsed) ? Number.NEGATIVE_INFINITY : parsed;
     }
 
+    function toMajordomeCounter(value) {
+        const parsed = Number.parseInt(safeText(value), 10);
+        return Number.isNaN(parsed) || parsed < 0 ? 0 : parsed;
+    }
+
     function getMajordomeGtxBadgeInfo(value) {
         const label = safeText(value).trim();
         const normalized = label.toUpperCase();
@@ -2649,6 +2654,8 @@
                 return toMajordomeDateSortValue(left?.PurchaseDate) - toMajordomeDateSortValue(right?.PurchaseDate);
             case "stock":
                 return compareMajordomeText(left?.Stock, right?.Stock);
+            case "counter":
+                return toMajordomeCounter(left?.DetailsCounter) - toMajordomeCounter(right?.DetailsCounter);
             case "gtx":
                 return compareMajordomeText(left?.LocationCode, right?.LocationCode);
             case "upload":
@@ -2863,6 +2870,7 @@
         const upload = safeText(row.SetToUpload).toUpperCase() === "Y";
         const story = hasStory(row);
         const dataOne = hasDataOne(row);
+        const detailsCounter = toMajordomeCounter(row.DetailsCounter);
         const gtxBadge = getMajordomeGtxBadgeInfo(row.LocationCode);
         const gtxValue = normalizeMajordomeGtxFilterValue(row.LocationCode);
 
@@ -2874,6 +2882,9 @@
                 <td class="text-center"><span class="shadow majordome-status-pill majordome-status-location ${escapeHtml(gtxBadge.toneClass)} px-2">${escapeHtml(stock)}</span></td>
                 <td class="text-center d-none d-xl-table-cell">
                     <span class="majordome-status-pill majordome-status-location ${escapeHtml(gtxBadge.toneClass)} shadow">${escapeHtml(gtxBadge.label)}</span>
+                </td>
+                <td class="text-center">
+                    <span class="shadow majordome-status-pill majordome-status-counter" title="${detailsCounter} Details page views"><i class="bi bi-eye-fill me-1" aria-hidden="true"></i>${detailsCounter}</span>
                 </td>
                 <td class="text-center d-none d-md-table-cell">
                     <span class="shadow majordome-status-pill majordome-status-upload ${upload ? "is-on" : ""}">${upload ? "Y" : "N"}</span>

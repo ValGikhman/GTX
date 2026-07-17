@@ -79,6 +79,17 @@ namespace GTX.Controllers
                 return View("VehicleNotFound");
             }
 
+            try {
+                vehicle.DetailsCounter = InventoryService.IncrementDetailsCounter(stock);
+            }
+            catch (Exception ex) {
+                // Analytics must not prevent a customer from viewing the vehicle.
+                System.Diagnostics.Trace.TraceError(
+                    "Unable to increment the Details counter for stock {0}: {1}",
+                    stock,
+                    ex);
+            }
+
             Model.CurrentVehicle.VehicleDetails = vehicle;
             Model.CurrentVehicle.VehicleDetails.Story = vehicle.Story;
 
