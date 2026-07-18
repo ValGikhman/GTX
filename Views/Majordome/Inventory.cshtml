@@ -4,6 +4,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
     <script src="~/Scripts/just-validate/just-validate.production.min.js"></script>
     <script src="~/Scripts/majordome.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome.js")).Ticks)"></script>
+    <script src="~/Scripts/inventory-history.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/inventory-history.js")).Ticks)"></script>
 
     <!-- Lightbox2 JS -->
     <link href="https://cdn.jsdelivr.net/npm/lightbox2@2/dist/css/lightbox.min.css" rel="stylesheet" />
@@ -300,6 +301,9 @@
     let inventoryVehicles = [];
     let selectedVehicleStock = null;
     let majordomeBulkJob = null;
+    const majordomeHistoryCache = {};
+    const majordomeHistoryRequests = {};
+    const expandedMajordomeHistoryStocks = {};
     window.majordomeSelectedStock = "";
     const majordomeSortState = { key: "", direction: "" };
     const majordomeUploadMaxAttempts = 3;
@@ -739,6 +743,22 @@
             if ($(e.target).closest(".majordome-actions").length) return;
             const stock = $(this).attr("data-stock");
             selectMajordomeVehicle(stock);
+            toggleMajordomeHistoryRow($(this));
+        });
+
+        $("#majordomeInventoryBody").on("keydown", ".inventory-dashboard-expand-button", function (e) {
+            if (e.key !== "Enter" && e.key !== " ") return;
+            e.preventDefault();
+            e.stopPropagation();
+            const $row = $(this).closest(".majordome-vehicle-row");
+            selectMajordomeVehicle($row.attr("data-stock"));
+            toggleMajordomeHistoryRow($row);
+        });
+
+        $("#majordomeInventoryBody").on("click", ".inventory-dashboard-history-change-toggle", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleMajordomeHistoryChange($(this));
         });
 
         $("#majordomeInventoryBody").on("dblclick", ".majordome-row-details", function (e) {
@@ -2873,9 +2893,18 @@
         const detailsCounter = toMajordomeCounter(row.DetailsCounter);
         const gtxBadge = getMajordomeGtxBadgeInfo(row.LocationCode);
         const gtxValue = normalizeMajordomeGtxFilterValue(row.LocationCode);
+        const stockKey = window.gtxInventoryHistory.normalizeStockKey(stock);
+        const historyRowId = `majordomeInventoryHistory-${stockKey.replace(/[^A-Z0-9_-]/g, "-")}`;
+        const isExpanded = !!expandedMajordomeHistoryStocks[stockKey];
 
         return `
-            <tr class="majordome-vehicle-row" data-stock="${escapeHtml(stock)}" data-search="${search}" data-search-tokens="${tokenSearch}" data-gtx="${escapeHtml(gtxValue)}">
+            <tr class="majordome-vehicle-row inventory-dashboard-main-row ${isExpanded ? "is-expanded" : ""}" data-stock="${escapeHtml(stock)}" data-stock-key="${escapeHtml(stockKey)}" data-history-target="${escapeHtml(historyRowId)}" data-search="${search}" data-search-tokens="${tokenSearch}" data-gtx="${escapeHtml(gtxValue)}" aria-expanded="${isExpanded ? "true" : "false"}">
+                <td class="inventory-dashboard-expand-cell">
+                    <button type="button" class="inventory-dashboard-expand-button" aria-expanded="${isExpanded ? "true" : "false"}" aria-controls="${escapeHtml(historyRowId)}" title="Show inventory history">
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                        <span class="visually-hidden">Show inventory history</span>
+                    </button>
+                </td>
                 ${window.renderMajordomeVehicleImageCell(row)}
                 ${window.renderMajordomeVehicleDetailsCell(row)}
                 <td class="d-none d-lg-table-cell majordome-date-cell">${escapeHtml(purchaseDate)}</td>
@@ -2897,7 +2926,98 @@
                 </td>
                 <td class="shadow text-start majordome-actions-cell">${renderMajordomeActionButtons(row)}</td>
             </tr>
+            <tr id="${escapeHtml(historyRowId)}" class="majordome-inventory-history-row ${isExpanded ? "" : "d-none"}" data-history-row-for="${escapeHtml(stockKey)}">
+                <td colspan="11">${window.gtxInventoryHistory.renderPanel(stockKey, majordomeHistoryCache[stockKey])}</td>
+            </tr>
         `;
+    }
+
+    function majordomeHistoryContents(stockKey) {
+        const normalized = window.gtxInventoryHistory.normalizeStockKey(stockKey);
+        return $("#majordomeInventoryBody .inventory-dashboard-history-content").filter(function () {
+            return window.gtxInventoryHistory.normalizeStockKey($(this).attr("data-stock-key")) === normalized;
+        });
+    }
+
+    function setMajordomeHistoryHtml($elements, html) {
+        $elements.each(function () {
+            const $element = $(this);
+            if (window.gtxSecurity && typeof window.gtxSecurity.setSafeHtml === "function") {
+                window.gtxSecurity.setSafeHtml($element, html);
+            } else {
+                $element.html(html);
+            }
+        });
+    }
+
+    function loadMajordomeVehicleHistory(stockKey) {
+        const normalized = window.gtxInventoryHistory.normalizeStockKey(stockKey);
+        const $contents = majordomeHistoryContents(normalized);
+        if (!normalized || !$contents.length) return;
+
+        if (majordomeHistoryCache[normalized]) {
+            setMajordomeHistoryHtml($contents, window.gtxInventoryHistory.renderRows(majordomeHistoryCache[normalized], normalized));
+            return;
+        }
+        if (majordomeHistoryRequests[normalized]) return;
+
+        majordomeHistoryRequests[normalized] = $.get(`${root}Majordome/GetInventoryVehicleHistory`, { stock: normalized })
+            .done(function (payload) {
+                const history = payload && payload.success !== false ? (payload.history || payload.History || []) : [];
+                majordomeHistoryCache[normalized] = history;
+                setMajordomeHistoryHtml(majordomeHistoryContents(normalized), window.gtxInventoryHistory.renderRows(history, normalized));
+            })
+            .fail(function () {
+                majordomeHistoryContents(normalized).html('<div class="text-danger small">Unable to load inventory history.</div>');
+            })
+            .always(function () {
+                delete majordomeHistoryRequests[normalized];
+            });
+    }
+
+    function setMajordomeHistoryExpanded($row, isExpanded) {
+        const stockKey = window.gtxInventoryHistory.normalizeStockKey($row.attr("data-stock-key"));
+        const targetId = $row.attr("data-history-target");
+        const $historyRow = $(`#${targetId}`);
+        if (!stockKey || !$historyRow.length) return;
+
+        if (isExpanded) {
+            $("#majordomeInventoryBody .majordome-vehicle-row.is-expanded").each(function () {
+                const $other = $(this);
+                if ($other[0] !== $row[0]) setMajordomeHistoryExpanded($other, false);
+            });
+            expandedMajordomeHistoryStocks[stockKey] = true;
+            $row.addClass("is-expanded").attr("aria-expanded", "true");
+            $row.find(".inventory-dashboard-expand-button").attr("aria-expanded", "true");
+            $historyRow.removeClass("d-none");
+            loadMajordomeVehicleHistory(stockKey);
+        } else {
+            delete expandedMajordomeHistoryStocks[stockKey];
+            $row.removeClass("is-expanded").attr("aria-expanded", "false");
+            $row.find(".inventory-dashboard-expand-button").attr("aria-expanded", "false");
+            $historyRow.addClass("d-none");
+        }
+    }
+
+    function toggleMajordomeHistoryRow($row) {
+        setMajordomeHistoryExpanded($row, !$row.hasClass("is-expanded"));
+    }
+
+    function toggleMajordomeHistoryChange($button) {
+        const targetId = $button.attr("data-history-change-target");
+        const $changeRow = $(`#${targetId}`);
+        if (!$changeRow.length) return;
+        const isExpanded = !$button.hasClass("is-expanded");
+
+        if (isExpanded) {
+            $("#majordomeInventoryBody .inventory-dashboard-history-change-toggle.is-expanded").each(function () {
+                const $other = $(this);
+                $other.removeClass("is-expanded").attr("aria-expanded", "false");
+                $(`#${$other.attr("data-history-change-target")}`).addClass("d-none");
+            });
+        }
+        $button.toggleClass("is-expanded", isExpanded).attr("aria-expanded", isExpanded ? "true" : "false");
+        $changeRow.toggleClass("d-none", !isExpanded);
     }
 
     function markSelectedRow(stock) {
@@ -3043,6 +3163,10 @@
             const matched = matchedTerm && matchedGtx;
             $(this).toggleClass("is-filter-hidden", !matched);
             $(this).toggle(matched);
+            const historyTarget = $(this).attr("data-history-target");
+            if (historyTarget) {
+                $(`#${historyTarget}`).toggleClass("d-none", !(matched && $(this).hasClass("is-expanded")));
+            }
         });
 
         const stocks = getMajordomeFilterMatchedRows().map(function () {

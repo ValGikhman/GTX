@@ -159,6 +159,7 @@
 
 <script type="application/json" id="inventoryDashboardData">@Html.Raw(dashboardsJson)</script>
 <script src="~/Scripts/majordome.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome.js")).Ticks)"></script>
+<script src="~/Scripts/inventory-history.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/inventory-history.js")).Ticks)"></script>
 @Html.Partial("~/Views/Majordome/_Majordome-VehicleCellsScript.cshtml")
 
 @section scripts {
@@ -1669,7 +1670,7 @@
                                         <th>Field</th>
                                         <th>Previous</th>
                                         <th>New</th>
-                                        <th>Updated</th>
+                                        <th>Date updated</th>
                                     </tr>
                                 </thead>
                                 <tbody>${rowsHtml}</tbody>
@@ -1679,6 +1680,16 @@
             }
 
             function renderDashboardHistoryRows(history, stockKey) {
+                if (window.gtxInventoryHistory) {
+                    return window.gtxInventoryHistory.renderRows(history, stockKey, {
+                        escapeHtml: escapeDashboardHtml,
+                        formatDateTime: formatDateTime,
+                        formatChangeValue: formatDashboardChangeValue,
+                        isNumericChangeValue: isDashboardNumericChangeValue,
+                        statusLabel: statusLabel,
+                        valueOf: valueOf
+                    });
+                }
                 const rows = Array.isArray(history) ? history : [];
                 if (!rows.length) {
                     return `<div class="text-muted small">No inventory history found for this stock.</div>`;
