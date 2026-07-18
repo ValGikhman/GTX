@@ -152,6 +152,24 @@ namespace GTX.Controllers
             return View(LogService.GetLogs());
         }
 
+        [HttpGet]
+        public JsonResult GetInventoryVehicleHistory(string stock) {
+            try {
+                return new JsonResult {
+                    Data = new {
+                        success = true,
+                        history = InventoryService.GetInventoryDashboardVehicleHistory(stock)
+                    },
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                    MaxJsonLength = int.MaxValue
+                };
+            }
+            catch (Exception ex) {
+                Log(ex);
+                return Json(new { success = false, message = "Unable to load inventory history." }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         [HttpPost]
         public async Task<ActionResult> CreateStory(string stock) {
             try {

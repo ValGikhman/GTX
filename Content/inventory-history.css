@@ -1,0 +1,193 @@
+/* Shared expandable InventoryVehicles history grid used by Dashboard and Majordome. */
+.inventory-dashboard-expand-cell {
+    width: 2.75rem;
+    text-align: center;
+}
+
+.inventory-dashboard-expand-button {
+    width: 1.95rem;
+    min-height: 1.95rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(15, 23, 42, .12);
+    border-radius: 8px;
+    background: rgba(248, 250, 252, .9);
+    color: inherit;
+    font: inherit;
+    line-height: 1;
+}
+
+    .inventory-dashboard-expand-button i {
+        color: var(--dashboard-muted);
+        font-size: .92rem;
+        transition: transform .16s;
+    }
+
+    .inventory-dashboard-main-row.is-expanded .inventory-dashboard-expand-button i {
+        transform: rotate(90deg);
+    }
+
+.inventory-dashboard-history-panel {
+    padding: .75rem .85rem 1rem;
+    border-top: 1px solid var(--dashboard-line);
+    border-bottom: 1px solid var(--dashboard-line);
+    background: linear-gradient(180deg, rgba(248, 250, 252, .95) 0%, rgba(241, 245, 249, .95) 100%);
+}
+
+.inventory-dashboard-history-table {
+    margin: 0;
+    font-size: .84rem;
+}
+
+    .inventory-dashboard-history-table .inventory-dashboard-history-toggle-cell {
+        width: 2.75rem;
+        text-align: center;
+    }
+
+    .inventory-dashboard-history-table th {
+        position: static;
+        padding: .45rem .5rem;
+        background: transparent;
+        box-shadow: none;
+        color: var(--dashboard-muted);
+        font-size: .72rem;
+        font-weight: 800;
+        letter-spacing: normal;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .inventory-dashboard-history-table td {
+        padding: .5rem;
+        background: transparent !important;
+        border-color: rgba(148, 163, 184, .22);
+        vertical-align: middle;
+    }
+
+.inventory-dashboard-history-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 5.5rem;
+    padding: .25rem .55rem;
+    border-radius: 999px;
+    background: #e2e8f0;
+    color: #334155;
+    font-size: .75rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+    .inventory-dashboard-history-status.is-added {
+        background: rgba(25, 135, 84, .14);
+        color: #146c43;
+    }
+
+    .inventory-dashboard-history-status.is-removed {
+        background: rgba(220, 53, 69, .14);
+        color: #b02a37;
+    }
+
+    .inventory-dashboard-history-status.is-updated {
+        background: rgba(13, 110, 253, .12);
+        color: #0a58ca;
+    }
+
+    .inventory-dashboard-history-status.is-purchased {
+        background: rgba(253, 126, 20, .14);
+        color: #b45309;
+    }
+
+.inventory-dashboard-history-change-toggle {
+    width: 2rem;
+    min-height: 2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(15, 23, 42, .12);
+    border-radius: 8px;
+    background: rgba(248, 250, 252, .9);
+    color: inherit;
+    font: inherit;
+    line-height: 1;
+}
+
+    .inventory-dashboard-history-change-toggle i {
+        color: var(--dashboard-muted);
+        font-size: .85rem;
+        transition: transform .16s;
+    }
+
+    .inventory-dashboard-history-change-toggle.is-expanded i {
+        transform: rotate(90deg);
+    }
+
+.inventory-dashboard-change-detail-cell {
+    padding: 0 !important;
+    border-top: 0 !important;
+}
+
+.inventory-dashboard-change-detail-panel {
+    padding: .9rem 1rem 1rem;
+    border-top: 1px solid var(--dashboard-line);
+    background: rgba(248, 250, 252, .82);
+}
+
+.inventory-dashboard-change-table {
+    margin: 0 0 0 3rem;
+    font-size: .88rem;
+    max-width: calc(100% - 3rem);
+    min-width: min(420px, calc(100% - 3rem));
+    table-layout: auto;
+    width: auto;
+}
+
+    .inventory-dashboard-change-table th:nth-child(1),
+    .inventory-dashboard-change-table td:nth-child(1) {
+        min-width: 9rem;
+        white-space: nowrap;
+    }
+
+    .inventory-dashboard-change-table th:nth-child(2),
+    .inventory-dashboard-change-table td:nth-child(2),
+    .inventory-dashboard-change-table th:nth-child(3),
+    .inventory-dashboard-change-table td:nth-child(3) {
+        min-width: 8rem;
+        width: auto;
+    }
+
+    .inventory-dashboard-change-table th:nth-child(4),
+    .inventory-dashboard-change-table td:nth-child(4) {
+        min-width: 12rem;
+        text-align: center;
+        width: auto;
+        white-space: nowrap;
+    }
+
+    .inventory-dashboard-change-table th {
+        position: static;
+        background: linear-gradient(180deg, rgb(255 255 255), #AAAAB3) !important;
+        border-bottom: 1px solid rgba(15, 23, 42, .18);
+        box-shadow: none;
+        color: #111827;
+        font-size: .72rem;
+        font-weight: 800;
+        letter-spacing: .03em;
+        line-height: 1.15;
+        padding: .4rem .5rem !important;
+        text-transform: uppercase;
+    }
+
+    .inventory-dashboard-change-table td {
+        padding: .5rem !important;
+        background: #fff !important;
+        max-width: 34rem;
+        overflow-wrap: anywhere;
+    }
+
+    .inventory-dashboard-change-table td.inventory-dashboard-change-number {
+        font-variant-numeric: tabular-nums;
+        text-align: right;
+        white-space: nowrap;
+    }
