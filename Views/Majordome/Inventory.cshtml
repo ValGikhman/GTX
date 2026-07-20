@@ -1,5 +1,9 @@
 @using Newtonsoft.Json
 @model GTX.Models.BaseModel
+@{
+    var inventoryDashboardVehicles = ViewBag.InventoryDashboardVehicles as Services.InventoryDashboardVehicle[]
+        ?? Array.Empty<Services.InventoryDashboardVehicle>();
+}
 <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
     <script src="~/Scripts/just-validate/just-validate.production.min.js"></script>
@@ -297,6 +301,13 @@
 <script type="text/javascript">
     const $dropzone = $("#dropzone");
     const inventoryVehiclesSourceJson = "@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(JsonConvert.SerializeObject(Model.Inventory.Vehicles ?? Array.Empty<GTX.Models.GTX>())))";
+    const inventoryDashboardVehiclesJson = "@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(JsonConvert.SerializeObject(inventoryDashboardVehicles)))";
+    const inventoryDashboardVehicles = JSON.parse(inventoryDashboardVehiclesJson);
+    const inventoryDashboardVehiclesByStock = {};
+    inventoryDashboardVehicles.forEach(function (vehicle) {
+        const stockKey = (vehicle?.Stock || "").toString().trim().toUpperCase();
+        if (stockKey) inventoryDashboardVehiclesByStock[stockKey] = vehicle;
+    });
     let inventoryVehiclesSource = JSON.parse(inventoryVehiclesSourceJson);
     let inventoryVehicles = [];
     let selectedVehicleStock = null;
@@ -1521,6 +1532,16 @@
 
     function normalizeVehicle(vehicle) {
         const row = vehicle || {};
+        const stockKey = safeText(row.Stock).trim().toUpperCase();
+        const dashboardVehicle = inventoryDashboardVehiclesByStock[stockKey];
+        if (dashboardVehicle) {
+            row.HistoryStatuses = Array.isArray(dashboardVehicle.HistoryStatuses)
+                ? dashboardVehicle.HistoryStatuses
+                : [];
+            row.DaysInInventory = dashboardVehicle.DaysInInventory;
+            row.InventoryStartDate = dashboardVehicle.InventoryStartDate;
+            row.InventoryStartSource = dashboardVehicle.InventoryStartSource;
+        }
         row.Images = Array.isArray(row.Images) ? row.Images : [];
         return row;
     }
@@ -2678,6 +2699,13 @@
                 return toMajordomeCounter(left?.DetailsCounter) - toMajordomeCounter(right?.DetailsCounter);
             case "gtx":
                 return compareMajordomeText(left?.LocationCode, right?.LocationCode);
+            case "days": {
+                const daysLeft = Number.parseInt(left?.DaysInInventory, 10);
+                const daysRight = Number.parseInt(right?.DaysInInventory, 10);
+                const safeDaysLeft = Number.isNaN(daysLeft) ? Number.NEGATIVE_INFINITY : daysLeft;
+                const safeDaysRight = Number.isNaN(daysRight) ? Number.NEGATIVE_INFINITY : daysRight;
+                return safeDaysLeft - safeDaysRight;
+            }
             case "upload":
                 return toYnSortFlag(left?.SetToUpload) - toYnSortFlag(right?.SetToUpload);
             case "story":
@@ -2728,7 +2756,7 @@
 
         if (majordomeSortState.key !== normalizedKey) {
             majordomeSortState.key = normalizedKey;
-            majordomeSortState.direction = "asc";
+            majordomeSortState.direction = normalizedKey === "days" ? "desc" : "asc";
             return;
         }
 
@@ -2804,6 +2832,47 @@
         const dt = new Date(value);
         if (isNaN(dt.getTime())) return "";
         return dt.toLocaleDateString("en-US");
+    }
+
+    function getMajordomeStatusDotInfo(statusCode) {
+        const normalized = Number.parseInt(statusCode, 10);
+        if (normalized === 1) return { label: "Added", className: "is-added" };
+        if (normalized === 3) return { label: "Updated", className: "is-updated" };
+        if (normalized === 2) return { label: "Sold", className: "is-removed" };
+        return { label: "", className: "" };
+    }
+
+    function renderMajordomeStatusDots(statusCodes) {
+        const codes = Array.isArray(statusCodes) ? statusCodes : [];
+        if (!codes.length) return '<span class="inventory-dashboard-status-empty">-</span>';
+
+        const labels = codes.map(function (statusCode) {
+            return getMajordomeStatusDotInfo(statusCode).label;
+        }).filter(Boolean);
+        const dots = codes.map(function (statusCode) {
+            const info = getMajordomeStatusDotInfo(statusCode);
+            return `<span class="inventory-dashboard-status-dot ${info.className}" title="${escapeHtml(info.label)}" aria-label="${escapeHtml(info.label)}"></span>`;
+        }).join("");
+
+        return `<span class="inventory-dashboard-status-dots" title="${escapeHtml(labels.join(", "))}">${dots}</span>`;
+    }
+
+    function getMajordomeDaysToneClass(daysValue) {
+        if (daysValue === null || daysValue === undefined || daysValue === "") return "";
+        const days = Number(daysValue);
+        if (days >= 365) return "badge bg-danger border border-light shadow-sm";
+        if (days >= 182) return "badge inventory-dashboard-days-badge-182 border shadow-sm";
+        if (days >= 90) return "badge bg-primary border border-light shadow-sm";
+        return "badge bg-success border border-light shadow-sm";
+    }
+
+    function getMajordomeDaysIconClass(daysValue) {
+        if (daysValue === null || daysValue === undefined || daysValue === "") return "";
+        const days = Number(daysValue);
+        if (days >= 365) return "bi-alarm";
+        if (days >= 182) return "bi-exclamation-circle";
+        if (days >= 90) return "bi-clock-history";
+        return "bi-hourglass-split";
     }
 
     function syncMajordomeEmptyState() {
@@ -2893,6 +2962,17 @@
         const detailsCounter = toMajordomeCounter(row.DetailsCounter);
         const gtxBadge = getMajordomeGtxBadgeInfo(row.LocationCode);
         const gtxValue = normalizeMajordomeGtxFilterValue(row.LocationCode);
+        const daysValue = row.DaysInInventory;
+        const daysText = daysValue === null || daysValue === undefined || daysValue === ""
+            ? "-"
+            : Number(daysValue).toLocaleString("en-US");
+        const daysToneClass = getMajordomeDaysToneClass(daysValue);
+        const daysIconClass = getMajordomeDaysIconClass(daysValue);
+        const inventoryStartDate = formatPurchaseDate(row.InventoryStartDate);
+        const inventoryStartSource = safeText(row.InventoryStartSource).trim();
+        const daysTitle = inventoryStartDate
+            ? `${daysText} day${Number(daysValue) === 1 ? "" : "s"} from ${inventoryStartSource || "start"} ${inventoryStartDate}`
+            : "No inventory start date";
         const stockKey = window.gtxInventoryHistory.normalizeStockKey(stock);
         const historyRowId = `majordomeInventoryHistory-${stockKey.replace(/[^A-Z0-9_-]/g, "-")}`;
         const isExpanded = !!expandedMajordomeHistoryStocks[stockKey];
@@ -2912,6 +2992,13 @@
                 <td class="text-center d-none d-xl-table-cell">
                     <span class="majordome-status-pill majordome-status-location ${escapeHtml(gtxBadge.toneClass)} shadow">${escapeHtml(gtxBadge.label)}</span>
                 </td>
+                <td class="inventory-dashboard-status-dot-cell">${renderMajordomeStatusDots(row.HistoryStatuses)}</td>
+                <td class="inventory-dashboard-days-cell" title="${escapeHtml(daysTitle)}">
+                    <span class="inventory-dashboard-days-number ${daysToneClass}">
+                        ${daysIconClass ? `<i class="bi ${daysIconClass}" aria-hidden="true"></i>` : ""}
+                        <span>${escapeHtml(daysText)}</span>
+                    </span>
+                </td>
                 <td class="text-center">
                     <span class="shadow majordome-status-pill majordome-status-counter" title="${detailsCounter} Details page views"><i class="bi bi-eye-fill me-1" aria-hidden="true"></i>${detailsCounter}</span>
                 </td>
@@ -2927,7 +3014,7 @@
                 <td class="shadow text-start majordome-actions-cell">${renderMajordomeActionButtons(row)}</td>
             </tr>
             <tr id="${escapeHtml(historyRowId)}" class="majordome-inventory-history-row ${isExpanded ? "" : "d-none"}" data-history-row-for="${escapeHtml(stockKey)}">
-                <td colspan="11">${window.gtxInventoryHistory.renderPanel(stockKey, majordomeHistoryCache[stockKey])}</td>
+                <td colspan="13">${window.gtxInventoryHistory.renderPanel(stockKey, majordomeHistoryCache[stockKey])}</td>
             </tr>
         `;
     }
