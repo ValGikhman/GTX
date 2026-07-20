@@ -143,6 +143,15 @@ namespace GTX.Controllers
             RefreshModel(includeHiddenInventory: true);
             Model.Inventory.Vehicles = Model.Inventory.All;
 
+            try {
+                ViewBag.InventoryDashboardVehicles = InventoryService.GetInventoryDashboard(7)?.Vehicles
+                    ?? Array.Empty<InventoryDashboardVehicle>();
+            }
+            catch (Exception ex) {
+                Log(ex);
+                ViewBag.InventoryDashboardVehicles = Array.Empty<InventoryDashboardVehicle>();
+            }
+
             return View(Model);
         }
 
