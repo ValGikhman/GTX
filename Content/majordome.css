@@ -1093,8 +1093,39 @@
         height: 100%;
         display: flex;
         flex-direction: column;
-        padding: .75rem;
+        padding: .2rem .8rem;
     }
+
+    .majordome-management-log-period {
+        flex: 0 0 auto;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+        gap: .5rem;
+        padding-bottom: .6rem;
+    }
+
+        .majordome-management-log-period .form-label {
+            margin-bottom: .25rem;
+            color: var(--inventory-muted);
+            font-size: .72rem;
+            font-weight: 800;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+        }
+
+        .majordome-management-log-period .form-select {
+            min-height: 2.25rem;
+            border-color: var(--inventory-border);
+            border-radius: .55rem;
+            background-color: #fff;
+            color: var(--inventory-ink);
+            font-weight: 700;
+        }
+
+            .majordome-management-log-period .form-select:focus {
+                border-color: rgba(37, 99, 235, .5);
+                box-shadow: 0 0 0 .22rem rgba(37, 99, 235, .12);
+            }
 
     .majordome-management-log-tree {
         flex: 1 1 auto;
@@ -1123,17 +1154,17 @@
     }
 
         .majordome-management-log-date + .majordome-management-log-date {
-            margin-top: .6rem;
+            margin-top: .3rem;
         }
 
     .majordome-management-log-date-toggle {
         width: 100%;
-        min-height: 3rem;
+        min-height: 1rem;
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: .55rem;
-        padding: .55rem .65rem;
+        padding: .40rem .65rem;
         border: 0;
         background: linear-gradient(180deg, #fff 0%, var(--inventory-surface-alt) 100%);
         color: var(--inventory-ink);

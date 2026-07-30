@@ -9,6 +9,16 @@
         <div class="majordome-management-workspace">
             <aside id="majordome-management-sidebar-pane" class="majordome-management-sidebar-pane">
                 <div class="dropdown majordome-management-log-picker">
+                    <div class="majordome-management-log-period" aria-label="Filter inventory dates">
+                        <div>
+                            <label for="majordomeManagementLogYear" class="form-label">Year</label>
+                            <select id="majordomeManagementLogYear" class="form-select form-select-sm" aria-label="Filter inventory dates by year"></select>
+                        </div>
+                        <div>
+                            <label for="majordomeManagementLogMonth" class="form-label">Month</label>
+                            <select id="majordomeManagementLogMonth" class="form-select form-select-sm" aria-label="Filter inventory dates by month"></select>
+                        </div>
+                    </div>
                     <select id="majordomeManagementLogSelect" class="d-none" aria-hidden="true"></select>
                     <div id="majordomeManagementLogMenu" class="majordome-management-log-tree" role="tree" aria-label="Inventory management log filters"></div>
                 </div>
@@ -76,7 +86,13 @@
         let majordomeManagementRows = [];
         let majordomeManagementSelectedStock = "";
         let majordomeManagementSelectedStatus = "all";
+        let majordomeManagementSelectedYear = "";
+        let majordomeManagementSelectedMonth = "";
         const majordomeManagementSortState = { key: "", direction: "" };
+        const majordomeManagementMonthNames = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
         const majordomeManagementStatusFilters = [
             { key: "added", label: "Added", countKey: "AddedCount", badgeClass: "bg-success", iconClass: "bi-plus-circle" },
             { key: "updated", label: "Updated", countKey: "UpdatedCount", badgeClass: "bg-primary", iconClass: "bi-pencil-square" },
@@ -662,6 +678,94 @@
             return `${managementFormatDate(dateCreated)} - ${counts}`;
         }
 
+        function managementLogPeriod(log) {
+            const date = managementParseDate(managementValue(log, "DateCreated", ""));
+            if (!date) return null;
+
+            return {
+                year: managementText(date.getFullYear()),
+                month: managementText(date.getMonth() + 1)
+            };
+        }
+
+        function managementUniquePeriods(values) {
+            return values.filter(function (value, index, source) {
+                return value && source.indexOf(value) === index;
+            });
+        }
+
+        function syncMajordomeManagementLogPeriod(preferredLogId) {
+            const preferredLog = preferredLogId && majordomeManagementLogs.find(function (log) {
+                return managementText(managementValue(log, "Id", "")) === managementText(preferredLogId);
+            });
+            const preferredPeriod = managementLogPeriod(preferredLog);
+            if (preferredPeriod) {
+                majordomeManagementSelectedYear = preferredPeriod.year;
+                majordomeManagementSelectedMonth = preferredPeriod.month;
+            }
+
+            const years = managementUniquePeriods(majordomeManagementLogs.map(function (log) {
+                const period = managementLogPeriod(log);
+                return period ? period.year : "";
+            })).sort(function (left, right) {
+                return Number(right) - Number(left);
+            });
+
+            const $year = $("#majordomeManagementLogYear").empty();
+            if (!years.length) {
+                majordomeManagementSelectedYear = "";
+                majordomeManagementSelectedMonth = "";
+                $year.prop("disabled", true).append($("<option>").val("").text("No years"));
+                $("#majordomeManagementLogMonth")
+                    .empty()
+                    .prop("disabled", true)
+                    .append($("<option>").val("").text("No months"));
+                return;
+            }
+
+            if (years.indexOf(majordomeManagementSelectedYear) < 0) {
+                majordomeManagementSelectedYear = years[0];
+                majordomeManagementSelectedMonth = "";
+            }
+
+            years.forEach(function (year) {
+                $("<option>").val(year).text(year).appendTo($year);
+            });
+            $year.prop("disabled", false).val(majordomeManagementSelectedYear);
+
+            const months = managementUniquePeriods(majordomeManagementLogs.map(function (log) {
+                const period = managementLogPeriod(log);
+                return period && period.year === majordomeManagementSelectedYear ? period.month : "";
+            })).sort(function (left, right) {
+                return Number(right) - Number(left);
+            });
+
+            if (months.indexOf(majordomeManagementSelectedMonth) < 0) {
+                majordomeManagementSelectedMonth = months[0] || "";
+            }
+
+            const $month = $("#majordomeManagementLogMonth").empty();
+            months.forEach(function (month) {
+                $("<option>")
+                    .val(month)
+                    .text(majordomeManagementMonthNames[Number(month) - 1] || month)
+                    .appendTo($month);
+            });
+            $month.prop("disabled", !months.length).val(majordomeManagementSelectedMonth);
+        }
+
+        function filteredMajordomeManagementLogs() {
+            return majordomeManagementLogs.filter(function (log) {
+                const period = managementLogPeriod(log);
+                return period &&
+                    period.year === majordomeManagementSelectedYear &&
+                    period.month === majordomeManagementSelectedMonth;
+            }).sort(function (left, right) {
+                return managementDateSortValue(managementValue(right, "DateCreated", "")) -
+                    managementDateSortValue(managementValue(left, "DateCreated", ""));
+            });
+        }
+
         function syncMajordomeManagementLogPicker() {
             syncMajordomeManagementTreeSelection();
         }
@@ -771,6 +875,7 @@
             const $menu = $("#majordomeManagementLogMenu");
             $select.empty();
             $menu.empty();
+            syncMajordomeManagementLogPeriod(preferredLogId);
 
             if (!majordomeManagementLogs.length) {
                 $select.prop("disabled", true).append($("<option>").text("No inventory logs found").val(""));
@@ -780,8 +885,17 @@
                 return;
             }
 
+            const visibleLogs = filteredMajordomeManagementLogs();
+            if (!visibleLogs.length) {
+                $select.prop("disabled", true).append($("<option>").text("No inventory logs found").val(""));
+                $menu.html(`<div class="text-muted small px-2 py-3">No inventory logs found for the selected month.</div>`);
+                syncMajordomeManagementLogPicker();
+                setMajordomeManagementRows([]);
+                return;
+            }
+
             $select.prop("disabled", false);
-            majordomeManagementLogs.forEach(function (log) {
+            visibleLogs.forEach(function (log) {
                 const id = managementText(managementValue(log, "Id", ""));
                 $("<option>")
                     .val(id)
@@ -789,7 +903,7 @@
                     .appendTo($select);
             });
 
-            const treeHtml = majordomeManagementLogs.map(function (log, index) {
+            const treeHtml = visibleLogs.map(function (log, index) {
                 return renderMajordomeManagementLogTreeItem(log, index);
             }).join("");
 
@@ -799,11 +913,11 @@
                 $menu.html(treeHtml);
             }
 
-            const hasPreferred = preferredLogId && majordomeManagementLogs.some(function (log) {
+            const hasPreferred = preferredLogId && visibleLogs.some(function (log) {
                 return managementText(managementValue(log, "Id", "")) === managementText(preferredLogId);
             });
 
-            $select.val(hasPreferred ? preferredLogId : managementValue(majordomeManagementLogs[0], "Id", ""));
+            $select.val(hasPreferred ? preferredLogId : managementValue(visibleLogs[0], "Id", ""));
             if (!hasPreferred) {
                 majordomeManagementSelectedStatus = "all";
             }
@@ -1095,6 +1209,17 @@
                 });
 
             $("#majordomeManagementLocationFilter").on("change", applyMajordomeManagementFilters);
+
+            $("#majordomeManagementLogYear").on("change", function () {
+                majordomeManagementSelectedYear = managementText($(this).val());
+                majordomeManagementSelectedMonth = "";
+                renderMajordomeManagementLogs();
+            });
+
+            $("#majordomeManagementLogMonth").on("change", function () {
+                majordomeManagementSelectedMonth = managementText($(this).val());
+                renderMajordomeManagementLogs();
+            });
 
             $("#majordomeManagementTable").on("click", "th.majordome-sortable-th", function () {
                 const sortKey = managementText($(this).attr("data-sort-key")).toLowerCase();
