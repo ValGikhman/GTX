@@ -438,12 +438,14 @@
                     <div class="d-inline-flex align-items-center gap-2 gap-lg-3 justify-content-center text-truncate" style="max-width:100%;">
 
                         <!-- Brand/env (desktop only) -->
-                        <a class="text-muted text-shadow text-decoration-none d-none d-lg-inline-flex align-items-center gap-1"
-                           data-bs-toggle="offcanvas" href="#gtxDevelopment" role="button" aria-controls="gtxDevelopment">
-                            <span>Copyright &copy; @DateTime.Now.Year Made by</span>
-                            <span class="badge bg-primary">GTX</span>
+                        <span class="text-muted text-shadow d-none d-lg-inline-flex align-items-center gap-1">
+                            <span>Copyright &copy; @DateTime.Now.Year</span>
+                            <a href="https://autodealer.dev/" target="_blank" rel="noopener" aria-label="AutoDealer.dev">
+                                <img src="https://autodealer.dev/Content/images/autodealer-logo-dark.png"
+                                     alt="AutoDealer.dev" style="height: 26px; width: auto;" />
+                            </a>
                             <span class="text-nowrap">@ViewBag.Environment</span>
-                        </a>
+                        </span>
 
                         <!-- Privacy (desktop only) -->
                         <a href="@Url.Action("PrivacyPolicy", "Home")"
