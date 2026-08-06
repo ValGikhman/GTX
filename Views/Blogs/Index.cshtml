@@ -10,6 +10,16 @@
 <!-- Include the Quill library -->
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 
+@Html.Partial("_MarketingHero", null, new ViewDataDictionary
+{
+    { "Kicker", "Create, refine, and publish" },
+    { "Title", "Shape the story." },
+    { "Accent", "Publish with purpose." },
+    { "Description", "Manage dealership stories, updates, and customer-facing articles from one editorial workspace." },
+    { "Word", "STORIES" },
+    { "Icon", "bi-pencil-square" }
+})
+
 @Html.Partial("_BlogPostModal")
 <div id="tab-blog" class="p-3">
     @{ Html.RenderPartial("_BlogPost", Model); }

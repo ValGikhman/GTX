@@ -347,6 +347,39 @@
         }
 
 /* Majordome extracted from _Majordome-Inventory.cshtml */
+.majordome-workspace {
+    --majordome-inventory-workspace-height: clamp(22rem, calc(100vh - 24rem), 52rem);
+    --majordome-inventory-workspace-height: clamp(22rem, calc(100dvh - 24rem), 52rem);
+}
+
+.majordome-workspace > #myTab {
+    gap: .25rem;
+    padding: .3rem;
+    border: 1px solid var(--bs-border-color-translucent, rgba(30, 41, 59, .12));
+    border-radius: .8rem .8rem 0 0;
+    background: color-mix(in srgb, var(--bs-body-bg, #fff) 92%, transparent);
+}
+
+.majordome-workspace > #myTab .btn {
+    min-height: 2.2rem;
+    padding: .35rem .7rem;
+    border-radius: .6rem !important;
+    font-size: .76rem;
+    text-shadow: none !important;
+}
+
+.majordome-workspace > #myTabContent {
+    border-radius: 0 0 .8rem .8rem;
+}
+
+.majordome-workspace #tab-inventory {
+    padding-block: .25rem !important;
+}
+
+.majordome-workspace #tab-inventory > .container-fluid {
+    padding-inline: .25rem;
+}
+
 #inventoryGridShell .filterLiked,
 #inventoryGridShell .filterLast,
 #inventoryGridShell .filterHelp,
@@ -377,8 +410,13 @@
         --inventory-header-bg: var(--gtx-grad, var(--bs-primary-bg-subtle, #f8fafc));
         --inventory-header-color: #fff;
         --inventory-header-border: rgba(255, 255, 255, .24);
+        display: flex;
+        height: var(--majordome-inventory-workspace-height);
+        max-height: var(--majordome-inventory-workspace-height);
+        min-height: 0;
+        flex-direction: column;
         background: var(--inventory-surface);
-        margin-top: .75rem;
+        margin-top: 0;
         border-radius: .85rem;
         border: 1px solid var(--inventory-border);
         box-shadow: 0 .8rem 2rem rgba(15, 23, 42, .09);
@@ -400,8 +438,8 @@
         display: flex;
         align-items: center;
         justify-content: flex-start;
-        gap: .75rem;
-        padding: .75rem .85rem;
+        gap: .45rem;
+        padding: .4rem .5rem;
         position: relative;
     }
 
@@ -414,8 +452,8 @@
     }
 
         #inventoryGridShell .majordome-gtx-filter .input-group-text {
-            height: 2.5rem;
-            min-height: 2.5rem;
+            height: 2.15rem;
+            min-height: 2.15rem;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -439,8 +477,8 @@
 
     #inventoryGridShell #majordomeGtxFilter {
         min-width: 6rem;
-        height: 2.5rem;
-        min-height: 2.5rem;
+        height: 2.15rem;
+        min-height: 2.15rem;
         border-color: var(--inventory-border);
         border-left: 0;
         border-radius: 0 .65rem .65rem 0;
@@ -487,8 +525,8 @@
         }
 
         #inventoryGridShell #filterByTerm #filterTerm {
-            height: 2.5rem;
-            min-height: 2.5rem;
+            height: 2.15rem;
+            min-height: 2.15rem;
             border-color: var(--inventory-border);
             border-radius: .65rem;
             box-shadow: 0 .25rem .75rem rgba(15, 23, 42, .06);
@@ -503,12 +541,12 @@
 
     #inventoryGridShell .majordome-inventory-count {
         flex: 0 0 auto;
-        min-height: 2.5rem;
+        min-height: 2.15rem;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: .45rem;
-        padding: .35rem .75rem;
+        padding: .25rem .6rem;
         border: 1px solid var(--inventory-border);
         border-radius: .65rem;
         background: linear-gradient(180deg, #fff 0%, var(--inventory-surface-alt) 100%);
@@ -523,8 +561,8 @@
         display: inline-flex;
         align-items: center;
         justify-content: flex-end;
-        gap: .5rem;
-        min-height: 2.5rem;
+        gap: .35rem;
+        min-height: 2.15rem;
         position: relative;
         z-index: 3;
         pointer-events: auto;
@@ -534,6 +572,8 @@
             position: relative;
             z-index: 4;
             pointer-events: auto;
+            min-height: 2.15rem;
+            padding-block: .3rem;
         }
 
     #inventoryGridShell .majordome-inventory-count-label {
@@ -550,7 +590,7 @@
         --bs-table-color: var(--inventory-ink);
         border-collapse: separate;
         border-spacing: 0;
-        font-size: .92rem;
+        font-size: .8rem;
         min-width: 980px;
     }
 
@@ -561,7 +601,7 @@
 
         #majordomeInventoryTable > tbody > tr > td {
             background: var(--inventory-surface);
-            padding: .72rem .85rem;
+            padding: .25rem .4rem;
             vertical-align: middle;
         }
 
@@ -574,7 +614,10 @@
         }
 
     .majordome-inventory-table-wrap {
-        max-height: 73vh;
+        flex: 1 1 auto;
+        min-height: 0;
+        max-height: none;
+        overflow: auto;
         background: var(--inventory-surface-alt);
         scrollbar-color: rgba(71, 85, 105, .45) transparent;
         scrollbar-width: thin;
@@ -595,10 +638,10 @@
             position: sticky;
             top: 0;
             z-index: 2;
-            padding: .8rem .85rem;
+            padding: .42rem .5rem;
             background: var(--inventory-header-bg);
             color: var(--inventory-header-color);
-            font-size: .8rem;
+            font-size: .72rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: .03em;
@@ -674,12 +717,12 @@
     }
 
     .majordome-row-details {
-        max-width: 260px;
+        max-width: 220px;
     }
 
     .majordome-vehicle-title {
         color: var(--inventory-ink);
-        font-size: .98rem;
+        font-size: .86rem;
         font-weight: 800;
         line-height: 1.2;
         white-space: nowrap;
@@ -703,7 +746,7 @@
 
     .majordome-date-cell {
         color: #334155;
-        font-size: .84rem;
+        font-size: .76rem;
         font-weight: 650;
         white-space: nowrap;
     }
@@ -761,8 +804,8 @@
         display: flex;
         flex-direction: column;
         align-items: flex-start;
-        gap: .22rem;
-        padding: .28rem .35rem;
+        gap: .16rem;
+        padding: .2rem .25rem;
         border: 1px solid rgba(148, 163, 184, .28);
         border-radius: .6rem;
         background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
@@ -789,8 +832,8 @@
     }
 
         .majordome-actions .btn {
-            width: 1.85rem;
-            height: 1.85rem;
+            width: 1.7rem;
+            height: 1.7rem;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -861,6 +904,11 @@
         .majordome-inventory-table-wrap {
             max-height: none;
         }
+
+        .majordome-inventory-shell {
+            height: auto;
+            max-height: none;
+        }
     }
 
     @media (max-width: 767.98px) {
@@ -924,7 +972,8 @@
 
 /* Majordome extracted from _Majordome-Management.cshtml */
 .majordome-management-shell {
-        --majordome-management-scroll-height: 78vh;
+        --majordome-management-workspace-height: clamp(22rem, calc(100vh - 22rem), 52rem);
+        --majordome-management-workspace-height: clamp(22rem, calc(100dvh - 22rem), 52rem);
         --inventory-border: var(--bs-border-color-translucent, rgba(30, 41, 59, .12));
         --inventory-line: var(--bs-border-color-translucent, rgba(148, 163, 184, .22));
         --inventory-muted: var(--bs-secondary-color, #64748b);
@@ -937,7 +986,7 @@
         --inventory-selected-accent: var(--bs-primary, #2563eb);
         --inventory-selected-bg: rgba(var(--bs-primary-rgb, 37, 99, 235), .1);
         background: var(--inventory-surface);
-        margin-top: .75rem;
+        margin-top: 0;
         border-radius: .85rem;
         border: 1px solid var(--inventory-border);
         box-shadow: 0 .8rem 2rem rgba(15, 23, 42, .09);
@@ -982,8 +1031,8 @@
         flex-wrap: wrap;
         align-items: center;
         justify-content: space-between;
-        gap: .75rem;
-        padding: .75rem .85rem;
+        gap: .5rem;
+        padding: .45rem .6rem;
         background: linear-gradient(180deg, var(--inventory-surface) 0%, var(--inventory-surface-alt) 100%);
         border-bottom: 1px solid var(--inventory-line);
     }
@@ -993,7 +1042,7 @@
         display: flex;
         flex-wrap: wrap;
         align-items: center;
-        gap: .75rem;
+        gap: .5rem;
         min-width: 0;
     }
 
@@ -1008,10 +1057,10 @@
     }
 
     .majordome-management-search-slot {
-        flex: 0 0 340px;
-        width: 340px;
-        max-width: min(100%, 340px);
-        min-width: 260px;
+        flex: 0 0 300px;
+        width: 300px;
+        max-width: min(100%, 300px);
+        min-width: 240px;
         display: flex;
         justify-content: flex-end;
     }
@@ -1019,15 +1068,18 @@
     .majordome-management-workspace {
         display: flex;
         align-items: stretch;
+        height: var(--majordome-management-workspace-height);
+        max-height: var(--majordome-management-workspace-height);
         min-height: 0;
     }
 
     .majordome-management-sidebar-pane {
-        flex: 0 0 320px;
-        width: 320px;
-        min-width: 280px;
-        max-width: 380px;
-        max-height: 86vh;
+        flex: 0 0 280px;
+        width: 280px;
+        min-width: 250px;
+        max-width: 320px;
+        height: 100%;
+        max-height: none;
         overflow-x: hidden;
         overflow-y: auto;
         background: #f8fafc;
@@ -1050,26 +1102,29 @@
         min-width: 0;
         display: flex;
         flex-direction: column;
+        max-height: 100%;
+        overflow: hidden;
     }
 
     .inventory-management-upload-button {
         flex: 0 0 auto;
-        min-height: 2.5rem;
+        min-height: 2.2rem;
+        padding-block: .35rem;
     }
 
     .majordome-management-log-picker {
         height: 100%;
         display: flex;
         flex-direction: column;
-        padding: .2rem .8rem;
+        padding: .2rem .55rem;
     }
 
     .majordome-management-log-period {
         flex: 0 0 auto;
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
-        gap: .5rem;
-        padding-bottom: .6rem;
+        gap: .4rem;
+        padding-bottom: .4rem;
     }
 
         .majordome-management-log-period .form-label {
@@ -1082,7 +1137,8 @@
         }
 
         .majordome-management-log-period .form-select {
-            min-height: 2.25rem;
+            min-height: 2rem;
+            padding-block: .25rem;
             border-color: var(--inventory-border);
             border-radius: .55rem;
             background-color: #fff;
@@ -1297,8 +1353,8 @@
     .majordome-management-location-filter {
         flex: 0 0 130px;
         width: 130px;
-        height: 2.5rem;
-        min-height: 2.5rem;
+        height: 2.2rem;
+        min-height: 2.2rem;
         border-color: var(--inventory-border);
         border-radius: .65rem;
         box-shadow: 0 .25rem .75rem rgba(15, 23, 42, .06);
@@ -1326,8 +1382,8 @@
         align-items: center;
         justify-content: center;
         gap: .4rem;
-        padding: .35rem .75rem;
-        min-height: 2.5rem;
+        padding: .25rem .6rem;
+        min-height: 2.2rem;
         border: 1px solid var(--inventory-border);
         border-radius: .65rem;
         background: linear-gradient(180deg, #fff 0%, var(--inventory-surface-alt) 100%);
@@ -1345,7 +1401,9 @@
     }
 
     .majordome-management-table-wrap {
-        max-height: var(--majordome-management-scroll-height);
+        flex: 1 1 auto;
+        min-height: 0;
+        max-height: none;
         overflow: auto;
         background: var(--inventory-surface-alt);
         scrollbar-color: rgba(71, 85, 105, .45) transparent;
@@ -1367,7 +1425,7 @@
             position: sticky;
             top: 0;
             z-index: 2;
-            padding: .55rem .65rem;
+            padding: .42rem .5rem;
             background: var(--inventory-header-bg);
             color: var(--inventory-header-color);
             font-size: .74rem;
@@ -1410,7 +1468,7 @@
         --bs-table-color: var(--inventory-ink);
         border-collapse: separate;
         border-spacing: 0;
-        font-size: .84rem;
+        font-size: .8rem;
         margin: 0;
         min-width: 720px;
         table-layout: fixed;
@@ -1424,7 +1482,7 @@
 
         #majordomeManagementTable tbody td {
             background: var(--inventory-surface);
-            padding: .35rem .5rem;
+            padding: .25rem .4rem;
             vertical-align: middle;
         }
 
@@ -1582,8 +1640,8 @@
         }
 
     .majordome-thumb {
-        width: 72px;
-        height: 52px;
+        width: 64px;
+        height: 46px;
         object-fit: cover;
         border-radius: .45rem;
         border: 1px solid rgba(15, 23, 42, .12);
@@ -1630,12 +1688,15 @@
     @media (max-width: 767.98px) {
         .majordome-management-workspace {
             flex-direction: column;
+            height: auto;
+            max-height: none;
         }
 
         .majordome-management-sidebar-pane {
             flex: 0 0 auto;
             width: 100%;
             max-width: none;
+            height: auto;
             max-height: 22rem;
             border-right: 0;
             border-bottom: 1px solid var(--inventory-line);
@@ -1647,6 +1708,11 @@
 
         .majordome-management-toolbar {
             align-items: stretch;
+        }
+
+        .majordome-management-results {
+            max-height: none;
+            overflow: visible;
         }
 
         .majordome-management-toolbar-main,

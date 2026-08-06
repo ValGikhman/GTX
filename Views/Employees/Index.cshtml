@@ -10,6 +10,16 @@
 <!-- Include the Quill library -->
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 
+@Html.Partial("_MarketingHero", null, new ViewDataDictionary
+{
+    { "Kicker", "The people behind the experience" },
+    { "Title", "Build the team." },
+    { "Accent", "Present it beautifully." },
+    { "Description", "Keep staff profiles, roles, contact details, and public visibility accurate and polished." },
+    { "Word", "PEOPLE" },
+    { "Icon", "bi-people" }
+})
+
 @Html.Partial("_EmployeeModal")
 <div id="tab-employees" class="p-3">
     @Html.Partial("_Employee", Model)

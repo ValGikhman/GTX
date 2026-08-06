@@ -11,7 +11,15 @@
     --dashboard-header-border: rgba(255, 255, 255, .24);
     --dashboard-selected-accent: var(--bs-primary, #2563eb);
     --dashboard-selected-bg: rgba(var(--bs-primary-rgb, 37, 99, 235), .1);
+    --dashboard-workspace-height: clamp(22rem, calc(100vh - 22rem), 52rem);
+    --dashboard-workspace-height: clamp(22rem, calc(100dvh - 22rem), 52rem);
+    width: 100%;
+    margin: 0;
+    padding: 0 clamp(.75rem, 3vw, 2rem) .75rem;
     color: var(--dashboard-ink);
+    background:
+        radial-gradient(circle at 8% 10%, color-mix(in srgb, var(--dashboard-selected-accent) 9%, transparent), transparent 26rem),
+        linear-gradient(180deg, color-mix(in srgb, var(--dashboard-surface-alt) 78%, #ece9e2), var(--dashboard-surface));
 }
 
 html.theme-silver .inventory-dashboard {
@@ -47,77 +55,6 @@ html.theme-metallica .inventory-dashboard {
     --dashboard-selected-bg: rgba(154, 160, 168, .18);
 }
 
-.inventory-dashboard-toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    position: relative;
-    overflow: hidden;
-    margin-bottom: 0.5rem;
-    padding: 1rem 1.15rem 1rem 1.35rem;
-    border: 1px solid var(--dashboard-border);
-    border-radius: 8px;
-    background:
-        linear-gradient(135deg, color-mix(in srgb, var(--dashboard-selected-accent) 9%, transparent), transparent 42%),
-        linear-gradient(180deg, var(--dashboard-surface) 0%, var(--dashboard-surface-alt) 100%);
-    box-shadow: 0 .65rem 1.6rem rgba(15, 23, 42, .08);
-}
-
-    .inventory-dashboard-toolbar::after {
-        content: "";
-        position: absolute;
-        right: 1rem;
-        bottom: -.75rem;
-        width: 10rem;
-        height: 10rem;
-        border-radius: 50%;
-        background: color-mix(in srgb, var(--dashboard-selected-accent) 7%, transparent);
-        pointer-events: none;
-    }
-
-.inventory-dashboard-toolbar-heading {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    gap: .85rem;
-    min-width: 0;
-}
-
-.inventory-dashboard-toolbar-icon {
-    width: 4rem;
-    height: 4rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid color-mix(in srgb, var(--dashboard-selected-accent) 24%, var(--dashboard-border));
-    border-radius: 8px;
-    background:
-        linear-gradient(180deg, color-mix(in srgb, var(--dashboard-selected-accent) 14%, #fff), var(--dashboard-surface));
-    color: var(--dashboard-selected-accent);
-    box-shadow: inset 0 1px rgba(255, 255, 255, .72), 0 .4rem .9rem rgba(15, 23, 42, .08);
-}
-
-    .inventory-dashboard-toolbar-icon i {
-        font-size: 1.25rem;
-        line-height: 1;
-    }
-
-.inventory-dashboard-toolbar-copy {
-    min-width: 0;
-}
-
-.inventory-dashboard-heading {
-    margin: 0;
-    color: var(--dashboard-ink);
-    font-size: 1.28rem;
-    font-weight: 900;
-    letter-spacing: 0;
-    line-height: 1.15;
-}
-
 .inventory-dashboard-card {
     height: 100%;
     min-height: 14rem;
@@ -134,15 +71,29 @@ html.theme-metallica .inventory-dashboard {
 
 .inventory-dashboard-period-control {
     grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: auto minmax(10rem, max-content);
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: flex-start;
-    column-gap: .5rem;
+    gap: .4rem;
+    padding: .4rem;
+    border: 1px solid var(--dashboard-border);
+    border-radius: .9rem;
+    background: color-mix(in srgb, var(--dashboard-surface) 91%, transparent);
+    box-shadow: 0 .55rem 1.4rem rgba(15, 23, 42, .07);
+    backdrop-filter: blur(12px);
 }
 
     .inventory-dashboard-period-control .form-select {
         width: auto;
+        min-width: 10rem;
+        min-height: 2.15rem;
+        padding-block: .25rem;
+        border-color: var(--dashboard-line);
+        border-radius: .7rem;
+        background-color: var(--dashboard-surface);
+        font-size: .78rem;
+        font-weight: 750;
     }
 
 .inventory-dashboard-card-header {
@@ -163,7 +114,7 @@ html.theme-metallica .inventory-dashboard {
     display: inline-flex;
     align-items: center;
     gap: .35rem;
-    margin-top: .4rem;
+    margin: 0 auto 0 0;
     min-height: 1.45rem;
     padding: .2rem .55rem;
     border: 1px solid var(--dashboard-line);
@@ -295,6 +246,8 @@ html.theme-metallica .inventory-dashboard {
 
 @media (min-width: 1200px) {
     .inventory-dashboard-layout-row {
+        height: var(--dashboard-workspace-height);
+        max-height: var(--dashboard-workspace-height);
         justify-content: space-between;
     }
 
@@ -302,17 +255,20 @@ html.theme-metallica .inventory-dashboard {
         flex: 0 0 55%;
         width: 55%;
         max-width: 55%;
+        height: 100%;
     }
 
     .inventory-dashboard-detail-column {
         flex: 0 0 45%;
         width: 45%;
         max-width: 45%;
+        height: 100%;
     }
 
     .inventory-dashboard-graph-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        max-height: calc(68.5vh + 5.25rem);
+        height: 100%;
+        max-height: none;
         overflow-x: hidden;
         overflow-y: auto;
         padding-right: .25rem;
@@ -321,9 +277,9 @@ html.theme-metallica .inventory-dashboard {
     }
 
     .inventory-dashboard-graph-card:not(.inventory-dashboard-trend-card) {
-        min-height: 20rem;
+        min-height: 13.5rem;
         height: auto;
-        padding: .7rem;
+        padding: .55rem;
         gap: .45rem;
     }
 
@@ -336,7 +292,7 @@ html.theme-metallica .inventory-dashboard {
     }
 
     .inventory-dashboard-graph-card:not(.inventory-dashboard-trend-card) .inventory-dashboard-location-donut {
-        width: min(15rem, 100%);
+        width: min(9rem, 100%);
     }
 
     .inventory-dashboard-graph-card:not(.inventory-dashboard-trend-card) .inventory-dashboard-donut::after {
@@ -344,15 +300,20 @@ html.theme-metallica .inventory-dashboard {
     }
 
     .inventory-dashboard-graph-card:not(.inventory-dashboard-trend-card) .inventory-dashboard-legend {
-        max-height: 6.75rem;
+        max-height: 4.5rem;
         overflow-y: auto;
         align-content: flex-start;
         scrollbar-width: thin;
     }
 
     .inventory-dashboard-graph-card:not(.inventory-dashboard-trend-card) .inventory-dashboard-legend-item {
-        padding: .3rem .45rem;
-        font-size: .72rem;
+        padding: .22rem .35rem;
+        font-size: .68rem;
+    }
+
+    .inventory-dashboard-grid-shell {
+        height: 100%;
+        max-height: 100%;
     }
 }
 
@@ -388,7 +349,7 @@ html.theme-metallica .inventory-dashboard {
 
 .inventory-dashboard-trend-chart {
     position: relative;
-    min-height: 10.75rem;
+    min-height: 8rem;
     border: 1px solid var(--dashboard-line);
     border-radius: 8px;
     background: linear-gradient(180deg, var(--dashboard-surface) 0%, var(--dashboard-surface-alt) 100%);
@@ -400,18 +361,18 @@ html.theme-metallica .inventory-dashboard {
         display: block;
         width: 100%;
         height: auto;
-        min-height: 10.75rem;
+        min-height: 8rem;
     }
 
     .inventory-dashboard-trend-chart canvas {
         display: block;
         width: 100% !important;
-        height: 10.25rem !important;
-        min-height: 10.25rem;
+        height: 7.5rem !important;
+        min-height: 7.5rem;
     }
 
 .inventory-dashboard-trend-empty {
-    min-height: 10.75rem;
+    min-height: 8rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -581,8 +542,8 @@ html.theme-metallica .inventory-dashboard {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: .75rem;
-    padding: .85rem 1rem;
+    gap: .5rem;
+    padding: .5rem .65rem;
     border-bottom: 1px solid var(--dashboard-line);
     background: linear-gradient(180deg, var(--dashboard-surface) 0%, var(--dashboard-surface-alt) 100%);
 }
@@ -611,8 +572,8 @@ html.theme-metallica .inventory-dashboard {
     align-items: center;
     justify-content: center;
     gap: .4rem;
-    padding: .35rem .75rem;
-    min-height: 2.5rem;
+    padding: .25rem .6rem;
+    min-height: 2.2rem;
     border: 1px solid var(--dashboard-border);
     border-radius: .65rem;
     background: linear-gradient(180deg, var(--dashboard-surface) 0%, var(--dashboard-surface-alt) 100%);
@@ -671,7 +632,10 @@ html.theme-metallica .inventory-dashboard {
     }
 
 .inventory-dashboard-grid-wrap {
-    max-height: 68.5vh;
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    overflow: auto;
     background: var(--dashboard-surface-alt);
     scrollbar-color: rgba(71, 85, 105, .45) transparent;
     scrollbar-width: thin;
@@ -694,7 +658,7 @@ html.theme-metallica .inventory-dashboard {
         --bs-table-color: var(--dashboard-ink);
         border-collapse: separate;
         border-spacing: 0;
-        font-size: .84rem;
+        font-size: .8rem;
         margin: 0;
         min-width: 0;
         table-layout: fixed;
@@ -703,7 +667,7 @@ html.theme-metallica .inventory-dashboard {
 
     #inventoryDashboardStatusTable > tbody > tr > td {
         background: var(--dashboard-surface);
-        padding: .35rem .5rem;
+        padding: .25rem .4rem;
         vertical-align: middle;
     }
 
@@ -776,7 +740,7 @@ html.theme-metallica .inventory-dashboard {
         position: sticky;
         top: 0;
         z-index: 2;
-        padding: .55rem .65rem;
+        padding: .42rem .5rem;
         background: var(--dashboard-header-bg);
         color: var(--dashboard-header-color);
         font-size: .74rem;
@@ -898,8 +862,8 @@ html.theme-metallica .inventory-dashboard {
 }
 
 .inventory-dashboard .majordome-thumb {
-    width: 72px;
-    height: 52px;
+    width: 64px;
+    height: 46px;
     object-fit: cover;
     border-radius: .55rem;
     border: 1px solid rgba(15, 23, 42, .12);
@@ -935,29 +899,19 @@ html.theme-metallica .inventory-dashboard {
     letter-spacing: .01em;
 }
 
-    @media (max-width: 767.98px) {
-        .inventory-dashboard-toolbar {
-            align-items: stretch;
-            padding: .9rem;
-        }
+@media (max-width: 767.98px) {
+    .inventory-dashboard {
+        padding-inline: .55rem;
+    }
 
-        .inventory-dashboard-toolbar-heading {
-            gap: .65rem;
-        }
+    .inventory-dashboard-period-control {
+        align-items: stretch;
+    }
 
-        .inventory-dashboard-toolbar-icon {
-            width: 2.45rem;
-            height: 2.45rem;
-            flex-basis: 2.45rem;
-        }
-
-        .inventory-dashboard-heading {
-            font-size: 1.08rem;
-        }
-
-        .inventory-dashboard-period-control {
-            align-items: stretch;
-            grid-template-columns: 1fr;
+    .inventory-dashboard-subtitle {
+        width: 100%;
+        margin-right: 0;
+        justify-content: center;
     }
 
     .inventory-dashboard-period-control .form-select {

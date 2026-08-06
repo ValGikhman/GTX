@@ -8,23 +8,22 @@
         new JsonSerializerSettings { StringEscapeHandling = StringEscapeHandling.EscapeHtml });
 }
 
-<section class="inventory-dashboard container-fluid">
-    <div class="inventory-dashboard-toolbar">
-        <div class="inventory-dashboard-toolbar-heading">
-            <span class="inventory-dashboard-toolbar-icon" aria-hidden="true">
-                <i class="bi bi-speedometer2"></i>
-            </span>
-            <div class="inventory-dashboard-toolbar-copy">
-                <h1 class="inventory-dashboard-heading">Inventory Dashboard</h1>
-                <div id="inventoryDashboardRange" class="inventory-dashboard-subtitle"></div>
-            </div>
-        </div>
-    </div>
+@Html.Partial("_MarketingHero", null, new ViewDataDictionary
+{
+    { "Kicker", "Inventory intelligence at a glance" },
+    { "Title", "See the movement." },
+    { "Accent", "Lead the inventory." },
+    { "Description", "Track status, location, aging, and recent activity from one focused operational view." },
+    { "Word", "PULSE" },
+    { "Icon", "bi-speedometer2" }
+})
 
+<section class="inventory-dashboard container-fluid">
     <div class="row g-2 inventory-dashboard-layout-row">
         <div class="col-12 inventory-dashboard-graphs-column">
             <div class="inventory-dashboard-graph-grid">
                 <div class="inventory-dashboard-period-control d-flex gap-2">
+                    <div id="inventoryDashboardRange" class="inventory-dashboard-subtitle" aria-live="polite"></div>
                     <div class="flex-grow-1">
                         <select id="inventoryDashboardPeriod" class="form-select" aria-label="Inventory dashboard period">
                             <option value="7">Last 7 days</option>

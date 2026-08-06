@@ -134,17 +134,6 @@
     line-height: 1.45;
 }
 
-.marketing-hero-mark {
-    display: grid;
-    place-items: center;
-    width: 2.8rem;
-    height: 2.8rem;
-    border: 1px solid rgba(255, 255, 255, .18);
-    border-radius: .8rem;
-    background: rgba(255, 255, 255, .07);
-    backdrop-filter: blur(12px);
-}
-
 .marketing-page {
     min-height: 24rem;
     color: var(--mp-ink);
@@ -620,6 +609,308 @@
     font-size: 2.5rem;
 }
 
+/* VIN decoder */
+.vin-decoder-page {
+    --vin-surface: var(--bs-body-bg, #fff);
+    --vin-soft: var(--bs-tertiary-bg, #f3f5f6);
+    --vin-line: rgba(11, 17, 24, .13);
+}
+
+.vin-decoder-shell {
+    padding-top: clamp(1.5rem, 4vw, 3rem);
+}
+
+.vin-decoder-console {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: minmax(15rem, .68fr) minmax(24rem, 1.32fr);
+    gap: clamp(1.25rem, 4vw, 3.5rem);
+    align-items: center;
+    overflow: hidden;
+    padding: clamp(1.15rem, 3vw, 2rem);
+    border: 1px solid var(--vin-line);
+    border-radius: 1.35rem;
+    background:
+        radial-gradient(circle at 100% 0, color-mix(in srgb, var(--mp-accent) 12%, transparent), transparent 35%),
+        color-mix(in srgb, var(--vin-surface) 92%, transparent);
+    box-shadow: 0 1.2rem 3rem rgba(11, 17, 24, .11);
+    backdrop-filter: blur(16px);
+}
+
+.vin-decoder-console::before {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: .3rem;
+    content: "";
+    background: var(--mp-gradient);
+}
+
+.vin-decoder-console::after {
+    position: absolute;
+    right: -6rem;
+    bottom: -9rem;
+    z-index: -1;
+    width: 16rem;
+    height: 16rem;
+    content: "";
+    border: 2.5rem solid color-mix(in srgb, var(--mp-accent) 6%, transparent);
+    border-radius: 50%;
+}
+
+.vin-decoder-console-copy {
+    display: flex;
+    gap: .9rem;
+    align-items: center;
+    min-width: 0;
+}
+
+.vin-decoder-console-icon {
+    display: inline-block;
+    flex: 0 0 auto;
+    color: var(--mp-accent);
+    font-size: clamp(2.6rem, 5vw, 4rem);
+    line-height: 1;
+}
+
+.vin-decoder-console-copy small {
+    display: block;
+    margin-bottom: .25rem;
+    color: var(--mp-accent);
+    font-size: .63rem;
+    font-weight: 850;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+}
+
+.vin-decoder-console-copy h2 {
+    margin: 0;
+    color: var(--mp-ink);
+    font-size: clamp(1.2rem, 2.4vw, 1.75rem);
+    font-weight: 900;
+    line-height: 1.05;
+}
+
+.vin-decoder-controls {
+    min-width: 0;
+}
+
+.vin-decoder-input-group {
+    padding: .3rem;
+    border: 1px solid color-mix(in srgb, var(--mp-accent) 22%, var(--vin-line));
+    border-radius: .95rem;
+    background: var(--vin-surface);
+    box-shadow: 0 .65rem 1.5rem rgba(11, 17, 24, .09);
+}
+
+.vin-decoder-input-group .input-group-text {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    padding: 0;
+    color: var(--mp-accent);
+    border: 0;
+    background: transparent;
+}
+
+.vin-decoder-input-group .form-control {
+    min-width: 0;
+    color: var(--bs-body-color, var(--mp-ink));
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    font-family: var(--bs-font-monospace);
+    font-size: clamp(.85rem, 1.8vw, 1rem);
+    font-weight: 750;
+    letter-spacing: .055em;
+    text-transform: uppercase;
+}
+
+.vin-decoder-input-group .form-control::placeholder {
+    color: var(--bs-secondary-color, #7a848d);
+    font-weight: 550;
+    letter-spacing: .02em;
+    opacity: .72;
+}
+
+.vin-schema-button,
+.vin-decoder-page #dataOneVinDecoder .btn {
+    display: inline-flex;
+    gap: .42rem;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.45rem;
+    padding: .48rem .85rem !important;
+    color: var(--bs-body-color, var(--mp-ink)) !important;
+    border: 1px solid color-mix(in srgb, var(--mp-accent) 22%, var(--vin-line)) !important;
+    border-radius: .72rem !important;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--mp-accent) 8%, var(--vin-surface)), var(--vin-soft)) !important;
+    box-shadow: inset 0 1px rgba(255, 255, 255, .5), 0 .4rem .9rem rgba(11, 17, 24, .08) !important;
+    font-size: .72rem;
+    font-weight: 800;
+    text-decoration: none !important;
+    text-shadow: none !important;
+    transition: transform .17s ease, border-color .17s ease, box-shadow .17s ease !important;
+}
+
+.vin-schema-button:hover,
+.vin-schema-button:focus-visible,
+.vin-decoder-page #dataOneVinDecoder .btn:hover,
+.vin-decoder-page #dataOneVinDecoder .btn:focus-visible {
+    color: var(--bs-body-color, var(--mp-ink)) !important;
+    border-color: color-mix(in srgb, var(--mp-accent) 52%, transparent) !important;
+    transform: translateY(-2px);
+    box-shadow: inset 0 1px rgba(255, 255, 255, .6), 0 .7rem 1.35rem rgba(11, 17, 24, .13) !important;
+}
+
+.vin-schema-button-primary {
+    min-width: 7.25rem;
+    color: #fff !important;
+    border-color: rgba(255, 255, 255, .16) !important;
+    background: var(--mp-gradient) !important;
+    box-shadow: inset 0 1px rgba(255, 255, 255, .18), 0 .6rem 1.25rem color-mix(in srgb, var(--mp-accent) 24%, transparent) !important;
+    font-weight: 400;
+}
+
+.vin-schema-button-primary:hover,
+.vin-schema-button-primary:focus-visible {
+    color: #fff !important;
+}
+
+.vin-decode-icon-button {
+    width: 3rem;
+    min-width: 3rem;
+    min-height: 3rem;
+    align-self: stretch;
+    padding: 0 !important;
+    border-radius: .8rem !important;
+    font-size: 1.1rem;
+}
+
+.vin-decoder-assist {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    align-items: center;
+    margin-top: .55rem;
+    color: var(--bs-secondary-color, var(--mp-muted));
+    font-size: .68rem;
+}
+
+.vin-decoder-page #vinError {
+    display: flex;
+    gap: .5rem;
+    align-items: center;
+    margin: .65rem 0 0;
+    padding: .65rem .8rem;
+    border: 1px solid rgba(196, 39, 55, .2);
+    border-radius: .75rem;
+    font-size: .74rem;
+}
+
+.vin-decoder-page #vinError.d-none {
+    display: none;
+}
+
+.vin-decoder-results {
+    min-height: 14rem;
+    margin-top: 1rem;
+    overflow: hidden;
+    border: 1px solid var(--vin-line);
+    border-radius: 1.35rem;
+    background: color-mix(in srgb, var(--vin-surface) 91%, transparent);
+    box-shadow: 0 1rem 2.6rem rgba(11, 17, 24, .09);
+}
+
+.vin-decoder-page #dataOneVinDecoder:not(:empty) {
+    padding: clamp(.7rem, 2vw, 1.25rem);
+}
+
+.vin-decoder-page #dataOneVinDecoder .btn {
+    min-height: 2.8rem;
+    font-size: .76rem;
+}
+
+.vin-decoder-page #dataOneVinDecoder .collapse-toggle {
+    justify-content: flex-start;
+    padding-right: 2.5rem !important;
+    text-align: left;
+}
+
+.vin-decoder-empty {
+    display: flex;
+    min-height: 14rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    color: var(--bs-secondary-color, var(--mp-muted));
+    text-align: center;
+}
+
+.vin-decoder-empty > span {
+    display: grid;
+    place-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    margin-bottom: .75rem;
+    color: var(--mp-accent);
+    border: 1px solid color-mix(in srgb, var(--mp-accent) 20%, transparent);
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--mp-accent) 7%, var(--vin-surface));
+    font-size: 1.25rem;
+}
+
+.vin-decoder-empty strong {
+    color: var(--bs-body-color, var(--mp-ink));
+    font-size: .9rem;
+}
+
+.vin-decoder-empty small {
+    margin-top: .2rem;
+    font-size: .72rem;
+}
+
+#vindecoderOverlay.spinner-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(3, 7, 12, .58);
+    backdrop-filter: blur(6px);
+}
+
+#vindecoderOverlay.spinner-hidden {
+    display: none;
+}
+
+.vin-decoder-page .fade-in {
+    animation: vin-decoder-fade-in .2s ease-out;
+}
+
+.vin-decoder-page .shake {
+    animation: vin-decoder-shake .25s ease-in-out;
+}
+
+@keyframes vin-decoder-fade-in {
+    from { opacity: 0; transform: translateY(.3rem); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes vin-decoder-shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-.35rem); }
+    75% { transform: translateX(.35rem); }
+}
+
+html.theme-silver .vin-schema-button-primary {
+    color: #20262c !important;
+}
+
 /* Legal pages */
 .legal-page {
     padding: clamp(1.4rem, 4vw, 3.5rem) clamp(.75rem, 3vw, 2rem) clamp(4rem, 7vw, 6rem);
@@ -1023,6 +1314,10 @@ html.theme-silver .blog-read-link {
         grid-template-columns: 1fr;
     }
 
+    .vin-decoder-console {
+        grid-template-columns: 1fr;
+    }
+
     .about-video-frame {
         position: relative;
         top: auto;
@@ -1075,8 +1370,7 @@ html.theme-silver .blog-read-link {
         font-size: clamp(2.35rem, 11vw, 3.5rem);
     }
 
-    .marketing-hero-copy p,
-    .marketing-hero-mark {
+    .marketing-hero-copy p {
         display: none;
     }
 
@@ -1128,6 +1422,28 @@ html.theme-silver .blog-read-link {
         padding-left: 3.2rem;
     }
 
+    .vin-decoder-console {
+        padding: 1rem;
+    }
+
+    .vin-decoder-console-copy {
+        align-items: flex-start;
+    }
+
+    .vin-decoder-assist {
+        align-items: flex-start;
+    }
+
+    .vin-schema-button-primary {
+        min-width: auto;
+        padding-inline: .7rem !important;
+    }
+
+    .vin-decode-icon-button {
+        min-width: 3rem;
+        padding: 0 !important;
+    }
+
     .about-video-frame {
         aspect-ratio: 4 / 3;
     }
@@ -1138,5 +1454,10 @@ html.theme-silver .blog-read-link {
     .blog-list-media img,
     .contact-action {
         transition: none;
+    }
+
+    .vin-decoder-page .fade-in,
+    .vin-decoder-page .shake {
+        animation: none;
     }
 }
