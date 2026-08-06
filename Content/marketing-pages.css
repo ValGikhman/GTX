@@ -735,8 +735,7 @@
     opacity: .72;
 }
 
-.vin-schema-button,
-.vin-decoder-page #dataOneVinDecoder .btn {
+.vin-schema-button {
     display: inline-flex;
     gap: .42rem;
     align-items: center;
@@ -756,9 +755,7 @@
 }
 
 .vin-schema-button:hover,
-.vin-schema-button:focus-visible,
-.vin-decoder-page #dataOneVinDecoder .btn:hover,
-.vin-decoder-page #dataOneVinDecoder .btn:focus-visible {
+.vin-schema-button:focus-visible {
     color: var(--bs-body-color, var(--mp-ink)) !important;
     border-color: color-mix(in srgb, var(--mp-accent) 52%, transparent) !important;
     transform: translateY(-2px);
@@ -826,17 +823,6 @@
 
 .vin-decoder-page #dataOneVinDecoder:not(:empty) {
     padding: clamp(.7rem, 2vw, 1.25rem);
-}
-
-.vin-decoder-page #dataOneVinDecoder .btn {
-    min-height: 2.8rem;
-    font-size: .76rem;
-}
-
-.vin-decoder-page #dataOneVinDecoder .collapse-toggle {
-    justify-content: flex-start;
-    padding-right: 2.5rem !important;
-    text-align: left;
 }
 
 .vin-decoder-empty {
