@@ -28,6 +28,73 @@
         radial-gradient(circle at 88% 28%, color-mix(in srgb, var(--vdp-accent) 11%, transparent), transparent 32rem);
 }
 
+.vdp-record-status {
+    --vdp-theme-gradient: var(--gtx-grad, linear-gradient(180deg, #155a96, #1e73be));
+    --vdp-accent: var(--gtx-accent-solid, #1e73be);
+    --vdp-accent-soft: rgba(30, 115, 190, .18);
+    --vdp-accent-soft: color-mix(in srgb, var(--vdp-accent) 18%, transparent);
+    --vdp-surface: var(--bs-body-bg, #fff);
+    display: inline-flex;
+    gap: .6rem;
+    align-items: center;
+    width: 100%;
+    min-height: 2.7rem;
+    padding: .35rem .9rem .35rem .4rem;
+    color: var(--bs-body-color, var(--vdp-ink));
+    border: 1px solid rgba(31, 41, 51, .12);
+    border-color: color-mix(in srgb, var(--vdp-accent) 22%, transparent);
+    border-radius: 999px;
+    background: var(--vdp-surface);
+    background: color-mix(in srgb, var(--vdp-accent) 8%, var(--vdp-surface));
+    box-shadow: 0 .45rem 1.25rem rgba(20, 29, 38, .09);
+    font-size: .78rem;
+    letter-spacing: .015em;
+}
+
+.vdp-page-title-status-slot {
+    z-index: 2;
+    width: min(13.5rem, calc(100vw - 9rem));
+}
+
+.vdp-record-status-icon {
+    display: grid;
+    place-items: center;
+    width: 1.95rem;
+    height: 1.95rem;
+    flex: 0 0 auto;
+    color: #fff;
+    border-radius: 50%;
+    background: var(--vdp-theme-gradient);
+    box-shadow: 0 .3rem .75rem var(--vdp-accent-soft);
+}
+
+html.theme-silver .vdp-record-status-icon {
+    color: #20262c;
+}
+
+.vdp-record-status-text {
+    white-space: nowrap;
+}
+
+.vdp-record-status-number {
+    color: var(--vdp-accent);
+    font-weight: 850;
+}
+
+#vdpStatusCurrent {
+    display: inline-block;
+    min-width: 2.15rem;
+    text-align: right;
+}
+
+#vdpStatusTotal {
+    display: inline-block;
+    min-width: 1.35rem;
+    color: var(--bs-body-color, var(--vdp-ink));
+    font-weight: 750;
+    text-align: center;
+}
+
 .vdp-identity {
     position: relative;
     isolation: isolate;
@@ -395,6 +462,241 @@
     box-shadow: 0 .8rem 2.5rem rgba(20, 29, 38, .06);
 }
 
+.vehicle-detail-page #nav-call {
+    padding: clamp(.75rem, 2.5vw, 1.5rem);
+}
+
+.vdp-contact-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(18rem, .92fr);
+    gap: clamp(.8rem, 2vw, 1.25rem);
+}
+
+.vdp-contact-intro,
+.vdp-contact-hours {
+    min-width: 0;
+    border: 1px solid var(--vdp-line);
+    border-radius: 1rem;
+}
+
+.vdp-contact-intro {
+    display: flex;
+    flex-direction: column;
+    padding: clamp(1.25rem, 3vw, 2.25rem);
+    background:
+        radial-gradient(circle at 100% 0, var(--vdp-accent-soft), transparent 18rem),
+        var(--vdp-surface);
+}
+
+.vdp-contact-kicker,
+.vdp-contact-location small,
+.vdp-contact-action small,
+.vdp-contact-hours-heading small {
+    display: block;
+    color: var(--bs-secondary-color, var(--vdp-muted));
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.vdp-contact-kicker {
+    margin-bottom: .55rem;
+    color: var(--vdp-accent);
+}
+
+.vdp-contact-intro h2 {
+    max-width: 15ch;
+    margin: 0;
+    color: var(--bs-heading-color, var(--bs-body-color, var(--vdp-ink)));
+    font-size: clamp(1.75rem, 4vw, 3rem);
+    font-weight: 780;
+    letter-spacing: -.045em;
+    line-height: 1.02;
+    text-wrap: balance;
+}
+
+.vdp-contact-intro > p {
+    max-width: 46ch;
+    margin: .85rem 0 1.5rem;
+    color: var(--bs-secondary-color, var(--vdp-muted));
+    font-size: .9rem;
+    line-height: 1.55;
+}
+
+.vdp-contact-location,
+.vdp-contact-hours-heading {
+    display: flex;
+    gap: .8rem;
+    align-items: center;
+}
+
+.vdp-contact-location {
+    margin-top: auto;
+    padding: .9rem;
+    border: 1px solid var(--vdp-line);
+    border-radius: .8rem;
+    background: var(--vdp-soft);
+    background: color-mix(in srgb, var(--vdp-accent) 6%, var(--vdp-soft));
+}
+
+.vdp-contact-location > span:last-child,
+.vdp-contact-hours-heading > span:last-child,
+.vdp-contact-action > span {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+}
+
+.vdp-contact-location strong,
+.vdp-contact-location > span:last-child > span {
+    color: var(--bs-body-color, var(--vdp-ink));
+    font-size: .87rem;
+    line-height: 1.35;
+}
+
+.vdp-contact-icon {
+    display: grid;
+    place-items: center;
+    width: 2.7rem;
+    height: 2.7rem;
+    flex: 0 0 auto;
+    color: #fff;
+    border-radius: .75rem;
+    background: var(--vdp-theme-gradient);
+    box-shadow: 0 .45rem 1rem var(--vdp-accent-soft);
+}
+
+html.theme-silver .vdp-contact-icon {
+    color: #20262c;
+}
+
+.vdp-contact-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .65rem;
+    margin-top: .75rem;
+}
+
+.vdp-contact-action {
+    display: flex;
+    gap: .7rem;
+    align-items: center;
+    min-width: 0;
+    min-height: 3.75rem;
+    padding: .7rem .85rem;
+    border: 1px solid var(--vdp-line);
+    border-radius: .8rem;
+    text-decoration: none;
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.vdp-contact-action:hover,
+.vdp-contact-action:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 .65rem 1.3rem rgba(20, 29, 38, .13);
+}
+
+.vdp-contact-action > i {
+    flex: 0 0 auto;
+    font-size: 1.05rem;
+}
+
+.vdp-contact-action strong {
+    overflow: hidden;
+    font-size: .83rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vdp-contact-action-primary {
+    color: #fff;
+    border-color: color-mix(in srgb, var(--vdp-accent) 65%, #111) !important;
+    background: var(--vdp-theme-gradient);
+}
+
+.vdp-contact-action-primary:hover,
+.vdp-contact-action-primary:focus-visible {
+    color: #fff;
+}
+
+.vdp-contact-action-primary small {
+    color: rgba(255, 255, 255, .7);
+}
+
+html.theme-silver .vdp-contact-action-primary,
+html.theme-silver .vdp-contact-action-primary:hover,
+html.theme-silver .vdp-contact-action-primary:focus-visible {
+    color: #20262c;
+}
+
+html.theme-silver .vdp-contact-action-primary small {
+    color: rgba(32, 38, 44, .65);
+}
+
+.vdp-contact-action-secondary {
+    color: var(--bs-body-color, var(--vdp-ink));
+    background: var(--vdp-soft);
+}
+
+.vdp-contact-action-secondary:hover,
+.vdp-contact-action-secondary:focus-visible {
+    color: var(--bs-body-color, var(--vdp-ink));
+}
+
+.vdp-contact-hours {
+    padding: clamp(1rem, 2.5vw, 1.5rem);
+    background: var(--vdp-soft);
+}
+
+.vdp-contact-hours-heading {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--vdp-line);
+}
+
+.vdp-contact-hours-heading strong {
+    color: var(--bs-heading-color, var(--bs-body-color, var(--vdp-ink)));
+    font-size: 1rem;
+}
+
+.vdp-contact-hours-list {
+    padding: .55rem 0;
+}
+
+.vdp-contact-hours-row {
+    display: grid;
+    grid-template-columns: minmax(5rem, .8fr) minmax(0, 1.2fr);
+    gap: 1rem;
+    align-items: center;
+    padding: .64rem .15rem;
+    border-bottom: 1px solid var(--vdp-line);
+    font-size: .8rem;
+}
+
+.vdp-contact-hours-row:last-child {
+    border-bottom: 0;
+}
+
+.vdp-contact-hours-row > span {
+    color: var(--bs-secondary-color, var(--vdp-muted));
+}
+
+.vdp-contact-hours-row > strong {
+    color: var(--bs-body-color, var(--vdp-ink));
+    text-align: right;
+}
+
+.vdp-contact-hours-note {
+    display: flex;
+    gap: .45rem;
+    margin: .35rem 0 0;
+    padding-top: .8rem;
+    color: var(--bs-secondary-color, var(--vdp-muted));
+    border-top: 1px solid var(--vdp-line);
+    font-size: .7rem;
+    line-height: 1.4;
+}
+
 .vehicle-detail-page .collapse-toggle:not(.article) {
     min-height: 3.25rem;
     border-radius: .85rem;
@@ -406,26 +708,192 @@
     letter-spacing: .055em;
 }
 
+.vehicle-detail-page #nav-pictures {
+    padding: .65rem;
+}
+
+.vdp-photo-gallery {
+    overflow: hidden;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, .1);
+    border-radius: 1rem;
+    background: var(--vdp-theme-gradient);
+    background:
+        linear-gradient(112deg, rgba(8, 13, 18, .3), rgba(8, 13, 18, .78)),
+        linear-gradient(125deg, var(--vdp-accent-soft), transparent 48%),
+        var(--vdp-theme-gradient);
+}
+
+.vdp-photo-gallery-heading {
+    display: flex;
+    gap: 2rem;
+    align-items: end;
+    justify-content: space-between;
+    padding: clamp(1.25rem, 3.5vw, 2.5rem);
+}
+
+.vdp-photo-gallery-kicker {
+    display: block;
+    margin-bottom: .45rem;
+    color: var(--vdp-accent-bright);
+    font-size: .68rem;
+    font-weight: 850;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+}
+
+.vdp-photo-gallery-heading h2 {
+    margin: 0;
+    color: #fff;
+    font-size: clamp(1.7rem, 4vw, 3.25rem);
+    line-height: 1;
+    font-weight: 400;
+}
+
+.vdp-photo-gallery-heading p {
+    margin: .65rem 0 0;
+    color: rgba(255, 255, 255, .66);
+}
+
+.vdp-photo-gallery-count {
+    display: grid;
+    place-items: center;
+    width: 5.2rem;
+    height: 5.2rem;
+    flex: 0 0 auto;
+    align-content: center;
+    border: 1px solid rgba(255, 255, 255, .2);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .08);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1);
+    backdrop-filter: blur(12px);
+}
+
+.vdp-photo-gallery-count strong {
+    color: #fff;
+    font-size: 1.45rem;
+    line-height: 1;
+}
+
+.vdp-photo-gallery-count span {
+    margin-top: .2rem;
+    color: rgba(255, 255, 255, .62);
+    font-size: .58rem;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
 .vdp-photo-grid {
     display: grid !important;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: .75rem;
+    grid-auto-flow: dense;
+    grid-auto-rows: clamp(9rem, 13vw, 12rem);
+    gap: .55rem;
     max-height: none !important;
-    padding: .8rem;
+    padding: .55rem;
+    background: #0c1116;
+}
+
+.vdp-photo-grid .elem,
+.vdp-photo-grid .elem * {
+    box-sizing: border-box;
+    margin: 0 !important;
 }
 
 .vdp-photo-grid .elem {
+    position: relative;
+    display: block;
     width: 100% !important;
-    margin: 0 !important;
-    aspect-ratio: 4 / 3;
+    height: 100%;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, .1);
+    border-radius: .75rem;
+    background: #19232c;
+    outline: none;
 }
 
-.vdp-photo-grid .elem span {
+.vdp-photo-grid .elem:first-child {
+    grid-column: span 2;
+    grid-row: span 2;
+}
+
+.vdp-photo-grid .elem:nth-child(8n + 6) {
+    grid-column: span 2;
+}
+
+.vdp-photo-grid .elem > .vdp-photo-tile {
+    position: relative;
+    display: block;
     width: 100%;
     height: 100%;
-    border-radius: .75rem !important;
+    padding-bottom: 0 !important;
+    overflow: hidden;
+    border-radius: inherit !important;
+    background-color: #19232c;
     background-position: center;
+    background-repeat: no-repeat;
     background-size: cover;
+    transform: scale(1.002);
+    transition: transform .55s cubic-bezier(.2, .75, .25, 1), filter .35s ease;
+}
+
+.vdp-photo-grid .elem > .vdp-photo-tile::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+    pointer-events: none;
+    background: linear-gradient(180deg, transparent 54%, rgba(5, 9, 13, .55));
+    transition: opacity .3s ease;
+}
+
+.vdp-photo-grid .elem:hover > .vdp-photo-tile,
+.vdp-photo-grid .elem:focus-visible > .vdp-photo-tile {
+    filter: saturate(1.08) contrast(1.03);
+    transform: scale(1.045);
+}
+
+.vdp-photo-grid .elem:focus-visible {
+    border-color: var(--vdp-accent-bright);
+    box-shadow: 0 0 0 .2rem var(--vdp-accent-soft);
+}
+
+.vdp-photo-number,
+.vdp-photo-expand {
+    position: absolute;
+    z-index: 2;
+    bottom: .65rem;
+    display: grid !important;
+    place-items: center;
+    min-width: 2rem;
+    height: 2rem !important;
+    padding: 0 .45rem !important;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, .2);
+    border-radius: 999px !important;
+    background: rgba(7, 12, 17, .62);
+    font-size: .67rem;
+    font-weight: 800;
+    backdrop-filter: blur(8px);
+}
+
+.vdp-photo-number {
+    left: .65rem;
+    letter-spacing: .08em;
+}
+
+.vdp-photo-expand {
+    right: .65rem;
+    width: 2rem !important;
+    opacity: 0;
+    transform: translateY(.35rem);
+    transition: opacity .25s ease, transform .25s ease;
+}
+
+.vdp-photo-grid .elem:hover .vdp-photo-expand,
+.vdp-photo-grid .elem:focus-visible .vdp-photo-expand {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .vehicle-detail-page .vdp-action-stack {
@@ -653,6 +1121,19 @@
         display: flex;
     }
 
+    .vehicle-detail-page #nav-call {
+        padding: .45rem;
+    }
+
+    .vdp-contact-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .vdp-contact-intro,
+    .vdp-contact-hours {
+        border-radius: .8rem;
+    }
+
     .vdp-tabs {
         border-radius: .8rem;
     }
@@ -681,8 +1162,23 @@
 
     .vdp-photo-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-auto-rows: 8rem;
         gap: .4rem;
         padding: .4rem;
+    }
+
+    .vehicle-detail-page #nav-pictures {
+        padding: .3rem;
+    }
+
+    .vdp-photo-gallery-heading {
+        gap: 1rem;
+        padding: 1.15rem;
+    }
+
+    .vdp-photo-gallery-count {
+        width: 4.25rem;
+        height: 4.25rem;
     }
 
     .vehicle-detail-page .vdp-action-stack {
@@ -693,6 +1189,22 @@
     .vdp-suggestions .scroll-button {
         width: 2.25rem;
         min-width: 2.25rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .vdp-contact-card {
+        grid-template-columns: 1fr;
+    }
+
+    .vdp-photo-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-auto-rows: clamp(8rem, 25vw, 10rem);
+    }
+
+    .vdp-photo-expand {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 

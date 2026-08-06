@@ -93,7 +93,6 @@
     var makeLogoName = (vehicle?.Make ?? string.Empty).Trim().Replace(" ", "-").ToLowerInvariant();
 }
 
-
 <style>
     .body-content {
         height: calc(100vh - var(--gtx-header-height) - var(--gtx-footer-height) - env(safe-area-inset-bottom)) !important;
@@ -181,8 +180,6 @@
 
     <!-- SKINS -->
     <link href="~/Content/Lightbox/dark.css" rel="stylesheet" />
-    <link href="~/Content/vehicle-details.css" rel="stylesheet" />
-
     <!-- New button-->
     <link rel="stylesheet" href="https://c.maxallowance.com/widget/css/tradein-maxallowance.css?ver=0.0.1">
 
@@ -238,11 +235,6 @@
 </div>
 
 <main class="vehicle-detail-page">
-<!-- Centered directly below the input -->
-<div class="records-count position-relative d-flex justify-content-center my-2 z-1">
-    <h8 id="status"></h8>
-</div>
-
 <section class="vdp-identity" aria-labelledby="vehicle-title">
     <div class="vdp-identity-copy">
         <div class="vdp-eyebrow">
@@ -380,9 +372,23 @@
             @if (Model.CurrentVehicle.VehicleDetails.Images?.Count() > 0)
             {
                 <div class="tab-pane fade well" id="nav-pictures" role="tabpanel" aria-labelledby="nav-picture-tab">
-                    <div class="vdp-photo-grid d-flex flex-wrap justify-content-center overflow-auto">
+                    <div class="vdp-photo-gallery">
+                        <header class="vdp-photo-gallery-heading">
+                            <div>
+                                <span class="vdp-photo-gallery-kicker">Vehicle gallery</span>
+                                <h2>Every angle. Every detail.</h2>
+                                <p>Select any image to enter the full-screen gallery.</p>
+                            </div>
+                            <div class="vdp-photo-gallery-count" aria-label="@Model.CurrentVehicle.VehicleDetails.Images.Count() vehicle photos">
+                                <strong>@Model.CurrentVehicle.VehicleDetails.Images.Count()</strong>
+                                <span>Photos</span>
+                            </div>
+                        </header>
+                        <div class="vdp-photo-grid">
+                        @{ var photoNumber = 0; }
                         @foreach (Image image in Model.CurrentVehicle.VehicleDetails.Images)
                         {
+                            photoNumber++;
                             string imageBig = $"{image.Source}?h=800";
                             string imagePath = $"{image.Source}?h=200";
                             var sourceValue = image.Source ?? string.Empty;
@@ -396,52 +402,73 @@
                             }
 
 
-                            <a class="elem three-d w-30" href="@imageBig" data-lcl-thumb="@imagePath">
-                                <span class="shadow rounded" style="background-image: url(@imagePath);"></span>
+                            <a class="elem three-d" href="@imageBig" data-lcl-thumb="@imagePath" aria-label="Open photo @photoNumber of @Model.CurrentVehicle.VehicleDetails.Images.Count()">
+                                <span class="vdp-photo-tile" style="background-image: url(@imagePath);">
+                                    <span class="vdp-photo-number">@photoNumber.ToString("00")</span>
+                                    <span class="vdp-photo-expand" aria-hidden="true"><i class="bi bi-arrows-fullscreen"></i></span>
+                                </span>
                             </a>
                         }
+                        </div>
                     </div>
                 </div>
             }
             <div class="tab-pane fade well" id="nav-call" role="tabpanel" aria-labelledby="nav-call-tab">
-                <div class="d-flex flex-column align-items-center justify-content-center py-4 gap-3">
-                    <p class="mb-0 text-shadow-small fw-semibold text-center">
-                        <i class="bi bi-geo-alt-fill me-1"></i>
-                        9516 Princeton Glendale Rd, West Chester, OH 45011
-                    </p>
-                    <div class="d-flex flex-wrap justify-content-center gap-3 my-2">
+                <div class="vdp-contact-card">
+                    <section class="vdp-contact-intro">
+                        <span class="vdp-contact-kicker">Visit the showroom</span>
+                        <h2>Let&rsquo;s get you behind the wheel.</h2>
+                        <p>Call our team or stop by in West Chester. We&rsquo;ll have the vehicle ready when you arrive.</p>
+
+                        <div class="vdp-contact-location">
+                            <span class="vdp-contact-icon" aria-hidden="true"><i class="bi bi-geo-alt-fill"></i></span>
+                            <span>
+                                <small>GTX Auto Group</small>
+                                <strong>9516 Princeton Glendale Rd</strong>
+                                <span>West Chester, OH 45011</span>
+                            </span>
+                        </div>
+
+                        <div class="vdp-contact-actions">
+                            <a class="vdp-contact-action vdp-contact-action-primary"
+                               href="tel:+15134892886"
+                               aria-label="Call (513) 489-2886">
+                                <i class="bi bi-telephone-fill" aria-hidden="true"></i>
+                                <span><small>Call us now</small><strong>(513) 489-2886</strong></span>
+                            </a>
+                            <a class="vdp-contact-action vdp-contact-action-secondary"
+                               href="https://www.google.com/maps/search/?api=1&query=9516+Princeton+Glendale+Rd%2C+West+Chester+Township%2C+OH+45011"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               aria-label="Open map to GTX Auto Group">
+                                <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
+                                <span><small>Plan your visit</small><strong>Open directions</strong></span>
+                            </a>
+                        </div>
+                    </section>
+
+                    <aside class="vdp-contact-hours" aria-label="Showroom hours">
+                        <div class="vdp-contact-hours-heading">
+                            <span class="vdp-contact-icon" aria-hidden="true"><i class="bi bi-clock-fill"></i></span>
+                            <span><small>We&rsquo;re here for you</small><strong>Showroom hours</strong></span>
+                        </div>
+                        <div class="vdp-contact-hours-list">
                         @{
                             GTX.Models.OpenHours[] openHours = Utility.XMLHelpers.XmlRepository.GetOpenHours();
                             if (openHours != null)
                             {
                                 foreach (var open in openHours)
                                 {
-                                    <span class="btn btn-outline-secondary shadow position-relative details">
-                                        <span class="medium-small-text">@open.Description</span>
-                                        <span class="position-absolute start-50 translate-middle shadow badge rounded bg-secondary">
-                                            @open.Day
-                                        </span>
-                                    </span>
+                                    <div class="vdp-contact-hours-row">
+                                        <span>@open.Day</span>
+                                        <strong>@open.Description</strong>
+                                    </div>
                                 }
                             }
                         }
-                    </div>
-                    <div class="d-flex flex-wrap justify-content-center gap-2">
-                        <a class="btn btn-gradient-grey border-dark rounded-4 shadow d-inline-flex align-items-center gap-2 px-4 py-2"
-                           href="https://www.google.com/maps/search/?api=1&query=9516+Princeton+Glendale+Rd%2C+West+Chester+Township%2C+OH+45011"
-                           target="_blank"
-                           rel="noopener noreferrer"
-                           aria-label="Open map to GTX Auto Group">
-                            <i class="bi bi-map-fill"></i>
-                            <span class="fw-bold">Map</span>
-                        </a>
-                        <a class="btn btn-gradient-grey border-dark rounded-4 shadow d-inline-flex align-items-center gap-2 px-4 py-2"
-                           href="tel:+15134892886"
-                           aria-label="Call (513) 489-2886">
-                            <i class="bi bi-telephone-fill"></i>
-                            <span class="fw-bold">(513) 489-2886</span>
-                        </a>
-                    </div>
+                        </div>
+                        <p class="vdp-contact-hours-note"><i class="bi bi-info-circle" aria-hidden="true"></i> Holiday hours may vary. Call ahead and we&rsquo;ll confirm availability.</p>
+                    </aside>
                 </div>
             </div>
             <!-- Payment Tab -->
@@ -637,8 +664,6 @@
     var vehicle = "@Html.Raw(HttpUtility.JavaScriptStringEncode(Convert.ToString(ViewBag.Title) ?? string.Empty))";
     var vehicleTitleText = "@Html.Raw(HttpUtility.JavaScriptStringEncode(Convert.ToString(ViewBag.Title) ?? string.Empty))";
     var vehiclePriceText = "@Html.Raw(HttpUtility.JavaScriptStringEncode(Convert.ToString(ViewBag.Price) ?? string.Empty))";
-    var allFromLabel = "@Html.Raw(HttpUtility.JavaScriptStringEncode(I18n.R("All_From")))";
-    var allVehiclesLabel = "@Html.Raw(HttpUtility.JavaScriptStringEncode(I18n.R("All_Vehicles")))";
     var makeImg = `/SiteImages/makes/${make}.png`;
 
     function renderFancyTitle() {
@@ -879,8 +904,14 @@
 
     function setNavigationButtons() {
         const savedStocks = JSON.parse(localStorage.getItem("matchedStocks") || "[]");
+        const $statusTotal = $("#vdpStatusTotal");
+
+        if (!$statusTotal.data("initialized")) {
+            $statusTotal.text(savedStocks.length || "—").data("initialized", true);
+        }
+
         if (savedStocks.length === 0) {
-            $("#btnPrev, #btnNext, #status").hide();
+            $("#btnPrev, #btnNext").hide();
         }
 
         // Find its index
@@ -902,12 +933,7 @@
                 $("#btnNext").attr("href", `/Inventory/Details?stock=${nextStock}`);
             }
 
-            $("#status")
-                .empty()
-                .append($("<strong>", { class: "text-danger" }).text(`#${index + 1}`))
-                .append(document.createTextNode(` ${allFromLabel} `))
-                .append($("<strong>", { class: "text-danger" }).text(savedStocks.length))
-                .append(document.createTextNode(` ${allVehiclesLabel}`));
+            $("#vdpStatusCurrent").text(`#${index + 1}`);
         }
     }
 </script>

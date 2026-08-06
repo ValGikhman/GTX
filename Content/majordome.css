@@ -346,14 +346,6 @@
             border-radius: .5rem;
         }
 
-    .sortable-placeholder {
-        border: 2px dashed #bbb;
-        background: #f8f9fa;
-        height: 160px;
-        border-radius: .5rem;
-    }
-
-
 /* Majordome extracted from _Majordome-Inventory.cshtml */
 #inventoryGridShell .filterLiked,
 #inventoryGridShell .filterLast,
@@ -395,14 +387,6 @@
     .majordome-inventory-header {
         border-bottom: 1px solid var(--inventory-line);
         background: linear-gradient(180deg, var(--inventory-surface) 0%, var(--inventory-surface-alt) 100%);
-    }
-
-    .majordome-inventory-title {
-        font-size: 1rem;
-        font-weight: 700;
-        letter-spacing: .02em;
-        color: var(--bs-heading-color, var(--bs-body-color));
-        font-family: inherit;
     }
 
     html.theme-silver #inventoryGridShell {
@@ -840,14 +824,6 @@
             padding: .4rem .55rem;
         }
 
-    .majordome-inventory-status-line {
-        align-items: center;
-        display: flex;
-        flex-wrap: wrap;
-        gap: .5rem;
-        justify-content: space-between;
-    }
-
     .majordome-inventory-summary {
         align-items: center;
         display: flex;
@@ -857,14 +833,6 @@
 
     #majordomeBulkProgressSummary {
         min-height: 1.5rem;
-    }
-
-    .majordome-inventory-log-text {
-        min-width: 0;
-    }
-
-    .majordome-inventory-status-badge {
-        flex: 0 0 auto;
     }
 
     #majordomeBulkProgressBar {
@@ -1513,13 +1481,6 @@
                 box-shadow: inset .22rem 0 var(--inventory-selected-accent);
             }
 
-    .majordome-management-stock {
-        font-family: var(--bs-font-monospace);
-        font-size: .9rem;
-        font-weight: 800;
-        letter-spacing: .01em;
-    }
-
     .majordome-status-pill {
         display: inline-flex;
         align-items: center;
@@ -1618,11 +1579,6 @@
             font-variant-numeric: tabular-nums;
             text-align: right;
             white-space: nowrap;
-        }
-
-        .majordome-management-change-table .majordome-management-change-spacer-cell {
-            padding-left: 0 !important;
-            padding-right: 0 !important;
         }
 
     .majordome-thumb {

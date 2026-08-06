@@ -403,6 +403,24 @@
 </header>
     <!-- Header Section End -->
 
+    <script>
+        (() => {
+            function syncShellOffsets() {
+                const root = document.documentElement;
+                const header = document.querySelector(".header.fixed-top");
+                const footer = document.querySelector(".footer-strip.fixed-bottom");
+                const headerHeight = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
+                const footerHeight = footer ? Math.ceil(footer.getBoundingClientRect().height) : 0;
+
+                root.style.setProperty("--gtx-header-height", `${headerHeight}px`);
+                root.style.setProperty("--gtx-footer-height", `${footerHeight}px`);
+            }
+
+            window.gtxSyncShellOffsets = syncShellOffsets;
+            syncShellOffsets();
+        })();
+    </script>
+
     <!-- MAIN WRAPPER -->
     <div class="very-top d-flex flex-column flex-grow-1">
         <!-- Loading...  overlay -->
@@ -765,18 +783,10 @@
 
     <script>
         (() => {
-            function syncShellOffsets() {
-                const root = document.documentElement;
-                const header = document.querySelector(".header.fixed-top");
-                const footer = document.querySelector(".footer-strip.fixed-bottom");
-                const headerHeight = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
-                const footerHeight = footer ? Math.ceil(footer.getBoundingClientRect().height) : 0;
+            const syncShellOffsets = window.gtxSyncShellOffsets;
+            if (typeof syncShellOffsets !== "function") return;
 
-                root.style.setProperty("--gtx-header-height", `${headerHeight}px`);
-                root.style.setProperty("--gtx-footer-height", `${footerHeight}px`);
-            }
-
-            window.gtxSyncShellOffsets = syncShellOffsets;
+            syncShellOffsets();
             window.addEventListener("load", syncShellOffsets);
             window.addEventListener("resize", syncShellOffsets);
             document.addEventListener("DOMContentLoaded", () => {
@@ -900,26 +910,6 @@
 
     window.updateInventoryStatus = updateInventoryStatus;
     updateInventoryStatus("@publishedIso");
-
-    function openFiltersFromOffcanvas(e) {
-        e.preventDefault();
-
-        const offEl = document.getElementById('mobileMenuOffcanvas');
-        const modalEl = document.getElementById('filtersModal');
-
-        if (!offEl || !offEl.classList.contains('offcanvas')) {
-            bootstrap.Modal.getOrCreateInstance(modalEl).show();
-            return;
-        }
-
-        const off = bootstrap.Offcanvas.getOrCreateInstance(offEl);
-        off.hide();
-
-        offEl.addEventListener('hidden.bs.offcanvas', function once() {
-            offEl.removeEventListener('hidden.bs.offcanvas', once);
-            bootstrap.Modal.getOrCreateInstance(modalEl).show();
-        });
-    }
 
     function copyTextToClipboard(text) {
         if (navigator.clipboard && window.isSecureContext) {

@@ -67,25 +67,6 @@
     opacity: 0.95 !important;
 }
 
-.addr-line1 {
-    font-weight: 600;
-    line-height: 1.1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* allow 2 lines BUT clamp inside fixed header height */
-.addr-line2 {
-    line-height: 1.1;
-    font-size: .9rem;
-    opacity: .85;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
 .no-click {
     cursor: default;
 }
@@ -301,15 +282,6 @@
 
 .inventory-mobile-filter-action-btn i {
     line-height: 1;
-}
-
-.inventory-mobile-close-btn .bi-binoculars {
-    font-size: .78rem;
-}
-
-.inventory-mobile-close-btn .bi-x-lg {
-    font-size: .58rem;
-    margin-left: -.08rem;
 }
 
 .inventory-mobile-filter-title,
@@ -766,16 +738,6 @@
     border-bottom: none;
 }
 
-.small-offcanvas {
-    height: 5rem !important;
-    border: 1.5px slategrey outset;
-    border-radius: 0.5rem 0 0 0.5rem; /* rounded corners on left side */
-    background: linear-gradient(180deg, rgb(255 255 255), #AAAAB3);
-    top: 85vh !important;
-    transform: translateY(-50%) !important; /* vertically center */
-    max-height: none !important; /* allow fixed height */
-}
-
 .V {
     border-bottom-color: purple !important;
     border-bottom-width: 2px !important;
@@ -847,24 +809,6 @@
     font-size: 1.35rem;
     line-height: 1;
 }
-
-.btn-big-gradient-yellow {
-    font-size: 1.7rem; /* Large text */
-    padding: 1.2rem 2rem; /* Large padding */
-    border-width: 1px;
-    border-radius: 1.6rem;
-    background: #155A96;
-    background: linear-gradient(180deg, #a16f0d, #f0a40e);
-    color: white;
-    transition: transform 0.2s ease;
-}
-
-    .btn-big-gradient-yellow:hover {
-        transform: scale(1.05);
-        background: #155A96;
-        background: linear-gradient(0deg, #a16f0d, #f0a40e);
-        color: white;
-    }
 
 .btn-big-gradient {
     font-size: 1.7rem; /* Large text */
@@ -994,19 +938,6 @@
     display: none !important;
 }
 
-.gallery-item:first-child {
-    background-color: rgba(0,0,0,0.2);
-    border: 1px solid grey;
-}
-
-    .gallery-item:first-child::after {
-        content: "Default";
-        margin-left: 35px;
-        font-weight: bolder;
-        text-transform: uppercase;
-        text-shadow: 2px 2px 3px #8D8484;
-    }
-
 .video-background-video {
     position: fixed;
     top: 50%;
@@ -1117,114 +1048,6 @@
 
 .inventory-details-actions {
     min-width: 0;
-}
-
-.vehicle-style-heading {
-    position: relative;
-    isolation: isolate;
-    display: flex;
-    justify-content: center;
-    width: fit-content;
-    max-width: min(100%, 70rem);
-    padding: .9rem 1.7rem;
-    overflow: hidden;
-    color: #fff;
-    background:
-        radial-gradient(circle at 14% 18%, rgba(255, 193, 7, .34), transparent 28%),
-        linear-gradient(135deg, rgba(13, 18, 27, .98) 0%, rgba(21, 90, 150, .96) 54%, rgba(124, 21, 29, .96) 100%);
-    border: 1px solid rgba(255, 255, 255, .48);
-    border-radius: .85rem;
-    box-shadow:
-        0 .75rem 1.65rem rgba(0, 0, 0, .24),
-        inset 0 1px 0 rgba(255, 255, 255, .38),
-        inset 0 -1px 0 rgba(0, 0, 0, .25);
-}
-
-.vehicle-style-heading::before {
-    content: "";
-    position: absolute;
-    top: -40%;
-    bottom: -40%;
-    left: -55%;
-    z-index: 0;
-    width: 42%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .32), transparent);
-    transform: skewX(-18deg);
-    animation: vehicle-style-heading-shine 5.5s ease-in-out infinite;
-}
-
-.vehicle-style-heading::after {
-    content: "";
-    position: absolute;
-    right: 1.1rem;
-    bottom: 0;
-    left: 1.1rem;
-    z-index: 1;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #ffc107, rgba(255, 255, 255, .92), #b11226, transparent);
-}
-
-.vehicle-style-heading strong {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: .7rem;
-    max-width: 100%;
-    margin: 0;
-    font-size: clamp(1.18rem, 3vw, 1.7rem);
-    line-height: 1.12;
-    text-align: center;
-    text-wrap: balance;
-}
-
-.vehicle-style-heading-text {
-    min-width: 0;
-    overflow-wrap: anywhere;
-}
-
-.vehicle-style-heading-logo {
-    flex: 0 0 auto;
-    display: block;
-    width: auto;
-    height: 30px !important;
-    max-width: 8.5rem;
-    margin-left: 0 !important;
-    margin-right: .2rem !important;
-    object-fit: contain;
-    border: 1px solid rgba(255, 255, 255, .7);
-    filter: drop-shadow(0 1px 4px rgba(255, 255, 255, .35));
-}
-
-@keyframes vehicle-style-heading-shine {
-    0%, 58% {
-        left: -55%;
-    }
-
-    82%, 100% {
-        left: 115%;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .vehicle-style-heading::before {
-        animation: none;
-        opacity: .35;
-    }
-}
-
-@media (max-width: 991px) {
-    .vehicle-style-heading {
-        max-width: calc(100% - 1rem);
-        padding: .82rem 1rem;
-        border-radius: .82rem;
-    }
-
-    .vehicle-style-heading strong {
-        gap: .5rem;
-        font-size: clamp(1.12rem, 5.4vw, 1.42rem);
-    }
 }
 
 .details-suggestions {
@@ -1573,36 +1396,8 @@
     text-align: right;
 }
 
-.h-10 {
-    height: 10% !important;
-}
-
-.vh-75 {
-    height: 75vh !important;
-}
-
-.w-5 {
-    width: 5% !important;
-}
-
-.w-10 {
-    width: 10% !important;
-}
-
-.w-15 {
-    width: 15% !important;
-}
-
-.w-20 {
-    width: 20% !important;
-}
-
 .w-30 {
     width: 30% !important;
-}
-
-.w-35 {
-    width: 35% !important;
 }
 
 .w-40 {
@@ -1898,14 +1693,6 @@ input::placeholder {
         font-size: .74rem;
     }
 
-    .inventory-mobile-close-btn .bi-binoculars {
-        font-size: .68rem;
-    }
-
-    .inventory-mobile-close-btn .bi-x-lg {
-        font-size: .52rem;
-    }
-
     .page-title #title {
         width: calc(100% - 6.35rem) !important;
         max-width: calc(100% - 6.35rem);
@@ -2023,10 +1810,6 @@ li.search-field {
     padding: 0.2rem !important;
 }
 
-.bw {
-    filter: grayscale(100%);
-}
-
 .hover-bw {
     transition: filter 0.3s ease;
 }
@@ -2119,11 +1902,6 @@ html.inventory-page-loading #loadingOverlay {
 
 .gradient {
     background: linear-gradient(180deg, rgb(255 255 255), #AAAAB3);
-}
-
-.td-center {
-    text-align: center;
-    vertical-align: middle !important;
 }
 
 .chosen-choices {
@@ -2220,10 +1998,6 @@ html.inventory-page-loading #loadingOverlay {
         box-shadow: none;
     }
 
-#openHours .open-hours-media {
-    align-items: stretch;
-}
-
 #openHours .open-hours-photo {
     object-fit: cover;
 }
@@ -2232,17 +2006,6 @@ html.inventory-page-loading #loadingOverlay {
     border: 0;
     border-radius: .5rem;
     min-height: 20rem;
-}
-
-#openHours .open-hours-address-card {
-    max-width: 30rem;
-    margin: .1rem auto .65rem;
-    padding: .7rem .8rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: .45rem;
-    text-align: center;
 }
 
 #openHours .open-hours-address-text {
@@ -2257,29 +2020,6 @@ html.inventory-page-loading #loadingOverlay {
     gap: .4rem;
     font-weight: 700;
     white-space: nowrap;
-}
-
-#openHours .open-hours-day-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: .55rem;
-    text-align: left;
-    padding: .58rem .72rem;
-}
-
-#openHours .open-hours-day-badge {
-    position: static !important;
-    left: auto !important;
-    transform: none !important;
-    margin-top: 0 !important;
-    min-width: 3.25rem;
-    min-height: 1.35rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: .72rem;
-    flex: 0 0 auto;
 }
 
 #openHours .open-hours-day-hours {
@@ -2325,18 +2065,6 @@ html.inventory-page-loading #loadingOverlay {
         width: 100%;
     }
 
-    #openHours .open-hours-day-btn {
-        width: 100%;
-        min-width: 0;
-        min-height: 3.45rem;
-        padding: .45rem .35rem;
-        gap: .22rem;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-    }
-
     #openHours .open-hours-day-hours {
         display: block;
         white-space: nowrap;
@@ -2345,27 +2073,6 @@ html.inventory-page-loading #loadingOverlay {
         text-align: center;
         font-size: .82rem;
         width: 100%;
-    }
-
-    #openHours .open-hours-address-card {
-        grid-area: address;
-        margin: 0 auto;
-        max-width: none;
-        align-self: center;
-        justify-self: stretch;
-        width: 100%;
-    }
-
-    #openHours .open-hours-media {
-        grid-area: media;
-        margin: 0 !important;
-        padding: 0 !important;
-        gap: .75rem;
-        align-items: stretch;
-        justify-content: stretch;
-        min-height: 0;
-        width: 100%;
-        height: 100%;
     }
 
     #openHours .open-hours-photo {
@@ -2420,28 +2127,9 @@ html.inventory-page-loading #loadingOverlay {
         padding: .1rem 0 .35rem !important;
     }
 
-    #openHours .open-hours-day-btn {
-        flex: 1 1 calc(50% - .5rem);
-        min-width: 9.75rem;
-        min-height: 3.15rem;
-        font-size: .86rem;
-        font-weight: 700;
-        justify-content: flex-start;
-        gap: .48rem;
-        padding: .6rem .65rem;
-        text-align: left;
-    }
-
     #openHours .open-hours-day-hours {
         justify-content: flex-start;
         text-align: left;
-    }
-
-    #openHours .open-hours-media {
-        flex-direction: column;
-        gap: .5rem !important;
-        margin: 0 !important;
-        padding: 0 !important;
     }
 
     #openHours .open-hours-photo {
@@ -2453,11 +2141,6 @@ html.inventory-page-loading #loadingOverlay {
         height: 30vh;
         min-height: 12rem;
         max-height: 17rem;
-    }
-
-    #openHours .open-hours-address-card {
-        margin: 0 auto .55rem;
-        padding: .55rem .65rem;
     }
 
     #openHours .open-hours-copy-address {
@@ -2544,21 +2227,6 @@ p {
     font-weight: 400;
     line-height: 25px;
     margin: 0 0 15px 0;
-}
-
-.card-image {
-    width: 293px;
-    max-width: 293px;
-    min-height: 220px;
-}
-
-.edit-image {
-    width: 222px;
-    max-width: 222px;
-}
-
-.grid-image {
-    width: 100px;
 }
 
 input:focus, select:focus, button:focus, textarea:focus {
@@ -3037,7 +2705,7 @@ a, u {
         margin-top: 7rem;
     }
 
-    .btn-big-gradient, .btn-big-gradient-yellow {
+    .btn-big-gradient {
         transform: scale(0.80);
         font-size: 1.4rem;
         padding: 1rem 1rem;
@@ -3074,7 +2742,7 @@ a, u {
         margin-top: 2rem;
     }
 
-    .btn-big-gradient, .btn-big-gradient-yellow {
+    .btn-big-gradient {
         transform: scale(0.80);
     }
 
@@ -3144,7 +2812,7 @@ a, u {
             font-size: 1rem;
         }
 
-    .btn-big-gradient, .btn-big-gradient-yellow {
+    .btn-big-gradient {
         transform: scale(0.80);
         font-size: 1.4rem;
         padding: 1rem 1rem;
@@ -3340,7 +3008,7 @@ a, u {
         width: 75% !important;
     }
 
-    .btn-big-gradient, .btn-big-gradient-yellow {
+    .btn-big-gradient {
         font-size: 1.2rem;
     }
 

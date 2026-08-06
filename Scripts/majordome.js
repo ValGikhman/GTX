@@ -363,34 +363,6 @@ function postMajordome(url, data, ajaxOptions) {
     });
 }
 
-class StyleParser {
-    constructor(styleString) {
-        this.styles = {};
-        if (!styleString) return;
-
-        styleString.split(';').forEach(rule => {
-            if (!rule.trim()) return;
-            const [prop, val] = rule.split(':').map(s => s.trim());
-            if (prop && val) {
-                const camelProp = prop.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
-                this.styles[camelProp] = val;
-            }
-        });
-    }
-
-    get(prop) {
-        return this.styles[prop];
-    }
-
-    has(prop) {
-        return Object.prototype.hasOwnProperty.call(this.styles, prop);
-    }
-
-    toObject() {
-        return this.styles;
-    }
-}
-
 const MAJORDOME_OVERLAY_DEFAULT_OPACITY = "1";
 
 function normalizeMajordomeOverlayOpacity(value) {
@@ -474,18 +446,6 @@ function applyOverlayBackground() {
         .css("background-color", buildMajordomeOverlayBackground(color, opacity))
         .attr("data-background-color", color)
         .attr("data-background-opacity", opacity);
-}
-
-function getOverlayBackgroundSettings(data) {
-    var overlay = (data && data.overlay) || {};
-    var parser = new StyleParser(overlay.style || "");
-    var color = overlay.backgroundColor || parser.get("backgroundColor") || "black";
-    var opacity = overlay.backgroundOpacity || parser.get("backgroundOpacity") || parser.get("opacity") || MAJORDOME_OVERLAY_DEFAULT_OPACITY;
-
-    return {
-        color: color,
-        opacity: normalizeMajordomeOverlayOpacity(opacity)
-    };
 }
 
 function applyFilterTerm(term) {
@@ -774,11 +734,6 @@ function restoreBackUpInventory() {
     .catch(error => {
         alert(error);
     });
-}
-
-function setDetails(stock) {
-    // Selection state is maintained client-side; actions pass stock explicitly.
-    return Promise.resolve();
 }
 
 function setQrCode(vehicle) {
@@ -1160,69 +1115,6 @@ function updateRow(data) {
     }
 
     hideSpinner($("#inventoryOverlay"));
-}
-
-function wearOverlay(json) {
-    try {
-        const data = JSON.parse(json);
-        const overlay = $("#overlay");
-        const background = getOverlayBackgroundSettings(data);
-
-        overlay.empty(); // Clear previous content
-        overlay.attr("style", data.overlay.style || "");
-        overlay.css("background-color", buildMajordomeOverlayBackground(background.color, background.opacity));
-        overlay.attr("data-background-color", background.color);
-        overlay.attr("data-background-opacity", background.opacity);
-
-        data.overlay.children.forEach(function (child) {
-            const element = $(`<${child.tag}/>`, {
-                class: "overlay-text",
-                text: child.text,
-                style: child.style
-            });
-            overlay.append(element);
-        });
-
-    } catch (e) {
-        console.error('Invalid overlay JSON:', e);
-    }
-}
-
-function setControls(json) {
-    const data = JSON.parse(json);
-    const background = getOverlayBackgroundSettings(data);
-
-    let styleString = data.overlay.style;
-    let parser = new StyleParser(styleString);
-
-    $("#backgroundColor").val(background.color).trigger("change");
-    $("#backgroundOpacity").val(background.opacity).trigger("change");
-
-    styleString = data.overlay.children[0].style;
-    parser = new StyleParser(styleString);
-
-    const $fontSize = parser.get("fontSize");
-    const $fontWeight = parser.get("fontWeight");
-    const $fontStyle = parser.get("fontStyle");
-    const $color = parser.get("color");
-
-    $("#textColor").val($color).trigger("change");
-    $("#fontSize").val($fontSize).trigger("change");
-
-    // Apply selected style
-    $("#fontType").val("normal");
-
-    if ($fontWeight === "bold") {
-        $("#fontType").val("bold");
-    }
-
-    if ($fontStyle === "italic") {
-        $("#fontType").val("italic");
-    }
-
-    if ($fontStyle === "italic" && $fontWeight === "bold") {
-        $("#fontType").val("bolditalic");
-    }
 }
 
 async function saveOverlayFile() {
