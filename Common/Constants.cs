@@ -7,6 +7,7 @@ public static class Constants {
     public const string SESSION = "SessionData";
     public const string SESSION_LOG_HEADER = "SessionLogHeader";
     public const string SESSION_ENVIRONMENT = "SessionENVIRONMENT";
+    public const string SESSION_RESPONSIBILITY = "SessionRESPONSIBILITY";
     public const string SESSION_MAJORDOME = "SessionMAJORDOME";
 
     public const int DOCUMENTARY_FEE = 398;

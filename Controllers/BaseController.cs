@@ -19,8 +19,6 @@ namespace GTX.Controllers
     public abstract class BaseController : Controller {
 
         #region Properties
-        public readonly string devComputer = "VALS-PC";
-
         public readonly string imageFolder = "/InventoryImages/Get?path=";
         public readonly string openAiApiKey = ConfigurationManager.AppSettings["OpenAI:ApiKey"];
         public readonly string dataOneApiKey = ConfigurationManager.AppSettings["DataOne:AccessKey"];
@@ -72,11 +70,13 @@ namespace GTX.Controllers
             try {
                 Model = new BaseModel();
 
-                Model.IsDevelopment = (Environment.GetEnvironmentVariable("COMPUTERNAME") == devComputer);
+                Model.Responsibility = CommonUnit.GetConfiguredResponsibility();
+                Model.Environment = CommonUnit.GetConfiguredEnvironment();
                 Model.IsDataOne = ConfigurationManager.AppSettings["isDataOne"] == "true";
 
-                SessionData.SetSession(Constants.SESSION_ENVIRONMENT, Model.IsDevelopment ? "Development" : string.Empty);
-                ViewBag.Environment = SessionData.Environment;
+                SessionData.Responsibility = Model.Responsibility;
+                SessionData.Environment = Model.Environment;
+                ViewBag.Environment = string.Format("{0} {1}", SessionData.Responsibility, SessionData.Environment);
 
                 Model.Inventory = AppCache.GetOrCreate(Constants.INVENTORY_CACHE, () => SetModel(), minutes: 60);
                 Model.Employers = AppCache.GetOrCreate(Constants.EMPLOYERS_CACHE, () => GetEmployers(), minutes: 60);
@@ -89,7 +89,7 @@ namespace GTX.Controllers
                     published = DateTime.Now;
                 }
 
-                ViewBag.Published = Model.IsDevelopment ? published : published.AddHours(-5);
+                ViewBag.Published = Model.Environment == CommonUnit.Environment.Dev ? published : published.AddHours(-5);
                 var role = RoleCookie.GetCurrentRole(Request, Session);
 
                 ViewBag.CurrentRole = role.ToString();

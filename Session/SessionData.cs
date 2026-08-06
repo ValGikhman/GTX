@@ -9,7 +9,8 @@ namespace GTX.Session {
         #region Private Fields
 
         private readonly Log _logHeader = null;
-        private readonly string _environment = null;
+        private readonly CommonUnit.Environment _environment = CommonUnit.Environment.Prod;
+        private readonly CommonUnit.Responsibility _responsibility = CommonUnit.Responsibility.Site;
         private readonly bool? _isMajordome = false;
 
         private readonly HttpContextProvider _httpContext;
@@ -33,9 +34,14 @@ namespace GTX.Session {
         #endregion Public Constructors
 
         #region Public Properties
-        public string Environment {
+        public CommonUnit.Environment Environment {
             get => GetSession(Constants.SESSION_ENVIRONMENT, _environment);
             set => SetSession(Constants.SESSION_ENVIRONMENT, value);
+        }
+
+        public CommonUnit.Responsibility Responsibility {
+            get => GetSession(Constants.SESSION_RESPONSIBILITY, _responsibility);
+            set => SetSession(Constants.SESSION_RESPONSIBILITY, value);
         }
 
         public bool? IsMajordome {
@@ -58,14 +64,8 @@ namespace GTX.Session {
         }
 
         public T GetSession<T>(string key, T defaultValue) {
-            T retVal;
-
-            retVal = (T)_httpContext.Current.Session[key];
-            if (retVal == null) {
-                retVal = defaultValue;
-            };
-
-            return retVal;
+            var value = _httpContext.Current.Session[key];
+            return value is T ? (T)value : defaultValue;
         }
 
         public void SetSession(string key, Object data) {
