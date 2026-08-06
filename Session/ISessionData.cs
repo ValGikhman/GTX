@@ -8,7 +8,9 @@ namespace GTX {
     public interface ISessionData {
 
         #region Public Properties
-        string Environment { get; set; }
+        CommonUnit.Environment Environment { get; set; }
+
+        CommonUnit.Responsibility Responsibility { get; set; }
 
         bool? IsMajordome { get; set; }
 

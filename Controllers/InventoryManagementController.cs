@@ -336,7 +336,7 @@ namespace GTX.Controllers
         private JsonResult CreateInventoryImportJsonResult(InventoryImportResult result, string message)
         {
             var inventoryDate = result.InventoryDate;
-            if (inventoryDate != default(DateTime) && !(Model?.IsDevelopment ?? false))
+            if (inventoryDate != default(DateTime) && Model?.Environment != CommonUnit.Environment.Dev)
             {
                 inventoryDate = inventoryDate.AddHours(-5);
             }

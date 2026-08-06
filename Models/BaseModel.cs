@@ -20,7 +20,9 @@ namespace GTX.Models
 
         public bool IsDataOne { get; set; }
 
-        public bool IsDevelopment { get; set; }
+        public CommonUnit.Responsibility Responsibility { get; set; }
+
+        public CommonUnit.Environment Environment { get; set; }
 
         public Inventory Inventory { get; set; }
 
