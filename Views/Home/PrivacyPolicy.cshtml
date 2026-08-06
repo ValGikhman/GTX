@@ -3,48 +3,31 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<style>
-    a.link-secondary {
-        font-weight: 500;
-        transition: color .15s ease, font-weight .15s ease, transform .15s ease;
-    }
+@Html.Partial("_MarketingHero", null, new ViewDataDictionary
+{
+    { "Kicker", "Your information. Your choices." },
+    { "Title", "Privacy with" },
+    { "Accent", "clarity." },
+    { "Description", "A straightforward explanation of what we collect, why we use it, and the choices available to you." },
+    { "Word", "TRUST" },
+    { "Icon", "bi-shield-lock" }
+})
 
-        a.link-secondary:hover,
-        a.link-secondary:focus {
-            color: var(--bs-dark) !important; /* noticeably darker */
-            font-weight: 700; /* bolder */
-            text-decoration: none;
-            transform: translateX(2px); /* subtle “alive” feel */
-            outline: none;
-        }
-
-        /* Make the icon match the hover state too */
-        a.link-secondary i {
-            transition: color .15s ease, transform .15s ease;
-        }
-
-        a.link-secondary:hover i,
-        a.link-secondary:focus i {
-            color: var(--bs-dark) !important;
-            transform: translateY(-1px);
-        }
-</style>
-
-<section class="container-fluid">
+<main class="marketing-page legal-page privacy-page">
     <div class="row justify-content-center">
-        <div class="col-12 col-lg-11 col-xl-10 my-5 px-3">
+        <div class="col-12 legal-shell">
 
-            <div class="bg-white shadow rounded-4 p-4 p-md-5">
+            <article class="legal-document">
 
                 <!-- Header -->
-                <div id="top" class="mb-3">
+                <header id="top" class="legal-document-header">
                     <h1 class="h3 fw-bold mb-2">Privacy Policy</h1>
                     <div class="text-muted small">
                         Last updated: <span class="fw-semibold">January 25, 2026</span>
                     </div>
 
                     <!-- Top Navigation Links -->
-                    <div class="d-flex flex-wrap gap-2 mt-3">
+                    <nav class="legal-page-nav" aria-label="Legal pages">
                         <a class="btn btn-outline-secondary btn-sm rounded-pill shadow" href="@Url.Action("TermsAndConditions","Home")">
                             <i class="bi bi-file-text me-1"></i> Terms &amp; Conditions
                         </a>
@@ -56,23 +39,23 @@
                         <a class="btn btn-outline-secondary btn-sm rounded-pill shadow" href="@Url.Action("Contact","Home")">
                             <i class="bi bi-envelope me-1"></i> Contact
                         </a>
-                    </div>
-                </div>
+                    </nav>
+                </header>
 
                 <hr class="my-4" />
                 <!-- Notice -->
-                <div class="alert alert-warning border-0 rounded-4 mb-4" role="alert">
+                <div class="alert alert-warning legal-notice" role="alert">
                     <div class="fw-bold mb-1">Please read carefully.</div>
                     By accessing this website and any of its pages, you agree that you are bound by these Terms and Conditions of Use
                     as they may be amended from time to time. If you do not agree, please exit this website immediately.
                 </div>
                 <!-- Two Column Layout -->
-                <div class="row g-4">
+                <div class="row g-4 legal-layout">
 
                     <!-- LEFT: Fixed Table of Contents -->
-                    <div class="col-12 col-lg-4 col-xl-3">
+                    <aside class="col-12 col-lg-4 col-xl-3 legal-sidebar">
                         <div class="position-sticky" style="top: 50px;">
-                            <div class="border rounded-4 p-3 p-md-4 bg-light">
+                            <div class="legal-toc">
                                 <div class="d-flex align-items-center justify-content-between mb-2">
                                     <div class="fw-semibold">
                                         <i class="bi bi-list-ul me-2"></i>Table of Contents
@@ -171,10 +154,10 @@
                             </div>
                         </div>
 
-                    </div>
+                    </aside>
 
                     <!-- RIGHT: Content -->
-                    <div class="col-12 col-lg-8 col-xl-9">
+                    <div class="col-12 col-lg-8 col-xl-9 legal-content">
 
                         <!-- Intro -->
                         <h2 id="intro" class="h4 fw-bold mb-3">Introduction</h2>
@@ -485,15 +468,15 @@
 
                         <!-- Back to top -->
                         <a href="#top"
-                           class="btn btn-dark rounded-pill position-fixed bottom-0 end-0 m-3 shadow"
-                           style="z-index: 1050;">
+                           class="legal-back-to-top"
+                           aria-label="Back to top">
                             <i class="bi bi-arrow-up"></i>
                         </a>
                     </div>
                 </div>
 
-            </div>
+            </article>
 
         </div>
     </div>
-</section>
+</main>

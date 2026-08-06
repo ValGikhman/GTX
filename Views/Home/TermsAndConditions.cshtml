@@ -3,40 +3,22 @@
     ViewBag.Title = "Terms & Conditions";
 }
 
-<style>
-    a.link-secondary {
-        font-weight: 500;
-        transition: color .15s ease, font-weight .15s ease, transform .15s ease;
-    }
+@Html.Partial("_MarketingHero", null, new ViewDataDictionary
+{
+    { "Kicker", "Clear expectations. Confident use." },
+    { "Title", "Terms made" },
+    { "Accent", "transparent." },
+    { "Description", "The rules and responsibilities that guide use of our website, services, and communications." },
+    { "Word", "TERMS" },
+    { "Icon", "bi-file-earmark-check" }
+})
 
-        a.link-secondary:hover,
-        a.link-secondary:focus {
-            color: var(--bs-dark) !important; /* noticeably darker */
-            font-weight: 700; /* bolder */
-            text-decoration: none;
-            transform: translateX(2px); /* subtle “alive” feel */
-            outline: none;
-        }
-
-        /* Make the icon match the hover state too */
-        a.link-secondary i {
-            transition: color .15s ease, transform .15s ease;
-        }
-
-        a.link-secondary:hover i,
-        a.link-secondary:focus i {
-            color: var(--bs-dark) !important;
-            transform: translateY(-1px);
-        }
-</style>
-
-
-<section class="container-fluid px-3 px-md-5 py-4 py-md-5">
+<main class="marketing-page legal-page terms-page">
     <div id="top"></div>
     <div class="row justify-content-center">
-        <div class="col-12 col-xl-11 col-xxl-10">
+        <div class="col-12 legal-shell">
             <!-- Header -->
-            <div class="p-4 p-md-5 rounded-4 shadow-sm bg-white">
+            <article class="legal-document">
                 <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
                     <div>
                         <h1 class="h2 fw-bold mb-1">Terms &amp; Conditions</h1>
@@ -46,7 +28,7 @@
                     </div>
                 </div>
                 <!-- Top Navigation Links -->
-                <div class="d-flex flex-wrap gap-2 mt-3">
+                <nav class="legal-page-nav" aria-label="Legal pages">
                     <a class="btn btn-secondary btn-sm rounded-pill shadow" href="@Url.Action("TermsAndConditions","Home")">
                         <i class="bi bi-file-text me-1"></i> Terms &amp; Conditions
                     </a>
@@ -58,12 +40,12 @@
                     <a class="btn btn-outline-secondary btn-sm rounded-pill shadow" href="@Url.Action("Contact","Home")">
                         <i class="bi bi-envelope me-1"></i> Contact
                     </a>
-                </div>
+                </nav>
 
                 <hr class="my-4" />
 
                 <!-- Notice -->
-                <div class="alert alert-warning border-0 rounded-4 mb-4" role="alert">
+                <div class="alert alert-warning legal-notice" role="alert">
                     <div class="fw-bold mb-1">Please read carefully.</div>
                     By accessing this website and any of its pages, you agree that you are bound by these Terms and Conditions of Use
                     as they may be amended from time to time. If you do not agree, please exit this website immediately.
@@ -73,7 +55,7 @@
                 <div class="row g-3">
                     <div class="col-12 col-md-5 col-lg-4">
                         <div class="position-sticky" style="top: 20px;">
-                            <div class="border rounded-4 p-3 p-md-4 bg-light shadow-sm">
+                            <div class="legal-toc">
                                 <div class="d-flex align-items-center gap-2 mb-2">
                                     <i class="bi bi-list-ul fs-5"></i>
                                     <div class="fw-bold">Table of Contents</div>
@@ -469,15 +451,15 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </article>
 
             <!-- Back to top -->
             <a href="#top"
-               class="btn btn-dark rounded-pill position-fixed bottom-0 end-0 m-3 shadow"
-               style="z-index: 1050;">
+               class="legal-back-to-top"
+               aria-label="Back to top">
                 <i class="bi bi-arrow-up"></i>
             </a>
 
         </div>
     </div>
-</section>
+</main>
