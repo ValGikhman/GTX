@@ -98,7 +98,7 @@ namespace GTX.Controllers
         private static string GetLegacyInventoryRoot()
         {
             var appRoot = HostingEnvironment.MapPath("~") ?? AppDomain.CurrentDomain.BaseDirectory;
-            return Path.GetFullPath(Path.Combine(appRoot, "GTXImages", "Inventory"));
+            return Path.GetFullPath(Path.Combine(appRoot, "SiteImages", "Inventory"));
         }
 
         private static string NormalizeRelative(string path)

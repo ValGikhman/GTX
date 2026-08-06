@@ -1336,7 +1336,7 @@ namespace GTX.Controllers
                 .TrimStart('/');
 
             var prefixes = new[] {
-                "GTXImages/Inventory/",
+                "SiteImages/Inventory/",
                 "Pictures/",
                 "Images/",
                 "InventoryImages/Get/"
@@ -1354,7 +1354,7 @@ namespace GTX.Controllers
 
         private static string LegacyInventoryImagesPhysicalRoot() {
             var appRoot = HostingEnvironment.MapPath("~") ?? AppDomain.CurrentDomain.BaseDirectory;
-            return Path.GetFullPath(Path.Combine(appRoot, "GTXImages", "Inventory"));
+            return Path.GetFullPath(Path.Combine(appRoot, "SiteImages", "Inventory"));
         }
 
         private static string CombineUnderRoot(string root, string relativePath) {

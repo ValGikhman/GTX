@@ -8,7 +8,7 @@ namespace GTX {
 
             routes.MapRoute(
                 name: "InventoryImages",
-                url: "GTXImages/Inventory/{*path}",
+                url: "SiteImages/Inventory/{*path}",
                 defaults: new { controller = "InventoryImages", action = "Get" }
             );
 

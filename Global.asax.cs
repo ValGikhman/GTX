@@ -61,7 +61,7 @@ namespace GTX
             if (context == null) return false;
 
             const string currentPrefix = "/pictures/";
-            const string legacyPrefix = "/gtximages/inventory/";
+            const string legacyPrefix = "/siteimages/inventory/";
 
             string relative = null;
 

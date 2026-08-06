@@ -13,7 +13,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div id="header" class="modal-header shadow">
-                <img src="~/GTXImages/GTX-White.png" width="60" />
+                <img src="~/SiteImages/brand-light.png" width="60" />
                 <div id="title" class="modal-title test-shadow mx-3">Contact</div>
             </div>
             <div id="messageBody" class="modal-body well">
@@ -30,7 +30,7 @@
         @foreach (var employer in Model.Employers) {
             <li class="col-auto">
                 <article class="card shadow text-center">
-                    <img class="card-img-top rounded-2" src="@Url.Content($"~/GTXImages/staff/{employer.id}.jpg")" alt="@employer.Name">
+                    <img class="card-img-top rounded-2" src="@Url.Content($"~/SiteImages/staff/{employer.id}.jpg")" alt="@employer.Name">
                     <div class="card-body gradient">
                         <h5 class="card-title">@employer.Name</h5>
                         <div class="card-subtitle text-muted">@employer.Position</div>

@@ -9,7 +9,7 @@
         { "enctype", "multipart/form-data" }
     };
 
-    var previewSrc = !string.IsNullOrWhiteSpace(Model?.PhotoPath) ? Model.PhotoPath : "/GTXImages/staff/empty.jpg";
+    var previewSrc = !string.IsNullOrWhiteSpace(Model?.PhotoPath) ? Model.PhotoPath : "/SiteImages/staff/empty.jpg";
     }
 
     @using (Html.BeginForm(action, "Employees", FormMethod.Post, htmlAttrs))

@@ -12,8 +12,8 @@
 
     var stock = (Model.Stock ?? string.Empty).Trim();
     var overlayPath = (Model.Source ?? string.Empty).Replace("\\", "/").TrimStart('/');
-    overlayPath = overlayPath.StartsWith("GTXImages/Inventory/", StringComparison.OrdinalIgnoreCase)
-        ? overlayPath.Substring("GTXImages/Inventory/".Length)
+    overlayPath = overlayPath.StartsWith("SiteImages/Inventory/", StringComparison.OrdinalIgnoreCase)
+        ? overlayPath.Substring("SiteImages/Inventory/".Length)
         : overlayPath;
     overlayPath = overlayPath.StartsWith("Pictures/", StringComparison.OrdinalIgnoreCase)
         ? overlayPath.Substring("Pictures/".Length)

@@ -12,8 +12,8 @@ namespace GTX.Controllers {
 
     [RequireAdminRole]
     public class EmployeesController : BaseController {
-        private const string UploadVirtualPath = "~/GTXImages/staff/";
-        private const string UploadRelativePath = "/GTXImages/staff/";
+        private const string UploadVirtualPath = "~/SiteImages/staff/";
+        private const string UploadRelativePath = "/SiteImages/staff/";
         private readonly IEmployeesService _employeesService;
 
         public EmployeesController(ISessionData sessionData, IEmployeesService employeesService, IInventoryService inventoryService, IVinDecoderService vinDecoderService

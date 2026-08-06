@@ -40,7 +40,7 @@ function toInventoryImageUrl(source) {
     }
 
     var normalized = raw.replace(/\\/g, "/").replace(/^\/+/, "");
-    normalized = normalized.replace(/^GTXImages\/Inventory\//i, "");
+    normalized = normalized.replace(/^SiteImages\/Inventory\//i, "");
     normalized = normalized.replace(/^Pictures\//i, "");
     normalized = normalized.replace(/^Images\//i, "");
     normalized = normalized.replace(/^\/+/, "").replace(/\/+$/, "");
