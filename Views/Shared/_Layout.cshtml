@@ -438,27 +438,29 @@
                     <div class="d-inline-flex align-items-center gap-2 gap-lg-3 justify-content-center text-truncate" style="max-width:100%;">
 
                         <!-- Brand/env (desktop only) -->
-                        <span class="text-muted text-shadow d-none d-lg-inline-flex align-items-center gap-1">
+                        <span class="text-muted text-shadow d-none d-lg-inline-flex align-items-center gap-2">
                             <span>Copyright &copy; @DateTime.Now.Year</span>
-                            <a href="https://autodealer.dev/" target="_blank" rel="noopener" aria-label="AutoDealer.dev">
-                                <img src="https://autodealer.dev/Content/images/autodealer-logo-light.png"
-                                     alt="AutoDealer.dev" style="height: 26px; width: auto;" />
+                            <a href="https://autodealer.dev/" target="_blank" rel="noopener" aria-label="AutoDealer.dev" style="margin-top: 5px">
+                                <img src="https://autodealer.dev/Content/images/autodealer-logo-light.png" alt="AutoDealer.dev" style="height: 26px; width: auto;" />
                             </a>
-                            <span class="text-nowrap">@ViewBag.Environment</span>
+                            <span class="text-nowrap d-inline-flex align-items-center gap-1" title="@ViewBag.Responsibility">
+                                <i class="bi @ViewBag.ResponsibilityIcon" aria-hidden="true"></i>
+                                <span class="visually-hidden">@ViewBag.Responsibility</span>
+                                @if (!string.IsNullOrWhiteSpace(ViewBag.Environment as string))
+                                {
+                                    <span>@ViewBag.Environment</span>
+                                }
+                            </span>
                         </span>
 
                         <!-- Privacy (desktop only) -->
-                        <a href="@Url.Action("PrivacyPolicy", "Home")"
-                           class="link-primary text-decoration-underline text-nowrap"
-                           target="_blank" rel="noopener">
+                        <a href="@Url.Action("PrivacyPolicy", "Home")"  class="link-primary text-decoration-underline text-nowrap" target="_blank" rel="noopener">
                             @I18n.R("Title_PrivacyPolicy")
                         </a>
 
                         <!-- Terms sentence (desktop only) -->
                         <span class="text-muted text-shadow d-none d-lg-inline text-nowrap"> By placing calls to this dealership you agree to the
-                            <a href="@Url.Action("TermsAndConditions", "Home")"
-                               class="link-primary text-decoration-underline"
-                               target="_blank" rel="noopener">
+                            <a href="@Url.Action("TermsAndConditions", "Home")" class="link-primary text-decoration-underline"  target="_blank" rel="noopener">
                                 @I18n.R("Title_Terms")
                             </a>
                         </span>

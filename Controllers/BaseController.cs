@@ -76,7 +76,9 @@ namespace GTX.Controllers
 
                 SessionData.Responsibility = Model.Responsibility;
                 SessionData.Environment = Model.Environment;
-                ViewBag.Environment = string.Format("{0} {1}", SessionData.Responsibility, SessionData.Environment);
+                ViewBag.Responsibility = Model.Responsibility == CommonUnit.Responsibility.Site ? "SITE" : "DEV";
+                ViewBag.ResponsibilityIcon = Model.Responsibility == CommonUnit.Responsibility.Site ? "bi-globe2" : "bi-tv";
+                ViewBag.Environment = SessionData.Environment == CommonUnit.Environment.Dev ? "DEV" : string.Empty;
 
                 Model.Inventory = AppCache.GetOrCreate(Constants.INVENTORY_CACHE, () => SetModel(), minutes: 60);
                 Model.Employers = AppCache.GetOrCreate(Constants.EMPLOYERS_CACHE, () => GetEmployers(), minutes: 60);
