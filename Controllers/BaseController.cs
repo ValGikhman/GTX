@@ -75,7 +75,7 @@ namespace GTX.Controllers
                 Model.IsDevelopment = (Environment.GetEnvironmentVariable("COMPUTERNAME") == devComputer);
                 Model.IsDataOne = ConfigurationManager.AppSettings["isDataOne"] == "true";
 
-                SessionData.SetSession(Constants.SESSION_ENVIRONMENT, Model.IsDevelopment ? "Development" : "Production");
+                SessionData.SetSession(Constants.SESSION_ENVIRONMENT, Model.IsDevelopment ? "Development" : string.Empty);
                 ViewBag.Environment = SessionData.Environment;
 
                 Model.Inventory = AppCache.GetOrCreate(Constants.INVENTORY_CACHE, () => SetModel(), minutes: 60);
