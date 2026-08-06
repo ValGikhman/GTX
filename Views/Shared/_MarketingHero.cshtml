@@ -1,0 +1,25 @@
+@{
+    var kicker = (ViewData["Kicker"] ?? string.Empty).ToString();
+    var title = (ViewData["Title"] ?? string.Empty).ToString();
+    var accent = (ViewData["Accent"] ?? string.Empty).ToString();
+    var description = (ViewData["Description"] ?? string.Empty).ToString();
+    var word = (ViewData["Word"] ?? accent).ToString();
+    var icon = (ViewData["Icon"] ?? "bi-stars").ToString();
+}
+
+<section class="marketing-hero" aria-labelledby="marketingHeroTitle">
+    <span class="marketing-hero-word" aria-hidden="true">@word</span>
+    <span class="marketing-hero-orbit marketing-hero-orbit-one" aria-hidden="true"></span>
+    <span class="marketing-hero-orbit marketing-hero-orbit-two" aria-hidden="true"></span>
+    <div class="marketing-hero-inner">
+        <div class="marketing-hero-copy">
+            <span class="marketing-eyebrow"><i class="bi @icon" aria-hidden="true"></i> @kicker</span>
+            <h1 id="marketingHeroTitle">@title <em>@accent</em></h1>
+            @if (!string.IsNullOrWhiteSpace(description))
+            {
+                <p>@description</p>
+            }
+        </div>
+        <span class="marketing-hero-mark" aria-hidden="true"><i class="bi bi-arrow-down-right"></i></span>
+    </div>
+</section>

@@ -1,42 +1,112 @@
+@using System.Linq
+@{
+    var openHours = Utility.XMLHelpers.XmlRepository.GetOpenHours() ?? new GTX.Models.OpenHours[0];
+    var now = DateTime.Now;
+    var todayName = now.DayOfWeek.ToString();
+    var todayHours = openHours.FirstOrDefault(open => string.Equals(open.Day, todayName, StringComparison.OrdinalIgnoreCase));
+    var isOpenNow = todayHours != null && now.Hour >= todayHours.From && now.Hour < todayHours.To;
+}
+
 <div class="open-hours-panel">
-    <div class="d-flex justify-content-evenly rounded p-3 gap-3 my-3 open-hours-days">
-        @{
-            GTX.Models.OpenHours[] openHours = Utility.XMLHelpers.XmlRepository.GetOpenHours();
-            if (openHours != null) {
-                foreach (var open in openHours) {
-                    <button type="button" class="btn btn-light shadow position-relative open-hours-day-btn">
-                        <span class="shadow badge rounded bg-secondary open-hours-day-badge">
-                            @open.Day
-                        </span>
-                        <span class="open-hours-day-hours">@open.Description</span>
-                    </button>
-                }
-            }
-        }
-    </div>
-
-    <div class="well shadow-sm open-hours-address-card">
-        <div class="open-hours-address-text">
-            <div class="fw-bold text-dark">9516 Princeton Glendale Rd</div>
-            <div class="small text-secondary">West Chester, OH 45011</div>
+    <section class="open-hours-visual" aria-label="GTX Auto Group showroom">
+        <div class="open-hours-photo-wrap">
+            <img class="open-hours-photo" src="@Url.Content("~/SiteImages/gtx.jpg")" alt="GTX Auto Group showroom">
+            <div class="open-hours-photo-shade" aria-hidden="true"></div>
+            <div class="open-hours-photo-copy">
+                <span class="open-hours-kicker">West Chester, Ohio</span>
+                <h2>Come by.<br>Take your time.</h2>
+                <p>See the vehicle in person and meet the people who know it best.</p>
+            </div>
+            <div class="open-hours-live-status @(isOpenNow ? "is-open" : "is-closed")">
+                <span class="open-hours-live-dot" aria-hidden="true"></span>
+                <span>
+                    <small>Right now</small>
+                    <strong>@(isOpenNow ? "We’re open" : "We’re closed")</strong>
+                </span>
+            </div>
         </div>
-        <button type="button"
-                class="btn btn-light border-secondary rounded-3 shadow-sm mobile-menu-copy-address open-hours-copy-address"
-                data-copy-address="9516 Princeton Glendale Rd, West Chester, OH 45011"
-                aria-label="Copy address">
-            <i class="bi bi-copy"></i>
-            <span>Copy address</span>
-        </button>
-    </div>
 
-    <div class="d-flex justify-content-evenly rounded p-3 gap-3 open-hours-media">
-        <img class="well w-50 rounded-2 shadow open-hours-photo" src="@Url.Content("~/SiteImages/gtx.jpg")" alt="GTX Auto Group">
-        <iframe loading="lazy"
-                allowfullscreen
-                referrerpolicy="no-referrer-when-downgrade"
-                src="https://www.google.com/maps?q=9516+Prinston+Glendale+Rd,+West+Checter,+OH, 45011&output=embed"
-                class="well w-75 shadow open-hours-map"
-                title="GTX Auto Group map">
-        </iframe>
-    </div>
+        <div class="open-hours-map-wrap">
+            <iframe loading="lazy"
+                    allowfullscreen
+                    referrerpolicy="no-referrer-when-downgrade"
+                    src="https://www.google.com/maps?q=9516+Princeton+Glendale+Rd,+West+Chester,+OH,+45011&output=embed"
+                    class="open-hours-map"
+                    title="Map to GTX Auto Group">
+            </iframe>
+            <a class="open-hours-map-link"
+               href="https://www.google.com/maps/search/?api=1&query=9516+Princeton+Glendale+Rd%2C+West+Chester%2C+OH+45011"
+               target="_blank"
+               rel="noopener noreferrer">
+                <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
+                Open full map
+            </a>
+        </div>
+    </section>
+
+    <section class="open-hours-content" aria-labelledby="openHoursWeekTitle">
+        <header class="open-hours-content-heading">
+            <span>
+                <small>Plan your visit</small>
+                <h3 id="openHoursWeekTitle">This week at GTX</h3>
+            </span>
+            @if (todayHours != null)
+            {
+                <span class="open-hours-today-summary">
+                    <small>Today</small>
+                    <strong>@todayHours.Description</strong>
+                </span>
+            }
+        </header>
+
+        <div class="open-hours-days" role="list" aria-label="Weekly opening hours">
+            @foreach (var open in openHours)
+            {
+                var isToday = string.Equals(open.Day, todayName, StringComparison.OrdinalIgnoreCase);
+                <div class="open-hours-day-row @(isToday ? "is-today" : string.Empty)" role="listitem">
+                    <span class="open-hours-day-marker" aria-hidden="true"></span>
+                    <span class="open-hours-day-name">
+                        @open.Day
+                        @if (isToday)
+                        {
+                            <small>Today</small>
+                        }
+                    </span>
+                    <strong class="open-hours-day-hours">@open.Description</strong>
+                </div>
+            }
+        </div>
+
+        <div class="open-hours-visit-card">
+            <span class="open-hours-location-icon" aria-hidden="true"><i class="bi bi-geo-alt-fill"></i></span>
+            <span class="open-hours-address-text">
+                <small>Our showroom</small>
+                <strong>9516 Princeton Glendale Rd</strong>
+                <span>West Chester, OH 45011</span>
+            </span>
+            <button type="button"
+                    class="open-hours-copy-address mobile-menu-copy-address"
+                    data-copy-address="9516 Princeton Glendale Rd, West Chester, OH 45011"
+                    aria-label="Copy address">
+                <i class="bi bi-copy" aria-hidden="true"></i>
+                <span>Copy</span>
+            </button>
+        </div>
+
+        <div class="open-hours-actions">
+            <a class="open-hours-action open-hours-action-call" href="tel:+15134892886">
+                <i class="bi bi-telephone-fill" aria-hidden="true"></i>
+                <span><small>Questions?</small><strong>(513) 489-2886</strong></span>
+            </a>
+            <a class="open-hours-action open-hours-action-directions"
+               href="https://www.google.com/maps/search/?api=1&query=9516+Princeton+Glendale+Rd%2C+West+Chester%2C+OH+45011"
+               target="_blank"
+               rel="noopener noreferrer">
+                <i class="bi bi-sign-turn-right-fill" aria-hidden="true"></i>
+                <span><small>Ready to go?</small><strong>Get directions</strong></span>
+            </a>
+        </div>
+
+        <p class="open-hours-footnote"><i class="bi bi-info-circle" aria-hidden="true"></i> Holiday hours may vary. A quick call before your visit is always welcome.</p>
+    </section>
 </div>

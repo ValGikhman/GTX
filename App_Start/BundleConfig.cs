@@ -47,7 +47,11 @@ namespace GTX {
                       "~/Content/dataone-details.css",
                       "~/Content/majordome.css",
                       "~/Content/inventory-history.css",
-                      "~/Content/inventory-dashboard.css"
+                      "~/Content/inventory-dashboard.css",
+                      "~/Content/vehicle-details.css",
+                      "~/Content/open-hours.css",
+                      "~/Content/staff.css",
+                      "~/Content/marketing-pages.css"
 
                 ));
         }

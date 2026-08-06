@@ -1,78 +1,149 @@
-﻿@model GTX.Models.BaseModel
-<head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-L828PN8ET1">
-    </script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
+@model GTX.Models.BaseModel
+@{
+    var employers = Model?.Employers ?? new GTX.Models.EmployeeModel[0];
+    var fallbackPhotoUrl = Url.Content("~/SiteImages/brand-thumbnail.png");
+}
 
-        gtag('config', 'G-L828PN8ET1');
-    </script>
-</head>
-<style>
-    .just-validate-error-label {
-        margin-left: 65% !important;
-    }
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L828PN8ET1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-L828PN8ET1');
+</script>
 
-    .card:hover {
-        transform: none;
-    }
-</style>
-<!-- Modal -->
-<div id="message" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+<div id="message" class="modal fade staff-contact-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staffContactTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
-            <div id="header" class="modal-header shadow">
-                <img src="~/SiteImages/brand-light.png" width="60" />
-                <div id="titleModal" class="modal-title test-shadow mx-3">Contact</div>
+            <div id="header" class="modal-header staff-contact-header">
+                <span class="staff-contact-brand" aria-hidden="true">
+                    <img src="~/SiteImages/brand-light.png" alt="" />
+                </span>
+                <span class="staff-contact-heading">
+                    <small>Start a conversation</small>
+                    <span id="titleModal" class="modal-title" role="heading" aria-level="2">Contact our team</span>
+                </span>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div id="messageBody" class="modal-body well">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-close-white shadow" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i>Close</button>
+            <div id="messageBody" class="modal-body staff-contact-body"></div>
+            <div class="modal-footer staff-contact-footer">
+                <span><i class="bi bi-shield-check" aria-hidden="true"></i> Your information stays private.</span>
+                <button type="button" class="staff-modal-close" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg" aria-hidden="true"></i>
+                    Close
+                </button>
             </div>
         </div>
     </div>
 </div>
 
-<section class="container-fluid py-4">
-    <ul class="row g-4 justify-content-center list-unstyled">
-        @foreach (var employer in Model.Employers) {
-            <li class="col-auto">
-                <article class="card shadow text-center">
-                    <img class="card-img-top rounded-2" src="@Url.Content($"{employer.PhotoPath}")" alt="@employer.FirstName @employer.LastName">
-                    <div class="card-body gradient">
-                        <h5 class="card-title">@employer.FirstName @employer.LastName</h5>
-                        <div class="card-subtitle text-muted">@employer.Position</div>
-                        <button class="btn btn-gradient-grey border-dark shadow rounded-5 mt-2 w-75"
-                                data-name="@employer.FirstName @employer.LastName"
-                                onclick="showContactForm(this, @employer.Id)">
-                            <i class="bi bi-send"></i> Sent
-                        </button>
-                    </div>
-                </article>
-            </li>
+<main class="staff-page">
+    <section class="staff-hero" aria-labelledby="staffPageTitle">
+        <span class="staff-hero-word" aria-hidden="true">TEAM</span>
+        <div class="staff-hero-orbit staff-hero-orbit-one" aria-hidden="true"></div>
+        <div class="staff-hero-orbit staff-hero-orbit-two" aria-hidden="true"></div>
+
+        <div class="staff-hero-inner">
+            <div class="staff-hero-copy">
+                <span class="staff-eyebrow"><i class="bi bi-stars" aria-hidden="true"></i> Meet the people behind the drive</span>
+                <h1 id="staffPageTitle">Real people.<br /><em>Remarkable</em> service.</h1>
+                <p>Knowledgeable, approachable, and ready to help you find the right vehicle with confidence.</p>
+            </div>
+
+            <aside class="staff-hero-note" aria-label="Our service promise">
+                <span class="staff-hero-note-number">@employers.Length</span>
+                <span class="staff-hero-note-copy">
+                    <small>One dedicated team</small>
+                    <strong>Your next drive starts here.</strong>
+                </span>
+                <i class="bi bi-arrow-down-right" aria-hidden="true"></i>
+            </aside>
+        </div>
+    </section>
+
+    <section class="staff-showcase" aria-label="Our staff">
+        <div class="staff-section-heading">
+            <span>Faces you can trust</span>
+            <div aria-hidden="true"></div>
+            <small>GTX Auto Group · West Chester, Ohio</small>
+        </div>
+
+        @if (employers.Length > 0)
+        {
+            <ul class="staff-grid list-unstyled">
+                @for (var index = 0; index < employers.Length; index++)
+                {
+                    var employer = employers[index];
+                    var photoUrl = string.IsNullOrWhiteSpace(employer.PhotoPath)
+                        ? fallbackPhotoUrl
+                        : Url.Content(employer.PhotoPath);
+                    var fullName = string.Format("{0} {1}", employer.FirstName, employer.LastName).Trim();
+
+                    <li class="staff-grid-item" style="--staff-index: @index;">
+                        <article class="staff-card">
+                            <div class="staff-card-photo">
+                                <img src="@photoUrl"
+                                     alt="@fullName"
+                                     loading="lazy"
+                                     onerror="this.onerror=null;this.src='@fallbackPhotoUrl';" />
+                                <span class="staff-card-wash" aria-hidden="true"></span>
+                                <span class="staff-card-number" aria-hidden="true">@((index + 1).ToString("00"))</span>
+                                <span class="staff-card-position">@employer.Position</span>
+                            </div>
+
+                            <div class="staff-card-body">
+                                <div class="staff-card-identity">
+                                    <small>Meet</small>
+                                    <h2>
+                                        <span>@employer.FirstName</span>
+                                        <span>@employer.LastName</span>
+                                    </h2>
+                                </div>
+                                <button type="button"
+                                        class="staff-contact-button"
+                                        data-name="@fullName"
+                                        onclick="showContactForm(this, @employer.Id)">
+                                    <span>Send a message</span>
+                                    <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </article>
+                    </li>
+                }
+            </ul>
         }
-    </ul>
-</section>
+        else
+        {
+            <div class="staff-empty-state">
+                <i class="bi bi-people" aria-hidden="true"></i>
+                <h2>Our team is getting camera-ready.</h2>
+                <p>Please check back soon or contact the dealership directly.</p>
+                <a href="tel:+15134892886"><i class="bi bi-telephone-fill" aria-hidden="true"></i> (513) 489-2886</a>
+            </div>
+        }
+    </section>
+</main>
 
 <script type="text/javascript">
-    $(function () {
-    })
-
     function showContactForm(obj, id) {
-        var name = `${$(obj).data("name")}`;
-        $.get(`${root}Home/ContactForm`, { "id": id })
+        var name = $(obj).data("name") || "our team";
+        var $button = $(obj);
+
+        $button.addClass("is-loading").prop("disabled", true);
+        $("#messageBody").html('<div class="staff-contact-loading" role="status"><span class="spinner-border" aria-hidden="true"></span><span>Preparing your message...</span></div>');
+        $("#titleModal").text("Contact " + name);
+        bootstrap.Modal.getOrCreateInstance(document.getElementById("message")).show();
+
+        $.get(root + "Home/ContactForm", { id: id })
             .done(function (result) {
                 $("#messageBody").html(result);
-                $("#titleModal").text(`Contact ${name}`);
-                $("#message").modal("show");
             })
             .fail(function () {
+                $("#messageBody").html('<div class="staff-contact-error"><i class="bi bi-exclamation-circle" aria-hidden="true"></i><strong>We could not load the form.</strong><span>Please try again or call us at (513) 489-2886.</span></div>');
             })
             .always(function () {
-            })
+                $button.removeClass("is-loading").prop("disabled", false);
+            });
     }
 </script>

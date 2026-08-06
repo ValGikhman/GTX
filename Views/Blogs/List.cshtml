@@ -1,79 +1,92 @@
-﻿@model IEnumerable<GTX.Models.BlogPostModel>
+@model IEnumerable<GTX.Models.BlogPostModel>
 
 @{
     ViewBag.Title = "Blog";
+    var posts = Model == null
+        ? new System.Collections.Generic.List<GTX.Models.BlogPostModel>()
+        : System.Linq.Enumerable.ToList(Model);
+
     string StripHtml(string input)
     {
-        if (string.IsNullOrWhiteSpace(input)) return "";
+        if (string.IsNullOrWhiteSpace(input)) return string.Empty;
         return System.Text.RegularExpressions.Regex.Replace(input, "<.*?>", string.Empty);
     }
 
     string Truncate(string input, int max)
     {
-        if (string.IsNullOrWhiteSpace(input)) return "";
-        var s = input.Trim();
-        return s.Length <= max ? s : s.Substring(0, max).TrimEnd() + "…";
+        if (string.IsNullOrWhiteSpace(input)) return string.Empty;
+        var value = input.Trim();
+        return value.Length <= max ? value : value.Substring(0, max).TrimEnd() + "…";
     }
 }
 
-<section class="container-fluid d-flex justify-content-center">
-    <div class="well row col-lg-8 m-5 p-3 shadow">
-        @if (Model == null || !Model.Any())
+@Html.Partial("_MarketingHero", null, new ViewDataDictionary
+{
+    { "Kicker", "Ideas for the road ahead" },
+    { "Title", "Stories worth" },
+    { "Accent", "taking with you." },
+    { "Description", "Buying guidance, dealership news, and thoughtful reads from the people who know the road." },
+    { "Word", "READ" },
+    { "Icon", "bi-journal-richtext" }
+})
+
+<main class="marketing-page blog-list-page">
+    <section class="marketing-content-shell">
+        <div class="marketing-section-label">
+            <span>From the journal</span>
+            <small>@posts.Count @(posts.Count == 1 ? "story" : "stories")</small>
+        </div>
+
+        @if (posts.Count == 0)
         {
-            <div class="alert alert-secondary rounded-3">
-                No blog posts yet.
+            <div class="blog-empty">
+                <i class="bi bi-journal" aria-hidden="true"></i>
+                <strong>No stories yet.</strong>
+                <p class="mb-0 mt-2">Fresh ideas are on the way.</p>
             </div>
         }
         else
         {
-            <div class="row g-4">
-                @foreach (var post in Model)
+            <div class="blog-list-grid">
+                @for (var index = 0; index < posts.Count; index++)
                 {
-                    var safeAuthor = string.IsNullOrWhiteSpace(post.Author) ? "Staff" : post.Author;
-                    var preview = Truncate(StripHtml(post.Content), 180);
-                    var hasImg = !string.IsNullOrWhiteSpace(post.MediaURL);
+                    var post = posts[index];
+                    var safeAuthor = string.IsNullOrWhiteSpace(post.Author) ? "GTX Staff" : post.Author;
+                    var safeTitle = string.IsNullOrWhiteSpace(post.Title) ? "Untitled story" : post.Title;
+                    var preview = Truncate(StripHtml(post.Content), index == 0 ? 280 : 175);
+                    var safeMediaUrl = SecuritySanitizer.SanitizeHttpOrRelativeUrl(post.MediaURL);
+                    var hasImage = !string.IsNullOrWhiteSpace(safeMediaUrl);
+                    var postUrl = Url.Action("Blog", "Blogs", new { id = post.Id });
 
-                    <div class="col-12 col-md-6 col-lg-4">
-                        <div class="card h-100 shadow-sm rounded-4 overflow-hidden">
-                            @if (hasImg)
-                            {
-                                <a href="@post.ArticleURL" class="text-decoration-none" target="_blank">
-                                    <img src="@post.MediaURL" class="w-100" style="height: 200px; object-fit: cover;" alt="@post.Title"/>
-                                </a>
-                            }
-                            else
-                            {
-                                <div class="w-100 bg-light d-flex align-items-center justify-content-center"
-                                     style="height: 200px;">
-                                    <span class="text-muted">No image</span>
-                                </div>
-                            }
+                    <article class="blog-list-item">
+                        <div class="blog-list-card">
+                            <a class="blog-list-media" href="@postUrl" aria-label="Read @safeTitle">
+                                @if (hasImage)
+                                {
+                                    <img src="@safeMediaUrl" alt="@safeTitle" loading="lazy" />
+                                }
+                                else
+                                {
+                                    <span class="blog-media-fallback"><i class="bi bi-newspaper" aria-hidden="true"></i></span>
+                                }
+                            </a>
 
-                            <div class="card-body d-flex flex-column">
-                                <h5 class="card-title mb-2">
-                                    <a class="text-decoration-none" href="@post.ArticleURL" target="_blank">
-                                        @post.Title
-                                    </a>
-                                </h5>
-
-                                <div class="text-muted small mb-3">
+                            <div class="blog-list-body">
+                                <div class="blog-list-meta">
                                     <span>@safeAuthor</span>
-                                    <span class="mx-2">•</span>
-                                    <span>@post.CreatedAt.ToString("MMM d, yyyy")</span>
+                                    <i class="bi bi-circle-fill" aria-hidden="true"></i>
+                                    <time datetime="@post.CreatedAt.ToString("yyyy-MM-dd")">@post.CreatedAt.ToString("MMM d, yyyy")</time>
                                 </div>
-
-                                <p class="card-text text-muted flex-grow-1">@preview</p>
-
-                                <div class="mt-3">
-                                    <a class="btn btn-gradient-grey border-dark rounded-4 text-shadow-small" href="Blog/@post.Id" target="_blank">
-                                        Read more
-                                    </a>
-                                </div>
+                                <h2>@safeTitle</h2>
+                                <p>@preview</p>
+                                <a class="blog-read-link" href="@postUrl">
+                                    Read the story <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
+                                </a>
                             </div>
                         </div>
-                    </div>
+                    </article>
                 }
             </div>
         }
-    </div>
-</section>
+    </section>
+</main>

@@ -76,7 +76,7 @@ namespace GTX.Controllers
 
                 SessionData.Responsibility = Model.Responsibility;
                 SessionData.Environment = Model.Environment;
-                ViewBag.Responsibility = Model.Responsibility == CommonUnit.Responsibility.Site ? "SITE" : "DEV";
+                ViewBag.Responsibility = Model.Responsibility == CommonUnit.Responsibility.Site ? "SITE" : "DEMO";
                 ViewBag.ResponsibilityIcon = Model.Responsibility == CommonUnit.Responsibility.Site ? "bi-globe2" : "bi-tv";
                 ViewBag.Environment = SessionData.Environment == CommonUnit.Environment.Dev ? "DEV" : string.Empty;
 

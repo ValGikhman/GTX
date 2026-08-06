@@ -1,0 +1,515 @@
+/* Open-hours experience. Scoped to the shared offcanvas. */
+#openHours {
+    --oh-gradient: var(--gtx-grad, linear-gradient(180deg, #155a96, #1e73be));
+    --oh-accent: var(--gtx-accent-solid, #1e73be);
+    --oh-accent-soft: rgba(30, 115, 190, .13);
+    --oh-accent-soft: color-mix(in srgb, var(--oh-accent) 13%, transparent);
+    --oh-ink: #16202a;
+    --oh-muted: #69747f;
+    --oh-line: rgba(22, 32, 42, .12);
+}
+
+#openHours .open-hours-panel {
+    display: grid;
+    grid-template-columns: minmax(0, .92fr) minmax(26rem, 1.08fr);
+    grid-template-areas: none;
+    grid-template-rows: minmax(0, 1fr);
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto;
+}
+
+#openHours .open-hours-visual {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) minmax(12rem, 38%);
+    gap: .55rem;
+    min-width: 0;
+    min-height: 0;
+    padding: .65rem .3rem .65rem .65rem;
+}
+
+#openHours .open-hours-photo-wrap,
+#openHours .open-hours-map-wrap {
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, .1);
+    border-radius: .85rem;
+}
+
+#openHours .open-hours-photo-wrap {
+    background: #111a22;
+}
+
+#openHours .open-hours-photo {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transform: scale(1.01);
+}
+
+#openHours .open-hours-photo-shade {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(180deg, rgba(4, 8, 12, .12) 18%, rgba(4, 8, 12, .83) 100%),
+        linear-gradient(105deg, var(--oh-accent-soft), transparent 54%);
+}
+
+#openHours .open-hours-photo-copy {
+    position: absolute;
+    right: clamp(1rem, 3vw, 2rem);
+    bottom: clamp(1rem, 3vw, 2rem);
+    left: clamp(1rem, 3vw, 2rem);
+    z-index: 2;
+    color: #fff;
+}
+
+#openHours .open-hours-kicker {
+    display: block;
+    margin-bottom: .5rem;
+    color: #80c1f4;
+    color: color-mix(in oklab, var(--oh-accent) 65%, white);
+    font-size: .63rem;
+    font-weight: 850;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+}
+
+#openHours .open-hours-photo-copy h2 {
+    margin: 0;
+    color: #fff;
+    font-size: clamp(2rem, 4.5vw, 4.15rem);
+    font-weight: 780;
+    letter-spacing: -.06em;
+    line-height: .88;
+}
+
+#openHours .open-hours-photo-copy p {
+    max-width: 35ch;
+    margin: .85rem 0 0;
+    color: rgba(255, 255, 255, .7);
+    font-size: .78rem;
+    line-height: 1.45;
+}
+
+#openHours .open-hours-live-status {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 3;
+    display: flex;
+    gap: .65rem;
+    align-items: center;
+    padding: .55rem .75rem;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, .18);
+    border-radius: 999px;
+    background: rgba(7, 12, 17, .68);
+    backdrop-filter: blur(12px);
+}
+
+#openHours .open-hours-live-status > span:last-child {
+    display: flex;
+    flex-direction: column;
+}
+
+#openHours .open-hours-live-status small {
+    color: rgba(255, 255, 255, .55);
+    font-size: .53rem;
+    font-weight: 750;
+    letter-spacing: .11em;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+#openHours .open-hours-live-status strong {
+    margin-top: .15rem;
+    color: #fff;
+    font-size: .72rem;
+    line-height: 1;
+}
+
+#openHours .open-hours-live-dot {
+    width: .62rem;
+    height: .62rem;
+    border-radius: 50%;
+}
+
+#openHours .open-hours-live-status.is-open .open-hours-live-dot {
+    background: #42d77d;
+    box-shadow: 0 0 0 .3rem rgba(66, 215, 125, .15), 0 0 1rem rgba(66, 215, 125, .45);
+}
+
+#openHours .open-hours-live-status.is-closed .open-hours-live-dot {
+    background: #ffbd4a;
+    box-shadow: 0 0 0 .3rem rgba(255, 189, 74, .14), 0 0 1rem rgba(255, 189, 74, .35);
+}
+
+#openHours .open-hours-map {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    border: 0;
+    border-radius: 0;
+    filter: saturate(.82) contrast(1.04);
+}
+
+#openHours .open-hours-map-link {
+    position: absolute;
+    right: .75rem;
+    bottom: .75rem;
+    display: inline-flex;
+    gap: .45rem;
+    align-items: center;
+    padding: .55rem .7rem;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, .18);
+    border-radius: .65rem;
+    background: rgba(7, 12, 17, .78);
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .18);
+    font-size: .68rem;
+    font-weight: 750;
+    text-decoration: none;
+    backdrop-filter: blur(10px);
+}
+
+#openHours .open-hours-content {
+    min-width: 0;
+    min-height: 0;
+    padding: .65rem clamp(.85rem, 1.7vw, 1.2rem);
+    overflow-y: auto;
+    border: 1px solid var(--oh-line);
+    border-radius: .85rem;
+    background:
+        radial-gradient(circle at 100% 0, var(--oh-accent-soft), transparent 22rem),
+        #f8f9fa;
+}
+
+#openHours .open-hours-content-heading {
+    display: flex;
+    gap: 1rem;
+    align-items: end;
+    justify-content: space-between;
+    margin-bottom: .7rem;
+    padding: .55rem .7rem;
+    border: 1px solid var(--oh-line);
+    border-radius: .75rem;
+}
+
+#openHours .open-hours-content-heading > span:first-child,
+#openHours .open-hours-today-summary {
+    display: flex;
+    flex-direction: column;
+}
+
+#openHours .open-hours-content-heading small,
+#openHours .open-hours-address-text small,
+#openHours .open-hours-action small {
+    color: var(--oh-muted);
+    font-size: .6rem;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+#openHours .open-hours-content-heading h3 {
+    margin: .2rem 0 0;
+    color: var(--oh-ink);
+    font-size: clamp(1.4rem, 2.5vw, 2rem);
+    font-weight: 780;
+    letter-spacing: -.045em;
+    line-height: 1;
+}
+
+#openHours .open-hours-today-summary {
+    flex: 0 0 auto;
+    align-items: end;
+    text-align: right;
+}
+
+#openHours .open-hours-today-summary strong {
+    margin-top: .2rem;
+    color: var(--oh-accent);
+    font-size: .82rem;
+}
+
+#openHours .open-hours-days {
+    display: grid !important;
+    grid-template-columns: 1fr;
+    gap: .2rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+#openHours .open-hours-day-row {
+    display: grid;
+    grid-template-columns: .55rem minmax(6.5rem, 1fr) minmax(7rem, auto);
+    gap: .7rem;
+    align-items: center;
+    min-height: 2.5rem;
+    padding: .42rem .65rem;
+    border: 1px solid transparent;
+    border-radius: .7rem;
+}
+
+#openHours .open-hours-day-row:nth-child(even) {
+    background: rgba(22, 32, 42, .035);
+}
+
+#openHours .open-hours-day-row.is-today {
+    border-color: color-mix(in srgb, var(--oh-accent) 22%, transparent);
+    background: var(--oh-accent-soft);
+    box-shadow: inset .2rem 0 var(--oh-accent);
+}
+
+#openHours .open-hours-day-marker {
+    width: .38rem;
+    height: .38rem;
+    border-radius: 50%;
+    background: #c0c6cc;
+}
+
+#openHours .open-hours-day-row.is-today .open-hours-day-marker {
+    background: var(--oh-accent);
+    box-shadow: 0 0 0 .23rem var(--oh-accent-soft);
+}
+
+#openHours .open-hours-day-name {
+    display: flex;
+    gap: .65rem;
+    align-items: center;
+    color: var(--oh-ink);
+    font-size: .78rem;
+    font-weight: 700;
+}
+
+#openHours .open-hours-day-name small {
+    padding: .2rem .4rem;
+    color: var(--oh-accent);
+    border-radius: 999px;
+    background: #fff;
+    font-size: .52rem;
+    font-weight: 850;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+#openHours .open-hours-day-hours {
+    display: block;
+    width: auto;
+    color: var(--oh-ink);
+    font-size: .77rem;
+    text-align: right;
+    white-space: nowrap;
+}
+
+#openHours .open-hours-visit-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: .55rem;
+    align-items: center;
+    margin-top: .7rem;
+    padding: .65rem;
+    border: 1px solid var(--oh-line);
+    border-radius: .85rem;
+    background: #fff;
+    box-shadow: 0 .65rem 1.5rem rgba(22, 32, 42, .07);
+}
+
+#openHours .open-hours-location-icon {
+    display: grid;
+    place-items: center;
+    width: 2.45rem;
+    height: 2.45rem;
+    color: #fff;
+    border-radius: .75rem;
+    background: var(--oh-gradient);
+    box-shadow: 0 .45rem 1rem var(--oh-accent-soft);
+}
+
+#openHours .open-hours-address-text {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+}
+
+#openHours .open-hours-address-text strong,
+#openHours .open-hours-address-text > span {
+    overflow: hidden;
+    color: var(--oh-ink);
+    font-size: .75rem;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#openHours .open-hours-copy-address {
+    display: inline-flex;
+    gap: .35rem;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.15rem;
+    padding: .4rem .6rem;
+    color: var(--oh-ink);
+    border: 1px solid var(--oh-line);
+    border-radius: .65rem;
+    background: #f1f3f5;
+    font-size: .68rem;
+    font-weight: 750;
+}
+
+#openHours .open-hours-copy-address:hover,
+#openHours .open-hours-copy-address:focus,
+#openHours .open-hours-copy-address.active {
+    color: var(--oh-accent);
+    border-color: color-mix(in srgb, var(--oh-accent) 28%, transparent);
+    background: var(--oh-accent-soft);
+}
+
+#openHours .open-hours-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .5rem;
+    margin-top: .5rem;
+}
+
+#openHours .open-hours-action {
+    display: flex;
+    gap: .65rem;
+    align-items: center;
+    min-width: 0;
+    min-height: 3.1rem;
+    padding: .55rem .75rem;
+    border: 1px solid var(--oh-line);
+    border-radius: .75rem;
+    text-decoration: none;
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+
+#openHours .open-hours-action:hover,
+#openHours .open-hours-action:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 .6rem 1.25rem rgba(22, 32, 42, .12);
+}
+
+#openHours .open-hours-action > i {
+    flex: 0 0 auto;
+}
+
+#openHours .open-hours-action > span {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+}
+
+#openHours .open-hours-action strong {
+    overflow: hidden;
+    font-size: .76rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#openHours .open-hours-action-call {
+    color: #fff;
+    border-color: color-mix(in srgb, var(--oh-accent) 65%, #111);
+    background: var(--oh-gradient);
+}
+
+#openHours .open-hours-action-call small {
+    color: rgba(255, 255, 255, .68);
+}
+
+#openHours .open-hours-action-directions {
+    color: var(--oh-ink);
+    background: #fff;
+}
+
+#openHours .open-hours-footnote {
+    display: flex;
+    gap: .4rem;
+    margin: .5rem 0 0;
+    color: var(--oh-muted);
+    font-size: .63rem;
+    line-height: 1.4;
+}
+
+html.theme-silver #openHours .open-hours-action-call,
+html.theme-silver #openHours .open-hours-action-call small,
+html.theme-silver #openHours .open-hours-location-icon {
+    color: #20262c !important;
+}
+
+@media (max-width: 767.98px) {
+    #openHours .open-hours-panel {
+        display: flex;
+        height: auto;
+        flex-direction: column;
+    }
+
+    #openHours .open-hours-content {
+        order: 1;
+        overflow: visible;
+        padding: 1rem;
+    }
+
+    #openHours .open-hours-visual {
+        order: 2;
+        display: grid;
+        grid-template-rows: 16rem 15rem;
+        padding: .4rem;
+    }
+
+    #openHours .open-hours-photo {
+        display: block !important;
+    }
+
+    #openHours .open-hours-content-heading {
+        align-items: center;
+    }
+
+    #openHours .open-hours-photo-copy h2 {
+        font-size: 2.6rem;
+    }
+}
+
+@media (max-width: 479.98px) {
+    #openHours .open-hours-content-heading {
+        align-items: flex-end;
+    }
+
+    #openHours .open-hours-day-row {
+        grid-template-columns: .45rem minmax(5.2rem, 1fr) auto;
+        gap: .5rem;
+        padding: .5rem .55rem;
+    }
+
+    #openHours .open-hours-visit-card {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    #openHours .open-hours-copy-address {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+
+    #openHours .open-hours-actions {
+        grid-template-columns: 1fr;
+    }
+
+    #openHours .open-hours-visual {
+        grid-template-rows: 14rem 13rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #openHours,
+    #openHours * {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+    }
+}

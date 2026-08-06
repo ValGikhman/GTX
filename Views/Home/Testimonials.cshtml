@@ -2,69 +2,26 @@
     ViewBag.Title = "Testimonials";
 }
 
-<style>
-    body {
-        background: #f6f7fb;
-    }
+@Html.Partial("_MarketingHero", null, new ViewDataDictionary
+{
+    { "Kicker", "Real stories from real customers" },
+    { "Title", "Good cars." },
+    { "Accent", "Great experiences." },
+    { "Description", "The best measure of our work is what customers remember after they drive away." },
+    { "Word", "LOVE" },
+    { "Icon", "bi-chat-heart" }
+})
 
-    .testimonials-wrap {
-        max-width: 1100px;
-    }
-
-    .t-card {
-        border: 0;
-        border-radius: 1.25rem;
-        box-shadow: 0 10px 28px rgba(0,0,0,.08);
-        background: rgba(255,255,255,.92);
-        backdrop-filter: blur(6px);
-    }
-
-        .t-card p {
-            margin-bottom: 0;
-            line-height: 1.65;
-        }
-
-        .t-card + .t-card {
-            margin-top: 1rem;
-        }
-
-    .t-title {
-        letter-spacing: -.02em;
-        font-weight: 800;
-        margin-bottom: .25rem;
-    }
-
-    .quote-icon {
-        width: 42px;
-        height: 42px;
-        border-radius: 999px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        flex: 0 0 auto;
-    }
-
-    .soft-divider {
-        height: 1px;
-        background: rgba(0,0,0,.08);
-        margin: .9rem 0;
-    }
-</style>
-
-<section class="container-fluid py-4 py-md-5 d-flex justify-content-center">
-    <div class="testimonials-wrap w-100 px-2 px-md-0">
-
-        <!-- Header -->
-        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-3 px-1">
-            <div>
-                <h2 class="mb-0 fw-bold" style="letter-spacing:-.03em;">Testimonials</h2>
-                <div class="text-secondary small">Real stories from real customers</div>
-            </div>
-            <span class="badge rounded-pill text-bg-dark px-3 py-2">GTX Auto Group</span>
-        </div>
+<main class="marketing-page testimonials-page">
+<section class="marketing-content-shell">
+    <div class="marketing-section-label">
+        <span>Customer stories</span>
+        <small>Shared by the GTX community</small>
+    </div>
+    <div class="testimonials-wrap">
 
         <!-- Highlight story as a testimonial (not an article) -->
-        <div class="t-card p-4 p-md-5">
+        <div class="t-card testimonial-featured p-4 p-md-5">
             <div class="d-flex align-items-start gap-3">
                 <div class="quote-icon bg-dark text-white">
                     <i class="bi bi-stars fs-5"></i>
@@ -280,3 +237,4 @@
 
     </div>
 </section>
+</main>

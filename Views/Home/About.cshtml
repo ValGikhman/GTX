@@ -1,101 +1,94 @@
-﻿<head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-L828PN8ET1">
-    </script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L828PN8ET1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-L828PN8ET1');
+</script>
 
-        gtag('config', 'G-L828PN8ET1');
-    </script>
-</head>
-<style>
-    /* Mobile-friendly typography */
-    .gtx-hero p {
-        margin-bottom: .9rem;
-        line-height: 1.65;
-    }
+@Html.Partial("_MarketingHero", null, new ViewDataDictionary
+{
+    { "Kicker", "Driven by trust since day one" },
+    { "Title", "More than cars." },
+    { "Accent", "A better journey." },
+    { "Description", "A West Chester dealership built around honest guidance, carefully selected vehicles, and people who genuinely listen." },
+    { "Word", "STORY" },
+    { "Icon", "bi-compass" }
+})
 
-    /* Responsive video container */
-    .video-box {
-        width: 100%;
-        max-width: 720px;
-        aspect-ratio: 16 / 9;
-        overflow: hidden;
-        border-radius: 1rem;
-        box-shadow: 0 10px 24px rgba(0,0,0,.18);
-    }
-
-    .video-inline {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-    }
-</style>
-
-<section class="container-fluid px-3 px-md-4 py-4 gtx-hero">
-    <div class="mx-auto bg-white bg-opacity-75 rounded-4 shadow p-3 p-md-5" style="max-width: 920px; backdrop-filter: blur(6px);">
-
-        <div class="video-box mx-auto mb-3 mb-md-4">
-            <video class="video-inline" autoplay muted loop playsinline preload="metadata">
-                <source src="@Url.Content("~/SiteImages/video/GTX-1.mov")" type="video/mp4" />
-                Your browser does not support the video tag.
-            </video>
+<main class="marketing-page about-page">
+    <section class="marketing-content-shell">
+        <div class="marketing-section-label">
+            <span>Our story</span>
+            <small>GTX Auto Group · West Chester, Ohio</small>
         </div>
 
-        <h1 class="h3 h2-md fw-bold text-center text-md-start mb-3">
-            Welcome to GTX Auto Group Online
-        </h1>
+        <div class="about-feature">
+            <figure class="about-video-frame">
+                <video autoplay muted loop playsinline preload="metadata">
+                    <source src="@Url.Content("~/SiteImages/video/GTX-1.mov")" type="video/mp4" />
+                    Your browser does not support the video tag.
+                </video>
+                <figcaption class="about-video-caption">
+                    <span>Welcome to GTX Auto Group</span>
+                    <i class="bi bi-play-circle" aria-hidden="true"></i>
+                </figcaption>
+            </figure>
 
-        <p class="lead text-center text-md-start mb-4">
-            Everything you need to find the right car — simple, honest, and stress-free.
-        </p>
+            <article class="about-story">
+                <h2>Simple. Honest.<br />Stress-free.</h2>
+                <p>Everything you need to find the right car—simple, honest, and stress-free.</p>
 
-        <div class="fs-6 fs-md-5 text-start">
-            <p>
-                West Chester, where highways hum and dreams take flight,
-                There stands a place of promise—GTX Auto Group, glowing bright.
-                Beneath wide Ohio skies and sunlit dealership lots,
-                They offer not just steel and wheels, but trust in every thought.
-            </p>
-            <p>
-                Here, engines rest like sleeping lions, ready to awaken,
-                Polished chrome and handpicked care, each vehicle unshaken.
-                Trucks with shoulders broad as barns, SUVs like rolling hills,
-                Cars that whisper stories still untold, waiting to fulfill.
-            </p>
-            <p>
-                But more than horsepower or the gleam of paint in day’s caress,
-                It’s honesty that turns the key—the quiet strength of success.
-                No haggling shadows, no fine-print snares, no masks behind a smile,
-                Just friendly hands and open doors that stretch for country miles.
-            </p>
-            <p>
-                You’ll find the team not selling dreams, but guiding you with grace,
-                They listen first, then help you match the road you’re meant to face.
-                Whether you're chasing sunsets or the morning’s early light,
-                There’s a vehicle for every journey—priced to feel just right.
-            </p>
-            <p>
-                Each customer, a story, each handshake a vow,
-                That quality and care are not just words, but lived here, now.
-                A single visit feels like home, familiar and sincere,
-                Where choices bloom without regret and every path feels clear.
-            </p>
-            <p>
-                Stress dissolves like summer rain, replaced by calm and ease,
-                You leave not just with keys in hand, but a heart at peace.
-                Because GTX doesn’t simply sell—they serve with all their might,
-                With integrity their cornerstone, and satisfaction their right.
-            </p>
-            <p class="mb-0">
-                So come where trust is built to last, where value holds its ground,
-                Where cars and kindness intertwine, and joy is always found.
-                For journeys born in West Chester’s light, and built on proven trust,
-                GTX Auto Group is the name that rises up from dust.
-            </p>
+                <p>
+                    West Chester, where highways hum and dreams take flight,
+                    There stands a place of promise—GTX Auto Group, glowing bright.
+                    Beneath wide Ohio skies and sunlit dealership lots,
+                    They offer not just steel and wheels, but trust in every thought.
+                </p>
+                <p>
+                    Here, engines rest like sleeping lions, ready to awaken,
+                    Polished chrome and handpicked care, each vehicle unshaken.
+                    Trucks with shoulders broad as barns, SUVs like rolling hills,
+                    Cars that whisper stories still untold, waiting to fulfill.
+                </p>
+                <p>
+                    But more than horsepower or the gleam of paint in day’s caress,
+                    It’s honesty that turns the key—the quiet strength of success.
+                    No haggling shadows, no fine-print snares, no masks behind a smile,
+                    Just friendly hands and open doors that stretch for country miles.
+                </p>
+                <p>
+                    You’ll find the team not selling dreams, but guiding you with grace,
+                    They listen first, then help you match the road you’re meant to face.
+                    Whether you're chasing sunsets or the morning’s early light,
+                    There’s a vehicle for every journey—priced to feel just right.
+                </p>
+                <p>
+                    Each customer, a story, each handshake a vow,
+                    That quality and care are not just words, but lived here, now.
+                    A single visit feels like home, familiar and sincere,
+                    Where choices bloom without regret and every path feels clear.
+                </p>
+                <p>
+                    Stress dissolves like summer rain, replaced by calm and ease,
+                    You leave not just with keys in hand, but a heart at peace.
+                    Because GTX doesn’t simply sell—they serve with all their might,
+                    With integrity their cornerstone, and satisfaction their right.
+                </p>
+                <p>
+                    So come where trust is built to last, where value holds its ground,
+                    Where cars and kindness intertwine, and joy is always found.
+                    For journeys born in West Chester’s light, and built on proven trust,
+                    GTX Auto Group is the name that rises up from dust.
+                </p>
+
+                <div class="about-values" aria-label="Our values">
+                    <span class="about-value"><i class="bi bi-shield-check" aria-hidden="true"></i><strong>Integrity first</strong></span>
+                    <span class="about-value"><i class="bi bi-chat-heart" aria-hidden="true"></i><strong>People always</strong></span>
+                    <span class="about-value"><i class="bi bi-key" aria-hidden="true"></i><strong>Confidence delivered</strong></span>
+                </div>
+            </article>
         </div>
-    </div>
-</section>
+    </section>
+</main>

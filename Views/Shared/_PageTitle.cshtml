@@ -14,6 +14,8 @@
     var isInventoryDetailsTitle = controllerName.Equals("Inventory", StringComparison.OrdinalIgnoreCase)
         && (actionName.Equals("Details", StringComparison.OrdinalIgnoreCase)
             || actionName.Equals("DetailsQR", StringComparison.OrdinalIgnoreCase));
+    var isVehicleDetailsPage = controllerName.Equals("Inventory", StringComparison.OrdinalIgnoreCase)
+        && actionName.Equals("Details", StringComparison.OrdinalIgnoreCase);
     var showInventoryDesktopAddress = controllerName.Equals("Inventory", StringComparison.OrdinalIgnoreCase)
         && inventoryListActions.Any(a => a.Equals(actionName, StringComparison.OrdinalIgnoreCase));
     var titleClass = "d-none m-0 text-dark fancy text-truncate text-center main-title"
@@ -55,6 +57,21 @@
             </div>
         }
     </span>
+
+    @if (isVehicleDetailsPage)
+    {
+        <div class="vdp-page-title-status-slot position-absolute start-50 top-50 translate-middle">
+            <div id="status" class="vdp-record-status" role="status" aria-live="polite">
+                <span class="vdp-record-status-icon" aria-hidden="true"><i class="bi bi-stars"></i></span>
+                <span class="vdp-record-status-text">
+                    <strong id="vdpStatusCurrent" class="vdp-record-status-number">—</strong>
+                    <span>@I18n.R("All_From")</span>
+                    <strong id="vdpStatusTotal" class="vdp-record-status-total">—</strong>
+                    <span>@I18n.R("All_Vehicles")</span>
+                </span>
+            </div>
+        </div>
+    }
 
     <a id="title" href="@titleHref" class="text-decoration-none d-flex align-items-center justify-content-center gap-2 w-75 position-relative px-2">
         <!-- Centered title (stays centered even with the icon) -->
