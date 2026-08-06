@@ -468,7 +468,7 @@ namespace GTX.Controllers
             }
 
             var noQuery = rawPath.Replace('\\', '/');
-            var legacyPrefix = "/GTXImages/Inventory/";
+            var legacyPrefix = "/SiteImages/Inventory/";
             var currentPrefix = "/Pictures/";
             var inventoryControllerPrefix = "/InventoryImages/Get/";
             if (noQuery.StartsWith(legacyPrefix, StringComparison.OrdinalIgnoreCase))

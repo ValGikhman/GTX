@@ -48,7 +48,7 @@
 
         value = value.TrimStart('/');
 
-        const string legacyPrefix = "GTXImages/Inventory/";
+        const string legacyPrefix = "SiteImages/Inventory/";
         const string picturesPrefix = "Pictures/";
         const string imagesPrefix = "Images/";
 
@@ -114,7 +114,7 @@
     var detailsUrl = Url.Action("Details", "Inventory", new { stock = Model.Stock });
     var creditApplicationUrl = Url.Action("Application", "Home");
     var creditApplicationText = I18n.R("Nav_GetPrequalified");
-    var makeImg = $"/GTXImages/makes/{Model.Make.Replace(" ", "-")}.png";
+    var makeImg = $"/SiteImages/makes/{Model.Make.Replace(" ", "-")}.png";
     var carTitle = $"{Model.Year} {Model.Make} {Model.Model}";
     var cardImageUrl = BuildInventoryCardImageUrl(Model.Image);
     var usCulture = System.Globalization.CultureInfo.GetCultureInfo("en-US");

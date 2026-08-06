@@ -6,7 +6,7 @@
 
     Example for your current folder:
       EXEC dbo.usp_ImportImagesFromStockFolders
-          @RootPath = N'C:\Users\valen\source\repos\GTXAutoGroup\GTX\GTXImages\Inventory\GTX',
+          @RootPath = N'C:\Users\valen\source\repos\GTXAutoGroup\GTX\SiteImages\Inventory\GTX',
           @SourcePrefix = 'GTX',
           @DeleteExistingForStocks = 1,
           @DryRun = 0;
