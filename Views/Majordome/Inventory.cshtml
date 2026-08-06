@@ -22,6 +22,16 @@
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 </head>
 
+@Html.Partial("_MarketingHero", null, new ViewDataDictionary
+{
+    { "Kicker", "Your inventory command center" },
+    { "Title", "Command the inventory." },
+    { "Accent", "Move with precision." },
+    { "Description", "Edit vehicles, decode specifications, manage imagery, and coordinate bulk actions from one powerful workspace." },
+    { "Word", "COMMAND" },
+    { "Icon", "bi-sliders" }
+})
+
 <div id="inventoryOverlay" class="spinner-overlay spinner-hidden">
     <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Working...</span>
@@ -263,7 +273,7 @@
     </div>
 </div>
 
-<div class="this-container container-fluid px-5 my-3">
+<div class="this-container majordome-workspace container-fluid px-2 my-0">
     <nav class="nav nav-tabs no-wrap-group" id="myTab" role="tablist">
         <button class="btn btn-gradient-grey text-shadow-small active" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#tab-inventory" type="button" role="tab">
             Inventory

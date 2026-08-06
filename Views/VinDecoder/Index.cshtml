@@ -3,44 +3,15 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<style>
-    /* Overlay */
-    .spinner-overlay {
-        position: fixed;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(0,0,0,.35);
-        z-index: 2000;
-        backdrop-filter: blur(2px);
-    }
-    .spinner-hidden { display: none; }
-
-    /* Results animation */
-    .fade-in {
-        animation: fadeIn .18s ease-out;
-    }
-
-    @@keyframes fadeIn {
-        from { opacity: 0; transform: translateY(4px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Shake for invalid VIN */
-    .shake {
-        animation: shake .25s ease-in-out;
-    }
-
-    @@keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-6px); }
-        75% { transform: translateX(6px); }
-    }
-
-    /* Small quality-of-life */
-    #vin { text-transform: uppercase; letter-spacing: .02em; }
-</style>
+@Html.Partial("_MarketingHero", null, new ViewDataDictionary
+{
+    { "Kicker", "Seventeen characters. One complete picture." },
+    { "Title", "Decode with" },
+    { "Accent", "confidence." },
+    { "Description", "Turn a VIN into clear vehicle specifications with a fast, focused decoding workspace." },
+    { "Word", "DECODE" },
+    { "Icon", "bi-upc-scan" }
+})
 
 <div id="vindecoderOverlay" class="spinner-overlay spinner-hidden" aria-hidden="true">
     <div class="text-center">
@@ -50,65 +21,59 @@
 </div>
 
 
-<div class="row g-3 mt-2 justify-content-center">
-    <div class="col-12 col-md-10 col-lg-8 col-xl-6">
-        <div class="card-body p-4 bg-white shadow rounded-4">
-            <div class="row g-3 align-items-center">
-                <!-- LEFT: Title + subtitle -->
-                <div class="col-12 col-lg-4">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-upc-scan fs-4 text-primary"></i>
-                        <h1 class="h4 mb-0">VIN Decoder</h1>
-                    </div>
-                    <div class="text-muted small mt-1">
-                        Paste or type a 17-character VIN.
-                    </div>
-                </div>
+<main class="marketing-page vin-decoder-page">
+    <section class="marketing-content-shell vin-decoder-shell">
+        <div class="marketing-section-label">
+            <span>Vehicle identity workspace</span>
+            <small>DataOne VIN intelligence</small>
+        </div>
 
-                <!-- RIGHT: Input + actions -->
-                <div class="col-12 col-lg-8">
-                    <div class="input-group input-group-lg shadow-sm flex-nowrap">
-                        <span class="input-group-text bg-white" style="width:48px; justify-content:center;">
-                            <i class="bi bi-car-front-fill text-secondary"></i>
-                        </span>
-
-                        <input id="vin" class="form-control" placeholder="e.g., 1HGCM82633A004352" aria-label="VIN" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="latin" maxlength="17" />
-
-                        <button id="decode" type="button" class="btn btn-primary px-3 text-nowrap" aria-label="Decode VIN">
-                            <span class="btn-label">
-                                <i class="bi bi-search me-2"></i>Decode
-                            </span>
-                        </button>
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-center mt-2">
-                        <div class="form-text mb-0">
-                            Tip: Press <kbd>Enter</kbd> to decode.
-                        </div>
-                        <button id="clear" type="button" class="btn btn-link btn-sm text-decoration-none p-0">
-                            <i class="bi bi-x-circle me-1"></i>Clear
-                        </button>
-                    </div>
-
-                    <div id="vinError" class="alert alert-danger d-none mt-2 mb-0 rounded-3" role="alert">
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                        <span class="msg">Invalid VIN.</span>
-                    </div>
-                </div>
-
+        <section class="vin-decoder-console" aria-labelledby="vinDecoderConsoleTitle">
+            <div class="vin-decoder-console-copy">
+                <span class="vin-decoder-console-icon" aria-hidden="true"><i class="bi bi-upc-scan"></i></span>
+                <span>
+                    <small>Ready to decode</small>
+                    <h2 id="vinDecoderConsoleTitle">Enter a 17-character VIN</h2>
+                </span>
             </div>
-        </div>
-    </div>
 
-    <div class="col-lg-12 px-5">
-        <div id="dataOneVinDecoder" class="mt-2"></div>
+            <div class="vin-decoder-controls">
+                <div class="input-group input-group-lg vin-decoder-input-group flex-nowrap">
+                    <span class="input-group-text">
+                        <i class="bi bi-car-front-fill" aria-hidden="true"></i>
+                    </span>
 
-        <div id="emptyState" class="text-center text-muted py-5">
-            <i class="bi bi-search fs-1 opacity-25"></i>
-            <div class="mt-2">Decoded results will appear here.</div>
-        </div>
-    </div>
-</div>
+                    <input id="vin" class="form-control" placeholder="e.g., 1HGCM82633A004352" aria-label="VIN" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="latin" maxlength="17" />
+
+                    <button id="decode" type="button" class="btn vin-schema-button vin-schema-button-primary vin-decode-icon-button" aria-label="Decode VIN" title="Decode VIN">
+                        <i class="bi bi-upc-scan" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+                <div class="vin-decoder-assist">
+                    <button id="clear" type="button" class="btn vin-schema-button vin-schema-button-secondary">
+                        <i class="bi bi-x-circle" aria-hidden="true"></i>Clear
+                    </button>
+                </div>
+
+                <div id="vinError" class="alert alert-danger d-none" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+                    <span class="msg">Invalid VIN.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="vin-decoder-results" aria-label="Decoded VIN results">
+            <div id="dataOneVinDecoder"></div>
+
+            <div id="emptyState" class="vin-decoder-empty">
+                <span aria-hidden="true"><i class="bi bi-search"></i></span>
+                <strong>Waiting for a VIN</strong>
+                <small>Decoded specifications will appear here.</small>
+            </div>
+        </section>
+    </section>
+</main>
 
 <script>
     $(function () {

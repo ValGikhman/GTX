@@ -5,8 +5,6 @@
 
     <!-- FIXED HEADER -->
     <div class="card-header bg-white p-3 border-0 sticky-top" style="z-index: 1020;">
-        <h4 class="py-3 mb-0">Announcement management</h4>
-
         <div class="d-flex align-items-center justify-content-between flex-nowrap gap-3">
             <!-- Search (left) -->
             <div class="input-group flex-grow-1" style="max-width: 520px;">
@@ -42,7 +40,6 @@
                 <thead class="table-light">
                     <tr>
                         <th style="min-width:160px;">Title</th>
-                        <th style="min-width:260px;">Message</th>
                         <th style="width:120px;">Display</th>
                         <th style="width:120px;">Type</th>
                         <th style="min-width:170px;">Date Range</th>
@@ -55,7 +52,7 @@
                     @if (Model == null || !Model.Any())
                     {
                         <tr>
-                            <td colspan="7" class="text-center p-4 text-muted">
+                            <td colspan="6" class="text-center p-4 text-muted">
                                 No announcements yet. Click <strong>New</strong> to create one.
                             </td>
                         </tr>
@@ -64,7 +61,8 @@
                     {
                         foreach (var announcement in Model)
                         {
-                            <tr data-active="@(announcement.Active ? "1" : "0")">
+                            <tr data-active="@(announcement.Active ? "1" : "0")"
+                                data-message="@(announcement.MessageHtml ?? string.Empty)">
                                 <td>
                                     <div class="fw-semibold">@announcement.Title</div>
 
@@ -79,12 +77,6 @@
                                             }
                                         </div>
                                     }
-                                </td>
-
-                                <td>
-                                    <div class="text-truncate" style="max-width: 520px;" title="@(announcement.MessageHtml ?? "")">
-                                        @Html.Raw(SecuritySanitizer.SanitizeRichHtml(announcement.MessageHtml))
-                                    </div>
                                 </td>
 
                                 <td>
@@ -239,9 +231,9 @@
 
             var active = ($r.attr("data-active") === "1");
 
-            // Title + Message columns
+            // Search the visible title and the hidden message value.
             var title = ($r.find("td:eq(0)").text() || "").toLowerCase();
-            var message = ($r.find("td:eq(1)").text() || "").toLowerCase();
+            var message = ($r.attr("data-message") || "").toLowerCase();
             var hay = $.trim(title + " " + message);
 
             var matchText = (!term || hay.indexOf(term) !== -1);

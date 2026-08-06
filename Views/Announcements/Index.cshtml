@@ -10,6 +10,16 @@
 <!-- Include the Quill library -->
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 
+@Html.Partial("_MarketingHero", null, new ViewDataDictionary
+{
+    { "Kicker", "Timely messages. Clear visibility." },
+    { "Title", "Create the alert." },
+    { "Accent", "Control the moment." },
+    { "Description", "Manage announcement content, targeting, display behavior, and publishing windows from one workspace." },
+    { "Word", "ALERTS" },
+    { "Icon", "bi-megaphone" }
+})
+
 @Html.Partial("_AnnouncementModal")
 <div id="tab-announcement" class="p-3">
     @Html.Partial("_Announcement", Model)

@@ -43,6 +43,16 @@
     }
 </style>
 
+@Html.Partial("_MarketingHero", null, new ViewDataDictionary
+{
+    { "Kicker", "Import, audit, and reconcile" },
+    { "Title", "Control the feed." },
+    { "Accent", "Protect the pipeline." },
+    { "Description", "Upload inventory data, review every change, and keep dealership records synchronized with confidence." },
+    { "Word", "CONTROL" },
+    { "Icon", "bi-diagram-3" }
+})
+
 <div id="inventoryManagementUploadOverlay" class="spinner-overlay spinner-hidden">
     <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Working...</span>
