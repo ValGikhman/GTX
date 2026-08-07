@@ -1,0 +1,301 @@
+@model GTX.Models.BaseModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.DemoDescription = "A modern automotive experience with clear choices, thoughtful service and financing built around you.";
+}
+
+@section Meta {
+    <meta name="description" content="@ViewBag.DemoDescription" />
+
+    <style>
+        .demo-landing {
+            --demo-accent: var(--gtx-accent-solid, #1e73be);
+            --demo-gradient: var(--gtx-grad, linear-gradient(180deg, #155a96, #1e73be));
+            --demo-gradient-reverse: var(--gtx-grad-rev, linear-gradient(0deg, #155a96, #1e73be));
+            height: 100%;
+            min-height: 100%;
+            color: var(--bs-body-color, #212529);
+            font-family: inherit;
+        }
+
+        .demo-hero {
+            position: relative;
+            display: flex;
+            min-height: 100%;
+            overflow: hidden;
+            isolation: isolate;
+        }
+
+        .demo-hero-media,
+        .demo-hero-shade {
+            position: absolute;
+            inset: 0;
+        }
+
+        .demo-hero-media {
+            z-index: -2;
+            background-position: center;
+            background-size: cover;
+            transform: scale(1.01);
+        }
+
+        .demo-hero-shade {
+            z-index: -1;
+            background: color-mix(in srgb, var(--demo-accent) 6%, rgba(255, 255, 255, .42));
+        }
+
+        .demo-hero-content {
+            display: flex;
+            align-items: center;
+            width: min(calc(100% - .5rem), 90rem);
+            margin-inline: auto;
+            padding-block: clamp(4rem, 9vh, 7rem);
+        }
+
+        .demo-hero-copy {
+            max-width: 43rem;
+            transform: translateY(clamp(-6rem, -9vh, -3rem));
+        }
+
+        .demo-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: .65rem;
+            margin-bottom: 1.5rem;
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .16em;
+            text-transform: uppercase;
+        }
+
+        .demo-eyebrow::before {
+            width: 1.4rem;
+            height: 2px;
+            background: var(--demo-gradient);
+            content: "";
+        }
+
+        .demo-title {
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            flex-direction: column;
+            width: fit-content;
+            margin: 0 0 1.75rem;
+            padding: clamp(1.1rem, 2vw, 1.55rem) clamp(1.2rem, 2.4vw, 1.9rem) clamp(1.35rem, 2.4vw, 1.85rem);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .3);
+            border-radius: 1.5rem;
+            background:
+                linear-gradient(135deg,
+                    color-mix(in srgb, var(--demo-accent) 8%, rgba(255, 255, 255, .34)),
+                    color-mix(in srgb, var(--demo-accent) 4%, rgba(255, 255, 255, .17)) 55%,
+                    color-mix(in srgb, var(--demo-accent) 6%, rgba(255, 255, 255, .24)));
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, .42),
+                inset 0 -1px 0 rgba(255, 255, 255, .08),
+                0 1.25rem 3.5rem rgba(0, 0, 0, .22);
+            backdrop-filter: blur(18px) saturate(135%);
+            -webkit-backdrop-filter: blur(18px) saturate(135%);
+            font-size: clamp(3.4rem, 7vw, 6.5rem);
+            font-weight: 900;
+            isolation: isolate;
+            line-height: 1;
+        }
+
+        .demo-title::before {
+            position: absolute;
+            z-index: -1;
+            top: -55%;
+            left: -12%;
+            width: 72%;
+            height: 125%;
+            border-radius: 50%;
+            background: radial-gradient(circle,
+                color-mix(in srgb, var(--demo-accent) 24%, rgba(255, 255, 255, .25)),
+                transparent 68%);
+            content: "";
+            pointer-events: none;
+        }
+
+        .demo-title::after {
+            position: absolute;
+            z-index: -1;
+            top: 1rem;
+            bottom: 1rem;
+            left: 0;
+            width: 3px;
+            border-radius: 0 999px 999px 0;
+            background: var(--demo-gradient);
+            box-shadow: 0 0 1.25rem var(--demo-accent);
+            content: "";
+        }
+
+        .demo-title-lead {
+            margin-left: .08em;
+            color: rgba(33, 37, 41, .78);
+            font-size: .42em;
+            font-weight: 700;
+            letter-spacing: .12em;
+            line-height: 1.1;
+            text-transform: uppercase;
+        }
+
+        .demo-title-accent {
+            position: relative;
+            display: inline-block;
+            margin-top: .08em;
+            color: var(--bs-body-color, #212529);
+            font-size: 1.12em;
+            font-style: normal;
+            font-weight: 900;
+            letter-spacing: -.065em;
+            line-height: .9;
+            text-shadow:
+                0 1px 0 rgba(255, 255, 255, .7),
+                0 .14em .35em rgba(0, 0, 0, .12);
+        }
+
+        .demo-title-accent::after {
+            position: absolute;
+            right: -.03em;
+            bottom: -.12em;
+            left: .02em;
+            height: .09em;
+            border-radius: 999px;
+            background: var(--demo-gradient);
+            box-shadow: 0 .08em .2em rgba(0, 0, 0, .2);
+            content: "";
+            transform: rotate(-1deg);
+        }
+
+        .demo-summary {
+            max-width: 34rem;
+            margin: 0;
+            color: var(--bs-secondary-color, #495057);
+            font-size: clamp(1rem, 1.5vw, 1.1rem);
+            line-height: 1.7;
+        }
+
+        .demo-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .8rem;
+            margin-top: 2.25rem;
+        }
+
+        .demo-actions .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .6rem;
+            min-height: 3.15rem;
+            padding-inline: 1.4rem;
+            font-weight: 700;
+        }
+
+        .demo-actions .demo-secondary-action {
+            border-color: rgba(255, 255, 255, .45);
+            background: var(--demo-gradient-reverse);
+            color: #fff;
+        }
+
+        .demo-actions .demo-secondary-action:hover,
+        .demo-actions .demo-secondary-action:focus {
+            border-color: rgba(255, 255, 255, .7);
+            background: var(--demo-gradient);
+            color: #fff;
+        }
+
+        html.theme-silver .demo-actions .demo-secondary-action,
+        html.theme-silver .demo-actions .demo-secondary-action:hover,
+        html.theme-silver .demo-actions .demo-secondary-action:focus {
+            color: #111;
+        }
+
+        @@media (max-width: 720px) {
+            .demo-hero-media {
+                background-position: 65% center;
+            }
+
+            .demo-hero-shade {
+                background: color-mix(in srgb, var(--demo-accent) 6%, rgba(255, 255, 255, .56));
+            }
+
+            .demo-hero-content {
+                align-items: flex-end;
+                width: calc(100% - 1rem);
+                padding-block: 3rem;
+            }
+
+            .demo-hero-copy {
+                transform: translateY(-2rem);
+            }
+
+            .demo-eyebrow {
+                margin-bottom: 1rem;
+                font-size: .62rem;
+            }
+
+            .demo-title {
+                margin-bottom: 1rem;
+                padding: 1rem 1rem 1.25rem;
+                border-radius: 1.2rem;
+                font-size: clamp(3rem, 14vw, 4.5rem);
+            }
+
+            .demo-title-lead {
+                font-size: .4em;
+                letter-spacing: .09em;
+            }
+
+            .demo-summary {
+                font-size: .95rem;
+                line-height: 1.55;
+            }
+
+            .demo-actions {
+                margin-top: 1.5rem;
+            }
+
+            .demo-actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
+}
+
+<div class="demo-landing">
+    <section class="demo-hero" aria-labelledby="demo-title">
+        <div class="demo-hero-media"
+             style="background-image: url('@Url.Content("~/img/demo/hero-electric.png")')"
+             role="img"
+             aria-label="Silver electric crossover in a minimalist gallery"></div>
+        <div class="demo-hero-shade" aria-hidden="true"></div>
+
+        <div class="demo-hero-content">
+            <div class="demo-hero-copy">
+                <span class="demo-eyebrow">Modern mobility, made human</span>
+                <h1 id="demo-title" class="demo-title">
+                    <span class="demo-title-lead">The smarter way</span>
+                    <span class="demo-title-accent">forward.</span>
+                </h1>
+                <p class="demo-summary">
+                    Find a vehicle you love through an experience designed for clarity, comfort, and confidence.
+                </p>
+
+                <div class="demo-actions">
+                    <a class="btn btn-gradient shadow rounded-4" href="@Url.Action("All", "Inventory")">
+                        Browse vehicles
+                        <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                    </a>
+                    <a class="btn btn-gradient demo-secondary-action shadow rounded-4" href="@Url.Action("Application", "Home")">
+                        Explore financing
+                        <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
