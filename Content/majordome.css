@@ -1006,19 +1006,29 @@
     }
 
     html.theme-grey .majordome-management-shell,
-    html.theme-dark .majordome-management-shell {
+    html.theme-black .majordome-management-shell {
         --inventory-selected-accent: darkgray;
         --inventory-selected-bg: rgba(169, 169, 169, .18);
     }
 
-    html.theme-pink .majordome-management-shell {
-        --inventory-selected-accent: #c2185b;
-        --inventory-selected-bg: rgba(194, 24, 91, .14);
+    html.theme-navy .majordome-management-shell {
+        --inventory-selected-accent: #245f96;
+        --inventory-selected-bg: rgba(36, 95, 150, .14);
+    }
+
+    html.theme-green .majordome-management-shell {
+        --inventory-selected-accent: #23875d;
+        --inventory-selected-bg: rgba(35, 135, 93, .14);
+    }
+
+    html.theme-red .majordome-management-shell {
+        --inventory-selected-accent: #b83246;
+        --inventory-selected-bg: rgba(184, 50, 70, .14);
     }
 
     html.theme-deep-purple .majordome-management-shell {
-        --inventory-selected-accent: #6a1bb1;
-        --inventory-selected-bg: rgba(106, 27, 177, .14);
+        --inventory-selected-accent: #7f2dc5;
+        --inventory-selected-bg: rgba(127, 45, 197, .14);
     }
 
     html.theme-metallica .majordome-management-shell {
@@ -1857,7 +1867,6 @@
         }
 
         .majordome-editor-hero {
-            background: linear-gradient(120deg, #0b1220 0%, #1e293b 55%, #0f766e 100%);
             color: #fff;
             padding: .55rem 1.1rem;
             position: relative;

@@ -1,0 +1,41 @@
+/* Black.css (scoped black theme) */
+html.theme-black {
+    --gtx-grad: linear-gradient(180deg, #191d22 0%, #2b3138 22%, #1f242c 45%, #0d1117 70%, #000 100%);
+    --gtx-grad-rev: linear-gradient(0deg, #191d22 0%, #2b3138 22%, #1f242c 45%, #0d1117 70%, #000 100%);
+    --gtx-accent-solid: #3a4552;
+}
+
+html.theme-black .menu-strip,
+html.theme-black .modal-header {
+    color: #fff !important;
+    background: var(--gtx-grad) !important;
+}
+
+html.theme-black .btn-gradient,
+html.theme-black .btn-gradient-grey.active {
+    color: #fff !important;
+    border-color: rgba(0, 0, 0, .35) !important;
+    background: var(--gtx-grad) !important;
+}
+
+html.theme-black .header__menu ul li .dropdown {
+    background: var(--gtx-grad) !important;
+}
+
+html.theme-black .header__menu ul li a {
+    color: #fff !important;
+    text-shadow: none !important;
+}
+
+html.theme-black .header__menu ul li a::after {
+    background: #fff !important;
+}
+
+html.theme-black #MajordomeLink .gradient {
+    color: #000 !important;
+}
+
+html.theme-black .form-check-input:checked {
+    border-color: darkgray;
+    background-color: darkgrey;
+}

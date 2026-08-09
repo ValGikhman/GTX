@@ -82,14 +82,6 @@ namespace GTX.Controllers
             return View("Index", Model);
         }
 
-        [HttpGet]
-        public ActionResult Demo()
-        {
-            ViewBag.Message = "Home";
-            ViewBag.Title = "AutoDealer Demo";
-            return View("~/Views/Home/Demo/Index.cshtml", Model);
-        }
-
         public ActionResult TermsAndConditions()
         {
             ViewBag.Message = "Terms and conditions";

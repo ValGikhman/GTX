@@ -1,0 +1,42 @@
+/* Red.css (scoped red theme) */
+html.theme-red {
+    /* deep crimson -> dark burgundy */
+    --gtx-grad: linear-gradient(180deg, #a12a3a 0%, #641522 52%, #29070d 100%);
+    --gtx-grad-rev: linear-gradient(0deg, #a12a3a 0%, #641522 52%, #29070d 100%);
+    --gtx-accent-solid: #b83246;
+}
+
+html.theme-red .menu-strip,
+html.theme-red .modal-header {
+    color: #fff !important;
+    background: var(--gtx-grad) !important;
+}
+
+html.theme-red .btn-gradient,
+html.theme-red .btn-gradient-grey.active {
+    color: #fff !important;
+    border-color: rgba(0, 0, 0, .35) !important;
+    background: var(--gtx-grad) !important;
+}
+
+html.theme-red .header__menu ul li .dropdown {
+    background: var(--gtx-grad) !important;
+}
+
+html.theme-red .header__menu ul li a {
+    color: #fff !important;
+    text-shadow: none !important;
+}
+
+html.theme-red .header__menu ul li a::after {
+    background: #fff !important;
+}
+
+html.theme-red #MajordomeLink .gradient {
+    color: #000 !important;
+}
+
+html.theme-red .form-check-input:checked {
+    border-color: #b83246;
+    background-color: #b83246;
+}
