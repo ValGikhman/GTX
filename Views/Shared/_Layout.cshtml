@@ -33,14 +33,34 @@
     }
 
     var publishedIso = publishedAt.ToString("yyyy-MM-ddTHH:mm", System.Globalization.CultureInfo.InvariantCulture);
+    // Migrate the retired pink theme to navy.
+    if (t == "pink")
+    {
+        t = "navy";
+    }
+    else if (t == "dark-green")
+    {
+        t = "green";
+    }
+    else if (t == "dark-red")
+    {
+        t = "red";
+    }
+    else if (t == "dark")
+    {
+        t = "black";
+    }
+
     // allow only known themes
     switch (t)
     {
         case "grey":
-        case "pink":
+        case "navy":
+        case "green":
+        case "red":
         case "blue":
         case "deep-purple":
-        case "dark":
+        case "black":
         case "metallica":
         case "silver":
             break;
@@ -74,12 +94,27 @@
             };
 
             var KEY = "gtx-theme";
-            const THEMES = ["blue", "grey", "pink", "deep-purple", "metallica", "dark", "silver"]; // add more here
+            const THEMES = ["blue", "grey", "navy", "green", "red", "deep-purple", "metallica", "black", "silver"];
             var t = localStorage.getItem(KEY) || "blue"; // default
             var root = document.documentElement;
 
+            if (t === "pink") {
+                t = "navy";
+                localStorage.setItem(KEY, t);
+            } else if (t === "dark-green") {
+                t = "green";
+                localStorage.setItem(KEY, t);
+            } else if (t === "dark-red") {
+                t = "red";
+                localStorage.setItem(KEY, t);
+            } else if (t === "dark") {
+                t = "black";
+                localStorage.setItem(KEY, t);
+            }
+
             // remove any theme classes first
             root.classList.remove(...THEMES.map(t => "theme-" + t));
+            root.classList.remove("theme-pink", "theme-dark-green", "theme-dark-red", "theme-dark");
 
             // add selected theme
             root.classList.add("theme-" + t);
@@ -496,14 +531,16 @@
                             Theme: <span id="themeLabel">Blue</span>
                         </button>
 
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="themeDropdown">
+                        <ul class="dropdown-menu dropdown-menu-end theme-dropdown-menu" aria-labelledby="themeDropdown">
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="blue"><span class="theme-swatch swatch-blue"></span> Blue</a></li>
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="grey"><span class="theme-swatch swatch-grey"></span> Grey</a></li>
-                            <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="pink"><span class="theme-swatch swatch-pink"></span> Pink</a></li>
+                            <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="navy"><span class="theme-swatch swatch-navy"></span> Navy</a></li>
+                            <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="green"><span class="theme-swatch swatch-green"></span> Green</a></li>
+                            <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="red"><span class="theme-swatch swatch-red"></span> Red</a></li>
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="deep-purple"><span class="theme-swatch swatch-deep-purple"></span> Deep Purple</a></li>
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="metallica"><span class="theme-swatch swatch-metallica"></span> Metallica</a></li>
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="silver"><span class="theme-swatch swatch-silver"></span> Silver</a></li>
-                            <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="dark"><span class="theme-swatch swatch-dark"></span> Dark</a></li>
+                            <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="black"><span class="theme-swatch swatch-black"></span> Black</a></li>
                         </ul>
                     </div>
 
@@ -810,7 +847,9 @@
 
             const items = Array.from(document.querySelectorAll(".theme-item"));
             const themes = items.map(x => x.dataset.theme).filter(Boolean);
-            const pretty = (t) => t ? (t.charAt(0).toUpperCase() + t.slice(1)) : "";
+            const pretty = (t) => t
+                ? t.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ")
+                : "";
 
             function setCookie(name, value) {
                 // 1 year, site-wide
@@ -827,7 +866,16 @@
                 if (label) label.textContent = pretty(theme);
             }
 
-            const saved = localStorage.getItem(KEY) || "blue";
+            const storedTheme = localStorage.getItem(KEY) || "blue";
+            const saved = storedTheme === "pink"
+                ? "navy"
+                : storedTheme === "dark-green"
+                    ? "green"
+                    : storedTheme === "dark-red"
+                        ? "red"
+                        : storedTheme === "dark"
+                            ? "black"
+                            : storedTheme;
             if (themes.includes(saved)) applyTheme(saved);
 
             items.forEach(a => {

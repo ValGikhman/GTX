@@ -1,0 +1,42 @@
+/* Navy.css (scoped navy theme) */
+html.theme-navy {
+    /* ocean navy -> deep midnight */
+    --gtx-grad: linear-gradient(180deg, #244f7a 0%, #0f2d4d 52%, #06172b 100%);
+    --gtx-grad-rev: linear-gradient(0deg, #244f7a 0%, #0f2d4d 52%, #06172b 100%);
+    --gtx-accent-solid: #245f96;
+}
+
+html.theme-navy .menu-strip,
+html.theme-navy .modal-header {
+    color: #fff !important;
+    background: var(--gtx-grad) !important;
+}
+
+html.theme-navy .btn-gradient,
+html.theme-navy .btn-gradient-grey.active {
+    color: #fff !important;
+    border-color: rgba(0, 0, 0, .35) !important;
+    background: var(--gtx-grad) !important;
+}
+
+html.theme-navy .header__menu ul li .dropdown {
+    background: var(--gtx-grad) !important;
+}
+
+html.theme-navy .header__menu ul li a {
+    color: #fff !important;
+    text-shadow: none !important;
+}
+
+html.theme-navy .header__menu ul li a::after {
+    background: #fff !important;
+}
+
+html.theme-navy #MajordomeLink .gradient {
+    color: #000 !important;
+}
+
+html.theme-navy .form-check-input:checked {
+    border-color: #245f96;
+    background-color: #245f96;
+}

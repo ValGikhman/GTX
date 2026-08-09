@@ -20,7 +20,7 @@
     });
 
     $(".copyable").on("dblclick", function () {
-        const textContent = $(this).text();
+        const textContent = $(this).text().trim();
         const temp = $('<textarea>');
         $('body').append(temp);
         temp.val(textContent).select();

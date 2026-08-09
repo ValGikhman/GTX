@@ -108,11 +108,6 @@ html.theme-silver .vdp-record-status-icon {
     color: #fff;
     border: 1px solid rgba(255, 255, 255, .1);
     border-radius: 1.5rem;
-    background: var(--vdp-theme-gradient);
-    background:
-        radial-gradient(circle at 100% 100%, rgba(255, 255, 255, .22), transparent 38%),
-        linear-gradient(108deg, rgba(3, 7, 12, .98), rgba(7, 13, 20, .9) 52%, rgba(9, 15, 22, .68)),
-        var(--vdp-theme-gradient);
     box-shadow: 0 1.5rem 4rem rgba(14, 22, 30, .18);
 }
 
@@ -141,7 +136,8 @@ html.theme-silver .vdp-record-status-icon {
     line-height: 1;
     text-transform: uppercase;
     white-space: nowrap;
-    -webkit-text-stroke: 1px rgba(255, 255, 255, .09);
+    -webkit-text-stroke: 1px rgba(255, 255, 255, .17);
+    filter: drop-shadow(0 0 1.25rem var(--vdp-accent-soft));
     user-select: none;
     pointer-events: none;
 }
@@ -286,36 +282,91 @@ html.theme-silver .vdp-record-status-icon {
 }
 
 .vdp-price-card {
+    position: relative;
+    isolation: isolate;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-self: center;
+    overflow: hidden;
     width: min(100%, 18rem);
-    padding: 1.4rem;
+    padding: 1.45rem 1.4rem 1.25rem;
     text-align: center;
     transform: translateX(1.25rem);
-    border: 1px solid rgba(255, 255, 255, .16);
-    border-radius: 1.15rem;
-    background: rgba(255, 255, 255, .08);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08);
-    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, .25);
+    border-radius: 1.3rem;
+    background:
+        radial-gradient(circle at 18% 0, rgba(255, 255, 255, .2), transparent 48%),
+        linear-gradient(145deg, rgba(255, 255, 255, .16), rgba(255, 255, 255, .055) 54%, var(--vdp-accent-soft));
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .2),
+        inset 0 -1px 0 rgba(0, 0, 0, .16),
+        0 1.1rem 2.5rem rgba(3, 8, 13, .24),
+        0 0 2.5rem var(--vdp-accent-soft);
+    backdrop-filter: blur(18px) saturate(135%);
 }
 
-.vdp-price-label,
-.vdp-price-note {
-    color: rgba(255, 255, 255, .62);
-    font-size: .73rem;
-    font-weight: 700;
-    letter-spacing: .08em;
+.vdp-price-card::before {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    content: "";
+    background:
+        linear-gradient(120deg, transparent 18%, rgba(255, 255, 255, .09) 42%, transparent 64%),
+        radial-gradient(circle at 100% 110%, var(--vdp-accent-soft), transparent 50%);
+    pointer-events: none;
+}
+
+.vdp-price-card::after {
+    position: absolute;
+    top: 0;
+    right: 12%;
+    left: 12%;
+    height: 2px;
+    content: "";
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, var(--vdp-accent-bright), #fff, var(--vdp-accent-bright), transparent);
+    box-shadow: 0 0 1rem var(--vdp-accent-bright);
+    opacity: .9;
+    pointer-events: none;
+}
+
+.vdp-price-label {
+    margin-bottom: .45rem;
+    padding: .34rem .68rem;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, .16);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .08);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08);
+    font-size: .66rem;
+    font-weight: 850;
+    letter-spacing: .13em;
     text-transform: uppercase;
 }
 
 .vdp-price-card > strong {
-    margin: .15rem 0;
+    margin: .05rem 0 .65rem;
     color: #fff;
-    font-size: clamp(2rem, 3.5vw, 3rem);
-    letter-spacing: -.045em;
-    line-height: 1.1;
+    font-size: clamp(2.25rem, 3.8vw, 3.25rem);
+    font-weight: 900;
+    letter-spacing: -.055em;
+    line-height: 1;
+    text-shadow:
+        0 .12rem 0 rgba(0, 0, 0, .22),
+        0 .55rem 1.25rem rgba(0, 0, 0, .28),
+        0 0 1.4rem var(--vdp-accent-soft);
+}
+
+.vdp-price-note {
+    width: 100%;
+    padding-top: .75rem;
+    color: rgba(255, 255, 255, .7);
+    border-top: 1px solid rgba(255, 255, 255, .13);
+    font-size: .69rem;
+    font-weight: 650;
+    letter-spacing: .025em;
+    line-height: 1.45;
 }
 
 .vehicle-detail-page .details-container.inventory-details-layout {
@@ -389,10 +440,6 @@ html.theme-silver .vdp-record-status-icon {
     border: 1px solid rgba(255, 255, 255, .08);
     border-radius: 1.35rem;
     background: var(--vdp-theme-gradient);
-    background:
-        radial-gradient(circle at 100% 100%, rgba(255, 255, 255, .22), transparent 38%),
-        linear-gradient(108deg, rgba(3, 7, 12, .98), rgba(7, 13, 20, .9) 52%, rgba(9, 15, 22, .68)),
-        var(--vdp-theme-gradient);
     box-shadow: 0 1.2rem 3rem rgba(11, 17, 22, .16);
 }
 
@@ -400,9 +447,6 @@ html.theme-silver .vdp-record-status-icon {
     --bs-aspect-ratio: 59%;
     overflow: hidden;
     border-radius: .95rem;
-    background: radial-gradient(circle at center, #28333d, #0c1116 68%);
-    background:
-        radial-gradient(circle at center, color-mix(in srgb, var(--vdp-accent) 20%, #28333d), #0c1116 68%);
 }
 
 .vdp-photo-pending {
@@ -468,21 +512,15 @@ html.theme-silver .vdp-record-status-icon {
     height: 100% !important;
 }
 
-.vehicle-detail-page #detailsCarousel .carousel-inner {
-    background: var(--vdp-theme-gradient);
-    background:
-        radial-gradient(circle at 100% 100%, rgba(255, 255, 255, .22), transparent 38%),
-        linear-gradient(108deg, rgba(3, 7, 12, .98), rgba(7, 13, 20, .9) 52%, rgba(9, 15, 22, .68)),
-        var(--vdp-theme-gradient);
+.vehicle-detail-page #detailsCarousel,
+.vehicle-detail-page #detailsCarousel .carousel-inner,
+.vehicle-detail-page #detailsCarousel .carousel-item,
+.vehicle-detail-page #detailsCarousel .slide-box {
+    background: inherit;
 }
 
 .vehicle-detail-page #detailsCarousel .slide-box {
     height: 100%;
-    background: var(--vdp-theme-gradient);
-    background:
-        radial-gradient(circle at 100% 100%, rgba(255, 255, 255, .22), transparent 38%),
-        linear-gradient(108deg, rgba(3, 7, 12, .98), rgba(7, 13, 20, .9) 52%, rgba(9, 15, 22, .68)),
-        var(--vdp-theme-gradient);
 }
 
 .vehicle-detail-page #detailsCarousel img {
@@ -808,6 +846,7 @@ html.theme-silver .vdp-contact-action-primary small {
     align-items: end;
     justify-content: space-between;
     padding: clamp(1.25rem, 3.5vw, 2.5rem);
+    border-bottom: 1px solid rgba(255, 255, 255, .1);
 }
 
 .vdp-photo-gallery-kicker {
@@ -870,7 +909,6 @@ html.theme-silver .vdp-contact-action-primary small {
     gap: .55rem;
     max-height: none !important;
     padding: .55rem;
-    background: #0c1116;
 }
 
 .vdp-photo-grid .elem,

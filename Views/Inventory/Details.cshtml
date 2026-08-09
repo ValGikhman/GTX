@@ -235,7 +235,7 @@
 </div>
 
 <main class="vehicle-detail-page">
-<section class="vdp-identity" aria-labelledby="vehicle-title">
+<section class="hero vdp-identity" aria-labelledby="vehicle-title">
     <span class="vdp-identity-orbit vdp-identity-orbit-one" aria-hidden="true"></span>
     <span class="vdp-identity-orbit vdp-identity-orbit-two" aria-hidden="true"></span>
     <div class="vdp-identity-copy">
@@ -296,7 +296,7 @@
                 {
                     <div class="row well mb-1 vdp-gallery-card">
                         <div class="col-12 col-lg-12 col-md-12 col-sm-12">
-                            <div class="ratio ratio-carousel overflow-hidden">
+                            <div class="hero ratio ratio-carousel overflow-hidden">
                                 @Html.Partial("_Carousel", Model.CurrentVehicle)
                             </div>
 
@@ -375,7 +375,7 @@
             {
                 <div class="tab-pane fade well" id="nav-pictures" role="tabpanel" aria-labelledby="nav-picture-tab">
                     <div class="vdp-photo-gallery">
-                        <header class="vdp-photo-gallery-heading">
+                        <header class="hero vdp-photo-gallery-heading">
                             <div>
                                 <span class="vdp-photo-gallery-kicker">Vehicle gallery</span>
                                 <h2>Every angle. Every detail.</h2>
@@ -386,7 +386,7 @@
                                 <span>Photos</span>
                             </div>
                         </header>
-                        <div class="vdp-photo-grid">
+                        <div class="hero vdp-photo-grid">
                         @{ var photoNumber = 0; }
                         @foreach (Image image in Model.CurrentVehicle.VehicleDetails.Images)
                         {

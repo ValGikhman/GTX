@@ -2,6 +2,33 @@
    Shared: Bootstrap and app-wide overrides
    ========================================================================== */
 
+/* Shared themed treatment for page and application heroes. */
+.hero {
+    --hero-theme-gradient: var(--gtx-grad, linear-gradient(180deg, #155a96, #1e73be));
+    --hero-accent: var(--gtx-accent-solid, #1e73be);
+    --hero-accent-soft: rgba(30, 115, 190, .18);
+    --hero-accent-soft: color-mix(in srgb, var(--hero-accent) 18%, transparent);
+    --hero-corner-glow: rgba(30, 115, 190, .52);
+    --hero-corner-glow: color-mix(in srgb, var(--hero-accent) 62%, transparent);
+    --hero-background:
+        radial-gradient(circle at 100% 100%, var(--hero-corner-glow), transparent 42%),
+        linear-gradient(112deg, rgba(8, 13, 18, .3), rgba(8, 13, 18, .6)),
+        linear-gradient(125deg, var(--hero-accent-soft), transparent 48%),
+        var(--hero-theme-gradient);
+    background: var(--hero-theme-gradient);
+    background: var(--hero-background);
+}
+
+/* Theme modal-header rules are important; keep hero headers on the shared treatment. */
+html body .hero.modal-header {
+    background: var(--hero-background) !important;
+}
+
+/* Keep the compact Majordome gear legible across every color theme. */
+html body #MajordomeLink > a.gradient {
+    color: #000 !important;
+}
+
 .dropdown-menu {
     border-radius: 14px;
     border: 1px solid rgba(255,255,255,.12);
@@ -12,6 +39,22 @@
 .dropdown-item {
     border-radius: 10px;
     padding: .55rem .75rem;
+}
+
+.theme-dropdown-menu {
+    width: min(30rem, calc(100vw - 1rem));
+    padding: .55rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .3rem;
+}
+
+.theme-dropdown-menu.show {
+    display: grid;
+}
+
+.theme-dropdown-menu .theme-item {
+    min-height: 2.4rem;
+    white-space: normal;
 }
 
     .dropdown-item:hover {
@@ -43,15 +86,23 @@
     background: linear-gradient(180deg, #757575, #141414);
 }
 
-.swatch-pink {
-    background: linear-gradient(180deg, #ff73b8, #7a0f4a);
+.swatch-navy {
+    background: linear-gradient(180deg, #244f7a 0%, #0f2d4d 52%, #06172b 100%);
+}
+
+.swatch-green {
+    background: linear-gradient(180deg, #1f6a4a 0%, #0b3b2b 52%, #031c15 100%);
+}
+
+.swatch-red {
+    background: linear-gradient(180deg, #a12a3a 0%, #641522 52%, #29070d 100%);
 }
 
 .swatch-deep-purple {
-    background: linear-gradient(180deg, #3a145e, #0b0610);
+    background: linear-gradient(180deg, #7426b9 0%, #4b0f78 52%, #160021 100%);
 }
 
-.swatch-dark {
+.swatch-black {
     background: linear-gradient(180deg, #191d22 0%, #2b3138 22%, #1f242c 45%, #0d1117 70%, #000000 100% );
 }
 
@@ -1597,9 +1648,11 @@ input::placeholder {
 
     html.theme-blue .page-title #title .main-title,
     html.theme-grey .page-title #title .main-title,
-    html.theme-pink .page-title #title .main-title,
+    html.theme-navy .page-title #title .main-title,
+    html.theme-green .page-title #title .main-title,
+    html.theme-red .page-title #title .main-title,
     html.theme-deep-purple .page-title #title .main-title,
-    html.theme-dark .page-title #title .main-title {
+    html.theme-black .page-title #title .main-title {
         color: #fff !important;
     }
 
@@ -2486,14 +2539,14 @@ a, u {
 /*---------------------
   Hero
 -----------------------*/
-.hero {
+.home-hero {
     background-position-y: -100px;
     background-size: cover; /* Stretch to cover entire area */
     height: 93vh; /* Viewport height: no scrolling */
     transition: background-image 1s ease-in-out;
 }
 
-    .hero .slogan-big {
+    .home-hero .slogan-big {
         text-transform: uppercase;
         position: absolute;
         top: 2.5rem;
@@ -2505,7 +2558,7 @@ a, u {
         text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
     }
 
-    .hero .slogan-small {
+    .home-hero .slogan-small {
         text-transform: uppercase;
         position: fixed;
         top: 6.3rem;
@@ -2711,13 +2764,13 @@ a, u {
         padding: 1rem 1rem;
     }
 
-    .hero .slogan-big {
+    .home-hero .slogan-big {
         top: 0.8rem;
         font-size: 1rem;
         margin-right: 1rem;
     }
 
-    .hero .slogan-small {
+    .home-hero .slogan-small {
         font-size: 0.7rem;
         top: 3.5rem;
         left: 0=9rem;
@@ -2856,7 +2909,7 @@ a, u {
         max-height: 80vh;
     }
 
-    .hero {
+    .home-hero {
         background-position: 87%;
     }
 
@@ -2944,13 +2997,13 @@ a, u {
         border-top: none;
     }
 
-    .hero .slogan-big {
+    .home-hero .slogan-big {
         top: 0.8rem;
         font-size: 1rem;
         margin-right: 1rem;
     }
 
-    .hero .slogan-small {
+    .home-hero .slogan-small {
         font-size: 0.7rem;
         top: 3rem;
         left: 12rem;

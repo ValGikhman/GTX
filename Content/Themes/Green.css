@@ -1,0 +1,42 @@
+/* Green.css (scoped green theme) */
+html.theme-green {
+    /* forest green -> deep evergreen */
+    --gtx-grad: linear-gradient(180deg, #1f6a4a 0%, #0b3b2b 52%, #031c15 100%);
+    --gtx-grad-rev: linear-gradient(0deg, #1f6a4a 0%, #0b3b2b 52%, #031c15 100%);
+    --gtx-accent-solid: #23875d;
+}
+
+html.theme-green .menu-strip,
+html.theme-green .modal-header {
+    color: #fff !important;
+    background: var(--gtx-grad) !important;
+}
+
+html.theme-green .btn-gradient,
+html.theme-green .btn-gradient-grey.active {
+    color: #fff !important;
+    border-color: rgba(0, 0, 0, .35) !important;
+    background: var(--gtx-grad) !important;
+}
+
+html.theme-green .header__menu ul li .dropdown {
+    background: var(--gtx-grad) !important;
+}
+
+html.theme-green .header__menu ul li a {
+    color: #fff !important;
+    text-shadow: none !important;
+}
+
+html.theme-green .header__menu ul li a::after {
+    background: #fff !important;
+}
+
+html.theme-green #MajordomeLink .gradient {
+    color: #000 !important;
+}
+
+html.theme-green .form-check-input:checked {
+    border-color: #23875d;
+    background-color: #23875d;
+}

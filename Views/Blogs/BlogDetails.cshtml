@@ -29,7 +29,7 @@
             <article class="bg-white rounded-4 shadow-lg overflow-hidden p-0">
 
                 <!-- Hero -->
-                <div class="blog-hero position-relative">
+                <div class="hero blog-hero position-relative">
                     @if (hasImg)
                     {
                         <img src="@safeMediaUrl"
@@ -90,7 +90,6 @@
         min-height: 360px;
         max-height: 520px;
         overflow: hidden;
-        background: #f6f7f8;
     }
 
     .blog-hero-img {
@@ -108,7 +107,12 @@
 
     .blog-hero-fallback {
         height: 420px;
-        background: radial-gradient(circle at 30% 30%, #ffffff 0%, #f2f4f7 45%, #e9edf3 100%);
+        color: #fff;
+        background: transparent;
+    }
+
+    .blog-hero-fallback .text-muted {
+        color: rgba(255, 255, 255, .7) !important;
     }
 
     .blog-hero-icon {
