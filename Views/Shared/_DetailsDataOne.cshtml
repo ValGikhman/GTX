@@ -37,7 +37,7 @@
     var vehicleDetails = Model?.CurrentVehicle?.VehicleDetails;
     var internetPrice = vehicleDetails?.InternetPrice ?? 0;
     var retailPrice = vehicleDetails?.RetailPrice ?? 0;
-    var documentaryFee = retailPrice > 0 ? Constants.DOCUMENTARY_FEE : 0;
+    var documentaryFee = internetPrice > 0 ? Constants.DOCUMENTARY_FEE : 0;
     var transparentPrice = internetPrice + documentaryFee;
     var usCulture = CultureInfo.GetCultureInfo("en-US");
 }
@@ -136,10 +136,13 @@
                                                 <td class="fw-bold text-danger"><i class="bi bi-car-front me-1"></i>@I18n.R("All_InternetPrice")</td>
                                                 <td class="fw-bold text-danger">@(internetPrice.ToString("C0", usCulture))</td>
                                             </tr>
-                                            <tr>
-                                                <td class="fw-bold"><i class="bi bi-file-earmark-text me-1"></i>@I18n.R("All_DocumentaryFee")</td>
-                                                <td>@(documentaryFee.ToString("C0", usCulture))</td>
-                                            </tr>
+                                            @if (internetPrice > 0)
+                                            {
+                                                <tr>
+                                                    <td class="fw-bold"><i class="bi bi-file-earmark-text me-1"></i>@I18n.R("All_DocumentaryFee")</td>
+                                                    <td>@(documentaryFee.ToString("C0", usCulture))</td>
+                                                </tr>
+                                            }
                                             <tr>
                                                 <td class="fw-bold"><i class="bi bi-patch-check-fill text-warning me-1"></i>@I18n.R("All_TransparentPrice")</td>
                                                 <td class="fw-bold">@(transparentPrice.ToString("C0", usCulture))</td>
