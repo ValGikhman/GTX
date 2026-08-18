@@ -113,7 +113,7 @@
     var adCardImageUrl = BuildAdCardImageUrl(Model.Image);
     var adCardTitle = $"{Model.Year} {Model.Make} {Model.Model} {Model.VehicleStyle}".Trim();
     var usCulture = System.Globalization.CultureInfo.GetCultureInfo("en-US");
-    var documentaryFee = Model.RetailPrice > 0 ? Constants.DOCUMENTARY_FEE : 0;
+    var documentaryFee = Model.InternetPrice > 0 ? Constants.DOCUMENTARY_FEE : 0;
     var transparentPrice = Model.InternetPrice + documentaryFee;
     var stockValue = (Model.Stock ?? string.Empty).ToUpperInvariant();
     var makeValue = (Model.Make ?? string.Empty).ToUpperInvariant();
@@ -158,10 +158,13 @@
                 <span>@I18n.R("All_InternetPrice")</span>
                 <span class="gtx-ad-price-amount">@Model.InternetPrice.ToString("C0", usCulture)</span>
             </div>
-            <div class="gtx-ad-price-row">
-                <span>@I18n.R("All_DocumentaryFee")</span>
-                <span class="gtx-ad-price-amount">@documentaryFee.ToString("C0", usCulture)</span>
-            </div>
+            @if (Model.InternetPrice > 0)
+            {
+                <div class="gtx-ad-price-row">
+                    <span>@I18n.R("All_DocumentaryFee")</span>
+                    <span class="gtx-ad-price-amount">@documentaryFee.ToString("C0", usCulture)</span>
+                </div>
+            }
             <div class="gtx-ad-price-row gtx-ad-transparent">
                 <span><i class="bi bi-patch-check-fill text-warning me-1"></i>@I18n.R("All_TransparentPrice")</span>
                 <span class="gtx-ad-price-amount">@transparentPrice.ToString("C0", usCulture)</span>

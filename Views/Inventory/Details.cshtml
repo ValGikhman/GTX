@@ -86,7 +86,8 @@
 
     var canonicalURL = $"https://usedcarscincinnati.com/Inventory/{slug}";
     var price = vehicle?.InternetPrice;
-    var transparentPrice = (vehicle?.InternetPrice ?? 0) + Constants.DOCUMENTARY_FEE;
+    var internetPrice = vehicle?.InternetPrice ?? 0;
+    var transparentPrice = internetPrice > 0 ? internetPrice + Constants.DOCUMENTARY_FEE : 0;
     var displayPrice = string.Format("{0:C0}", transparentPrice);
     var displayDocumentaryFee = string.Format("{0:C0}", Constants.DOCUMENTARY_FEE);
     var displayMileage = string.Format("{0:N0}", vehicle?.Mileage ?? 0);
@@ -263,7 +264,10 @@
     <div class="vdp-price-card">
         <span class="vdp-price-label">Transparent Price</span>
         <strong>@displayPrice</strong>
-        <span class="vdp-price-note">Internet price + @displayDocumentaryFee documentary fee</span>
+        @if (internetPrice > 0)
+        {
+            <span class="vdp-price-note">Internet price + @displayDocumentaryFee documentary fee</span>
+        }
     </div>
 </section>
 
