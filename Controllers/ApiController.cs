@@ -4,12 +4,14 @@ using Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Web;
+using System.Web.Hosting;
 using System.Web.Http;
 
 namespace GTX.Controllers {
@@ -34,6 +36,22 @@ namespace GTX.Controllers {
                 apiVersion = "v1",
                 serverTimeUtc = DateTime.UtcNow
             });
+        }
+
+        [HttpGet]
+        [Route("showmehow")]
+        public IHttpActionResult ShowMeHow() {
+            var pagePath = HostingEnvironment.MapPath("~/Content/api-showmehow.html");
+            if (string.IsNullOrWhiteSpace(pagePath) || !File.Exists(pagePath)) {
+                return Content(
+                    HttpStatusCode.InternalServerError,
+                    "API documentation is temporarily unavailable.");
+            }
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK) {
+                Content = new StringContent(File.ReadAllText(pagePath), Encoding.UTF8, "text/html")
+            };
+            return ResponseMessage(response);
         }
 
         [HttpGet]
