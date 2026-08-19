@@ -15,9 +15,9 @@ namespace GTX.Api {
             config.Formatters.JsonFormatter.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
             config.Formatters.Remove(config.Formatters.XmlFormatter);
 
-            // Native apps do not require CORS, but the Expo web build does.
-            // Keep this handler limited to the public, GET-only mobile API.
-            config.MessageHandlers.Add(new MobileApiCorsHandler());
+            // Native apps do not require CORS, but browser clients do.
+            // Keep this handler limited to the public, GET-only API.
+            config.MessageHandlers.Add(new PublicApiCorsHandler());
 
             config.MapHttpAttributeRoutes();
 
@@ -29,15 +29,15 @@ namespace GTX.Api {
         }
     }
 
-    internal sealed class MobileApiCorsHandler : DelegatingHandler {
-        private const string MobileApiPath = "/api/mobile/v1/";
+    internal sealed class PublicApiCorsHandler : DelegatingHandler {
+        private const string PublicApiPath = "/api/v1/";
 
         protected override async Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request,
             CancellationToken cancellationToken) {
 
             var path = request?.RequestUri?.AbsolutePath ?? string.Empty;
-            if (!path.StartsWith(MobileApiPath, StringComparison.OrdinalIgnoreCase)) {
+            if (!path.StartsWith(PublicApiPath, StringComparison.OrdinalIgnoreCase)) {
                 return await base.SendAsync(request, cancellationToken);
             }
 

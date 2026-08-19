@@ -262,10 +262,14 @@
         }
 
         function managementLogTotalCount(log) {
-            // Sold rows are inferred from prior inventory and are not present in the current upload.
-            return managementLogStatusCount(log, "skipped") +
-                managementLogStatusCount(log, "added") +
-                managementLogStatusCount(log, "updated");
+            return Number(managementValue(log, "TotalCount", 0)) || 0;
+        }
+
+        function selectedMajordomeManagementLog() {
+            const selectedLogId = managementText($("#majordomeManagementLogSelect").val());
+            return majordomeManagementLogs.find(function (log) {
+                return managementText(managementValue(log, "Id", "")) === selectedLogId;
+            }) || null;
         }
 
         function managementLogTreeId(logId) {
@@ -478,11 +482,9 @@
             $(".majordome-management-table-wrap").toggleClass("d-none", !hasFilteredRows);
         }
 
-        function updateMajordomeManagementCount(filteredCount, totalCount) {
-            const filteredText = managementFormatInteger(filteredCount);
-            const totalText = managementFormatInteger(totalCount);
-            const countText = filteredCount === totalCount ? filteredText : `${filteredText} / ${totalText}`;
-            $("#majordomeManagementCount").text(countText);
+        function updateMajordomeManagementCount() {
+            const total = managementLogTotalCount(selectedMajordomeManagementLog());
+            $("#majordomeManagementCount").text(managementFormatInteger(total));
         }
 
         function syncMajordomeManagementLocationFilter() {
@@ -992,7 +994,7 @@
                 $("#majordomeManagementBody").html(html);
             }
 
-            updateMajordomeManagementCount(vehicles.length, total);
+            updateMajordomeManagementCount();
             updateMajordomeManagementEmptyState(vehicles.length, total);
             updateMajordomeManagementSortHeaders();
         }
