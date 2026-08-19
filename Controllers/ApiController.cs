@@ -6,19 +6,23 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Web;
 using System.Web.Http;
 
 namespace GTX.Controllers {
     [AllowAnonymous]
-    [RoutePrefix("api/mobile/v1")]
-    public sealed class MobileController : ApiController {
+    [RoutePrefix("api/v1")]
+    public sealed class ApiController : System.Web.Http.ApiController {
         private const int MaximumPageSize = 100;
+        private const int MaximumMetaImages = 20;
         private readonly IInventoryService _inventoryService;
 
-        public MobileController() : this(new InventoryService()) { }
+        public ApiController() : this(new InventoryService()) { }
 
-        public MobileController(IInventoryService inventoryService) {
+        public ApiController(IInventoryService inventoryService) {
             _inventoryService = inventoryService ?? throw new ArgumentNullException(nameof(inventoryService));
         }
 
@@ -158,6 +162,92 @@ namespace GTX.Controllers {
             }
         }
 
+        [HttpGet]
+        [Route("meta-vehicles")]
+        public IHttpActionResult MetaVehicles() {
+            try {
+                var inventory = _inventoryService.GetInventory();
+                var csv = new StringBuilder();
+                var headers = new List<string> {
+                    "vehicle_id",
+                    "title",
+                    "description",
+                    "url",
+                    "make",
+                    "model",
+                    "year",
+                    "mileage.value",
+                    "mileage.unit"
+                };
+
+                for (var imageIndex = 0; imageIndex < MaximumMetaImages; imageIndex++) {
+                    headers.Add("image[" + imageIndex + "].url");
+                }
+
+                headers.AddRange(new[] {
+                    "price",
+                    "state_of_vehicle",
+                    "vin",
+                    "transmission",
+                    "body_style",
+                    "drivetrain"
+                });
+                csv.AppendLine(string.Join(",", headers));
+
+                foreach (var vehicle in inventory.vehicles ?? Array.Empty<GTXDTO>()) {
+                    var stock = (vehicle.Stock ?? string.Empty).Trim();
+                    var vin = (vehicle.VIN ?? string.Empty).Trim();
+                    var imageUrls = GetMetaImageUrls(stock);
+
+                    // Meta requires a stable ID, price, VIN, landing page, and vehicle image.
+                    if (stock.Length == 0 || vin.Length == 0 || vehicle.InternetPrice <= 0 || imageUrls.Length == 0) {
+                        continue;
+                    }
+
+                    var title = string.Join(" ", new[] {
+                        vehicle.Year.ToString(),
+                        vehicle.Make,
+                        vehicle.Model,
+                        vehicle.VehicleStyle
+                    }.Where(value => !string.IsNullOrWhiteSpace(value)));
+                    var values = new List<object> {
+                        stock,
+                        title,
+                        title,
+                        BuildUrl("Inventory/Details?stock=" + HttpUtility.UrlEncode(stock)),
+                        vehicle.Make,
+                        vehicle.Model,
+                        vehicle.Year,
+                        vehicle.Mileage,
+                        "MI"
+                    };
+
+                    for (var imageIndex = 0; imageIndex < MaximumMetaImages; imageIndex++) {
+                        values.Add(imageIndex < imageUrls.Length ? imageUrls[imageIndex] : string.Empty);
+                    }
+
+                    values.Add(vehicle.InternetPrice.ToString("0.00") + " USD");
+                    values.Add("USED");
+                    values.Add(vin);
+                    values.Add(BuildTransmission(vehicle));
+                    values.Add(vehicle.Body);
+                    values.Add(vehicle.DriveTrain);
+                    csv.AppendLine(string.Join(",", values.Select(Csv)));
+                }
+
+                var response = new HttpResponseMessage(HttpStatusCode.OK) {
+                    Content = new StringContent(csv.ToString(), Encoding.UTF8, "text/csv")
+                };
+                response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("inline") {
+                    FileName = "meta-vehicles.csv"
+                };
+                return ResponseMessage(response);
+            }
+            catch (Exception ex) {
+                return InventoryError(ex);
+            }
+        }
+
         private IEnumerable<GTXDTO> ApplyQuery(IEnumerable<GTXDTO> source, MobileInventoryQuery query) {
             var vehicles = source ?? Enumerable.Empty<GTXDTO>();
 
@@ -259,6 +349,21 @@ namespace GTX.Controllers {
             }
         }
 
+        private string[] GetMetaImageUrls(string stock) {
+            try {
+                return (_inventoryService.GetImages(stock) ?? Array.Empty<Image>())
+                    .Select(image => BuildPictureUrl(image.Source))
+                    .Where(url => !string.IsNullOrWhiteSpace(url))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .Take(MaximumMetaImages)
+                    .ToArray();
+            }
+            catch (Exception ex) {
+                Trace.TraceError("Unable to load Meta inventory images for {0}: {1}", stock, ex);
+                return Array.Empty<string>();
+            }
+        }
+
         private string BuildPictureUrl(string source) {
             var value = (source ?? string.Empty).Trim().Replace('\\', '/');
             Uri absolute;
@@ -306,7 +411,7 @@ namespace GTX.Controllers {
         }
 
         private IHttpActionResult InventoryError(Exception ex) {
-            Trace.TraceError("Mobile inventory API failure: {0}", ex);
+            Trace.TraceError("Public inventory API failure: {0}", ex);
             return Content(
                 HttpStatusCode.InternalServerError,
                 new { message = "Inventory is temporarily unavailable. Please try again." });
@@ -366,6 +471,15 @@ namespace GTX.Controllers {
                 .Where(item => item.Length > 0)
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToArray();
+        }
+
+        private static string Csv(object value) {
+            var text = Convert.ToString(value) ?? string.Empty;
+            text = text
+                .Replace("\"", "\"\"")
+                .Replace("\r", " ")
+                .Replace("\n", " ");
+            return "\"" + text + "\"";
         }
 
         private static string[] DistinctValues(IEnumerable<string> values) {
