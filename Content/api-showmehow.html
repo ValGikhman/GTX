@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <link rel="icon" href="/favicon.ico">
+    <title>GTX API — Show Me How</title>
+    <style>
+        :root {
+            --ink: #090b0a;
+            --panel: #111512;
+            --panel-2: #171d19;
+            --line: #2b342d;
+            --paper: #f5f7f3;
+            --muted: #aab5ac;
+            --acid: #c8ff38;
+            --orange: #ff6633;
+            --cyan: #42e8e0;
+            --radius: 22px;
+            --shadow: 0 24px 80px rgba(0, 0, 0, .42);
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            color: var(--paper);
+            background:
+                radial-gradient(circle at 80% -10%, rgba(200,255,56,.17), transparent 30rem),
+                radial-gradient(circle at 0 35%, rgba(255,102,51,.11), transparent 26rem),
+                var(--ink);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            line-height: 1.6;
+        }
+
+        body::before {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            content: "";
+            opacity: .16;
+            background-image:
+                linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px);
+            background-size: 48px 48px;
+            mask-image: linear-gradient(to bottom, black, transparent 80%);
+        }
+
+        a { color: inherit; }
+        button, input { font: inherit; }
+        .shell { width: calc(100% - 32px); max-width: 1180px; margin: 0 auto; }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 1px solid rgba(255,255,255,.1);
+            background: rgba(9,11,10,.84);
+            backdrop-filter: blur(18px);
+        }
+        .topbar-inner {
+            min-height: 66px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        .brand { display: flex; align-items: center; gap: 12px; font-weight: 900; letter-spacing: -.03em; }
+        .brand-logo { display: block; width: auto; height: 39px; object-fit: contain; }
+        .brand-divider { width: 1px; height: 26px; background: rgba(255,255,255,.2); }
+        .brand-label { white-space: nowrap; }
+        .topbar nav { display: flex; gap: 8px; }
+        .topbar nav a {
+            padding: 8px 12px;
+            border-radius: 999px;
+            color: var(--muted);
+            font-size: .84rem;
+            font-weight: 750;
+            text-decoration: none;
+        }
+        .topbar nav a:hover { color: var(--ink); background: var(--acid); }
+
+        .hero { padding: 94px 0 70px; }
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 22px;
+            color: var(--acid);
+            font-size: .78rem;
+            font-weight: 900;
+            letter-spacing: .17em;
+            text-transform: uppercase;
+        }
+        .pulse {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--acid);
+            box-shadow: 0 0 0 7px rgba(200,255,56,.12), 0 0 24px var(--acid);
+        }
+        h1 {
+            max-width: 980px;
+            margin: 0;
+            font-size: clamp(3.7rem, 10vw, 8.6rem);
+            font-weight: 950;
+            letter-spacing: -.085em;
+            line-height: .82;
+            text-transform: uppercase;
+        }
+        h1 span { color: var(--acid); }
+        .hero-copy {
+            max-width: 720px;
+            margin: 34px 0 0;
+            color: #c7d0c8;
+            font-size: clamp(1.05rem, 2vw, 1.35rem);
+        }
+        .hero-strip {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 18px;
+            margin-top: 38px;
+            padding: 18px 20px;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: rgba(17,21,18,.88);
+            box-shadow: var(--shadow);
+        }
+        .base-url { min-width: 0; color: var(--cyan); font: 700 .94rem ui-monospace, SFMono-Regular, Consolas, monospace; overflow-wrap: anywhere; }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 42px;
+            padding: 0 15px;
+            border: 1px solid var(--line);
+            border-radius: 11px;
+            color: var(--paper);
+            background: #1d241f;
+            cursor: pointer;
+            font-weight: 850;
+            text-decoration: none;
+            transition: transform .15s ease, border-color .15s ease, background .15s ease;
+        }
+        .button:hover { transform: translateY(-2px); border-color: var(--acid); }
+        .button.primary { color: var(--ink); border-color: var(--acid); background: var(--acid); }
+
+        .section { padding: 38px 0 68px; }
+        .section-head {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(260px, 440px);
+            align-items: end;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+        .kicker { color: var(--orange); font-size: .78rem; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; }
+        h2 { margin: 5px 0 0; font-size: clamp(2.2rem, 5vw, 4.2rem); line-height: .95; letter-spacing: -.06em; }
+        .section-head p { margin: 0; color: var(--muted); }
+
+        .endpoint-grid { display: grid; gap: 18px; }
+        .endpoint {
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: linear-gradient(145deg, rgba(24,30,26,.96), rgba(14,17,15,.96));
+            box-shadow: 0 16px 44px rgba(0,0,0,.2);
+        }
+        .endpoint-top {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 14px;
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--line);
+        }
+        .verb { padding: 5px 10px; border-radius: 8px; color: var(--ink); background: var(--acid); font: 950 .73rem ui-monospace, monospace; }
+        .path { min-width: 0; color: var(--paper); font: 750 .96rem ui-monospace, SFMono-Regular, Consolas, monospace; overflow-wrap: anywhere; }
+        .endpoint-body { display: grid; grid-template-columns: 1fr 1.1fr; gap: 24px; padding: 22px; }
+        .endpoint h3 { margin: 0 0 8px; font-size: 1.25rem; letter-spacing: -.025em; }
+        .endpoint p { margin: 0; color: var(--muted); }
+        .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 18px; }
+
+        pre {
+            max-width: 100%;
+            margin: 0;
+            overflow: auto;
+            padding: 18px;
+            border: 1px solid #303a32;
+            border-radius: 14px;
+            color: #dce6de;
+            background: #090b0a;
+            font: 650 .82rem/1.6 ui-monospace, SFMono-Regular, Consolas, monospace;
+        }
+        .code-acid { color: var(--acid); }
+        .code-cyan { color: var(--cyan); }
+
+        .parameter-wrap { overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px 17px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+        th { color: var(--acid); background: #151a16; font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; }
+        td { color: var(--muted); }
+        td:first-child { color: var(--paper); font: 700 .84rem ui-monospace, monospace; }
+        tr:last-child td { border-bottom: 0; }
+
+        .meta-callout {
+            display: grid;
+            grid-template-columns: 1.15fr .85fr;
+            gap: 24px;
+            padding: clamp(24px, 5vw, 48px);
+            border-radius: 30px;
+            color: var(--ink);
+            background: var(--acid);
+            box-shadow: 0 28px 90px rgba(200,255,56,.16);
+        }
+        .meta-callout .kicker { color: #4b570d; }
+        .meta-callout h2 { max-width: 650px; }
+        .meta-callout p { max-width: 650px; color: #30380b; font-weight: 650; }
+        .flow { display: grid; gap: 10px; align-content: center; }
+        .flow div { padding: 12px 14px; border: 2px solid rgba(9,11,10,.7); border-radius: 12px; font-weight: 900; text-align: center; }
+        .flow span { text-align: center; font-size: 1.3rem; font-weight: 950; }
+
+        .note-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .note { padding: 22px; border: 1px solid var(--line); border-radius: 18px; background: var(--panel); }
+        .note strong { display: block; margin-bottom: 8px; color: var(--cyan); }
+        .note p { margin: 0; color: var(--muted); font-size: .93rem; }
+        footer { padding: 40px 0 62px; color: #778079; font-size: .88rem; }
+        .toast {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            z-index: 20;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: var(--ink);
+            background: var(--acid);
+            box-shadow: var(--shadow);
+            font-weight: 900;
+            opacity: 0;
+            transform: translateY(14px);
+            pointer-events: none;
+            transition: .2s ease;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+
+        /* AutoDealer.dev visual schema: navy platform chrome, blue accents,
+           light documentation canvas, precise borders, and compact controls. */
+        :root {
+            --ink: #172131;
+            --panel: #ffffff;
+            --panel-2: #f7f9fc;
+            --line: #d9dee7;
+            --paper: #f4f6f9;
+            --muted: #667387;
+            --acid: #78a7ff;
+            --orange: #557fc9;
+            --cyan: #94b7f6;
+            --radius: 13px;
+            --shadow: 0 18px 48px rgba(22, 33, 49, .1);
+        }
+        body { color: var(--ink); background: var(--paper); font-size: 16px; }
+        body::before { display: none; }
+        .topbar { border-color: rgba(255,255,255,.1); background: rgba(11,17,25,.94); }
+        .topbar-inner { min-height: 76px; }
+        .brand { color: #fff; font-size: 1.05rem; letter-spacing: -.04em; }
+        .topbar nav a { color: #b3bfce; font-size: .8rem; font-weight: 650; }
+        .topbar nav a:hover { color: #fff; background: rgba(255,255,255,.06); }
+        .hero {
+            padding: 128px 0 94px;
+            color: #fff;
+            background:
+                radial-gradient(circle at 78% 22%, #273955 0, transparent 35%),
+                linear-gradient(135deg, #0c131c, #121d29 65%, #162231);
+        }
+        .hero::before {
+            position: absolute;
+            inset: 76px 0 auto;
+            height: 520px;
+            content: "";
+            opacity: .16;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px);
+            background-size: 52px 52px;
+            mask-image: linear-gradient(to bottom, #000, transparent);
+        }
+        .hero .shell { position: relative; z-index: 1; }
+        .hero-brand {
+            position: absolute;
+            top: 50%;
+            right: -7%;
+            width: min(48vw, 570px);
+            height: auto;
+            opacity: .055;
+            transform: translateY(-53%);
+            pointer-events: none;
+            user-select: none;
+        }
+        .eyebrow { color: #9aa9bd; font-size: .68rem; letter-spacing: .18em; }
+        .pulse { background: var(--acid); box-shadow: 0 0 0 6px rgba(120,167,255,.12), 0 0 22px rgba(120,167,255,.6); }
+        h1 { max-width: 880px; font-size: clamp(3.6rem, 7vw, 6.4rem); letter-spacing: -.065em; line-height: .9; }
+        h1 span { color: var(--acid); }
+        .hero-copy { max-width: 650px; color: #aebac9; font-size: 1.12rem; }
+        .hero-strip { border-color: #3d4b5e; border-radius: 10px; background: rgba(255,255,255,.035); box-shadow: 0 18px 45px rgba(0,0,0,.22); }
+        .base-url { color: #a9c5f8; }
+        .button { min-height: 44px; border-color: #bfc8d5; border-radius: 8px; color: var(--ink); background: transparent; font-size: .8rem; }
+        .button:hover { border-color: #7399dc; background: #edf2fb; }
+        .button.primary { color: #0d1724; border-color: var(--acid); background: var(--acid); box-shadow: 0 10px 24px rgba(49,92,170,.18); }
+        .button.primary:hover { background: #8bb4ff; }
+        .hero .button { color: #e2e9f2; border-color: #3d4b5e; background: rgba(255,255,255,.03); }
+        .hero .button.primary { color: #0d1724; border-color: var(--acid); background: var(--acid); }
+        .section { padding: 88px 0; }
+        .section-head { margin-bottom: 42px; }
+        .kicker { color: #567cbf; font-size: .65rem; letter-spacing: .17em; }
+        h2 { color: var(--ink); font-size: clamp(2.25rem, 5vw, 3.25rem); letter-spacing: -.055em; line-height: 1.02; }
+        .section-head p { color: var(--muted); }
+        .endpoint-grid { gap: 16px; }
+        .endpoint { border-color: var(--line); border-radius: var(--radius); background: #fff; box-shadow: 0 8px 28px rgba(22,33,49,.045); }
+        .endpoint-top { padding: 16px 18px; border-color: var(--line); background: #fbfcfe; }
+        .verb { color: #315caa; background: #e8efff; font-size: .68rem; }
+        .path { color: #26364d; font-size: .88rem; }
+        .endpoint-body { padding: 25px; }
+        .endpoint h3 { color: var(--ink); font-size: 1.35rem; }
+        .endpoint p { color: var(--muted); font-size: .92rem; }
+        pre { border-color: #334156; border-radius: 10px; color: #c3cfde; background: #101822; box-shadow: 0 15px 35px rgba(20,30,44,.12); font-size: .75rem; }
+        .code-acid { color: #8db4fa; }
+        .code-cyan { color: #a8c5f5; }
+        .parameter-wrap { border-color: var(--line); border-radius: var(--radius); background: #fff; box-shadow: 0 8px 28px rgba(22,33,49,.035); }
+        th { color: #3e6ab6; background: #eef2f7; font-size: .68rem; }
+        th, td { border-color: var(--line); }
+        td { color: var(--muted); font-size: .9rem; }
+        td:first-child { color: #26364d; }
+        .meta-callout {
+            color: #fff;
+            border: 1px solid #2e3c50;
+            border-radius: 16px;
+            background:
+                radial-gradient(circle at 90% 0, #2b4262 0, transparent 42%),
+                linear-gradient(135deg, #101822, #162536);
+            box-shadow: 0 24px 65px rgba(20,30,44,.18);
+        }
+        .meta-callout .kicker { color: #94b7f6; }
+        .meta-callout h2 { color: #fff; }
+        .meta-callout p { color: #aebac9; font-weight: 450; }
+        .meta-callout .button { color: #e2e9f2; border-color: #45556b; background: rgba(255,255,255,.035); }
+        .meta-callout .button:hover { color: #fff; border-color: #78a7ff; }
+        .flow div { border: 1px solid #45556b; border-radius: 8px; color: #c5d4ed; background: rgba(255,255,255,.035); font-size: .82rem; }
+        .flow span { color: var(--acid); }
+        .note-grid { gap: 17px; }
+        .note { border-color: var(--line); border-radius: var(--radius); background: #fff; box-shadow: 0 8px 28px rgba(22,33,49,.035); }
+        .note strong { color: #4777cd; }
+        .note p { color: var(--muted); }
+        footer { color: #8392a5; background: #0b1119; box-shadow: 0 0 0 100vmax #0b1119; clip-path: inset(0 -100vmax); }
+        .toast { color: #0d1724; background: var(--acid); }
+
+        @media (max-width: 800px) {
+            .topbar nav { display: none; }
+            .brand-logo { height: 34px; }
+            .brand-divider { height: 22px; }
+            .brand-label { font-size: .82rem; }
+            .hero-brand { right: -25%; width: 90vw; opacity: .04; }
+            .section-head, .endpoint-body, .meta-callout { grid-template-columns: 1fr; }
+            .endpoint-top { grid-template-columns: auto minmax(0, 1fr); }
+            .endpoint-top .button { grid-column: 1 / -1; }
+            .note-grid { grid-template-columns: 1fr; }
+            .parameter-wrap { overflow-x: auto; }
+            .hero-strip { grid-template-columns: 1fr; }
+        }
+        @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <div class="shell topbar-inner">
+            <div class="brand">
+                <img class="brand-logo" src="/SiteImages/brand-home.png" alt="GTX Auto Group">
+                <span class="brand-divider" aria-hidden="true"></span>
+                <span class="brand-label">PUBLIC API</span>
+            </div>
+            <nav aria-label="Documentation sections">
+                <a href="#endpoints">Endpoints</a>
+                <a href="#parameters">Parameters</a>
+                <a href="#meta">Meta feed</a>
+                <a href="#rules">Rules</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="shell">
+                <img class="hero-brand" src="/SiteImages/brand-light.png" alt="" aria-hidden="true">
+                <div class="eyebrow"><span class="pulse"></span> API v1 is online</div>
+                <h1>Make the data <span>move.</span></h1>
+                <p class="hero-copy">Everything needed to read GTX Auto Group inventory, power client applications, and connect the live vehicle catalog to Meta.</p>
+                <div class="hero-strip">
+                    <div><small>BASE URL</small><div class="base-url" data-base-url></div></div>
+                    <button class="button primary" type="button" data-copy="/api/v1/">Copy base URL</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="section shell" id="endpoints">
+            <div class="section-head">
+                <div><div class="kicker">01 / Endpoint index</div><h2>Every call.<br>Zero mystery.</h2></div>
+                <p>All endpoints are anonymous, read-only HTTP GET operations. JSON responses use camel-case property names. The Meta endpoint returns CSV.</p>
+            </div>
+
+            <div class="endpoint-grid">
+                <article class="endpoint">
+                    <div class="endpoint-top"><span class="verb">GET</span><code class="path">/api/v1/health</code><button class="button" data-copy="/api/v1/health">Copy URL</button></div>
+                    <div class="endpoint-body"><div><h3>Health check</h3><p>Confirms that the API application is responding and returns current UTC server time.</p><div class="actions"><a class="button primary" data-api-link="/api/v1/health" target="_blank" rel="noopener">Try it live ↗</a></div></div><pre>{
+  <span class="code-cyan">"status"</span>: "ok",
+  <span class="code-cyan">"apiVersion"</span>: "v1",
+  <span class="code-cyan">"serverTimeUtc"</span>: "..."
+}</pre></div>
+                </article>
+
+                <article class="endpoint">
+                    <div class="endpoint-top"><span class="verb">GET</span><code class="path">/api/v1/config</code><button class="button" data-copy="/api/v1/config">Copy URL</button></div>
+                    <div class="endpoint-body"><div><h3>Dealership configuration</h3><p>Returns dealership identity, phone, address, hours, documentary fee, directions, and website URLs.</p><div class="actions"><a class="button primary" data-api-link="/api/v1/config" target="_blank" rel="noopener">Try it live ↗</a></div></div><pre><span class="code-acid">curl</span> <span data-code-url="/api/v1/config"></span></pre></div>
+                </article>
+
+                <article class="endpoint">
+                    <div class="endpoint-top"><span class="verb">GET</span><code class="path">/api/v1/filters</code><button class="button" data-copy="/api/v1/filters">Copy URL</button></div>
+                    <div class="endpoint-body"><div><h3>Available filters</h3><p>Returns current makes, models, types, ranges, transmissions, fuels, and drivetrain values for building search controls.</p><div class="actions"><a class="button primary" data-api-link="/api/v1/filters" target="_blank" rel="noopener">Try it live ↗</a></div></div><pre><span class="code-acid">curl</span> <span data-code-url="/api/v1/filters"></span></pre></div>
+                </article>
+
+                <article class="endpoint">
+                    <div class="endpoint-top"><span class="verb">GET</span><code class="path">/api/v1/inventory</code><button class="button" data-copy="/api/v1/inventory?page=1&amp;pageSize=20">Copy URL</button></div>
+                    <div class="endpoint-body"><div><h3>Inventory search</h3><p>Returns a paginated vehicle list. Combine search, vehicle attributes, numeric ranges, and sorting parameters.</p><div class="actions"><a class="button primary" data-api-link="/api/v1/inventory?page=1&amp;pageSize=20" target="_blank" rel="noopener">Try it live ↗</a></div></div><pre><span class="code-acid">curl</span> <span data-code-url="/api/v1/inventory?make=Toyota&amp;minYear=2020&amp;sort=price-low&amp;page=1&amp;pageSize=20"></span></pre></div>
+                </article>
+
+                <article class="endpoint">
+                    <div class="endpoint-top"><span class="verb">GET</span><code class="path">/api/v1/inventory/{stock}</code><button class="button" data-copy="/api/v1/inventory/GTX123456">Copy example</button></div>
+                    <div class="endpoint-body"><div><h3>Vehicle details</h3><p>Returns the full record for one stock number, including all images, story content, features, pricing, and public links.</p><div class="actions"><a class="button primary" data-api-link="/api/v1/inventory/GTX123456" target="_blank" rel="noopener">Try example ↗</a></div></div><pre><span class="code-acid">curl</span> <span data-code-url="/api/v1/inventory/GTX123456"></span>
+
+<span class="code-cyan">404</span> when the stock is not active.</pre></div>
+                </article>
+
+                <article class="endpoint">
+                    <div class="endpoint-top"><span class="verb">GET</span><code class="path">/api/v1/meta-vehicles</code><button class="button" data-copy="/api/v1/meta-vehicles">Copy feed URL</button></div>
+                    <div class="endpoint-body"><div><h3>Meta automotive feed</h3><p>Streams the current eligible vehicle catalog as UTF-8 CSV, including up to 20 image URLs per vehicle.</p><div class="actions"><a class="button primary" data-api-link="/api/v1/meta-vehicles" target="_blank" rel="noopener">Open CSV feed ↗</a></div></div><pre><span class="code-cyan">Content-Type:</span> text/csv; charset=utf-8
+
+vehicle_id,title,description,
+url,make,model,year,...</pre></div>
+                </article>
+            </div>
+        </section>
+
+        <section class="section shell" id="parameters">
+            <div class="section-head"><div><div class="kicker">02 / Inventory query</div><h2>Filter with intent.</h2></div><p>Query names are case-insensitive. Omit any filter you do not need. Multiple supplied filters are combined.</p></div>
+            <div class="parameter-wrap">
+                <table>
+                    <thead><tr><th>Parameter</th><th>Type</th><th>Purpose</th><th>Rules / examples</th></tr></thead>
+                    <tbody>
+                        <tr><td>search</td><td>string</td><td>Search stock, VIN, make, model, style, or year.</td><td>Camry, GTX123456, 2022</td></tr>
+                        <tr><td>type</td><td>string</td><td>Exact vehicle-type match.</td><td>Car, Truck, SUV</td></tr>
+                        <tr><td>make</td><td>string</td><td>Exact make match.</td><td>Toyota</td></tr>
+                        <tr><td>model</td><td>string</td><td>Exact model match.</td><td>Camry</td></tr>
+                        <tr><td>minYear / maxYear</td><td>integer</td><td>Inclusive model-year range.</td><td>minYear=2020&amp;maxYear=2024</td></tr>
+                        <tr><td>minMileage / maxMileage</td><td>integer</td><td>Inclusive mileage range.</td><td>maxMileage=50000</td></tr>
+                        <tr><td>minPrice / maxPrice</td><td>integer</td><td>Inclusive internet-price range.</td><td>minPrice=10000&amp;maxPrice=25000</td></tr>
+                        <tr><td>sort</td><td>string</td><td>Controls result ordering.</td><td>featured, price-low, price-high, mileage, year, make</td></tr>
+                        <tr><td>page</td><td>integer</td><td>One-based page number.</td><td>Default: 1</td></tr>
+                        <tr><td>pageSize</td><td>integer</td><td>Records returned per page.</td><td>Default: 20; maximum: 100</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="section shell" id="meta">
+            <div class="meta-callout">
+                <div><div class="kicker">03 / Meta catalog</div><h2>Your lot. One live feed.</h2><p>Give the Meta vehicle catalog the public feed URL and configure a scheduled refresh. Adding, updating, or removing inventory in GTX changes the next feed automatically.</p><div class="actions"><button class="button" type="button" data-copy="/api/v1/meta-vehicles">Copy Meta feed URL</button><a class="button" data-api-link="/api/v1/meta-vehicles" target="_blank" rel="noopener">Inspect feed ↗</a></div></div>
+                <div class="flow" aria-label="Meta feed flow"><div>GTX SQL INVENTORY</div><span>↓</span><div>/api/v1/meta-vehicles</div><span>↓</span><div>META VEHICLE CATALOG</div></div>
+            </div>
+        </section>
+
+        <section class="section shell" id="rules">
+            <div class="section-head"><div><div class="kicker">04 / Operating rules</div><h2>Ship safely.</h2></div><p>The API is deliberately read-only. Treat response shapes as versioned contracts and move breaking changes to a future API version.</p></div>
+            <div class="note-grid">
+                <div class="note"><strong>HTTPS only</strong><p>Production clients and Meta should use the secure usedcarscincinnati.com URL.</p></div>
+                <div class="note"><strong>JSON vs. CSV</strong><p>Application endpoints return JSON. Only the Meta vehicle-feed endpoint returns CSV.</p></div>
+                <div class="note"><strong>Meta eligibility</strong><p>Feed rows require stock, VIN, positive price, and at least one real vehicle image.</p></div>
+                <div class="note"><strong>Read-only API</strong><p>All documented operations use GET and do not modify inventory records.</p></div>
+                <div class="note"><strong>Error handling</strong><p>Validate HTTP status codes. Inventory failures return 500; invalid queries return 400.</p></div>
+                <div class="note"><strong>Version boundary</strong><p>Build new incompatible contracts under /api/v2 rather than changing v1 clients silently.</p></div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="shell">GTX Auto Group · Public API v1 · Live inventory documentation</footer>
+    <div class="toast" role="status" aria-live="polite">Copied to clipboard</div>
+
+    <script>
+        (function () {
+            "use strict";
+            var base = window.location.origin;
+            var toast = document.querySelector(".toast");
+            var toastTimer;
+
+            document.querySelectorAll("[data-base-url]").forEach(function (node) {
+                node.textContent = base + "/api/v1/";
+            });
+            document.querySelectorAll("[data-api-link]").forEach(function (link) {
+                link.href = base + link.getAttribute("data-api-link");
+            });
+            document.querySelectorAll("[data-code-url]").forEach(function (node) {
+                node.textContent = '"' + base + node.getAttribute("data-code-url") + '"';
+            });
+
+            function showToast(message) {
+                toast.textContent = message;
+                toast.classList.add("show");
+                window.clearTimeout(toastTimer);
+                toastTimer = window.setTimeout(function () { toast.classList.remove("show"); }, 1800);
+            }
+
+            document.addEventListener("click", function (event) {
+                var button = event.target.closest("[data-copy]");
+                if (!button) return;
+                var value = base + button.getAttribute("data-copy");
+
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(value).then(function () { showToast("URL copied"); });
+                    return;
+                }
+
+                var input = document.createElement("textarea");
+                input.value = value;
+                input.setAttribute("readonly", "readonly");
+                input.style.position = "fixed";
+                input.style.opacity = "0";
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand("copy");
+                input.remove();
+                showToast("URL copied");
+            });
+        }());
+    </script>
+</body>
+</html>
