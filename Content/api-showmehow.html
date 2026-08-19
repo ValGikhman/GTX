@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="color-scheme" content="dark">
+    <meta name="theme-color" content="#111923">
     <link rel="icon" href="/favicon.ico">
-    <title>GTX API — Show Me How</title>
+    <title>AutoDealer.dev API — Show Me How</title>
     <style>
         :root {
             --ink: #090b0a;
@@ -49,7 +49,7 @@
 
         a { color: inherit; }
         button, input { font: inherit; }
-        .shell { width: calc(100% - 32px); max-width: 1180px; margin: 0 auto; }
+        .shell { width: calc(100% - 48px); max-width: 1180px; margin: 0 auto; }
 
         .topbar {
             position: sticky;
@@ -269,7 +269,9 @@
         .topbar nav a { color: #b3bfce; font-size: .8rem; font-weight: 650; }
         .topbar nav a:hover { color: #fff; background: rgba(255,255,255,.06); }
         .hero {
-            padding: 128px 0 94px;
+            position: relative;
+            overflow: hidden;
+            padding: 158px 0 92px;
             color: #fff;
             background:
                 radial-gradient(circle at 78% 22%, #273955 0, transparent 35%),
@@ -291,35 +293,42 @@
         .hero .shell { position: relative; z-index: 1; }
         .hero-brand {
             position: absolute;
-            top: 50%;
-            right: -7%;
+            top: auto;
+            right: 2%;
+            bottom: 2%;
             width: min(48vw, 570px);
             height: auto;
             opacity: .055;
-            transform: translateY(-53%);
+            transform: none;
             pointer-events: none;
             user-select: none;
         }
-        .eyebrow { color: #9aa9bd; font-size: .68rem; letter-spacing: .18em; }
+        .eyebrow { margin-bottom: 0; color: #9aa9bd; font-size: 10px; letter-spacing: 1.8px; }
         .pulse { background: var(--acid); box-shadow: 0 0 0 6px rgba(120,167,255,.12), 0 0 22px rgba(120,167,255,.6); }
-        h1 { max-width: 880px; font-size: clamp(3.6rem, 7vw, 6.4rem); letter-spacing: -.065em; line-height: .9; }
+        h1 {
+            max-width: 880px;
+            margin: 18px 0 25px;
+            font-size: 60px;
+            letter-spacing: -2.4px;
+            line-height: 1.08;
+        }
         h1 span { color: var(--acid); }
-        .hero-copy { max-width: 650px; color: #aebac9; font-size: 1.12rem; }
+        .hero-copy { max-width: 650px; margin: 0; color: #adb9c8; font-size: 18px; }
         .hero-strip { border-color: #3d4b5e; border-radius: 10px; background: rgba(255,255,255,.035); box-shadow: 0 18px 45px rgba(0,0,0,.22); }
         .base-url { color: #a9c5f8; }
-        .button { min-height: 44px; border-color: #bfc8d5; border-radius: 8px; color: var(--ink); background: transparent; font-size: .8rem; }
+        .button { min-height: 48px; padding: 0 22px; border-color: #bfc8d5; border-radius: 8px; color: var(--ink); background: transparent; font-size: 13px; font-weight: 750; }
         .button:hover { border-color: #7399dc; background: #edf2fb; }
         .button.primary { color: #0d1724; border-color: var(--acid); background: var(--acid); box-shadow: 0 10px 24px rgba(49,92,170,.18); }
         .button.primary:hover { background: #8bb4ff; }
         .hero .button { color: #e2e9f2; border-color: #3d4b5e; background: rgba(255,255,255,.03); }
         .hero .button.primary { color: #0d1724; border-color: var(--acid); background: var(--acid); }
-        .section { padding: 88px 0; }
+        .section { padding: 104px 0; }
         .section-head { margin-bottom: 42px; }
         .kicker { color: #567cbf; font-size: .65rem; letter-spacing: .17em; }
-        h2 { color: var(--ink); font-size: clamp(2.25rem, 5vw, 3.25rem); letter-spacing: -.055em; line-height: 1.02; }
+        h2 { color: var(--ink); font-size: 48px; letter-spacing: -2.4px; line-height: 1.08; }
         .section-head p { color: var(--muted); }
         .endpoint-grid { gap: 16px; }
-        .endpoint { border-color: var(--line); border-radius: var(--radius); background: #fff; box-shadow: 0 8px 28px rgba(22,33,49,.045); }
+        .endpoint { border-color: var(--line); border-radius: 10px; background: #fff; box-shadow: 0 8px 28px rgba(22,33,49,.045); }
         .endpoint-top { padding: 16px 18px; border-color: var(--line); background: #fbfcfe; }
         .verb { color: #315caa; background: #e8efff; font-size: .68rem; }
         .path { color: #26364d; font-size: .88rem; }
@@ -329,7 +338,7 @@
         pre { border-color: #334156; border-radius: 10px; color: #c3cfde; background: #101822; box-shadow: 0 15px 35px rgba(20,30,44,.12); font-size: .75rem; }
         .code-acid { color: #8db4fa; }
         .code-cyan { color: #a8c5f5; }
-        .parameter-wrap { border-color: var(--line); border-radius: var(--radius); background: #fff; box-shadow: 0 8px 28px rgba(22,33,49,.035); }
+        .parameter-wrap { border-color: var(--line); border-radius: 10px; background: #fff; box-shadow: 0 8px 28px rgba(22,33,49,.035); }
         th { color: #3e6ab6; background: #eef2f7; font-size: .68rem; }
         th, td { border-color: var(--line); }
         td { color: var(--muted); font-size: .9rem; }
@@ -351,24 +360,397 @@
         .flow div { border: 1px solid #45556b; border-radius: 8px; color: #c5d4ed; background: rgba(255,255,255,.035); font-size: .82rem; }
         .flow span { color: var(--acid); }
         .note-grid { gap: 17px; }
-        .note { border-color: var(--line); border-radius: var(--radius); background: #fff; box-shadow: 0 8px 28px rgba(22,33,49,.035); }
+        .note { border-color: var(--line); border-radius: 10px; background: #fff; box-shadow: 0 8px 28px rgba(22,33,49,.035); }
         .note strong { color: #4777cd; }
         .note p { color: var(--muted); }
         footer { color: #8392a5; background: #0b1119; box-shadow: 0 0 0 100vmax #0b1119; clip-path: inset(0 -100vmax); }
         .toast { color: #0d1724; background: var(--acid); }
 
-        @media (max-width: 800px) {
+        @media (max-width: 760px) {
+            .shell { width: calc(100% - 30px); }
             .topbar nav { display: none; }
+            .topbar-inner { min-height: 70px; }
             .brand-logo { height: 34px; }
             .brand-divider { height: 22px; }
             .brand-label { font-size: .82rem; }
-            .hero-brand { right: -25%; width: 90vw; opacity: .04; }
+            .hero-brand { right: 2%; bottom: 2%; width: 90vw; opacity: .04; }
+            .hero { padding: 118px 0 75px; }
+            h1 { font-size: 43px; letter-spacing: -1.8px; }
+            h2 { font-size: 38px; letter-spacing: -1.7px; }
+            .section { padding: 75px 0; }
             .section-head, .endpoint-body, .meta-callout { grid-template-columns: 1fr; }
             .endpoint-top { grid-template-columns: auto minmax(0, 1fr); }
             .endpoint-top .button { grid-column: 1 / -1; }
             .note-grid { grid-template-columns: 1fr; }
             .parameter-wrap { overflow-x: auto; }
             .hero-strip { grid-template-columns: 1fr; }
+        }
+
+        /* Current AutoDealer.dev graphite and silver design system.
+           These rules intentionally follow the final Site.css cascade. */
+        :root {
+            --paper: #484e57;
+            --ink: #eef0f2;
+            --muted: #d0d5da;
+            --line: #737a82;
+            --panel: #565d65;
+            --panel-2: #50575f;
+            --control-top: #f7f8f9;
+            --control-bottom: #dfe3e6;
+            --control-border: #b9bec4;
+            --control-text: #252a2f;
+            --mono: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+        }
+        body {
+            color: var(--ink);
+            background: var(--paper);
+            font-weight: 500;
+            -webkit-font-smoothing: antialiased;
+        }
+        .topbar {
+            color: #172033;
+            border-color: #111827;
+            background: linear-gradient(180deg, #fff, #aaaab3);
+            box-shadow: 0 4px 10px rgba(0,0,0,.2);
+            backdrop-filter: none;
+        }
+        .brand { color: #172033; }
+        .brand-divider { background: rgba(23,32,51,.3); }
+        .topbar nav a { color: #303944; }
+        .topbar nav a:hover { color: #172033; background: rgba(255,255,255,.28); }
+        .hero {
+            min-height: 390px;
+            padding: 68px 0 44px;
+            display: flex;
+            align-items: center;
+            background:
+                radial-gradient(circle at 80% 24%, rgba(119,124,130,.48) 0, transparent 30%),
+                radial-gradient(circle at 12% 78%, rgba(78,82,87,.28) 0, transparent 28%),
+                linear-gradient(128deg, #111315 0%, #202327 56%, #353a40 100%);
+        }
+        .hero::before { inset: 0; height: auto; }
+        .hero::after {
+            position: absolute;
+            right: -120px;
+            bottom: -220px;
+            width: 520px;
+            height: 520px;
+            content: "";
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 50%;
+            box-shadow: 0 0 0 70px rgba(255,255,255,.025), 0 0 0 140px rgba(255,255,255,.018);
+            pointer-events: none;
+        }
+        .hero .shell { padding-left: 28px; }
+        .hero .shell::before {
+            position: absolute;
+            top: 4px;
+            bottom: 4px;
+            left: 0;
+            width: 2px;
+            content: "";
+            border-radius: 2px;
+            background: linear-gradient(transparent, #aeb3b8 18%, #fff 48%, #787d83 82%, transparent);
+        }
+        .hero .eyebrow {
+            min-height: 40px;
+            margin: 0;
+            padding: 10px 18px;
+            display: inline-flex;
+            border: 1px solid rgba(224,228,231,.42);
+            border-radius: 8px;
+            color: #f2f4f5;
+            background:
+                linear-gradient(90deg, transparent, rgba(229,233,236,.52), transparent) bottom/100% 1px no-repeat,
+                linear-gradient(105deg, rgba(255,255,255,.14), transparent 45%),
+                repeating-linear-gradient(0deg, transparent 0 6px, rgba(255,255,255,.025) 6px 7px),
+                rgba(24,28,32,.76);
+            box-shadow: 0 14px 30px rgba(0,0,0,.24), inset 0 0 0 3px rgba(255,255,255,.025), inset 0 1px rgba(255,255,255,.15);
+            font: 800 10px/1.3 var(--mono);
+            letter-spacing: 1.85px;
+            backdrop-filter: blur(8px);
+        }
+        .pulse {
+            width: 17px;
+            height: 17px;
+            border: 1px solid rgba(238,241,243,.7);
+            border-radius: 5px;
+            background: linear-gradient(135deg, #dfe3e6 0 42%, #747b82 43% 100%);
+            box-shadow: 0 0 0 3px rgba(255,255,255,.045), 0 0 15px rgba(224,229,233,.25), inset 0 1px rgba(255,255,255,.65);
+        }
+        h1 {
+            width: max-content;
+            max-width: 100%;
+            margin: 16px 0 17px;
+            color: #fff;
+            font-size: clamp(28px, 3vw, 38px);
+            font-weight: 800;
+            letter-spacing: -1.8px;
+            line-height: 1.04;
+            text-transform: none;
+        }
+        h1 span { color: #c9cdd2; }
+        .hero-copy {
+            width: max-content;
+            max-width: min(100%, 897px);
+            padding: 9px 14px;
+            border: 1px solid rgba(218,223,227,.18);
+            border-radius: 8px;
+            color: #d7dce0;
+            background: linear-gradient(90deg, rgba(255,255,255,.09), rgba(255,255,255,.025));
+            box-shadow: inset 0 1px rgba(255,255,255,.08), 0 8px 22px rgba(0,0,0,.12);
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.45;
+        }
+        .hero-brand { opacity: .05; }
+        .hero-strip {
+            max-width: 897px;
+            margin-top: 24px;
+            padding: 13px 15px;
+            border-color: #555b62;
+            border-radius: 8px;
+            background: rgba(24,28,32,.76);
+            box-shadow: 0 14px 30px rgba(0,0,0,.2), inset 0 1px rgba(255,255,255,.08);
+        }
+        .hero-strip small { color: #aeb5bd; }
+        .base-url { color: #e8ebee; font-family: var(--mono); }
+        body .button,
+        body .button.primary,
+        body .hero .button,
+        body .hero .button.primary {
+            min-height: 39px;
+            padding: 0 15px;
+            border: 1px solid var(--control-border);
+            border-radius: 6px;
+            color: var(--control-text);
+            background: linear-gradient(180deg, var(--control-top), var(--control-bottom));
+            box-shadow: inset 0 1px rgba(255,255,255,.9), 0 1px 2px rgba(35,42,48,.12);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .035em;
+        }
+        body .button:hover,
+        body .button.primary:hover,
+        body .hero .button:hover,
+        body .hero .button.primary:hover {
+            color: #1f252a;
+            border-color: #969da4;
+            background: linear-gradient(180deg, #fff, #e8ebed);
+            box-shadow: inset 0 1px #fff, 0 2px 5px rgba(35,42,48,.16);
+            transform: none;
+        }
+        .section { padding: 82px 0; }
+        .section.shell { max-width: 897px; }
+        .section-head { margin-bottom: 36px; }
+        .kicker {
+            width: max-content;
+            min-height: 38px;
+            padding: 9px 18px;
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid rgba(224,229,233,.48);
+            border-radius: 11px;
+            color: #f4f6f7;
+            background:
+                linear-gradient(90deg, transparent, rgba(255,255,255,.44), transparent) bottom/100% 1px no-repeat,
+                radial-gradient(circle at 18% 0, rgba(255,255,255,.16), transparent 36%),
+                linear-gradient(105deg, #171b1f 0%, #363c42 52%, #181c20 100%);
+            box-shadow: 0 13px 28px rgba(0,0,0,.25), inset 0 1px rgba(255,255,255,.14);
+            font: 800 9px/1.3 var(--mono);
+            letter-spacing: 1.7px;
+        }
+        h2 { margin-top: 13px; color: #f1f2f3; font-size: 40px; font-weight: 500; letter-spacing: normal; line-height: 1.08; }
+        .section-head p { color: var(--muted); }
+        .endpoint,
+        .parameter-wrap,
+        .note {
+            color: var(--ink);
+            border-color: var(--line);
+            background: var(--panel);
+            box-shadow: 0 18px 44px rgba(0,0,0,.2), inset 0 1px rgba(255,255,255,.045);
+        }
+        .endpoint { position: relative; }
+        .endpoint::after,
+        .note::after {
+            position: absolute;
+            inset: 0 0 auto;
+            height: 1px;
+            content: "";
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.34), transparent);
+        }
+        .endpoint-top { border-color: var(--line); background: var(--panel-2); }
+        .verb { color: #20262b; background: linear-gradient(145deg, #a0a6ac, #6f767e); }
+        .path, .endpoint h3, td:first-child { color: #eef0f2; }
+        .endpoint p, td, .note p { color: var(--muted); }
+        pre { border-color: #334156; color: #c3cfde; background: #101822; font: 11px/1.9 var(--mono); }
+        .code-acid, .code-cyan { color: #d9dde1; }
+        th { color: #eef0f2; background: #41474e; }
+        th, td { border-color: var(--line); }
+        .meta-callout {
+            border-color: #737a82;
+            background:
+                radial-gradient(circle at 80% 24%, rgba(119,124,130,.48), transparent 30%),
+                linear-gradient(128deg, #111315, #202327 56%, #353a40);
+        }
+        .meta-callout .kicker { color: #f4f6f7; }
+        .meta-callout p { color: #b4bbc3; }
+        .flow div { color: #e0e4e8; border-color: #5b626a; background: #353a40; }
+        .flow span, .note strong { color: #eef0f2; }
+        .note { position: relative; overflow: hidden; }
+        footer {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            padding: 0;
+            color: #aeb8c4;
+            background:
+                radial-gradient(circle at 78% 22%, #4a4e52 0, transparent 35%),
+                linear-gradient(135deg, #151719, #23262a 65%, #30343a);
+            box-shadow: none;
+            clip-path: none;
+        }
+        footer::before {
+            position: absolute;
+            inset: 0;
+            content: "";
+            opacity: .16;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px);
+            background-size: 52px 52px;
+            mask-image: linear-gradient(to bottom, #000, transparent);
+        }
+        .footer-inner {
+            position: relative;
+            z-index: 1;
+            padding: 40px 0 62px;
+        }
+
+        /* AutoDealer.dev documentation article treatment. */
+        #endpoints .section-head,
+        #endpoints .endpoint-grid {
+            width: 100%;
+            max-width: 897px;
+            margin-right: auto;
+            margin-left: auto;
+        }
+        #endpoints .section-head { margin-bottom: 18px; }
+        #endpoints .endpoint-grid { gap: 18px; }
+        #endpoints .endpoint {
+            overflow: hidden;
+            border: 1px solid #aeb4ba;
+            border-radius: 13px;
+            color: #111518;
+            background: linear-gradient(145deg, #a0a6ac 0%, #858c93 48%, #6f767e 100%);
+            box-shadow: 0 18px 44px rgba(0,0,0,.24), inset 0 1px rgba(255,255,255,.32);
+        }
+        #endpoints .endpoint::after {
+            display: block;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.34), transparent);
+        }
+        #endpoints .endpoint-top {
+            gap: 17px;
+            padding: 24px 27px;
+            border-top: 0;
+            border-bottom: 1px solid rgba(231,235,238,.18);
+            background:
+                radial-gradient(circle at 100% 0, rgba(210,215,219,.16), transparent 42%),
+                linear-gradient(145deg, #424a51, #2e343a);
+            box-shadow: 0 16px 32px rgba(24,29,34,.22), inset 0 1px rgba(255,255,255,.12);
+        }
+        #endpoints .verb {
+            width: 46px;
+            height: 46px;
+            padding: 0;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(111,120,128,.34);
+            border-radius: 12px;
+            color: #353c42;
+            background: linear-gradient(145deg, #eef0f2, #aab1b7);
+            box-shadow: 0 10px 22px rgba(24,38,42,.18), inset 0 1px rgba(255,255,255,.65);
+        }
+        #endpoints .path { color: #f4f6f7; }
+        #endpoints .endpoint-body {
+            padding: 30px 25px 34px;
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+        #endpoints .endpoint h3 {
+            margin: 0 0 13px;
+            color: #111518;
+            font-size: 23px;
+            font-weight: 500;
+            letter-spacing: normal;
+        }
+        #endpoints .endpoint p {
+            max-width: 680px;
+            color: #293037;
+            line-height: 1.65;
+        }
+        #endpoints .endpoint pre {
+            min-height: 0;
+            margin: 27px 0 0;
+            padding: 26px;
+        }
+        .parameter-wrap {
+            width: 100%;
+            max-width: 897px;
+            margin-right: auto;
+            margin-left: auto;
+            overflow: hidden;
+            border: 1px solid #aeb4ba;
+            border-radius: 13px;
+            color: #111518;
+            background: linear-gradient(145deg, #a0a6ac 0%, #858c93 48%, #6f767e 100%);
+            box-shadow: 0 18px 44px rgba(0,0,0,.24), inset 0 1px rgba(255,255,255,.32);
+        }
+        #parameters .section-head {
+            width: 100%;
+            max-width: 897px;
+            margin-right: auto;
+            margin-left: auto;
+        }
+        .parameter-wrap thead {
+            background:
+                radial-gradient(circle at 100% 0, rgba(210,215,219,.16), transparent 42%),
+                linear-gradient(145deg, #424a51, #2e343a);
+            box-shadow: 0 16px 32px rgba(24,29,34,.22), inset 0 1px rgba(255,255,255,.12);
+        }
+        .parameter-wrap th {
+            padding: 18px;
+            color: #f4f6f7;
+            border-color: rgba(231,235,238,.18);
+            background: transparent;
+        }
+        .parameter-wrap td {
+            padding: 16px 18px;
+            color: #293037;
+            border-color: rgba(33,39,45,.22);
+            background: rgba(255,255,255,.035);
+        }
+        .parameter-wrap tbody tr:nth-child(even) td { background: rgba(255,255,255,.09); }
+        .parameter-wrap tbody tr:hover td { background: rgba(248,250,251,.18); }
+        .parameter-wrap td:first-child { color: #111518; font-weight: 700; }
+        .toast { color: #252a2f; background: linear-gradient(180deg, #f7f8f9, #dfe3e6); }
+
+        @media (max-width: 760px) {
+            .hero { min-height: 360px; padding: 52px 0 32px; }
+            .hero .shell { padding-left: 18px; }
+            h1 { font-size: clamp(24px, 8vw, 32px); letter-spacing: -1.4px; }
+            .hero-copy { width: 100%; }
+            h2 { font-size: 34px; }
+            .section { padding: 70px 0; }
+            .kicker { min-height: 34px; padding: 8px 14px; font-size: 8px; letter-spacing: 1.25px; }
+            #endpoints .endpoint-top { grid-template-columns: auto minmax(0, 1fr); gap: 13px; padding: 20px 22px; }
+            #endpoints .verb { width: 40px; height: 40px; }
+            #endpoints .endpoint-top .button { grid-column: 1 / -1; }
+            #endpoints .endpoint-body { padding: 26px 20px 30px; }
+            #endpoints .endpoint pre { padding: 20px; }
+            .parameter-wrap { overflow-x: auto; }
+            .parameter-wrap table { min-width: 720px; }
         }
         @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
     </style>
@@ -377,7 +759,7 @@
     <header class="topbar">
         <div class="shell topbar-inner">
             <div class="brand">
-                <img class="brand-logo" src="/SiteImages/brand-home.png" alt="GTX Auto Group">
+                <img class="brand-logo" src="/SiteImages/autodealer-logo-light.png" alt="AutoDealer.dev">
                 <span class="brand-divider" aria-hidden="true"></span>
                 <span class="brand-label">PUBLIC API</span>
             </div>
@@ -392,11 +774,11 @@
 
     <main>
         <section class="hero">
+            <img class="hero-brand" src="/SiteImages/autodealer-logo.png" alt="" aria-hidden="true">
             <div class="shell">
-                <img class="hero-brand" src="/SiteImages/brand-light.png" alt="" aria-hidden="true">
                 <div class="eyebrow"><span class="pulse"></span> API v1 is online</div>
                 <h1>Make the data <span>move.</span></h1>
-                <p class="hero-copy">Everything needed to read GTX Auto Group inventory, power client applications, and connect the live vehicle catalog to Meta.</p>
+                <p class="hero-copy">Everything needed to read dealership inventory, power client applications, and connect the live vehicle catalog to Meta through AutoDealer.dev.</p>
                 <div class="hero-strip">
                     <div><small>BASE URL</small><div class="base-url" data-base-url></div></div>
                     <button class="button primary" type="button" data-copy="/api/v1/">Copy base URL</button>
@@ -436,8 +818,8 @@
                 </article>
 
                 <article class="endpoint">
-                    <div class="endpoint-top"><span class="verb">GET</span><code class="path">/api/v1/inventory/{stock}</code><button class="button" data-copy="/api/v1/inventory/GTX123456">Copy example</button></div>
-                    <div class="endpoint-body"><div><h3>Vehicle details</h3><p>Returns the full record for one stock number, including all images, story content, features, pricing, and public links.</p><div class="actions"><a class="button primary" data-api-link="/api/v1/inventory/GTX123456" target="_blank" rel="noopener">Try example ↗</a></div></div><pre><span class="code-acid">curl</span> <span data-code-url="/api/v1/inventory/GTX123456"></span>
+                    <div class="endpoint-top"><span class="verb">GET</span><code class="path">/api/v1/inventory/{stock}</code><button class="button" data-copy="/api/v1/inventory/STK123456">Copy example</button></div>
+                    <div class="endpoint-body"><div><h3>Vehicle details</h3><p>Returns the full record for one stock number, including all images, story content, features, pricing, and public links.</p><div class="actions"><a class="button primary" data-api-link="/api/v1/inventory/STK123456" target="_blank" rel="noopener">Try example ↗</a></div></div><pre><span class="code-acid">curl</span> <span data-code-url="/api/v1/inventory/STK123456"></span>
 
 <span class="code-cyan">404</span> when the stock is not active.</pre></div>
                 </article>
@@ -458,7 +840,7 @@ url,make,model,year,...</pre></div>
                 <table>
                     <thead><tr><th>Parameter</th><th>Type</th><th>Purpose</th><th>Rules / examples</th></tr></thead>
                     <tbody>
-                        <tr><td>search</td><td>string</td><td>Search stock, VIN, make, model, style, or year.</td><td>Camry, GTX123456, 2022</td></tr>
+                        <tr><td>search</td><td>string</td><td>Search stock, VIN, make, model, style, or year.</td><td>Camry, STK123456, 2022</td></tr>
                         <tr><td>type</td><td>string</td><td>Exact vehicle-type match.</td><td>Car, Truck, SUV</td></tr>
                         <tr><td>make</td><td>string</td><td>Exact make match.</td><td>Toyota</td></tr>
                         <tr><td>model</td><td>string</td><td>Exact model match.</td><td>Camry</td></tr>
@@ -475,15 +857,15 @@ url,make,model,year,...</pre></div>
 
         <section class="section shell" id="meta">
             <div class="meta-callout">
-                <div><div class="kicker">03 / Meta catalog</div><h2>Your lot. One live feed.</h2><p>Give the Meta vehicle catalog the public feed URL and configure a scheduled refresh. Adding, updating, or removing inventory in GTX changes the next feed automatically.</p><div class="actions"><button class="button" type="button" data-copy="/api/v1/meta-vehicles">Copy Meta feed URL</button><a class="button" data-api-link="/api/v1/meta-vehicles" target="_blank" rel="noopener">Inspect feed ↗</a></div></div>
-                <div class="flow" aria-label="Meta feed flow"><div>GTX SQL INVENTORY</div><span>↓</span><div>/api/v1/meta-vehicles</div><span>↓</span><div>META VEHICLE CATALOG</div></div>
+                <div><div class="kicker">03 / Meta catalog</div><h2>Your lot. One live feed.</h2><p>Give the Meta vehicle catalog the public feed URL and configure a scheduled refresh. Adding, updating, or removing inventory through AutoDealer.dev changes the next feed automatically.</p><div class="actions"><button class="button" type="button" data-copy="/api/v1/meta-vehicles">Copy Meta feed URL</button><a class="button" data-api-link="/api/v1/meta-vehicles" target="_blank" rel="noopener">Inspect feed ↗</a></div></div>
+                <div class="flow" aria-label="Meta feed flow"><div>AUTODEALER.DEV INVENTORY</div><span>↓</span><div>/api/v1/meta-vehicles</div><span>↓</span><div>META VEHICLE CATALOG</div></div>
             </div>
         </section>
 
         <section class="section shell" id="rules">
             <div class="section-head"><div><div class="kicker">04 / Operating rules</div><h2>Ship safely.</h2></div><p>The API is deliberately read-only. Treat response shapes as versioned contracts and move breaking changes to a future API version.</p></div>
             <div class="note-grid">
-                <div class="note"><strong>HTTPS only</strong><p>Production clients and Meta should use the secure usedcarscincinnati.com URL.</p></div>
+                <div class="note"><strong>HTTPS only</strong><p>Production clients and Meta should use the secure API base URL displayed above.</p></div>
                 <div class="note"><strong>JSON vs. CSV</strong><p>Application endpoints return JSON. Only the Meta vehicle-feed endpoint returns CSV.</p></div>
                 <div class="note"><strong>Meta eligibility</strong><p>Feed rows require stock, VIN, positive price, and at least one real vehicle image.</p></div>
                 <div class="note"><strong>Read-only API</strong><p>All documented operations use GET and do not modify inventory records.</p></div>
@@ -493,7 +875,9 @@ url,make,model,year,...</pre></div>
         </section>
     </main>
 
-    <footer class="shell">GTX Auto Group · Public API v1 · Live inventory documentation</footer>
+    <footer>
+        <div class="shell footer-inner">AutoDealer.dev · Public API v1 · Live inventory documentation</div>
+    </footer>
     <div class="toast" role="status" aria-live="polite">Copied to clipboard</div>
 
     <script>
