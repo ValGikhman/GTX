@@ -31,18 +31,6 @@
         radial-gradient(circle at 78% 18%, var(--mp-accent), transparent 28%);
 }
 
-.marketing-hero::after {
-    content: "";
-    position: absolute;
-    right: -6rem;
-    bottom: -15rem;
-    z-index: -1;
-    width: 28rem;
-    height: 28rem;
-    border: 4rem solid rgba(255, 255, 255, .05);
-    border-radius: 50%;
-}
-
 .marketing-hero-word {
     position: absolute;
     top: -.13em;
@@ -55,6 +43,19 @@
     line-height: 1;
     text-transform: uppercase;
     -webkit-text-stroke: 1px rgba(255, 255, 255, .09);
+    user-select: none;
+}
+
+.marketing-hero-brand {
+    position: absolute;
+    top: 50%;
+    right: 2%;
+    z-index: -1;
+    width: min(24vw, 17.5rem);
+    height: auto;
+    opacity: .05;
+    transform: translateY(-50%);
+    pointer-events: none;
     user-select: none;
 }
 
@@ -1351,6 +1352,12 @@ html.theme-silver .blog-read-link {
 
     .marketing-hero h1 {
         font-size: clamp(2.35rem, 11vw, 3.5rem);
+    }
+
+    .marketing-hero-brand {
+        right: -8%;
+        width: 45vw;
+        opacity: .05;
     }
 
     .marketing-hero-copy p {

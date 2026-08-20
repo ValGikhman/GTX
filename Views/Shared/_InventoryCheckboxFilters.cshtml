@@ -122,6 +122,9 @@
                 <span>matching vehicle(s)</span>
             </div>
             <div class="inventory-filter-actions">
+                <button type="button" id="inventorySidebarDockToggle" class="btn btn-sm btn-gradient-grey border-dark rounded-3 shadow text-black fw-bold inventory-clear-btn d-none d-lg-inline-flex" title="Dock filters on right" aria-label="Dock filters on right">
+                    <i class="bi bi-layout-sidebar-reverse"></i>
+                </button>
                 <button type="button" id="inventoryClearFiltersDesktop" class="btn btn-sm btn-gradient-grey border-dark rounded-3 shadow text-black fw-bold inventory-clear-btn d-none d-lg-inline-flex">
                     <i class="bi bi-eraser-fill"></i>
                     <span>Clear</span>
@@ -277,6 +280,21 @@
         min-width: 0;
         overflow: hidden;
         opacity: 0;
+    }
+
+    @@media (min-width: 992px) {
+        .inventory-sidebar-right .inventory-results-zone {
+            order: 1;
+        }
+
+        .inventory-sidebar-right .inventory-split-divider {
+            left: -15px;
+            order: 2;
+        }
+
+        .inventory-sidebar-right .inventory-sidebar-pane {
+            order: 3;
+        }
     }
 
     body.inventory-split-resizing,
