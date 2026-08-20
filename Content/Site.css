@@ -3914,6 +3914,7 @@ html.theme-silver .home-quick-icon {
         margin-top: 4rem;
         font-size: clamp(2rem, 8.5vw, 3rem);
         line-height: .92;
+        text-align: center;
     }
 
         .home-hero-copy h1 span {
@@ -3936,6 +3937,7 @@ html.theme-silver .home-quick-icon {
     }
 
     .home-hero-lead {
+        display: none;
         max-width: 34rem;
         margin-top: .7rem;
         color: rgba(255, 255, 255, .92);
@@ -3946,8 +3948,9 @@ html.theme-silver .home-quick-icon {
     }
 
     .home-hero-primary-actions {
-        margin-top: .75rem;
+        margin-top: 33rem;
         gap: .65rem;
+        justify-content: center;
     }
 
     .home-hero-button {
@@ -3968,6 +3971,7 @@ html.theme-silver .home-quick-icon {
     .home-hero-trust {
         margin-top: .7rem;
         gap: .5rem .9rem;
+        justify-content: center;
         color: rgba(255, 255, 255, .9);
         font-size: clamp(.74rem, 2.8vw, .88rem);
         line-height: 1.3;
