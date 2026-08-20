@@ -38,30 +38,17 @@
     </div>
 </div>
 
+@Html.Partial("_MarketingHero", null, new ViewDataDictionary
+{
+    { "Kicker", "Meet the people behind the drive" },
+    { "Title", "Real people." },
+    { "Accent", "Remarkable service." },
+    { "Description", "Knowledgeable, approachable, and ready to help you find the right vehicle with confidence." },
+    { "Word", "TEAM" },
+    { "Icon", "bi-stars" }
+})
+
 <main class="staff-page">
-    <section class="hero staff-hero" aria-labelledby="staffPageTitle">
-        <span class="staff-hero-word" aria-hidden="true">TEAM</span>
-        <div class="staff-hero-orbit staff-hero-orbit-one" aria-hidden="true"></div>
-        <div class="staff-hero-orbit staff-hero-orbit-two" aria-hidden="true"></div>
-
-        <div class="staff-hero-inner">
-            <div class="staff-hero-copy">
-                <span class="staff-eyebrow"><i class="bi bi-stars" aria-hidden="true"></i> Meet the people behind the drive</span>
-                <h1 id="staffPageTitle">Real people.<br /><em>Remarkable</em> service.</h1>
-                <p>Knowledgeable, approachable, and ready to help you find the right vehicle with confidence.</p>
-            </div>
-
-            <aside class="staff-hero-note" aria-label="Our service promise">
-                <span class="staff-hero-note-number">@employers.Length</span>
-                <span class="staff-hero-note-copy">
-                    <small>One dedicated team</small>
-                    <strong>Your next drive starts here.</strong>
-                </span>
-                <i class="bi bi-arrow-down-right" aria-hidden="true"></i>
-            </aside>
-        </div>
-    </section>
-
     <section class="staff-showcase" aria-label="Our staff">
         <div class="staff-section-heading">
             <span>Faces you can trust</span>

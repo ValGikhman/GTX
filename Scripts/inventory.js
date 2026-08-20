@@ -960,12 +960,31 @@ function calculateMonthlyPayment(P, rate, month) {
         var $toggle = $("#inventorySidebarToggle");
         var $icon = $toggle.find("i");
         var title = isCollapsed ? "Expand filters" : "Collapse filters";
+        var isDockedRight = $split.hasClass("inventory-sidebar-right");
+        var pointsRight = isDockedRight ? !isCollapsed : isCollapsed;
 
         $split.toggleClass("inventory-sidebar-collapsed", isCollapsed);
         $toggle.attr("title", title).attr("aria-label", title);
-        $icon.toggleClass("bi-chevron-left", !isCollapsed);
-        $icon.toggleClass("bi-chevron-right", isCollapsed);
+        $icon.toggleClass("bi-chevron-left", !pointsRight);
+        $icon.toggleClass("bi-chevron-right", pointsRight);
         localStorage.setItem("inventorySidebarCollapsed", isCollapsed ? "1" : "0");
+    }
+
+    function setInventorySidebarDockSide($split, side) {
+        var isDockedRight = side === "right";
+        var $dockToggle = $("#inventorySidebarDockToggle");
+        var targetSide = isDockedRight ? "left" : "right";
+
+        $split.toggleClass("inventory-sidebar-right", isDockedRight);
+        $dockToggle
+            .attr("title", "Dock filters on " + targetSide)
+            .attr("aria-label", "Dock filters on " + targetSide);
+        $dockToggle.find("i")
+            .toggleClass("bi-layout-sidebar", isDockedRight)
+            .toggleClass("bi-layout-sidebar-reverse", !isDockedRight);
+
+        localStorage.setItem("inventorySidebarDockSide", isDockedRight ? "right" : "left");
+        setInventorySidebarState($split, $split.hasClass("inventory-sidebar-collapsed"));
     }
 
     function setInventorySidebarWidth($split, width) {
@@ -993,6 +1012,8 @@ function calculateMonthlyPayment(P, rate, month) {
             return;
         }
 
+        setInventorySidebarDockSide($split, localStorage.getItem("inventorySidebarDockSide"));
+
         var savedWidth = parseInt(localStorage.getItem("inventorySidebarWidth"), 10);
         if (savedWidth) {
             setInventorySidebarWidth($split, savedWidth);
@@ -1005,6 +1026,7 @@ function calculateMonthlyPayment(P, rate, month) {
         var $split = $("#inventorySplit");
         var $divider = $("#inventorySplitDivider");
         var $toggle = $("#inventorySidebarToggle");
+        var $dockToggle = $("#inventorySidebarDockToggle");
 
         if (!$split.length || !$divider.length || !$toggle.length) return;
 
@@ -1015,6 +1037,13 @@ function calculateMonthlyPayment(P, rate, month) {
             event.stopPropagation();
             if (!isInventoryDesktopLayout()) return;
             setInventorySidebarState($split, !$split.hasClass("inventory-sidebar-collapsed"));
+        });
+
+        $dockToggle.off("click.inventorySplit").on("click.inventorySplit", function (event) {
+            event.preventDefault();
+            if (!isInventoryDesktopLayout()) return;
+
+            setInventorySidebarDockSide($split, $split.hasClass("inventory-sidebar-right") ? "left" : "right");
         });
 
         $divider.off(".inventorySplit").on("dblclick.inventorySplit", function () {
@@ -1034,7 +1063,8 @@ function calculateMonthlyPayment(P, rate, month) {
 
             $(document)
                 .on("mousemove.inventorySplit touchmove.inventorySplit", function (moveEvent) {
-                    var nextWidth = startWidth + pointerClientX(moveEvent) - startX;
+                    var pointerDelta = pointerClientX(moveEvent) - startX;
+                    var nextWidth = startWidth + ($split.hasClass("inventory-sidebar-right") ? -pointerDelta : pointerDelta);
 
                     didMove = true;
                     setInventorySidebarState($split, false);
