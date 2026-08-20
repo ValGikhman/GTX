@@ -3888,6 +3888,7 @@ html.theme-silver .home-quick-icon {
     }
 
     .home-hero-copy {
+        align-self: stretch;
         transform: none;
     }
 
@@ -3910,13 +3911,16 @@ html.theme-silver .home-quick-icon {
 
     .home-hero-copy h1 {
         max-width: none;
+        margin-top: 4rem;
         font-size: clamp(2rem, 8.5vw, 3rem);
         line-height: .92;
     }
 
-    .home-hero-copy h1 span {
-        white-space: nowrap;
-    }
+        .home-hero-copy h1 span {
+            margin-top: 1rem;
+            padding-left: 2rem;
+            white-space: nowrap;
+        }
 
     .home-hero-slogan {
         margin: 0 auto .7rem;
