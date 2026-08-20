@@ -1,0 +1,189 @@
+@model GTX.Models.BaseModel
+@using System
+@using System.Globalization
+@using System.Linq
+
+@{
+    const string photosInventoryImagesBaseUrl = "https://photos.usedcarscincinnati.com/Images";
+
+    Func<string, string> inventoryImageUrl = source =>
+    {
+        var value = (source ?? string.Empty).Trim().Replace('\\', '/');
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return string.Empty;
+        }
+
+        if (value.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            value.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            return value;
+        }
+
+        if (value.IndexOf("InventoryImages/Get", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            var queryIndex = value.IndexOf('?');
+            if (queryIndex >= 0 && queryIndex < value.Length - 1)
+            {
+                var query = System.Web.HttpUtility.ParseQueryString(value.Substring(queryIndex));
+                value = System.Web.HttpUtility.UrlDecode(query["path"] ?? string.Empty);
+            }
+        }
+
+        value = (value ?? string.Empty).Trim().Replace('\\', '/').TrimStart('/');
+        foreach (var prefix in new[] { "SiteImages/Inventory/", "Pictures/", "Images/" })
+        {
+            if (value.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                value = value.Substring(prefix.Length);
+                break;
+            }
+        }
+
+        var encodedPath = string.Join(
+            "/",
+            value.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(Uri.EscapeDataString));
+
+        return string.IsNullOrWhiteSpace(encodedPath)
+            ? string.Empty
+            : photosInventoryImagesBaseUrl + "/" + encodedPath;
+    };
+
+    Func<GTX.Models.GTX, DateTime> inventoryDate = vehicle =>
+    {
+        DateTime parsed;
+        var rawDate = !string.IsNullOrWhiteSpace(vehicle.ArrivalDate)
+            ? vehicle.ArrivalDate
+            : vehicle.PurchaseDate;
+        var formats = new[] { "M/d/yy", "MM/dd/yy", "M/d/yyyy", "MM/dd/yyyy" };
+
+        return DateTime.TryParseExact(
+            rawDate ?? string.Empty,
+            formats,
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.AllowWhiteSpaces,
+            out parsed)
+            ? parsed
+            : DateTime.MinValue;
+    };
+
+    var featuredVehicles = (Model.Inventory?.All ?? Array.Empty<GTX.Models.GTX>())
+        .Where(vehicle => vehicle != null &&
+            vehicle.Images != null &&
+            vehicle.Images.Length > 0 &&
+            !string.IsNullOrWhiteSpace(vehicle.Image) &&
+            vehicle.Image.IndexOf("no-image", StringComparison.OrdinalIgnoreCase) < 0)
+        .OrderByDescending(inventoryDate)
+        .ThenByDescending(vehicle => vehicle.Stock)
+        .Take(20)
+        .ToArray();
+
+    var usCulture = CultureInfo.GetCultureInfo("en-US");
+}
+
+@if (featuredVehicles.Length > 0)
+{
+    <section id="homeInventoryPlayer"
+             class="carousel slide home-inventory-player"
+             data-bs-ride="carousel"
+             data-bs-interval="5500"
+             data-bs-pause="hover"
+             aria-label="Newest vehicles">
+        <div class="home-inventory-player-bar">
+            <span class="home-inventory-player-label">
+                <i class="bi bi-stars" aria-hidden="true"></i>
+                Fresh arrivals
+            </span>
+            <span class="home-inventory-player-status" aria-live="polite">
+                <strong data-home-player-current>1</strong> / @featuredVehicles.Length
+            </span>
+            <button type="button"
+                    class="home-inventory-player-button"
+                    data-home-player-toggle
+                    aria-label="Pause featured inventory"
+                    title="Pause">
+                <i class="bi bi-pause-fill" aria-hidden="true"></i>
+            </button>
+        </div>
+
+        <div class="carousel-inner">
+            @for (var index = 0; index < featuredVehicles.Length; index++)
+            {
+                var vehicle = featuredVehicles[index];
+                var title = string.Join(" ", new[]
+                {
+                    vehicle.Year.ToString(), vehicle.Make, vehicle.Model, vehicle.VehicleStyle
+                }.Where(value => !string.IsNullOrWhiteSpace(value)));
+                var detailsUrl = Url.Action("Details", "Inventory", new { stock = vehicle.Stock });
+                var transmission = !string.IsNullOrWhiteSpace(vehicle.TransmissionWord)
+                    ? vehicle.TransmissionWord
+                    : vehicle.Transmission;
+                var engine = string.IsNullOrWhiteSpace(vehicle.Engine) ? "Engine N/A" : vehicle.Engine;
+                var cardImageUrl = inventoryImageUrl(vehicle.Images[0].Source);
+
+                <article class="carousel-item @(index == 0 ? "active" : string.Empty)">
+                    <div class="home-inventory-card">
+                        <a class="home-inventory-card-media" href="@detailsUrl" aria-label="View @title details">
+                            <img src="@cardImageUrl"
+                                 alt="@title"
+                                 width="800"
+                                 height="600"
+                                 loading="@(index < 2 ? "eager" : "lazy")"
+                                 fetchpriority="@(index == 0 ? "high" : "low")"
+                                 decoding="async" />
+                        </a>
+                        <div class="home-inventory-card-body">
+                            <div class="home-inventory-card-heading-row">
+                                <a class="home-inventory-card-heading" href="@detailsUrl" aria-label="View @title details">
+                                    <h2>@vehicle.Year @vehicle.Make @vehicle.Model</h2>
+                                    <p>@(string.IsNullOrWhiteSpace(vehicle.VehicleStyle) ? "Available now" : vehicle.VehicleStyle)</p>
+                                </a>
+                                <a class="home-inventory-offer home-inventory-call" href="tel:+15134892886" aria-label="Call GTX Auto Group for the price of @title">
+                                    <i class="bi bi-telephone-fill" aria-hidden="true"></i>
+                                    <span><small>Pricing</small><strong>Call for price</strong></span>
+                                </a>
+                            </div>
+                            <dl class="home-inventory-specs">
+                                <div>
+                                    <dt><i class="bi bi-speedometer2" aria-hidden="true"></i> Miles</dt>
+                                    <dd>@vehicle.Mileage.ToString("N0", usCulture)</dd>
+                                </div>
+                                <div>
+                                    <dt><i class="bi bi-gear-wide-connected" aria-hidden="true"></i> Cylinders</dt>
+                                    <dd>@(vehicle.Cylinders > 0 ? vehicle.Cylinders.ToString() : "N/A")</dd>
+                                </div>
+                                <div>
+                                    <dt><i class="bi bi-lightning-charge" aria-hidden="true"></i> Engine</dt>
+                                    <dd title="@engine">@engine</dd>
+                                </div>
+                                <div>
+                                    <dt><i class="bi bi-shuffle" aria-hidden="true"></i> Trans</dt>
+                                    <dd title="@transmission">@(string.IsNullOrWhiteSpace(transmission) ? "N/A" : transmission)</dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+
+        @if (featuredVehicles.Length > 1)
+        {
+            <button class="carousel-control-prev home-inventory-control"
+                    type="button"
+                    data-bs-target="#homeInventoryPlayer"
+                    data-bs-slide="prev"
+                    aria-label="Previous vehicle">
+                <i class="bi bi-chevron-left" aria-hidden="true"></i>
+            </button>
+            <button class="carousel-control-next home-inventory-control"
+                    type="button"
+                    data-bs-target="#homeInventoryPlayer"
+                    data-bs-slide="next"
+                    aria-label="Next vehicle">
+                <i class="bi bi-chevron-right" aria-hidden="true"></i>
+            </button>
+        }
+    </section>
+}
