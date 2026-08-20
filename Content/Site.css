@@ -3279,21 +3279,66 @@ body.home-index .home-hero .video-background-video {
 }
 
 .home-hero-brand {
-    position: static;
-    width: clamp(18rem, 28.5vw, 25.5rem);
-    display: block;
-    margin-bottom: -1rem;
-    opacity: .6;
-    filter: saturate(.72) drop-shadow(0 .8rem 1.6rem rgba(0, 0, 0, .16));
-    transform: translate(-8%, -25%);
+    position: relative;
+    isolation: isolate;
+    width: clamp(18rem, 27vw, 24rem);
+    height: clamp(8rem, 12vw, 10.5rem);
+    margin: 0 0 1.15rem;
+    padding: .75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 2px solid transparent;
+    border-radius: 1.15rem;
+    opacity: .7;
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, .98), rgba(219, 226, 232, .96)) padding-box,
+        var(--gtx-grad, linear-gradient(145deg, #155a96, #1e73be)) border-box;
+    box-shadow:
+        inset 0 1px rgba(255, 255, 255, 1),
+        inset 0 -.12rem .35rem rgba(50, 63, 75, .09),
+        0 1.15rem 2.5rem rgba(0, 0, 0, .3),
+        0 0 1.5rem color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 14%, transparent);
+    backdrop-filter: blur(16px);
     pointer-events: none;
     user-select: none;
 }
 
+.home-hero-brand::before {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    background:
+        radial-gradient(circle at 100% 0, color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 22%, transparent), transparent 42%),
+        linear-gradient(115deg, rgba(255, 255, 255, .18), transparent 42%);
+    pointer-events: none;
+}
+
+.home-hero-brand::after {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    top: -70%;
+    left: -18%;
+    width: 42%;
+    height: 225%;
+    opacity: .42;
+    background: linear-gradient(105deg, transparent 20%, rgba(255, 255, 255, .92) 49%, transparent 75%);
+    transform: rotate(7deg);
+    pointer-events: none;
+}
+
 .home-hero-brand img {
+    position: relative;
+    z-index: 1;
     display: block;
     width: 100%;
+    max-width: none;
     height: auto;
+    filter: saturate(1.04) contrast(1.08) drop-shadow(0 .48rem .5rem rgba(17, 24, 32, .28));
+    transform: translateY(0);
 }
 
 .home-hero-slogan {
@@ -3877,8 +3922,10 @@ html.theme-silver .home-quick-icon {
 
     .home-hero-brand {
         width: clamp(14.25rem, 51vw, 18rem);
-        margin-bottom: -.65rem;
-        opacity: .6;
+        height: clamp(6.25rem, 21vw, 8rem);
+        margin-bottom: .7rem;
+        padding: .5rem;
+        border-radius: .85rem;
     }
 
     .home-hero-copy h1 {
