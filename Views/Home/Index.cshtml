@@ -1,106 +1,106 @@
-﻿<head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-L828PN8ET1">
-    </script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
+@model GTX.Models.BaseModel
 
-        gtag('config', 'G-L828PN8ET1');
-    </script>
-</head>
-<style>
-    .hero {
-        position: relative;
-    }
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L828PN8ET1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-L828PN8ET1');
+</script>
 
-    .slogan-container {
-        position: absolute;
-        top: 0;
-        height: 9rem;
-        width: 100%;
-        z-index: 10;
-    }
-
-    @@media only screen and (max-width: 500px) {
-        #GTX-image img {
-            width: 170px;
-            margin-left: 10%;
-            margin-top: 1%;
-        }
-
-        .slogan-container {
-            top: 0rem;
-            height: 5rem;
-        }
-
-        .canvas__open {
-            top: 2.5rem !important;
-        }
-    }
-
-    @@media only screen and (min-width: 501px) and (max-width: 991px) {
-        #GTX-image img {
-            width: 255px;
-            margin-left: 0;
-            margin-top: 1%;
-        }
-
-        .slogan-container {
-            top: 0;
-            height: 5rem;
-        }
-
-        #homeSearch {
-            width: 75% !important;
-        }
-
-        .canvas__open {
-            top: 5.5rem !important;
-        }
-    }
-</style>
 @{
-    @model GTX.Models.BaseModel
     var hasAnnouncements = Model.Announcements?.Count() > 0;
     var displayMode = hasAnnouncements ? Model.Announcements[0].DisplayMode : GTX.Models.DisplayMode.Popup;
     var announcementId = hasAnnouncements ? Model.Announcements[0].Id : 0;
 }
-<section class="hero home-hero">
-    <video class="video-background-video" autoplay muted loop playsinline webkit-playsinline preload="auto">
+
+<section class="hero home-hero" aria-labelledby="homeHeroTitle">
+    <video class="video-background-video" autoplay muted loop playsinline webkit-playsinline preload="metadata" aria-hidden="true" tabindex="-1">
         <source src="~/SiteImages/video/GTX.MP4" type="video/mp4" />
     </video>
 
-    <div class="slogan-container btn-gradient-grey">
-        <div id="GTX-image">
-            <a href="~/Inventory/All" target="_self"><img src="~/SiteImages/brand-home.png" width="600" /></a>
+    <div class="home-hero-shade" aria-hidden="true"></div>
+    <div class="home-hero-grid" aria-hidden="true"></div>
+    <span class="home-hero-orbit home-hero-orbit-one" aria-hidden="true"></span>
+    <span class="home-hero-orbit home-hero-orbit-two" aria-hidden="true"></span>
+
+    <div class="home-hero-shell">
+        <div class="home-hero-copy">
+            <span class="home-hero-brand" aria-hidden="true">
+                <img src="~/SiteImages/brand-index.png" alt="" />
+            </span>
+
+            <span class="home-hero-eyebrow">
+                <span class="home-hero-pulse" aria-hidden="true"></span>
+                West Chester, Ohio
+            </span>
+
+            <p class="home-hero-slogan" aria-label="Your car, your style, your way">
+                <span>Your car</span>
+                <i class="bi bi-chevron-double-right" aria-hidden="true"></i>
+                <span>Your style</span>
+                <i class="bi bi-chevron-double-right" aria-hidden="true"></i>
+                <strong>Your way</strong>
+            </p>
+
+            <h1 id="homeHeroTitle">
+                Find the drive
+                <span>that feels like you.</span>
+            </h1>
+
+            <p class="home-hero-lead">
+                Carefully selected vehicles, straightforward guidance, and a local team ready to help you drive with confidence.
+            </p>
+
+            <div class="home-hero-primary-actions">
+                <a href="@Url.Action("All", "Inventory")" class="home-hero-button home-hero-button-primary">
+                    <i class="bi bi-car-front-fill" aria-hidden="true"></i>
+                    <span>@I18n.R("Nav_All") @I18n.R("Nav_Inventory")</span>
+                    <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                </a>
+                <a href="@Url.RouteUrl("TestDriveContact")" class="home-hero-button home-hero-button-secondary">
+                    <i class="bi bi-calendar3" aria-hidden="true"></i>
+                    <span>@I18n.R("Nav_ScheduleTestDrive")</span>
+                </a>
+            </div>
+
+            <ul class="home-hero-trust list-unstyled" aria-label="Why choose GTX Auto Group">
+                <li><i class="bi bi-star-fill" aria-hidden="true"></i> Top rated in Cincinnati</li>
+                <li><i class="bi bi-shield-check" aria-hidden="true"></i> Straightforward buying</li>
+                <li><i class="bi bi-geo-alt-fill" aria-hidden="true"></i> Local, personal service</li>
+            </ul>
         </div>
-        <div class="slogan-big end-0 mx-lg-5 d-none d-xxl-flex ">Your car, your style, your way</div>
 
-        <div class="slogan-small text-dark position-absolute">Top rated dealer in Cincinnati</div>
-    </div>
-
-    <div class="home-inventory-cta d-flex justify-content-center align-items-center w-100">
-        <a href="/Inventory/All" class="btn btn-big-gradient" type="button"><i class="bi bi-car-front-fill"></i><span class="mx-3">@I18n.R("Nav_All") @I18n.R("Nav_Inventory")</span></a>
-    </div>
-
-
-    <div class="d-flex justify-content-center align-items-center w-100">
-        <div class="btn-container home-cta-actions d-flex justify-content-center align-items-center gap-xxl-5 w-100 flex-nowrap">
-            <a href="/Home/Application" class="btn btn-big-gradient" type="button"><i class="bi bi-currency-dollar"></i><span class="mx-3">@I18n.R("Nav_GetPrequalified")</span></a>
-            <a href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })" class="btn btn-big-gradient" type="button"><i class="bi bi-person-vcard"></i><span class="mx-3">@I18n.R("Nav_ContactUs")</span></a>
-            <a href="@Url.RouteUrl("TestDriveContact")" class="btn btn-big-gradient" type="button"><i class="bi bi-calendar3"></i><span class="mx-3">@I18n.R("Nav_ScheduleTestDrive")</span></a>
-        </div>
+        <nav class="home-hero-quick-actions" aria-label="Quick actions">
+            <a href="@Url.Action("Application", "Home")">
+                <span class="home-quick-icon"><i class="bi bi-currency-dollar" aria-hidden="true"></i></span>
+                <span><small>Financing</small><strong>@I18n.R("Nav_GetPrequalified")</strong></span>
+                <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
+            </a>
+            <a href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })">
+                <span class="home-quick-icon"><i class="bi bi-chat-dots" aria-hidden="true"></i></span>
+                <span><small>Questions?</small><strong>@I18n.R("Nav_ContactUs")</strong></span>
+                <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
+            </a>
+            <a href="tel:+15134892886">
+                <span class="home-quick-icon"><i class="bi bi-telephone" aria-hidden="true"></i></span>
+                <span><small>Call our team</small><strong>(513) 489-2886</strong></span>
+                <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
+            </a>
+        </nav>
     </div>
 </section>
 
-
 <script>
-
     $(function () {
         $("#fakeSearch").css("visibility", "hidden");
         $("#GTX-image").removeClass("d-md-inline-block");
+
+        var heroVideo = document.querySelector(".home-hero .video-background-video");
+        if (heroVideo && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            heroVideo.pause();
+        }
 
         var hasAnnouncements = @((hasAnnouncements).ToString().ToLower());
         var displayMode = "@displayMode";
