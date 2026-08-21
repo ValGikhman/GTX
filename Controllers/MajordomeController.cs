@@ -1305,18 +1305,54 @@ namespace GTX.Controllers
                 return Json(new { success = false, message = "The background-removal preview has expired or was not found." });
             }
 
+            var backupPath = originalPath + ".remove-bg-backup-" + previewToken;
+            var saveValidated = false;
             try {
-                System.IO.File.Replace(previewPath, originalPath, null);
+                System.IO.File.Replace(previewPath, originalPath, backupPath);
+
+                using (var savedImage = new MagickImage(originalPath)) {
+                    if (savedImage.Width <= 0 || savedImage.Height <= 0) {
+                        throw new InvalidDataException("The saved image could not be validated.");
+                    }
+                }
+
+                System.IO.File.SetLastWriteTimeUtc(originalPath, DateTime.UtcNow);
+                saveValidated = true;
                 return Json(new {
                     success = true,
                     stock = (stock ?? string.Empty).Trim(),
                     file,
+                    version = System.IO.File.GetLastWriteTimeUtc(originalPath).Ticks,
                     message = "Background removed successfully."
                 });
             }
             catch (Exception ex) {
+                if (System.IO.File.Exists(backupPath)) {
+                    try {
+                        if (System.IO.File.Exists(originalPath)) {
+                            System.IO.File.Replace(backupPath, originalPath, null);
+                        }
+                        else {
+                            System.IO.File.Move(backupPath, originalPath);
+                        }
+                    }
+                    catch (Exception restoreEx) {
+                        Log(restoreEx);
+                    }
+                }
+
                 Log(ex);
                 return Json(new { success = false, message = "Unable to save the background-removal result: " + ex.Message });
+            }
+            finally {
+                if (saveValidated && System.IO.File.Exists(backupPath)) {
+                    try {
+                        System.IO.File.Delete(backupPath);
+                    }
+                    catch (Exception cleanupEx) {
+                        Log(cleanupEx);
+                    }
+                }
             }
         }
 

@@ -13,6 +13,35 @@ function getActiveMajordomeStock() {
     return "";
 }
 
+const MAJORDOME_IMAGE_VERSION_PREFIX = "gtx-majordome-image-version:";
+
+function getMajordomeImageVersionKey(source) {
+    var value = (source || "").toString().trim().toLowerCase();
+    return value ? MAJORDOME_IMAGE_VERSION_PREFIX + value : "";
+}
+
+function rememberMajordomeImageVersion(source, version) {
+    var key = getMajordomeImageVersionKey(source);
+    if (!key || !version) return;
+
+    try {
+        window.localStorage.setItem(key, version.toString());
+    } catch (e) {
+        // Storage can be unavailable in private browsing; the current refresh still uses the version.
+    }
+}
+
+function getRememberedMajordomeImageVersion(source) {
+    var key = getMajordomeImageVersionKey(source);
+    if (!key) return "";
+
+    try {
+        return window.localStorage.getItem(key) || "";
+    } catch (e) {
+        return "";
+    }
+}
+
 function toInventoryImageUrl(source) {
     var raw = (source || "").toString().trim();
     if (!raw) return "";
@@ -54,13 +83,20 @@ function toInventoryImageUrl(source) {
     });
 
     if (!segments.length) return "";
-    return photosInventoryImagesBaseUrl + "/" + segments.join("/");
+
+    var imageUrl = photosInventoryImagesBaseUrl + "/" + segments.join("/");
+    var rememberedVersion = getRememberedMajordomeImageVersion(source);
+    return rememberedVersion ? appendCacheBust(imageUrl, rememberedVersion) : imageUrl;
 }
 
 function appendCacheBust(url, token) {
     if (!url) return "";
+    var encodedToken = encodeURIComponent(token);
+    if (/([?&])v=[^&]*/i.test(url)) {
+        return url.replace(/([?&])v=[^&]*/i, "$1v=" + encodedToken);
+    }
     var separator = url.indexOf("?") >= 0 ? "&" : "?";
-    return url + separator + "v=" + encodeURIComponent(token);
+    return url + separator + "v=" + encodedToken;
 }
 
 function appendImageWidth(url, width) {
@@ -232,14 +268,15 @@ function waitForMajordomeImageToLoad($image) {
     });
 }
 
-function refreshMajordomePhotoCardImage($card, file) {
+function refreshMajordomePhotoCardImage($card, file, version) {
     if (!$card || !$card.length) {
         return Promise.resolve();
     }
 
     var baseUrl = toInventoryImageUrl(file);
-    var freshLinkUrl = appendCacheBust(appendImageWidth(baseUrl, 1600), Date.now());
-    var freshThumbUrl = appendCacheBust(appendImageWidth(baseUrl, 640), Date.now());
+    var cacheVersion = version || Date.now();
+    var freshLinkUrl = appendCacheBust(appendImageWidth(baseUrl, 1600), cacheVersion);
+    var freshThumbUrl = appendCacheBust(appendImageWidth(baseUrl, 640), cacheVersion);
     var $link = $card.find(".majordome-photo-link");
     var $image = $card.find(".majordome-photo-image");
 
@@ -1043,8 +1080,10 @@ async function removeImageBackground(file, triggerElement) {
             throw new Error((confirmResponse && confirmResponse.message) || "Failed to save the background-removal result.");
         }
 
+        rememberMajordomeImageVersion(file, confirmResponse.version);
+
         if ($card.length) {
-            await refreshMajordomePhotoCardImage($card, file);
+            await refreshMajordomePhotoCardImage($card, file, confirmResponse.version);
             updateGalleryDisplay();
             $("#gallery-tab").tab("show");
         } else {
