@@ -513,6 +513,7 @@ function loadGallery(vehicle) {
                 <div class="majordome-photo-actions">
                     <button type="button" id="${safeId}" class="delete-image bi bi-trash btn btn-light shadow-sm" data-filename="${safeSource}" title="Delete image"></button>
                     <button type="button" id="${safeId}" class="overlay-image ${imageIcon} btn btn-light shadow-sm ${showImageEdit}" data-filename="${safeSource}" title="Create overlay file"></button>
+                    <button type="button" id="${safeId}" class="remove-image-background bi bi-eraser btn btn-light shadow-sm ${showImageEdit}" data-filename="${safeSource}" title="Remove background"></button>
                     <button type="button" id="${safeId}" class="rotate-image-ccw bi bi-arrow-counterclockwise btn btn-light shadow-sm ${showImageEdit}" data-filename="${safeSource}" data-degrees="-90" title="Rotate image left"></button>
                     <button type="button" id="${safeId}" class="rotate-image bi bi-arrow-clockwise btn btn-light shadow-sm ${showImageEdit}" data-filename="${safeSource}" data-degrees="90" title="Rotate image right"></button>
                     <button type="button" class="move-to-top bi bi-front btn btn-light shadow-sm" title="Make it default image"></button>
@@ -973,6 +974,44 @@ async function rotateImage(file, degrees, triggerElement) {
     } catch (err) {
         console.error("RotateImage failed:", err);
         alert(err.message || "Failed to rotate image on the server.");
+    } finally {
+        endMajordomeImageAction($overlay);
+    }
+}
+
+async function removeImageBackground(file, triggerElement) {
+    const stock = getActiveMajordomeStock();
+    if (!stock) {
+        alert("Please select a vehicle first.");
+        return;
+    }
+
+    const $overlay = $("#inventoryOverlay");
+    if (!beginMajordomeImageAction($overlay)) {
+        return;
+    }
+
+    window.majordomeSelectedStock = stock;
+    window.majordomeForceActiveTab = "gallery-tab";
+
+    const $card = triggerElement ? $(triggerElement).closest(".majordome-photo-card") : $();
+
+    try {
+        const response = await postMajordome(`${root}Majordome/RemoveImageBackground`, { file, stock });
+        if (!response || !response.success) {
+            throw new Error((response && response.message) || "Failed to remove image background.");
+        }
+
+        if ($card.length) {
+            await refreshMajordomePhotoCardImage($card, file);
+            updateGalleryDisplay();
+            $("#gallery-tab").tab("show");
+        } else {
+            await refreshMajordomeAfterImageMutation(stock, { keepGalleryTab: true });
+        }
+    } catch (err) {
+        console.error("RemoveImageBackground failed:", err);
+        alert(err.message || "Failed to remove image background on the server.");
     } finally {
         endMajordomeImageAction($overlay);
     }
