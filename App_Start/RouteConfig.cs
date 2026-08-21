@@ -25,6 +25,12 @@ namespace GTX {
             );
 
             routes.MapRoute(
+                name: "MajordomeRemoveImageBackground",
+                url: "Majordome/RemoveImageBackground",
+                defaults: new { controller = "Majordome", action = "RemoveImageBackground" }
+            );
+
+            routes.MapRoute(
                 name: "Inventory",
                 url: "Majordome/Inventory/{stock}",
                 defaults: new { controller = "Majordome", action = "Inventory", stock = UrlParameter.Optional }

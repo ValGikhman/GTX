@@ -1153,7 +1153,7 @@ namespace GTX.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> RemoveImageBackground(string file, string stock) {
+        public async Task<ActionResult> RemoveImageBackground(string file, string stock) {
             var removeBgEnabled = string.Equals(
                 ConfigurationManager.AppSettings["RemoveBg:Enabled"],
                 "true",
