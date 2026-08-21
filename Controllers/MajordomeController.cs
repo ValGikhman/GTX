@@ -1186,9 +1186,11 @@ namespace GTX.Controllers
                                extension.Equals(".jpeg", StringComparison.OrdinalIgnoreCase)
                 ? "jpg"
                 : "png";
+            var previewToken = Guid.NewGuid().ToString("N");
             var temporaryPath = Path.Combine(
                 Path.GetDirectoryName(path),
-                Path.GetFileNameWithoutExtension(path) + ".remove-bg-" + Guid.NewGuid().ToString("N") + extension);
+                Path.GetFileNameWithoutExtension(path) + ".remove-bg-" + previewToken + extension);
+            var keepTemporaryPreview = false;
 
             try {
                 byte[] resultBytes;
@@ -1200,7 +1202,8 @@ namespace GTX.Controllers
                     imageContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(MimeMapping.GetMimeMapping(path));
                     formData.Add(imageContent, "image_file", Path.GetFileName(path));
                     formData.Add(new StringContent("auto"), "size");
-                    formData.Add(new StringContent(outputFormat), "format");
+                    // Always request transparency so the cutout can be composited over our gradient.
+                    formData.Add(new StringContent("png"), "format");
 
                     using (var response = await client.PostAsync(RemoveBgEndpoint, formData)) {
                         if (!response.IsSuccessStatusCode) {
@@ -1226,7 +1229,29 @@ namespace GTX.Controllers
                     return Json(new { success = false, message = "remove.bg returned an empty image." });
                 }
 
-                using (var resultImage = new MagickImage(resultBytes)) {
+                byte[] gradientImageBytes;
+                using (var resultStream = new MemoryStream(resultBytes))
+                using (var cutout = System.Drawing.Image.FromStream(resultStream))
+                using (var gradientImage = new Bitmap(cutout.Width, cutout.Height, PixelFormat.Format32bppArgb))
+                using (var graphics = Graphics.FromImage(gradientImage))
+                using (var gradientBrush = new System.Drawing.Drawing2D.LinearGradientBrush(
+                    new Rectangle(0, 0, cutout.Width, cutout.Height),
+                    Color.FromArgb(232, 234, 237),
+                    Color.FromArgb(112, 117, 124),
+                    System.Drawing.Drawing2D.LinearGradientMode.Vertical))
+                using (var gradientStream = new MemoryStream()) {
+                    graphics.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
+                    graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                    graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                    graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                    graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                    graphics.FillRectangle(gradientBrush, 0, 0, cutout.Width, cutout.Height);
+                    graphics.DrawImage(cutout, new Rectangle(0, 0, cutout.Width, cutout.Height));
+                    gradientImage.Save(gradientStream, ImageFormat.Png);
+                    gradientImageBytes = gradientStream.ToArray();
+                }
+
+                using (var resultImage = new MagickImage(gradientImageBytes)) {
                     resultImage.Strip();
                     resultImage.Depth = 8;
 
@@ -1246,12 +1271,18 @@ namespace GTX.Controllers
                     await resultImage.WriteAsync(temporaryPath);
                 }
 
-                System.IO.File.Replace(temporaryPath, path, null);
+                keepTemporaryPreview = true;
                 return Json(new {
                     success = true,
                     stock = normalizedStock,
                     file,
-                    message = "Background removed successfully."
+                    previewToken,
+                    previewUrl = Url.Action("GetRemoveImageBackgroundPreview", "Majordome", new {
+                        file,
+                        stock = normalizedStock,
+                        previewToken
+                    }),
+                    message = "Background removal preview is ready."
                 });
             }
             catch (Exception ex) {
@@ -1259,7 +1290,7 @@ namespace GTX.Controllers
                 return Json(new { success = false, message = "Error removing image background: " + ex.Message });
             }
             finally {
-                if (System.IO.File.Exists(temporaryPath)) {
+                if (!keepTemporaryPreview && System.IO.File.Exists(temporaryPath)) {
                     try {
                         System.IO.File.Delete(temporaryPath);
                     }
@@ -1268,6 +1299,89 @@ namespace GTX.Controllers
                     }
                 }
             }
+        }
+
+        [HttpGet]
+        [OutputCache(NoStore = true, Duration = 0, VaryByParam = "*")]
+        public ActionResult GetRemoveImageBackgroundPreview(string file, string stock, string previewToken) {
+            string originalPath;
+            string previewPath;
+            if (!TryResolveRemoveBackgroundPreview(file, stock, previewToken, out originalPath, out previewPath) ||
+                !System.IO.File.Exists(previewPath)) {
+                return HttpNotFound();
+            }
+
+            return File(previewPath, MimeMapping.GetMimeMapping(previewPath));
+        }
+
+        [HttpPost]
+        public JsonResult ConfirmRemoveImageBackground(string file, string stock, string previewToken) {
+            string originalPath;
+            string previewPath;
+            if (!TryResolveRemoveBackgroundPreview(file, stock, previewToken, out originalPath, out previewPath) ||
+                !System.IO.File.Exists(originalPath) ||
+                !System.IO.File.Exists(previewPath)) {
+                return Json(new { success = false, message = "The background-removal preview has expired or was not found." });
+            }
+
+            try {
+                System.IO.File.Replace(previewPath, originalPath, null);
+                return Json(new {
+                    success = true,
+                    stock = (stock ?? string.Empty).Trim(),
+                    file,
+                    message = "Background removed successfully."
+                });
+            }
+            catch (Exception ex) {
+                Log(ex);
+                return Json(new { success = false, message = "Unable to save the background-removal result: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public JsonResult CancelRemoveImageBackground(string file, string stock, string previewToken) {
+            string originalPath;
+            string previewPath;
+            if (TryResolveRemoveBackgroundPreview(file, stock, previewToken, out originalPath, out previewPath) &&
+                System.IO.File.Exists(previewPath)) {
+                try {
+                    System.IO.File.Delete(previewPath);
+                }
+                catch (Exception ex) {
+                    Log(ex);
+                }
+            }
+
+            return Json(new { success = true });
+        }
+
+        private static bool TryResolveRemoveBackgroundPreview(
+            string file,
+            string stock,
+            string previewToken,
+            out string originalPath,
+            out string previewPath) {
+            originalPath = ResolveInventoryImagePhysicalPath(file);
+            previewPath = null;
+
+            if ((string.IsNullOrWhiteSpace(originalPath) || !System.IO.File.Exists(originalPath)) &&
+                !string.IsNullOrWhiteSpace(stock) &&
+                !string.IsNullOrWhiteSpace(file)) {
+                originalPath = CombineUnderInventoryImagesRoot(stock.Trim(), Path.GetFileName(file));
+            }
+
+            Guid parsedToken;
+            if (string.IsNullOrWhiteSpace(originalPath) ||
+                !Guid.TryParseExact(previewToken, "N", out parsedToken)) {
+                return false;
+            }
+
+            var extension = Path.GetExtension(originalPath);
+            previewPath = Path.Combine(
+                Path.GetDirectoryName(originalPath),
+                Path.GetFileNameWithoutExtension(originalPath) + ".remove-bg-" + parsedToken.ToString("N") + extension);
+            return true;
         }
 
         private static void TrimTransparentBorder(MagickImage image)

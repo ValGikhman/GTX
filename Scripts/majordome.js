@@ -995,11 +995,52 @@ async function removeImageBackground(file, triggerElement) {
     window.majordomeForceActiveTab = "gallery-tab";
 
     const $card = triggerElement ? $(triggerElement).closest(".majordome-photo-card") : $();
+    var previewToken = "";
 
     try {
         const response = await postMajordome(`${root}Majordome/RemoveImageBackground`, { file, stock });
         if (!response || !response.success) {
             throw new Error((response && response.message) || "Failed to remove image background.");
+        }
+
+        previewToken = (response.previewToken || "").toString();
+        const previewUrl = (response.previewUrl || "").toString();
+        if (!previewToken || !previewUrl) {
+            throw new Error("The server did not return a background-removal preview.");
+        }
+
+        if (typeof hideSpinner === "function") {
+            hideSpinner($overlay);
+        }
+
+        const confirmed = await window.gtxConfirm({
+            title: "Confirm background removal",
+            message: "Review the result below. The original image will only be replaced if you confirm.",
+            confirmText: "Use this image",
+            cancelText: "Keep original",
+            variant: "success",
+            iconClass: "bi bi-image",
+            imageUrl: appendCacheBust(previewUrl, Date.now()),
+            imageAlt: "Background-removal preview"
+        });
+
+        if (!confirmed) {
+            try {
+                await postMajordome(`${root}Majordome/CancelRemoveImageBackground`, { file, stock, previewToken });
+            } catch (cancelError) {
+                console.warn("Unable to clean up background-removal preview:", cancelError);
+            }
+            return;
+        }
+
+        showSpinner($overlay);
+        const confirmResponse = await postMajordome(`${root}Majordome/ConfirmRemoveImageBackground`, {
+            file,
+            stock,
+            previewToken
+        });
+        if (!confirmResponse || !confirmResponse.success) {
+            throw new Error((confirmResponse && confirmResponse.message) || "Failed to save the background-removal result.");
         }
 
         if ($card.length) {
@@ -1010,6 +1051,13 @@ async function removeImageBackground(file, triggerElement) {
             await refreshMajordomeAfterImageMutation(stock, { keepGalleryTab: true });
         }
     } catch (err) {
+        if (previewToken) {
+            try {
+                await postMajordome(`${root}Majordome/CancelRemoveImageBackground`, { file, stock, previewToken });
+            } catch (cleanupError) {
+                console.warn("Unable to clean up background-removal preview:", cleanupError);
+            }
+        }
         console.error("RemoveImageBackground failed:", err);
         alert(err.message || "Failed to remove image background on the server.");
     } finally {

@@ -509,16 +509,8 @@
             showOverlayModal(id);
         });
 
-        $(document).on("click", ".remove-image-background", async function () {
-            const confirmed = await window.gtxConfirm({
-                title: "Remove background",
-                message: "Remove the background and replace this image?",
-                confirmText: "Remove background",
-                variant: "primary"
-            });
-            if (confirmed) {
-                removeImageBackground($(this).data("filename"), this);
-            }
+        $(document).on("click", ".remove-image-background", function () {
+            removeImageBackground($(this).data("filename"), this);
         });
 
         $(document).on("click", ".rotate-image", function () {
