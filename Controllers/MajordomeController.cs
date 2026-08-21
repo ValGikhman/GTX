@@ -1202,7 +1202,10 @@ namespace GTX.Controllers
                     imageContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(MimeMapping.GetMimeMapping(path));
                     formData.Add(imageContent, "image_file", Path.GetFileName(path));
                     formData.Add(new StringContent("auto"), "size");
-                    // Always request transparency so the cutout can be composited over our gradient.
+                    formData.Add(new StringContent("car"), "type");
+                    formData.Add(new StringContent("car"), "shadow_type");
+                    formData.Add(new StringContent("80"), "shadow_opacity");
+                    formData.Add(new StringContent("d9dde2"), "bg_color");
                     formData.Add(new StringContent("png"), "format");
 
                     using (var response = await client.PostAsync(RemoveBgEndpoint, formData)) {
@@ -1229,29 +1232,7 @@ namespace GTX.Controllers
                     return Json(new { success = false, message = "remove.bg returned an empty image." });
                 }
 
-                byte[] gradientImageBytes;
-                using (var resultStream = new MemoryStream(resultBytes))
-                using (var cutout = System.Drawing.Image.FromStream(resultStream))
-                using (var gradientImage = new Bitmap(cutout.Width, cutout.Height, PixelFormat.Format32bppArgb))
-                using (var graphics = Graphics.FromImage(gradientImage))
-                using (var gradientBrush = new System.Drawing.Drawing2D.LinearGradientBrush(
-                    new Rectangle(0, 0, cutout.Width, cutout.Height),
-                    Color.FromArgb(232, 234, 237),
-                    Color.FromArgb(112, 117, 124),
-                    System.Drawing.Drawing2D.LinearGradientMode.Vertical))
-                using (var gradientStream = new MemoryStream()) {
-                    graphics.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
-                    graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
-                    graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                    graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-                    graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
-                    graphics.FillRectangle(gradientBrush, 0, 0, cutout.Width, cutout.Height);
-                    graphics.DrawImage(cutout, new Rectangle(0, 0, cutout.Width, cutout.Height));
-                    gradientImage.Save(gradientStream, ImageFormat.Png);
-                    gradientImageBytes = gradientStream.ToArray();
-                }
-
-                using (var resultImage = new MagickImage(gradientImageBytes)) {
+                using (var resultImage = new MagickImage(resultBytes)) {
                     resultImage.Strip();
                     resultImage.Depth = 8;
 
