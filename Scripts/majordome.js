@@ -1157,15 +1157,18 @@ function showRemoveBackgroundConfirmation(options) {
                 var response = await settings.createPreview();
                 previewToken = (response.previewToken || "").toString();
                 var previewUrl = (response.previewUrl || "").toString();
+                var canSave = response.canSave !== false;
                 if (!previewToken || !previewUrl) {
                     throw new Error("The server did not return a background-removal preview.");
                 }
 
                 await showPreview(previewUrl);
-                $status.text("Preview ready. Choose which image you want to keep.");
+                $status.text(canSave
+                    ? "Preview ready. Choose which image you want to keep."
+                    : "Preview ready. Saving is available on staging or production where picture storage is connected.");
                 $close.addClass("d-none");
                 $keep.removeClass("d-none");
-                $use.removeClass("d-none");
+                $use.toggleClass("d-none", !canSave);
             } catch (err) {
                 $switch.prop("checked", false);
                 setSwitchState(false);

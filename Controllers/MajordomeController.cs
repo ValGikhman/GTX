@@ -34,6 +34,10 @@ namespace GTX.Controllers
         private const string UploadJpegExtension = ".jpg";
         private const string UploadPngExtension = ".png";
         private const string RemoveBgEndpoint = "https://api.remove.bg/v1.0/removebg";
+        private const string InventoryPhotosBaseUrl = "https://photos.usedcarscincinnati.com/Images/";
+        private const string RemoveBgShowroomBackgroundVirtualPath = "~/SiteImages/card-bg.jpg";
+        private const string RemoveBgShowroomScale = "76%";
+        private const string RemoveBgShowroomPosition = "center";
         private const int QrTextMaxLength = 2048;
 
         private static readonly HashSet<string> UploadImageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {
@@ -1177,35 +1181,65 @@ namespace GTX.Controllers
                 path = CombineUnderInventoryImagesRoot(normalizedStock, Path.GetFileName(file));
             }
 
-            if (string.IsNullOrWhiteSpace(path) || !System.IO.File.Exists(path)) {
-                return Json(new { success = false, message = "Image file not found." });
+            var useRemoteImage = string.IsNullOrWhiteSpace(path) || !System.IO.File.Exists(path);
+            var remoteImageUrl = useRemoteImage
+                ? BuildRemoteInventoryImageUrl(file, normalizedStock)
+                : null;
+            if (useRemoteImage && string.IsNullOrWhiteSpace(remoteImageUrl)) {
+                return Json(new { success = false, message = "The production inventory image URL could not be resolved." });
             }
 
-            var extension = Path.GetExtension(path);
+            var showroomBackgroundPath = HostingEnvironment.MapPath(RemoveBgShowroomBackgroundVirtualPath);
+            if (string.IsNullOrWhiteSpace(showroomBackgroundPath) || !System.IO.File.Exists(showroomBackgroundPath)) {
+                return Json(new { success = false, message = "The showroom background image is not configured." });
+            }
+
+            var extension = useRemoteImage ? UploadPngExtension : Path.GetExtension(path);
             var outputFormat = extension.Equals(".jpg", StringComparison.OrdinalIgnoreCase) ||
                                extension.Equals(".jpeg", StringComparison.OrdinalIgnoreCase)
                 ? "jpg"
                 : "png";
             var previewToken = Guid.NewGuid().ToString("N");
-            var temporaryPath = Path.Combine(
-                Path.GetDirectoryName(path),
-                Path.GetFileNameWithoutExtension(path) + ".remove-bg-" + previewToken + extension);
+            var temporaryPath = useRemoteImage
+                ? GetRemoteRemoveBackgroundPreviewPath(previewToken)
+                : Path.Combine(
+                    Path.GetDirectoryName(path),
+                    Path.GetFileNameWithoutExtension(path) + ".remove-bg-" + previewToken + extension);
+            if (string.IsNullOrWhiteSpace(temporaryPath)) {
+                return Json(new { success = false, message = "Temporary preview storage is unavailable." });
+            }
+
             var keepTemporaryPreview = false;
 
             try {
+                if (useRemoteImage) {
+                    Directory.CreateDirectory(Path.GetDirectoryName(temporaryPath));
+                }
+
                 byte[] resultBytes;
                 using (var client = new HttpClient())
                 using (var formData = new MultipartFormDataContent())
-                using (var imageContent = new ByteArrayContent(System.IO.File.ReadAllBytes(path))) {
+                using (var backgroundContent = new ByteArrayContent(System.IO.File.ReadAllBytes(showroomBackgroundPath))) {
                     client.Timeout = TimeSpan.FromMinutes(2);
                     client.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
-                    imageContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(MimeMapping.GetMimeMapping(path));
-                    formData.Add(imageContent, "image_file", Path.GetFileName(path));
+                    backgroundContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(MimeMapping.GetMimeMapping(showroomBackgroundPath));
+
+                    if (useRemoteImage) {
+                        formData.Add(new StringContent(remoteImageUrl), "image_url");
+                    }
+                    else {
+                        var imageContent = new ByteArrayContent(System.IO.File.ReadAllBytes(path));
+                        imageContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(MimeMapping.GetMimeMapping(path));
+                        formData.Add(imageContent, "image_file", Path.GetFileName(path));
+                    }
+
+                    formData.Add(backgroundContent, "bg_image_file", Path.GetFileName(showroomBackgroundPath));
                     formData.Add(new StringContent("auto"), "size");
                     formData.Add(new StringContent("car"), "type");
                     formData.Add(new StringContent("car"), "shadow_type");
                     formData.Add(new StringContent("80"), "shadow_opacity");
-                    formData.Add(new StringContent("d9dde2"), "bg_color");
+                    formData.Add(new StringContent(RemoveBgShowroomScale), "scale");
+                    formData.Add(new StringContent(RemoveBgShowroomPosition), "position");
                     formData.Add(new StringContent("png"), "format");
 
                     using (var response = await client.PostAsync(RemoveBgEndpoint, formData)) {
@@ -1263,6 +1297,7 @@ namespace GTX.Controllers
                         stock = normalizedStock,
                         previewToken
                     }),
+                    canSave = !useRemoteImage,
                     message = "Background removal preview is ready."
                 });
             }
@@ -1287,12 +1322,15 @@ namespace GTX.Controllers
         public ActionResult GetRemoveImageBackgroundPreview(string file, string stock, string previewToken) {
             string originalPath;
             string previewPath;
-            if (!TryResolveRemoveBackgroundPreview(file, stock, previewToken, out originalPath, out previewPath) ||
-                !System.IO.File.Exists(previewPath)) {
-                return HttpNotFound();
+            if (TryResolveRemoveBackgroundPreview(file, stock, previewToken, out originalPath, out previewPath) &&
+                System.IO.File.Exists(previewPath)) {
+                return File(previewPath, MimeMapping.GetMimeMapping(previewPath));
             }
 
-            return File(previewPath, MimeMapping.GetMimeMapping(previewPath));
+            previewPath = GetRemoteRemoveBackgroundPreviewPath(previewToken);
+            return !string.IsNullOrWhiteSpace(previewPath) && System.IO.File.Exists(previewPath)
+                ? File(previewPath, "image/png")
+                : (ActionResult)HttpNotFound();
         }
 
         [HttpPost]
@@ -1377,8 +1415,12 @@ namespace GTX.Controllers
         public JsonResult CancelRemoveImageBackground(string file, string stock, string previewToken) {
             string originalPath;
             string previewPath;
-            if (TryResolveRemoveBackgroundPreview(file, stock, previewToken, out originalPath, out previewPath) &&
-                System.IO.File.Exists(previewPath)) {
+            if (!TryResolveRemoveBackgroundPreview(file, stock, previewToken, out originalPath, out previewPath) ||
+                !System.IO.File.Exists(previewPath)) {
+                previewPath = GetRemoteRemoveBackgroundPreviewPath(previewToken);
+            }
+
+            if (!string.IsNullOrWhiteSpace(previewPath) && System.IO.File.Exists(previewPath)) {
                 try {
                     System.IO.File.Delete(previewPath);
                 }
@@ -1388,6 +1430,38 @@ namespace GTX.Controllers
             }
 
             return Json(new { success = true });
+        }
+
+        private static string BuildRemoteInventoryImageUrl(string file, string stock) {
+            if (string.IsNullOrWhiteSpace(file) || string.IsNullOrWhiteSpace(stock)) {
+                return null;
+            }
+
+            var relativePath = GetInventoryImageRelativePath(file);
+            var fileName = Path.GetFileName(relativePath);
+            var extension = Path.GetExtension(fileName);
+            if (string.IsNullOrWhiteSpace(fileName) ||
+                string.IsNullOrWhiteSpace(extension) ||
+                !UploadImageExtensions.Contains(extension)) {
+                return null;
+            }
+
+            return InventoryPhotosBaseUrl
+                + Uri.EscapeDataString(stock.Trim())
+                + "/"
+                + Uri.EscapeDataString(fileName);
+        }
+
+        private static string GetRemoteRemoveBackgroundPreviewPath(string previewToken) {
+            Guid parsedToken;
+            if (!Guid.TryParseExact(previewToken, "N", out parsedToken)) {
+                return null;
+            }
+
+            var previewRoot = HostingEnvironment.MapPath("~/App_Data/RemoveBgPreviews");
+            return string.IsNullOrWhiteSpace(previewRoot)
+                ? null
+                : Path.Combine(previewRoot, parsedToken.ToString("N") + UploadPngExtension);
         }
 
         private static bool TryResolveRemoveBackgroundPreview(
