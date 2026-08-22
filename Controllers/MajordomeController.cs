@@ -1343,7 +1343,7 @@ namespace GTX.Controllers
                     }
                 }
 
-                InventoryService.UpdateImageSource(image.Id, resultSource);
+                InventoryService.SaveBackgroundRemovedImage(image.Id, resultSource);
                 databaseUpdated = true;
 
                 var images = InventoryService.GetImages(normalizedStock) ?? Array.Empty<Services.Image>();
