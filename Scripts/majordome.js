@@ -1258,15 +1258,15 @@ async function removeImageBackground(file, triggerElement) {
             throw new Error((confirmResponse && confirmResponse.message) || "Failed to save the background-removal result.");
         }
 
-        rememberMajordomeImageVersion(file, confirmResponse.version);
-
-        if ($card.length) {
-            await refreshMajordomePhotoCardImage($card, file, confirmResponse.version);
-            updateGalleryDisplay();
+        if (Array.isArray(confirmResponse.images) && applyUploadedImagesToMajordomeState(
+            confirmResponse.stock || stock,
+            confirmResponse.images,
+            { image: confirmResponse.image })) {
             $("#gallery-tab").tab("show");
-        } else {
-            await refreshMajordomeAfterImageMutation(stock, { keepGalleryTab: true });
+            return;
         }
+
+        await refreshMajordomeAfterImageMutation(stock, { keepGalleryTab: true });
     } catch (err) {
         if (previewToken) {
             try {

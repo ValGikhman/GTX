@@ -1305,36 +1305,63 @@ namespace GTX.Controllers
                 return Json(new { success = false, message = "The background-removal preview has expired or was not found." });
             }
 
-            var backupPath = originalPath + ".remove-bg-backup-" + previewToken;
-            var saveValidated = false;
-            try {
-                System.IO.File.Replace(previewPath, originalPath, backupPath);
+            var normalizedStock = (stock ?? string.Empty).Trim();
+            var normalizedFile = (file ?? string.Empty).Replace("\\", "/").TrimStart('/');
+            var image = (InventoryService.GetImages(normalizedStock) ?? Array.Empty<Services.Image>())
+                .FirstOrDefault(m => string.Equals(
+                    (m.Source ?? string.Empty).Replace("\\", "/").TrimStart('/'),
+                    normalizedFile,
+                    StringComparison.OrdinalIgnoreCase));
 
-                using (var savedImage = new MagickImage(originalPath)) {
+            if (image == null) {
+                return Json(new { success = false, message = "The image database record was not found." });
+            }
+
+            var resultFileName = Path.GetFileNameWithoutExtension(originalPath) + "-RB" + Path.GetExtension(originalPath);
+            var resultPath = Path.Combine(Path.GetDirectoryName(originalPath), resultFileName);
+            var sourceDirectory = normalizedFile.Contains("/")
+                ? normalizedFile.Substring(0, normalizedFile.LastIndexOf('/') + 1)
+                : normalizedStock + "/";
+            var resultSource = sourceDirectory + resultFileName;
+            var resultCreated = false;
+            var databaseUpdated = false;
+
+            if (System.IO.File.Exists(resultPath)) {
+                return Json(new {
+                    success = false,
+                    message = $"The background-removed file already exists: {resultFileName}"
+                });
+            }
+
+            try {
+                System.IO.File.Move(previewPath, resultPath);
+                resultCreated = true;
+
+                using (var savedImage = new MagickImage(resultPath)) {
                     if (savedImage.Width <= 0 || savedImage.Height <= 0) {
                         throw new InvalidDataException("The saved image could not be validated.");
                     }
                 }
 
-                System.IO.File.SetLastWriteTimeUtc(originalPath, DateTime.UtcNow);
-                saveValidated = true;
+                InventoryService.UpdateImageSource(image.Id, resultSource);
+                databaseUpdated = true;
+
+                var images = InventoryService.GetImages(normalizedStock) ?? Array.Empty<Services.Image>();
+                SyncCachedImagesForStock(normalizedStock, images);
+
                 return Json(new {
                     success = true,
-                    stock = (stock ?? string.Empty).Trim(),
-                    file,
-                    version = System.IO.File.GetLastWriteTimeUtc(originalPath).Ticks,
+                    stock = normalizedStock,
+                    file = resultSource,
+                    images = ToUploadImageResponseDtos(images),
+                    image = GetCachedLeadImageForStock(normalizedStock),
                     message = "Background removed successfully."
                 });
             }
             catch (Exception ex) {
-                if (System.IO.File.Exists(backupPath)) {
+                if (resultCreated && !databaseUpdated && System.IO.File.Exists(resultPath)) {
                     try {
-                        if (System.IO.File.Exists(originalPath)) {
-                            System.IO.File.Replace(backupPath, originalPath, null);
-                        }
-                        else {
-                            System.IO.File.Move(backupPath, originalPath);
-                        }
+                        System.IO.File.Move(resultPath, previewPath);
                     }
                     catch (Exception restoreEx) {
                         Log(restoreEx);
@@ -1343,16 +1370,6 @@ namespace GTX.Controllers
 
                 Log(ex);
                 return Json(new { success = false, message = "Unable to save the background-removal result: " + ex.Message });
-            }
-            finally {
-                if (saveValidated && System.IO.File.Exists(backupPath)) {
-                    try {
-                        System.IO.File.Delete(backupPath);
-                    }
-                    catch (Exception cleanupEx) {
-                        Log(cleanupEx);
-                    }
-                }
             }
         }
 
