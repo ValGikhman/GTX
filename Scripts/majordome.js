@@ -1043,18 +1043,19 @@ function showRemoveBackgroundConfirmation(options) {
                                     <div class="small text-body-secondary majordome-remove-bg-status">Switch to Remove to create a preview.</div>
                                 </div>
                                 <div class="majordome-remove-bg-switch-wrap">
-                                    <span class="majordome-remove-bg-switch-label is-active" data-state="off">Off</span>
+                                    <span class="majordome-remove-bg-switch-label is-active" data-state="off"><i class="bi bi-image" aria-hidden="true"></i> Original</span>
                                     <div class="form-check form-switch m-0">
                                         <input class="form-check-input majordome-remove-bg-switch" type="checkbox" role="switch" aria-label="Remove image background">
                                     </div>
-                                    <span class="majordome-remove-bg-switch-label" data-state="remove">Remove</span>
+                                    <span class="majordome-remove-bg-switch-label" data-state="remove"><i class="bi bi-stars" aria-hidden="true"></i> Remove</span>
                                 </div>
                             </div>
-                            <div class="majordome-remove-bg-stage" aria-live="polite">
+                            <div class="majordome-remove-bg-stage is-loading" aria-live="polite">
                                 <img class="majordome-remove-bg-image is-active" src="${escapeHtml(settings.originalUrl)}" alt="Original image">
-                                <div class="majordome-remove-bg-processing" aria-hidden="true">
+                                <span class="majordome-remove-bg-image-badge"><i class="bi bi-image" aria-hidden="true"></i><span>Original</span></span>
+                                <div class="majordome-remove-bg-processing is-visible" aria-hidden="false">
                                     <span class="spinner-border text-light" role="status"></span>
-                                    <span>Removing background...</span>
+                                    <span class="majordome-remove-bg-processing-text">Loading image...</span>
                                 </div>
                             </div>
                             <div class="alert alert-danger py-2 px-3 mt-3 mb-0 d-none majordome-remove-bg-error" role="alert"></div>
@@ -1078,6 +1079,7 @@ function showRemoveBackgroundConfirmation(options) {
         var $status = $modal.find(".majordome-remove-bg-status");
         var $stage = $modal.find(".majordome-remove-bg-stage");
         var $processing = $modal.find(".majordome-remove-bg-processing");
+        var $processingText = $modal.find(".majordome-remove-bg-processing-text");
         var $error = $modal.find(".majordome-remove-bg-error");
         var $close = $modal.find(".majordome-remove-bg-close");
         var $headerClose = $modal.find(".majordome-remove-bg-header-close");
@@ -1086,11 +1088,29 @@ function showRemoveBackgroundConfirmation(options) {
         var previewToken = "";
         var useImage = false;
         var processing = false;
+        var originalImageLoading = true;
         var settled = false;
+
+        function updateLoadingState() {
+            var isLoading = processing || originalImageLoading;
+            $processingText.text(processing ? "Removing background..." : "Loading image...");
+            $processing.toggleClass("is-visible", isLoading).attr("aria-hidden", isLoading ? "false" : "true");
+            $stage.toggleClass("is-loading", isLoading);
+        }
+
+        $stage.find(".majordome-remove-bg-image").first().one("load error", function () {
+            originalImageLoading = false;
+            updateLoadingState();
+        }).each(function () {
+            if (this.complete) {
+                $(this).triggerHandler(this.naturalWidth ? "load" : "error");
+            }
+        });
 
         function setSwitchState(remove) {
             $modal.find(".majordome-remove-bg-switch-label").removeClass("is-active");
             $modal.find(`.majordome-remove-bg-switch-label[data-state="${remove ? "remove" : "off"}"]`).addClass("is-active");
+            $modal.find(".majordome-remove-bg-switch-wrap").toggleClass("is-remove", remove);
         }
 
         function setProcessing(isProcessing) {
@@ -1098,7 +1118,7 @@ function showRemoveBackgroundConfirmation(options) {
             $switch.prop("disabled", isProcessing);
             $headerClose.prop("disabled", isProcessing);
             $close.prop("disabled", isProcessing);
-            $processing.toggleClass("is-visible", isProcessing).attr("aria-hidden", isProcessing ? "false" : "true");
+            updateLoadingState();
         }
 
         function showPreview(previewUrl) {
@@ -1112,6 +1132,9 @@ function showRemoveBackgroundConfirmation(options) {
                         $stage.find(".majordome-remove-bg-image.is-active").removeClass("is-active");
                         $(image).addClass("is-active");
                         $stage.addClass("has-result");
+                        $stage.find(".majordome-remove-bg-image-badge")
+                            .addClass("is-result")
+                            .html('<i class="bi bi-stars" aria-hidden="true"></i><span>Background removed</span>');
                         resolvePreview();
                     });
                 };
@@ -1203,7 +1226,7 @@ async function removeImageBackground(file, triggerElement) {
         }
 
         const choice = await showRemoveBackgroundConfirmation({
-            originalUrl: appendCacheBust(appendImageWidth(toInventoryImageUrl(file), 1600), Date.now()),
+            originalUrl: appendImageWidth(toInventoryImageUrl(file), 1600),
             createPreview: async function () {
                 const response = await postMajordome(`${root}Majordome/RemoveImageBackground`, { file, stock });
                 if (!response || !response.success) {
