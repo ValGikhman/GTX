@@ -8,6 +8,7 @@ using QRCoder;
 using Services;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
@@ -32,6 +33,7 @@ namespace GTX.Controllers
         private const int UploadPngCompressionLevel = 9;
         private const string UploadJpegExtension = ".jpg";
         private const string UploadPngExtension = ".png";
+        private const string RemoveBgEndpoint = "https://api.remove.bg/v1.0/removebg";
         private const int QrTextMaxLength = 2048;
 
         private static readonly HashSet<string> UploadImageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {
@@ -1148,6 +1150,255 @@ namespace GTX.Controllers
             catch (Exception ex) {
                 return Json(new { success = false, message = $"Error rotating image: {ex.Message}" });
             }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> RemoveImageBackground(string file, string stock) {
+            var removeBgEnabled = string.Equals(
+                ConfigurationManager.AppSettings["RemoveBg:Enabled"],
+                "true",
+                StringComparison.OrdinalIgnoreCase);
+
+            if (!removeBgEnabled) {
+                return Json(new { success = false, message = "Background removal is disabled." });
+            }
+
+            var apiKey = ConfigurationManager.AppSettings["RemoveBg:ApiKey"];
+            if (string.IsNullOrWhiteSpace(apiKey)) {
+                return Json(new { success = false, message = "The remove.bg API key is not configured." });
+            }
+
+            var normalizedStock = (stock ?? string.Empty).Trim();
+            var path = ResolveInventoryImagePhysicalPath(file);
+
+            if ((string.IsNullOrWhiteSpace(path) || !System.IO.File.Exists(path)) &&
+                !string.IsNullOrWhiteSpace(normalizedStock) &&
+                !string.IsNullOrWhiteSpace(file)) {
+                path = CombineUnderInventoryImagesRoot(normalizedStock, Path.GetFileName(file));
+            }
+
+            if (string.IsNullOrWhiteSpace(path) || !System.IO.File.Exists(path)) {
+                return Json(new { success = false, message = "Image file not found." });
+            }
+
+            var extension = Path.GetExtension(path);
+            var outputFormat = extension.Equals(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                               extension.Equals(".jpeg", StringComparison.OrdinalIgnoreCase)
+                ? "jpg"
+                : "png";
+            var previewToken = Guid.NewGuid().ToString("N");
+            var temporaryPath = Path.Combine(
+                Path.GetDirectoryName(path),
+                Path.GetFileNameWithoutExtension(path) + ".remove-bg-" + previewToken + extension);
+            var keepTemporaryPreview = false;
+
+            try {
+                byte[] resultBytes;
+                using (var client = new HttpClient())
+                using (var formData = new MultipartFormDataContent())
+                using (var imageContent = new ByteArrayContent(System.IO.File.ReadAllBytes(path))) {
+                    client.Timeout = TimeSpan.FromMinutes(2);
+                    client.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
+                    imageContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(MimeMapping.GetMimeMapping(path));
+                    formData.Add(imageContent, "image_file", Path.GetFileName(path));
+                    formData.Add(new StringContent("auto"), "size");
+                    formData.Add(new StringContent("car"), "type");
+                    formData.Add(new StringContent("car"), "shadow_type");
+                    formData.Add(new StringContent("80"), "shadow_opacity");
+                    formData.Add(new StringContent("d9dde2"), "bg_color");
+                    formData.Add(new StringContent("png"), "format");
+
+                    using (var response = await client.PostAsync(RemoveBgEndpoint, formData)) {
+                        if (!response.IsSuccessStatusCode) {
+                            var providerMessage = await response.Content.ReadAsStringAsync();
+                            providerMessage = string.IsNullOrWhiteSpace(providerMessage)
+                                ? response.ReasonPhrase
+                                : providerMessage;
+                            if (providerMessage != null && providerMessage.Length > 500) {
+                                providerMessage = providerMessage.Substring(0, 500);
+                            }
+
+                            return Json(new {
+                                success = false,
+                                message = $"remove.bg returned {(int)response.StatusCode}: {providerMessage}"
+                            });
+                        }
+
+                        resultBytes = await response.Content.ReadAsByteArrayAsync();
+                    }
+                }
+
+                if (resultBytes == null || resultBytes.Length == 0) {
+                    return Json(new { success = false, message = "remove.bg returned an empty image." });
+                }
+
+                using (var resultImage = new MagickImage(resultBytes)) {
+                    resultImage.Strip();
+                    resultImage.Depth = 8;
+
+                    if (outputFormat == "jpg") {
+                        resultImage.BackgroundColor = MagickColors.White;
+                        resultImage.Alpha(AlphaOption.Remove);
+                        resultImage.ColorType = ColorType.TrueColor;
+                        resultImage.Format = MagickFormat.Jpeg;
+                        resultImage.Quality = UploadJpegQuality;
+                    }
+                    else {
+                        resultImage.ColorType = ColorType.TrueColorAlpha;
+                        resultImage.Format = MagickFormat.Png32;
+                        resultImage.Settings.SetDefine(MagickFormat.Png, "png:compression-level", UploadPngCompressionLevel.ToString());
+                    }
+
+                    await resultImage.WriteAsync(temporaryPath);
+                }
+
+                keepTemporaryPreview = true;
+                return Json(new {
+                    success = true,
+                    stock = normalizedStock,
+                    file,
+                    previewToken,
+                    previewUrl = Url.Action("GetRemoveImageBackgroundPreview", "Majordome", new {
+                        file,
+                        stock = normalizedStock,
+                        previewToken
+                    }),
+                    message = "Background removal preview is ready."
+                });
+            }
+            catch (Exception ex) {
+                Log(ex);
+                return Json(new { success = false, message = "Error removing image background: " + ex.Message });
+            }
+            finally {
+                if (!keepTemporaryPreview && System.IO.File.Exists(temporaryPath)) {
+                    try {
+                        System.IO.File.Delete(temporaryPath);
+                    }
+                    catch {
+                        // Best-effort cleanup; the original image has not been changed.
+                    }
+                }
+            }
+        }
+
+        [HttpGet]
+        [OutputCache(NoStore = true, Duration = 0, VaryByParam = "*")]
+        public ActionResult GetRemoveImageBackgroundPreview(string file, string stock, string previewToken) {
+            string originalPath;
+            string previewPath;
+            if (!TryResolveRemoveBackgroundPreview(file, stock, previewToken, out originalPath, out previewPath) ||
+                !System.IO.File.Exists(previewPath)) {
+                return HttpNotFound();
+            }
+
+            return File(previewPath, MimeMapping.GetMimeMapping(previewPath));
+        }
+
+        [HttpPost]
+        public JsonResult ConfirmRemoveImageBackground(string file, string stock, string previewToken) {
+            string originalPath;
+            string previewPath;
+            if (!TryResolveRemoveBackgroundPreview(file, stock, previewToken, out originalPath, out previewPath) ||
+                !System.IO.File.Exists(originalPath) ||
+                !System.IO.File.Exists(previewPath)) {
+                return Json(new { success = false, message = "The background-removal preview has expired or was not found." });
+            }
+
+            var backupPath = originalPath + ".remove-bg-backup-" + previewToken;
+            var saveValidated = false;
+            try {
+                System.IO.File.Replace(previewPath, originalPath, backupPath);
+
+                using (var savedImage = new MagickImage(originalPath)) {
+                    if (savedImage.Width <= 0 || savedImage.Height <= 0) {
+                        throw new InvalidDataException("The saved image could not be validated.");
+                    }
+                }
+
+                System.IO.File.SetLastWriteTimeUtc(originalPath, DateTime.UtcNow);
+                saveValidated = true;
+                return Json(new {
+                    success = true,
+                    stock = (stock ?? string.Empty).Trim(),
+                    file,
+                    version = System.IO.File.GetLastWriteTimeUtc(originalPath).Ticks,
+                    message = "Background removed successfully."
+                });
+            }
+            catch (Exception ex) {
+                if (System.IO.File.Exists(backupPath)) {
+                    try {
+                        if (System.IO.File.Exists(originalPath)) {
+                            System.IO.File.Replace(backupPath, originalPath, null);
+                        }
+                        else {
+                            System.IO.File.Move(backupPath, originalPath);
+                        }
+                    }
+                    catch (Exception restoreEx) {
+                        Log(restoreEx);
+                    }
+                }
+
+                Log(ex);
+                return Json(new { success = false, message = "Unable to save the background-removal result: " + ex.Message });
+            }
+            finally {
+                if (saveValidated && System.IO.File.Exists(backupPath)) {
+                    try {
+                        System.IO.File.Delete(backupPath);
+                    }
+                    catch (Exception cleanupEx) {
+                        Log(cleanupEx);
+                    }
+                }
+            }
+        }
+
+        [HttpPost]
+        public JsonResult CancelRemoveImageBackground(string file, string stock, string previewToken) {
+            string originalPath;
+            string previewPath;
+            if (TryResolveRemoveBackgroundPreview(file, stock, previewToken, out originalPath, out previewPath) &&
+                System.IO.File.Exists(previewPath)) {
+                try {
+                    System.IO.File.Delete(previewPath);
+                }
+                catch (Exception ex) {
+                    Log(ex);
+                }
+            }
+
+            return Json(new { success = true });
+        }
+
+        private static bool TryResolveRemoveBackgroundPreview(
+            string file,
+            string stock,
+            string previewToken,
+            out string originalPath,
+            out string previewPath) {
+            originalPath = ResolveInventoryImagePhysicalPath(file);
+            previewPath = null;
+
+            if ((string.IsNullOrWhiteSpace(originalPath) || !System.IO.File.Exists(originalPath)) &&
+                !string.IsNullOrWhiteSpace(stock) &&
+                !string.IsNullOrWhiteSpace(file)) {
+                originalPath = CombineUnderInventoryImagesRoot(stock.Trim(), Path.GetFileName(file));
+            }
+
+            Guid parsedToken;
+            if (string.IsNullOrWhiteSpace(originalPath) ||
+                !Guid.TryParseExact(previewToken, "N", out parsedToken)) {
+                return false;
+            }
+
+            var extension = Path.GetExtension(originalPath);
+            previewPath = Path.Combine(
+                Path.GetDirectoryName(originalPath),
+                Path.GetFileNameWithoutExtension(originalPath) + ".remove-bg-" + parsedToken.ToString("N") + extension);
+            return true;
         }
 
         private static void TrimTransparentBorder(MagickImage image)

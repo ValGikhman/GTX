@@ -640,6 +640,8 @@
                     ".gtx-confirm-modal .btn-close{flex:0 0 auto;margin:0 0 0 .5rem!important;opacity:.9;filter:invert(1) grayscale(100%) brightness(200%);}",
                     "html.theme-silver .gtx-confirm-modal .btn-close{filter:none;}",
                     ".gtx-confirm-modal .modal-body{padding:1rem 1.25rem;color:var(--bs-modal-color,var(--bs-body-color,#172033));background:var(--bs-modal-bg,var(--bs-body-bg,#fff));}",
+                    ".gtx-confirm-modal .gtx-confirm-preview{margin-top:1rem;padding:.65rem;border:1px solid var(--bs-border-color-translucent,rgba(148,163,184,.25));border-radius:10px;background:var(--bs-tertiary-bg,#f3f4f6);text-align:center;overflow:hidden;}",
+                    ".gtx-confirm-modal .gtx-confirm-preview img{display:block;width:100%;max-height:min(62vh,680px);object-fit:contain;border-radius:7px;background:var(--bs-body-bg,#fff);}",
                     ".gtx-confirm-modal .modal-footer{gap:.5rem;border-top:1px solid var(--bs-border-color-translucent,rgba(148,163,184,.2));background:var(--bs-modal-bg,var(--bs-body-bg,#fff));}",
                     ".gtx-confirm-modal[data-gtx-confirm-variant='danger']{--gtx-confirm-accent:#dc3545;--gtx-confirm-soft:rgba(220,53,69,.12);}",
                     ".gtx-confirm-modal[data-gtx-confirm-variant='warning']{--gtx-confirm-accent:#b7791f;--gtx-confirm-soft:rgba(255,193,7,.18);}",
@@ -699,6 +701,8 @@
                 result.cancelText = source.cancelText || "Cancel";
                 result.variant = source.variant || "primary";
                 result.iconClass = source.iconClass || "";
+                result.imageUrl = source.imageUrl || "";
+                result.imageAlt = source.imageAlt || "Preview";
 
                 if (!result.iconClass) {
                     if (result.variant === "danger") {
@@ -757,7 +761,32 @@
                     var title = document.getElementById("gtxConfirmModalTitle");
                     var message = document.getElementById("gtxConfirmMessage");
                     var icon = document.getElementById("gtxConfirmIcon");
+                    var modalBody = modal.querySelector(".modal-body");
+                    var modalDialog = modal.querySelector(".modal-dialog");
+                    var previousPreview = modalBody.querySelector(".gtx-confirm-preview");
                     var settled = false;
+
+                    if (previousPreview) {
+                        previousPreview.remove();
+                    }
+
+                    modalDialog.classList.toggle("modal-lg", !!settings.imageUrl);
+                    confirmButton.disabled = !!settings.imageUrl;
+                    if (settings.imageUrl) {
+                        var preview = document.createElement("div");
+                        var previewImage = document.createElement("img");
+                        preview.className = "gtx-confirm-preview";
+                        previewImage.alt = settings.imageAlt;
+                        previewImage.addEventListener("load", function () {
+                            confirmButton.disabled = false;
+                        }, { once: true });
+                        previewImage.addEventListener("error", function () {
+                            message.textContent = "The preview could not be loaded. Keep the original image and try again.";
+                        }, { once: true });
+                        previewImage.src = settings.imageUrl;
+                        preview.appendChild(previewImage);
+                        modalBody.appendChild(preview);
+                    }
 
                     modal.setAttribute("data-gtx-confirm-variant", settings.variant);
                     title.textContent = settings.title;

@@ -509,6 +509,10 @@
             showOverlayModal(id);
         });
 
+        $(document).on("click", ".remove-image-background", function () {
+            removeImageBackground($(this).data("filename"), this);
+        });
+
         $(document).on("click", ".rotate-image", function () {
             var file = $(this).data("filename");
             var degrees = parseInt($(this).data("degrees"), 10) || 90;

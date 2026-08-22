@@ -13,6 +13,35 @@ function getActiveMajordomeStock() {
     return "";
 }
 
+const MAJORDOME_IMAGE_VERSION_PREFIX = "gtx-majordome-image-version:";
+
+function getMajordomeImageVersionKey(source) {
+    var value = (source || "").toString().trim().toLowerCase();
+    return value ? MAJORDOME_IMAGE_VERSION_PREFIX + value : "";
+}
+
+function rememberMajordomeImageVersion(source, version) {
+    var key = getMajordomeImageVersionKey(source);
+    if (!key || !version) return;
+
+    try {
+        window.localStorage.setItem(key, version.toString());
+    } catch (e) {
+        // Storage can be unavailable in private browsing; the current refresh still uses the version.
+    }
+}
+
+function getRememberedMajordomeImageVersion(source) {
+    var key = getMajordomeImageVersionKey(source);
+    if (!key) return "";
+
+    try {
+        return window.localStorage.getItem(key) || "";
+    } catch (e) {
+        return "";
+    }
+}
+
 function toInventoryImageUrl(source) {
     var raw = (source || "").toString().trim();
     if (!raw) return "";
@@ -54,13 +83,20 @@ function toInventoryImageUrl(source) {
     });
 
     if (!segments.length) return "";
-    return photosInventoryImagesBaseUrl + "/" + segments.join("/");
+
+    var imageUrl = photosInventoryImagesBaseUrl + "/" + segments.join("/");
+    var rememberedVersion = getRememberedMajordomeImageVersion(source);
+    return rememberedVersion ? appendCacheBust(imageUrl, rememberedVersion) : imageUrl;
 }
 
 function appendCacheBust(url, token) {
     if (!url) return "";
+    var encodedToken = encodeURIComponent(token);
+    if (/([?&])v=[^&]*/i.test(url)) {
+        return url.replace(/([?&])v=[^&]*/i, "$1v=" + encodedToken);
+    }
     var separator = url.indexOf("?") >= 0 ? "&" : "?";
-    return url + separator + "v=" + encodeURIComponent(token);
+    return url + separator + "v=" + encodedToken;
 }
 
 function appendImageWidth(url, width) {
@@ -232,14 +268,15 @@ function waitForMajordomeImageToLoad($image) {
     });
 }
 
-function refreshMajordomePhotoCardImage($card, file) {
+function refreshMajordomePhotoCardImage($card, file, version) {
     if (!$card || !$card.length) {
         return Promise.resolve();
     }
 
     var baseUrl = toInventoryImageUrl(file);
-    var freshLinkUrl = appendCacheBust(appendImageWidth(baseUrl, 1600), Date.now());
-    var freshThumbUrl = appendCacheBust(appendImageWidth(baseUrl, 640), Date.now());
+    var cacheVersion = version || Date.now();
+    var freshLinkUrl = appendCacheBust(appendImageWidth(baseUrl, 1600), cacheVersion);
+    var freshThumbUrl = appendCacheBust(appendImageWidth(baseUrl, 640), cacheVersion);
     var $link = $card.find(".majordome-photo-link");
     var $image = $card.find(".majordome-photo-image");
 
@@ -513,6 +550,7 @@ function loadGallery(vehicle) {
                 <div class="majordome-photo-actions">
                     <button type="button" id="${safeId}" class="delete-image bi bi-trash btn btn-light shadow-sm" data-filename="${safeSource}" title="Delete image"></button>
                     <button type="button" id="${safeId}" class="overlay-image ${imageIcon} btn btn-light shadow-sm ${showImageEdit}" data-filename="${safeSource}" title="Create overlay file"></button>
+                    <button type="button" id="${safeId}" class="remove-image-background bi bi-eraser btn btn-light shadow-sm ${showImageEdit}" data-filename="${safeSource}" title="Remove background"></button>
                     <button type="button" id="${safeId}" class="rotate-image-ccw bi bi-arrow-counterclockwise btn btn-light shadow-sm ${showImageEdit}" data-filename="${safeSource}" data-degrees="-90" title="Rotate image left"></button>
                     <button type="button" id="${safeId}" class="rotate-image bi bi-arrow-clockwise btn btn-light shadow-sm ${showImageEdit}" data-filename="${safeSource}" data-degrees="90" title="Rotate image right"></button>
                     <button type="button" class="move-to-top bi bi-front btn btn-light shadow-sm" title="Make it default image"></button>
@@ -973,6 +1011,249 @@ async function rotateImage(file, degrees, triggerElement) {
     } catch (err) {
         console.error("RotateImage failed:", err);
         alert(err.message || "Failed to rotate image on the server.");
+    } finally {
+        endMajordomeImageAction($overlay);
+    }
+}
+
+function showRemoveBackgroundConfirmation(options) {
+    var settings = options || {};
+
+    return new Promise(function (resolve) {
+        if (!window.bootstrap || !window.bootstrap.Modal) {
+            resolve({ useImage: false, previewToken: "" });
+            return;
+        }
+
+        var modalId = "majordomeRemoveBackgroundModal";
+        $("#" + modalId).remove();
+        $("body").append(`
+            <div class="modal fade majordome-remove-bg-modal" id="${modalId}" tabindex="-1" aria-labelledby="majordomeRemoveBgTitle" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <span class="majordome-remove-bg-icon" aria-hidden="true"><i class="bi bi-eraser"></i></span>
+                            <h5 class="modal-title" id="majordomeRemoveBgTitle">Remove background</h5>
+                            <button type="button" class="btn-close majordome-remove-bg-header-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="majordome-remove-bg-toolbar">
+                                <div>
+                                    <div class="fw-semibold">Background removal</div>
+                                    <div class="small text-body-secondary majordome-remove-bg-status">Switch to Remove to create a preview.</div>
+                                </div>
+                                <div class="majordome-remove-bg-switch-wrap">
+                                    <span class="majordome-remove-bg-switch-label is-active" data-state="off">Off</span>
+                                    <div class="form-check form-switch m-0">
+                                        <input class="form-check-input majordome-remove-bg-switch" type="checkbox" role="switch" aria-label="Remove image background">
+                                    </div>
+                                    <span class="majordome-remove-bg-switch-label" data-state="remove">Remove</span>
+                                </div>
+                            </div>
+                            <div class="majordome-remove-bg-stage" aria-live="polite">
+                                <img class="majordome-remove-bg-image is-active" src="${escapeHtml(settings.originalUrl)}" alt="Original image">
+                                <div class="majordome-remove-bg-processing" aria-hidden="true">
+                                    <span class="spinner-border text-light" role="status"></span>
+                                    <span>Removing background...</span>
+                                </div>
+                            </div>
+                            <div class="alert alert-danger py-2 px-3 mt-3 mb-0 d-none majordome-remove-bg-error" role="alert"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary majordome-remove-bg-close" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-outline-secondary d-none majordome-remove-bg-keep">Keep original</button>
+                            <button type="button" class="btn btn-success d-none majordome-remove-bg-use">Use this image</button>
+                        </div>
+                    </div>
+                </div>
+            </div>`);
+
+        var $modal = $("#" + modalId);
+        var modalElement = $modal.get(0);
+        var modal = window.bootstrap.Modal.getOrCreateInstance(modalElement, {
+            backdrop: "static",
+            keyboard: true
+        });
+        var $switch = $modal.find(".majordome-remove-bg-switch");
+        var $status = $modal.find(".majordome-remove-bg-status");
+        var $stage = $modal.find(".majordome-remove-bg-stage");
+        var $processing = $modal.find(".majordome-remove-bg-processing");
+        var $error = $modal.find(".majordome-remove-bg-error");
+        var $close = $modal.find(".majordome-remove-bg-close");
+        var $headerClose = $modal.find(".majordome-remove-bg-header-close");
+        var $keep = $modal.find(".majordome-remove-bg-keep");
+        var $use = $modal.find(".majordome-remove-bg-use");
+        var previewToken = "";
+        var useImage = false;
+        var processing = false;
+        var settled = false;
+
+        function setSwitchState(remove) {
+            $modal.find(".majordome-remove-bg-switch-label").removeClass("is-active");
+            $modal.find(`.majordome-remove-bg-switch-label[data-state="${remove ? "remove" : "off"}"]`).addClass("is-active");
+        }
+
+        function setProcessing(isProcessing) {
+            processing = isProcessing;
+            $switch.prop("disabled", isProcessing);
+            $headerClose.prop("disabled", isProcessing);
+            $close.prop("disabled", isProcessing);
+            $processing.toggleClass("is-visible", isProcessing).attr("aria-hidden", isProcessing ? "false" : "true");
+        }
+
+        function showPreview(previewUrl) {
+            return new Promise(function (resolvePreview, rejectPreview) {
+                var image = new Image();
+                image.className = "majordome-remove-bg-image majordome-remove-bg-result";
+                image.alt = "Image with background removed";
+                image.onload = function () {
+                    $stage.append(image);
+                    window.requestAnimationFrame(function () {
+                        $stage.find(".majordome-remove-bg-image.is-active").removeClass("is-active");
+                        $(image).addClass("is-active");
+                        $stage.addClass("has-result");
+                        resolvePreview();
+                    });
+                };
+                image.onerror = function () {
+                    rejectPreview(new Error("The background-removal preview could not be loaded."));
+                };
+                image.src = appendCacheBust(previewUrl, Date.now());
+            });
+        }
+
+        $switch.on("change", async function () {
+            if (!this.checked || processing || previewToken) return;
+
+            setSwitchState(true);
+            setProcessing(true);
+            $error.addClass("d-none").text("");
+            $status.text("Creating your background-free preview...");
+
+            try {
+                var response = await settings.createPreview();
+                previewToken = (response.previewToken || "").toString();
+                var previewUrl = (response.previewUrl || "").toString();
+                if (!previewToken || !previewUrl) {
+                    throw new Error("The server did not return a background-removal preview.");
+                }
+
+                await showPreview(previewUrl);
+                $status.text("Preview ready. Choose which image you want to keep.");
+                $close.addClass("d-none");
+                $keep.removeClass("d-none");
+                $use.removeClass("d-none");
+            } catch (err) {
+                $switch.prop("checked", false);
+                setSwitchState(false);
+                $status.text(previewToken ? "Close this window and try again." : "Switch to Remove to try again.");
+                $error.removeClass("d-none").text(err.message || "Failed to remove the image background.");
+            } finally {
+                setProcessing(false);
+                $switch.prop("disabled", !!previewToken);
+            }
+        });
+
+        $keep.on("click", function () {
+            useImage = false;
+            modal.hide();
+        });
+
+        $use.on("click", function () {
+            useImage = true;
+            modal.hide();
+        });
+
+        $modal.on("hide.bs.modal", function (event) {
+            if (processing) event.preventDefault();
+        });
+
+        $modal.one("hidden.bs.modal", function () {
+            if (settled) return;
+            settled = true;
+            $modal.remove();
+            resolve({ useImage: useImage, previewToken: previewToken });
+        });
+
+        modal.show();
+    });
+}
+
+async function removeImageBackground(file, triggerElement) {
+    const stock = getActiveMajordomeStock();
+    if (!stock) {
+        alert("Please select a vehicle first.");
+        return;
+    }
+
+    const $overlay = $("#inventoryOverlay");
+    if (!beginMajordomeImageAction($overlay)) {
+        return;
+    }
+
+    window.majordomeSelectedStock = stock;
+    window.majordomeForceActiveTab = "gallery-tab";
+
+    const $card = triggerElement ? $(triggerElement).closest(".majordome-photo-card") : $();
+    var previewToken = "";
+
+    try {
+        if (typeof hideSpinner === "function") {
+            hideSpinner($overlay);
+        }
+
+        const choice = await showRemoveBackgroundConfirmation({
+            originalUrl: appendCacheBust(appendImageWidth(toInventoryImageUrl(file), 1600), Date.now()),
+            createPreview: async function () {
+                const response = await postMajordome(`${root}Majordome/RemoveImageBackground`, { file, stock });
+                if (!response || !response.success) {
+                    throw new Error((response && response.message) || "Failed to remove image background.");
+                }
+                return response;
+            }
+        });
+        previewToken = choice.previewToken;
+
+        if (!choice.useImage) {
+            try {
+                if (previewToken) {
+                    await postMajordome(`${root}Majordome/CancelRemoveImageBackground`, { file, stock, previewToken });
+                }
+            } catch (cancelError) {
+                console.warn("Unable to clean up background-removal preview:", cancelError);
+            }
+            return;
+        }
+
+        showSpinner($overlay);
+        const confirmResponse = await postMajordome(`${root}Majordome/ConfirmRemoveImageBackground`, {
+            file,
+            stock,
+            previewToken
+        });
+        if (!confirmResponse || !confirmResponse.success) {
+            throw new Error((confirmResponse && confirmResponse.message) || "Failed to save the background-removal result.");
+        }
+
+        rememberMajordomeImageVersion(file, confirmResponse.version);
+
+        if ($card.length) {
+            await refreshMajordomePhotoCardImage($card, file, confirmResponse.version);
+            updateGalleryDisplay();
+            $("#gallery-tab").tab("show");
+        } else {
+            await refreshMajordomeAfterImageMutation(stock, { keepGalleryTab: true });
+        }
+    } catch (err) {
+        if (previewToken) {
+            try {
+                await postMajordome(`${root}Majordome/CancelRemoveImageBackground`, { file, stock, previewToken });
+            } catch (cleanupError) {
+                console.warn("Unable to clean up background-removal preview:", cleanupError);
+            }
+        }
+        console.error("RemoveImageBackground failed:", err);
+        alert(err.message || "Failed to remove image background on the server.");
     } finally {
         endMajordomeImageAction($overlay);
     }
