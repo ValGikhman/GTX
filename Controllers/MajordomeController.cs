@@ -35,7 +35,7 @@ namespace GTX.Controllers
         private const string UploadPngExtension = ".png";
         private const string RemoveBgEndpoint = "https://api.remove.bg/v1.0/removebg";
         private const string InventoryPhotosBaseUrl = "https://photos.usedcarscincinnati.com/Images/";
-        private const string RemoveBgShowroomBackgroundVirtualPath = "~/SiteImages/majordome-car-showroom-background.png";
+        private const string RemoveBgShowroomBackgroundVirtualPath = "~/SiteImages/card-bg.jpg";
         private const string RemoveBgShowroomScale = "76%";
         private const string RemoveBgShowroomPosition = "center";
         private const int QrTextMaxLength = 2048;
