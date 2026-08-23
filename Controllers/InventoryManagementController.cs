@@ -19,6 +19,7 @@ namespace GTX.Controllers
     public class InventoryManagementController : BaseController
     {
         private const string HeaderFileVirtualPath = "~/App_Data/Inventory/header.csv";
+        private const string InventoryRollbackTokenSessionKey = "InventoryManagement.RollbackToken";
 
         private static byte[] _cachedHeaderBytes;
         private static readonly object _headerLock = new object();
@@ -82,6 +83,13 @@ namespace GTX.Controllers
         [HttpGet]
         public ActionResult Index()
         {
+            var rollbackToken = Session[InventoryRollbackTokenSessionKey] as string;
+            if (string.IsNullOrWhiteSpace(rollbackToken))
+            {
+                rollbackToken = Guid.NewGuid().ToString("N");
+                Session[InventoryRollbackTokenSessionKey] = rollbackToken;
+            }
+            ViewBag.InventoryRollbackToken = rollbackToken;
             ViewBag.Message = "Inventory management";
             ViewBag.Title = "Inventory management";
             ViewBag.InventoryManagementLogs = LoadInventoryManagementLogs(true);
@@ -436,6 +444,48 @@ namespace GTX.Controllers
             return (inventory.Vehicles ?? Array.Empty<GTX.Models.GTX>())
                 .Where(m => m.SetToUpload == "Y")
                 .ToArray();
+        }
+
+        [HttpPost]
+        public ActionResult RollbackLatestInventoryUpload(long expectedLatestInventoryLogId, bool acknowledge, string rollbackToken)
+        {
+            var expectedRollbackToken = Session[InventoryRollbackTokenSessionKey] as string;
+            if (string.IsNullOrWhiteSpace(expectedRollbackToken) ||
+                !string.Equals(expectedRollbackToken, rollbackToken, StringComparison.Ordinal))
+            {
+                Response.StatusCode = 400;
+                return Json(new { success = false, message = "The rollback request expired. Refresh the page and try again." });
+            }
+
+            if (!acknowledge)
+            {
+                Response.StatusCode = 400;
+                return Json(new { success = false, message = "Inventory rollback confirmation is required." });
+            }
+
+            try
+            {
+                var result = InventoryService.RollbackLatestInventoryUpload(expectedLatestInventoryLogId);
+                AppCache.ClearAll();
+
+                return Json(new
+                {
+                    success = true,
+                    message = "The latest inventory upload was removed and the previous inventory was restored.",
+                    rollback = result
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                Response.StatusCode = 409;
+                return Json(new { success = false, message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                Log(ex);
+                return Json(new { success = false, message = "Unable to roll back the latest inventory upload." });
+            }
         }
 
         private static List<InventoryCsvValidationError> ValidateInventoryCsv(byte[] csvBytes, byte[] headerBytes)

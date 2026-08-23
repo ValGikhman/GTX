@@ -77,6 +77,53 @@
     </div>
 </div>
 
+<div id="inventoryManagementRollbackToken" class="d-none">
+    <input type="hidden" name="rollbackToken" value="@ViewBag.InventoryRollbackToken" />
+</div>
+
+<div class="modal fade" id="inventoryManagementRollbackModal" tabindex="-1" aria-labelledby="inventoryManagementRollbackTitle" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="inventoryManagementRollbackTitle">
+                    <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>Roll back latest inventory upload
+                </h5>
+                <button type="button" class="btn-close inventory-management-rollback-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    This removes only the latest upload and replaces the current inventory with the immediately previous snapshot.
+                </div>
+                <dl class="row small mb-3">
+                    <dt class="col-sm-4">Delete upload</dt>
+                    <dd class="col-sm-8" id="inventoryManagementRollbackLatestDate"></dd>
+                    <dt class="col-sm-4">Restore snapshot</dt>
+                    <dd class="col-sm-8" id="inventoryManagementRollbackPreviousDate"></dd>
+                    <dt class="col-sm-4">Restore vehicles</dt>
+                    <dd class="col-sm-8" id="inventoryManagementRollbackPreviousCount"></dd>
+                </dl>
+                <div class="form-check border border-danger rounded-3 bg-light shadow-sm p-3 ps-5 mb-2">
+                    <input class="form-check-input" type="checkbox" id="inventoryManagementRollbackAcknowledge" />
+                    <label class="form-check-label fw-semibold text-dark" for="inventoryManagementRollbackAcknowledge">
+                        I understand and want to continue
+                        <span class="d-block fw-normal text-muted small mt-1">
+                            The latest upload history will be deleted and the previous inventory will become current.
+                        </span>
+                    </label>
+                </div>
+                <div id="inventoryManagementRollbackStatus" class="small mt-3" aria-live="polite"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary inventory-management-rollback-close" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="inventoryManagementRollbackConfirm" class="btn btn-danger" disabled>
+                    <span id="inventoryManagementRollbackSpinner" class="spinner-border spinner-border-sm me-2 d-none" aria-hidden="true"></span>
+                    Delete latest and restore previous
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @Html.Partial("~/Views/InventoryManagement/_DashboardVehicleDetailsModal.cshtml")
 
 <script type="text/javascript">
@@ -88,6 +135,8 @@
         let majordomeManagementSelectedStatus = "all";
         let majordomeManagementSelectedYear = "";
         let majordomeManagementSelectedMonth = "";
+        let inventoryManagementRollbackRunning = false;
+        let inventoryManagementRollbackLatestLog = null;
         const majordomeManagementSortState = { key: "", direction: "" };
         const majordomeManagementMonthNames = [
             "January", "February", "March", "April", "May", "June",
@@ -270,6 +319,94 @@
             return majordomeManagementLogs.find(function (log) {
                 return managementText(managementValue(log, "Id", "")) === selectedLogId;
             }) || null;
+        }
+
+        function latestMajordomeManagementLogs() {
+            return majordomeManagementLogs.slice().sort(function (left, right) {
+                const idDifference = Number(managementValue(right, "Id", 0)) - Number(managementValue(left, "Id", 0));
+                if (idDifference !== 0) return idDifference;
+
+                return managementDateSortValue(managementValue(right, "DateCreated", "")) -
+                    managementDateSortValue(managementValue(left, "DateCreated", ""));
+            });
+        }
+
+        function syncInventoryManagementRollbackAvailability() {
+            const logs = latestMajordomeManagementLogs();
+            const canRollback = logs.length >= 2 && !inventoryManagementRollbackRunning;
+            const title = canRollback
+                ? `Delete the ${managementFormatDate(managementValue(logs[0], "DateCreated", ""))} upload and restore the previous inventory`
+                : "At least two inventory uploads are required to roll back";
+
+            $(".inventory-management-rollback-trigger")
+                .prop("disabled", !canRollback)
+                .attr("title", title);
+        }
+
+        function syncInventoryManagementRollbackConfirmation() {
+            const acknowledged = $("#inventoryManagementRollbackAcknowledge").is(":checked");
+            $("#inventoryManagementRollbackConfirm").prop("disabled", inventoryManagementRollbackRunning || !acknowledged);
+        }
+
+        function showInventoryManagementRollbackModal() {
+            const logs = latestMajordomeManagementLogs();
+            if (logs.length < 2 || inventoryManagementRollbackRunning) return;
+
+            inventoryManagementRollbackLatestLog = logs[0];
+            const previousLog = logs[1];
+            $("#inventoryManagementRollbackLatestDate").text(managementFormatDate(managementValue(logs[0], "DateCreated", "")));
+            $("#inventoryManagementRollbackPreviousDate").text(managementFormatDate(managementValue(previousLog, "DateCreated", "")));
+            $("#inventoryManagementRollbackPreviousCount").text(managementFormatInteger(managementLogTotalCount(previousLog)));
+            $("#inventoryManagementRollbackAcknowledge").prop("checked", false);
+            $("#inventoryManagementRollbackStatus").removeClass("text-danger text-success").text("");
+            syncInventoryManagementRollbackConfirmation();
+
+            const modalElement = document.getElementById("inventoryManagementRollbackModal");
+            if (window.bootstrap && window.bootstrap.Modal) {
+                window.bootstrap.Modal.getOrCreateInstance(modalElement).show();
+            } else {
+                $(modalElement).modal({ backdrop: "static", keyboard: false }).modal("show");
+            }
+        }
+
+        function rollbackLatestInventoryUpload() {
+            if (inventoryManagementRollbackRunning || !inventoryManagementRollbackLatestLog) return;
+
+            inventoryManagementRollbackRunning = true;
+            syncInventoryManagementRollbackAvailability();
+            syncInventoryManagementRollbackConfirmation();
+            $(".inventory-management-rollback-close").prop("disabled", true);
+            $("#inventoryManagementRollbackSpinner").removeClass("d-none");
+            $("#inventoryManagementRollbackStatus").removeClass("text-danger text-success").text("Restoring the previous inventory...");
+
+            $.ajax({
+                url: `${managementRoot()}InventoryManagement/RollbackLatestInventoryUpload`,
+                type: "POST",
+                data: {
+                    expectedLatestInventoryLogId: managementValue(inventoryManagementRollbackLatestLog, "Id", 0),
+                    acknowledge: $("#inventoryManagementRollbackAcknowledge").is(":checked"),
+                    rollbackToken: $("#inventoryManagementRollbackToken input[name='rollbackToken']").val()
+                }
+            })
+                .done(function (payload) {
+                    if (!payload || payload.success === false) {
+                        throw new Error((payload && (payload.message || payload.Message)) || "Inventory rollback failed.");
+                    }
+
+                    $("#inventoryManagementRollbackStatus").addClass("text-success").text(payload.message || "Previous inventory restored. Reloading...");
+                    window.location.reload();
+                })
+                .fail(function (xhr) {
+                    const response = xhr && xhr.responseJSON;
+                    const message = (response && (response.message || response.Message)) || "Unable to roll back the latest inventory upload.";
+                    $("#inventoryManagementRollbackStatus").addClass("text-danger").text(message);
+                    inventoryManagementRollbackRunning = false;
+                    inventoryManagementRollbackLatestLog = null;
+                    $(".inventory-management-rollback-close").prop("disabled", false);
+                    $("#inventoryManagementRollbackSpinner").addClass("d-none");
+                    syncInventoryManagementRollbackAvailability();
+                    syncInventoryManagementRollbackConfirmation();
+                });
         }
 
         function managementLogTreeId(logId) {
@@ -847,6 +984,18 @@
             const statusesHtml = majordomeManagementStatusFilters.map(function (status) {
                 return renderMajordomeManagementLogStatus(log, id, status);
             }).join("");
+            const latestLogs = latestMajordomeManagementLogs();
+            const isLatestUpload = latestLogs.length > 0 &&
+                managementText(managementValue(latestLogs[0], "Id", "")) === id;
+            const rollbackHtml = isLatestUpload
+                ? `
+                    <button type="button"
+                            class="btn btn-outline-danger w-100 mt-2 px-3 inventory-management-rollback-trigger"
+                            data-log-id="${managementEscapeHtml(id)}">
+                        <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i>
+                        <span class="fw-semibold">Roll back this upload</span>
+                    </button>`
+                : "";
 
             return `
                 <section class="majordome-management-log-date" role="none">
@@ -867,6 +1016,7 @@
                     <div id="${managementEscapeHtml(collapseId)}" class="collapse${showClass}" data-bs-parent="#majordomeManagementLogMenu">
                         <div class="majordome-management-log-status-list" role="group">
                             ${statusesHtml}
+                            ${rollbackHtml}
                         </div>
                     </div>
                 </section>`;
@@ -884,6 +1034,7 @@
                 $menu.html(`<div class="text-muted small px-2 py-3">No inventory logs found.</div>`);
                 syncMajordomeManagementLogPicker();
                 setMajordomeManagementRows([]);
+                syncInventoryManagementRollbackAvailability();
                 return;
             }
 
@@ -893,6 +1044,7 @@
                 $menu.html(`<div class="text-muted small px-2 py-3">No inventory logs found for the selected month.</div>`);
                 syncMajordomeManagementLogPicker();
                 setMajordomeManagementRows([]);
+                syncInventoryManagementRollbackAvailability();
                 return;
             }
 
@@ -938,6 +1090,7 @@
                     .removeClass("collapsed");
             }
             syncMajordomeManagementLogPicker();
+            syncInventoryManagementRollbackAvailability();
             loadMajordomeManagementRows($select.val());
         }
 
@@ -1208,9 +1361,16 @@
                     if ($status.is(":disabled")) return;
 
                     selectMajordomeManagementLog($status.attr("data-log-id"), $status.attr("data-status"), true);
+                })
+                .on("click", ".inventory-management-rollback-trigger", function () {
+                    if ($(this).is(":disabled")) return;
+                    showInventoryManagementRollbackModal();
                 });
 
             $("#majordomeManagementLocationFilter").on("change", applyMajordomeManagementFilters);
+
+            $("#inventoryManagementRollbackAcknowledge").on("change", syncInventoryManagementRollbackConfirmation);
+            $("#inventoryManagementRollbackConfirm").on("click", rollbackLatestInventoryUpload);
 
             $("#majordomeManagementLogYear").on("change", function () {
                 majordomeManagementSelectedYear = managementText($(this).val());
