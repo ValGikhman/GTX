@@ -101,6 +101,8 @@ namespace GTX.Models
 
 		public DecodedData DataOne { get; set; }
 
+		public bool HasDataOne { get; set; }
+
 		public string TransmissionWord { get; set; }
 
 		[XmlIgnore]
@@ -179,7 +181,10 @@ namespace GTX.Models
 					VehicleStyle = m.VehicleStyle,
 					SetToUpload = m.SetToUpload,
 					Story = m.Story == null ? null : new Story { Id = m.Story.Id, HtmlContent = m.Story.HtmlContent, Title = m.Story.Title }, 
-					DataOne = m.DataOne == null ? null : SetDecodedData(m.DataOne.DataOneContent)
+					HasDataOne = m.HasDataOne || m.DataOne != null,
+					DataOne = m.DataOne == null || string.IsNullOrWhiteSpace(m.DataOne.DataOneContent)
+						? null
+						: SetDecodedData(m.DataOne.DataOneContent)
 			}).ToArray();
 		}
 

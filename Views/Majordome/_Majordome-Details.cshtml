@@ -7,16 +7,16 @@
         </div>
         <div class="col-lg-5 text-shadow-small">
             <div class="row">
-                @Html.Label("Title", new { @class = "text-shadow" })
+                <label class="text-shadow" for="storyTitle">Title</label>
                 <div class="input-group mb-3">
-                    <input id="storyTitle" class="form-control shadow pull-right" placeholder="Title" aria-label="Title" aria-describedby="storyTitle" />
+                    <input id="storyTitle" class="form-control shadow pull-right" placeholder="Title" />
                     <button id="createStory" class="btn btn-light bi bi-book input-group-text "></button>
                     <button id="deleteStory" class="btn btn-light bi bi-book-fill input-group-text"></button>
                     <button id="saveStory" class="btn btn-light bi bi-save input-group-text"></button>
                 </div>
             </div>
             <div class="row mt-2">
-                @Html.Label("Story", new { @class = "text-shadow" })
+                <div id="storyLabel" class="text-shadow">Story</div>
                 <div id="story" class="form-control shadow"></div>
             </div>
         </div>

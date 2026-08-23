@@ -9,8 +9,6 @@ namespace GTX {
             bundles.Add(new ScriptBundle("~/Scripts/jquery").Include(
                         "~/Scripts/jquery/jquery.magnific-popup.min.js",
                         "~/Scripts/jquery/jquery.slicknav.js",
-                        "~/Scripts/jquery/jquery-{version}.js",
-                        "~/Scripts/jquery/jquery-ui.min.js",
                         "~/Scripts/bootstrap/bootstrap-datepicker.min.js",
                         "~/Scripts/main.js",
                         "~/Scripts/chosen/chosen.jquery.js"

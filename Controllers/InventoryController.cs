@@ -96,7 +96,18 @@ namespace GTX.Controllers
             // If there is no DataOne get it
             if (Model.IsDataOne)
             {
-                if (vehicle.DataOne == null)
+                if (vehicle.DataOne == null && vehicle.HasDataOne)
+                {
+                    try
+                    {
+                        Model.CurrentVehicle.VehicleDataOneDetails = GetDecodedData(stock);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log($"Saved DataOne details could not be loaded for stock {stock}: {ex.Message}");
+                    }
+                }
+                else if (vehicle.DataOne == null)
                 {
                     try
                     {
@@ -106,6 +117,8 @@ namespace GTX.Controllers
                         if (dataOne != null)
                         {
                             InventoryService.SaveDataOneDetails(stock, details);
+                            vehicle.HasDataOne = true;
+                            vehicle.DataOne = dataOne;
 
                             // Query transmission 
                             var transmission = Model.CurrentVehicle.VehicleDetails.Transmission;

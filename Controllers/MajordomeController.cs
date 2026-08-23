@@ -146,11 +146,15 @@ namespace GTX.Controllers
             ViewBag.Title = "Inventory management";
             ViewBag.Stock = stock;
 
-            RefreshModel(includeHiddenInventory: true);
             Model.Inventory.Vehicles = Model.Inventory.All;
 
+            ViewBag.MajordomeInventoryVehicles = ToMajordomeInventoryClientVehicles(Model.Inventory.Vehicles);
+
             try {
-                ViewBag.InventoryDashboardVehicles = InventoryService.GetInventoryDashboard(7)?.Vehicles
+                ViewBag.InventoryDashboardVehicles = AppCache.GetOrCreate(
+                    Constants.MAJORDOME_DASHBOARD_CACHE,
+                    () => InventoryService.GetInventoryDashboard(7),
+                    minutes: 5)?.Vehicles
                     ?? Array.Empty<InventoryDashboardVehicle>();
             }
             catch (Exception ex) {
@@ -222,8 +226,8 @@ namespace GTX.Controllers
             var vehicle = FindCachedVehicleForStock(normalizedStock);
 
             if (vehicle == null) {
-                RefreshModel(includeHiddenInventory: true);
-                vehicle = FindCachedVehicleForStock(normalizedStock);
+                var snapshot = InventoryService.GetInventoryVehicleSnapshot(normalizedStock);
+                vehicle = Models.GTX.ToGTX(snapshot == null ? Array.Empty<global::Common.GTXDTO>() : new[] { snapshot }).FirstOrDefault();
             }
 
             if (vehicle == null)
@@ -400,11 +404,9 @@ namespace GTX.Controllers
 
         [HttpGet]
         public JsonResult GetUpdatedItems() {
-            RefreshModel(includeHiddenInventory: true);
-
             return new JsonResult
             {
-                Data = Model.Inventory.Vehicles,
+                Data = ToMajordomeInventoryClientVehicles(Model.Inventory.Vehicles),
                 JsonRequestBehavior = JsonRequestBehavior.AllowGet,
                 MaxJsonLength = int.MaxValue   // or a big number you’re comfortable with
             };
@@ -446,8 +448,61 @@ namespace GTX.Controllers
 
         private static void InvalidateInventoryCaches() {
             AppCache.Remove(Constants.INVENTORY_CACHE);
+            AppCache.Remove(Constants.MAJORDOME_INVENTORY_CACHE);
+            AppCache.Remove(Constants.MAJORDOME_DASHBOARD_CACHE);
+            AppCache.RemoveByPrefix(Constants.INVENTORY_MANAGEMENT_LOGS_CACHE_PREFIX);
+            AppCache.RemoveByPrefix(Constants.INVENTORY_MANAGEMENT_VEHICLES_CACHE_PREFIX);
+            AppCache.RemoveByPrefix(Constants.INVENTORY_MANAGEMENT_DASHBOARD_CACHE_PREFIX);
+            AppCache.RemoveByPrefix(Constants.INVENTORY_MANAGEMENT_HISTORY_CACHE_PREFIX);
             AppCache.Remove(Constants.CATEGORIES_CACHE);
             AppCache.Remove(Constants.FILTERS_CACHE);
+        }
+
+        private static object[] ToMajordomeInventoryClientVehicles(IEnumerable<Models.GTX> vehicles) {
+            return (vehicles ?? Enumerable.Empty<Models.GTX>())
+                .Where(vehicle => vehicle != null)
+                .Select(vehicle => (object)new {
+                    vehicle.Stock,
+                    vehicle.Year,
+                    vehicle.Make,
+                    vehicle.Model,
+                    vehicle.VIN,
+                    vehicle.Mileage,
+                    vehicle.Cylinders,
+                    vehicle.Weight,
+                    vehicle.Color,
+                    vehicle.Color2,
+                    vehicle.Features,
+                    vehicle.RetailPrice,
+                    vehicle.InternetPrice,
+                    vehicle.DriveTrain,
+                    vehicle.LocationCode,
+                    vehicle.Body,
+                    vehicle.Engine,
+                    vehicle.Transmission,
+                    vehicle.PurchaseDate,
+                    vehicle.ArrivalDate,
+                    vehicle.FuelType,
+                    vehicle.TransmissionSpeed,
+                    vehicle.VehicleType,
+                    vehicle.VehicleStyle,
+                    vehicle.SetToUpload,
+                    vehicle.TransmissionWord,
+                    vehicle.DetailsCounter,
+                    vehicle.Image,
+                    Story = vehicle.Story == null ? null : new {
+                        vehicle.Story.Title,
+                        vehicle.Story.HtmlContent
+                    },
+                    HasDataOne = vehicle.HasDataOne || vehicle.DataOne != null,
+                    Images = (vehicle.Images ?? Array.Empty<Services.Image>()).Select(image => new {
+                        image.Id,
+                        image.Stock,
+                        image.Source,
+                        image.Order
+                    }).ToArray()
+                })
+                .ToArray();
         }
 
         private static List<string> ValidateInventoryVehicleSaveRequest(InventoryVehicleSaveRequest request) {
@@ -936,6 +991,8 @@ namespace GTX.Controllers
                 ApplyStoryToVehicles(Model.Inventory.All, stockKey, hasStory, normalizedTitle, normalizedStory);
                 ApplyStoryToVehicles(Model.Inventory.Vehicles, stockKey, hasStory, normalizedTitle, normalizedStory);
             }
+
+            AppCache.Remove(Constants.MAJORDOME_INVENTORY_CACHE);
         }
 
         private static void ApplyStoryToVehicles(Models.GTX[] vehicles, string stock, bool hasStory, string title, string storyHtml) {
@@ -975,6 +1032,9 @@ namespace GTX.Controllers
                 ApplyImagesToVehicles(Model.Inventory.All, stockKey, normalizedImages, leadImage);
                 ApplyImagesToVehicles(Model.Inventory.Vehicles, stockKey, normalizedImages, leadImage);
             }
+
+            AppCache.Remove(Constants.MAJORDOME_INVENTORY_CACHE);
+            AppCache.Remove(Constants.MAJORDOME_DASHBOARD_CACHE);
         }
 
         private void SyncCachedDataOneForStock(string stock, DecodedData dataOne) {
@@ -987,6 +1047,8 @@ namespace GTX.Controllers
                 ApplyDataOneToVehicles(Model.Inventory.All, stockKey, dataOne);
                 ApplyDataOneToVehicles(Model.Inventory.Vehicles, stockKey, dataOne);
             }
+
+            AppCache.Remove(Constants.MAJORDOME_INVENTORY_CACHE);
         }
 
         private static void ApplyDataOneToVehicles(Models.GTX[] vehicles, string stock, DecodedData dataOne) {
@@ -1000,6 +1062,7 @@ namespace GTX.Controllers
                 }
 
                 vehicle.DataOne = dataOne;
+                vehicle.HasDataOne = dataOne != null;
             }
         }
 

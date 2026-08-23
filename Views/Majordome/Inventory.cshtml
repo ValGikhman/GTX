@@ -3,10 +3,10 @@
 @{
     var inventoryDashboardVehicles = ViewBag.InventoryDashboardVehicles as Services.InventoryDashboardVehicle[]
         ?? Array.Empty<Services.InventoryDashboardVehicle>();
+    var majordomeInventoryVehicles = ViewBag.MajordomeInventoryVehicles as object[]
+        ?? Array.Empty<object>();
 }
 <head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
-    <script src="~/Scripts/just-validate/just-validate.production.min.js"></script>
     <script src="~/Scripts/majordome.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome.js")).Ticks)"></script>
     <script src="~/Scripts/inventory-history.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/inventory-history.js")).Ticks)"></script>
 
@@ -310,7 +310,7 @@
 
 <script type="text/javascript">
     const $dropzone = $("#dropzone");
-    const inventoryVehiclesSourceJson = "@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(JsonConvert.SerializeObject(Model.Inventory.Vehicles ?? Array.Empty<GTX.Models.GTX>())))";
+    const inventoryVehiclesSourceJson = "@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(JsonConvert.SerializeObject(majordomeInventoryVehicles)))";
     const inventoryDashboardVehiclesJson = "@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(JsonConvert.SerializeObject(inventoryDashboardVehicles)))";
     const inventoryDashboardVehicles = JSON.parse(inventoryDashboardVehiclesJson);
     const inventoryDashboardVehiclesByStock = {};
@@ -434,10 +434,18 @@
         },
         theme: 'snow'
     });
+    quill.root.setAttribute('aria-labelledby', 'storyLabel');
+    quill.root.setAttribute('aria-multiline', 'true');
 
     $(function () {
         renderMajordomeInventoryRows(inventoryVehiclesSource);
         selectFirstVisibleMajordomeVehicle();
+
+        $("#gallery-tab").on("shown.bs.tab", function () {
+            if (selectedVehicle) {
+                loadGallery(selectedVehicle);
+            }
+        });
 
         const initialStock = "@ViewBag.Stock";
         if (initialStock !== null && initialStock !== "") {
@@ -1662,7 +1670,7 @@
     }
 
     function hasDataOne(vehicle) {
-        return !!vehicle?.DataOne;
+        return vehicle?.HasDataOne === true || !!vehicle?.DataOne;
     }
 
     function getMajordomeBulkInventoryVehicles() {
@@ -1844,6 +1852,7 @@
         const markDataOne = function (vehicle) {
             if (!vehicle) return;
             vehicle.DataOne = vehicle.DataOne || {};
+            vehicle.HasDataOne = true;
         };
 
         if (selectedVehicle && safeText(selectedVehicle.Stock).trim().toUpperCase() === stockKey) {
@@ -1884,6 +1893,7 @@
         const clearDataOne = function (vehicle) {
             if (!vehicle) return;
             vehicle.DataOne = null;
+            vehicle.HasDataOne = false;
         };
 
         const isSelectedStock = selectedVehicle && safeText(selectedVehicle.Stock).trim().toUpperCase() === stockKey;
@@ -3195,7 +3205,11 @@
         markSelectedRow(selectedVehicleStock);
 
         showVehicleDetails(selectedVehicle);
-        loadGallery(selectedVehicle);
+        if ($("#gallery-tab").hasClass("active")) {
+            loadGallery(selectedVehicle);
+        } else {
+            $("#sortable-gallery").empty();
+        }
         syncMajordomeQrCode(selectedVehicle);
         syncMajordomeGalleryAvailability();
     }

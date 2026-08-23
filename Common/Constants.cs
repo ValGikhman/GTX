@@ -15,6 +15,12 @@ public static class Constants {
 
     // Cache keys - you can include tenant/store id etc. if needed
     public const string INVENTORY_CACHE = "GTX:Inventory";
+    public const string MAJORDOME_INVENTORY_CACHE = "GTX:MajordomeInventory";
+    public const string MAJORDOME_DASHBOARD_CACHE = "GTX:MajordomeDashboard:7";
+    public const string INVENTORY_MANAGEMENT_LOGS_CACHE_PREFIX = "GTX:InventoryManagement:Logs:";
+    public const string INVENTORY_MANAGEMENT_VEHICLES_CACHE_PREFIX = "GTX:InventoryManagement:Vehicles:";
+    public const string INVENTORY_MANAGEMENT_DASHBOARD_CACHE_PREFIX = "GTX:InventoryManagement:Dashboard:";
+    public const string INVENTORY_MANAGEMENT_HISTORY_CACHE_PREFIX = "GTX:InventoryManagement:History:";
     public const string EMPLOYERS_CACHE = "GTX:Employers";
     public const string OPENHOURS_CACHE = "GTX:OpenHours";
     public const string FILTERS_CACHE = "GTX:Filters";
