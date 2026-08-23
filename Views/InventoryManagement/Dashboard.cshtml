@@ -130,6 +130,7 @@
                             <col class="inventory-dashboard-col-status" />
                             <col class="inventory-dashboard-col-location" />
                             <col class="inventory-dashboard-col-days" />
+                            <col class="inventory-dashboard-col-views" />
                             <col class="inventory-dashboard-col-details" />
                         </colgroup>
                         <thead>
@@ -140,6 +141,7 @@
                                 <th class="inventory-dashboard-col-status text-center">Status</th>
                                 <th class="inventory-dashboard-sortable-th inventory-dashboard-col-location text-center" data-dashboard-sort-column="location" aria-sort="none">Location <i class="bi bi-arrow-down-up inventory-dashboard-sort-indicator" aria-hidden="true"></i></th>
                                 <th class="inventory-dashboard-sortable-th inventory-dashboard-col-days text-end" data-dashboard-sort-column="days" aria-sort="none">Days <i class="bi bi-arrow-down-up inventory-dashboard-sort-indicator" aria-hidden="true"></i></th>
+                                <th class="inventory-dashboard-sortable-th inventory-dashboard-col-views text-center" data-dashboard-sort-column="views" aria-sort="none" title="Sort by Details page views"><i class="bi bi-eye-fill" aria-hidden="true"></i> <span class="visually-hidden">Views</span><i class="bi bi-arrow-down-up inventory-dashboard-sort-indicator" aria-hidden="true"></i></th>
                                 <th class="inventory-dashboard-col-details text-center">Details</th>
                             </tr>
                         </thead>
@@ -534,7 +536,7 @@
             }
 
             function dashboardFor(days) {
-                return dashboards[String(days)] || dashboards[days] || {};
+                return dashboards[String(days)] || dashboards[days] || null;
             }
 
             function cacheDashboard(days, data) {
@@ -1397,6 +1399,7 @@
                 row.VehicleStyle = valueOf(row, "VehicleStyle", "");
                 row.LocationCode = valueOf(row, "LocationCode", "");
                 row.Image = valueOf(row, "Image", "");
+                row.DetailsCounter = asNumber(valueOf(row, "DetailsCounter", 0));
                 row.Status = valueOf(row, "Status", null);
                 row.StatusText = statusLabel(valueOf(row, "StatusText", "Status"));
                 row.Statuses = getVehicleStatusCodes(row);
@@ -1841,6 +1844,9 @@
                                 <span>${escapeDashboardHtml(daysText)}</span>
                             </span>
                         </td>
+                        <td class="inventory-dashboard-views-cell text-center">
+                            <span class="shadow majordome-status-pill majordome-status-counter" title="${escapeDashboardHtml(formatNumber(row.DetailsCounter))} Details page views"><i class="bi bi-eye-fill me-1" aria-hidden="true"></i>${escapeDashboardHtml(formatNumber(row.DetailsCounter))}</span>
+                        </td>
                         <td class="inventory-dashboard-details-cell">
                             <button type="button"
                                     class="btn btn-outline-secondary inventory-dashboard-details-button"
@@ -1855,7 +1861,7 @@
                     <tr id="${escapeDashboardHtml(rowId)}"
                         class="inventory-dashboard-history-row ${rowToneClass} ${isExpanded ? "" : "d-none"}"
                         data-history-row-for="${escapeDashboardHtml(stockKey)}">
-                        <td colspan="7">${renderDashboardHistoryPanel(stockKey)}</td>
+                        <td colspan="8">${renderDashboardHistoryPanel(stockKey)}</td>
                     </tr>
                 `;
             }
@@ -1867,6 +1873,10 @@
                     return row.DaysInInventory === null || row.DaysInInventory === undefined || row.DaysInInventory === ""
                         ? Number.NEGATIVE_INFINITY
                         : days;
+                }
+
+                if (key === "views") {
+                    return asNumber(row.DetailsCounter);
                 }
 
                 if (key === "vehicle") {

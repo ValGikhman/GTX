@@ -80,7 +80,7 @@ namespace GTX.Controllers
                 ViewBag.ResponsibilityIcon = Model.Responsibility == CommonUnit.Responsibility.Site ? "bi-globe2" : "bi-tv";
                 ViewBag.Environment = SessionData.Environment == CommonUnit.Environment.Dev ? "DEV" : string.Empty;
 
-                Model.Inventory = AppCache.GetOrCreate(Constants.INVENTORY_CACHE, () => SetModel(), minutes: 60);
+                Model.Inventory = AppCache.GetOrCreate(Constants.INVENTORY_CACHE, () => LoadInventory(includeHiddenInventory: false, includeDataOneContent: false),  minutes: 60);
                 Model.Employers = AppCache.GetOrCreate(Constants.EMPLOYERS_CACHE, () => GetEmployers(), minutes: 60);
                 Model.OpenHours = AppCache.GetOrCreate(Constants.OPENHOURS_CACHE, () => Utility.XMLHelpers.XmlRepository.GetOpenHours(), minutes: 60);
                 Model.Categories = AppCache.GetOrCreate(Constants.CATEGORIES_CACHE, () => GetCategories(), minutes: 60);
@@ -99,6 +99,20 @@ namespace GTX.Controllers
                 ViewBag.IsMajordome = Model.IsMajordome;
 
                 Model.Filters = AppCache.GetOrCreate(Constants.FILTERS_CACHE, () => BuildFilters(Model.Inventory), minutes: 60);
+
+                var controllerName = Convert.ToString(filterContext.RouteData.Values["controller"]);
+                var actionName = Convert.ToString(filterContext.RouteData.Values["action"]);
+                var needsMajordomeInventory = string.Equals(controllerName, "Majordome", StringComparison.OrdinalIgnoreCase) &&
+                    (string.Equals(actionName, "Inventory", StringComparison.OrdinalIgnoreCase) ||
+                     string.Equals(actionName, "GetUpdatedItems", StringComparison.OrdinalIgnoreCase));
+
+                if (needsMajordomeInventory)
+                {
+                    Model.Inventory = AppCache.GetOrCreate(
+                        Constants.MAJORDOME_INVENTORY_CACHE,
+                        () => LoadInventory(includeHiddenInventory: true, includeDataOneContent: false),
+                        minutes: 10);
+                }
 
             }
             catch (Exception ex) {
@@ -202,27 +216,29 @@ namespace GTX.Controllers
         }
 
         public Inventory SetModel(bool includeHiddenInventory = false) {
-            var dto = InventoryService.GetInventory(includeHiddenInventory);
-            var vehicles = Models.GTX.ToGTX(dto.vehicles);
-            ApplyDetailsCounters(vehicles);
-            Model.Inventory.Published = dto.InventoryDate;
-            Model.Inventory.All = DecideImages(vehicles);
-
-            Model.Inventory.Vehicles = Model.Inventory.All;
-
+            Model.Inventory = LoadInventory(includeHiddenInventory, includeDataOneContent: true);
             return Model.Inventory;
         }
 
         public Inventory RefreshModel(bool includeHiddenInventory = false)
         {
-            var dto = InventoryService.GetInventory(includeHiddenInventory);
+            Model.Inventory = LoadInventory(includeHiddenInventory, includeDataOneContent: true);
+            return Model.Inventory;
+        }
+
+        private Inventory LoadInventory(bool includeHiddenInventory, bool includeDataOneContent)
+        {
+            var dto = InventoryService.GetInventory(includeHiddenInventory, includeDataOneContent);
             var vehicles = Models.GTX.ToGTX(dto.vehicles);
             ApplyDetailsCounters(vehicles);
-            Model.Inventory.Published = dto.InventoryDate;
-            Model.Inventory.All = DecideImages(vehicles);
+            var inventory = new Inventory
+            {
+                Published = dto.InventoryDate,
+                All = DecideImages(vehicles)
+            };
 
-            Model.Inventory.Vehicles = Model.Inventory.All;
-            return Model.Inventory;
+            inventory.Vehicles = inventory.All;
+            return inventory;
         }
 
         private void ApplyDetailsCounters(Models.GTX[] vehicles)
@@ -312,10 +328,13 @@ namespace GTX.Controllers
             // Compute once instead of per vehicle
             var defaultImage = $"{imageFolder}no-image-{Version()}.jpg";
 
+            var imagesByStock = InventoryService.GetImages(vehicles.Select(vehicle => vehicle.Stock));
+
             foreach (var vehicle in vehicles)
             {
                 vehicle.Image = defaultImage;
-                var stockImages = InventoryService.GetImages(vehicle.Stock);
+                Services.Image[] stockImages;
+                imagesByStock.TryGetValue((vehicle.Stock ?? string.Empty).Trim().ToUpperInvariant(), out stockImages);
 
                 if (stockImages != null && stockImages.Length > 0)
                 {

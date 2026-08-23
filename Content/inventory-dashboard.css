@@ -742,6 +742,10 @@ html.theme-metallica .inventory-dashboard {
         width: 100px;
     }
 
+    #inventoryDashboardStatusTable .inventory-dashboard-col-views {
+        width: 92px;
+    }
+
     #inventoryDashboardStatusTable .inventory-dashboard-col-details {
         width: 88px;
     }
@@ -792,6 +796,17 @@ html.theme-metallica .inventory-dashboard {
     width: 5rem;
     text-align: right;
     font-weight: 800;
+}
+
+.inventory-dashboard-views-cell {
+    width: 5rem;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.inventory-dashboard-views-cell .majordome-status-counter {
+    padding-right: .4rem;
+    padding-left: .4rem;
 }
 
 .inventory-dashboard-days-number.badge {

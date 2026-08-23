@@ -3,7 +3,7 @@
 
 @{
     var inventoryVehiclesJson = System.Web.HttpUtility.JavaScriptStringEncode(
-        JsonConvert.SerializeObject(Model.Inventory.Vehicles ?? Array.Empty<GTX.Models.GTX>()));
+        JsonConvert.SerializeObject(ViewBag.InventoryManagementVehicles ?? Array.Empty<object>()));
 }
 
 <head>
@@ -263,17 +263,68 @@
         }
 
         function uploadParseError(xhr, fallback) {
+            const payload = uploadErrorPayload(xhr);
+            if (payload) {
+                return uploadText(payload.message || payload.Message || (payload.errors || []).join("; ")).trim() || fallback;
+            }
+
             const responseText = uploadText(xhr && xhr.responseText).trim();
             if (responseText) {
-                try {
-                    const payload = JSON.parse(responseText);
-                    return uploadText(payload.message || payload.Message || (payload.errors || []).join("; ")).trim() || fallback;
-                } catch (error) {
-                    return responseText;
-                }
+                return responseText;
             }
 
             return fallback;
+        }
+
+        function uploadErrorPayload(xhr) {
+            if (xhr && xhr.responseJSON) return xhr.responseJSON;
+
+            const responseText = uploadText(xhr && xhr.responseText).trim();
+            if (!responseText) return null;
+
+            try {
+                return JSON.parse(responseText);
+            } catch (error) {
+                return null;
+            }
+        }
+
+        function uploadValidationValue(item, key) {
+            if (!item) return "";
+            if (Object.prototype.hasOwnProperty.call(item, key)) return item[key];
+            const camelKey = key.charAt(0).toLowerCase() + key.slice(1);
+            return Object.prototype.hasOwnProperty.call(item, camelKey) ? item[camelKey] : "";
+        }
+
+        function uploadRenderValidationReport(file, xhr) {
+            const payload = uploadErrorPayload(xhr);
+            const errors = payload && (payload.validationErrors || payload.ValidationErrors);
+            if (!Array.isArray(errors) || errors.length === 0) return false;
+
+            inventoryManagementUploadFile = null;
+            inventoryManagementUploadPreview = null;
+            $("#inventoryManagementUploadIntro").text(`${uploadFileLabel(file)} has validation errors.`);
+            $("#inventoryManagementUploadSummary").empty().removeClass("d-none");
+            $("<span></span>")
+                .addClass("badge rounded-pill bg-danger p-2 shadow")
+                .text(`${uploadFormatCount(errors.length)} error(s)`)
+                .appendTo("#inventoryManagementUploadSummary");
+            $("#inventoryManagementUploadLog").empty();
+
+            errors.forEach(function (item) {
+                const row = uploadValidationValue(item, "Row");
+                const field = uploadText(uploadValidationValue(item, "Field"));
+                const value = uploadText(uploadValidationValue(item, "Value"));
+                const message = uploadText(uploadValidationValue(item, "Message"));
+                uploadAppendLog(`Row ${row} / ${field} / ${value || "(blank)"} / ${message}`, "error");
+            });
+
+            $("#inventoryManagementUploadStart").addClass("d-none").prop("disabled", true);
+            $("#inventoryManagementUploadCancel").prop("disabled", false).text("Close");
+            uploadSetProgress(0, errors.length);
+            uploadSetStatus("Correct the listed values in the CSV, then upload the file again.");
+            uploadShowModal();
+            return true;
         }
 
         function uploadPostCsv(actionName, file) {
@@ -360,6 +411,7 @@
             } catch (error) {
                 if (error && error.statusText === "abort") return;
                 console.error("Inventory upload preview failed:", error);
+                if (uploadRenderValidationReport(file, error)) return;
                 alert((error && error.message) || uploadParseError(error, "Inventory upload preview failed."));
             } finally {
                 inventoryManagementUploadRequest = null;
@@ -410,6 +462,7 @@
                     uploadSetStatus("Inventory upload canceled.");
                     uploadAppendLog("Inventory upload canceled.", "warning");
                 } else {
+                    if (uploadRenderValidationReport(file, error)) return;
                     const message = (error && error.message) || uploadParseError(error, "Inventory upload failed.");
                     uploadSetStatus(message);
                     uploadAppendLog(message, "error");

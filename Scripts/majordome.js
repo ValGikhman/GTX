@@ -619,6 +619,7 @@ function applyUploadedImagesToMajordomeState(stock, images, options) {
     }
 
     vehicle.Images = images;
+    vehicle.ImagesCount = images.length;
     if (leadImage) {
         vehicle.Image = leadImage;
     } else if (images.length > 0 && images[0] && images[0].Source) {

@@ -33,6 +33,16 @@ public static class AppCache
 
     public static void Remove(string key) => Cache.Remove(key);
 
+    public static void RemoveByPrefix(string prefix)
+    {
+        if (string.IsNullOrWhiteSpace(prefix)) return;
+
+        foreach (var item in Cache.Where(item => item.Key.StartsWith(prefix, StringComparison.Ordinal)).ToList())
+        {
+            Cache.Remove(item.Key);
+        }
+    }
+
     public static void ClearAll()
     {
         foreach (var item in Cache.ToList())

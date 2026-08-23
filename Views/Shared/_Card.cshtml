@@ -123,8 +123,6 @@
     var cardIndexRaw = ViewData["InventoryCardIndex"];
     var cardIndex = cardIndexRaw is int cardIndexValue ? cardIndexValue : int.MaxValue;
     var isPriorityCardImage = cardIndex >= 0 && cardIndex < 4;
-    var imageLoadingMode = isPriorityCardImage ? "eager" : "lazy";
-    var imageFetchPriority = isPriorityCardImage ? "high" : "low";
     var logoLoadingMode = cardIndex >= 0 && cardIndex < 16 ? "eager" : "lazy";
 }
 
@@ -134,7 +132,7 @@
     data-url="@detailsUrl"
     data-location-code="@Model.LocationCode"
     data-story="@(Model.Story is not null && !Model.Story.HtmlContent.ToUpper().Contains("ERROR") ? "STORY" : "NOSTORY")"
-    data-dataone="@(Model.DataOne is not null ? "DATAONE" : "NODATAONE")"
+    data-dataone="@(Model.HasDataOne || Model.DataOne is not null ? "DATAONE" : "NODATAONE")"
     data-images="@(Model.Image is not null && Model.Image.Contains("no-image") ? "NOIMAGE" : "IMAGE")"
     data-year="@Model.Year"
     data-stock="@Model.Stock.ToUpper()"
@@ -210,7 +208,7 @@
                 {
                     <span class="gtx-chip gtx-chip-dark shadow" title="Vehicle story available"><i class="bi bi-feather"></i></span>
                 }
-                @if (Model.DataOne is not null)
+                @if (Model.HasDataOne || Model.DataOne is not null)
                 {
                     <span class="gtx-chip gtx-chip-dark shadow" title="DataOne vehicle details available"><i class="bi bi-shield-check"></i></span>
                 }
@@ -220,7 +218,14 @@
                 </span>
             </div>
 
-            <img class="gtx-img" src="@cardImageUrl" alt="@carTitle" width="@cardImageRenderWidth" height="@cardImageRenderHeight" loading="@imageLoadingMode" fetchpriority="@imageFetchPriority" decoding="async" />
+            @if (isPriorityCardImage)
+            {
+                <img class="gtx-img" src="@cardImageUrl" alt="@carTitle" width="@cardImageRenderWidth" height="@cardImageRenderHeight" loading="eager" fetchpriority="high" decoding="async" />
+            }
+            else
+            {
+                <img class="gtx-img" src="@cardImageUrl" alt="@carTitle" width="@cardImageRenderWidth" height="@cardImageRenderHeight" loading="lazy" fetchpriority="low" decoding="async" />
+            }
         </div>
 
         <!-- FOOTER -->
@@ -248,13 +253,10 @@
                     <span><i class="bi bi-car-front me-1"></i>@I18n.R("All_InternetPrice")</span>
                     <span class="gtx-price-amount">@Model.InternetPrice.ToString("C0", usCulture)</span>
                 </div>
-                @if (Model.InternetPrice > 0)
-                {
-                    <div class="gtx-price-line gtx-price-muted">
-                        <span><i class="bi bi-file-earmark-text me-1"></i>@I18n.R("All_DocumentaryFee")</span>
-                        <span>@documentaryFee.ToString("C0", usCulture)</span>
-                    </div>
-                }
+                <div class="gtx-price-line gtx-price-muted">
+                    <span><i class="bi bi-file-earmark-text me-1"></i>@I18n.R("All_DocumentaryFee")</span>
+                    <span>@documentaryFee.ToString("C0", usCulture)</span>
+                </div>
                 <div class="gtx-price-line gtx-transparent-line">
                     <span><i class="bi bi-patch-check-fill text-warning me-1"></i>@I18n.R("All_TransparentPrice")</span>
                     <span class="gtx-price-amount">@transparentPrice.ToString("C0", usCulture)</span>
