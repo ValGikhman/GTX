@@ -473,18 +473,116 @@ html.theme-silver .majordome-remove-bg-switch-wrap.is-remove .majordome-remove-b
 
         #sortable-gallery > li.majordome-photo-card {
             list-style: none;
-            width: 320px;
+            width: 261px;
             max-width: 100%;
             min-height: 0;
             display: flex;
             flex-direction: column;
             padding: 0;
-            border: 1px solid rgba(15, 23, 42, .14);
-            border-radius: .75rem;
+            border: 1px solid rgba(15, 23, 42, .16);
+            border-radius: 1rem;
             overflow: hidden;
             background: #fff;
-            box-shadow: 0 .45rem 1rem rgba(15, 23, 42, .12);
+            box-shadow: 0 .5rem 1.2rem rgba(15, 23, 42, .12);
+            cursor: default;
+            touch-action: auto;
+            transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
         }
+
+        #sortable-gallery > li.majordome-photo-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(15, 23, 42, .26);
+            box-shadow: 0 .8rem 1.75rem rgba(15, 23, 42, .17);
+        }
+
+        #sortable-gallery > li.majordome-photo-card.gradient.is-landscape {
+            border-color: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 58%, #fff);
+            box-shadow:
+                0 0 0 1px color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 28%, transparent),
+                0 .9rem 2rem rgba(15, 23, 42, .2);
+        }
+
+        #sortable-gallery > li.majordome-photo-card.sortable-gallery-chosen {
+            border: 1px solid var(--gtx-accent-solid, #1e73be) !important;
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 20%, transparent),
+                        0 1rem 2rem rgba(15, 23, 42, .2);
+        }
+
+        #sortable-gallery > li.majordome-photo-card.sortable-gallery-ghost {
+            opacity: .32;
+            border-style: dashed !important;
+            background: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 14%, #fff) !important;
+        }
+
+    #sortable-gallery .majordome-photo-header {
+        min-height: 2.7rem;
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: center;
+        gap: .45rem;
+        padding: .5rem .65rem .5rem .45rem;
+        color: #334155;
+        border-bottom: 1px solid rgba(15, 23, 42, .1);
+        background: linear-gradient(135deg, #fff, #f1f5f9);
+        cursor: grab;
+        touch-action: none;
+        user-select: none;
+    }
+
+    #sortable-gallery .majordome-photo-header:active {
+        cursor: grabbing;
+    }
+
+    .majordome-photo-drag-icon {
+        color: #94a3b8;
+        font-size: 1.15rem;
+        line-height: 1;
+        transition: color .15s ease, transform .15s ease;
+    }
+
+    .majordome-photo-header:hover .majordome-photo-drag-icon {
+        color: var(--gtx-accent-solid, #1e73be);
+        transform: scale(1.08);
+    }
+
+    .majordome-photo-card.gradient .majordome-photo-header {
+        color: #0f172a;
+        border-bottom-color: rgba(15, 23, 42, .16);
+        background: linear-gradient(135deg, #fff, #dfe7f1);
+    }
+
+    .majordome-photo-card.gradient .majordome-photo-drag-icon {
+        color: var(--gtx-accent-solid, #1e73be);
+    }
+
+    .majordome-photo-card.gradient .majordome-photo-title {
+        color: #0f172a;
+        text-shadow: none;
+    }
+
+    .majordome-photo-header-status {
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: .4rem;
+    }
+
+    .majordome-photo-primary-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: .25rem;
+        padding: .22rem .42rem;
+        color: #fff;
+        border: 1px solid rgba(15, 23, 42, .18);
+        border-radius: 999px;
+        background: #0f172a;
+        font-size: .58rem;
+        font-weight: 800;
+        letter-spacing: .06em;
+        line-height: 1;
+        text-transform: uppercase;
+        backdrop-filter: blur(6px);
+    }
 
     .majordome-photo-link {
         display: block;
@@ -505,9 +603,8 @@ html.theme-silver .majordome-remove-bg-switch-wrap.is-remove .majordome-remove-b
     }
 
     .majordome-photo-cdn-indicator {
-        position: absolute;
-        top: .55rem;
-        right: .55rem;
+        display: inline-block;
+        flex: 0 0 auto;
         width: .7rem;
         height: .7rem;
         border: 2px solid rgba(255, 255, 255, .95);
@@ -515,7 +612,6 @@ html.theme-silver .majordome-remove-bg-switch-wrap.is-remove .majordome-remove-b
         background: #22c55e;
         box-shadow: 0 0 0 1px rgba(15, 23, 42, .2), 0 .15rem .35rem rgba(15, 23, 42, .3);
         cursor: help;
-        z-index: 1;
     }
 
     .majordome-photo-image {
@@ -525,6 +621,7 @@ html.theme-silver .majordome-remove-bg-switch-wrap.is-remove .majordome-remove-b
         object-fit: contain;
         object-position: center;
         background: #fff;
+        transition: transform .35s ease, filter .35s ease;
     }
 
     .majordome-photo-card.is-landscape .majordome-photo-media {
@@ -534,6 +631,11 @@ html.theme-silver .majordome-remove-bg-switch-wrap.is-remove .majordome-remove-b
     .majordome-photo-card.is-landscape .majordome-photo-image {
         object-fit: cover;
         background: transparent;
+    }
+
+    .majordome-photo-card.is-landscape:hover .majordome-photo-image {
+        transform: scale(1.018);
+        filter: saturate(1.03) contrast(1.015);
     }
 
     .majordome-photo-card.is-portrait .majordome-photo-image {
@@ -546,9 +648,8 @@ html.theme-silver .majordome-remove-bg-switch-wrap.is-remove .majordome-remove-b
         flex-direction: column;
         align-items: flex-start;
         justify-content: flex-start;
-        gap: .45rem;
-        padding: .5rem .55rem;
-        background: #f8fafc;
+        padding: .55rem .6rem .62rem;
+        background: linear-gradient(180deg, rgba(248, 250, 252, .98), rgba(241, 245, 249, .98));
         border-top: 1px solid rgba(15, 23, 42, .1);
     }
 
@@ -567,8 +668,8 @@ html.theme-silver .majordome-remove-bg-switch-wrap.is-remove .majordome-remove-b
         width: 100%;
         display: flex;
         align-items: center;
-        justify-content: flex-start;
-        gap: .4rem;
+        justify-content: center;
+        gap: .35rem;
     }
 
         .majordome-photo-actions .btn {
@@ -579,12 +680,60 @@ html.theme-silver .majordome-remove-bg-switch-wrap.is-remove .majordome-remove-b
             align-items: center;
             justify-content: center;
             border-radius: .5rem;
+            color: #475569;
+            border-color: rgba(148, 163, 184, .35);
+            background: rgba(255, 255, 255, .84);
+            transition: transform .14s ease, color .14s ease, border-color .14s ease, background-color .14s ease;
+        }
+
+        .majordome-photo-actions .btn:hover {
+            color: var(--gtx-accent-solid, #1e73be);
+            border-color: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 38%, transparent);
+            background: #fff;
+            transform: translateY(-1px);
+        }
+
+        .majordome-photo-actions .delete-image:hover {
+            color: #dc2626;
+            border-color: rgba(220, 38, 38, .3);
+            background: #fff5f5;
         }
 
 /* Majordome extracted from _Majordome-Inventory.cshtml */
 .majordome-workspace {
-    --majordome-inventory-workspace-height: clamp(22rem, calc(100vh - 24rem), 52rem);
-    --majordome-inventory-workspace-height: clamp(22rem, calc(100dvh - 24rem), 52rem);
+    --majordome-inventory-workspace-height: clamp(22rem, calc(100vh - 22rem), 52rem);
+    --majordome-inventory-workspace-height: clamp(22rem, calc(100dvh - 22rem), 52rem);
+}
+
+.this-container.majordome-workspace {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+}
+
+body.majordome-inventory-page .body-content {
+    overflow-y: hidden !important;
+}
+
+.majordome-workspace #tab-gallery > .d-flex {
+    height: var(--majordome-inventory-workspace-height);
+    min-height: 0;
+    overflow: hidden;
+}
+
+.majordome-workspace #tab-gallery #dropzone,
+.majordome-workspace #tab-gallery #gallery-content {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.majordome-workspace #tab-gallery #dropzone {
+    display: flex;
+    flex-direction: column;
+}
+
+.majordome-workspace #tab-gallery #sortable-gallery {
+    height: 100%;
 }
 
 .majordome-workspace > #myTab {

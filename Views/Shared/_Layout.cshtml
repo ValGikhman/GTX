@@ -6,6 +6,8 @@
     var actionName = (ViewContext.RouteData.Values["action"] ?? string.Empty).ToString();
     var isHomeIndexPage = controllerName.Equals("Home", StringComparison.OrdinalIgnoreCase)
         && actionName.Equals("Index", StringComparison.OrdinalIgnoreCase);
+    var isMajordomeInventoryPage = controllerName.Equals("Majordome", StringComparison.OrdinalIgnoreCase)
+        && actionName.Equals("Inventory", StringComparison.OrdinalIgnoreCase);
     var current = Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName;
     var publishedValue = ViewData["Published"];
     var publishedAt = DateTime.Now;
@@ -201,7 +203,7 @@
 </head>
 
 @Html.Action("LoginModal", "Home")
-<body class="main-container overflow-hidden d-flex flex-column min-vh-100 @(isHomeIndexPage ? "home-index" : string.Empty)">
+<body class="main-container overflow-hidden d-flex flex-column min-vh-100 @(isHomeIndexPage ? "home-index" : string.Empty) @(isMajordomeInventoryPage ? "majordome-inventory-page" : string.Empty)">
     <!-- Offcanvas open hours -->
     <div class="offcanvas-top-fixed-center" tabindex="-1" id="openHours" aria-label="Open hours">
         <div class="offcanvas-body">
