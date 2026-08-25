@@ -1,8 +1,14 @@
 <div class="tab-pane fade" id="tab-gallery" role="tabpanel">
     <div class="d-flex flex-column align-items-center">
-        <div class="d-flex justify-content-center w-100 p-3">
-            <button id="upload" class="btn btn-light shadow mx-2 bi bi-upload">&nbsp;Upload stock images</button>
-            <button id="deleteAll" class="btn btn-light shadow bi bi-trash">&nbsp;Delete stock all images</button>
+        <div class="d-flex flex-wrap justify-content-center gap-2 w-100 p-3">
+            @if (string.Equals(Convert.ToString(ViewBag.CurrentRole), CommonUnit.Roles.Owner.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                <button type="button" id="purgeStockImageCache" class="btn btn-outline-warning shadow d-inline-flex align-items-center gap-2" title="Refresh every CDN image URL for the selected stock">
+                    <i class="bi bi-cloud-arrow-down" aria-hidden="true"></i><span>Refresh stock CDN</span>
+                </button>
+            }
+            <button type="button" id="upload" class="btn btn-light shadow d-inline-flex align-items-center gap-2"><i class="bi bi-upload" aria-hidden="true"></i><span>Upload stock images</span></button>
+            <button type="button" id="deleteAll" class="btn btn-light shadow d-inline-flex align-items-center gap-2"><i class="bi bi-trash" aria-hidden="true"></i><span>Delete all stock images</span></button>
             <input type="file" id="fileInput" class="d-none" multiple accept="image/*">
         </div>
         <div id="dropzone" class="dropzone w-100">

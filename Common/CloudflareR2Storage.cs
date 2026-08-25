@@ -1,0 +1,199 @@
+using Amazon.Runtime;
+using Amazon.S3;
+using Amazon.S3.Model;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
+using System.Web.Hosting;
+
+namespace GTX.Helpers
+{
+    internal static class CloudflareR2Storage
+    {
+        private const string DefaultBucketName = "gtx";
+        private static readonly Lazy<IAmazonS3> Client = new Lazy<IAmazonS3>(CreateClient);
+
+        private static string BucketName => GetSetting("Cloudflare:R2:BucketName", DefaultBucketName);
+
+        public static async Task<bool> ExistsAsync(string stock, string file)
+        {
+            try
+            {
+                await Client.Value.GetObjectMetadataAsync(new GetObjectMetadataRequest
+                {
+                    BucketName = BucketName,
+                    Key = BuildKey(stock, file)
+                });
+                return true;
+            }
+            catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            {
+                return false;
+            }
+        }
+
+        public static async Task<byte[]> ReadAsync(string stock, string file)
+        {
+            using (var response = await Client.Value.GetObjectAsync(new GetObjectRequest
+            {
+                BucketName = BucketName,
+                Key = BuildKey(stock, file)
+            }))
+            using (var output = new MemoryStream())
+            {
+                await response.ResponseStream.CopyToAsync(output);
+                return output.ToArray();
+            }
+        }
+
+        public static async Task WriteAsync(string stock, string file, byte[] content, string contentType)
+        {
+            if (content == null || content.Length == 0)
+            {
+                throw new ArgumentException("Image content is required.", nameof(content));
+            }
+
+            using (var input = new MemoryStream(content, false))
+            {
+                var request = new PutObjectRequest
+                {
+                    BucketName = BucketName,
+                    Key = BuildKey(stock, file),
+                    InputStream = input,
+                    ContentType = string.IsNullOrWhiteSpace(contentType) ? "application/octet-stream" : contentType,
+                    AutoCloseStream = false,
+                    DisablePayloadSigning = true,
+                    UseChunkEncoding = false
+                };
+                request.Headers.CacheControl = "public, max-age=0, must-revalidate";
+                await Client.Value.PutObjectAsync(request);
+            }
+        }
+
+        public static Task DeleteAsync(string stock, string file)
+        {
+            return Client.Value.DeleteObjectAsync(new DeleteObjectRequest
+            {
+                BucketName = BucketName,
+                Key = BuildKey(stock, file)
+            });
+        }
+
+        public static async Task DeleteManyAsync(string stock, IEnumerable<string> files)
+        {
+            var keys = (files ?? Enumerable.Empty<string>())
+                .Where(file => !string.IsNullOrWhiteSpace(file))
+                .Select(file => new KeyVersion { Key = BuildKey(stock, file) })
+                .GroupBy(item => item.Key, StringComparer.OrdinalIgnoreCase)
+                .Select(group => group.First())
+                .ToList();
+
+            foreach (var batch in Batch(keys, 1000))
+            {
+                await Client.Value.DeleteObjectsAsync(new DeleteObjectsRequest
+                {
+                    BucketName = BucketName,
+                    Objects = batch,
+                    Quiet = true
+                });
+            }
+        }
+
+        private static IAmazonS3 CreateClient()
+        {
+            var accessKey = ConfigurationManager.AppSettings["Cloudflare:R2:AccessKeyId"];
+            var secretKey = ConfigurationManager.AppSettings["Cloudflare:R2:SecretAccessKey"];
+            var endpoint = ConfigurationManager.AppSettings["Cloudflare:R2:Endpoint"];
+
+            if (string.IsNullOrWhiteSpace(accessKey) ||
+                string.IsNullOrWhiteSpace(secretKey) ||
+                string.IsNullOrWhiteSpace(endpoint))
+            {
+                LoadMigrationCredentials(ref accessKey, ref secretKey, ref endpoint);
+            }
+
+            if (string.IsNullOrWhiteSpace(accessKey) ||
+                string.IsNullOrWhiteSpace(secretKey) ||
+                string.IsNullOrWhiteSpace(endpoint))
+            {
+                throw new ConfigurationErrorsException(
+                    "Cloudflare R2 credentials are missing. Configure Cloudflare:R2:AccessKeyId, " +
+                    "Cloudflare:R2:SecretAccessKey, and Cloudflare:R2:Endpoint.");
+            }
+
+            return new AmazonS3Client(
+                new BasicAWSCredentials(accessKey.Trim(), secretKey.Trim()),
+                new AmazonS3Config
+                {
+                    ServiceURL = endpoint.Trim().TrimEnd('/'),
+                    AuthenticationRegion = "auto",
+                    ForcePathStyle = true
+                });
+        }
+
+        private static void LoadMigrationCredentials(ref string accessKey, ref string secretKey, ref string endpoint)
+        {
+            var appRoot = HostingEnvironment.MapPath("~") ?? AppDomain.CurrentDomain.BaseDirectory;
+            var candidates = new[]
+            {
+                Path.Combine(appRoot, "App_Data", "R2Credentials.txt"),
+                Path.Combine(appRoot, "Your API Token.txt"),
+                Path.Combine(Environment.CurrentDirectory, "Your API Token.txt")
+            };
+            var credentialFile = candidates.FirstOrDefault(File.Exists);
+            if (string.IsNullOrWhiteSpace(credentialFile))
+            {
+                return;
+            }
+
+            var lines = File.ReadAllLines(credentialFile);
+            accessKey = string.IsNullOrWhiteSpace(accessKey) ? GetValueAfterLabel(lines, "Access Key ID") : accessKey;
+            secretKey = string.IsNullOrWhiteSpace(secretKey) ? GetValueAfterLabel(lines, "Secret Access Key") : secretKey;
+            endpoint = string.IsNullOrWhiteSpace(endpoint) ? GetValueAfterLabel(lines, "S3 API endpoint") : endpoint;
+        }
+
+        private static string GetValueAfterLabel(string[] lines, string label)
+        {
+            for (var index = 0; index < lines.Length - 1; index++)
+            {
+                if (string.Equals((lines[index] ?? string.Empty).Trim(), label, StringComparison.OrdinalIgnoreCase))
+                {
+                    return (lines[index + 1] ?? string.Empty).Trim();
+                }
+            }
+
+            return null;
+        }
+
+        private static string BuildKey(string stock, string file)
+        {
+            var normalizedStock = (stock ?? string.Empty).Trim().Trim('/', '\\');
+            var normalizedFile = Path.GetFileName((file ?? string.Empty).Replace('\\', '/'));
+            if (string.IsNullOrWhiteSpace(normalizedStock) || string.IsNullOrWhiteSpace(normalizedFile) ||
+                normalizedStock.Contains("/") || normalizedStock.Contains("\\") || normalizedStock.Contains(".."))
+            {
+                throw new ArgumentException("A valid stock and image filename are required.");
+            }
+
+            return normalizedStock + "/" + normalizedFile;
+        }
+
+        private static string GetSetting(string key, string fallback)
+        {
+            var configured = ConfigurationManager.AppSettings[key];
+            return string.IsNullOrWhiteSpace(configured) ? fallback : configured.Trim();
+        }
+
+        private static IEnumerable<List<KeyVersion>> Batch(List<KeyVersion> values, int batchSize)
+        {
+            for (var index = 0; index < values.Count; index += batchSize)
+            {
+                yield return values.GetRange(index, Math.Min(batchSize, values.Count - index));
+            }
+        }
+    }
+}

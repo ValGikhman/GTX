@@ -1,6 +1,6 @@
 @model GTX.Models.GTX
 @{
-    const string photosInventoryImagesBaseUrl = "https://photos.usedcarscincinnati.com/Images";
+    var photosInventoryImagesBaseUrl = InventoryImageSettings.BaseUrl;
 
     string ExtractPathFromInventoryImageUrl(string source)
     {
@@ -104,6 +104,14 @@
         if (string.IsNullOrWhiteSpace(normalizedPath))
         {
             return value;
+        }
+
+        var stock = (Model.Stock ?? string.Empty).Trim();
+        if (!string.IsNullOrWhiteSpace(stock) &&
+            normalizedPath.IndexOf("no-image", StringComparison.OrdinalIgnoreCase) < 0 &&
+            !normalizedPath.StartsWith(stock + "/", StringComparison.OrdinalIgnoreCase))
+        {
+            normalizedPath = stock + "/" + normalizedPath;
         }
 
         return BuildPhotosImageUrl(normalizedPath);

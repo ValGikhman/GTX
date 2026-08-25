@@ -24,7 +24,7 @@
             const stock = cellText(row.Stock);
             const imageSource = cellText(row.Image).trim();
             const image = imageSource && typeof window.toInventoryImageUrl === "function"
-                ? cellEscapeHtml(window.toInventoryImageUrl(imageSource))
+                ? cellEscapeHtml(window.toInventoryImageUrl(imageSource, stock))
                 : cellEscapeHtml(imageSource);
             const thumbnail = image && typeof window.appendImageWidth === "function"
                 ? cellEscapeHtml(window.appendImageWidth(image, 320))

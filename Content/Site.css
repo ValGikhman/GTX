@@ -927,9 +927,10 @@ html body #MajordomeLink > a.gradient {
 
 .overlay-image-overlay {
     position: absolute;
-    bottom: 15px;
+    left: 0;
+    bottom: 0;
     height: 12.5%; /* 1/8th of height */
-    width: 96%;
+    width: 100%;
     background: black;
     display: flex;
     align-items: center;
@@ -941,12 +942,17 @@ html body #MajordomeLink > a.gradient {
 }
 
 .overlay-image-container {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
 }
 
     .overlay-image-container img {
         width: 100%;
+        max-height: 68vh;
         height: auto;
         display: block;
+        object-fit: contain;
     }
 
 .overlay-text {

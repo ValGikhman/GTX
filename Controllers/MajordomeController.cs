@@ -29,15 +29,12 @@ namespace GTX.Controllers
 
         private const int UploadImageMaxWidth = 800;
         private const int UploadImageMaxHeight = 600;
+        private const int UploadImageMaxFileBytes = 25 * 1024 * 1024;
         private const int UploadJpegQuality = 84;
         private const int UploadPngCompressionLevel = 9;
         private const string UploadJpegExtension = ".jpg";
         private const string UploadPngExtension = ".png";
         private const string RemoveBgEndpoint = "https://api.remove.bg/v1.0/removebg";
-        private const string InventoryPhotosBaseUrl = "https://photos.usedcarscincinnati.com/Images/";
-        private const string RemoveBgShowroomBackgroundVirtualPath = "~/SiteImages/card-bg.jpg";
-        private const string RemoveBgShowroomScale = "76%";
-        private const string RemoveBgShowroomPosition = "center";
         private const int QrTextMaxLength = 2048;
 
         private static readonly HashSet<string> UploadImageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {
@@ -58,6 +55,11 @@ namespace GTX.Controllers
             public string Stock { get; set; }
             public string Source { get; set; }
             public int? Order { get; set; }
+        }
+
+        private sealed class GeneratedImageFile {
+            public string FileName { get; set; }
+            public byte[] Content { get; set; }
         }
 
         public sealed class SaveStoryRequest {
@@ -798,6 +800,8 @@ namespace GTX.Controllers
 
         [HttpPost]
         public async Task<ActionResult> UploadInventoryFiles(IEnumerable<HttpPostedFileBase> files, string stock) {
+            Response.TrySkipIisCustomErrors = true;
+
             try {
                 var normalizedStock = (stock ?? string.Empty).Trim();
                 if (string.IsNullOrWhiteSpace(normalizedStock)) {
@@ -805,12 +809,20 @@ namespace GTX.Controllers
                     return Json(new { success = false, message = "Stock is required." });
                 }
 
-                var uploadPath = CombineUnderInventoryImagesRoot(normalizedStock);
-                Directory.CreateDirectory(uploadPath);
+                var useCloudflare = InventoryImageSettings.CloudflareEnabled;
+                var uploadPath = useCloudflare ? null : CombineUnderInventoryImagesRoot(normalizedStock);
+                if (!useCloudflare) {
+                    Directory.CreateDirectory(uploadPath);
+                }
 
                 var fileList = (files ?? Enumerable.Empty<HttpPostedFileBase>())
                     .Where(f => f != null && f.ContentLength > 0)
                     .ToList();
+
+                if (fileList.Count == 0) {
+                    Response.StatusCode = 400;
+                    return Json(new { success = false, message = "Select at least one non-empty image file." });
+                }
 
                 var uploadedCount = 0;
                 var skippedCount = 0;
@@ -821,6 +833,11 @@ namespace GTX.Controllers
                         var originalExtension = Path.GetExtension(file.FileName);
                         if (string.IsNullOrWhiteSpace(originalExtension) || !UploadImageExtensions.Contains(originalExtension)) {
                             skippedCount++;
+                            continue;
+                        }
+
+                        if (file.ContentLength > UploadImageMaxFileBytes) {
+                            failedFiles.Add($"{file.FileName}: Image exceeds the 25 MB upload limit.");
                             continue;
                         }
 
@@ -839,17 +856,32 @@ namespace GTX.Controllers
                             var preservesTransparency = image.HasAlpha && !image.IsOpaque;
                             var targetExtension = preservesTransparency ? UploadPngExtension : UploadJpegExtension;
                             var fileName = BuildInventoryUploadFileName(file.FileName, targetExtension);
-                            var fullPath = Path.Combine(uploadPath, fileName);
+                            var fullPath = useCloudflare ? null : Path.Combine(uploadPath, fileName);
 
                             // Do not override existing files.
-                            if (System.IO.File.Exists(fullPath)) {
+                            var fileExists = useCloudflare
+                                ? await CloudflareR2Storage.ExistsAsync(normalizedStock, fileName)
+                                : System.IO.File.Exists(fullPath);
+                            if (fileExists) {
                                 skippedCount++;
                                 continue;
                             }
 
                             ConfigureInventoryUploadOutput(image, preservesTransparency);
 
-                            await image.WriteAsync(fullPath);
+                            if (useCloudflare) {
+                                using (var output = new MemoryStream()) {
+                                    await image.WriteAsync(output);
+                                    await CloudflareR2Storage.WriteAsync(
+                                        normalizedStock,
+                                        fileName,
+                                        output.ToArray(),
+                                        MimeMapping.GetMimeMapping(fileName));
+                                }
+                            }
+                            else {
+                                await image.WriteAsync(fullPath);
+                            }
                             InventoryService.SaveImage(normalizedStock, fileName);
                         }
 
@@ -1023,9 +1055,9 @@ namespace GTX.Controllers
             }
 
             var normalizedImages = images ?? Array.Empty<Services.Image>();
-            var defaultImage = $"{imageFolder}no-image-1.jpg";
+            var defaultImage = DefaultInventoryImage;
             var leadImage = normalizedImages.Length > 0
-                ? $"{imageFolder}{normalizedImages[0].Source}"
+                ? $"{imageFolder}{BuildStockImageSource(stockKey, normalizedImages[0].Source)}"
                 : defaultImage;
 
             lock (_imageCacheLock) {
@@ -1078,7 +1110,7 @@ namespace GTX.Controllers
         }
 
         private string GetCachedLeadImageForStock(string stock) {
-            return FindCachedVehicleForStock(stock)?.Image ?? $"{imageFolder}no-image-1.jpg";
+            return FindCachedVehicleForStock(stock)?.Image ?? DefaultInventoryImage;
         }
 
         private static UploadImageResponseDto[] ToUploadImageResponseDtos(IEnumerable<Services.Image> images) {
@@ -1108,19 +1140,38 @@ namespace GTX.Controllers
         }
 
         [HttpPost]
-        public JsonResult SaveOverlayFile(string stock, string overlay, string imagePath) {
+        public async Task<ActionResult> SaveOverlayFile(string stock, string overlay, string imagePath) {
             try {
                 var normalizedStock = (stock ?? string.Empty).Trim();
                 if (string.IsNullOrWhiteSpace(normalizedStock) || string.IsNullOrWhiteSpace(overlay) || string.IsNullOrWhiteSpace(imagePath)) {
                     return Json(new { success = false, message = "Missing required file parameters." });
                 }
 
-                var savedPath = CreateImageWithOverlay(imagePath, overlay);
-                if (string.IsNullOrWhiteSpace(savedPath)) {
-                    return Json(new { success = false, message = "Image file not found." });
+                string savedFileName;
+                if (InventoryImageSettings.CloudflareEnabled) {
+                    var originalFileName = Path.GetFileName(GetInventoryImageRelativePath(imagePath));
+                    if (!await CloudflareR2Storage.ExistsAsync(normalizedStock, originalFileName)) {
+                        return Json(new { success = false, message = "Image file not found." });
+                    }
+
+                    var originalContent = await CloudflareR2Storage.ReadAsync(normalizedStock, originalFileName);
+                    var generated = CreateImageWithOverlayContent(originalContent, originalFileName, overlay);
+                    await CloudflareR2Storage.WriteAsync(
+                        normalizedStock,
+                        generated.FileName,
+                        generated.Content,
+                        MimeMapping.GetMimeMapping(generated.FileName));
+                    savedFileName = generated.FileName;
+                }
+                else {
+                    var savedPath = CreateImageWithOverlay(imagePath, overlay);
+                    if (string.IsNullOrWhiteSpace(savedPath)) {
+                        return Json(new { success = false, message = "Image file not found." });
+                    }
+
+                    savedFileName = Path.GetFileName(savedPath);
                 }
 
-                var savedFileName = Path.GetFileName(savedPath);
                 InventoryService.SaveImage(normalizedStock, savedFileName);
 
                 var images = InventoryService.GetImages(normalizedStock) ?? Array.Empty<Services.Image>();
@@ -1149,19 +1200,33 @@ namespace GTX.Controllers
         }
 
         [HttpPost]
-        public JsonResult DeleteImage(Guid id, string file, string stock) {
+        public async Task<ActionResult> DeleteImage(Guid id, string file, string stock) {
             var image = id != Guid.Empty ? InventoryService.GetImage(id) : null;
             var normalizedStock = (stock ?? image?.Stock ?? string.Empty).Trim();
-            var path = ResolveInventoryImagePhysicalPath(file);
+            var source = image?.Source ?? file;
 
-            if ((string.IsNullOrWhiteSpace(path) || !System.IO.File.Exists(path)) &&
-                !string.IsNullOrWhiteSpace(normalizedStock) &&
-                !string.IsNullOrWhiteSpace(file)) {
-                path = CombineUnderInventoryImagesRoot(normalizedStock, Path.GetFileName(file));
+            if (InventoryImageSettings.CloudflareEnabled) {
+                try {
+                    await CloudflareR2Storage.DeleteAsync(normalizedStock, source);
+                    await CloudflareCachePurger.PurgeInventoryImageAsync(normalizedStock, source);
+                }
+                catch (Exception ex) {
+                    Log(ex);
+                    return Json(new { success = false, message = "Unable to delete the Cloudflare image: " + ex.Message });
+                }
             }
+            else {
+                var path = ResolveInventoryImagePhysicalPath(file);
 
-            if (System.IO.File.Exists(path)) {
-                System.IO.File.Delete(path);
+                if ((string.IsNullOrWhiteSpace(path) || !System.IO.File.Exists(path)) &&
+                    !string.IsNullOrWhiteSpace(normalizedStock) &&
+                    !string.IsNullOrWhiteSpace(file)) {
+                    path = CombineUnderInventoryImagesRoot(normalizedStock, Path.GetFileName(file));
+                }
+
+                if (System.IO.File.Exists(path)) {
+                    System.IO.File.Delete(path);
+                }
             }
 
             InventoryService.DeleteImage(id);
@@ -1183,8 +1248,32 @@ namespace GTX.Controllers
         }
 
         [HttpPost]
-        public JsonResult RotateImage(string file, string stock, int? degrees) {
+        public async Task<ActionResult> RotateImage(string file, string stock, int? degrees) {
             try {
+                if (InventoryImageSettings.CloudflareEnabled) {
+                    var fileName = Path.GetFileName((file ?? string.Empty).Replace('\\', '/'));
+                    if (!await CloudflareR2Storage.ExistsAsync(stock, fileName)) {
+                        return Json(new { success = false, message = "Image file not found." });
+                    }
+
+                    var imageBytes = await CloudflareR2Storage.ReadAsync(stock, fileName);
+                    using (var image = new MagickImage(imageBytes)) {
+                        RotateInventoryImage(image, degrees);
+                        using (var output = new MemoryStream()) {
+                            await image.WriteAsync(output);
+                            await CloudflareR2Storage.WriteAsync(
+                                stock,
+                                fileName,
+                                output.ToArray(),
+                                MimeMapping.GetMimeMapping(fileName));
+                        }
+                    }
+
+                    await CloudflareCachePurger.PurgeInventoryImageAsync(stock, fileName);
+
+                    return Json(new { success = true, version = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() });
+                }
+
                 var path = ResolveInventoryImagePhysicalPath(file);
 
                 if ((string.IsNullOrWhiteSpace(path) || !System.IO.File.Exists(path)) &&
@@ -1198,21 +1287,11 @@ namespace GTX.Controllers
                 }
 
                 using (var image = new MagickImage(path)) {
-                    var rotationDegrees = (degrees.HasValue && degrees.Value == -90) ? -90 : 90;
-
-                    image.AutoOrient();
-                    image.Orientation = OrientationType.TopLeft;
-                    TrimTransparentBorder(image);
-
-                    image.Rotate(rotationDegrees);
-                    image.Orientation = OrientationType.TopLeft;
-                    TrimTransparentBorder(image);
-                    image.ResetPage();
-
+                    RotateInventoryImage(image, degrees);
                     image.Write(path);
                 }
 
-                return Json(new { success = true });
+                return Json(new { success = true, version = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() });
             }
             catch (Exception ex) {
                 return Json(new { success = false, message = $"Error rotating image: {ex.Message}" });
@@ -1220,16 +1299,98 @@ namespace GTX.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> RemoveImageBackground(string file, string stock) {
-            var removeBgEnabled = string.Equals(
-                ConfigurationManager.AppSettings["RemoveBg:Enabled"],
-                "true",
-                StringComparison.OrdinalIgnoreCase);
-
-            if (!removeBgEnabled) {
-                return Json(new { success = false, message = "Background removal is disabled." });
+        [RequireAdminRole(RequiredRole = CommonUnit.Roles.Owner)]
+        public async Task<ActionResult> PurgeStockImageCache(string stock) {
+            var normalizedStock = (stock ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(normalizedStock)) {
+                return Json(new { success = false, message = "Stock is required." });
             }
 
+            if (!InventoryImageSettings.CloudflareEnabled) {
+                return Json(new { success = false, message = "Cloudflare inventory images are not enabled." });
+            }
+
+            try {
+                var images = InventoryService.GetImages(normalizedStock) ?? Array.Empty<Services.Image>();
+                if (images.Length == 0) {
+                    return Json(new { success = false, message = $"No image records were found for Stock# {normalizedStock}." });
+                }
+
+                var purged = await CloudflareCachePurger.PurgeInventoryImagesAsync(
+                    normalizedStock,
+                    images.Select(image => image.Source));
+                if (!purged) {
+                    return Json(new {
+                        success = false,
+                        message = "Cloudflare did not accept the cache purge. Check the cache-purge credentials and application log."
+                    });
+                }
+
+                return Json(new {
+                    success = true,
+                    stock = normalizedStock,
+                    count = images.Length,
+                    message = $"Refreshed {images.Length} cached image URL(s) for Stock# {normalizedStock}."
+                });
+            }
+            catch (Exception ex) {
+                Log(ex);
+                return Json(new { success = false, message = "Unable to refresh the stock image cache: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [RequireAdminRole(RequiredRole = CommonUnit.Roles.Owner)]
+        public async Task<ActionResult> PurgeInventoryImageCache() {
+            if (!InventoryImageSettings.CloudflareEnabled) {
+                return Json(new { success = false, message = "Cloudflare inventory images are not enabled." });
+            }
+
+            try {
+                var inventory = InventoryService.GetInventory(includeHiddenInventory: true, includeDataOneContent: false);
+                var stocks = (inventory.vehicles ?? Array.Empty<global::Common.GTXDTO>())
+                    .Select(vehicle => vehicle.Stock)
+                    .Where(stock => !string.IsNullOrWhiteSpace(stock))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToArray();
+                var imagesByStock = InventoryService.GetImages(stocks);
+                var imageCount = imagesByStock.Values.Sum(images => images?.Length ?? 0);
+
+                var purged = await CloudflareCachePurger.PurgeInventoryHostAsync();
+                if (!purged) {
+                    return Json(new {
+                        success = false,
+                        message = "Cloudflare did not accept the inventory cache purge. Check the cache-purge credentials and application log."
+                    });
+                }
+
+                return Json(new {
+                    success = true,
+                    stockCount = stocks.Length,
+                    imageCount,
+                    message = $"Refreshed the inventory CDN cache for {stocks.Length} stock(s) and {imageCount} image record(s)."
+                });
+            }
+            catch (Exception ex) {
+                Log(ex);
+                return Json(new { success = false, message = "Unable to refresh the inventory image cache: " + ex.Message });
+            }
+        }
+
+        private static void RotateInventoryImage(MagickImage image, int? degrees) {
+            var rotationDegrees = (degrees.HasValue && degrees.Value == -90) ? -90 : 90;
+
+            image.AutoOrient();
+            image.Orientation = OrientationType.TopLeft;
+            TrimTransparentBorder(image);
+            image.Rotate(rotationDegrees);
+            image.Orientation = OrientationType.TopLeft;
+            TrimTransparentBorder(image);
+            image.ResetPage();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> RemoveImageBackground(string file, string stock) {
             var apiKey = ConfigurationManager.AppSettings["RemoveBg:ApiKey"];
             if (string.IsNullOrWhiteSpace(apiKey)) {
                 return Json(new { success = false, message = "The remove.bg API key is not configured." });
@@ -1244,17 +1405,14 @@ namespace GTX.Controllers
                 path = CombineUnderInventoryImagesRoot(normalizedStock, Path.GetFileName(file));
             }
 
-            var useRemoteImage = string.IsNullOrWhiteSpace(path) || !System.IO.File.Exists(path);
+            var useRemoteImage = InventoryImageSettings.CloudflareEnabled ||
+                                 string.IsNullOrWhiteSpace(path) ||
+                                 !System.IO.File.Exists(path);
             var remoteImageUrl = useRemoteImage
                 ? BuildRemoteInventoryImageUrl(file, normalizedStock)
                 : null;
             if (useRemoteImage && string.IsNullOrWhiteSpace(remoteImageUrl)) {
                 return Json(new { success = false, message = "The production inventory image URL could not be resolved." });
-            }
-
-            var showroomBackgroundPath = HostingEnvironment.MapPath(RemoveBgShowroomBackgroundVirtualPath);
-            if (string.IsNullOrWhiteSpace(showroomBackgroundPath) || !System.IO.File.Exists(showroomBackgroundPath)) {
-                return Json(new { success = false, message = "The showroom background image is not configured." });
             }
 
             var extension = useRemoteImage ? UploadPngExtension : Path.GetExtension(path);
@@ -1281,11 +1439,9 @@ namespace GTX.Controllers
 
                 byte[] resultBytes;
                 using (var client = new HttpClient())
-                using (var formData = new MultipartFormDataContent())
-                using (var backgroundContent = new ByteArrayContent(System.IO.File.ReadAllBytes(showroomBackgroundPath))) {
+                using (var formData = new MultipartFormDataContent()) {
                     client.Timeout = TimeSpan.FromMinutes(2);
                     client.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
-                    backgroundContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(MimeMapping.GetMimeMapping(showroomBackgroundPath));
 
                     if (useRemoteImage) {
                         formData.Add(new StringContent(remoteImageUrl), "image_url");
@@ -1296,13 +1452,11 @@ namespace GTX.Controllers
                         formData.Add(imageContent, "image_file", Path.GetFileName(path));
                     }
 
-                    formData.Add(backgroundContent, "bg_image_file", Path.GetFileName(showroomBackgroundPath));
                     formData.Add(new StringContent("auto"), "size");
                     formData.Add(new StringContent("car"), "type");
                     formData.Add(new StringContent("car"), "shadow_type");
                     formData.Add(new StringContent("80"), "shadow_opacity");
-                    formData.Add(new StringContent(RemoveBgShowroomScale), "scale");
-                    formData.Add(new StringContent(RemoveBgShowroomPosition), "position");
+                    formData.Add(new StringContent("d9dde2"), "bg_color");
                     formData.Add(new StringContent("png"), "format");
 
                     using (var response = await client.PostAsync(RemoveBgEndpoint, formData)) {
@@ -1360,7 +1514,7 @@ namespace GTX.Controllers
                         stock = normalizedStock,
                         previewToken
                     }),
-                    canSave = !useRemoteImage,
+                    canSave = InventoryImageSettings.CloudflareEnabled || !useRemoteImage,
                     message = "Background removal preview is ready."
                 });
             }
@@ -1397,37 +1551,51 @@ namespace GTX.Controllers
         }
 
         [HttpPost]
-        public JsonResult ConfirmRemoveImageBackground(string file, string stock, string previewToken) {
-            string originalPath;
+        public async Task<ActionResult> ConfirmRemoveImageBackground(string file, string stock, string previewToken) {
+            var normalizedStock = (stock ?? string.Empty).Trim();
+            var normalizedFile = (file ?? string.Empty).Replace("\\", "/").TrimStart('/');
+            var useCloudflare = InventoryImageSettings.CloudflareEnabled;
+            string originalPath = null;
             string previewPath;
-            if (!TryResolveRemoveBackgroundPreview(file, stock, previewToken, out originalPath, out previewPath) ||
-                !System.IO.File.Exists(originalPath) ||
-                !System.IO.File.Exists(previewPath)) {
+
+            if (useCloudflare) {
+                previewPath = GetRemoteRemoveBackgroundPreviewPath(previewToken);
+                if (string.IsNullOrWhiteSpace(previewPath) || !System.IO.File.Exists(previewPath)) {
+                    return Json(new { success = false, message = "The background-removal preview has expired or was not found." });
+                }
+            }
+            else if (!TryResolveRemoveBackgroundPreview(file, stock, previewToken, out originalPath, out previewPath) ||
+                     !System.IO.File.Exists(originalPath) ||
+                     !System.IO.File.Exists(previewPath)) {
                 return Json(new { success = false, message = "The background-removal preview has expired or was not found." });
             }
 
-            var normalizedStock = (stock ?? string.Empty).Trim();
-            var normalizedFile = (file ?? string.Empty).Replace("\\", "/").TrimStart('/');
             var image = (InventoryService.GetImages(normalizedStock) ?? Array.Empty<Services.Image>())
                 .FirstOrDefault(m => string.Equals(
-                    (m.Source ?? string.Empty).Replace("\\", "/").TrimStart('/'),
-                    normalizedFile,
-                    StringComparison.OrdinalIgnoreCase));
+                        (m.Source ?? string.Empty).Replace("\\", "/").TrimStart('/'),
+                        normalizedFile,
+                        StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(
+                        Path.GetFileName((m.Source ?? string.Empty).Replace("\\", "/")),
+                        Path.GetFileName(normalizedFile),
+                        StringComparison.OrdinalIgnoreCase));
 
             if (image == null) {
                 return Json(new { success = false, message = "The image database record was not found." });
             }
 
-            var resultFileName = Path.GetFileNameWithoutExtension(originalPath) + "-RB" + Path.GetExtension(originalPath);
-            var resultPath = Path.Combine(Path.GetDirectoryName(originalPath), resultFileName);
-            var sourceDirectory = normalizedFile.Contains("/")
-                ? normalizedFile.Substring(0, normalizedFile.LastIndexOf('/') + 1)
-                : normalizedStock + "/";
-            var resultSource = sourceDirectory + resultFileName;
+            var originalFileName = Path.GetFileName(normalizedFile);
+            var resultExtension = useCloudflare ? UploadPngExtension : Path.GetExtension(originalPath);
+            var resultFileName = Path.GetFileNameWithoutExtension(originalFileName) + "-RB" + resultExtension;
+            var resultPath = useCloudflare ? null : Path.Combine(Path.GetDirectoryName(originalPath), resultFileName);
+            var resultSource = resultFileName;
             var resultCreated = false;
             var databaseUpdated = false;
 
-            if (System.IO.File.Exists(resultPath)) {
+            var resultExists = useCloudflare
+                ? await CloudflareR2Storage.ExistsAsync(normalizedStock, resultFileName)
+                : System.IO.File.Exists(resultPath);
+            if (resultExists) {
                 return Json(new {
                     success = false,
                     message = $"The background-removed file already exists: {resultFileName}"
@@ -1435,17 +1603,38 @@ namespace GTX.Controllers
             }
 
             try {
-                System.IO.File.Move(previewPath, resultPath);
-                resultCreated = true;
+                if (useCloudflare) {
+                    var resultBytes = System.IO.File.ReadAllBytes(previewPath);
+                    using (var savedImage = new MagickImage(resultBytes)) {
+                        if (savedImage.Width <= 0 || savedImage.Height <= 0) {
+                            throw new InvalidDataException("The saved image could not be validated.");
+                        }
+                    }
 
-                using (var savedImage = new MagickImage(resultPath)) {
-                    if (savedImage.Width <= 0 || savedImage.Height <= 0) {
-                        throw new InvalidDataException("The saved image could not be validated.");
+                    await CloudflareR2Storage.WriteAsync(
+                        normalizedStock,
+                        resultFileName,
+                        resultBytes,
+                        MimeMapping.GetMimeMapping(resultFileName));
+                    resultCreated = true;
+                }
+                else {
+                    System.IO.File.Move(previewPath, resultPath);
+                    resultCreated = true;
+
+                    using (var savedImage = new MagickImage(resultPath)) {
+                        if (savedImage.Width <= 0 || savedImage.Height <= 0) {
+                            throw new InvalidDataException("The saved image could not be validated.");
+                        }
                     }
                 }
 
                 InventoryService.SaveBackgroundRemovedImage(image.Id, resultSource);
                 databaseUpdated = true;
+
+                if (useCloudflare && System.IO.File.Exists(previewPath)) {
+                    System.IO.File.Delete(previewPath);
+                }
 
                 var images = InventoryService.GetImages(normalizedStock) ?? Array.Empty<Services.Image>();
                 SyncCachedImagesForStock(normalizedStock, images);
@@ -1460,7 +1649,15 @@ namespace GTX.Controllers
                 });
             }
             catch (Exception ex) {
-                if (resultCreated && !databaseUpdated && System.IO.File.Exists(resultPath)) {
+                if (resultCreated && !databaseUpdated && useCloudflare) {
+                    try {
+                        await CloudflareR2Storage.DeleteAsync(normalizedStock, resultFileName);
+                    }
+                    catch (Exception restoreEx) {
+                        Log(restoreEx);
+                    }
+                }
+                else if (resultCreated && !databaseUpdated && System.IO.File.Exists(resultPath)) {
                     try {
                         System.IO.File.Move(resultPath, previewPath);
                     }
@@ -1509,10 +1706,12 @@ namespace GTX.Controllers
                 return null;
             }
 
-            return InventoryPhotosBaseUrl
+            return InventoryImageSettings.BaseUrl + "/"
                 + Uri.EscapeDataString(stock.Trim())
                 + "/"
-                + Uri.EscapeDataString(fileName);
+                + Uri.EscapeDataString(fileName)
+                + "?v="
+                + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         }
 
         private static string GetRemoteRemoveBackgroundPreviewPath(string previewToken) {
@@ -1582,20 +1781,27 @@ namespace GTX.Controllers
         }
 
         [HttpPost]
-        public ActionResult DeleteImages(string stock) {
+        public async Task<ActionResult> DeleteImages(string stock) {
             var normalizedStock = (stock ?? string.Empty).Trim();
             if (string.IsNullOrWhiteSpace(normalizedStock)) {
                 return Json(new { success = false, message = "Stock is required." });
             }
 
             try {
-                var path = CombineUnderInventoryImagesRoot(normalizedStock);
-                var imageFiles = Directory.Exists(path)
-                    ? Directory.GetFiles(path).Where(file => UploadImageExtensions.Contains(Path.GetExtension(file))).ToArray()
-                    : Array.Empty<string>();
+                var currentImages = InventoryService.GetImages(normalizedStock) ?? Array.Empty<Services.Image>();
+                if (InventoryImageSettings.CloudflareEnabled) {
+                    await CloudflareR2Storage.DeleteManyAsync(normalizedStock, currentImages.Select(image => image.Source));
+                    await CloudflareCachePurger.PurgeInventoryImagesAsync(normalizedStock, currentImages.Select(image => image.Source));
+                }
+                else {
+                    var path = CombineUnderInventoryImagesRoot(normalizedStock);
+                    var imageFiles = Directory.Exists(path)
+                        ? Directory.GetFiles(path).Where(file => UploadImageExtensions.Contains(Path.GetExtension(file))).ToArray()
+                        : Array.Empty<string>();
 
-                foreach (string file in imageFiles) {
-                    System.IO.File.Delete(file);
+                    foreach (string file in imageFiles) {
+                        System.IO.File.Delete(file);
+                    }
                 }
 
                 var images = Array.Empty<Services.Image>();
@@ -1625,6 +1831,67 @@ namespace GTX.Controllers
             using (var g = Graphics.FromImage(bmp))
                 g.DrawImageUnscaled(src, 0, 0);
             return bmp;
+        }
+
+        private GeneratedImageFile CreateImageWithOverlayContent(byte[] baseImageContent, string baseImageName, string overlayJson) {
+            if (baseImageContent == null || baseImageContent.Length == 0) {
+                throw new InvalidDataException("Image file not found.");
+            }
+
+            var suffix = Guid.NewGuid().ToString("N").Substring(0, 5);
+            var fileName = $"{Path.GetFileNameWithoutExtension(baseImageName)}-O-{suffix}.png";
+
+            using (var input = new MemoryStream(baseImageContent, false))
+            using (var src = System.Drawing.Image.FromStream(input))
+            using (var image = ToNonIndexedBitmap(src))
+            using (var graphics = Graphics.FromImage(image)) {
+                graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+                var overlayObj = JObject.Parse(overlayJson);
+                var overlay = overlayObj["overlay"];
+                if (overlay == null) {
+                    throw new InvalidDataException("Overlay data is invalid.");
+                }
+
+                var bgColor = GetOverlayBackgroundColor(overlay);
+                var overlayOpacity = GetOverlayBackgroundOpacity(overlay);
+                var overlayHeight = image.Height / 8;
+                var overlayRect = new Rectangle(0, image.Height - overlayHeight, image.Width, overlayHeight);
+                var alpha = (int)Math.Round(overlayOpacity * 255);
+                var bgColorWithAlpha = Color.FromArgb(alpha, bgColor.R, bgColor.G, bgColor.B);
+
+                using (var rectBrush = new SolidBrush(bgColorWithAlpha)) {
+                    graphics.FillRectangle(rectBrush, overlayRect);
+                }
+
+                foreach (var child in overlay["children"] ?? new JArray()) {
+                    var text = (string)child["text"];
+                    var style = (string)child["style"];
+                    var fontAndColor = GetFontAndColorFromStyle(image.Width, overlayHeight, style);
+
+                    using (fontAndColor.font)
+                    using (var textBrush = new SolidBrush(fontAndColor.color))
+                    using (var format = new StringFormat {
+                        Alignment = StringAlignment.Center,
+                        LineAlignment = StringAlignment.Center,
+                        Trimming = StringTrimming.EllipsisWord,
+                        FormatFlags = StringFormatFlags.LineLimit
+                    }) {
+                        var textRect = new RectangleF(20, image.Height - overlayHeight, image.Width - 40, overlayHeight);
+                        graphics.DrawString(text, fontAndColor.font, textBrush, textRect, format);
+                    }
+                }
+
+                using (var output = new MemoryStream()) {
+                    image.Save(output, ImageFormat.Png);
+                    return new GeneratedImageFile {
+                        FileName = fileName,
+                        Content = output.ToArray()
+                    };
+                }
+            }
         }
 
         private string CreateImageWithOverlay(string baseImagePath, string overlayJson) {

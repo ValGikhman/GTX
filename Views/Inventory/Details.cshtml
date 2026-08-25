@@ -4,7 +4,7 @@
 @model GTX.Models.BaseModel
 @{
     var vehicle = Model.CurrentVehicle?.VehicleDetails;
-    const string photosInventoryImagesBaseUrl = "https://photos.usedcarscincinnati.com/Images";
+    var photosInventoryImagesBaseUrl = InventoryImageSettings.BaseUrl;
 
     string JoinClean(params string[] parts)
     {
@@ -63,6 +63,13 @@
         else if (value.StartsWith(imagesPrefix, StringComparison.OrdinalIgnoreCase))
         {
             value = value.Substring(imagesPrefix.Length);
+        }
+
+        var stock = (vehicle?.Stock ?? string.Empty).Trim();
+        if (!string.IsNullOrWhiteSpace(stock) &&
+            !value.StartsWith(stock + "/", StringComparison.OrdinalIgnoreCase))
+        {
+            value = stock + "/" + value;
         }
 
         var encodedPath = string.Join(
