@@ -23,8 +23,12 @@
         overlayPath = $"{stock}/{overlayPath}";
     }
 
-    var encodedOverlayPath = Uri.EscapeDataString(overlayPath);
-    string imagePath = $"/InventoryImages/Get?path={encodedOverlayPath}";
+    var encodedOverlayPath = string.Join(
+        "/",
+        overlayPath.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries).Select(Uri.EscapeDataString));
+    var imagePath = InventoryImageSettings.CloudflareEnabled
+        ? InventoryImageSettings.BaseUrl + "/" + encodedOverlayPath
+        : "/InventoryImages/Get?path=" + Uri.EscapeDataString(overlayPath);
 }
 
 <div class="modal-header">
@@ -33,24 +37,27 @@
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
-<div class="d-flex flex-wrap align-items-start m-2 gap-1">
-    <div class="modal-body overlay-image-container shadow rounded m-3 col-3">
-        <img src="@imagePath" class="d-block mx-auto rounded" alt="@imagePath" />
-        <div id="overlay" class="overlay-image-overlay rounded-bottom">
-            <p class="overlay-text">Double click to edit.... </p>
+<div class="modal-body">
+    <div class="row g-3 align-items-start">
+        <div class="col-12 col-lg-8">
+            <div class="overlay-image-container shadow rounded">
+                <img src="@imagePath" class="d-block mx-auto rounded" alt="Inventory image" />
+                <div id="overlay" class="overlay-image-overlay rounded-bottom">
+                    <p class="overlay-text">Double click to edit.... </p>
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="col-3 mx-3">
-        @Html.Label("Text color", new { @class = "text-shadow" })
-        <select id="textColor" class="form-select shadow">
-            <option selected disabled>Choose a color</option>
-            @foreach (var colorName in colorProperties) {
-                var color = Color.FromName(colorName);
-                if (color.IsKnownColor) {
-                    <option value="@colorName.ToLower()" style="color: @colorName;">@colorName</option>
+        <div class="col-12 col-lg-4">
+            @Html.Label("Text color", new { @class = "text-shadow" })
+            <select id="textColor" class="form-select shadow">
+                <option selected disabled>Choose a color</option>
+                @foreach (var colorName in colorProperties) {
+                    var color = Color.FromName(colorName);
+                    if (color.IsKnownColor) {
+                        <option value="@colorName.ToLower()" style="color: @colorName;">@colorName</option>
+                    }
                 }
-            }
-        </select>
+            </select>
 
         @Html.Label("Background color", new { @class = "text-shadow mt-3" })
         <select id="backgroundColor" class="form-select shadow">
@@ -79,12 +86,13 @@
             <option value="bolditalic">Bold + Italic</option>
         </select>
 
-        @Html.Label("Font size", new { @class = "text-shadow mt-3" })
-    <select id="fontSize" class="form-select shadow">
-        <option value="1vw">x1</option>
-        <option value="2vw">x2</option>
-        <option value="3vw">x3</option>
-    </select>
+            @Html.Label("Font size", new { @class = "text-shadow mt-3" })
+            <select id="fontSize" class="form-select shadow">
+                <option value="1vw">x1</option>
+                <option value="2vw">x2</option>
+                <option value="3vw">x3</option>
+            </select>
+        </div>
     </div>
 </div>
 
@@ -100,7 +108,7 @@
 <script type="text/javascript">
     window.majordomeOverlayContext = {
         stock: @Html.Raw(Json.Encode(stock)),
-        imagePath: @Html.Raw(Json.Encode("/InventoryImages/Get?path=" + encodedOverlayPath))
+        imagePath: @Html.Raw(Json.Encode(overlayPath))
     };
 
     $("#fontSize").val("3vw").trigger("change");

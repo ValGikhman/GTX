@@ -1,12 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Configuration;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Web;
 
 namespace GTX.Helpers {
+    public static class InventoryImageSettings
+    {
+        private const string DefaultNativeBaseUrl = "https://photos.usedcarscincinnati.com/Images";
+        private const string DefaultCloudflareBaseUrl = "https://pub-879e4994e6a64354b38b0729cd0c184c.r2.dev";
+
+        public static bool CloudflareEnabled
+        {
+            get
+            {
+                bool enabled;
+                return bool.TryParse(ConfigurationManager.AppSettings["Cloudflare"], out enabled) && enabled;
+            }
+        }
+
+        public static string BaseUrl
+        {
+            get
+            {
+                var key = CloudflareEnabled ? "Images:CloudflareBaseUrl" : "Images:NativeBaseUrl";
+                var fallback = CloudflareEnabled ? DefaultCloudflareBaseUrl : DefaultNativeBaseUrl;
+                var configured = ConfigurationManager.AppSettings[key];
+                return (string.IsNullOrWhiteSpace(configured) ? fallback : configured).TrimEnd('/');
+            }
+        }
+    }
+
     public static class EnumHelper<T>
     {
 

@@ -1,4 +1,5 @@
 using Common;
+using GTX.Helpers;
 using GTX.Models;
 using Services;
 using System;
@@ -354,7 +355,7 @@ namespace GTX.Controllers {
             try {
                 var images = _inventoryService.GetImages(stock) ?? Array.Empty<Image>();
                 var urls = images
-                    .Select(image => BuildPictureUrl(image.Source))
+                    .Select(image => BuildPictureUrl(stock, image.Source))
                     .Where(url => !string.IsNullOrWhiteSpace(url))
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .ToArray();
@@ -370,7 +371,7 @@ namespace GTX.Controllers {
         private string[] GetMetaImageUrls(string stock) {
             try {
                 return (_inventoryService.GetImages(stock) ?? Array.Empty<Image>())
-                    .Select(image => BuildPictureUrl(image.Source))
+                    .Select(image => BuildPictureUrl(stock, image.Source))
                     .Where(url => !string.IsNullOrWhiteSpace(url))
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .Take(MaximumMetaImages)
@@ -382,7 +383,7 @@ namespace GTX.Controllers {
             }
         }
 
-        private string BuildPictureUrl(string source) {
+        private string BuildPictureUrl(string stock, string source) {
             var value = (source ?? string.Empty).Trim().Replace('\\', '/');
             Uri absolute;
             if (Uri.TryCreate(value, UriKind.Absolute, out absolute)) {
@@ -397,10 +398,22 @@ namespace GTX.Controllers {
                 }
             }
 
+            var normalizedStock = (stock ?? string.Empty).Trim();
+            if (!string.IsNullOrWhiteSpace(normalizedStock) &&
+                !value.StartsWith(normalizedStock + "/", StringComparison.OrdinalIgnoreCase)) {
+                value = normalizedStock + "/" + value;
+            }
+
             var encodedPath = string.Join("/", value
                 .Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(Uri.EscapeDataString));
-            return string.IsNullOrWhiteSpace(encodedPath) ? null : BuildUrl("Pictures/" + encodedPath);
+            if (string.IsNullOrWhiteSpace(encodedPath)) {
+                return null;
+            }
+
+            return InventoryImageSettings.CloudflareEnabled
+                ? InventoryImageSettings.BaseUrl + "/" + encodedPath
+                : BuildUrl("Pictures/" + encodedPath);
         }
 
         private string BuildUrl(string relativePath) {

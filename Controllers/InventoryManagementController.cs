@@ -37,7 +37,6 @@ namespace GTX.Controllers
                 { "LocationCode", 1 },
                 { "Body", 50 },
                 { "Engine", 50 },
-                { "Transmission", 1 },
                 { "PurchaseDate", 50 },
                 { "ArrivalDate", 50 },
                 { "FuelType", 50 },
@@ -282,15 +281,15 @@ namespace GTX.Controllers
             if (string.IsNullOrWhiteSpace(stock))
             {
                 vehicle.Images = Array.Empty<Services.Image>();
-                vehicle.Image = $"{imageFolder}no-image-1.jpg";
+                vehicle.Image = DefaultInventoryImage;
                 return;
             }
 
             var images = InventoryService.GetImages(stock) ?? Array.Empty<Services.Image>();
             vehicle.Images = images;
             vehicle.Image = images.Length > 0
-                ? $"{imageFolder}{images[0].Source}"
-                : $"{imageFolder}no-image-1.jpg";
+                ? $"{imageFolder}{BuildStockImageSource(stock, images[0].Source)}"
+                : DefaultInventoryImage;
         }
 
         [HttpPost]
@@ -443,6 +442,11 @@ namespace GTX.Controllers
 
             return (inventory.Vehicles ?? Array.Empty<GTX.Models.GTX>())
                 .Where(m => m.SetToUpload == "Y")
+                .Select(m =>
+                {
+                    m.Transmission = NormalizeImportedTransmissionCode(m.Transmission);
+                    return m;
+                })
                 .ToArray();
         }
 
@@ -569,14 +573,11 @@ namespace GTX.Controllers
                         var value = GetCsvValue(fields, indexes, rule.Key);
                         if (value.Length > rule.Value)
                         {
-                            var message = string.Equals(rule.Key, "Transmission", StringComparison.OrdinalIgnoreCase)
-                                ? "Use one transmission code: A, M, C, or T. Put the gear count in TransmissionSpeed."
-                                : $"Maximum length is {rule.Value} character(s); found {value.Length}.";
                             errors.Add(CreateCsvValidationError(
                                 rowNumber,
                                 rule.Key,
                                 value,
-                                message));
+                                $"Maximum length is {rule.Value} character(s); found {value.Length}."));
                         }
                     }
 
@@ -608,16 +609,6 @@ namespace GTX.Controllers
                         }
                     }
 
-                    var transmission = GetCsvValue(fields, indexes, "Transmission").Trim().ToUpperInvariant();
-                    if (transmission.Length == 1 &&
-                        transmission != "A" && transmission != "M" && transmission != "C" && transmission != "T")
-                    {
-                        errors.Add(CreateCsvValidationError(
-                            rowNumber,
-                            "Transmission",
-                            transmission,
-                            "Use one transmission code: A, M, C, or T. Put the gear count in TransmissionSpeed."));
-                    }
                 }
             }
 
@@ -649,6 +640,14 @@ namespace GTX.Controllers
             return indexes.TryGetValue(fieldName, out index) && index >= 0 && index < fields.Length
                 ? fields[index] ?? string.Empty
                 : string.Empty;
+        }
+
+        private static string NormalizeImportedTransmissionCode(string value)
+        {
+            var firstLetter = (value ?? string.Empty).FirstOrDefault(char.IsLetter);
+            return firstLetter == default(char)
+                ? string.Empty
+                : char.ToUpperInvariant(firstLetter).ToString();
         }
 
         private static InventoryCsvValidationError CreateCsvValidationError(int row, string field, string value, string message)

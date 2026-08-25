@@ -2,7 +2,7 @@
 <div id="detailsCarousel" class="carousel slide" data-bs-ride="carousel">
     <div class="carousel-inner">
         @{
-            const string photosInventoryImagesBaseUrl = "https://photos.usedcarscincinnati.com/Images";
+            var photosInventoryImagesBaseUrl = InventoryImageSettings.BaseUrl;
             var i = 0;
 
             string ExtractPathFromInventoryImageUrl(string source)
@@ -69,12 +69,19 @@
                 return value;
             }
 
-            string BuildPhotosImageUrl(string relativePath)
+            string BuildPhotosImageUrl(string stock, string relativePath)
             {
                 var normalized = (relativePath ?? string.Empty).Trim().Replace('\\', '/').Trim('/');
                 if (string.IsNullOrWhiteSpace(normalized))
                 {
                     return string.Empty;
+                }
+
+                var normalizedStock = (stock ?? string.Empty).Trim();
+                if (!string.IsNullOrWhiteSpace(normalizedStock) &&
+                    !normalized.StartsWith(normalizedStock + "/", StringComparison.OrdinalIgnoreCase))
+                {
+                    normalized = normalizedStock + "/" + normalized;
                 }
 
                 var encodedPath = string.Join(
@@ -97,7 +104,7 @@
             if (!isAbsoluteExternal)
             {
                 var normalizedPath = NormalizeInventoryImagePath(image.Source);
-                imagePath = BuildPhotosImageUrl(normalizedPath);
+                imagePath = BuildPhotosImageUrl(image.Stock, normalizedPath);
             }
             <div class="carousel-item @(i == 0 ? "active" : "")">
                 <div class="slide-box">

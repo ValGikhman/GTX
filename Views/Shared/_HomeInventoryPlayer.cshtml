@@ -4,9 +4,9 @@
 @using System.Linq
 
 @{
-    const string photosInventoryImagesBaseUrl = "https://photos.usedcarscincinnati.com/Images";
+    var photosInventoryImagesBaseUrl = InventoryImageSettings.BaseUrl;
 
-    Func<string, string> inventoryImageUrl = source =>
+    Func<string, string, string> inventoryImageUrl = (stock, source) =>
     {
         var value = (source ?? string.Empty).Trim().Replace('\\', '/');
         if (string.IsNullOrWhiteSpace(value))
@@ -38,6 +38,13 @@
                 value = value.Substring(prefix.Length);
                 break;
             }
+        }
+
+        var normalizedStock = (stock ?? string.Empty).Trim();
+        if (!string.IsNullOrWhiteSpace(normalizedStock) &&
+            !value.StartsWith(normalizedStock + "/", StringComparison.OrdinalIgnoreCase))
+        {
+            value = normalizedStock + "/" + value;
         }
 
         var encodedPath = string.Join(
@@ -120,7 +127,7 @@
                     ? vehicle.TransmissionWord
                     : vehicle.Transmission;
                 var engine = string.IsNullOrWhiteSpace(vehicle.Engine) ? "Engine N/A" : vehicle.Engine;
-                var cardImageUrl = inventoryImageUrl(vehicle.Images[0].Source);
+                var cardImageUrl = inventoryImageUrl(vehicle.Stock, vehicle.Images[0].Source);
 
                 <article class="carousel-item @(index == 0 ? "active" : string.Empty)">
                     <div class="home-inventory-card">

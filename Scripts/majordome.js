@@ -1,5 +1,12 @@
 var selectedVehicle;
-var photosInventoryImagesBaseUrl = "https://photos.usedcarscincinnati.com/Images";
+var photosInventoryImagesBaseUrl = (window.inventoryImagesBaseUrl || "https://photos.usedcarscincinnati.com/Images").replace(/\/+$/, "");
+var photosInventoryImagesUseCloudflare = window.inventoryImagesCloudflareEnabled === true;
+
+function isMajordomeCloudflareImageUrl(url) {
+    var imageUrl = (url || "").toString().split(/[?#]/)[0].toLowerCase();
+    var cdnBaseUrl = photosInventoryImagesBaseUrl.split(/[?#]/)[0].toLowerCase() + "/";
+    return photosInventoryImagesUseCloudflare && imageUrl.indexOf(cdnBaseUrl) === 0;
+}
 
 function getActiveMajordomeStock() {
     var fromVehicle = selectedVehicle && selectedVehicle.Stock ? selectedVehicle.Stock : "";
@@ -42,7 +49,7 @@ function getRememberedMajordomeImageVersion(source) {
     }
 }
 
-function toInventoryImageUrl(source) {
+function toInventoryImageUrl(source, stock) {
     var raw = (source || "").toString().trim();
     if (!raw) return "";
 
@@ -75,6 +82,11 @@ function toInventoryImageUrl(source) {
     normalized = normalized.replace(/^\/+/, "").replace(/\/+$/, "");
 
     if (!normalized) return "";
+
+    var normalizedStock = (stock || getActiveMajordomeStock() || "").toString().trim();
+    if (normalizedStock && normalized.toLowerCase().indexOf(normalizedStock.toLowerCase() + "/") !== 0) {
+        normalized = normalizedStock + "/" + normalized;
+    }
 
     var segments = normalized.split("/").filter(function (segment) {
         return !!segment;
@@ -158,9 +170,30 @@ function applyMajordomePhotoCardOrientation($image) {
         }
     };
 
-    $image.off("load.majordomeOrientation").on("load.majordomeOrientation", setOrientation);
+    var setCdnAvailability = function () {
+        var isAvailableThroughCdn = isMajordomeCloudflareImageUrl(imageEl.currentSrc || imageEl.src);
+        $card.find(".majordome-photo-cdn-indicator").toggleClass("d-none", !isAvailableThroughCdn);
+    };
+
+    var clearCdnAvailability = function () {
+        $card.find(".majordome-photo-cdn-indicator").addClass("d-none");
+    };
+
+    $image
+        .off("load.majordomeOrientation error.majordomeCdnAvailability")
+        .on("load.majordomeOrientation", function () {
+            setOrientation();
+            setCdnAvailability();
+        })
+        .on("error.majordomeCdnAvailability", clearCdnAvailability);
+
     if (imageEl.complete) {
-        setOrientation();
+        if (imageEl.naturalWidth > 0) {
+            setOrientation();
+            setCdnAvailability();
+        } else {
+            clearCdnAvailability();
+        }
     }
 }
 
@@ -187,7 +220,7 @@ function findMajordomeVehicleByStock(data, stock) {
 function setMajordomeImageActionsBusy(isBusy) {
     var busy = !!isBusy;
 
-    $("#sortable-gallery .majordome-photo-actions .btn, #upload, #deleteAll, #saveOverlayFile")
+    $("#sortable-gallery .majordome-photo-actions .btn, #purgeStockImageCache, #btnPurgeInventoryImageCache, #upload, #deleteAll, #saveOverlayFile")
         .prop("disabled", busy)
         .toggleClass("disabled", busy);
 
@@ -535,6 +568,7 @@ function loadGallery(vehicle) {
         var safeImageHref = escapeHtml(imageHref);
         var safeImageThumb = escapeHtml(imageThumb);
         var safeFileNameOnly = escapeHtml(fileNameOnly);
+        var cdnIndicatorClass = isMajordomeCloudflareImageUrl(imageThumb) ? "" : " d-none";
         var loadingMode = index < 4 ? "eager" : "lazy";
         var fetchPriority = index === 0 ? "high" : "low";
 
@@ -543,6 +577,7 @@ function loadGallery(vehicle) {
             <a href="${safeImageHref}" class="majordome-photo-link" data-lightbox="gallery" title="${safeFileNameOnly}">
                 <div class="majordome-photo-media">
                     <img class="majordome-photo-image" src="${safeImageThumb}" alt="${safeFileNameOnly}" title="${safeFileNameOnly}" loading="${loadingMode}" decoding="async" fetchpriority="${fetchPriority}" />
+                    <span class="majordome-photo-cdn-indicator${cdnIndicatorClass}" title="Available through Cloudflare CDN" aria-label="Available through Cloudflare CDN"></span>
                 </div>
             </a>
             <div class="majordome-photo-footer">
@@ -1002,8 +1037,11 @@ async function rotateImage(file, degrees, triggerElement) {
             throw new Error((response && response.message) || "Failed to rotate image.");
         }
 
+        var cacheVersion = (response.version || Date.now()).toString();
+        rememberMajordomeImageVersion(file, cacheVersion);
+
         if ($card.length) {
-            await refreshMajordomePhotoCardImage($card, file);
+            await refreshMajordomePhotoCardImage($card, file, cacheVersion);
             updateGalleryDisplay();
             $("#gallery-tab").tab("show");
         } else {

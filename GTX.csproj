@@ -51,6 +51,12 @@
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AWSSDK.Core, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
+      <HintPath>packages\AWSSDK.Core.3.7.501.1\lib\net45\AWSSDK.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="AWSSDK.S3, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
+      <HintPath>packages\AWSSDK.S3.3.7.511.8\lib\net45\AWSSDK.S3.dll</HintPath>
+    </Reference>
     <Reference Include="Antlr3.Runtime, Version=3.5.0.2, Culture=neutral, PublicKeyToken=eb42632606e9261f, processorArchitecture=MSIL">
       <HintPath>packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
     </Reference>
@@ -267,6 +273,8 @@
     <Compile Include="App_Start\webAPIConfig.cs" />
     <Compile Include="Common\AppCache.cs" />
     <Compile Include="Common\Attributes.cs" />
+    <Compile Include="Common\CloudflareCachePurger.cs" />
+    <Compile Include="Common\CloudflareR2Storage.cs" />
     <Compile Include="Common\Constants.cs" />
     <Compile Include="Common\SecuritySanitizer.cs" />
     <Compile Include="Common\Properties\AssemblyInfo.cs" />
@@ -368,6 +376,7 @@
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="Inventory\editor_v2\app\img\clickable_pixel_image.png" />
+    <Content Include="Scripts\Remove-Stock-Prefix-From-Image-Source.sql" />
     <Content Include="SiteImages\autodealer-logo-light.png" />
     <Content Include="SiteImages\autodealer-logo.png" />
     <Content Include="SiteImages\brand-dark.png" />
@@ -375,7 +384,6 @@
     <Content Include="SiteImages\brand-index.png" />
     <Content Include="SiteImages\brand-light.png" />
     <Content Include="SiteImages\brand-thumbnail.png" />
-    <Content Include="SiteImages\card-bg.jpg" />
     <Content Include="img\about\about-pic.jpg" />
     <Content Include="img\demo\hero-adventure.png" />
     <Content Include="img\demo\hero-electric.png" />
@@ -555,6 +563,7 @@
     <Content Include="Scripts\inventory.js" />
     <Content Include="Scripts\jquery.gtx-range-filter.js" />
     <Content Include="Scripts\nouislider.min.js" />
+    <Content Include="Scripts\Copy-ImagesToR2.ps1" />
     <None Include="Scripts\jquery-3.7.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.1.js" />
     <Content Include="Scripts\jquery-3.7.1.min.js" />

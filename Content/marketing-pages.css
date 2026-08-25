@@ -12,7 +12,7 @@
 .marketing-hero {
     position: relative;
     isolation: isolate;
-    min-height: clamp(12rem, 17vw, 14rem);
+    min-height: clamp(10rem, 15vw, 12rem);
     display: flex;
     align-items: flex-end;
     overflow: hidden;
@@ -34,10 +34,10 @@
 .marketing-hero-word {
     position: absolute;
     top: -.13em;
-    right: -.03em;
+    left: 1.5rem;
     z-index: -1;
     color: transparent;
-    font-size: clamp(7rem, 19vw, 18rem);
+    font-size: clamp(5.5rem, 14vw, 10rem);
     font-weight: 950;
     letter-spacing: -.1em;
     line-height: 1;
@@ -1346,7 +1346,7 @@ html.theme-silver .blog-read-link {
 
 @media (max-width: 575.98px) {
     .marketing-hero {
-        min-height: 12rem;
+        min-height: 10rem;
         padding-top: 1rem;
     }
 

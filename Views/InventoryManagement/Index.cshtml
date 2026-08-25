@@ -7,6 +7,7 @@
 }
 
 <head>
+    <script>window.inventoryImagesBaseUrl = @Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(InventoryImageSettings.BaseUrl, true));</script>
     <script src="~/Scripts/majordome.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome.js")).Ticks)"></script>
 </head>
 

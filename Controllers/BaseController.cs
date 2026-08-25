@@ -19,14 +19,29 @@ namespace GTX.Controllers
     public abstract class BaseController : Controller {
 
         #region Properties
-        public readonly string imageFolder = "/InventoryImages/Get?path=";
+        public string imageFolder => InventoryImageSettings.CloudflareEnabled
+            ? InventoryImageSettings.BaseUrl + "/"
+            : "/InventoryImages/Get?path=";
+        protected string DefaultInventoryImage => "/InventoryImages/Get?path=no-image-1.jpg";
         public readonly string openAiApiKey = ConfigurationManager.AppSettings["OpenAI:ApiKey"];
         public readonly string dataOneApiKey = ConfigurationManager.AppSettings["DataOne:AccessKey"];
         public readonly string dataOneSecretApiKey = ConfigurationManager.AppSettings["DataOne:SecretAccessKey"];
 
-        private static readonly object _sync = new object();
-        private static readonly Random _rand = new Random();
-        private static int Version() { lock (_sync) return _rand.Next(1, 1); }
+        protected static string BuildStockImageSource(string stock, string source)
+        {
+            var normalizedSource = (source ?? string.Empty).Trim().Replace('\\', '/').TrimStart('/');
+            var normalizedStock = (stock ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(normalizedSource) ||
+                string.IsNullOrWhiteSpace(normalizedStock) ||
+                Uri.IsWellFormedUriString(normalizedSource, UriKind.Absolute))
+            {
+                return normalizedSource;
+            }
+
+            return normalizedSource.StartsWith(normalizedStock + "/", StringComparison.OrdinalIgnoreCase)
+                ? normalizedSource
+                : normalizedStock + "/" + normalizedSource;
+        }
 
         public ILogService LogService { get; set; }
 
@@ -326,7 +341,7 @@ namespace GTX.Controllers
                 return vehicles ?? Array.Empty<Models.GTX>();
 
             // Compute once instead of per vehicle
-            var defaultImage = $"{imageFolder}no-image-{Version()}.jpg";
+            var defaultImage = DefaultInventoryImage;
 
             var imagesByStock = InventoryService.GetImages(vehicles.Select(vehicle => vehicle.Stock));
 
@@ -339,7 +354,7 @@ namespace GTX.Controllers
                 if (stockImages != null && stockImages.Length > 0)
                 {
                     vehicle.Images = stockImages;
-                    vehicle.Image = $"{imageFolder}{stockImages[0].Source}";
+                    vehicle.Image = $"{imageFolder}{BuildStockImageSource(vehicle.Stock, stockImages[0].Source)}";
                 }
                 else
                 {
