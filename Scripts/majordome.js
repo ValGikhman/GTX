@@ -574,14 +574,20 @@ function loadGallery(vehicle) {
 
         items.push(`
         <li id="${safeId}" class="majordome-photo-card" data-filename="${safeSource}">
+            <div class="majordome-photo-header" title="Drag to reorder this photo">
+                <i class="bi bi-grip-vertical majordome-photo-drag-icon" aria-hidden="true"></i>
+                <div class="majordome-photo-title" title="${safeFileNameOnly}">${safeFileNameOnly}</div>
+                <span class="majordome-photo-header-status">
+                    <span class="majordome-photo-primary-badge d-none"><i class="bi bi-star-fill" aria-hidden="true"></i>Primary</span>
+                    <span class="majordome-photo-cdn-indicator${cdnIndicatorClass}" title="Available through Cloudflare CDN" aria-label="Available through Cloudflare CDN"></span>
+                </span>
+            </div>
             <a href="${safeImageHref}" class="majordome-photo-link" data-lightbox="gallery" title="${safeFileNameOnly}">
                 <div class="majordome-photo-media">
                     <img class="majordome-photo-image" src="${safeImageThumb}" alt="${safeFileNameOnly}" title="${safeFileNameOnly}" loading="${loadingMode}" decoding="async" fetchpriority="${fetchPriority}" />
-                    <span class="majordome-photo-cdn-indicator${cdnIndicatorClass}" title="Available through Cloudflare CDN" aria-label="Available through Cloudflare CDN"></span>
                 </div>
             </a>
             <div class="majordome-photo-footer">
-                <div class="majordome-photo-title" title="${safeFileNameOnly}">${safeFileNameOnly}</div>
                 <div class="majordome-photo-actions">
                     <button type="button" id="${safeId}" class="delete-image bi bi-trash btn btn-light shadow-sm" data-filename="${safeSource}" title="Delete image"></button>
                     <button type="button" id="${safeId}" class="overlay-image ${imageIcon} btn btn-light shadow-sm ${showImageEdit}" data-filename="${safeSource}" title="Create overlay file"></button>
@@ -615,10 +621,12 @@ function updateGalleryDisplay() {
         if (index === 0) {
             $btn.addClass("d-none").hide();
             $li.addClass("gradient");
+            $li.find(".majordome-photo-primary-badge").removeClass("d-none");
         }
         else {
             $btn.removeClass("d-none").show();
             $li.removeClass("gradient");
+            $li.find(".majordome-photo-primary-badge").addClass("d-none");
         }
     });
 }
