@@ -8,6 +8,7 @@
         && actionName.Equals("Index", StringComparison.OrdinalIgnoreCase);
     var isMajordomeInventoryPage = controllerName.Equals("Majordome", StringComparison.OrdinalIgnoreCase)
         && actionName.Equals("Inventory", StringComparison.OrdinalIgnoreCase);
+    var siteCssBundleUrl = BundleTable.Bundles.ResolveBundleUrl("~/Content/css", true);
     var majordomeCssVersion = System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/majordome.css")).Ticks;
     var current = Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName;
     var publishedValue = ViewData["Published"];
@@ -86,7 +87,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" />
-    <link rel="stylesheet" href="~/Content/nouislider.min.css" />
+    <link rel="stylesheet" href="~/Content/nouislider.min.css?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/nouislider.min.css")).Ticks)" />
 
     <script>
         (function () {
@@ -125,7 +126,7 @@
     </script>
 
 
-    @Styles.Render("~/Content/css")
+    <link href="@siteCssBundleUrl" rel="stylesheet" />
     <link href="@Url.Content("~/Content/majordome.css")?v=@majordomeCssVersion" rel="stylesheet" />
     @Scripts.Render("~/scripts/modernizr")
     @Scripts.Render("~/scripts/bootstrap")
