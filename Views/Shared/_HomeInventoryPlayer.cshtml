@@ -4,59 +4,6 @@
 @using System.Linq
 
 @{
-    var photosInventoryImagesBaseUrl = InventoryImageSettings.BaseUrl;
-
-    Func<string, string, string> inventoryImageUrl = (stock, source) =>
-    {
-        var value = (source ?? string.Empty).Trim().Replace('\\', '/');
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return string.Empty;
-        }
-
-        if (value.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
-            value.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
-        {
-            return value;
-        }
-
-        if (value.IndexOf("InventoryImages/Get", StringComparison.OrdinalIgnoreCase) >= 0)
-        {
-            var queryIndex = value.IndexOf('?');
-            if (queryIndex >= 0 && queryIndex < value.Length - 1)
-            {
-                var query = System.Web.HttpUtility.ParseQueryString(value.Substring(queryIndex));
-                value = System.Web.HttpUtility.UrlDecode(query["path"] ?? string.Empty);
-            }
-        }
-
-        value = (value ?? string.Empty).Trim().Replace('\\', '/').TrimStart('/');
-        foreach (var prefix in new[] { "SiteImages/Inventory/", "Pictures/", "Images/" })
-        {
-            if (value.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-            {
-                value = value.Substring(prefix.Length);
-                break;
-            }
-        }
-
-        var normalizedStock = (stock ?? string.Empty).Trim();
-        if (!string.IsNullOrWhiteSpace(normalizedStock) &&
-            !value.StartsWith(normalizedStock + "/", StringComparison.OrdinalIgnoreCase))
-        {
-            value = normalizedStock + "/" + value;
-        }
-
-        var encodedPath = string.Join(
-            "/",
-            value.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(Uri.EscapeDataString));
-
-        return string.IsNullOrWhiteSpace(encodedPath)
-            ? string.Empty
-            : photosInventoryImagesBaseUrl + "/" + encodedPath;
-    };
-
     Func<GTX.Models.GTX, DateTime> inventoryDate = vehicle =>
     {
         DateTime parsed;
@@ -127,15 +74,15 @@
                     ? vehicle.TransmissionWord
                     : vehicle.Transmission;
                 var engine = string.IsNullOrWhiteSpace(vehicle.Engine) ? "Engine N/A" : vehicle.Engine;
-                var cardImageUrl = inventoryImageUrl(vehicle.Stock, vehicle.Images[0].Source);
+                var cardImageUrl = InventoryImageUrl.Build(vehicle.Images[0].Source, vehicle.Stock, InventoryImageVariant.Card);
 
                 <article class="carousel-item @(index == 0 ? "active" : string.Empty)">
                     <div class="home-inventory-card">
                         <a class="home-inventory-card-media" href="@detailsUrl" aria-label="View @title details">
-                            <img src="@cardImageUrl"
+                            <img class="vehicle-image" src="@cardImageUrl"
                                  alt="@title"
-                                 width="800"
-                                 height="600"
+                                 width="600"
+                                 height="450"
                                  loading="@(index < 2 ? "eager" : "lazy")"
                                  fetchpriority="@(index == 0 ? "high" : "low")"
                                  decoding="async" />

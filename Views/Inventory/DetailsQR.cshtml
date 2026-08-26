@@ -69,7 +69,7 @@
                 {
                     <div class="d-flex justify-content-center text-uppercase p-5">
                         <h6>
-                            <img class="img-fluid d-block mx-auto" width="85" src="@Url.Content("~/SiteImages/brand-thumbnail.png")" alt="GTX Autogroup">
+                            <img class="img-fluid d-block mx-auto" width="85" src="@SiteImageUrl.Build("brand-thumbnail.png")" alt="GTX Autogroup">
                             <br />
                             is still working on images
                         </h6>
@@ -111,7 +111,7 @@
     var vehicle = "@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(Convert.ToString(ViewBag.Title) ?? string.Empty))";
     var vehicleTitleText = "@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(Convert.ToString(ViewBag.Title) ?? string.Empty))";
     var vehiclePriceText = "@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(Convert.ToString(ViewBag.Price) ?? string.Empty))";
-    var makeImg = `/SiteImages/makes/${make}.png`;
+    var makeImg = `@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(SiteImageUrl.Build("makes")))/${make}.png`;
 
     function renderFancyTitle() {
         var $fancy = $(".fancy");

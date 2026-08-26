@@ -72,7 +72,7 @@
                                 <td>
                                     @if (hasPhoto)
                                     {
-                                        <img width="80" height="90" class="rounded-2 border" src="@($"{e.PhotoPath}?h=90")" />
+                                        <img width="80" height="90" class="rounded-2 border" src="@Url.Content("~" + e.PhotoPath)" />
                                     }
                                     else
                                     {

@@ -44,6 +44,187 @@ namespace GTX.Helpers {
         }
     }
 
+    public static class SiteImageUrl
+    {
+        private const string CdnFolder = "SiteImages";
+
+        public static string Build(string path)
+        {
+            var value = (path ?? string.Empty).Trim().Replace('\\', '/');
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return string.Empty;
+            }
+
+            Uri absoluteUri;
+            if (Uri.TryCreate(value, UriKind.Absolute, out absoluteUri))
+            {
+                var cdnRoot = new Uri(InventoryImageSettings.BaseUrl + "/", UriKind.Absolute);
+                if (!string.Equals(absoluteUri.Host, cdnRoot.Host, StringComparison.OrdinalIgnoreCase))
+                {
+                    return value;
+                }
+
+                value = absoluteUri.AbsolutePath;
+            }
+
+            value = value.TrimStart('~', '/');
+            if (value.StartsWith(CdnFolder + "/", StringComparison.OrdinalIgnoreCase))
+            {
+                value = value.Substring(CdnFolder.Length + 1);
+            }
+
+            var encodedPath = string.Join(
+                "/",
+                value.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(Uri.EscapeDataString));
+
+            return InventoryImageSettings.BaseUrl + "/" + CdnFolder + "/" + encodedPath;
+        }
+    }
+
+    public enum InventoryImageVariant
+    {
+        Grid,
+        Small,
+        Card,
+        Detail
+    }
+
+    public static class InventoryImageUrl
+    {
+        private const int ImageQuality = 80;
+
+        public static string Build(string source, string stock, InventoryImageVariant variant)
+        {
+            var path = NormalizePath(source);
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                path = "no-image-1.jpg";
+            }
+
+            if (IsExternalUrl(path))
+            {
+                return path;
+            }
+
+            var normalizedStock = (stock ?? string.Empty).Trim();
+            if (!IsPlaceholder(path) &&
+                !string.IsNullOrWhiteSpace(normalizedStock) &&
+                !path.StartsWith(normalizedStock + "/", StringComparison.OrdinalIgnoreCase))
+            {
+                path = normalizedStock + "/" + path;
+            }
+
+            var encodedPath = string.Join(
+                "/",
+                path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(Uri.EscapeDataString));
+
+            int width;
+            int height;
+            GetDimensions(variant, out width, out height);
+
+            if (InventoryImageSettings.CloudflareEnabled)
+            {
+                return string.Format(
+                    CultureInfo.InvariantCulture,
+                    "{0}/cdn-cgi/image/width={1},height={2},quality={3},fit=scale-down,format=auto/{4}",
+                    InventoryImageSettings.BaseUrl,
+                    width,
+                    height,
+                    ImageQuality,
+                    encodedPath);
+            }
+
+            return "/InventoryImages/Get?path=" + HttpUtility.UrlEncode(path) + "&w=" + width.ToString(CultureInfo.InvariantCulture);
+        }
+
+        private static string NormalizePath(string source)
+        {
+            var value = (source ?? string.Empty).Trim().Replace('\\', '/');
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return string.Empty;
+            }
+
+            Uri absoluteUri;
+            if (Uri.TryCreate(value, UriKind.Absolute, out absoluteUri))
+            {
+                Uri baseUri;
+                if (!Uri.TryCreate(InventoryImageSettings.BaseUrl + "/", UriKind.Absolute, out baseUri) ||
+                    !string.Equals(absoluteUri.Host, baseUri.Host, StringComparison.OrdinalIgnoreCase))
+                {
+                    return value;
+                }
+
+                value = absoluteUri.AbsolutePath.TrimStart('/');
+                var transformMarker = value.IndexOf("cdn-cgi/image/", StringComparison.OrdinalIgnoreCase);
+                if (transformMarker >= 0)
+                {
+                    var optionsEnd = value.IndexOf('/', transformMarker + "cdn-cgi/image/".Length);
+                    value = optionsEnd >= 0 ? value.Substring(optionsEnd + 1) : string.Empty;
+                }
+            }
+
+            if (value.IndexOf("InventoryImages/Get", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                var queryIndex = value.IndexOf('?');
+                if (queryIndex >= 0 && queryIndex < value.Length - 1)
+                {
+                    var query = HttpUtility.ParseQueryString(value.Substring(queryIndex));
+                    value = HttpUtility.UrlDecode(query["path"] ?? string.Empty);
+                }
+            }
+
+            value = (value ?? string.Empty).Trim().Replace('\\', '/').TrimStart('/');
+            foreach (var prefix in new[] { "SiteImages/Inventory/", "Pictures/", "Images/" })
+            {
+                if (value.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    value = value.Substring(prefix.Length);
+                    break;
+                }
+            }
+
+            return value.Trim('/');
+        }
+
+        private static bool IsExternalUrl(string value)
+        {
+            return value.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                   value.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsPlaceholder(string value)
+        {
+            return value.IndexOf("no-image", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private static void GetDimensions(InventoryImageVariant variant, out int width, out int height)
+        {
+            switch (variant)
+            {
+                case InventoryImageVariant.Grid:
+                    width = 88;
+                    height = 66;
+                    return;
+                case InventoryImageVariant.Small:
+                    width = 400;
+                    height = 300;
+                    return;
+                case InventoryImageVariant.Card:
+                    width = 600;
+                    height = 450;
+                    return;
+                default:
+                    width = 800;
+                    height = 600;
+                    return;
+            }
+        }
+    }
+
     public static class EnumHelper<T>
     {
 

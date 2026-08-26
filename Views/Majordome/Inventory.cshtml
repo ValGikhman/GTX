@@ -5,10 +5,6 @@
         ?? Array.Empty<Services.InventoryDashboardVehicle>();
     var majordomeInventoryVehicles = ViewBag.MajordomeInventoryVehicles as object[]
         ?? Array.Empty<object>();
-    var isOwner = string.Equals(
-        Convert.ToString(ViewBag.CurrentRole),
-        CommonUnit.Roles.Owner.ToString(),
-        StringComparison.OrdinalIgnoreCase);
 }
 <head>
     <script>
@@ -308,10 +304,6 @@
     </div>
 </div>
 <template id="actions">
-    @if (isOwner)
-    {
-        <button type="button" id="btnPurgeInventoryImageCache" class="btn btn-outline-warning shadow"><i class="bi bi-cloud-arrow-down me-1" aria-hidden="true"></i>Refresh inventory CDN</button>
-    }
     <button type="button" id="btnAddInventory" class="btn btn-gradient shadow"><i class="bi bi-plus-circle me-1"></i>Add inventory</button>
     <button type="button" id="btnDecodeAll" class="btn btn-gradient shadow">Decode all</button>
     <button type="button" id="btnReStoryAll" class="btn btn-gradient shadow">Re-story all</button>
@@ -809,20 +801,6 @@
             if (!confirmed) return;
 
             await purgeMajordomeImageCache(`${root}Majordome/PurgeStockImageCache`, { stock }, $(this));
-        });
-
-        $(document).on("click", "#btnPurgeInventoryImageCache", async function (e) {
-            e.preventDefault();
-            const confirmed = await window.gtxConfirm({
-                title: "Refresh entire inventory CDN cache",
-                message: "Refresh the complete inventory image hostname? The next image requests will be fetched fresh from R2 and may be briefly slower while the CDN warms again.",
-                confirmText: "Refresh inventory",
-                variant: "warning",
-                iconClass: "bi bi-cloud-arrow-down"
-            });
-            if (!confirmed) return;
-
-            await purgeMajordomeImageCache(`${root}Majordome/PurgeInventoryImageCache`, {}, $(this));
         });
 
         $("#majordomeInventoryBody").on("keydown", ".inventory-dashboard-expand-button", function (e) {
@@ -2000,9 +1978,67 @@
         }
     }
 
-    function buildMajordomeUploadFormData(stock, file) {
+    function loadMajordomeUploadImage(file) {
+        return new Promise(function (resolve, reject) {
+            const objectUrl = URL.createObjectURL(file);
+            const image = new Image();
+            image.onload = function () {
+                URL.revokeObjectURL(objectUrl);
+                resolve(image);
+            };
+            image.onerror = function () {
+                URL.revokeObjectURL(objectUrl);
+                reject(new Error("The image could not be decoded in this browser."));
+            };
+            image.src = objectUrl;
+        });
+    }
+
+    function canvasToMajordomeUploadBlob(canvas) {
+        return new Promise(function (resolve, reject) {
+            canvas.toBlob(function (blob) {
+                if (blob) {
+                    resolve(blob);
+                    return;
+                }
+                reject(new Error("The optimized image could not be created."));
+            }, "image/jpeg", 0.84);
+        });
+    }
+
+    async function prepareMajordomeUploadFile(file) {
+        const fileName = safeText(file?.name).trim();
+        if (!file || !/\.jpe?g$/i.test(fileName)) return file;
+
+        try {
+            const image = await loadMajordomeUploadImage(file);
+            const sourceWidth = image.naturalWidth || image.width;
+            const sourceHeight = image.naturalHeight || image.height;
+            const scale = Math.min(1, 800 / sourceWidth, 600 / sourceHeight);
+            if (!isFinite(scale) || scale >= 1) return file;
+
+            const canvas = document.createElement("canvas");
+            canvas.width = Math.max(1, Math.round(sourceWidth * scale));
+            canvas.height = Math.max(1, Math.round(sourceHeight * scale));
+
+            const context = canvas.getContext("2d", { alpha: false });
+            if (!context) return file;
+
+            context.fillStyle = "#fff";
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+            const optimized = await canvasToMajordomeUploadBlob(canvas);
+            return optimized.size < file.size ? optimized : file;
+        } catch (error) {
+            console.warn("Browser image optimization was skipped:", error);
+            return file;
+        }
+    }
+
+    function buildMajordomeUploadFormData(stock, file, fileName) {
         const formData = new FormData();
-        formData.append("files", file, file.name);
+        formData.append("files", file, fileName || file.name || "inventory-image.jpg");
         formData.append("stock", stock);
         return formData;
     }
@@ -2122,6 +2158,10 @@
     async function uploadMajordomeBulkImageFile(stock, file, job) {
         const label = getMajordomeBulkFileLabel(file);
         let lastError = null;
+        let uploadFile = null;
+
+        setMajordomeBulkStatus(`Optimizing ${label}...`);
+        uploadFile = await prepareMajordomeUploadFile(file);
 
         for (let attempt = 1; attempt <= majordomeUploadMaxAttempts; attempt++) {
             if (job && job.cancelRequested) {
@@ -2129,7 +2169,9 @@
             }
 
             try {
-                const payload = await postMajordomeUploadFormData(`${root}Majordome/UploadInventoryFiles`, buildMajordomeUploadFormData(stock, file), job);
+                setMajordomeBulkStatus(`Uploading ${label}...`);
+                const formData = buildMajordomeUploadFormData(stock, uploadFile, file.name);
+                const payload = await postMajordomeUploadFormData(`${root}Majordome/UploadInventoryFiles`, formData, job);
 
                 if (payload && payload.success === false) {
                     const errors = Array.isArray(payload.errors) && payload.errors.length
@@ -2367,7 +2409,7 @@
     }
 
     function setMajordomeBulkToolbarBusy(isBusy) {
-        $("#btnPurgeInventoryImageCache, #purgeStockImageCache, #btnAddInventory, #btnReStoryAll, #btnDecodeAll, #upload, #deleteAll, .js-amm-edit-inventory, .js-amm-upload-trigger, .js-amm-upload-input")
+        $("#purgeStockImageCache, #btnAddInventory, #btnReStoryAll, #btnDecodeAll, #upload, #deleteAll, .js-amm-edit-inventory, .js-amm-upload-trigger, .js-amm-upload-input")
             .prop("disabled", isBusy)
             .toggleClass("disabled", isBusy);
 

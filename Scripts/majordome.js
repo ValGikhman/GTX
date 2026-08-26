@@ -116,8 +116,43 @@ function appendCacheBust(url, token) {
     return url + separator + "v=" + encodedToken;
 }
 
+function inventoryImageVariantUrl(url, variant) {
+    var raw = (url || "").toString().trim();
+    if (!raw) return "";
+
+    var variants = {
+        grid: { width: 88, height: 66 },
+        small: { width: 400, height: 300 },
+        card: { width: 600, height: 450 },
+        detail: { width: 800, height: 600 }
+    };
+    var size = variants[variant] || variants.detail;
+
+    if (isMajordomeCloudflareImageUrl(raw)) {
+        var suffixIndex = raw.search(/[?#]/);
+        var suffix = suffixIndex >= 0 ? raw.substring(suffixIndex) : "";
+        var cleanUrl = suffixIndex >= 0 ? raw.substring(0, suffixIndex) : raw;
+        var relativePath = cleanUrl.substring(photosInventoryImagesBaseUrl.length).replace(/^\/+/, "");
+        relativePath = relativePath.replace(/^cdn-cgi\/image\/[^/]+\//i, "");
+        var options = `width=${size.width},height=${size.height},quality=80,fit=scale-down,format=auto`;
+        return `${photosInventoryImagesBaseUrl}/cdn-cgi/image/${options}/${relativePath}${suffix}`;
+    }
+
+    if (/^\/?InventoryImages\/Get/i.test(raw)) {
+        var separator = raw.indexOf("?") >= 0 ? "&" : "?";
+        if (/([?&])w=\d+/i.test(raw)) {
+            return raw.replace(/([?&])w=\d+/i, "$1w=" + size.width);
+        }
+        return raw + separator + "w=" + size.width;
+    }
+
+    return raw;
+}
+
 function appendImageWidth(url, width) {
-    return (url || "").toString().trim();
+    var requestedWidth = parseInt(width, 10) || 800;
+    var variant = requestedWidth <= 400 ? "small" : requestedWidth <= 600 ? "card" : "detail";
+    return inventoryImageVariantUrl(url, variant);
 }
 
 function decodeUriComponentSafe(value) {
@@ -313,8 +348,8 @@ function refreshMajordomePhotoCardImage($card, file, version) {
 
     var baseUrl = toInventoryImageUrl(file);
     var cacheVersion = version || Date.now();
-    var freshLinkUrl = appendCacheBust(appendImageWidth(baseUrl, 1600), cacheVersion);
-    var freshThumbUrl = appendCacheBust(appendImageWidth(baseUrl, 640), cacheVersion);
+    var freshLinkUrl = appendCacheBust(inventoryImageVariantUrl(baseUrl, "detail"), cacheVersion);
+    var freshThumbUrl = appendCacheBust(inventoryImageVariantUrl(baseUrl, "small"), cacheVersion);
     var $link = $card.find(".majordome-photo-link");
     var $image = $card.find(".majordome-photo-image");
 
@@ -393,7 +428,7 @@ function refreshMajordomeSelectedRowThumbnail(stock) {
         return;
     }
 
-    var freshThumb = appendCacheBust(appendImageWidth(toInventoryImageUrl(source), 320), Date.now());
+    var freshThumb = appendCacheBust(inventoryImageVariantUrl(toInventoryImageUrl(source), "grid"), Date.now());
     var $row = $("#majordomeInventoryBody .majordome-vehicle-row").filter(function () {
         return normalizeMajordomeStockKey($(this).attr("data-stock")) === targetStock;
     }).first();
@@ -565,8 +600,8 @@ function loadGallery(vehicle) {
         }
 
         var baseImagePath = toInventoryImageUrl(source);
-        var imageHref = appendImageWidth(baseImagePath, 1600);
-        var imageThumb = appendImageWidth(baseImagePath, 640);
+        var imageHref = inventoryImageVariantUrl(baseImagePath, "detail");
+        var imageThumb = inventoryImageVariantUrl(baseImagePath, "small");
         var fileNameOnly = getMajordomeFileNameOnly(source) || "image";
         var safeId = escapeHtml(img.Id);
         var safeSource = escapeHtml(source);
@@ -589,7 +624,7 @@ function loadGallery(vehicle) {
             </div>
             <a href="${safeImageHref}" class="majordome-photo-link" data-lightbox="gallery" title="${safeFileNameOnly}">
                 <div class="majordome-photo-media">
-                    <img class="majordome-photo-image" src="${safeImageThumb}" alt="${safeFileNameOnly}" title="${safeFileNameOnly}" loading="${loadingMode}" decoding="async" fetchpriority="${fetchPriority}" />
+                    <img class="majordome-photo-image vehicle-image" src="${safeImageThumb}" alt="${safeFileNameOnly}" title="${safeFileNameOnly}" width="400" height="300" loading="${loadingMode}" decoding="async" fetchpriority="${fetchPriority}" />
                 </div>
             </a>
             <div class="majordome-photo-footer">
@@ -706,7 +741,7 @@ function applyUploadedImagesToMajordomeState(stock, images, options) {
         var thumbSource = leadImage || (images.length > 0 && images[0] ? images[0].Source : "") || vehicle.Image;
         var $rowImage = $row.find(".majordome-row-image");
         if (thumbSource) {
-            var freshThumb = appendCacheBust(appendImageWidth(toInventoryImageUrl(thumbSource), 320), Date.now());
+            var freshThumb = appendCacheBust(inventoryImageVariantUrl(toInventoryImageUrl(thumbSource), "grid"), Date.now());
             $rowImage.attr("src", freshThumb);
         } else {
             $rowImage.attr("src", "");
@@ -1097,9 +1132,17 @@ function showRemoveBackgroundConfirmation(options) {
                                 <div class="majordome-remove-bg-switch-wrap">
                                     <span class="majordome-remove-bg-switch-label is-active" data-state="off"><i class="bi bi-image" aria-hidden="true"></i> Original</span>
                                     <div class="form-check form-switch m-0">
-                                        <input class="form-check-input majordome-remove-bg-switch" type="checkbox" role="switch" aria-label="Remove image background">
+                                        <input class="form-check-input majordome-remove-bg-switch" type="checkbox" role="switch" aria-label="Remove image background" disabled>
                                     </div>
                                     <span class="majordome-remove-bg-switch-label" data-state="remove"><i class="bi bi-stars" aria-hidden="true"></i> Remove</span>
+                                </div>
+                            </div>
+                            <div class="majordome-remove-bg-balance" aria-live="polite">
+                                <span class="majordome-remove-bg-balance-icon" aria-hidden="true"><i class="bi bi-coin"></i></span>
+                                <div>
+                                    <div class="small text-body-secondary">Total tokens left</div>
+                                    <div class="fw-bold majordome-remove-bg-token-total">Checking...</div>
+                                    <div class="small text-body-secondary majordome-remove-bg-token-detail">Contacting remove.bg</div>
                                 </div>
                             </div>
                             <div class="majordome-remove-bg-stage is-loading" aria-live="polite">
@@ -1129,6 +1172,8 @@ function showRemoveBackgroundConfirmation(options) {
         });
         var $switch = $modal.find(".majordome-remove-bg-switch");
         var $status = $modal.find(".majordome-remove-bg-status");
+        var $tokenTotal = $modal.find(".majordome-remove-bg-token-total");
+        var $tokenDetail = $modal.find(".majordome-remove-bg-token-detail");
         var $stage = $modal.find(".majordome-remove-bg-stage");
         var $processing = $modal.find(".majordome-remove-bg-processing");
         var $processingText = $modal.find(".majordome-remove-bg-processing-text");
@@ -1140,6 +1185,10 @@ function showRemoveBackgroundConfirmation(options) {
         var previewToken = "";
         var useImage = false;
         var processing = false;
+        var accountReady = false;
+        var totalTokens = 0;
+        var paidCredits = 0;
+        var freeCalls = 0;
         var originalImageLoading = true;
         var settled = false;
 
@@ -1167,10 +1216,81 @@ function showRemoveBackgroundConfirmation(options) {
 
         function setProcessing(isProcessing) {
             processing = isProcessing;
-            $switch.prop("disabled", isProcessing);
+            updateSwitchAvailability();
             $headerClose.prop("disabled", isProcessing);
             $close.prop("disabled", isProcessing);
             updateLoadingState();
+        }
+
+        function formatTokenCount(value) {
+            var count = Number(value);
+            if (!Number.isFinite(count)) return "0";
+            return Number.isInteger(count) ? count.toString() : count.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+        }
+
+        function updateSwitchAvailability() {
+            $switch.prop("disabled", processing || !accountReady || !!previewToken);
+        }
+
+        function renderTokenBalance(detailText) {
+            $tokenTotal.text(formatTokenCount(totalTokens));
+            $tokenDetail.text(detailText || `${formatTokenCount(paidCredits)} credits + ${formatTokenCount(freeCalls)} free calls`);
+        }
+
+        function animateTokenDecrement() {
+            var startTokens = Math.max(0, Number(totalTokens) || 0);
+            var endTokens = Math.max(0, startTokens - 1);
+
+            $tokenTotal.removeClass("is-decreasing");
+            void $tokenTotal.get(0).offsetWidth;
+            $tokenTotal.addClass("is-decreasing");
+            $tokenDetail.text("1 token used for this background removal");
+
+            window.setTimeout(function () {
+                totalTokens = endTokens;
+                $tokenTotal.text(formatTokenCount(totalTokens));
+            }, 300);
+
+            window.setTimeout(function () {
+                $tokenTotal.removeClass("is-decreasing");
+            }, 950);
+        }
+
+        async function loadTokenBalance() {
+            accountReady = false;
+            updateSwitchAvailability();
+            $status.text("Checking remove.bg token balance...");
+
+            try {
+                if (typeof settings.getAccountInfo !== "function") {
+                    throw new Error("The remove.bg balance check is unavailable.");
+                }
+
+                var response = await settings.getAccountInfo();
+                if (!response || !response.success) {
+                    throw new Error((response && response.message) || "Unable to load the remove.bg balance.");
+                }
+
+                totalTokens = Number(response.totalTokens) || 0;
+                paidCredits = Number(response.credits) || 0;
+                freeCalls = Number(response.freeCalls) || 0;
+                accountReady = response.canRemoveBackground === true && totalTokens > 0;
+                renderTokenBalance();
+
+                if (accountReady) {
+                    $status.text("Switch to Remove to create a preview.");
+                } else {
+                    $status.text("No remove.bg tokens are available.");
+                    $error.removeClass("d-none").text("Add remove.bg credits or wait for free calls to renew before removing a background.");
+                }
+            } catch (err) {
+                $tokenTotal.text("Unavailable");
+                $tokenDetail.text("Balance check failed");
+                $status.text("Background removal is unavailable until the token balance can be verified.");
+                $error.removeClass("d-none").text(err.message || "Unable to load the remove.bg token balance.");
+            } finally {
+                updateSwitchAvailability();
+            }
         }
 
         function showPreview(previewUrl) {
@@ -1215,6 +1335,7 @@ function showRemoveBackgroundConfirmation(options) {
                 }
 
                 await showPreview(previewUrl);
+                animateTokenDecrement();
                 $status.text(canSave
                     ? "Preview ready. Choose which image you want to keep."
                     : "Preview ready. Saving is available on staging or production where picture storage is connected.");
@@ -1228,7 +1349,7 @@ function showRemoveBackgroundConfirmation(options) {
                 $error.removeClass("d-none").text(err.message || "Failed to remove the image background.");
             } finally {
                 setProcessing(false);
-                $switch.prop("disabled", !!previewToken);
+                updateSwitchAvailability();
             }
         });
 
@@ -1254,6 +1375,7 @@ function showRemoveBackgroundConfirmation(options) {
         });
 
         modal.show();
+        loadTokenBalance();
     });
 }
 
@@ -1281,7 +1403,14 @@ async function removeImageBackground(file, triggerElement) {
         }
 
         const choice = await showRemoveBackgroundConfirmation({
-            originalUrl: appendImageWidth(toInventoryImageUrl(file), 1600),
+            originalUrl: inventoryImageVariantUrl(toInventoryImageUrl(file), "detail"),
+            getAccountInfo: async function () {
+                return await postMajordome(`${root}Majordome/GetRemoveBgAccount`, {}, {
+                    type: "GET",
+                    cache: false,
+                    dataType: "json"
+                });
+            },
             createPreview: async function () {
                 const response = await postMajordome(`${root}Majordome/RemoveImageBackground`, { file, stock });
                 if (!response || !response.success) {

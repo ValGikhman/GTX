@@ -3,6 +3,8 @@
 </div>
 
 <script>
+    const siteMakesCdnUrl = @Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(SiteImageUrl.Build("makes"), true));
+
     $(function () {
         getMakesImages()
     })
@@ -15,7 +17,7 @@
 
                 result.forEach(function (make) {
                     const $img = $('<img>')
-                        .attr('src', `/SiteImages/makes/${make.replace(/\s+/g, '-')}.png`)
+                        .attr('src', `${siteMakesCdnUrl}/${make.replace(/\s+/g, '-').toLowerCase()}.png`)
                         .attr('data-make', make)
                         .addClass('img-fluid img-thumbnail me-2 hand-pointer hover-bw')
                         .css({ height: '80px' })

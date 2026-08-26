@@ -10,6 +10,7 @@
     <script>
         window.inventoryImagesBaseUrl = @Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(InventoryImageSettings.BaseUrl, true));
         window.inventoryImagesPlaceholderUrl = @Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(InventoryImageSettings.PlaceholderUrl, true));
+        window.inventoryImagesCloudflareEnabled = @Html.Raw(InventoryImageSettings.CloudflareEnabled ? "true" : "false");
     </script>
     <script src="~/Scripts/majordome.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome.js")).Ticks)"></script>
 </head>

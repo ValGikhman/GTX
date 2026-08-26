@@ -2,113 +2,15 @@
 <div id="detailsCarousel" class="carousel slide" data-bs-ride="carousel">
     <div class="carousel-inner">
         @{
-            var photosInventoryImagesBaseUrl = InventoryImageSettings.BaseUrl;
             var i = 0;
-
-            string ExtractPathFromInventoryImageUrl(string source)
-            {
-                var value = (source ?? string.Empty).Trim();
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    return null;
-                }
-
-                var queryIndex = value.IndexOf('?');
-                if (queryIndex < 0 || queryIndex >= value.Length - 1)
-                {
-                    return null;
-                }
-
-                var query = System.Web.HttpUtility.ParseQueryString(value.Substring(queryIndex));
-                var pathValue = query["path"];
-                if (string.IsNullOrWhiteSpace(pathValue))
-                {
-                    return null;
-                }
-
-                return System.Web.HttpUtility.UrlDecode(pathValue);
-            }
-
-            string NormalizeInventoryImagePath(string source)
-            {
-                var value = (source ?? string.Empty).Trim().Replace('\\', '/');
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    return value;
-                }
-
-                if (value.StartsWith("/InventoryImages/Get", StringComparison.OrdinalIgnoreCase) ||
-                    value.StartsWith("InventoryImages/Get", StringComparison.OrdinalIgnoreCase))
-                {
-                    var pathFromQuery = ExtractPathFromInventoryImageUrl(value);
-                    if (!string.IsNullOrWhiteSpace(pathFromQuery))
-                    {
-                        value = pathFromQuery.Trim().Replace('\\', '/');
-                    }
-                }
-
-                value = value.TrimStart('/');
-
-                const string legacyPrefix = "SiteImages/Inventory/";
-                const string picturesPrefix = "Pictures/";
-                const string imagesPrefix = "Images/";
-
-                if (value.StartsWith(legacyPrefix, StringComparison.OrdinalIgnoreCase))
-                {
-                    value = value.Substring(legacyPrefix.Length);
-                }
-                else if (value.StartsWith(picturesPrefix, StringComparison.OrdinalIgnoreCase))
-                {
-                    value = value.Substring(picturesPrefix.Length);
-                }
-                else if (value.StartsWith(imagesPrefix, StringComparison.OrdinalIgnoreCase))
-                {
-                    value = value.Substring(imagesPrefix.Length);
-                }
-
-                return value;
-            }
-
-            string BuildPhotosImageUrl(string stock, string relativePath)
-            {
-                var normalized = (relativePath ?? string.Empty).Trim().Replace('\\', '/').Trim('/');
-                if (string.IsNullOrWhiteSpace(normalized))
-                {
-                    return string.Empty;
-                }
-
-                var normalizedStock = (stock ?? string.Empty).Trim();
-                if (!string.IsNullOrWhiteSpace(normalizedStock) &&
-                    !normalized.StartsWith(normalizedStock + "/", StringComparison.OrdinalIgnoreCase))
-                {
-                    normalized = normalizedStock + "/" + normalized;
-                }
-
-                var encodedPath = string.Join(
-                    "/",
-                    normalized
-                        .Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
-                        .Select(Uri.EscapeDataString)
-                );
-
-                return photosInventoryImagesBaseUrl + "/" + encodedPath;
-            }
         }
         @foreach (var image in Model.VehicleDetails.Images) {
-            var imagePath = $"{image.Source}";
-
-            var sourceValue = image.Source ?? string.Empty;
-            var isAbsoluteExternal = sourceValue.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
-                                     sourceValue.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
-
-            if (!isAbsoluteExternal)
-            {
-                var normalizedPath = NormalizeInventoryImagePath(image.Source);
-                imagePath = BuildPhotosImageUrl(image.Stock, normalizedPath);
-            }
+            var imagePath = InventoryImageUrl.Build(image.Source, image.Stock, InventoryImageVariant.Detail);
             <div class="carousel-item @(i == 0 ? "active" : "")">
                 <div class="slide-box">
-                    <img src="@imagePath"
+                    <img class="vehicle-image" src="@imagePath"
+                         width="800"
+                         height="600"
                          alt="Vehicle image @i"
                          loading="@(i == 0 ? "eager" : "lazy")"
                          decoding="async"

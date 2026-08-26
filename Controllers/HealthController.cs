@@ -1,12 +1,15 @@
 using GTX;
 using GTX.Common;
 using GTX.Controllers;
+using GTX.Helpers;
 using Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Management;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 
 [RequireAdminRole]
@@ -223,6 +226,85 @@ public class HealthController : BaseController
     public ActionResult GetOffline()
     {
         return Json(new { isOffline = MaintenanceFlag.IsOffline() }, JsonRequestBehavior.AllowGet);
+    }
+
+    [HttpPost]
+    [RequireAdminRole(RequiredRole = CommonUnit.Roles.Owner)]
+    public async Task<ActionResult> RefreshInventoryCdn()
+    {
+        if (!InventoryImageSettings.CloudflareEnabled)
+        {
+            return Json(new { success = false, message = "Cloudflare inventory images are disabled; inventory images are currently served on-site." });
+        }
+
+        try
+        {
+            var inventory = InventoryService.GetInventory(includeHiddenInventory: true, includeDataOneContent: false);
+            var stocks = (inventory.vehicles ?? Array.Empty<global::Common.GTXDTO>())
+                .Select(vehicle => vehicle.Stock)
+                .Where(stock => !string.IsNullOrWhiteSpace(stock))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+            var imagesByStock = InventoryService.GetImages(stocks);
+            var imageCount = imagesByStock.Values.Sum(images => images?.Length ?? 0);
+
+            var purged = await CloudflareCachePurger.PurgeInventoryHostAsync();
+            if (!purged)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Cloudflare did not accept the inventory cache refresh. Check the cache credentials and application log."
+                });
+            }
+
+            return Json(new
+            {
+                success = true,
+                stockCount = stocks.Length,
+                imageCount,
+                message = $"Refreshed the inventory CDN cache for {stocks.Length} stock(s) and {imageCount} image record(s)."
+            });
+        }
+        catch (Exception ex)
+        {
+            Log(ex);
+            return Json(new { success = false, message = "Unable to refresh the inventory CDN cache: " + ex.Message });
+        }
+    }
+
+    [HttpPost]
+    [RequireAdminRole(RequiredRole = CommonUnit.Roles.Owner)]
+    public async Task<ActionResult> RefreshSiteImagesCdn()
+    {
+        if (!InventoryImageSettings.CloudflareEnabled)
+        {
+            return Json(new { success = false, message = "Cloudflare site images are disabled; site assets are currently served on-site." });
+        }
+
+        try
+        {
+            var purged = await CloudflareCachePurger.PurgeSiteImagesAsync();
+            if (!purged)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Cloudflare did not accept the SiteImages cache refresh. Check the cache credentials and application log."
+                });
+            }
+
+            return Json(new
+            {
+                success = true,
+                message = "Refreshed the CDN cache for GTX/SiteImages, including site images and videos."
+            });
+        }
+        catch (Exception ex)
+        {
+            Log(ex);
+            return Json(new { success = false, message = "Unable to refresh the SiteImages CDN cache: " + ex.Message });
+        }
     }
 
 }

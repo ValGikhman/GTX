@@ -1803,7 +1803,6 @@ input::placeholder {
 }
 /*#region Modal */
 .modal-header {
-    background-image: url('../img/Backgrounds/rbg.png');
     background: #155A96;
     background: linear-gradient(180deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1) 94%);
     border-bottom: 2px solid darkred;
@@ -4083,3 +4082,9 @@ html.theme-silver .home-quick-icon {
     }
 }
 
+/* Inventory images use one predictable 4:3 presentation at every breakpoint. */
+.vehicle-image {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+}

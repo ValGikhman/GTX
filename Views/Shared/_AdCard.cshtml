@@ -1,129 +1,7 @@
 @model GTX.Models.GTX
 @{
-    var photosInventoryImagesBaseUrl = InventoryImageSettings.BaseUrl;
-
-    string ExtractPathFromInventoryImageUrl(string source)
-    {
-        var value = (source ?? string.Empty).Trim();
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return null;
-        }
-
-        var queryIndex = value.IndexOf('?');
-        if (queryIndex < 0 || queryIndex >= value.Length - 1)
-        {
-            return null;
-        }
-
-        var query = System.Web.HttpUtility.ParseQueryString(value.Substring(queryIndex));
-        var pathValue = query["path"];
-        if (string.IsNullOrWhiteSpace(pathValue))
-        {
-            return null;
-        }
-
-        return System.Web.HttpUtility.UrlDecode(pathValue);
-    }
-
-    string NormalizeInventoryImagePath(string source)
-    {
-        var value = (source ?? string.Empty).Trim().Replace('\\', '/');
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return null;
-        }
-
-        if (value.StartsWith("/InventoryImages/Get", StringComparison.OrdinalIgnoreCase) ||
-            value.StartsWith("InventoryImages/Get", StringComparison.OrdinalIgnoreCase))
-        {
-            var pathFromQuery = ExtractPathFromInventoryImageUrl(value);
-            if (!string.IsNullOrWhiteSpace(pathFromQuery))
-            {
-                value = pathFromQuery.Trim().Replace('\\', '/');
-            }
-        }
-
-        value = value.TrimStart('/');
-
-        const string legacyPrefix = "SiteImages/Inventory/";
-        const string picturesPrefix = "Pictures/";
-        const string imagesPrefix = "Images/";
-
-        if (value.StartsWith(legacyPrefix, StringComparison.OrdinalIgnoreCase))
-        {
-            return value.Substring(legacyPrefix.Length);
-        }
-
-        if (value.StartsWith(picturesPrefix, StringComparison.OrdinalIgnoreCase))
-        {
-            return value.Substring(picturesPrefix.Length);
-        }
-
-        if (value.StartsWith(imagesPrefix, StringComparison.OrdinalIgnoreCase))
-        {
-            return value.Substring(imagesPrefix.Length);
-        }
-
-        return value;
-    }
-
-    string BuildPhotosImageUrl(string relativePath)
-    {
-        var normalized = (relativePath ?? string.Empty).Trim().Replace('\\', '/').Trim('/');
-        if (string.IsNullOrWhiteSpace(normalized))
-        {
-            return string.Empty;
-        }
-
-        var encodedPath = string.Join(
-            "/",
-            normalized
-                .Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(Uri.EscapeDataString)
-        );
-
-        return photosInventoryImagesBaseUrl + "/" + encodedPath;
-    }
-
-    string BuildAdCardImageUrl(string source)
-    {
-        var value = (source ?? string.Empty).Trim();
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return InventoryImageSettings.PlaceholderUrl;
-        }
-
-        if (value.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
-            value.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
-        {
-            return value;
-        }
-
-        var normalizedPath = NormalizeInventoryImagePath(value);
-        if (string.IsNullOrWhiteSpace(normalizedPath))
-        {
-            return InventoryImageSettings.PlaceholderUrl;
-        }
-
-        if (normalizedPath.IndexOf("no-image", StringComparison.OrdinalIgnoreCase) >= 0)
-        {
-            return InventoryImageSettings.PlaceholderUrl;
-        }
-
-        var stock = (Model.Stock ?? string.Empty).Trim();
-        if (!string.IsNullOrWhiteSpace(stock) &&
-            normalizedPath.IndexOf("no-image", StringComparison.OrdinalIgnoreCase) < 0 &&
-            !normalizedPath.StartsWith(stock + "/", StringComparison.OrdinalIgnoreCase))
-        {
-            normalizedPath = stock + "/" + normalizedPath;
-        }
-
-        return BuildPhotosImageUrl(normalizedPath);
-    }
-
     var detailsUrl = Url.Action("Details", "Inventory", new { stock = Model.Stock });
-    var adCardImageUrl = BuildAdCardImageUrl(Model.Image);
+    var adCardImageUrl = InventoryImageUrl.Build(Model.Image, Model.Stock, InventoryImageVariant.Card);
     var adCardTitle = $"{Model.Year} {Model.Make} {Model.Model} {Model.VehicleStyle}".Trim();
     var usCulture = System.Globalization.CultureInfo.GetCultureInfo("en-US");
     var documentaryFee = Model.InternetPrice > 0 ? Constants.DOCUMENTARY_FEE : 0;
@@ -148,7 +26,9 @@
     <div class="gtx-ad-card-media">
         <img src="@adCardImageUrl"
              alt="@adCardTitle"
-             class="gtx-ad-card-img"
+             class="gtx-ad-card-img vehicle-image"
+             width="600"
+             height="450"
              loading="lazy"
              decoding="async"
              fetchpriority="low" />
