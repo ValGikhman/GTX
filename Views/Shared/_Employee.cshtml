@@ -159,7 +159,7 @@
                 refreshEmployees();
             })
             .fail(function (xhr) {
-                alert("Delete failed. Status: " + xhr.status);
+                window.gtxAlert("Delete failed. Status: " + xhr.status);
             });
     };
 

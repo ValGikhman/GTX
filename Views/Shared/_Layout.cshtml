@@ -704,6 +704,7 @@
                 result.message = result.message || "Are you sure you want to continue?";
                 result.confirmText = source.confirmText || "Confirm";
                 result.cancelText = source.cancelText || "Cancel";
+                result.showCancel = source.showCancel !== false;
                 result.variant = source.variant || "primary";
                 result.iconClass = source.iconClass || "";
                 result.imageUrl = source.imageUrl || "";
@@ -798,6 +799,7 @@
                     message.textContent = settings.message;
                     confirmButton.textContent = settings.confirmText;
                     cancelButton.textContent = settings.cancelText;
+                    cancelButton.classList.toggle("d-none", !settings.showCancel);
                     icon.className = settings.iconClass;
                     setButtonVariant(confirmButton, settings.variant);
 
@@ -847,6 +849,26 @@
                     modal.addEventListener("shown.bs.modal", onShown, { once: true });
                     instance.show();
                 });
+            };
+
+            window.gtxAlert = function (messageOrOptions, options) {
+                var source;
+                if (typeof messageOrOptions === "string") {
+                    source = Object.assign({}, options || {}, { message: messageOrOptions });
+                } else if (messageOrOptions instanceof Error) {
+                    source = Object.assign({}, options || {}, { message: messageOrOptions.message });
+                } else {
+                    source = Object.assign({}, messageOrOptions || {});
+                }
+
+                source.title = source.title || "Notice";
+                source.confirmText = source.confirmText || "OK";
+                source.showCancel = false;
+                source.iconClass = source.iconClass || (source.variant === "success"
+                    ? "bi bi-check2-circle"
+                    : "bi bi-info-circle");
+
+                return window.gtxConfirm(source);
             };
         })(window, document);
     </script>

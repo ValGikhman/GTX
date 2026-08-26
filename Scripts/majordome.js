@@ -801,7 +801,7 @@ async function upload(formData, stock) {
         await refreshMajordomeAfterImageMutation(stock, { keepGalleryTab: true });
     } catch (error) {
         console.error("Upload failed:", error);
-        alert(error && error.message ? error.message : "Upload failed.");
+        window.gtxAlert(error && error.message ? error.message : "Upload failed.");
     } finally {
         endMajordomeImageAction($overlay);
     }
@@ -815,11 +815,11 @@ function restoreBackUpInventory() {
             hideSpinner($("#inventoryOverlay"));
             window.location.href = "/Home";
         } else {
-            alert("Restore backup failed.");
+            window.gtxAlert("Restore backup failed.");
         }
     })
     .catch(error => {
-        alert(error);
+        window.gtxAlert(error);
     });
 }
 
@@ -845,13 +845,13 @@ function reStoryAll() {
                 .then(data => {
                     updateRow(data);
                 });
-            alert(`Restory is done`);
+            window.gtxAlert(`Restory is done`, { variant: "success" });
         } else {
-            alert("Restory failed.");
+            window.gtxAlert("Restory failed.");
         }
     })
     .catch(error => {
-        alert(error);
+        window.gtxAlert(error);
     })
     .finally(() => {
         if (typeof hideSpinner === 'function') {
@@ -877,11 +877,11 @@ async function decodeAll() {
         const data = await getUpdatedItems();
         updateRow(data);
 
-        alert('Decoding is done');
+        window.gtxAlert('Decoding is done', { variant: "success" });
     }
     catch (error) {
         console.error('Error in decodeAll:', error);
-        alert('Decoding failed while getting updated items.');
+        window.gtxAlert('Decoding failed while getting updated items.');
     }
     finally {
         if (typeof hideSpinner === 'function') {
@@ -911,7 +911,7 @@ async function decodeDataOne(vin) {
 
     catch (error) {
         console.error('Error in decodeDataOne:', error);
-        alert('Decoding failed while getting updated items.');
+        window.gtxAlert('Decoding failed while getting updated items.');
     }
 
     finally {
@@ -954,7 +954,7 @@ async function deleteDataOne(stock) {
 
     catch (err) {
         console.error('Error in deleteDataOne:', err);
-        alert(err.message || 'Delete failed.');
+        window.gtxAlert(err.message || 'Delete failed.');
     }
 
     finally {
@@ -983,7 +983,7 @@ async function deleteImages(stock) {
         await refreshMajordomeAfterImageMutation(stock, { keepGalleryTab: true });
     } catch (err) {
         console.error("DeleteImages failed:", err);
-        alert(err.message || "Failed to delete images on the server.");
+        window.gtxAlert(err.message || "Failed to delete images on the server.");
     } finally {
         endMajordomeImageAction($overlay);
     }
@@ -992,7 +992,7 @@ async function deleteImages(stock) {
 async function deleteImage(id, file, object) {
     const stock = getActiveMajordomeStock();
     if (!stock) {
-        alert("Please select a vehicle first.");
+        window.gtxAlert("Please select a vehicle first.");
         return;
     }
 
@@ -1016,7 +1016,7 @@ async function deleteImage(id, file, object) {
         $("#close").click();
     } catch (err) {
         console.error("DeleteImage failed:", err);
-        alert(err.message || "Failed to delete image on the server.");
+        window.gtxAlert(err.message || "Failed to delete image on the server.");
     } finally {
         endMajordomeImageAction($overlay);
     }
@@ -1025,7 +1025,7 @@ async function deleteImage(id, file, object) {
 async function rotateImage(file, degrees, triggerElement) {
     const stock = getActiveMajordomeStock();
     if (!stock) {
-        alert("Please select a vehicle first.");
+        window.gtxAlert("Please select a vehicle first.");
         return;
     }
 
@@ -1062,7 +1062,7 @@ async function rotateImage(file, degrees, triggerElement) {
         }
     } catch (err) {
         console.error("RotateImage failed:", err);
-        alert(err.message || "Failed to rotate image on the server.");
+        window.gtxAlert(err.message || "Failed to rotate image on the server.");
     } finally {
         endMajordomeImageAction($overlay);
     }
@@ -1260,7 +1260,7 @@ function showRemoveBackgroundConfirmation(options) {
 async function removeImageBackground(file, triggerElement) {
     const stock = getActiveMajordomeStock();
     if (!stock) {
-        alert("Please select a vehicle first.");
+        window.gtxAlert("Please select a vehicle first.");
         return;
     }
 
@@ -1331,7 +1331,7 @@ async function removeImageBackground(file, triggerElement) {
             }
         }
         console.error("RemoveImageBackground failed:", err);
-        alert(err.message || "Failed to remove image background on the server.");
+        window.gtxAlert(err.message || "Failed to remove image background on the server.");
     } finally {
         endMajordomeImageAction($overlay);
     }
@@ -1340,7 +1340,7 @@ async function removeImageBackground(file, triggerElement) {
 async function createStory(stock) {
     var targetStock = (stock || "").toString().trim();
     if (!targetStock) {
-        alert("Please select a vehicle first.");
+        window.gtxAlert("Please select a vehicle first.");
         return;
     }
 
@@ -1370,7 +1370,7 @@ async function createStory(stock) {
         }
     } catch (err) {
         console.error("CreateStory failed:", err);
-        alert((err && err.message) || "Failed to create story on the server.");
+        window.gtxAlert((err && err.message) || "Failed to create story on the server.");
     } finally {
         if (typeof hideSpinner === "function") {
             hideSpinner($overlay);
@@ -1381,7 +1381,7 @@ async function createStory(stock) {
 async function deleteStory(stock) {
     var targetStock = (stock || "").toString().trim();
     if (!targetStock) {
-        alert("Please select a vehicle first.");
+        window.gtxAlert("Please select a vehicle first.");
         return;
     }
 
@@ -1408,7 +1408,7 @@ async function deleteStory(stock) {
         }
     } catch (err) {
         console.error("DeleteStory failed:", err);
-        alert((err && err.message) || "Failed to delete story on the server.");
+        window.gtxAlert((err && err.message) || "Failed to delete story on the server.");
     } finally {
         if (typeof hideSpinner === "function") {
             hideSpinner($overlay);
@@ -1447,7 +1447,7 @@ async function saveOrder(sorted, options) {
         await refreshMajordomeAfterImageMutation(stock, { keepGalleryTab: true });
     } catch (err) {
         console.error("SaveOrder failed:", err);
-        alert(err.message || "Failed to save order on the server.");
+        window.gtxAlert(err.message || "Failed to save order on the server.");
     } finally {
         endMajordomeImageAction($overlay);
     }
@@ -1482,7 +1482,7 @@ async function saveOverlayFile() {
     const imagePath = context && context.imagePath ? context.imagePath : "";
 
     if (!stock || !imagePath) {
-        alert("Overlay file context is missing.");
+        window.gtxAlert("Overlay file context is missing.");
         return;
     }
 
@@ -1546,7 +1546,7 @@ async function saveOverlayFile() {
         $("#close").click();
     } catch (err) {
         console.error("SaveOverlayFile failed:", err);
-        alert(err.message || "Failed to save overlay file.");
+        window.gtxAlert(err.message || "Failed to save overlay file.");
     } finally {
         endMajordomeImageAction($overlaySpinner);
     }

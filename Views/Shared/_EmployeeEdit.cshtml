@@ -147,7 +147,7 @@
             if (!f) { setPreview(""); return; }
 
             if (!f.type || !f.type.toLowerCase().startsWith("image/")) {
-                alert("Please select an image file.");
+                window.gtxAlert("Please select an image file.");
                 $(this).val('');
                 setPreview("");
                 return;
