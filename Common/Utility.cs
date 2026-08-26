@@ -32,6 +32,16 @@ namespace GTX.Helpers {
                 return (string.IsNullOrWhiteSpace(configured) ? fallback : configured).TrimEnd('/');
             }
         }
+
+        public static string PlaceholderUrl
+        {
+            get
+            {
+                var configured = ConfigurationManager.AppSettings["Images:CloudflareBaseUrl"];
+                var baseUrl = string.IsNullOrWhiteSpace(configured) ? DefaultCloudflareBaseUrl : configured;
+                return baseUrl.TrimEnd('/') + "/no-image-1.jpg";
+            }
+        }
     }
 
     public static class EnumHelper<T>

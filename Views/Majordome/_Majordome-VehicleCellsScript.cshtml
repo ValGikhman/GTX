@@ -22,7 +22,7 @@
         function renderImageCell(vehicle) {
             const row = cellNormalizeVehicle(vehicle);
             const stock = cellText(row.Stock);
-            const imageSource = cellText(row.Image).trim();
+            const imageSource = cellText(row.Image).trim() || cellText(window.inventoryImagesPlaceholderUrl).trim();
             const image = imageSource && typeof window.toInventoryImageUrl === "function"
                 ? cellEscapeHtml(window.toInventoryImageUrl(imageSource, stock))
                 : cellEscapeHtml(imageSource);

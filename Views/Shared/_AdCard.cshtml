@@ -91,7 +91,7 @@
         var value = (source ?? string.Empty).Trim();
         if (string.IsNullOrWhiteSpace(value))
         {
-            return value;
+            return InventoryImageSettings.PlaceholderUrl;
         }
 
         if (value.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
@@ -103,7 +103,12 @@
         var normalizedPath = NormalizeInventoryImagePath(value);
         if (string.IsNullOrWhiteSpace(normalizedPath))
         {
-            return value;
+            return InventoryImageSettings.PlaceholderUrl;
+        }
+
+        if (normalizedPath.IndexOf("no-image", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            return InventoryImageSettings.PlaceholderUrl;
         }
 
         var stock = (Model.Stock ?? string.Empty).Trim();

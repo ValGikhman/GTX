@@ -22,7 +22,7 @@ namespace GTX.Controllers
         public string imageFolder => InventoryImageSettings.CloudflareEnabled
             ? InventoryImageSettings.BaseUrl + "/"
             : "/InventoryImages/Get?path=";
-        protected string DefaultInventoryImage => "/InventoryImages/Get?path=no-image-1.jpg";
+        protected string DefaultInventoryImage => InventoryImageSettings.PlaceholderUrl;
         public readonly string openAiApiKey = ConfigurationManager.AppSettings["OpenAI:ApiKey"];
         public readonly string dataOneApiKey = ConfigurationManager.AppSettings["DataOne:AccessKey"];
         public readonly string dataOneSecretApiKey = ConfigurationManager.AppSettings["DataOne:SecretAccessKey"];

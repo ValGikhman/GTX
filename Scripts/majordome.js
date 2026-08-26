@@ -1,5 +1,6 @@
 var selectedVehicle;
 var photosInventoryImagesBaseUrl = (window.inventoryImagesBaseUrl || "https://photos.usedcarscincinnati.com/Images").replace(/\/+$/, "");
+var photosInventoryImagesPlaceholderUrl = (window.inventoryImagesPlaceholderUrl || (photosInventoryImagesBaseUrl + "/no-image-1.jpg")).toString().trim();
 var photosInventoryImagesUseCloudflare = window.inventoryImagesCloudflareEnabled === true;
 
 function isMajordomeCloudflareImageUrl(url) {
@@ -82,6 +83,10 @@ function toInventoryImageUrl(source, stock) {
     normalized = normalized.replace(/^\/+/, "").replace(/\/+$/, "");
 
     if (!normalized) return "";
+
+    if (/(^|\/)no-image-1\.jpg$/i.test(normalized)) {
+        return photosInventoryImagesPlaceholderUrl;
+    }
 
     var normalizedStock = (stock || getActiveMajordomeStock() || "").toString().trim();
     if (normalizedStock && normalized.toLowerCase().indexOf(normalizedStock.toLowerCase() + "/") !== 0) {
