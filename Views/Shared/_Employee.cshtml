@@ -1,6 +1,6 @@
 ﻿@using Extensions
 @model List<GTX.Models.EmployeeModel>
-<link href="~/Content/majordome.css" rel="stylesheet" />
+<link href="~/Content/majordome.css?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/majordome.css")).Ticks)" rel="stylesheet" />
 
 <div class="shadow rounded-4 overflow-hidden">
 
