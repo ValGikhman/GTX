@@ -184,10 +184,10 @@
         <meta property="product:price:currency" content="USD" />
     }
     <script src="~/Scripts/Lightbox/lc_lightbox.lite.min.js" type="text/javascript"></script>
-    <link href="~/Content/Lightbox/lc_lightbox.min.css" rel="stylesheet" />
+    <link href="~/Content/Lightbox/lc_lightbox.min.css?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/Lightbox/lc_lightbox.min.css")).Ticks)" rel="stylesheet" />
 
     <!-- SKINS -->
-    <link href="~/Content/Lightbox/dark.css" rel="stylesheet" />
+    <link href="~/Content/Lightbox/dark.css?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/Lightbox/dark.css")).Ticks)" rel="stylesheet" />
     <!-- New button-->
     <link rel="stylesheet" href="https://c.maxallowance.com/widget/css/tradein-maxallowance.css?ver=0.0.1">
 
