@@ -3,7 +3,7 @@
     ViewBag.Title = "Sitemap Viewer";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<link href="~/Content/majordome.css" rel="stylesheet" />
+<link href="~/Content/majordome.css?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/majordome.css")).Ticks)" rel="stylesheet" />
 
 <div class="mx-auto">
     <!-- Main container (flex column so header/footer stay put, body scrolls) -->

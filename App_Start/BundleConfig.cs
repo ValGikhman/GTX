@@ -45,7 +45,6 @@ namespace GTX {
                       "~/Content/Themes/Silver.css",
                       "~/Content/inventory-card.css",
                       "~/Content/dataone-details.css",
-                      "~/Content/majordome.css",
                       "~/Content/inventory-history.css",
                       "~/Content/inventory-dashboard.css",
                       "~/Content/vehicle-details.css",
