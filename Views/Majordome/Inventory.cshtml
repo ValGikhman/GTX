@@ -52,7 +52,7 @@
 </div>
 
 <div class="modal fade" id="majordomeBulkProgressModal" tabindex="-1" aria-labelledby="majordomeBulkProgressTitle" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-dialog-centered">
+    <div id="majordomeBulkProgressDialog" class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="modal-title" id="majordomeBulkProgressTitle">Bulk update</div>
@@ -60,6 +60,7 @@
             <div class="modal-body">
                 <p id="majordomeBulkProgressIntro" class="mb-2"></p>
                 <div id="majordomeBulkProgressSummary" class="majordome-inventory-summary small mb-2 d-none" aria-live="polite"></div>
+                <div id="majordomeBulkPreview" class="majordome-bulk-preview d-none mb-3"></div>
                 <div class="d-flex justify-content-between small text-muted mb-1">
                     <span id="majordomeBulkProgressCounts">0 of 0</span>
                     <span id="majordomeBulkProgressPercent">0%</span>
@@ -307,6 +308,7 @@
     <button type="button" id="btnAddInventory" class="btn btn-gradient shadow"><i class="bi bi-plus-circle me-1"></i>Add inventory</button>
     <button type="button" id="btnDecodeAll" class="btn btn-gradient shadow">Decode all</button>
     <button type="button" id="btnReStoryAll" class="btn btn-gradient shadow">Re-story all</button>
+    <button type="button" id="btnRemoveBackgrounds" class="btn btn-gradient shadow"><i class="bi bi-eraser-fill me-1"></i>Remove backgrounds</button>
 </template>
 
 <input type="hidden" id="currentVehicle" />
@@ -568,6 +570,11 @@
         $(document).on("click", "#btnReStoryAll", function (e) {
             e.preventDefault();
             openMajordomeBulkProgressModal("restory");
+        });
+
+        $(document).on("click", "#btnRemoveBackgrounds", function (e) {
+            e.preventDefault();
+            openMajordomeBulkProgressModal("remove-backgrounds");
         });
 
         $(document).on("click", "#btnDecodeAll", function (e) {
@@ -1731,6 +1738,161 @@
         return getMajordomeImageCount(vehicle) > 0;
     }
 
+    function getMajordomeFirstImage(vehicle) {
+        const images = Array.isArray(vehicle?.Images) ? vehicle.Images : [];
+        if (!images.length) return null;
+
+        return images.reduce(function (first, image) {
+            const firstOrder = Number(first?.Order);
+            const imageOrder = Number(image?.Order);
+            if (!Number.isFinite(imageOrder)) return first;
+            if (!Number.isFinite(firstOrder) || imageOrder < firstOrder) return image;
+            return first;
+        }, images[0]);
+    }
+
+    function getMajordomeRemoveBackgroundItems() {
+        return getMajordomeBulkInventoryVehicles().reduce(function (items, vehicle) {
+            const firstImage = getMajordomeFirstImage(vehicle);
+            const source = safeText(firstImage?.Source).trim();
+            const stock = safeText(vehicle?.Stock).trim();
+
+            if (!source || !stock || source.toUpperCase().indexOf("-RB") >= 0) {
+                return items;
+            }
+
+            items.push({
+                Vehicle: vehicle,
+                Stock: stock,
+                Source: source,
+                Label: getMajordomeBulkVehicleLabel(vehicle)
+            });
+            return items;
+        }, []);
+    }
+
+    function renderMajordomeRemoveBackgroundPreview(job) {
+        const $preview = $("#majordomeBulkPreview").empty();
+        if (!job || !Array.isArray(job.items) || !job.items.length) {
+            $preview.addClass("d-none");
+            return;
+        }
+
+        const $grid = $("<div></div>").addClass("majordome-background-preview-grid");
+        job.items.forEach(function (item) {
+            const imageUrl = inventoryImageVariantUrl(toInventoryImageUrl(item.Source, item.Stock), "card");
+            const $card = $("<div></div>").addClass("majordome-background-preview-card");
+            const $image = $("<img>")
+                .attr("src", imageUrl || window.inventoryImagesPlaceholderUrl || "")
+                .attr("alt", `${item.Label} first image`)
+                .attr("loading", "lazy");
+            const $details = $("<div></div>").addClass("majordome-background-preview-details");
+
+            $("<div></div>").addClass("fw-semibold text-truncate").text(item.Label).appendTo($details);
+            $("<div></div>")
+                .addClass("small text-muted text-truncate")
+                .attr("title", item.Source)
+                .text(getMajordomeImageFileLabel(item.Source))
+                .appendTo($details);
+
+            $card.append($image, $details).appendTo($grid);
+        });
+
+        $preview.removeClass("d-none").append($grid);
+    }
+
+    function renderMajordomeRemoveBackgroundTokenSummary(job, account) {
+        const available = Math.max(0, Math.floor(Number(account?.totalTokens) || 0));
+        const required = job?.items?.length || 0;
+        const remaining = Math.max(0, available - required);
+        const $summary = $("#majordomeBulkProgressSummary").empty().removeClass("d-none");
+
+        $("<span></span>").addClass("badge text-bg-primary").text(`${required} vehicle${required === 1 ? "" : "s"}`).appendTo($summary);
+        $("<span></span>")
+            .addClass("badge text-bg-secondary js-remove-bg-token-count")
+            .text(`${available} token${available === 1 ? "" : "s"} available`)
+            .appendTo($summary);
+        if (available >= required) {
+            $("<span></span>").addClass("badge text-bg-success").text(`${remaining} remaining after batch`).appendTo($summary);
+        } else {
+            $("<span></span>").addClass("badge text-bg-danger").text(`${required - available} token${required - available === 1 ? "" : "s"} short`).appendTo($summary);
+        }
+    }
+
+    function updateMajordomeRemoveBackgroundTokenCount(available) {
+        const tokenCount = Math.max(0, Math.floor(Number(available) || 0));
+        const $badge = $("#majordomeBulkProgressSummary .js-remove-bg-token-count");
+        if (!$badge.length) return;
+
+        $badge
+            .text(`${tokenCount} token${tokenCount === 1 ? "" : "s"} available`)
+            .removeClass("is-updated");
+        void $badge[0].offsetWidth;
+        $badge.addClass("is-updated");
+    }
+
+    async function removeMajordomeFirstImageBackground(item, job) {
+        let previewToken = "";
+
+        try {
+            const preview = await postMajordome(`${root}Majordome/RemoveImageBackground`, {
+                file: item.Source,
+                stock: item.Stock
+            });
+            if (!preview || !preview.success || !preview.previewToken) {
+                throw new Error((preview && preview.message) || "Background removal failed.");
+            }
+
+            previewToken = preview.previewToken;
+            if (job.cancelRequested) {
+                await postMajordome(`${root}Majordome/CancelRemoveImageBackground`, {
+                    file: item.Source,
+                    stock: item.Stock,
+                    previewToken: previewToken
+                });
+                throw new Error("Canceled.");
+            }
+
+            const response = await postMajordome(`${root}Majordome/ConfirmRemoveImageBackground`, {
+                file: item.Source,
+                stock: item.Stock,
+                previewToken: previewToken
+            });
+            if (!response || !response.success) {
+                throw new Error((response && response.message) || "The processed image could not be saved.");
+            }
+
+            previewToken = "";
+            if (Array.isArray(response.images) && typeof applyUploadedImagesToMajordomeState === "function") {
+                applyUploadedImagesToMajordomeState(item.Stock, response.images, {
+                    image: response.image,
+                    selectVehicle: false,
+                    updateGallery: false
+                });
+            }
+
+            job.availableTokens = Math.max(0, (job.availableTokens || 0) - 1);
+            updateMajordomeRemoveBackgroundTokenCount(job.availableTokens);
+            return {
+                status: "success",
+                message: `${item.Label} background removed.`
+            };
+        } catch (error) {
+            if (previewToken) {
+                try {
+                    await postMajordome(`${root}Majordome/CancelRemoveImageBackground`, {
+                        file: item.Source,
+                        stock: item.Stock,
+                        previewToken: previewToken
+                    });
+                } catch (cleanupError) {
+                    console.warn("Unable to clean up background-removal preview:", cleanupError);
+                }
+            }
+            throw error;
+        }
+    }
+
     function getMajordomeBulkVehicleByStock(stock) {
         const stockKey = safeText(stock).trim().toUpperCase();
         if (!stockKey) return null;
@@ -2277,6 +2439,63 @@
             };
         }
 
+        if (actionKey === "remove-backgrounds") {
+            const items = getMajordomeRemoveBackgroundItems();
+
+            return {
+                title: "Remove first-image backgrounds",
+                emptyText: "No vehicles have an eligible first image. Images already containing -RB are skipped.",
+                initialStatus: "Checking the live remove.bg token balance...",
+                cancelMessage: "Cancel requested. The current vehicle will finish, then the remaining vehicles will stop.",
+                startText: "Run background removal",
+                largeModal: true,
+                hideStartWhenUnavailable: true,
+                intro: function (count) {
+                    return `Review the first image for ${count} eligible vehicle${count === 1 ? "" : "s"}. Only these first images will be processed.`;
+                },
+                getItems: function () {
+                    return items;
+                },
+                getLabel: function (item) {
+                    return item.Label;
+                },
+                renderPreview: renderMajordomeRemoveBackgroundPreview,
+                preflight: async function (job) {
+                    const account = await postMajordome(`${root}Majordome/GetRemoveBgAccount`, {}, {
+                        type: "GET",
+                        cache: false,
+                        dataType: "json"
+                    });
+                    if (!account || !account.success) {
+                        throw new Error((account && account.message) || "The remove.bg token balance could not be loaded.");
+                    }
+
+                    const available = Math.max(0, Math.floor(Number(account.totalTokens) || 0));
+                    const required = job.items.length;
+                    job.availableTokens = available;
+                    renderMajordomeRemoveBackgroundTokenSummary(job, account);
+
+                    if (available < required) {
+                        return {
+                            canStart: false,
+                            status: `Cannot run: ${required} tokens are required for ${required} vehicles, but only ${available} are available.`
+                        };
+                    }
+
+                    return {
+                        canStart: true,
+                        status: `Token check passed. ${available} available for ${required} vehicles.`
+                    };
+                },
+                run: removeMajordomeFirstImageBackground,
+                afterCompleteStatus: "Refreshing inventory images...",
+                afterComplete: async function () {
+                    const data = await getUpdatedItems();
+                    updateRow(data);
+                }
+            };
+        }
+
         if (actionKey === "dataone") {
             return {
                 title: "Decode DataOne for all vehicles",
@@ -2409,7 +2628,7 @@
     }
 
     function setMajordomeBulkToolbarBusy(isBusy) {
-        $("#purgeStockImageCache, #btnAddInventory, #btnReStoryAll, #btnDecodeAll, #upload, #deleteAll, .js-amm-edit-inventory, .js-amm-upload-trigger, .js-amm-upload-input")
+        $("#purgeStockImageCache, #btnAddInventory, #btnReStoryAll, #btnRemoveBackgrounds, #btnDecodeAll, #upload, #deleteAll, .js-amm-edit-inventory, .js-amm-upload-trigger, .js-amm-upload-input")
             .prop("disabled", isBusy)
             .toggleClass("disabled", isBusy);
 
@@ -2502,7 +2721,7 @@
         });
     }
 
-    function openMajordomeBulkProgressModal(actionKey, options) {
+    async function openMajordomeBulkProgressModal(actionKey, options) {
         if (majordomeBulkJob && majordomeBulkJob.running) return;
 
         const config = getMajordomeBulkConfig(actionKey, options);
@@ -2510,7 +2729,7 @@
 
         const items = config.getItems();
         const progressTotal = getMajordomeBulkProgressTotal(config, items);
-        majordomeBulkJob = {
+        const job = {
             config: config,
             items: items,
             processed: 0,
@@ -2521,12 +2740,16 @@
             failed: 0,
             warnings: 0,
             running: false,
-            cancelRequested: false
+            cancelRequested: false,
+            canStart: typeof config.preflight !== "function"
         };
+        majordomeBulkJob = job;
 
         $("#majordomeBulkProgressTitle").text(config.title);
         $("#majordomeBulkProgressIntro").text(items.length > 0 ? config.intro(items.length) : config.emptyText);
         $("#majordomeBulkProgressSummary").empty().addClass("d-none");
+        $("#majordomeBulkPreview").empty().addClass("d-none");
+        $("#majordomeBulkProgressDialog").toggleClass("modal-lg", config.largeModal === true);
         $("#majordomeBulkProgressLog").empty();
         if (Array.isArray(config.validationErrors)) {
             config.validationErrors.forEach(function (message) {
@@ -2537,18 +2760,43 @@
         updateMajordomeBulkProgress(0, progressTotal);
 
         if (items.length > 0 && typeof config.renderPreview === "function") {
-            config.renderPreview(majordomeBulkJob);
+            config.renderPreview(job);
         }
 
+        const hasPreflight = items.length > 0 && typeof config.preflight === "function";
         $("#majordomeBulkStart")
-            .removeClass("d-none")
-            .prop("disabled", items.length === 0)
-            .text("Start");
+            .toggleClass("d-none", hasPreflight || (items.length === 0 && config.hideStartWhenUnavailable === true))
+            .prop("disabled", hasPreflight || items.length === 0)
+            .text(config.startText || "Start");
         $("#majordomeBulkCancel")
             .prop("disabled", false)
-            .text(items.length > 0 ? "Cancel" : "Close");
+            .text(items.length > 0 && !hasPreflight ? "Cancel" : "Close");
 
         showMajordomeBulkModal();
+
+        if (!hasPreflight) return;
+
+        try {
+            const result = await config.preflight(job);
+            if (majordomeBulkJob !== job) return;
+
+            job.canStart = result?.canStart === true;
+            setMajordomeBulkStatus(result?.status || (job.canStart ? "Ready to start." : "This batch cannot run."));
+            $("#majordomeBulkStart")
+                .toggleClass("d-none", !job.canStart)
+                .prop("disabled", !job.canStart)
+                .text(config.startText || "Start");
+            $("#majordomeBulkCancel").text(job.canStart ? "Cancel" : "Close");
+        } catch (error) {
+            if (majordomeBulkJob !== job) return;
+
+            job.canStart = false;
+            const message = (error && error.message) || "The required preflight check failed.";
+            setMajordomeBulkStatus(`Cannot run: ${message}`);
+            appendMajordomeBulkLog(`Token check failed: ${message}`, "error");
+            $("#majordomeBulkStart").addClass("d-none").prop("disabled", true);
+            $("#majordomeBulkCancel").text("Close");
+        }
     }
 
     function openMajordomeImageUploadProgressModal(stock, files) {
@@ -2659,7 +2907,7 @@
 
     async function startMajordomeBulkJob() {
         const job = majordomeBulkJob;
-        if (!job || job.running || !job.items.length) return;
+        if (!job || job.running || !job.items.length || job.canStart === false) return;
 
         job.running = true;
         setMajordomeBulkToolbarBusy(true);
