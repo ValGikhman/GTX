@@ -24,13 +24,13 @@
             const stock = cellText(row.Stock);
             const imageSource = cellText(row.Image).trim() || cellText(window.inventoryImagesPlaceholderUrl).trim();
             const image = imageSource && typeof window.toInventoryImageUrl === "function"
-                ? cellEscapeHtml(window.toInventoryImageUrl(imageSource, stock))
-                : cellEscapeHtml(imageSource);
-            const thumbnail = image && typeof window.appendImageWidth === "function"
-                ? cellEscapeHtml(window.appendImageWidth(image, 320))
+                ? window.toInventoryImageUrl(imageSource, stock)
+                : imageSource;
+            const thumbnail = image && typeof window.inventoryImageVariantUrl === "function"
+                ? window.inventoryImageVariantUrl(image, "grid")
                 : image;
             const imageHtml = image
-                ? `<img src="${thumbnail}" alt="${cellEscapeHtml(stock)}" class="majordome-thumb majordome-row-image" loading="lazy" decoding="async" />`
+                ? `<img src="${cellEscapeHtml(thumbnail)}" alt="${cellEscapeHtml(stock)}" class="majordome-thumb majordome-row-image vehicle-image" width="88" height="66" loading="lazy" decoding="async" />`
                 : `<div class="majordome-thumb majordome-row-image d-flex align-items-center justify-content-center text-muted small">No image</div>`;
 
             return `<td>${imageHtml}</td>`;

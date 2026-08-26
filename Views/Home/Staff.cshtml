@@ -1,7 +1,7 @@
 @model GTX.Models.BaseModel
 @{
     var employers = Model?.Employers ?? new GTX.Models.EmployeeModel[0];
-    var fallbackPhotoUrl = Url.Content("~/SiteImages/brand-thumbnail.png");
+    var fallbackPhotoUrl = Url.Content("~/SiteImages/staff/empty.jpg");
 }
 
 <!-- Google tag (gtag.js) -->
@@ -18,7 +18,7 @@
         <div class="modal-content">
             <div id="header" class="modal-header staff-contact-header">
                 <span class="staff-contact-brand" aria-hidden="true">
-                    <img src="~/SiteImages/brand-light.png" alt="" />
+                    <img src="@SiteImageUrl.Build("brand-light.png")" alt="" />
                 </span>
                 <span class="staff-contact-heading">
                     <small>Start a conversation</small>
@@ -64,7 +64,7 @@
                     var employer = employers[index];
                     var photoUrl = string.IsNullOrWhiteSpace(employer.PhotoPath)
                         ? fallbackPhotoUrl
-                        : Url.Content(employer.PhotoPath);
+                        : Url.Content("~" + employer.PhotoPath);
                     var fullName = string.Format("{0} {1}", employer.FirstName, employer.LastName).Trim();
 
                     <li class="staff-grid-item" style="--staff-index: @index;">

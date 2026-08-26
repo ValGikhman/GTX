@@ -233,7 +233,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div id="header" class="modal-header shadow">
-                <img src="~/SiteImages/brand-light.png" width="60" />
+                <img src="@SiteImageUrl.Build("brand-light.png")" width="60" />
                 <div id="titleModal" class="modal-title test-shadow mx-3">
                     @I18n.R("Nav_Contact")
                 </div>
@@ -292,7 +292,7 @@
                         {
                             <div class="d-flex justify-content-center text-uppercase p-5">
                                 <h6>
-                                    <img class="img-fluid d-block mx-auto" width="85" src="@Url.Content("~/SiteImages/brand-thumbnail.png")" alt="GTX Autogroup">
+                                    <img class="img-fluid d-block mx-auto" width="85" src="@SiteImageUrl.Build("brand-thumbnail.png")" alt="GTX Autogroup">
                                     <br />
                                     is still working on images
                                 </h6>
@@ -605,7 +605,7 @@
     var vehiclePriceText = "@Html.Raw(HttpUtility.JavaScriptStringEncode(Convert.ToString(ViewBag.Price) ?? string.Empty))";
     var allFromLabel = "@Html.Raw(HttpUtility.JavaScriptStringEncode(I18n.R("All_From")))";
     var allVehiclesLabel = "@Html.Raw(HttpUtility.JavaScriptStringEncode(I18n.R("All_Vehicles")))";
-    var makeImg = `/SiteImages/makes/${make}.png`;
+    var makeImg = `@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(SiteImageUrl.Build("makes")))/${make}.png`;
 
     function renderFancyTitle() {
         var $fancy = $(".fancy");

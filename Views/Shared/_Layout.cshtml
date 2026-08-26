@@ -232,7 +232,7 @@
                     <!-- Top row: Logo + Phone (pill buttons) -->
                     <li class="d-flex align-items-center justify-content-between gap-2 mb-2">
                         <a href="~/Home/Index" class="d-flex align-items-center text-decoration-none">
-                            <img src="~/SiteImages/brand-dark.png" width="100" />
+                            <img src="@SiteImageUrl.Build("brand-dark.png")" width="100" />
                         </a>
 
                         <a class="btn btn-gradient-grey rounded-3 d-flex align-items-center gap-2" href="tel:+15134892886">
@@ -331,7 +331,7 @@
         <div class="d-flex justify-content-between align-items-center">
             <nav class="header__top header__menu w-100">
                 <ul class="main-menu">
-                    <li id="GTX-image" class="d-none d-md-inline-block mx-1"><a href="~/Home/Index"><img src="~/SiteImages/brand-light.png" width="60" /></a></li>
+                    <li id="GTX-image" class="d-none d-md-inline-block mx-1"><a href="~/Home/Index"><img src="@SiteImageUrl.Build("brand-light.png")" width="60" /></a></li>
                     <li id="MajordomeLink" class="@_class mx-1">
                         <a href="#" class="btn gradient shadow border-dark rounded-4 d-inline-flex align-items-center text-black">
                             <i class="bi bi-gear px-2"></i>
@@ -558,16 +558,16 @@
                             switch (lang)
                             {
                                 case "es":
-                                    flagSrc = Url.Content("~/img/flags/es.svg");
+                                    flagSrc = SiteImageUrl.Build("flags/es.svg");
                                     break;
 
                                 case "ua":
-                                    flagSrc = Url.Content("~/img/flags/ua.svg");
+                                    flagSrc = SiteImageUrl.Build("flags/ua.svg");
                                     break;
 
                                 case "en":
                                 default:
-                                    flagSrc = Url.Content("~/img/flags/us.svg");
+                                    flagSrc = SiteImageUrl.Build("flags/us.svg");
                                     break;
                             }
                         }
@@ -582,7 +582,7 @@
                                     class="dropdown-item d-flex align-items-center justify-content-between rounded-3 @(current=="en" ? "active" : "")"
                                     onclick="setLang('en')">
                                 <span class="d-flex align-items-center gap-2">
-                                    <img src="~/img/flags/us.svg" width="22" height="22" class="rounded-1 shadow-sm" alt="English" />
+                                    <img src="@SiteImageUrl.Build("flags/us.svg")" width="22" height="22" class="rounded-1 shadow-sm" alt="English" />
                                     English
                                 </span>
                                 @if (current == "en")
@@ -593,7 +593,7 @@
                                     class="dropdown-item d-flex align-items-center justify-content-between rounded-3 @(current=="es" ? "active" : "")"
                                     onclick="setLang('es')">
                                 <span class="d-flex align-items-center gap-2">
-                                    <img src="~/img/flags/es.svg" width="22" height="22" class="rounded-1 shadow-sm" alt="Espa&#241;ol" />
+                                    <img src="@SiteImageUrl.Build("flags/es.svg")" width="22" height="22" class="rounded-1 shadow-sm" alt="Espa&#241;ol" />
                                     Espa&#241;ol
                                 </span>
                                 @if (current == "es")
@@ -603,7 +603,7 @@
                                     class="dropdown-item d-flex align-items-center justify-content-between rounded-3 @(current=="ua" ? "active" : "")"
                                     onclick="setLang('ua')">
                                 <span class="d-flex align-items-center gap-2">
-                                    <img src="~/img/flags/ua.svg" width="22" height="22" class="rounded-1 shadow-sm" alt="&#x423;&#x43A;&#x440;&#x430;&#x457;&#x43D;&#x441;&#x44C;&#x43A;&#x430;" />
+                                    <img src="@SiteImageUrl.Build("flags/ua.svg")" width="22" height="22" class="rounded-1 shadow-sm" alt="&#x423;&#x43A;&#x440;&#x430;&#x457;&#x43D;&#x441;&#x44C;&#x43A;&#x430;" />
                                     &#x423;&#x43A;&#x440;&#x430;&#x457;&#x43D;&#x441;&#x44C;&#x43A;&#x430;
                                 </span>
                                 @if (current == "ua")

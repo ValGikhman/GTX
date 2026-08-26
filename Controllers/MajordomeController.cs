@@ -35,6 +35,7 @@ namespace GTX.Controllers
         private const string UploadJpegExtension = ".jpg";
         private const string UploadPngExtension = ".png";
         private const string RemoveBgEndpoint = "https://api.remove.bg/v1.0/removebg";
+        private const string RemoveBgAccountEndpoint = "https://api.remove.bg/v1.0/account";
         private const int QrTextMaxLength = 2048;
 
         private static readonly HashSet<string> UploadImageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {
@@ -1339,44 +1340,6 @@ namespace GTX.Controllers
             }
         }
 
-        [HttpPost]
-        [RequireAdminRole(RequiredRole = CommonUnit.Roles.Owner)]
-        public async Task<ActionResult> PurgeInventoryImageCache() {
-            if (!InventoryImageSettings.CloudflareEnabled) {
-                return Json(new { success = false, message = "Cloudflare inventory images are not enabled." });
-            }
-
-            try {
-                var inventory = InventoryService.GetInventory(includeHiddenInventory: true, includeDataOneContent: false);
-                var stocks = (inventory.vehicles ?? Array.Empty<global::Common.GTXDTO>())
-                    .Select(vehicle => vehicle.Stock)
-                    .Where(stock => !string.IsNullOrWhiteSpace(stock))
-                    .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .ToArray();
-                var imagesByStock = InventoryService.GetImages(stocks);
-                var imageCount = imagesByStock.Values.Sum(images => images?.Length ?? 0);
-
-                var purged = await CloudflareCachePurger.PurgeInventoryHostAsync();
-                if (!purged) {
-                    return Json(new {
-                        success = false,
-                        message = "Cloudflare did not accept the inventory cache purge. Check the cache-purge credentials and application log."
-                    });
-                }
-
-                return Json(new {
-                    success = true,
-                    stockCount = stocks.Length,
-                    imageCount,
-                    message = $"Refreshed the inventory CDN cache for {stocks.Length} stock(s) and {imageCount} image record(s)."
-                });
-            }
-            catch (Exception ex) {
-                Log(ex);
-                return Json(new { success = false, message = "Unable to refresh the inventory image cache: " + ex.Message });
-            }
-        }
-
         private static void RotateInventoryImage(MagickImage image, int? degrees) {
             var rotationDegrees = (degrees.HasValue && degrees.Value == -90) ? -90 : 90;
 
@@ -1387,6 +1350,61 @@ namespace GTX.Controllers
             image.Orientation = OrientationType.TopLeft;
             TrimTransparentBorder(image);
             image.ResetPage();
+        }
+
+        [HttpGet]
+        [OutputCache(NoStore = true, Duration = 0, VaryByParam = "none")]
+        public async Task<ActionResult> GetRemoveBgAccount() {
+            var apiKey = ConfigurationManager.AppSettings["RemoveBg:ApiKey"];
+            if (string.IsNullOrWhiteSpace(apiKey)) {
+                return Json(new { success = false, message = "The remove.bg API key is not configured." }, JsonRequestBehavior.AllowGet);
+            }
+
+            try {
+                using (var client = new HttpClient()) {
+                    client.Timeout = TimeSpan.FromSeconds(20);
+                    client.DefaultRequestHeaders.Add("X-Api-Key", apiKey.Trim());
+
+                    using (var response = await client.GetAsync(RemoveBgAccountEndpoint)) {
+                        var responseText = await response.Content.ReadAsStringAsync();
+                        if (!response.IsSuccessStatusCode) {
+                            var providerMessage = string.IsNullOrWhiteSpace(responseText)
+                                ? response.ReasonPhrase
+                                : responseText;
+                            if (providerMessage != null && providerMessage.Length > 500) {
+                                providerMessage = providerMessage.Substring(0, 500);
+                            }
+
+                            return Json(new {
+                                success = false,
+                                message = $"remove.bg returned {(int)response.StatusCode}: {providerMessage}"
+                            }, JsonRequestBehavior.AllowGet);
+                        }
+
+                        var payload = JsonConvert.DeserializeObject<JObject>(responseText);
+                        var attributes = payload?["data"]?["attributes"];
+                        var credits = attributes?["credits"];
+                        var api = attributes?["api"];
+                        var creditTotal = credits?["total"]?.Value<decimal?>() ?? 0m;
+                        var freeCalls = api?["free_calls"]?.Value<decimal?>() ?? 0m;
+
+                        return Json(new {
+                            success = true,
+                            totalTokens = creditTotal + freeCalls,
+                            credits = creditTotal,
+                            freeCalls,
+                            subscriptionCredits = credits?["subscription"]?.Value<decimal?>() ?? 0m,
+                            payAsYouGoCredits = credits?["payg"]?.Value<decimal?>() ?? 0m,
+                            enterpriseCredits = credits?["enterprise"]?.Value<decimal?>() ?? 0m,
+                            canRemoveBackground = creditTotal > 0m || freeCalls > 0m
+                        }, JsonRequestBehavior.AllowGet);
+                    }
+                }
+            }
+            catch (Exception ex) {
+                Log(ex);
+                return Json(new { success = false, message = "Unable to load the remove.bg balance: " + ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
 
         [HttpPost]
@@ -1438,6 +1456,7 @@ namespace GTX.Controllers
                 }
 
                 byte[] resultBytes;
+                decimal creditsCharged = 0m;
                 using (var client = new HttpClient())
                 using (var formData = new MultipartFormDataContent()) {
                     client.Timeout = TimeSpan.FromMinutes(2);
@@ -1475,6 +1494,14 @@ namespace GTX.Controllers
                             });
                         }
 
+                        IEnumerable<string> creditHeaders;
+                        if (response.Headers.TryGetValues("X-Credits-Charged", out creditHeaders)) {
+                            decimal.TryParse(
+                                creditHeaders.FirstOrDefault(),
+                                NumberStyles.Number,
+                                CultureInfo.InvariantCulture,
+                                out creditsCharged);
+                        }
                         resultBytes = await response.Content.ReadAsByteArrayAsync();
                     }
                 }
@@ -1515,6 +1542,7 @@ namespace GTX.Controllers
                         previewToken
                     }),
                     canSave = InventoryImageSettings.CloudflareEnabled || !useRemoteImage,
+                    creditsCharged,
                     message = "Background removal preview is ready."
                 });
             }

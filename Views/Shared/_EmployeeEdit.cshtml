@@ -9,7 +9,7 @@
         { "enctype", "multipart/form-data" }
     };
 
-    var previewSrc = !string.IsNullOrWhiteSpace(Model?.PhotoPath) ? Model.PhotoPath : "/SiteImages/staff/empty.jpg";
+    var previewSrc = Url.Content("~" + (!string.IsNullOrWhiteSpace(Model?.PhotoPath) ? Model.PhotoPath : "/SiteImages/staff/empty.jpg"));
     }
 
     @using (Html.BeginForm(action, "Employees", FormMethod.Post, htmlAttrs))
@@ -129,15 +129,16 @@
 
         const $file = $form.find("#PhotoFile");
         const $img = $form.find("#photoPreview");
+        const localPlaceholder = @Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(Url.Content("~/SiteImages/staff/empty.jpg"), true));
 
         function setPreview(src) {
             if (!$img.length) return;
 
             $img.off("error").on("error", function () {
-                $img.attr("src", "/images/placeholder-person.png");
+                $img.attr("src", localPlaceholder);
             });
 
-            $img.attr("src", src || "/images/placeholder-person.png");
+            $img.attr("src", src || localPlaceholder);
             $img.show();
         }
 
@@ -162,9 +163,5 @@
                 try { URL.revokeObjectURL(blobUrl); } catch (e) { }
             });
         });
-
-        // Initial render (edit mode)
-        const initial = ($url.val() || "").trim();
-        if (initial) setPreview(initial);
     });
 </script>

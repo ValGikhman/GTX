@@ -1,10 +1,8 @@
 @using Services;
 @using System.Text.RegularExpressions
-@using System.Web
 @model GTX.Models.BaseModel
 @{
     var vehicle = Model.CurrentVehicle?.VehicleDetails;
-    var photosInventoryImagesBaseUrl = InventoryImageSettings.BaseUrl;
 
     string JoinClean(params string[] parts)
     {
@@ -15,71 +13,6 @@
         raw = Regex.Replace(raw, @"-+", "-").Trim('-');
 
         return raw;
-    }
-
-    string BuildInventoryImageUrl(string source)
-    {
-        var value = (source ?? string.Empty).Trim().Replace('\\', '/');
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return value;
-        }
-
-        if (value.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
-            value.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
-        {
-            return value;
-        }
-
-        if (value.StartsWith("/InventoryImages/Get", StringComparison.OrdinalIgnoreCase) ||
-            value.StartsWith("InventoryImages/Get", StringComparison.OrdinalIgnoreCase))
-        {
-            var queryIndex = value.IndexOf('?');
-            if (queryIndex >= 0 && queryIndex < value.Length - 1)
-            {
-                var query = HttpUtility.ParseQueryString(value.Substring(queryIndex));
-                var queryPath = query["path"];
-                if (!string.IsNullOrWhiteSpace(queryPath))
-                {
-                    value = HttpUtility.UrlDecode(queryPath).Trim().Replace('\\', '/');
-                }
-            }
-        }
-
-        value = value.TrimStart('/');
-
-        const string legacyPrefix = "SiteImages/Inventory/";
-        const string picturesPrefix = "Pictures/";
-        const string imagesPrefix = "Images/";
-
-        if (value.StartsWith(legacyPrefix, StringComparison.OrdinalIgnoreCase))
-        {
-            value = value.Substring(legacyPrefix.Length);
-        }
-        else if (value.StartsWith(picturesPrefix, StringComparison.OrdinalIgnoreCase))
-        {
-            value = value.Substring(picturesPrefix.Length);
-        }
-        else if (value.StartsWith(imagesPrefix, StringComparison.OrdinalIgnoreCase))
-        {
-            value = value.Substring(imagesPrefix.Length);
-        }
-
-        var stock = (vehicle?.Stock ?? string.Empty).Trim();
-        if (!string.IsNullOrWhiteSpace(stock) &&
-            !value.StartsWith(stock + "/", StringComparison.OrdinalIgnoreCase))
-        {
-            value = stock + "/" + value;
-        }
-
-        var encodedPath = string.Join(
-            "/",
-            value
-                .Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(Uri.EscapeDataString)
-        );
-
-        return $"{photosInventoryImagesBaseUrl}/{encodedPath}";
     }
 
     var title = string.Join(" ", new[] { vehicle?.Year.ToString(), vehicle?.Make, vehicle?.Model, vehicle?.VehicleStyle }.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim()));
@@ -228,7 +161,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div id="header" class="modal-header shadow">
-                <img src="~/SiteImages/brand-light.png" width="60" />
+                <img src="@SiteImageUrl.Build("brand-light.png")" width="60" />
                 <div id="titleModal" class="modal-title test-shadow mx-3">
                     @I18n.R("Nav_Contact")
                 </div>
@@ -255,7 +188,7 @@
             @if (!string.IsNullOrWhiteSpace(makeLogoName))
             {
                 <img class="vdp-make-logo"
-                     src="@Url.Content("~/SiteImages/makes/" + makeLogoName + ".png")"
+                     src="@SiteImageUrl.Build("makes/" + makeLogoName + ".png")"
                      alt="@vehicle.Make logo"
                      loading="lazy"
                      onerror="this.remove();" />
@@ -402,17 +335,8 @@
                         @foreach (Image image in Model.CurrentVehicle.VehicleDetails.Images)
                         {
                             photoNumber++;
-                            string imageBig = $"{image.Source}?h=800";
-                            string imagePath = $"{image.Source}?h=200";
-                            var sourceValue = image.Source ?? string.Empty;
-                            var isAbsoluteExternal = sourceValue.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
-                                                     sourceValue.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
-                            if (!isAbsoluteExternal)
-                            {
-                                var baseImageUrl = BuildInventoryImageUrl(image.Source);
-                                imageBig = baseImageUrl;
-                                imagePath = baseImageUrl;
-                            }
+                            string imageBig = InventoryImageUrl.Build(image.Source, image.Stock, InventoryImageVariant.Detail);
+                            string imagePath = InventoryImageUrl.Build(image.Source, image.Stock, InventoryImageVariant.Small);
 
 
                             <a class="elem three-d" href="@imageBig" data-lcl-thumb="@imagePath" aria-label="Open photo @photoNumber of @Model.CurrentVehicle.VehicleDetails.Images.Count()">
@@ -677,7 +601,7 @@
     var vehicle = "@Html.Raw(HttpUtility.JavaScriptStringEncode(Convert.ToString(ViewBag.Title) ?? string.Empty))";
     var vehicleTitleText = "@Html.Raw(HttpUtility.JavaScriptStringEncode(Convert.ToString(ViewBag.Title) ?? string.Empty))";
     var vehiclePriceText = "@Html.Raw(HttpUtility.JavaScriptStringEncode(Convert.ToString(ViewBag.Price) ?? string.Empty))";
-    var makeImg = `/SiteImages/makes/${make}.png`;
+    var makeImg = `@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(SiteImageUrl.Build("makes")))/${make}.png`;
 
     function renderFancyTitle() {
         var $fancy = $(".fancy");

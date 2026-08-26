@@ -85,6 +85,7 @@ namespace GTX.Controllers {
         [HttpPost]
         public ActionResult Create(EmployeeModel model, HttpPostedFileBase PhotoFile)
         {
+            string savedPhotoPath = null;
             try
             {
                 if (!ModelState.IsValid)
@@ -93,7 +94,8 @@ namespace GTX.Controllers {
                 // 1) if file chosen => upload and overwrite PhotoPath
                 if (PhotoFile != null && PhotoFile.ContentLength > 0)
                 {
-                    model.PhotoPath = SaveEmployeePhoto(PhotoFile);
+                    savedPhotoPath = SaveEmployeePhoto(PhotoFile);
+                    model.PhotoPath = savedPhotoPath;
                 }
                 else
                 {
@@ -108,6 +110,10 @@ namespace GTX.Controllers {
             }
             catch (Exception ex)
             {
+                if (!string.IsNullOrWhiteSpace(savedPhotoPath))
+                {
+                    DeletePhoto(savedPhotoPath);
+                }
                 Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 return Json(new { ok = false, message = ex.Message });
             }
@@ -134,6 +140,7 @@ namespace GTX.Controllers {
         [HttpPost]
         public ActionResult Save(EmployeeModel model, HttpPostedFileBase PhotoFile)
         {
+            string newPhotoPath = null;
             try
             {
                 if (!ModelState.IsValid)
@@ -145,10 +152,17 @@ namespace GTX.Controllers {
                 // if file chosen => upload and use new path
                 if (PhotoFile != null && PhotoFile.ContentLength > 0)
                 {
-                    // optional: delete old local file if it was in /uploads/employees/
-                    TryDeleteLocalEmployeePhoto(entity.PhotoPath);
+                    var previousPhotoPath = entity.PhotoPath;
+                    newPhotoPath = SaveEmployeePhoto(PhotoFile);
+                    model.PhotoPath = newPhotoPath;
 
-                    model.PhotoPath = SaveEmployeePhoto(PhotoFile);
+                    // Keep the working photo until the employee record accepts the replacement.
+                    entity.PhotoPath = NormalizeEmployeePhotoPath(model.PhotoPath);
+                    MapEmployeeFields(entity, model);
+                    _employeesService.SaveEmployee(entity);
+                    DeletePhoto(previousPhotoPath);
+
+                    return Json(new { ok = true, id = entity.Id, photoPath = entity.PhotoPath });
                 }
                 else
                 {
@@ -164,12 +178,7 @@ namespace GTX.Controllers {
                 }
 
                 // map fields
-                entity.FirstName = model.FirstName?.Trim();
-                entity.LastName = model.LastName?.Trim();
-                entity.Position = model.Position?.Trim();
-                entity.Phone = model.Phone?.Trim();
-                entity.Email = model.Email?.Trim();
-                entity.Active = model.Active;
+                MapEmployeeFields(entity, model);
                 entity.PhotoPath = NormalizeEmployeePhotoPath(model.PhotoPath);
 
                 _employeesService.SaveEmployee(entity);
@@ -178,9 +187,23 @@ namespace GTX.Controllers {
             }
             catch (Exception ex)
             {
+                if (!string.IsNullOrWhiteSpace(newPhotoPath))
+                {
+                    DeletePhoto(newPhotoPath);
+                }
                 Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 return Json(new { ok = false, message = ex.Message });
             }
+        }
+
+        private static void MapEmployeeFields(Services.Employee entity, EmployeeModel model)
+        {
+            entity.FirstName = model.FirstName?.Trim();
+            entity.LastName = model.LastName?.Trim();
+            entity.Position = model.Position?.Trim();
+            entity.Phone = model.Phone?.Trim();
+            entity.Email = model.Email?.Trim();
+            entity.Active = model.Active;
         }
 
         private string SaveEmployeePhoto(HttpPostedFileBase file)
@@ -191,39 +214,23 @@ namespace GTX.Controllers {
             if (!allowed.Contains(ext))
                 throw new Exception("Unsupported image type. Allowed: jpg, jpeg, png, webp, gif.");
 
-            // folder
             var folderPhysical = Server.MapPath(UploadVirtualPath);
             if (!Directory.Exists(folderPhysical))
                 Directory.CreateDirectory(folderPhysical);
 
             // unique file name
             var name = $"{Guid.NewGuid():N}{ext}";
-            var physicalPath = Path.Combine(folderPhysical, name);
-
-            file.SaveAs(physicalPath);
+            file.SaveAs(Path.Combine(folderPhysical, name));
 
             // return URL to store in DB
             return UploadRelativePath + name;
-        }
-
-        private void TryDeleteLocalEmployeePhoto(string photoPath)
-        {
-            try
-            {
-                var normalized = NormalizeEmployeePhotoPath(photoPath);
-                if (string.IsNullOrWhiteSpace(normalized)) return;
-
-                var physical = Server.MapPath("~" + normalized);
-                if (System.IO.File.Exists(physical))
-                    System.IO.File.Delete(physical);
-            }
-            catch { }
         }
 
         private void DeletePhoto(string photoPath) {
             try {
                 var normalized = NormalizeEmployeePhotoPath(photoPath);
                 if (string.IsNullOrWhiteSpace(normalized)) return;
+                if (string.Equals(Path.GetFileName(normalized), "empty.jpg", StringComparison.OrdinalIgnoreCase)) return;
 
                 var physical = Server.MapPath("~" + normalized);
                 if (System.IO.File.Exists(physical))

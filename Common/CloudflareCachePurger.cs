@@ -121,6 +121,62 @@ namespace GTX.Helpers
             }
         }
 
+        public static Task<bool> PurgeSiteImagesAsync()
+        {
+            Uri baseUri;
+            if (!Uri.TryCreate(InventoryImageSettings.BaseUrl, UriKind.Absolute, out baseUri))
+            {
+                return Task.FromResult(false);
+            }
+
+            return PurgePrefixAsync(baseUri.Host + "/SiteImages");
+        }
+
+        private static async Task<bool> PurgePrefixAsync(string prefix)
+        {
+            var zoneId = ConfigurationManager.AppSettings["Cloudflare:Cache:ZoneId"];
+            var apiToken = ConfigurationManager.AppSettings["Cloudflare:Cache:ApiToken"];
+            if (string.IsNullOrWhiteSpace(zoneId) ||
+                string.IsNullOrWhiteSpace(apiToken) ||
+                string.IsNullOrWhiteSpace(prefix))
+            {
+                return false;
+            }
+
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    client.Timeout = TimeSpan.FromSeconds(20);
+                    client.DefaultRequestHeaders.Authorization =
+                        new AuthenticationHeaderValue("Bearer", apiToken.Trim());
+
+                    var json = JsonConvert.SerializeObject(new { prefixes = new[] { prefix.Trim() } });
+                    using (var content = new StringContent(json, Encoding.UTF8, "application/json"))
+                    using (var response = await client.PostAsync(
+                        "https://api.cloudflare.com/client/v4/zones/" + Uri.EscapeDataString(zoneId.Trim()) + "/purge_cache",
+                        content))
+                    {
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            Trace.TraceWarning(
+                                "Cloudflare cache purge returned HTTP {0} for prefix {1}.",
+                                (int)response.StatusCode,
+                                prefix);
+                            return false;
+                        }
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceWarning("Cloudflare prefix cache purge failed for {0}: {1}", prefix, ex.Message);
+                return false;
+            }
+        }
+
         private static List<string> BuildInventoryImageUrls(string stock, IEnumerable<string> files)
         {
             var normalizedStock = (stock ?? string.Empty).Trim().Trim('/', '\\');

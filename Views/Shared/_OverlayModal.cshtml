@@ -23,12 +23,7 @@
         overlayPath = $"{stock}/{overlayPath}";
     }
 
-    var encodedOverlayPath = string.Join(
-        "/",
-        overlayPath.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries).Select(Uri.EscapeDataString));
-    var imagePath = InventoryImageSettings.CloudflareEnabled
-        ? InventoryImageSettings.BaseUrl + "/" + encodedOverlayPath
-        : "/InventoryImages/Get?path=" + Uri.EscapeDataString(overlayPath);
+    var imagePath = InventoryImageUrl.Build(overlayPath, stock, InventoryImageVariant.Detail);
 }
 
 <div class="modal-header">
@@ -41,7 +36,7 @@
     <div class="row g-3 align-items-start">
         <div class="col-12 col-lg-8">
             <div class="overlay-image-container shadow rounded">
-                <img src="@imagePath" class="d-block mx-auto rounded" alt="Inventory image" />
+                <img src="@imagePath" class="d-block mx-auto rounded vehicle-image" width="800" height="600" alt="Inventory image" />
                 <div id="overlay" class="overlay-image-overlay rounded-bottom">
                     <p class="overlay-text">Double click to edit.... </p>
                 </div>

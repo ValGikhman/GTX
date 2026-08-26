@@ -74,6 +74,42 @@ namespace GTX.Helpers
             }
         }
 
+        public static async Task WriteKeyAsync(string key, Stream content, string contentType)
+        {
+            if (content == null)
+            {
+                throw new ArgumentNullException(nameof(content));
+            }
+
+            var normalizedKey = NormalizeKey(key);
+            if (content.CanSeek)
+            {
+                content.Position = 0;
+            }
+
+            var request = new PutObjectRequest
+            {
+                BucketName = BucketName,
+                Key = normalizedKey,
+                InputStream = content,
+                ContentType = string.IsNullOrWhiteSpace(contentType) ? "application/octet-stream" : contentType,
+                AutoCloseStream = false,
+                DisablePayloadSigning = true,
+                UseChunkEncoding = false
+            };
+            request.Headers.CacheControl = "public, max-age=31536000, immutable";
+            await Client.Value.PutObjectAsync(request);
+        }
+
+        public static Task DeleteKeyAsync(string key)
+        {
+            return Client.Value.DeleteObjectAsync(new DeleteObjectRequest
+            {
+                BucketName = BucketName,
+                Key = NormalizeKey(key)
+            });
+        }
+
         public static Task DeleteAsync(string stock, string file)
         {
             return Client.Value.DeleteObjectAsync(new DeleteObjectRequest
@@ -180,6 +216,18 @@ namespace GTX.Helpers
             }
 
             return normalizedStock + "/" + normalizedFile;
+        }
+
+        private static string NormalizeKey(string key)
+        {
+            var normalized = (key ?? string.Empty).Trim().Replace('\\', '/').Trim('/');
+            if (string.IsNullOrWhiteSpace(normalized) ||
+                normalized.Split('/').Any(part => string.IsNullOrWhiteSpace(part) || part == "." || part == ".."))
+            {
+                throw new ArgumentException("A valid R2 object key is required.", nameof(key));
+            }
+
+            return normalized;
         }
 
         private static string GetSetting(string key, string fallback)

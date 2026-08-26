@@ -1,6 +1,11 @@
 ﻿@{
     ViewBag.Title = "Health";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var cdnEnabled = InventoryImageSettings.CloudflareEnabled;
+    var isOwner = string.Equals(
+        Convert.ToString(ViewBag.CurrentRole),
+        CommonUnit.Roles.Owner.ToString(),
+        StringComparison.OrdinalIgnoreCase);
 }
 
 <style>
@@ -97,6 +102,10 @@
         background: linear-gradient(90deg, #64748b, #334155);
     }
 
+    .health-card-cdn::before {
+        background: linear-gradient(90deg, #f59e0b, #2563eb);
+    }
+
     .health-card-head {
         display: flex;
         align-items: center;
@@ -143,6 +152,22 @@
 
     .health-icon-maintenance {
         background: linear-gradient(135deg, #475569, #111827);
+    }
+
+    .health-icon-cdn {
+        background: linear-gradient(135deg, #f59e0b, #2563eb);
+    }
+
+    .health-card-cdn.is-disabled {
+        background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+    }
+
+    .health-card-cdn.is-disabled::before {
+        background: linear-gradient(90deg, #94a3b8, #64748b);
+    }
+
+    .health-card-cdn.is-disabled .health-icon-cdn {
+        background: linear-gradient(135deg, #64748b, #334155);
     }
 
     .health-card-maintenance {
@@ -455,6 +480,72 @@
                 </div>
             </div>
         </div>
+
+        <!-- Inventory CDN Card -->
+        <div class="health-card-col">
+            <div class="h-100 well p-4 health-card health-card-cdn @(cdnEnabled ? string.Empty : "is-disabled")">
+                <div class="health-card-head">
+                    <div class="health-card-title">
+                        <div class="health-icon health-icon-cdn">
+                            <i class="bi bi-cloud-arrow-down"></i>
+                        </div>
+                        <div>
+                            <div class="kpi-label mb-0">Inventory CDN</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <div class="kpi-value">@(cdnEnabled ? "Cloudflare" : "Local")</div>
+                    <div id="inventoryCdnStatus" class="kpi-sub mt-2">
+                        @(cdnEnabled
+                            ? "Inventory images are served off-site through Cloudflare."
+                            : "Inventory images are served on-site; CDN refresh is unavailable.")
+                    </div>
+                    @if (isOwner)
+                    {
+                        <button type="button" id="btnRefreshInventoryCdn"
+                                class="btn btn-outline-warning shadow-sm mt-3"
+                                @(cdnEnabled ? null : "disabled")>
+                            <i class="bi bi-cloud-arrow-down me-1" aria-hidden="true"></i>Refresh inventory CDN
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Site Images / Video CDN Card -->
+        <div class="health-card-col">
+            <div class="h-100 well p-4 health-card health-card-cdn @(cdnEnabled ? string.Empty : "is-disabled")">
+                <div class="health-card-head">
+                    <div class="health-card-title">
+                        <div class="health-icon health-icon-cdn">
+                            <i class="bi bi-images"></i>
+                        </div>
+                        <div>
+                            <div class="kpi-label mb-0">Site Images CDN</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <div class="kpi-value">SiteImages</div>
+                    <div id="siteImagesCdnStatus" class="kpi-sub mt-2">
+                        @(cdnEnabled
+                            ? "GTX/SiteImages assets and videos are served through Cloudflare."
+                            : "Site images are served on-site; CDN refresh is unavailable.")
+                    </div>
+                    @if (isOwner)
+                    {
+                        <button type="button" id="btnRefreshSiteImagesCdn"
+                                class="btn btn-outline-warning shadow-sm mt-3"
+                                @(cdnEnabled ? null : "disabled")>
+                            <i class="bi bi-cloud-arrow-down me-1" aria-hidden="true"></i>Refresh SiteImages CDN
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -462,6 +553,8 @@
     const healthUrl = '@Url.Action("HealthJson", "Health")';
     const getOfflineUrl = '@Url.Action("GetOffline", "Health")';
     const setOfflineUrl = '@Url.Action("SetOffline", "Health")';
+    const refreshInventoryCdnUrl = '@Url.Action("RefreshInventoryCdn", "Health")';
+    const refreshSiteImagesCdnUrl = '@Url.Action("RefreshSiteImagesCdn", "Health")';
     const POLL_VISIBLE_MS = 2000;
 
     let pollTimer = null;
@@ -537,6 +630,65 @@
     }
 
     const dom = {};
+
+    function bindCdnRefresh(buttonSelector, statusSelector, url, options) {
+        $(buttonSelector).on("click", async function () {
+            const $button = $(this);
+            const $status = $(statusSelector);
+            if ($button.is(":disabled")) return;
+
+            const confirmed = await window.gtxConfirm({
+                title: options.title,
+                message: options.message,
+                confirmText: "Refresh cache",
+                variant: "warning",
+                iconClass: "bi bi-cloud-arrow-down"
+            });
+            if (!confirmed) return;
+
+            const originalHtml = $button.html();
+            $button.prop("disabled", true)
+                .html('<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>Refreshing...');
+            $status.text(options.progressText);
+
+            $.ajax({
+                url: url,
+                method: "POST",
+                dataType: "json",
+                timeout: 30000
+            })
+                .done(function (response) {
+                    if (!response || !response.success) {
+                        const message = (response && response.message) || "Cloudflare cache refresh failed.";
+                        $status.text(message);
+                        window.gtxAlert(message);
+                        return;
+                    }
+
+                    $status.text(response.message);
+                    $button
+                        .removeClass("btn-outline-warning")
+                        .addClass("btn-outline-success")
+                        .html('<i class="bi bi-check2-circle me-1" aria-hidden="true"></i>Cache refreshed');
+                })
+                .fail(function (xhr) {
+                    const message = xhr.responseJSON && xhr.responseJSON.message
+                        ? xhr.responseJSON.message
+                        : "Cloudflare cache refresh failed.";
+                    $status.text(message);
+                    window.gtxAlert(message);
+                })
+                .always(function () {
+                    window.setTimeout(function () {
+                        $button
+                            .prop("disabled", false)
+                            .removeClass("btn-outline-success")
+                            .addClass("btn-outline-warning")
+                            .html(originalHtml);
+                    }, 2500);
+                });
+        });
+    }
 
     function refreshNow() {
         if (disposed || document.visibilityState === "hidden") {
@@ -683,6 +835,26 @@
                     dom.chkOffline.prop("disabled", false);
                 });
         });
+
+        bindCdnRefresh(
+            "#btnRefreshInventoryCdn",
+            "#inventoryCdnStatus",
+            refreshInventoryCdnUrl,
+            {
+                title: "Refresh entire inventory CDN cache",
+                message: "Refresh the complete inventory image hostname? The next image requests will be fetched fresh from R2 and may be briefly slower while the CDN warms again.",
+                progressText: "Refreshing the inventory CDN cache..."
+            });
+
+        bindCdnRefresh(
+            "#btnRefreshSiteImagesCdn",
+            "#siteImagesCdnStatus",
+            refreshSiteImagesCdnUrl,
+            {
+                title: "Refresh SiteImages CDN cache",
+                message: "Refresh the GTX/SiteImages CDN prefix, including site images and videos? The next requests may be briefly slower while the CDN warms again.",
+                progressText: "Refreshing the SiteImages and video CDN cache..."
+            });
 
         $(document).on("visibilitychange.health", function () {
             if (document.visibilityState === "visible") {
