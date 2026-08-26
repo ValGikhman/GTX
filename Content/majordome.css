@@ -90,6 +90,36 @@ html.theme-silver .majordome-remove-bg-modal .modal-header .btn-close {
 .majordome-remove-bg-token-total {
     font-size: 1.15rem;
     line-height: 1.15;
+    transform-origin: left center;
+}
+
+.majordome-remove-bg-token-total.is-decreasing {
+    animation: majordome-token-decrease .9s ease both;
+}
+
+@keyframes majordome-token-decrease {
+    0% {
+        color: inherit;
+        transform: scale(1);
+    }
+    35% {
+        color: #dc3545;
+        transform: scale(1.2);
+    }
+    70% {
+        color: #f59e0b;
+        transform: scale(.96);
+    }
+    100% {
+        color: inherit;
+        transform: scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .majordome-remove-bg-token-total.is-decreasing {
+        animation: none;
+    }
 }
 
 .majordome-remove-bg-switch-wrap .form-switch {

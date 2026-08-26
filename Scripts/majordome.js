@@ -1237,6 +1237,25 @@ function showRemoveBackgroundConfirmation(options) {
             $tokenDetail.text(detailText || `${formatTokenCount(paidCredits)} credits + ${formatTokenCount(freeCalls)} free calls`);
         }
 
+        function animateTokenDecrement() {
+            var startTokens = Math.max(0, Number(totalTokens) || 0);
+            var endTokens = Math.max(0, startTokens - 1);
+
+            $tokenTotal.removeClass("is-decreasing");
+            void $tokenTotal.get(0).offsetWidth;
+            $tokenTotal.addClass("is-decreasing");
+            $tokenDetail.text("1 token used for this background removal");
+
+            window.setTimeout(function () {
+                totalTokens = endTokens;
+                $tokenTotal.text(formatTokenCount(totalTokens));
+            }, 300);
+
+            window.setTimeout(function () {
+                $tokenTotal.removeClass("is-decreasing");
+            }, 950);
+        }
+
         async function loadTokenBalance() {
             accountReady = false;
             updateSwitchAvailability();
@@ -1311,16 +1330,12 @@ function showRemoveBackgroundConfirmation(options) {
                 previewToken = (response.previewToken || "").toString();
                 var previewUrl = (response.previewUrl || "").toString();
                 var canSave = response.canSave !== false;
-                var creditsCharged = Number(response.creditsCharged) || 0;
                 if (!previewToken || !previewUrl) {
                     throw new Error("The server did not return a background-removal preview.");
                 }
 
                 await showPreview(previewUrl);
-                if (creditsCharged > 0) {
-                    totalTokens = Math.max(0, totalTokens - creditsCharged);
-                    renderTokenBalance(`${formatTokenCount(creditsCharged)} token(s) used for this preview`);
-                }
+                animateTokenDecrement();
                 $status.text(canSave
                     ? "Preview ready. Choose which image you want to keep."
                     : "Preview ready. Saving is available on staging or production where picture storage is connected.");
