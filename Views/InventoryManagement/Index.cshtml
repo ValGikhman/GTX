@@ -395,7 +395,7 @@
 
         async function uploadPreviewFile(file) {
             if (!file) {
-                alert("Please select an inventory CSV first.");
+                window.gtxAlert("Please select an inventory CSV first.");
                 return;
             }
 
@@ -416,7 +416,7 @@
                 if (error && error.statusText === "abort") return;
                 console.error("Inventory upload preview failed:", error);
                 if (uploadRenderValidationReport(file, error)) return;
-                alert((error && error.message) || uploadParseError(error, "Inventory upload preview failed."));
+                window.gtxAlert((error && error.message) || uploadParseError(error, "Inventory upload preview failed."));
             } finally {
                 inventoryManagementUploadRequest = null;
                 hideSpinner($overlay);

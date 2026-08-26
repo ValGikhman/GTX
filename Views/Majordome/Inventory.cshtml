@@ -734,7 +734,7 @@
                 syncMajordomeStoryLocalState(stock, savedTitle, savedStory);
             } catch (error) {
                 console.error("SaveStory failed:", error);
-                alert((error && error.message) || "Failed to save story.");
+                window.gtxAlert((error && error.message) || "Failed to save story.");
             } finally {
                 hideSpinner($overlay);
             }
@@ -2512,7 +2512,7 @@
     function openMajordomeImageUploadProgressModal(stock, files) {
         const normalizedStock = safeText(stock).trim();
         if (!normalizedStock) {
-            alert("Please select a vehicle first.");
+            window.gtxAlert("Please select a vehicle first.");
             return;
         }
 
@@ -2525,7 +2525,7 @@
     function openMajordomeImageDeleteProgressModal(stock, count) {
         const normalizedStock = safeText(stock).trim();
         if (!normalizedStock) {
-            alert("Please select a vehicle first.");
+            window.gtxAlert("Please select a vehicle first.");
             return;
         }
 
@@ -2750,7 +2750,7 @@
             }, 3500);
         }
         catch (error) {
-            alert((error && error.message) || "Cloudflare cache refresh failed.");
+            window.gtxAlert((error && error.message) || "Cloudflare cache refresh failed.");
         }
         finally {
             endMajordomeImageAction($overlay);
@@ -3457,7 +3457,7 @@
     function getSelectedVehicleStockOrWarn() {
         const stock = safeText(selectedVehicle?.Stock || selectedVehicleStock || window.majordomeSelectedStock || "").trim();
         if (!stock) {
-            alert("Please select a vehicle first.");
+            window.gtxAlert("Please select a vehicle first.");
             return "";
         }
 
@@ -3562,7 +3562,7 @@
             })
             .fail(function (xhr, status, error) {
                 console.error("OverlayModal failed:", status, error, xhr && xhr.responseText);
-                alert("Failed to load overlay editor.");
+                window.gtxAlert("Failed to load overlay editor.");
             })
             .always(function () {
                 hideSpinner($("#inventoryOverlay"));

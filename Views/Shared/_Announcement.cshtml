@@ -200,10 +200,10 @@
                     refreshList();
                     return;
                 }
-                alert("Delete failed.");
+                window.gtxAlert("Delete failed.");
             })
             .fail(function (xhr) {
-                alert("Delete failed. Status: " + xhr.status);
+                window.gtxAlert("Delete failed. Status: " + xhr.status);
             });
     }
 
