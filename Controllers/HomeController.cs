@@ -177,8 +177,15 @@ namespace GTX.Controllers
                     contact.Comment = model.Comment;
 
                     _contactService.SaveContact(contact);
-                    await Utility.XMLHelpers.XmlRepository.SendAdfLeadAsync(model);
-                    return Json(new {data = contact });
+                    var delivery = await Utility.XMLHelpers.XmlRepository.SendAdfLeadAsync(model);
+                    if (!delivery.Success) {
+                        Log($"Contact saved but AutoRaptor delivery failed: {delivery.ErrorMessage}");
+                    }
+                    return Json(new {
+                        data = contact,
+                        crmDelivered = delivery.Success,
+                        warning = delivery.Success ? null : "The contact was saved, but CRM delivery failed."
+                    });
                 }
             }
             catch (Exception ex) {

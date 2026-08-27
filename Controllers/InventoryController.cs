@@ -188,10 +188,10 @@ namespace GTX.Controllers
         }
 
         [HttpGet]
-        public ActionResult Suvs() {
+        public ActionResult Suvs(int? maximumPrice) {
             string body = CommonUnit.VehicleType.SUV.ToString();
             Model.Inventory.Suvs = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
-            Model.Inventory.Vehicles = Model?.Inventory?.Suvs ?? Array.Empty<Models.GTX>();
+            Model.Inventory.Vehicles = LimitMaximumPrice(Model?.Inventory?.Suvs, maximumPrice);
 
             Model.Inventory.Title = I18n.R("Nav_SUVs");
             ViewBag.Title = I18n.F("Title_Category", Model.Inventory.Vehicles.Length, Model.Inventory.Title);
@@ -200,10 +200,10 @@ namespace GTX.Controllers
         }
 
         [HttpGet]
-        public ActionResult Sedans() {
+        public ActionResult Sedans(int? maximumPrice) {
             string body = CommonUnit.VehicleType.SEDAN.ToString();
             Model.Inventory.Sedans = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
-            Model.Inventory.Vehicles = Model?.Inventory?.Sedans ?? Array.Empty<Models.GTX>();
+            Model.Inventory.Vehicles = LimitMaximumPrice(Model?.Inventory?.Sedans, maximumPrice);
 
             Model.Inventory.Title = I18n.R("Nav_Sedans");
             ViewBag.Title = I18n.F("Title_Category", Model.Inventory.Vehicles.Length, Model.Inventory.Title);
@@ -212,10 +212,10 @@ namespace GTX.Controllers
         }
 
         [HttpGet]
-        public ActionResult Wagons() {
+        public ActionResult Wagons(int? maximumPrice) {
             string body = CommonUnit.VehicleType.WAGON.ToString();
             Model.Inventory.Wagons = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
-            Model.Inventory.Vehicles = Model?.Inventory?.Wagons ?? Array.Empty<Models.GTX>();
+            Model.Inventory.Vehicles = LimitMaximumPrice(Model?.Inventory?.Wagons, maximumPrice);
 
             Model.Inventory.Title = I18n.R("Nav_Wagons");
             ViewBag.Title = I18n.F("Title_Category", Model.Inventory.Vehicles.Length, Model.Inventory.Title);
@@ -224,10 +224,10 @@ namespace GTX.Controllers
         }
 
         [HttpGet]
-        public ActionResult Trucks() {
+        public ActionResult Trucks(int? maximumPrice) {
             string body = CommonUnit.VehicleType.TRUCK.ToString();
             Model.Inventory.Trucks = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
-            Model.Inventory.Vehicles = Model?.Inventory?.Trucks ?? Array.Empty<Models.GTX>();
+            Model.Inventory.Vehicles = LimitMaximumPrice(Model?.Inventory?.Trucks, maximumPrice);
 
             Model.Inventory.Title = I18n.R("Nav_Trucks");
             ViewBag.Title = I18n.F("Title_Category", Model.Inventory.Vehicles.Length, Model.Inventory.Title);
@@ -236,10 +236,10 @@ namespace GTX.Controllers
         }
 
         [HttpGet]
-        public ActionResult Vans() {
+        public ActionResult Vans(int? maximumPrice) {
             string body = CommonUnit.VehicleType.VAN.ToString();
             Model.Inventory.Vans = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
-            Model.Inventory.Vehicles = Model?.Inventory?.Vans ?? Array.Empty<Models.GTX>();
+            Model.Inventory.Vehicles = LimitMaximumPrice(Model?.Inventory?.Vans, maximumPrice);
 
             Model.Inventory.Title = I18n.R("Nav_Vans");
             ViewBag.Title = I18n.F("Title_Category", Model.Inventory.Vehicles.Length, Model.Inventory.Title);
@@ -248,10 +248,10 @@ namespace GTX.Controllers
         }
 
         [HttpGet]
-        public ActionResult Convertibles() {
+        public ActionResult Convertibles(int? maximumPrice) {
             string body = CommonUnit.VehicleType.CONVERTIBLE.ToString();
             Model.Inventory.Convertibles = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
-            Model.Inventory.Vehicles = Model?.Inventory?.Convertibles ?? Array.Empty<Models.GTX>();
+            Model.Inventory.Vehicles = LimitMaximumPrice(Model?.Inventory?.Convertibles, maximumPrice);
 
             Model.Inventory.Title = I18n.R("Nav_Convertibles");
             ViewBag.Title = I18n.F("Title_Category", Model.Inventory.Vehicles.Length, Model.Inventory.Title);
@@ -260,10 +260,10 @@ namespace GTX.Controllers
         }
 
         [HttpGet]
-        public ActionResult Hatchbacks() {
+        public ActionResult Hatchbacks(int? maximumPrice) {
             string body = CommonUnit.VehicleType.HATCHBACK.ToString();
             Model.Inventory.Hatchbacks = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
-            Model.Inventory.Vehicles = Model?.Inventory?.Hatchbacks ?? Array.Empty<Models.GTX>();
+            Model.Inventory.Vehicles = LimitMaximumPrice(Model?.Inventory?.Hatchbacks, maximumPrice);
 
             Model.Inventory.Title = I18n.R("Nav_Hatchbacks");
             ViewBag.Title = I18n.F("Title_Category", Model.Inventory.Vehicles.Length, Model.Inventory.Title);
@@ -272,15 +272,24 @@ namespace GTX.Controllers
         }
 
         [HttpGet]
-    public ActionResult Coupes() {
+    public ActionResult Coupes(int? maximumPrice) {
             string body = CommonUnit.VehicleType.COUPE.ToString();
             Model.Inventory.Coupe = GetOrEmpty(Model.Categories, body, Array.Empty<Models.GTX>());
-            Model.Inventory.Vehicles = Model?.Inventory?.Coupe ?? Array.Empty<Models.GTX>();
+            Model.Inventory.Vehicles = LimitMaximumPrice(Model?.Inventory?.Coupe, maximumPrice);
 
             Model.Inventory.Title = I18n.R("Nav_Coupes");
             ViewBag.Title = I18n.F("Title_Category", Model.Inventory.Vehicles.Length, Model.Inventory.Title);
             ViewBag.Message = "Inventory";
             return View("Index", Model);
+        }
+
+        private static Models.GTX[] LimitMaximumPrice(IEnumerable<Models.GTX> vehicles, int? maximumPrice) {
+            var results = vehicles ?? Enumerable.Empty<Models.GTX>();
+            if (maximumPrice.HasValue && maximumPrice.Value > 0) {
+                results = results.Where(vehicle => vehicle.InternetPrice > 0 && vehicle.InternetPrice <= maximumPrice.Value);
+            }
+
+            return results.ToArray();
         }
 
         [HttpPost]

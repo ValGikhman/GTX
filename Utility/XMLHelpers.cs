@@ -13,9 +13,17 @@ using System.Xml.Linq;
 using System.Xml.Serialization;
 
 namespace Utility.XMLHelpers {
+    public sealed class AdfLeadDeliveryResult {
+        public bool Success { get; set; }
+        public string Transport { get; set; }
+        public string ErrorMessage { get; set; }
+    }
+
     public static class XmlRepository {
 
         private static string xmlFilePath = HostingEnvironment.MapPath("~/App_Data/");
+        private const string AutoRaptorLeadUrl = "https://ar.autoraptor.com/incoming/adf/ARAP2237-GB";
+        private const string AutoRaptorLeadEmail = "eleads-gtx-auto-group-24402@app.autoraptor.com";
 
         public static Employer[] GetEmployers() {
             string path = $"{xmlFilePath}GTX-Configuration.xml";
@@ -66,7 +74,7 @@ namespace Utility.XMLHelpers {
             }
         }
 
-        public async static Task SendAdfLeadAsync(ContactModel model) {
+        public async static Task<AdfLeadDeliveryResult> SendAdfLeadAsync(ContactModel model) {
             try {
                 string filePath = $"{xmlFilePath}adf.xml";
 
@@ -107,24 +115,59 @@ namespace Utility.XMLHelpers {
                     xmlString = stringWriter.ToString();
                 }
 
-                // Send to AutoRaptor
-                var url = "https://ar.autoraptor.com/incoming/adf/ARAP2237-GB";
+                // AutoRaptor supplied both an HTTP E-lead endpoint and an ADF email address.
+                // Prefer HTTP, then fall back to email only when the endpoint explicitly fails.
+                string httpError = null;
+                try {
+                    using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(20) }) {
+                        client.DefaultRequestHeaders.UserAgent.ParseAdd("GTXAutoGroup/1.0");
+                        using (var content = new StringContent(xmlString, Encoding.UTF8, "application/xml"))
+                        using (var response = await client.PostAsync(AutoRaptorLeadUrl, content)) {
+                            var responseBody = await response.Content.ReadAsStringAsync();
+                            if (response.IsSuccessStatusCode) {
+                                return new AdfLeadDeliveryResult { Success = true, Transport = "http" };
+                            }
 
-                using (var client = new HttpClient()) {
-                    var content = new StringContent(xmlString, Encoding.UTF8, "application/xml");
-                    var response = await client.PostAsync(url, content);
-
-                    if (response.IsSuccessStatusCode) {
-/*                        return Json(new { success = true, message = "Lead sent successfully!" });
-*/                    }
-                    else {
-                        var error = await response.Content.ReadAsStringAsync();
-  /*                      return Json(new { success = false, message = $"Failed to send. {error}" });
-  */                  }
+                            httpError = $"HTTP {(int)response.StatusCode} {response.ReasonPhrase}: {Crop(responseBody, 500)}";
+                        }
+                    }
                 }
+                catch (Exception ex) {
+                    httpError = $"HTTP delivery exception: {ex.Message}";
+                }
+
+                System.Diagnostics.Trace.TraceError("AutoRaptor HTTP lead delivery failed. {0}", httpError);
+
+                var subject = $"GTX website lead - {model.FirstName} {model.LastName}";
+                var emailSent = await Utility.EmailHelper.SendEmailAsync(
+                    AutoRaptorLeadEmail,
+                    subject,
+                    xmlString,
+                    contentSubtype: "xml");
+
+                if (emailSent) {
+                    return new AdfLeadDeliveryResult { Success = true, Transport = "email" };
+                }
+
+                const string emailError = "ADF email fallback failed.";
+                System.Diagnostics.Trace.TraceError("AutoRaptor lead delivery failed. {0} {1}", httpError, emailError);
+                return new AdfLeadDeliveryResult {
+                    Success = false,
+                    ErrorMessage = $"{httpError} {emailError}"
+                };
             }
             catch (Exception ex) {
+                System.Diagnostics.Trace.TraceError("AutoRaptor ADF creation failed: {0}", ex);
+                return new AdfLeadDeliveryResult {
+                    Success = false,
+                    ErrorMessage = ex.Message
+                };
             }
+        }
+
+        private static string Crop(string value, int maximumLength) {
+            if (string.IsNullOrEmpty(value) || value.Length <= maximumLength) return value;
+            return value.Substring(0, maximumLength);
         }
     }
 

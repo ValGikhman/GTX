@@ -1,0 +1,119 @@
+@{
+    var chatRequestToken = GTX.Controllers.ChatController.GetOrCreateRequestToken(ViewContext.HttpContext.Session);
+}
+<div id="gtxChatWidget"
+     class="gtx-chat"
+     data-message-url="@Url.Action("Message", "Chat")"
+     data-lead-url="@Url.Action("SubmitLead", "Chat")"
+     data-salespeople-url="@Url.Action("Salespeople", "Chat")"
+     data-home-url="@Url.Action("Index", "Home")"
+     data-inventory-url="@Url.Action("All", "Inventory")"
+     data-suvs-url="@Url.Action("Suvs", "Inventory")"
+     data-sedans-url="@Url.Action("Sedans", "Inventory")"
+     data-wagons-url="@Url.Action("Wagons", "Inventory")"
+     data-trucks-url="@Url.Action("Trucks", "Inventory")"
+     data-vans-url="@Url.Action("Vans", "Inventory")"
+     data-convertibles-url="@Url.Action("Convertibles", "Inventory")"
+     data-hatchbacks-url="@Url.Action("Hatchbacks", "Inventory")"
+     data-coupes-url="@Url.Action("Coupes", "Inventory")"
+     data-financing-url="@Url.Action("Application", "Home")"
+     data-staff-url="@Url.Action("Staff", "Home")"
+     data-about-url="@Url.Action("About", "Home")"
+     data-testimonials-url="@Url.Action("Testimonials", "Home")"
+     data-test-drive-url="@Url.RouteUrl("TestDriveContact")"
+     data-blog-url="@Url.Action("List", "Blogs")"
+     data-privacy-url="@Url.Action("PrivacyPolicy", "Home")"
+     data-terms-url="@Url.Action("TermsAndConditions", "Home")"
+     data-dashboard-url="@Url.Action("Dashboard", "InventoryManagement")"
+     data-inventory-management-url="@Url.Action("Index", "InventoryManagement")"
+     data-majordome-url="@Url.Action("Inventory", "Majordome")"
+     data-employees-url="@Url.Action("Index", "Employees")"
+     data-vin-decoder-url="@Url.Action("Index", "VinDecoder")"
+     data-announcements-url="@Url.Action("Index", "Announcements")"
+     data-blog-management-url="@Url.Action("Index", "Blogs")">
+    <button type="button"
+            class="gtx-chat-launcher"
+            aria-label="Open GTX Auto Assistant"
+            aria-expanded="false"
+            aria-controls="gtxChatPanel">
+        <i class="bi bi-chat-dots-fill" aria-hidden="true"></i>
+        <span>Ask GTX</span>
+    </button>
+
+    <section id="gtxChatPanel" class="gtx-chat-panel" aria-label="GTX Auto Assistant" hidden>
+        <header class="gtx-chat-header">
+            <div class="gtx-chat-avatar" aria-hidden="true"><i class="bi bi-stars"></i></div>
+            <div class="flex-grow-1">
+                <div class="gtx-chat-title">GTX Auto Assistant <span>AI</span></div>
+                <div class="gtx-chat-status"><i aria-hidden="true"></i> Ready to help</div>
+            </div>
+            <button type="button" class="gtx-chat-icon-button" data-chat-reset title="Start a new chat" aria-label="Start a new chat">
+                <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="gtx-chat-icon-button" data-chat-close title="Close chat" aria-label="Close chat">
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </button>
+        </header>
+
+        <div class="gtx-chat-messages" data-chat-messages aria-live="polite" aria-relevant="additions">
+            <div class="gtx-chat-message is-assistant">
+                Hi! I can search our live inventory, answer vehicle questions, or help you contact our sales team. What are you looking for?
+            </div>
+        </div>
+
+        <div class="gtx-chat-suggestions" data-chat-suggestions>
+            <button type="button" data-chat-prompt="Show me SUVs under $20,000">SUVs under $20k</button>
+            <button type="button" data-chat-prompt="What trucks are available?">Available trucks</button>
+            <button type="button" data-chat-contact>Contact sales</button>
+        </div>
+
+        <div class="gtx-chat-lead d-none" data-chat-lead>
+            <div class="gtx-chat-lead-heading">
+                <strong>Contact our sales team</strong>
+                <button type="button" class="gtx-chat-icon-button" data-chat-contact-close aria-label="Close contact form">
+                    <i class="bi bi-x" aria-hidden="true"></i>
+                </button>
+            </div>
+            <form data-chat-lead-form novalidate>
+                <input type="hidden" name="ChatRequestToken" value="@chatRequestToken" />
+                <div class="row g-2">
+                    <div class="col-6"><input class="form-control form-control-sm" name="FirstName" maxlength="80" autocomplete="given-name" placeholder="First name" required /></div>
+                    <div class="col-6"><input class="form-control form-control-sm" name="LastName" maxlength="80" autocomplete="family-name" placeholder="Last name" required /></div>
+                    <div class="col-6"><input class="form-control form-control-sm" name="Phone" maxlength="20" autocomplete="tel" inputmode="tel" placeholder="Phone" required /></div>
+                    <div class="col-6"><input class="form-control form-control-sm" name="Email" maxlength="160" type="email" autocomplete="email" placeholder="Email" required /></div>
+                    <div class="col-12">
+                        <label class="visually-hidden" for="gtxChatSalesperson">Preferred salesperson</label>
+                        <select class="form-select form-select-sm" id="gtxChatSalesperson" name="EmployerId" disabled>
+                            <option value="0">Any available salesperson</option>
+                        </select>
+                    </div>
+                    <div class="col-12"><input class="form-control form-control-sm" name="VehicleStock" maxlength="20" placeholder="Stock # (optional)" /></div>
+                    <div class="col-12"><textarea class="form-control form-control-sm" name="Message" maxlength="1000" rows="2" placeholder="How can we help?"></textarea></div>
+                </div>
+                <div class="form-check gtx-chat-consent">
+                    <input class="form-check-input" type="checkbox" value="true" name="Consent" id="gtxChatConsent" required />
+                    <label class="form-check-label" for="gtxChatConsent">I agree GTX Auto Group may contact me about this request.</label>
+                </div>
+                <div class="gtx-chat-lead-feedback" data-chat-lead-feedback role="status"></div>
+                <div class="gtx-chat-lead-actions">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-chat-contact-close>
+                        <i class="bi bi-x-lg" aria-hidden="true"></i>
+                        Close
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="bi bi-send-fill" aria-hidden="true"></i>
+                        <span data-chat-submit-label>Send request</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <form class="gtx-chat-compose" data-chat-form>
+            <input type="hidden" name="ChatRequestToken" value="@chatRequestToken" />
+            <label class="visually-hidden" for="gtxChatMessage">Message GTX Auto Assistant</label>
+            <textarea id="gtxChatMessage" name="Message" maxlength="800" rows="1" placeholder="Ask about our vehicles..." required></textarea>
+            <button type="submit" aria-label="Send message"><i class="bi bi-send-fill" aria-hidden="true"></i></button>
+        </form>
+        <div class="gtx-chat-disclaimer">AI responses may be inaccurate. Confirm price and availability with the dealership.</div>
+    </section>
+</div>

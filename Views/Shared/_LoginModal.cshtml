@@ -165,6 +165,8 @@
         var form = $("#loginForm")[0];
         if (form) form.reset();
 
+        window.gtxReturnUrl = null;
+        window.gtxRequiredRole = null;
         $("#loginError").addClass("d-none").text("");
         $("#loginPassword").attr("type", "password");
         $("#toggleLoginPassword i").attr("class", "bi bi-eye");
@@ -201,9 +203,25 @@
                     $("#MajordomeLink").removeClass("d-none");
                     const role = (res.role || res.Role || "user");
                     setMajordomeMenu(role);
-                    getLoginModal().hide();
+                    window.gtx = window.gtx || {};
+                    window.gtx.currentRole = role;
 
-                    window.location.href = res.returnUrl || window.gtxReturnUrl || "/";
+                    const normalizedRole = String(role).toLowerCase();
+                    const requiredRole = String(window.gtxRequiredRole || "").toLowerCase();
+                    const hasRequiredRole = !requiredRole
+                        || (requiredRole === "owner" ? normalizedRole === "owner" : normalizedRole !== "user");
+                    if (!hasRequiredRole) {
+                        const accessName = requiredRole === "owner" ? "Owner" : "staff";
+                        $("#loginError").removeClass("d-none").text(accessName + " access is required for that page.");
+                        $("#loginPassword").val("").trigger("focus");
+                        return;
+                    }
+
+                    const destination = res.returnUrl || window.gtxReturnUrl || "/";
+                    window.gtxReturnUrl = null;
+                    window.gtxRequiredRole = null;
+                    getLoginModal().hide();
+                    window.location.href = destination;
                     return;
                 }
 

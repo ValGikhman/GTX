@@ -4,38 +4,41 @@ using MimeKit;
 using Services;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 
 namespace Utility {
 
     public static class EmailHelper {
 
-        public static void SendEmail(string emailTo, string emailSubject, string emailBody) {
+        public static async Task<bool> SendEmailAsync(string emailTo, string emailSubject, string emailBody, string contentSubtype = "plain") {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("Administrator", "admin@usedcarscincinnati.com"));
-            message.To.Add(new MailboxAddress("Valentin Gikhman", "valentin.gikhman@gmail.com"));
-            message.Subject = "Test Email from VPS";
-            message.Body = new TextPart("plain") {
+            message.To.Add(new MailboxAddress(emailTo, emailTo));
+            message.Subject = emailSubject;
+            message.Body = new TextPart(contentSubtype == "xml" ? "xml" : "plain") {
                 Text = emailBody
             };
 
             using (var client = new SmtpClient()) {
                 try {
                     // Connect to IONOS SMTP server
-                    client.Connect("smtp.ionos.com", 587, SecureSocketOptions.StartTls);
+                    await client.ConnectAsync("smtp.ionos.com", 587, SecureSocketOptions.StartTls);
 
                     // Authenticate
-                    client.Authenticate("admin@usedcarscincinnati.com", "nowORnever2017!");
+                    await client.AuthenticateAsync("admin@usedcarscincinnati.com", "nowORnever2017!");
 
                     // Send
-                    client.Send(message);
+                    await client.SendAsync(message);
                     Console.WriteLine("Email sent successfully.");
 
                     // Disconnect
-                    client.Disconnect(true);
+                    await client.DisconnectAsync(true);
+                    return true;
                 }
                 catch (Exception ex) {
                     Console.WriteLine($"Error: {ex.Message}");
+                    return false;
                 }
             }
         }
@@ -51,7 +54,7 @@ namespace Utility {
                 emailBody = sw.GetStringBuilder().ToString();
             }
 
-            SendEmail(contact.Email, "GTX contact lead", emailBody);
+            SendEmailAsync(contact.Email, "GTX contact lead", emailBody).GetAwaiter().GetResult();
         }
     }
 }

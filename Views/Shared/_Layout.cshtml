@@ -623,9 +623,11 @@
     </footer>
     <!-- Footer Section End -->
 
+    @Html.Partial("_ChatBot")
 
     @Scripts.Render("~/scripts/jquery")
     <script src="~/Scripts/jquery.gtx-range-filter.js"></script>
+    <script src="~/Scripts/chat-bot.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/chat-bot.js")).Ticks)"></script>
     <script>
         (function (window, document) {
             var activeConfirmation = null;
