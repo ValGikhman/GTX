@@ -942,6 +942,41 @@ namespace GTX.Controllers
             image.Settings.SetDefine(MagickFormat.Jpeg, "sampling-factor", "4:2:0");
         }
 
+        private static async Task<byte[]> EncodeBackgroundRemovedImageAsync(string previewPath, string resultFileName) {
+            var formatInfo = MagickFormatInfo.Create(resultFileName);
+            if (formatInfo == null || !formatInfo.SupportsWriting) {
+                throw new InvalidDataException("The original image extension is not supported for saving.");
+            }
+
+            using (var image = new MagickImage(previewPath)) {
+                if (image.Width <= 0 || image.Height <= 0) {
+                    throw new InvalidDataException("The saved image could not be validated.");
+                }
+
+                image.Strip();
+                image.Depth = 8;
+                image.Format = formatInfo.Format;
+
+                if (formatInfo.Format == MagickFormat.Jpeg) {
+                    image.BackgroundColor = MagickColors.White;
+                    image.Alpha(AlphaOption.Remove);
+                    image.ColorType = ColorType.TrueColor;
+                    image.Settings.Interlace = Interlace.Jpeg;
+                    image.Quality = UploadJpegQuality;
+                    image.Settings.SetDefine(MagickFormat.Jpeg, "sampling-factor", "4:2:0");
+                }
+                else if (formatInfo.Format == MagickFormat.Png) {
+                    image.ColorType = ColorType.TrueColorAlpha;
+                    image.Settings.SetDefine(MagickFormat.Png, "png:compression-level", UploadPngCompressionLevel.ToString());
+                }
+
+                using (var output = new MemoryStream()) {
+                    await image.WriteAsync(output, formatInfo.Format);
+                    return output.ToArray();
+                }
+            }
+        }
+
         private static string BuildInventoryUploadFileName(string originalFileName, string extension) {
             var baseName = Path.GetFileNameWithoutExtension(originalFileName);
             baseName = Regex.Replace(baseName ?? string.Empty, @"[^\w\-. ]+", "-").Trim();
@@ -1613,8 +1648,12 @@ namespace GTX.Controllers
             }
 
             var originalFileName = Path.GetFileName(normalizedFile);
-            var resultExtension = useCloudflare ? UploadPngExtension : Path.GetExtension(originalPath);
-            var resultFileName = Path.GetFileNameWithoutExtension(originalFileName) + "-RB" + resultExtension;
+            var originalExtension = Path.GetExtension(originalFileName);
+            if (string.IsNullOrWhiteSpace(originalExtension)) {
+                return Json(new { success = false, message = "The original image does not have a file extension." });
+            }
+
+            var resultFileName = Path.GetFileNameWithoutExtension(originalFileName) + "-RB" + originalExtension;
             var resultPath = useCloudflare ? null : Path.Combine(Path.GetDirectoryName(originalPath), resultFileName);
             var resultSource = resultFileName;
             var resultCreated = false;
@@ -1631,14 +1670,8 @@ namespace GTX.Controllers
             }
 
             try {
+                var resultBytes = await EncodeBackgroundRemovedImageAsync(previewPath, resultFileName);
                 if (useCloudflare) {
-                    var resultBytes = System.IO.File.ReadAllBytes(previewPath);
-                    using (var savedImage = new MagickImage(resultBytes)) {
-                        if (savedImage.Width <= 0 || savedImage.Height <= 0) {
-                            throw new InvalidDataException("The saved image could not be validated.");
-                        }
-                    }
-
                     await CloudflareR2Storage.WriteAsync(
                         normalizedStock,
                         resultFileName,
@@ -1647,20 +1680,17 @@ namespace GTX.Controllers
                     resultCreated = true;
                 }
                 else {
-                    System.IO.File.Move(previewPath, resultPath);
+                    System.IO.File.WriteAllBytes(resultPath, resultBytes);
                     resultCreated = true;
-
-                    using (var savedImage = new MagickImage(resultPath)) {
-                        if (savedImage.Width <= 0 || savedImage.Height <= 0) {
-                            throw new InvalidDataException("The saved image could not be validated.");
-                        }
-                    }
                 }
 
                 InventoryService.SaveBackgroundRemovedImage(image.Id, resultSource);
                 databaseUpdated = true;
 
                 if (useCloudflare && System.IO.File.Exists(previewPath)) {
+                    System.IO.File.Delete(previewPath);
+                }
+                else if (!useCloudflare && System.IO.File.Exists(previewPath)) {
                     System.IO.File.Delete(previewPath);
                 }
 

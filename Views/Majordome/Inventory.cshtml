@@ -1765,7 +1765,8 @@
                 Vehicle: vehicle,
                 Stock: stock,
                 Source: source,
-                Label: getMajordomeBulkVehicleLabel(vehicle)
+                Label: getMajordomeBulkVehicleLabel(vehicle),
+                Selected: true
             });
             return items;
         }, []);
@@ -1779,43 +1780,128 @@
         }
 
         const $grid = $("<div></div>").addClass("majordome-background-preview-grid");
-        job.items.forEach(function (item) {
+        job.items.forEach(function (item, index) {
             const imageUrl = inventoryImageVariantUrl(toInventoryImageUrl(item.Source, item.Stock), "card");
-            const $card = $("<div></div>").addClass("majordome-background-preview-card");
+            const checkboxId = `majordomeRemoveBgImage${index}`;
+            const $card = $("<div></div>")
+                .addClass("majordome-background-preview-card is-selected")
+                .attr("data-remove-bg-index", index);
             const $image = $("<img>")
                 .attr("src", imageUrl || window.inventoryImagesPlaceholderUrl || "")
                 .attr("alt", `${item.Label} first image`)
                 .attr("loading", "lazy");
             const $details = $("<div></div>").addClass("majordome-background-preview-details");
+            const $footer = $("<label></label>")
+                .addClass("majordome-background-preview-footer")
+                .attr("for", checkboxId);
+            const $checkbox = $("<input>")
+                .addClass("form-check-input js-remove-bg-select")
+                .attr({
+                    id: checkboxId,
+                    type: "checkbox",
+                    "data-remove-bg-index": index,
+                    "aria-label": `Select ${item.Label}`
+                })
+                .prop("checked", true);
 
-            $("<div></div>").addClass("fw-semibold text-truncate").text(item.Label).appendTo($details);
+            $("<div></div>").addClass("majordome-background-preview-title text-truncate").text(item.Label).appendTo($details);
             $("<div></div>")
-                .addClass("small text-muted text-truncate")
+                .addClass("majordome-background-preview-name text-truncate")
                 .attr("title", item.Source)
                 .text(getMajordomeImageFileLabel(item.Source))
-                .appendTo($details);
+                .appendTo($footer);
+            $footer.append($checkbox).appendTo($details);
 
             $card.append($image, $details).appendTo($grid);
         });
 
-        $preview.removeClass("d-none").append($grid);
+        $preview
+            .off("change.removeBgBatch")
+            .on("change.removeBgBatch", ".js-remove-bg-select", function () {
+                if (job.running) return;
+
+                const index = parseInt($(this).attr("data-remove-bg-index"), 10);
+                if (Number.isInteger(index) && job.items[index]) {
+                    job.items[index].Selected = this.checked;
+                }
+                updateMajordomeRemoveBackgroundSelection(job);
+            })
+            .removeClass("d-none")
+            .append($grid);
     }
 
-    function renderMajordomeRemoveBackgroundTokenSummary(job, account) {
-        const available = Math.max(0, Math.floor(Number(account?.totalTokens) || 0));
-        const required = job?.items?.length || 0;
-        const remaining = Math.max(0, available - required);
-        const $summary = $("#majordomeBulkProgressSummary").empty().removeClass("d-none");
+    function getMajordomeSelectedRemoveBackgroundItems(job) {
+        return Array.isArray(job?.items)
+            ? job.items.filter(function (item) { return item.Selected === true; })
+            : [];
+    }
 
-        $("<span></span>").addClass("badge text-bg-primary").text(`${required} vehicle${required === 1 ? "" : "s"}`).appendTo($summary);
+    function renderMajordomeRemoveBackgroundTokenSummary(job) {
+        const available = Math.max(0, Math.floor(Number(job?.availableTokens) || 0));
+        const required = getMajordomeSelectedRemoveBackgroundItems(job).length;
+        const total = job?.items?.length || 0;
+        const difference = available - required;
+        const $summary = $("#majordomeBulkProgressSummary").empty().removeClass("d-none");
+        const $toggle = $("<button></button>")
+            .addClass("btn btn-sm majordome-remove-bg-toggle-all js-remove-bg-toggle-all")
+            .attr("type", "button")
+            .append($("<i></i>").addClass("bi bi-check2-square me-1"))
+            .append(document.createTextNode("Toggle all"));
+
+        $toggle.appendTo($summary);
+        $("<span></span>").addClass("badge text-bg-primary").text(`${required} of ${total} selected`).appendTo($summary);
         $("<span></span>")
             .addClass("badge text-bg-secondary js-remove-bg-token-count")
             .text(`${available} token${available === 1 ? "" : "s"} available`)
             .appendTo($summary);
-        if (available >= required) {
-            $("<span></span>").addClass("badge text-bg-success").text(`${remaining} remaining after batch`).appendTo($summary);
+        if (required === 0) {
+            $("<span></span>").addClass("badge text-bg-warning").text("Select at least one vehicle").appendTo($summary);
+        } else if (difference >= 0) {
+            $("<span></span>").addClass("badge text-bg-success").text(`${difference} remaining after batch`).appendTo($summary);
         } else {
-            $("<span></span>").addClass("badge text-bg-danger").text(`${required - available} token${required - available === 1 ? "" : "s"} short`).appendTo($summary);
+            $("<span></span>").addClass("badge text-bg-danger").text(`${Math.abs(difference)} token${difference === -1 ? "" : "s"} short`).appendTo($summary);
+        }
+
+        $summary
+            .off("click.removeBgBatch")
+            .on("click.removeBgBatch", ".js-remove-bg-toggle-all", function () {
+                if (job.running) return;
+
+                job.items.forEach(function (item) { item.Selected = item.Selected !== true; });
+                $("#majordomeBulkPreview .js-remove-bg-select").each(function () {
+                    const index = parseInt($(this).attr("data-remove-bg-index"), 10);
+                    $(this).prop("checked", !!job.items[index]?.Selected);
+                });
+                updateMajordomeRemoveBackgroundSelection(job);
+            });
+    }
+
+    function updateMajordomeRemoveBackgroundSelection(job) {
+        const selected = getMajordomeSelectedRemoveBackgroundItems(job);
+        const available = Math.max(0, Math.floor(Number(job?.availableTokens) || 0));
+        const required = selected.length;
+        const canStart = job?.accountReady === true && required > 0 && available >= required;
+
+        job.canStart = canStart;
+        $("#majordomeBulkPreview .majordome-background-preview-card").each(function () {
+            const index = parseInt($(this).attr("data-remove-bg-index"), 10);
+            $(this).toggleClass("is-selected", !!job.items[index]?.Selected);
+        });
+        renderMajordomeRemoveBackgroundTokenSummary(job);
+        updateMajordomeBulkProgress(0, required);
+        $("#majordomeBulkStart")
+            .toggleClass("d-none", !canStart)
+            .prop("disabled", !canStart);
+        $("#majordomeBulkCancel").text(canStart ? "Cancel" : "Close");
+
+        if (!job.accountReady) {
+            setMajordomeBulkStatus("Checking the live remove.bg token balance...");
+        } else if (required === 0) {
+            setMajordomeBulkStatus("Select at least one vehicle to run the batch.");
+        } else if (available < required) {
+            setMajordomeBulkStatus(`Cannot run: ${required} selected vehicles need ${required} tokens, but only ${available} are available.`);
+        } else {
+            setMajordomeBulkStatus(`Ready: ${available} tokens are available for ${required} selected vehicle${required === 1 ? "" : "s"}.`);
         }
     }
 
@@ -2471,21 +2557,21 @@
                     }
 
                     const available = Math.max(0, Math.floor(Number(account.totalTokens) || 0));
-                    const required = job.items.length;
                     job.availableTokens = available;
-                    renderMajordomeRemoveBackgroundTokenSummary(job, account);
-
-                    if (available < required) {
-                        return {
-                            canStart: false,
-                            status: `Cannot run: ${required} tokens are required for ${required} vehicles, but only ${available} are available.`
-                        };
-                    }
+                    job.accountReady = true;
+                    updateMajordomeRemoveBackgroundSelection(job);
 
                     return {
-                        canStart: true,
-                        status: `Token check passed. ${available} available for ${required} vehicles.`
+                        canStart: job.canStart,
+                        status: $("#majordomeBulkProgressStatus").text()
                     };
+                },
+                prepareStart: function (job) {
+                    job.items = getMajordomeSelectedRemoveBackgroundItems(job);
+                    job.progressTotal = job.items.length;
+                    $("#majordomeBulkPreview .js-remove-bg-select, #majordomeBulkProgressSummary .js-remove-bg-toggle-all")
+                        .prop("disabled", true);
+                    updateMajordomeBulkProgress(0, job.progressTotal);
                 },
                 run: removeMajordomeFirstImageBackground,
                 afterCompleteStatus: "Refreshing inventory images...",
@@ -2908,6 +2994,11 @@
     async function startMajordomeBulkJob() {
         const job = majordomeBulkJob;
         if (!job || job.running || !job.items.length || job.canStart === false) return;
+
+        if (typeof job.config.prepareStart === "function") {
+            job.config.prepareStart(job);
+        }
+        if (!job.items.length) return;
 
         job.running = true;
         setMajordomeBulkToolbarBusy(true);
