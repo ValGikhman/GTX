@@ -42,12 +42,22 @@ namespace GTX
 
             if (MaintenanceFlag.IsOffline())
             {
-                if (path.StartsWith("/health")) return;
+                if (IsMaintenanceRecoveryPath(path)) return;
                 Response.Redirect("/out-of-service.html", true);
             }
 
             var culture = CultureHelper.GetCultureFromRequest(Request);
             CultureHelper.ApplyCulture(culture);
+        }
+
+        private static bool IsMaintenanceRecoveryPath(string requestPath)
+        {
+            var path = (requestPath ?? string.Empty).TrimEnd('/');
+            return path == "/health" ||
+                   path.StartsWith("/health/", StringComparison.Ordinal) ||
+                   path == "/home/needlogin" ||
+                   path == "/home/login" ||
+                   path == "/home/loginmodal";
         }
 
         private static void ApplySecurityHeaders(HttpResponse response)
