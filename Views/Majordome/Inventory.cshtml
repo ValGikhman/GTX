@@ -1772,6 +1772,13 @@
         }, []);
     }
 
+    function getMajordomeRemoveBackgroundVehicleName(vehicle) {
+        return [vehicle?.Year, vehicle?.Make, vehicle?.Model]
+            .map(function (part) { return safeText(part).trim(); })
+            .filter(function (part) { return part.length > 0; })
+            .join(" ") || "Vehicle";
+    }
+
     function renderMajordomeRemoveBackgroundPreview(job) {
         const $preview = $("#majordomeBulkPreview").empty();
         if (!job || !Array.isArray(job.items) || !job.items.length) {
@@ -1781,11 +1788,14 @@
 
         const $grid = $("<div></div>").addClass("majordome-background-preview-grid");
         job.items.forEach(function (item, index) {
+            const vehicle = item.Vehicle || {};
+            const vehicleName = getMajordomeRemoveBackgroundVehicleName(vehicle);
             const imageUrl = inventoryImageVariantUrl(toInventoryImageUrl(item.Source, item.Stock), "card");
             const checkboxId = `majordomeRemoveBgImage${index}`;
             const $card = $("<div></div>")
                 .addClass("majordome-background-preview-card is-selected")
                 .attr("data-remove-bg-index", index);
+            const $header = $("<div></div>").addClass("majordome-background-preview-header");
             const $image = $("<img>")
                 .attr("src", imageUrl || window.inventoryImagesPlaceholderUrl || "")
                 .attr("alt", `${item.Label} first image`)
@@ -1804,7 +1814,11 @@
                 })
                 .prop("checked", true);
 
-            $("<div></div>").addClass("majordome-background-preview-title text-truncate").text(item.Label).appendTo($details);
+            $("<div></div>")
+                .addClass("majordome-background-preview-title text-truncate")
+                .attr("title", vehicleName)
+                .text(vehicleName)
+                .appendTo($header);
             $("<div></div>")
                 .addClass("majordome-background-preview-name text-truncate")
                 .attr("title", item.Source)
@@ -1812,7 +1826,7 @@
                 .appendTo($footer);
             $footer.append($checkbox).appendTo($details);
 
-            $card.append($image, $details).appendTo($grid);
+            $card.append($header, $image, $details).appendTo($grid);
         });
 
         $preview
@@ -1959,9 +1973,12 @@
 
             job.availableTokens = Math.max(0, (job.availableTokens || 0) - 1);
             updateMajordomeRemoveBackgroundTokenCount(job.availableTokens);
+            const vehicleName = getMajordomeRemoveBackgroundVehicleName(item.Vehicle);
+            const originalFileName = getMajordomeImageFileLabel(item.Source);
+            const savedFileName = getMajordomeImageFileLabel(response.file);
             return {
                 status: "success",
-                message: `${item.Label} background removed.`
+                message: `${item.Stock} ${vehicleName} ${originalFileName} saved as ${savedFileName}.`
             };
         } catch (error) {
             if (previewToken) {
