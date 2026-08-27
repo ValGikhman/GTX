@@ -253,8 +253,8 @@
                     return;
                 }
 
-                if ($vehicleCard && /^[-•]\s*/.test(line)) {
-                    var detail = line.replace(/^[-•]\s*/, "");
+                if ($vehicleCard && /^[-\u2022]\s*/.test(line)) {
+                    var detail = line.replace(/^[-\u2022]\s*/, "");
                     var detailClass = /^price\s*:/i.test(detail) ? " is-price" : "";
                     var $detail = $("<div>", { "class": "gtx-chat-vehicle-detail" + detailClass }).appendTo($vehicleCard);
                     appendRichText($detail, detail);
@@ -546,7 +546,7 @@
             }
 
             if (destination.requiredRole && !hasNavigationAccess(destination.requiredRole)) {
-                addMessage("assistant", "Please log in to open " + destination.label + ". After login, I’ll take you there.");
+                addMessage("assistant", "Please log in to open " + destination.label + ". After login, I'll take you there.");
                 window.gtxReturnUrl = destination.url;
                 window.gtxRequiredRole = destination.requiredRole;
                 if (typeof window.getLoginModal === "function" && $("#loginModal").length) {
@@ -557,7 +557,7 @@
                 return;
             }
 
-            addMessage("assistant", "Opening " + destination.label + "…");
+            addMessage("assistant", "Opening " + destination.label + "...");
             window.setTimeout(function () {
                 window.location.assign(destination.url);
             }, 150);
@@ -584,7 +584,7 @@
             }
 
             setSending(true);
-            var $thinking = addMessage("assistant", "Checking that for you…", "is-thinking", null, null, false);
+            var $thinking = addMessage("assistant", "Checking that for you...", "is-thinking", null, null, false);
             var token = $chatForm.find("input[name='ChatRequestToken']").val();
 
             $.ajax({
@@ -766,7 +766,7 @@
             var $submit = $leadForm.find("button[type='submit']");
             var $submitLabel = $submit.find("[data-chat-submit-label]");
             $submit.prop("disabled", true);
-            $submitLabel.text("Sending…");
+            $submitLabel.text("Sending...");
             $leadFeedback.removeClass("is-error is-success").text("");
 
             $.ajax({
