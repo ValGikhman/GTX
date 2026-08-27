@@ -1,0 +1,1344 @@
+using Common;
+using GTX.Common;
+using GTX.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Services;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Runtime.Caching;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Web.Mvc;
+
+namespace GTX.Controllers
+{
+    public sealed class ChatController : Controller
+    {
+        private const string ResponsesUrl = "https://api.openai.com/v1/responses";
+        private const string RequestTokenSessionKey = "GTX:ChatRequestToken";
+        private const string TeachingProposalSessionPrefix = "GTX:ChatTeaching:";
+        private const string PromptCacheKey = "gtx-dealership-chat-v1";
+        private const string DefaultChatModel = "gpt-4.1-mini";
+        private const int MaxToolRounds = 2;
+        private static readonly HttpClient OpenAiClient = CreateOpenAiClient();
+        private static readonly Regex ResponseIdPattern = new Regex(@"^resp_[A-Za-z0-9_-]+$", RegexOptions.Compiled);
+        private static readonly JArray AssistantTools = BuildTools();
+        private static readonly MemoryCache RateLimitCache = MemoryCache.Default;
+
+        private readonly IInventoryService _inventoryService;
+        private readonly IContactService _contactService;
+        private readonly IEmployeesService _employeesService;
+        private readonly IChatBotTeachingService _teachingService;
+
+        public ChatController(
+            IInventoryService inventoryService,
+            IContactService contactService,
+            IEmployeesService employeesService,
+            IChatBotTeachingService teachingService)
+        {
+            _inventoryService = inventoryService;
+            _contactService = contactService;
+            _employeesService = employeesService;
+            _teachingService = teachingService;
+        }
+
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            if (!ChatBotSettings.Enabled)
+            {
+                filterContext.Result = HttpNotFound();
+                return;
+            }
+
+            base.OnActionExecuting(filterContext);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public ActionResult Salespeople()
+        {
+            var employees = _employeesService.GetEmployees() ?? Array.Empty<Employee>();
+            var salespeople = employees
+                .Where(IsActiveSalesperson)
+                .OrderBy(employee => employee.FirstName)
+                .ThenBy(employee => employee.LastName)
+                .Select(employee => new
+                {
+                    id = employee.Id,
+                    name = Join(employee.FirstName, employee.LastName)
+                })
+                .ToArray();
+
+            return Json(salespeople, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Message(ChatBotRequest request)
+        {
+            if (request == null || !HasValidRequestToken(request.ChatRequestToken))
+            {
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return Json(new ChatBotResponse { Success = false, Reply = "Please refresh the page and try again." });
+            }
+
+            if (!AllowRequest("chat", 20, TimeSpan.FromMinutes(1)))
+            {
+                Response.StatusCode = 429;
+                return Json(new ChatBotResponse { Success = false, Reply = "Please wait a moment before sending another message." });
+            }
+
+            if (!ModelState.IsValid || string.IsNullOrWhiteSpace(request.Message))
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new ChatBotResponse { Success = false, Reply = "Please enter a message." });
+            }
+
+            var previousResponseId = NormalizeResponseId(request.PreviousResponseId);
+            var message = request.Message.Trim();
+            var currentRole = RoleCookie.GetCurrentRole(Request, Session);
+
+            try
+            {
+                var learnedNavigation = ResolveLearnedNavigation(message, currentRole);
+                if (learnedNavigation != null)
+                {
+                    return Json(new ChatBotResponse
+                    {
+                        Success = true,
+                        Reply = learnedNavigation.RequiresLogin
+                            ? "Please log in to open " + learnedNavigation.Label + "."
+                            : "Opening " + learnedNavigation.Label + "...",
+                        Navigation = learnedNavigation
+                    });
+                }
+
+                var apiKey = ConfigurationManager.AppSettings["OpenAI:ApiKey"];
+                if (string.IsNullOrWhiteSpace(apiKey))
+                {
+                    Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+                    return Json(new ChatBotResponse { Success = false, Reply = "The assistant is temporarily unavailable. Please call (513) 489-2886." });
+                }
+
+                if (currentRole == CommonUnit.Roles.Owner && LooksLikeTeachingRequest(message))
+                {
+                    var teaching = await CreateTeachingProposalAsync(apiKey, message, previousResponseId);
+                    if (teaching == null)
+                    {
+                        return Json(new ChatBotResponse
+                        {
+                            Success = true,
+                            Reply = "I could not identify both the phrase and the destination. Try: Teach: \"lot manager\" means open Majordome inventory."
+                        });
+                    }
+
+                    return Json(new ChatBotResponse
+                    {
+                        Success = true,
+                        Reply = "I prepared this lesson. Please review it before I remember it.",
+                        ResponseId = teaching.ResponseId,
+                        TeachingProposal = teaching.Proposal
+                    });
+                }
+
+                var result = await GetAssistantReplyAsync(apiKey, message, previousResponseId);
+                return Json(new ChatBotResponse
+                {
+                    Success = true,
+                    Reply = result.Reply,
+                    ResponseId = result.ResponseId,
+                    TotalVehicleMatches = result.TotalVehicleMatches,
+                    Vehicles = result.Vehicles.ToArray()
+                });
+            }
+            catch (OpenAiRequestException)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadGateway;
+                return Json(new ChatBotResponse { Success = false, Reply = "I could not reach the assistant. Please try again or call (513) 489-2886." });
+            }
+            catch (Exception)
+            {
+                Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                return Json(new ChatBotResponse { Success = false, Reply = "Something went wrong. Please try again or contact our sales team." });
+            }
+        }
+
+        [HttpPost]
+        public ActionResult ConfirmTeaching(ChatTeachingConfirmRequest request)
+        {
+            if (request == null || !HasValidRequestToken(request.ChatRequestToken))
+            {
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return Json(new { success = false, message = "Please refresh the page and try again." });
+            }
+
+            if (RoleCookie.GetCurrentRole(Request, Session) != CommonUnit.Roles.Owner)
+            {
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return Json(new { success = false, message = "Only an owner can teach navigation commands." });
+            }
+
+            if (!ModelState.IsValid || !Guid.TryParse(request.ProposalId, out var proposalId))
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, message = "That teaching proposal is invalid." });
+            }
+
+            if (!AllowRequest("teach", 20, TimeSpan.FromMinutes(10)))
+            {
+                Response.StatusCode = 429;
+                return Json(new { success = false, message = "Please wait before saving another lesson." });
+            }
+
+            var sessionKey = TeachingProposalSessionPrefix + proposalId.ToString("N");
+            var state = Session?[sessionKey] as TeachingProposalState;
+            if (state == null || state.ExpiresUtc < DateTime.UtcNow)
+            {
+                if (Session != null) Session.Remove(sessionKey);
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, message = "That teaching proposal expired. Please teach it again." });
+            }
+
+            var definition = ChatBotNavigationCatalog.Find(state.ActionKey);
+            if (definition == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, message = "That destination is no longer available." });
+            }
+
+            try
+            {
+                var lesson = _teachingService.SaveLesson(
+                    state.Phrase,
+                    state.NormalizedPhrase,
+                    state.ActionKey,
+                    CommonUnit.Roles.Owner.ToString());
+                Session.Remove(sessionKey);
+                return Json(new
+                {
+                    success = true,
+                    message = "Learned: \"" + lesson.Phrase + "\" now opens " + definition.Label + "."
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("Unable to save chatbot lesson: {0}", ex);
+                Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                return Json(new
+                {
+                    success = false,
+                    message = "I could not save the lesson. Make sure the chatbot teaching database migration has been applied."
+                });
+            }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> SubmitLead(ChatLeadRequest request)
+        {
+            if (request == null || !HasValidRequestToken(request.ChatRequestToken))
+            {
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return Json(new { success = false, message = "Please refresh the page and try again." });
+            }
+
+            if (!AllowRequest("lead", 5, TimeSpan.FromMinutes(10)))
+            {
+                Response.StatusCode = 429;
+                return Json(new { success = false, message = "Please wait before submitting another request." });
+            }
+
+            if (request == null || !ModelState.IsValid)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, message = FirstModelError("Please check the contact information and try again.") });
+            }
+
+            try
+            {
+                var salesperson = request.EmployerId > 0
+                    ? (_employeesService.GetEmployees() ?? Array.Empty<Employee>())
+                        .FirstOrDefault(employee => employee.Id == request.EmployerId && IsActiveSalesperson(employee))
+                    : null;
+                if (request.EmployerId > 0 && salesperson == null)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    return Json(new { success = false, message = "Please select an active salesperson." });
+                }
+
+                var stock = NormalizeStock(request.VehicleStock);
+                var vehicle = FindVehicle(stock);
+                var comment = BuildLeadComment(request, vehicle, salesperson);
+                var contact = new Contact
+                {
+                    FirstName = request.FirstName.Trim(),
+                    LastName = request.LastName.Trim(),
+                    Phone = request.Phone.Trim(),
+                    Email = request.Email.Trim(),
+                    Comment = comment
+                };
+
+                var contactId = _contactService.SaveContact(contact);
+                if (!contactId.HasValue)
+                {
+                    throw new InvalidOperationException("The lead could not be saved.");
+                }
+
+                var contactModel = new ContactModel
+                {
+                    FirstName = contact.FirstName,
+                    LastName = contact.LastName,
+                    Phone = contact.Phone,
+                    Email = contact.Email,
+                    Comment = contact.Comment,
+                    EmployerId = salesperson == null ? 0 : salesperson.Id
+                };
+                contactModel.CurrentVehicle.VehicleDetails = vehicle;
+                var delivery = await Utility.XMLHelpers.XmlRepository.SendAdfLeadAsync(contactModel);
+                if (!delivery.Success)
+                {
+                    System.Diagnostics.Trace.TraceError(
+                        "Chat lead {0} was saved but AutoRaptor delivery failed. {1}",
+                        contactId.Value,
+                        delivery.ErrorMessage);
+                    return Json(new
+                    {
+                        success = false,
+                        saved = true,
+                        crmDelivered = false,
+                        message = "Your request was saved, but AutoRaptor delivery failed. Please call (513) 489-2886 so we can follow up promptly."
+                    });
+                }
+
+                return Json(new
+                {
+                    success = true,
+                    saved = true,
+                    crmDelivered = true,
+                    message = salesperson == null
+                        ? "Thanks! Your request was delivered to GTX Auto Group."
+                        : "Thanks! Your request was delivered for the attention of " + Join(salesperson.FirstName, salesperson.LastName) + "."
+                });
+            }
+            catch (Exception)
+            {
+                Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                return Json(new { success = false, message = "We could not submit your request. Please call (513) 489-2886." });
+            }
+        }
+
+        private ChatNavigationResult ResolveLearnedNavigation(string message, CommonUnit.Roles currentRole)
+        {
+            var normalizedPhrase = NormalizeTeachingPhrase(message);
+            if (string.IsNullOrWhiteSpace(normalizedPhrase)) return null;
+
+            ChatBotNavigationLesson lesson = null;
+            foreach (var lookupPhrase in NavigationLookupPhrases(normalizedPhrase))
+            {
+                lesson = _teachingService.FindActiveLesson(lookupPhrase);
+                if (lesson != null) break;
+            }
+            if (lesson == null) return null;
+
+            var definition = ChatBotNavigationCatalog.Find(lesson.ActionKey);
+            return definition == null ? null : BuildNavigationResult(definition, currentRole, true);
+        }
+
+        private static IEnumerable<string> NavigationLookupPhrases(string normalizedPhrase)
+        {
+            yield return normalizedPhrase;
+
+            var withoutRequestWords = Regex.Replace(
+                normalizedPhrase,
+                @"^(?:please\s+)?(?:open|go\s+to|navigate\s+to|take\s+me\s+to|show\s+me|show|visit|view)\s+(?:the\s+)?",
+                string.Empty,
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            withoutRequestWords = Regex.Replace(
+                withoutRequestWords,
+                @"\s+please$",
+                string.Empty,
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant).Trim();
+
+            if (withoutRequestWords.Length > 0
+                && !string.Equals(withoutRequestWords, normalizedPhrase, StringComparison.Ordinal))
+            {
+                yield return withoutRequestWords;
+            }
+        }
+
+        private ChatNavigationResult BuildNavigationResult(
+            ChatBotNavigationDefinition definition,
+            CommonUnit.Roles currentRole,
+            bool learned)
+        {
+            var hasAccess = !definition.RequiresAuthentication
+                || (definition.OwnerOnly
+                    ? currentRole == CommonUnit.Roles.Owner
+                    : currentRole != CommonUnit.Roles.User);
+            var url = string.Equals(definition.ActionKey, "test_drive_page", StringComparison.OrdinalIgnoreCase)
+                ? Url.RouteUrl("TestDriveContact")
+                : Url.Action(definition.Action, definition.Controller);
+
+            return new ChatNavigationResult
+            {
+                Url = url,
+                Label = definition.Label,
+                RequiresLogin = !hasAccess,
+                RequiredRole = definition.OwnerOnly
+                    ? "owner"
+                    : definition.RequiresAuthentication ? "admin" : null,
+                Learned = learned
+            };
+        }
+
+        private static bool LooksLikeTeachingRequest(string message)
+        {
+            var normalized = NormalizeTeachingPhrase(message);
+            return Regex.IsMatch(
+                normalized,
+                @"\b(teach|remember|learn|next time|means)\b",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        }
+
+        private async Task<TeachingProposalResult> CreateTeachingProposalAsync(
+            string apiKey,
+            string message,
+            string previousResponseId)
+        {
+            var actionDefinitions = new JArray(ChatBotNavigationCatalog.All.Select(definition => new JObject
+            {
+                ["action_key"] = definition.ActionKey,
+                ["label"] = definition.Label,
+                ["description"] = definition.Description,
+                ["access"] = definition.OwnerOnly
+                    ? "owner"
+                    : definition.RequiresAuthentication ? "authenticated staff" : "public"
+            }));
+            var actionKeys = new JArray(ChatBotNavigationCatalog.All
+                .Select(definition => definition.ActionKey)
+                .Concat(new[] { "__invalid__" }));
+
+            var model = ConfigurationManager.AppSettings["OpenAI:ChatModel"];
+            if (string.IsNullOrWhiteSpace(model)) model = DefaultChatModel;
+            else model = model.Trim();
+
+            var payload = new JObject
+            {
+                ["model"] = model,
+                ["instructions"] = @"Extract a chatbot navigation lesson from the owner's message.
+Return the exact short phrase the owner wants the bot to recognize and select exactly one action_key from the supplied catalog.
+Do not invent an action, URL, controller, route, or capability. If the phrase or destination is unclear, set valid to false and action_key to __invalid__.
+The explanation must be one brief sentence.",
+                ["input"] = new JArray(
+                    new JObject
+                    {
+                        ["role"] = "user",
+                        ["content"] = "Allowed navigation catalog:\n" + actionDefinitions.ToString(Formatting.None)
+                            + "\n\nOwner teaching message:\n" + message
+                    }),
+                ["max_output_tokens"] = 250,
+                ["store"] = true,
+                ["prompt_cache_key"] = PromptCacheKey + "-teacher-v1",
+                ["safety_identifier"] = BuildSafetyIdentifier(),
+                ["text"] = new JObject
+                {
+                    ["format"] = new JObject
+                    {
+                        ["type"] = "json_schema",
+                        ["name"] = "navigation_lesson",
+                        ["strict"] = true,
+                        ["schema"] = new JObject
+                        {
+                            ["type"] = "object",
+                            ["properties"] = new JObject
+                            {
+                                ["valid"] = new JObject { ["type"] = "boolean" },
+                                ["phrase"] = new JObject { ["type"] = "string" },
+                                ["action_key"] = new JObject { ["type"] = "string", ["enum"] = actionKeys },
+                                ["explanation"] = new JObject { ["type"] = "string" }
+                            },
+                            ["required"] = new JArray("valid", "phrase", "action_key", "explanation"),
+                            ["additionalProperties"] = false
+                        }
+                    }
+                }
+            };
+
+            if (!string.IsNullOrWhiteSpace(previousResponseId))
+            {
+                payload["previous_response_id"] = previousResponseId;
+            }
+
+            var response = await PostOpenAiAsync(apiKey, payload);
+            JObject extracted;
+            try
+            {
+                extracted = JObject.Parse(ExtractOutputText(response));
+            }
+            catch (JsonException)
+            {
+                return null;
+            }
+
+            var phrase = ((string)extracted["phrase"] ?? string.Empty).Trim();
+            var actionKey = ((string)extracted["action_key"] ?? string.Empty).Trim();
+            var normalizedPhrase = NormalizeTeachingPhrase(phrase);
+            var definition = ChatBotNavigationCatalog.Find(actionKey);
+            if ((bool?)extracted["valid"] != true
+                || phrase.Length == 0
+                || phrase.Length > 300
+                || normalizedPhrase.Length == 0
+                || definition == null)
+            {
+                return null;
+            }
+
+            var proposalId = Guid.NewGuid();
+            Session[TeachingProposalSessionPrefix + proposalId.ToString("N")] = new TeachingProposalState
+            {
+                Phrase = phrase,
+                NormalizedPhrase = normalizedPhrase,
+                ActionKey = definition.ActionKey,
+                ExpiresUtc = DateTime.UtcNow.AddMinutes(10)
+            };
+
+            return new TeachingProposalResult
+            {
+                ResponseId = (string)response["id"],
+                Proposal = new ChatTeachingProposal
+                {
+                    ProposalId = proposalId.ToString("D"),
+                    Phrase = phrase,
+                    ActionKey = definition.ActionKey,
+                    ActionLabel = definition.Label,
+                    RequiredRole = definition.OwnerOnly
+                        ? "Owner only"
+                        : definition.RequiresAuthentication ? "Authenticated staff" : "Public"
+                }
+            };
+        }
+
+        private static string NormalizeTeachingPhrase(string value)
+        {
+            value = (value ?? string.Empty).ToLowerInvariant();
+            value = Regex.Replace(value, @"[^a-z0-9]+", " ");
+            value = Regex.Replace(value, @"\s+", " ").Trim();
+            return value.Length <= 300 ? value : value.Substring(0, 300).Trim();
+        }
+
+        private async Task<AssistantResult> GetAssistantReplyAsync(string apiKey, string message, string previousResponseId)
+        {
+            JArray input = new JArray(new JObject
+            {
+                ["role"] = "user",
+                ["content"] = message
+            });
+
+            var responseId = previousResponseId;
+            var safetyIdentifier = BuildSafetyIdentifier();
+            var vehicleResults = new List<ChatVehicleResult>();
+            int? totalVehicleMatches = null;
+            for (var round = 0; round < MaxToolRounds; round++)
+            {
+                var payload = BuildOpenAiPayload(input, responseId, safetyIdentifier, includeTools: round == 0);
+                var response = await PostOpenAiAsync(apiKey, payload);
+                responseId = (string)response["id"];
+
+                var functionCalls = (response["output"] as JArray ?? new JArray())
+                    .OfType<JObject>()
+                    .Where(item => string.Equals((string)item["type"], "function_call", StringComparison.OrdinalIgnoreCase))
+                    .ToArray();
+
+                if (functionCalls.Length == 0)
+                {
+                    var reply = ExtractOutputText(response);
+                    if (string.IsNullOrWhiteSpace(reply))
+                    {
+                        throw new OpenAiRequestException();
+                    }
+
+                    return new AssistantResult
+                    {
+                        Reply = reply.Trim(),
+                        ResponseId = responseId,
+                        TotalVehicleMatches = totalVehicleMatches,
+                        Vehicles = vehicleResults
+                    };
+                }
+
+                input = new JArray();
+                foreach (var call in functionCalls)
+                {
+                    var toolName = (string)call["name"];
+                    var toolOutput = ExecuteTool(toolName, (string)call["arguments"]);
+                    CaptureVehicleResults(toolName, toolOutput, vehicleResults, ref totalVehicleMatches);
+                    input.Add(new JObject
+                    {
+                        ["type"] = "function_call_output",
+                        ["call_id"] = (string)call["call_id"],
+                        ["output"] = toolOutput
+                    });
+                }
+            }
+
+            throw new OpenAiRequestException();
+        }
+
+        private JObject BuildOpenAiPayload(
+            JArray input,
+            string previousResponseId,
+            string safetyIdentifier,
+            bool includeTools)
+        {
+            var model = ConfigurationManager.AppSettings["OpenAI:ChatModel"];
+            if (string.IsNullOrWhiteSpace(model)) model = DefaultChatModel;
+            else model = model.Trim();
+
+            var payload = new JObject
+            {
+                ["model"] = model,
+                ["instructions"] = AssistantInstructions,
+                ["input"] = input,
+                ["max_output_tokens"] = BoundedAppSetting("OpenAI:ChatMaxOutputTokens", 250, 100, 1000),
+                ["store"] = true,
+                ["prompt_cache_key"] = PromptCacheKey,
+                ["safety_identifier"] = safetyIdentifier
+            };
+
+            if (includeTools)
+            {
+                payload["tools"] = AssistantTools.DeepClone();
+                payload["parallel_tool_calls"] = true;
+            }
+
+            if (!string.IsNullOrWhiteSpace(previousResponseId))
+            {
+                payload["previous_response_id"] = previousResponseId;
+            }
+
+            return payload;
+        }
+
+        private async Task<JObject> PostOpenAiAsync(string apiKey, JObject payload)
+        {
+            using (var request = new HttpRequestMessage(HttpMethod.Post, ResponsesUrl))
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+                request.Content = new StringContent(payload.ToString(Formatting.None), Encoding.UTF8, "application/json");
+
+                using (var response = await OpenAiClient.SendAsync(request))
+                {
+                    var body = await response.Content.ReadAsStringAsync();
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        throw new OpenAiRequestException();
+                    }
+
+                    return JObject.Parse(body);
+                }
+            }
+        }
+
+        private string ExecuteTool(string name, string argumentsJson)
+        {
+            JObject arguments;
+            try
+            {
+                arguments = string.IsNullOrWhiteSpace(argumentsJson) ? new JObject() : JObject.Parse(argumentsJson);
+            }
+            catch (JsonException)
+            {
+                return JsonConvert.SerializeObject(new { error = "Invalid tool arguments." });
+            }
+
+            switch (name)
+            {
+                case "search_inventory":
+                    return SearchInventory(arguments);
+                case "get_vehicle":
+                    return GetVehicle(arguments);
+                case "get_dealership_hours":
+                    return GetDealershipHours();
+                default:
+                    return JsonConvert.SerializeObject(new { error = "Unknown tool." });
+            }
+        }
+
+        private string SearchInventory(JObject arguments)
+        {
+            var inventory = GetPublicInventory();
+            IEnumerable<GTXDTO> query = inventory;
+            var freeText = (string)arguments["query"];
+            var bodyType = (string)arguments["body_type"];
+            if (string.IsNullOrWhiteSpace(bodyType)) bodyType = InferBodyType(freeText);
+
+            query = FilterContains(query, (string)arguments["make"], vehicle => vehicle.Make);
+            query = FilterContains(query, (string)arguments["model"], vehicle => vehicle.Model);
+            query = FilterContains(query, bodyType, vehicle => Join(vehicle.VehicleType, vehicle.Body, vehicle.VehicleStyle));
+            query = FilterTransmission(query, (string)arguments["transmission"]);
+            query = FilterFuelType(query, (string)arguments["fuel_type"]);
+            var cylinders = PositiveInt(arguments["cylinders"]);
+            if (cylinders.HasValue) query = query.Where(vehicle => vehicle.Cylinders == cylinders.Value);
+            query = FilterFreeText(query, freeText);
+
+            var maximumPrice = PositiveInt(arguments["maximum_price"]);
+            var maximumMileage = PositiveInt(arguments["maximum_mileage"]);
+            if (maximumPrice.HasValue) query = query.Where(vehicle => EffectivePrice(vehicle) <= maximumPrice.Value);
+            if (maximumMileage.HasValue) query = query.Where(vehicle => vehicle.Mileage <= maximumMileage.Value);
+
+            var limit = Math.Max(1, Math.Min(5, PositiveInt(arguments["limit"]) ?? 5));
+            var totalMatches = query.Count();
+            var matches = query
+                .OrderBy(vehicle => EffectivePrice(vehicle))
+                .ThenBy(vehicle => vehicle.Mileage)
+                .Take(limit)
+                .Select(ToVehicleSummary)
+                .ToArray();
+
+            return JsonConvert.SerializeObject(new { count = totalMatches, displayed_count = matches.Length, vehicles = matches });
+        }
+
+        private static void CaptureVehicleResults(
+            string toolName,
+            string toolOutput,
+            ICollection<ChatVehicleResult> results,
+            ref int? totalMatches)
+        {
+            if (!string.Equals(toolName, "search_inventory", StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(toolName, "get_vehicle", StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            JObject payload;
+            try
+            {
+                payload = JObject.Parse(toolOutput);
+            }
+            catch (JsonException)
+            {
+                return;
+            }
+
+            results.Clear();
+            if (string.Equals(toolName, "search_inventory", StringComparison.OrdinalIgnoreCase))
+            {
+                totalMatches = (int?)payload["count"] ?? 0;
+                foreach (var vehicle in (payload["vehicles"] as JArray ?? new JArray()).OfType<JObject>())
+                {
+                    results.Add(ToChatVehicleResult(vehicle));
+                }
+                return;
+            }
+
+            var found = (bool?)payload["found"] == true;
+            totalMatches = found ? 1 : 0;
+            if (found) results.Add(ToChatVehicleResult(payload));
+        }
+
+        private static ChatVehicleResult ToChatVehicleResult(JObject vehicle)
+        {
+            var titleParts = new[]
+            {
+                (string)vehicle["Year"],
+                (string)vehicle["Make"],
+                (string)vehicle["Model"],
+                (string)vehicle["trim"],
+                (string)vehicle["type"]
+            }
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Select(value => value.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase);
+
+            return new ChatVehicleResult
+            {
+                Stock = (string)vehicle["Stock"],
+                Title = string.Join(" ", titleParts),
+                Mileage = (int?)vehicle["Mileage"] ?? 0,
+                Cylinders = (int?)vehicle["Cylinders"] ?? 0,
+                AdvertisedPrice = (int?)vehicle["advertised_price"] ?? 0,
+                DocumentaryFee = (int?)vehicle["documentary_fee"] ?? 0,
+                PriceWithDocumentaryFee = (int?)vehicle["price_with_documentary_fee"] ?? 0,
+                Url = (string)vehicle["url"]
+            };
+        }
+
+        private string GetVehicle(JObject arguments)
+        {
+            var vehicle = FindVehicle(NormalizeStock((string)arguments["stock"]));
+            if (vehicle == null)
+            {
+                return JsonConvert.SerializeObject(new { found = false });
+            }
+
+            return JsonConvert.SerializeObject(new
+            {
+                found = true,
+                vehicle.Stock,
+                vehicle.Year,
+                vehicle.Make,
+                vehicle.Model,
+                trim = vehicle.VehicleStyle,
+                type = vehicle.VehicleType,
+                body = vehicle.Body,
+                vehicle.Mileage,
+                vehicle.Cylinders,
+                advertised_price = EffectivePrice(vehicle),
+                documentary_fee = DocumentaryFee(vehicle),
+                price_with_documentary_fee = EffectivePrice(vehicle) + DocumentaryFee(vehicle),
+                vehicle.Color,
+                vehicle.DriveTrain,
+                vehicle.Engine,
+                transmission = TransmissionDescription(vehicle.Transmission),
+                vehicle.FuelType,
+                features = Crop(vehicle.Features, 1200),
+                url = VehicleUrl(vehicle.Stock)
+            });
+        }
+
+        private static string GetDealershipHours()
+        {
+            var hours = AppCache.GetOrCreate(
+                Constants.OPENHOURS_CACHE,
+                () => Utility.XMLHelpers.XmlRepository.GetOpenHours() ?? Array.Empty<OpenHours>(),
+                minutes: 60) ?? Array.Empty<OpenHours>();
+            DateTime localNow;
+            try
+            {
+                var eastern = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+                localNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, eastern);
+            }
+            catch (TimeZoneNotFoundException)
+            {
+                localNow = DateTime.Now;
+            }
+            catch (InvalidTimeZoneException)
+            {
+                localNow = DateTime.Now;
+            }
+
+            var today = hours.FirstOrDefault(item => string.Equals(
+                item.Day,
+                localNow.DayOfWeek.ToString(),
+                StringComparison.OrdinalIgnoreCase));
+            var isOpen = today != null && localNow.Hour >= today.From && localNow.Hour < today.To;
+
+            return JsonConvert.SerializeObject(new
+            {
+                timezone = "America/New_York (Eastern Time)",
+                local_time = localNow.ToString("yyyy-MM-dd h:mm tt"),
+                currently_open = isOpen,
+                today = today == null ? "Closed" : today.Description,
+                schedule = hours.Select(item => new { day = item.Day, hours = item.Description }).ToArray(),
+                note = "Holiday hours may vary. Call (513) 489-2886 to confirm."
+            });
+        }
+
+        private object ToVehicleSummary(GTXDTO vehicle)
+        {
+            return new
+            {
+                vehicle.Stock,
+                vehicle.Year,
+                vehicle.Make,
+                vehicle.Model,
+                trim = vehicle.VehicleStyle,
+                type = vehicle.VehicleType,
+                vehicle.Mileage,
+                vehicle.Cylinders,
+                advertised_price = EffectivePrice(vehicle),
+                documentary_fee = DocumentaryFee(vehicle),
+                price_with_documentary_fee = EffectivePrice(vehicle) + DocumentaryFee(vehicle),
+                transmission = TransmissionDescription(vehicle.Transmission),
+                url = VehicleUrl(vehicle.Stock)
+            };
+        }
+
+        private GTX.Models.GTX FindVehicle(string stock)
+        {
+            if (string.IsNullOrWhiteSpace(stock)) return null;
+
+            var dto = GetPublicInventory()
+                .FirstOrDefault(vehicle => string.Equals(vehicle.Stock, stock, StringComparison.OrdinalIgnoreCase));
+            return dto == null ? null : GTX.Models.GTX.ToGTX(new[] { dto }).FirstOrDefault();
+        }
+
+        private GTXDTO[] GetPublicInventory()
+        {
+            return AppCache.GetOrCreate(
+                Constants.CHAT_INVENTORY_CACHE,
+                () => _inventoryService.GetInventory(
+                    includeHiddenInventory: false,
+                    includeDataOneContent: false).vehicles ?? Array.Empty<GTXDTO>(),
+                minutes: BoundedAppSetting("OpenAI:ChatInventoryCacheMinutes", 1, 1, 60))
+                ?? Array.Empty<GTXDTO>();
+        }
+
+        private string BuildLeadComment(ChatLeadRequest request, GTX.Models.GTX vehicle, Employee salesperson)
+        {
+            var parts = new List<string> { "Website AI assistant lead." };
+            if (salesperson != null)
+            {
+                parts.Add("Attn: " + Join(salesperson.FirstName, salesperson.LastName) + ".");
+            }
+            if (vehicle != null)
+            {
+                parts.Add(string.Format("Vehicle: {0} {1} {2} (stock {3}).", vehicle.Year, vehicle.Make, vehicle.Model, vehicle.Stock));
+            }
+            else if (!string.IsNullOrWhiteSpace(request.VehicleStock))
+            {
+                parts.Add("Requested stock: " + Crop(request.VehicleStock.Trim(), 20) + ".");
+            }
+            else
+            {
+                parts.Add("Vehicle: None selected - general sales inquiry.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Message)) parts.Add(request.Message.Trim());
+            return Crop(string.Join(Environment.NewLine, parts), 1200);
+        }
+
+        private static bool IsActiveSalesperson(Employee employee)
+        {
+            return employee != null
+                && employee.Active
+                && !string.IsNullOrWhiteSpace(employee.Position)
+                && employee.Position.IndexOf("Sales", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private static JArray BuildTools()
+        {
+            return new JArray
+            {
+                new JObject
+                {
+                    ["type"] = "function",
+                    ["name"] = "search_inventory",
+                    ["description"] = "Search the live public GTX Auto Group inventory. Use this before claiming that a vehicle is available.",
+                    ["strict"] = false,
+                    ["parameters"] = JObject.Parse(@"{
+                        'type':'object',
+                        'properties':{
+                            'query':{'type':'string'},
+                            'make':{'type':'string'},
+                            'model':{'type':'string'},
+                            'body_type':{'type':'string'},
+                            'transmission':{'type':'string','description':'Transmission type such as manual, automatic, or CVT.'},
+                            'fuel_type':{'type':'string','description':'Fuel type such as electric, hybrid, gasoline, diesel, or flex-fuel.'},
+                            'cylinders':{'type':'integer','description':'Exact engine cylinder count, such as 4, 6, or 8.'},
+                            'maximum_price':{'type':'integer'},
+                            'maximum_mileage':{'type':'integer'},
+                            'limit':{'type':'integer','minimum':1,'maximum':5}
+                        },
+                        'additionalProperties':false
+                    }")
+                },
+                new JObject
+                {
+                    ["type"] = "function",
+                    ["name"] = "get_vehicle",
+                    ["description"] = "Get live details for one public vehicle using its stock number.",
+                    ["strict"] = false,
+                    ["parameters"] = JObject.Parse(@"{
+                        'type':'object',
+                        'properties':{'stock':{'type':'string'}},
+                        'required':['stock'],
+                        'additionalProperties':false
+                    }")
+                },
+                new JObject
+                {
+                    ["type"] = "function",
+                    ["name"] = "get_dealership_hours",
+                    ["description"] = "Get the dealership's current weekly working hours and open/closed status from the website schedule.",
+                    ["strict"] = false,
+                    ["parameters"] = JObject.Parse(@"{
+                        'type':'object',
+                        'properties':{},
+                        'additionalProperties':false
+                    }")
+                }
+            };
+        }
+
+        private static IEnumerable<GTXDTO> FilterContains(IEnumerable<GTXDTO> source, string value, Func<GTXDTO, string> selector)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return source;
+            var term = value.Trim();
+            return source.Where(item => (selector(item) ?? string.Empty).IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0);
+        }
+
+        private static string InferBodyType(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return null;
+            if (Regex.IsMatch(value, @"\b(?:suvs?|sport utility vehicles?)\b", RegexOptions.IgnoreCase)) return "SUV";
+            if (Regex.IsMatch(value, @"\b(?:trucks?|pickups?)\b", RegexOptions.IgnoreCase)) return "TRUCK";
+            if (Regex.IsMatch(value, @"\b(?:vans?|minivans?)\b", RegexOptions.IgnoreCase)) return "VAN";
+            if (Regex.IsMatch(value, @"\bhatchbacks?\b", RegexOptions.IgnoreCase)) return "HATCHBACK";
+            if (Regex.IsMatch(value, @"\bcoupes?\b", RegexOptions.IgnoreCase)) return "COUPE";
+            if (Regex.IsMatch(value, @"\bsedans?\b", RegexOptions.IgnoreCase)) return "SEDAN";
+            if (Regex.IsMatch(value, @"\bconvertibles?\b", RegexOptions.IgnoreCase)) return "CONVERTIBLE";
+            if (Regex.IsMatch(value, @"\bwagons?\b", RegexOptions.IgnoreCase)) return "WAGON";
+            return null;
+        }
+
+        private static IEnumerable<GTXDTO> FilterTransmission(IEnumerable<GTXDTO> source, string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return source;
+
+            var term = value.Trim().ToLowerInvariant();
+            if (term.Contains("manual"))
+            {
+                return source.Where(vehicle => IsTransmissionCode(vehicle.Transmission, "M"));
+            }
+            if (term.Contains("automatic"))
+            {
+                return source.Where(vehicle => IsTransmissionCode(vehicle.Transmission, "A"));
+            }
+            if (term.Contains("cvt") || term.Contains("continuously variable"))
+            {
+                return source.Where(vehicle => IsTransmissionCode(vehicle.Transmission, "C"));
+            }
+
+            return source.Where(vehicle => TransmissionDescription(vehicle.Transmission)
+                .IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0);
+        }
+
+        private static IEnumerable<GTXDTO> FilterFreeText(IEnumerable<GTXDTO> source, string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return source;
+
+            var transmissionTerm = Regex.Match(
+                value,
+                @"\b(manuals?|automatics?|cvt|continuously\s+variable)\b",
+                RegexOptions.IgnoreCase);
+            if (transmissionTerm.Success)
+            {
+                source = FilterTransmission(source, transmissionTerm.Value);
+            }
+
+            var fuelTerm = Regex.Match(
+                value,
+                @"\b(electric|evs?|bevs?|hybrids?|phevs?|diesel|gasoline|gas|flex[ -]?fuel)\b",
+                RegexOptions.IgnoreCase);
+            if (fuelTerm.Success)
+            {
+                source = FilterFuelType(source, fuelTerm.Value);
+            }
+
+            var cylinderTerm = Regex.Match(
+                value,
+                @"\b(?:v\s*-?\s*)?(\d{1,2})\s*(?:-?\s*cyl(?:inder)?s?)?\b",
+                RegexOptions.IgnoreCase);
+            if (cylinderTerm.Success && Regex.IsMatch(
+                cylinderTerm.Value,
+                @"(?:\bv\s*-?\s*\d|cyl)",
+                RegexOptions.IgnoreCase))
+            {
+                int cylinderCount;
+                if (int.TryParse(cylinderTerm.Groups[1].Value, out cylinderCount))
+                {
+                    source = source.Where(vehicle => vehicle.Cylinders == cylinderCount);
+                }
+            }
+
+            var residual = Regex.Replace(
+                value,
+                @"\b(?:v\s*-?\s*)?\d{1,2}\s*(?:-?\s*cyl(?:inder)?s?)\b|\bv\s*-?\s*\d{1,2}\b|\b(manuals?|automatics?|cvt|continuously|variable|transmissions?|gearboxes?|electric|evs?|bevs?|hybrids?|phevs?|diesel|gasoline|gas|flex[ -]?fuel|fuel|powered|suvs?|sport|utility|trucks?|pickups?|vans?|minivans?|hatchbacks?|coupes?|sedans?|convertibles?|wagons?|available|availability|current|currently|inventory|what|which|are|is|list|please|looking|for|any|do|you|have|show|find|me|with|vehicles?|cars?)\b",
+                " ",
+                RegexOptions.IgnoreCase);
+            var terms = Regex.Matches(residual, @"[A-Za-z0-9-]+")
+                .Cast<Match>()
+                .Select(match => match.Value)
+                .Where(term => term.Length > 1)
+                .ToArray();
+
+            foreach (var term in terms)
+            {
+                var searchTerm = term;
+                source = source.Where(vehicle => SearchableVehicleText(vehicle)
+                    .IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0);
+            }
+
+            return source;
+        }
+
+        private static string SearchableVehicleText(GTXDTO vehicle)
+        {
+            return Join(
+                vehicle.Stock,
+                vehicle.Year.ToString(),
+                vehicle.Make,
+                vehicle.Model,
+                vehicle.VehicleStyle,
+                vehicle.VehicleType,
+                vehicle.Body,
+                vehicle.Color,
+                vehicle.Features,
+                vehicle.Transmission,
+                TransmissionDescription(vehicle.Transmission),
+                vehicle.FuelType);
+        }
+
+        private static IEnumerable<GTXDTO> FilterFuelType(IEnumerable<GTXDTO> source, string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return source;
+
+            var term = value.Trim().ToLowerInvariant();
+            if (Regex.IsMatch(term, @"\b(electric|ev|evs|bev|bevs)\b"))
+            {
+                term = "Electric";
+            }
+            else if (Regex.IsMatch(term, @"\b(hybrid|hybrids|phev|phevs)\b"))
+            {
+                term = "Hybrid";
+            }
+            else if (term == "gas")
+            {
+                term = "Gasoline";
+            }
+            else if (term.Contains("flex"))
+            {
+                term = "Flex-Fuel";
+            }
+
+            return source.Where(vehicle => string.Equals(
+                (vehicle.FuelType ?? string.Empty).Trim(),
+                term,
+                StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static string TransmissionDescription(string value)
+        {
+            var code = (value ?? string.Empty).Trim();
+            if (IsTransmissionCode(code, "M")) return "Manual" + TransmissionSuffix(code);
+            if (IsTransmissionCode(code, "A")) return "Automatic" + TransmissionSuffix(code);
+            if (IsTransmissionCode(code, "C")) return "Continuously variable (CVT)" + TransmissionSuffix(code);
+            return string.IsNullOrWhiteSpace(code) ? "Not specified" : code;
+        }
+
+        private static bool IsTransmissionCode(string value, string expectedCode)
+        {
+            var code = (value ?? string.Empty).Trim();
+            return code.Equals(expectedCode, StringComparison.OrdinalIgnoreCase)
+                || code.StartsWith(expectedCode + " ", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string TransmissionSuffix(string value)
+        {
+            var code = (value ?? string.Empty).Trim();
+            return code.Length > 1 ? " " + code.Substring(1).Trim() : string.Empty;
+        }
+
+        private static int EffectivePrice(GTXDTO vehicle)
+        {
+            return vehicle.InternetPrice > 0 ? vehicle.InternetPrice : vehicle.RetailPrice;
+        }
+
+        private static int DocumentaryFee(GTXDTO vehicle)
+        {
+            return vehicle.InternetPrice > 0 ? Constants.DOCUMENTARY_FEE : 0;
+        }
+
+        private static int EffectivePrice(GTX.Models.GTX vehicle)
+        {
+            return vehicle.InternetPrice > 0 ? vehicle.InternetPrice : vehicle.RetailPrice;
+        }
+
+        private static int DocumentaryFee(GTX.Models.GTX vehicle)
+        {
+            return vehicle.InternetPrice > 0 ? Constants.DOCUMENTARY_FEE : 0;
+        }
+
+        private string VehicleUrl(string stock)
+        {
+            return Url.Action("Details", "Inventory", new { stock }, Request.Url == null ? "https" : Request.Url.Scheme);
+        }
+
+        private static string ExtractOutputText(JObject response)
+        {
+            var texts = new List<string>();
+            foreach (var item in response["output"] as JArray ?? new JArray())
+            {
+                if (!string.Equals((string)item["type"], "message", StringComparison.OrdinalIgnoreCase)) continue;
+                foreach (var content in item["content"] as JArray ?? new JArray())
+                {
+                    if (string.Equals((string)content["type"], "output_text", StringComparison.OrdinalIgnoreCase))
+                    {
+                        texts.Add((string)content["text"]);
+                    }
+                }
+            }
+            return string.Join(Environment.NewLine, texts.Where(text => !string.IsNullOrWhiteSpace(text)));
+        }
+
+        private bool AllowRequest(string action, int limit, TimeSpan window)
+        {
+            var key = "GTX:ChatRate:" + action + ":" + BuildSafetyIdentifier();
+            var counter = RateLimitCache.Get(key) as RateCounter;
+            if (counter == null)
+            {
+                counter = new RateCounter();
+                counter = (RateLimitCache.AddOrGetExisting(key, counter, DateTimeOffset.UtcNow.Add(window)) as RateCounter) ?? counter;
+            }
+
+            lock (counter)
+            {
+                counter.Count++;
+                return counter.Count <= limit;
+            }
+        }
+
+        public static string GetOrCreateRequestToken(System.Web.HttpSessionStateBase session)
+        {
+            if (session == null) return string.Empty;
+
+            var token = session[RequestTokenSessionKey] as string;
+            if (!string.IsNullOrWhiteSpace(token)) return token;
+
+            var bytes = new byte[32];
+            using (var random = RandomNumberGenerator.Create())
+            {
+                random.GetBytes(bytes);
+            }
+
+            token = Convert.ToBase64String(bytes);
+            session[RequestTokenSessionKey] = token;
+            return token;
+        }
+
+        private bool HasValidRequestToken(string suppliedToken)
+        {
+            var expectedToken = Session == null ? null : Session[RequestTokenSessionKey] as string;
+            if (string.IsNullOrWhiteSpace(expectedToken) || string.IsNullOrWhiteSpace(suppliedToken)) return false;
+
+            var expected = Encoding.UTF8.GetBytes(expectedToken);
+            var supplied = Encoding.UTF8.GetBytes(suppliedToken);
+            if (expected.Length != supplied.Length) return false;
+
+            var difference = 0;
+            for (var index = 0; index < expected.Length; index++)
+            {
+                difference |= expected[index] ^ supplied[index];
+            }
+
+            return difference == 0;
+        }
+
+        private string BuildSafetyIdentifier()
+        {
+            var sessionId = Session == null ? string.Empty : Session.SessionID;
+            var value = string.Join("|", sessionId, Request.UserHostAddress ?? "unknown", Request.UserAgent ?? string.Empty);
+            using (var sha = SHA256.Create())
+            {
+                return "visitor_" + BitConverter.ToString(sha.ComputeHash(Encoding.UTF8.GetBytes(value))).Replace("-", string.Empty).Substring(0, 24).ToLowerInvariant();
+            }
+        }
+
+        private string FirstModelError(string fallback)
+        {
+            return ModelState.Values.SelectMany(value => value.Errors)
+                .Select(error => error.ErrorMessage)
+                .FirstOrDefault(message => !string.IsNullOrWhiteSpace(message)) ?? fallback;
+        }
+
+        private static string NormalizeResponseId(string value)
+        {
+            value = (value ?? string.Empty).Trim();
+            return value.Length <= 200 && ResponseIdPattern.IsMatch(value) ? value : null;
+        }
+
+        private static string NormalizeStock(string value)
+        {
+            value = (value ?? string.Empty).Trim();
+            return value.Length <= 20 ? value : null;
+        }
+
+        private static int? PositiveInt(JToken token)
+        {
+            int value;
+            return token != null && int.TryParse(token.ToString(), out value) && value >= 0 ? value : (int?)null;
+        }
+
+        private static int BoundedAppSetting(string key, int fallback, int minimum, int maximum)
+        {
+            int value;
+            return int.TryParse(ConfigurationManager.AppSettings[key], out value)
+                && value >= minimum
+                && value <= maximum
+                ? value
+                : fallback;
+        }
+
+        private static HttpClient CreateOpenAiClient()
+        {
+            return new HttpClient
+            {
+                Timeout = TimeSpan.FromSeconds(
+                    BoundedAppSetting("OpenAI:ChatTimeoutSeconds", 30, 5, 120))
+            };
+        }
+
+        private static string Join(params string[] values)
+        {
+            return string.Join(" ", values.Where(value => !string.IsNullOrWhiteSpace(value)));
+        }
+
+        private static string Crop(string value, int maximumLength)
+        {
+            if (string.IsNullOrEmpty(value) || value.Length <= maximumLength) return value;
+            return value.Substring(0, maximumLength);
+        }
+
+        private const string AssistantInstructions = @"You are the GTX Auto Group website AI assistant for a used-car dealership in Cincinnati, Ohio.
+Be concise, friendly, factual, and respond in the language used by the shopper.
+Use the inventory tools for every question about current availability, price, mileage, features, or vehicle details. Never invent inventory or claim a vehicle is available without a tool result.
+Use get_dealership_hours for every question about business hours, working hours, opening or closing times, or whether the dealership is open. Never guess the schedule.
+Never claim that you changed or reset controls, filters, or other state on the shopper's page.
+Never claim that you permanently learned or saved a command. Owner teaching is handled by the website and requires a separate confirmation.
+For transmission questions, pass manual, automatic, or CVT in the search_inventory transmission parameter.
+For fuel or powertrain questions, pass electric, hybrid, gasoline, diesel, or flex-fuel in the search_inventory fuel_type parameter. Treat EV and BEV as electric and PHEV as hybrid.
+For engine-cylinder questions, pass the exact cylinder count in the search_inventory cylinders parameter. Treat V8 as 8 cylinders, V6 as 6 cylinders, and similar V-number requests accordingly.
+The website renders inventory tool results as standardized vehicle cards. When a vehicle tool returns one or more vehicles, reply with one short introductory or request-specific sentence only; do not enumerate vehicles, repeat vehicle facts, include prices, or include vehicle links in your text. The cards display the advertised price + documentary fee = price with documentary fee using the exact tool values. Say that price and availability can change and should be confirmed with the dealership.
+You may explain general shopping, trade-in, and financing concepts, but never guarantee credit approval, quote binding loan terms, appraise a trade, negotiate a price, or request SSNs, bank details, driver's-license numbers, or credit-card information.
+Invite interested shoppers to use the Contact sales form in the chat window or call (513) 489-2886. Do not claim that you submitted a lead yourself.
+Do not output HTML. Keep normal answers under 120 words unless the shopper asks for more detail.";
+
+        private sealed class AssistantResult
+        {
+            public string Reply { get; set; }
+            public string ResponseId { get; set; }
+            public int? TotalVehicleMatches { get; set; }
+            public List<ChatVehicleResult> Vehicles { get; set; } = new List<ChatVehicleResult>();
+        }
+
+        private sealed class TeachingProposalResult
+        {
+            public string ResponseId { get; set; }
+            public ChatTeachingProposal Proposal { get; set; }
+        }
+
+        private sealed class TeachingProposalState
+        {
+            public string Phrase { get; set; }
+            public string NormalizedPhrase { get; set; }
+            public string ActionKey { get; set; }
+            public DateTime ExpiresUtc { get; set; }
+        }
+
+        private sealed class RateCounter
+        {
+            public int Count { get; set; }
+        }
+
+        private sealed class OpenAiRequestException : Exception
+        {
+        }
+    }
+}

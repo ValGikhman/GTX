@@ -451,6 +451,7 @@ namespace GTX.Controllers
 
         private static void InvalidateInventoryCaches() {
             AppCache.Remove(Constants.INVENTORY_CACHE);
+            AppCache.Remove(Constants.CHAT_INVENTORY_CACHE);
             AppCache.Remove(Constants.MAJORDOME_INVENTORY_CACHE);
             AppCache.Remove(Constants.MAJORDOME_DASHBOARD_CACHE);
             AppCache.RemoveByPrefix(Constants.INVENTORY_MANAGEMENT_LOGS_CACHE_PREFIX);

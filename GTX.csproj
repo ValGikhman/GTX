@@ -273,6 +273,8 @@
     <Compile Include="App_Start\webAPIConfig.cs" />
     <Compile Include="Common\AppCache.cs" />
     <Compile Include="Common\Attributes.cs" />
+    <Compile Include="Common\ChatBotSettings.cs" />
+    <Compile Include="Common\ChatBotNavigationCatalog.cs" />
     <Compile Include="Common\CloudflareCachePurger.cs" />
     <Compile Include="Common\CloudflareR2Storage.cs" />
     <Compile Include="Common\Constants.cs" />
@@ -282,6 +284,7 @@
     <Compile Include="Controllers\AnnouncementsController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\BlogsController.cs" />
+    <Compile Include="Controllers\ChatController.cs" />
     <Compile Include="Controllers\EmployeesController.cs" />
     <Compile Include="Controllers\HealthController.cs" />
     <Compile Include="Controllers\InventoryManagementController.cs" />
@@ -299,6 +302,7 @@
     <Compile Include="Models\AnnouncementModel.cs" />
     <Compile Include="Models\BaseModel.cs" />
     <Compile Include="Models\BlogPostModel.cs" />
+    <Compile Include="Models\ChatBotModels.cs" />
     <Compile Include="Models\DataOneModel.cs" />
     <Compile Include="Models\EmployeeModel.cs" />
     <Compile Include="Models\ContactModel.cs" />
@@ -323,6 +327,7 @@
     <Content Include="App_Data\Inventory\Current\GTX-Inventory.xml" />
     <Content Include="AGENTS.md" />
     <Content Include="Content\api-showmehow.html" />
+    <Content Include="Content\chat-bot.css" />
     <Content Include="Content\Themes\Blue.css" />
     <Content Include="Content\bootstrap\bootstrap-datepicker.css" />
     <Content Include="Content\bootstrap\bootstrap-datepicker.min.css" />
@@ -403,7 +408,9 @@
     <Content Include="fonts\FontAwesome.otf" />
     <Content Include="Common\App.config" />
     <Content Include="Scripts\AlloyFinger\alloy_finger.js" />
+    <Content Include="Scripts\chat-bot.js" />
     <Content Include="Scripts\Sql\CreateInventoryDetailsCounter.sql" />
+    <Content Include="Scripts\Sql\CreateChatBotTeachingTables.sql" />
     <Content Include="Scripts\AlloyFinger\alloy_finger.min.js" />
     <Content Include="Scripts\bootstrap\bootstrap-datepicker.js" />
     <Content Include="Scripts\bootstrap\bootstrap-datepicker.min.js" />
@@ -588,6 +595,8 @@
     <Content Include="Views\Web.config" />
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
+    <Content Include="Views\Shared\_ChatBot.cshtml" />
+    <Content Include="Views\Shared\_ChatCommandGuide.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />

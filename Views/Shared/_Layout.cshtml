@@ -8,6 +8,7 @@
         && actionName.Equals("Index", StringComparison.OrdinalIgnoreCase);
     var isMajordomeInventoryPage = controllerName.Equals("Majordome", StringComparison.OrdinalIgnoreCase)
         && actionName.Equals("Inventory", StringComparison.OrdinalIgnoreCase);
+    var chatBotEnabled = ChatBotSettings.Enabled;
     var siteCssBundleUrl = BundleTable.Bundles.ResolveBundleUrl("~/Content/css", true);
     var majordomeCssVersion = System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/majordome.css")).Ticks;
     var current = Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName;
@@ -128,6 +129,10 @@
 
     <link href="@siteCssBundleUrl" rel="stylesheet" />
     <link href="@Url.Content("~/Content/majordome.css")?v=@majordomeCssVersion" rel="stylesheet" />
+    @if (chatBotEnabled)
+    {
+        <link href="~/Content/chat-bot.css?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/chat-bot.css")).Ticks)" rel="stylesheet" />
+    }
     @Scripts.Render("~/scripts/modernizr")
     @Scripts.Render("~/scripts/bootstrap")
 
@@ -623,9 +628,17 @@
     </footer>
     <!-- Footer Section End -->
 
+    @if (chatBotEnabled)
+    {
+        @Html.Partial("_ChatBot")
+    }
 
     @Scripts.Render("~/scripts/jquery")
     <script src="~/Scripts/jquery.gtx-range-filter.js"></script>
+    @if (chatBotEnabled)
+    {
+        <script src="~/Scripts/chat-bot.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/chat-bot.js")).Ticks)"></script>
+    }
     <script>
         (function (window, document) {
             var activeConfirmation = null;

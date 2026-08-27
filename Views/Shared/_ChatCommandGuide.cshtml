@@ -1,0 +1,135 @@
+@{
+    var canTeachChatBot = string.Equals(
+        Convert.ToString(ViewBag.CurrentRole ?? string.Empty),
+        CommonUnit.Roles.Owner.ToString(),
+        StringComparison.OrdinalIgnoreCase);
+}
+<section id="gtxChatCommandGuide"
+         class="gtx-chat-command-guide"
+         aria-label="Chat command guide"
+         role="dialog"
+         hidden>
+    <header class="gtx-chat-command-guide-header">
+        <div>
+            <strong>What can I ask?</strong>
+            <div>Tap an example to try it, or type a similar request.</div>
+        </div>
+        <button type="button" class="gtx-chat-icon-button gtx-chat-guide-close" data-chat-help-close aria-label="Close command guide">
+            <i class="bi bi-x-lg" aria-hidden="true"></i>
+        </button>
+    </header>
+
+    <div class="gtx-chat-command-guide-list">
+        <div class="gtx-chat-command-guide-note">
+            <i class="bi bi-lightbulb" aria-hidden="true"></i>
+            <div><strong>Ask</strong> what is available to see cards here. Use <strong>Open</strong> or <strong>Take me to</strong> when you want to visit a page.</div>
+        </div>
+
+        <h3 class="gtx-chat-command-guide-group"><i class="bi bi-search" aria-hidden="true"></i> Search live inventory</h3>
+
+        <div class="gtx-chat-command-guide-item">
+            <button type="button" data-chat-prompt="What trucks are available?">
+                &quot;What trucks are available?&quot;
+            </button>
+            <span><i class="bi bi-truck" aria-hidden="true"></i> Shows available trucks as vehicle cards inside the chat.</span>
+        </div>
+
+        <div class="gtx-chat-command-guide-item">
+            <button type="button" data-chat-prompt="What Honda vehicles are available under $20,000?">
+                &quot;What Honda vehicles are available under $20,000?&quot;
+            </button>
+            <span><i class="bi bi-currency-dollar" aria-hidden="true"></i> Combines make and maximum-price filters.</span>
+        </div>
+
+        <div class="gtx-chat-command-guide-item">
+            <button type="button" data-chat-prompt="Find vehicles with a manual transmission">
+                &quot;Find vehicles with a manual transmission&quot;
+            </button>
+            <span><i class="bi bi-gear-wide-connected" aria-hidden="true"></i> Searches by transmission, fuel type, mileage, or engine size.</span>
+        </div>
+
+        <div class="gtx-chat-command-guide-item">
+            <button type="button" data-chat-prompt="Do you have any 6-cylinder SUVs?">
+                &quot;Do you have any 6-cylinder SUVs?&quot;
+            </button>
+            <span><i class="bi bi-sliders" aria-hidden="true"></i> Combines vehicle category and engine filters.</span>
+        </div>
+
+        <h3 class="gtx-chat-command-guide-group"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i> Open pages and filters</h3>
+
+        <div class="gtx-chat-command-guide-item">
+            <button type="button" data-chat-prompt="Open SUV inventory under $20,000">
+                &quot;Open SUV inventory under $20,000&quot;
+            </button>
+            <span><i class="bi bi-funnel" aria-hidden="true"></i> Opens the SUV page with a maximum-price filter.</span>
+        </div>
+
+        <div class="gtx-chat-command-guide-item">
+            <button type="button" data-chat-prompt="Take me to the inventory for Honda under 2020">
+                &quot;Take me to the inventory for Honda under 2020&quot;
+            </button>
+            <span><i class="bi bi-calendar3" aria-hidden="true"></i> Opens Honda inventory from model year 2019 or earlier.</span>
+        </div>
+
+        <div class="gtx-chat-command-guide-item">
+            <button type="button" data-chat-prompt="Clear inventory filters">
+                &quot;Clear inventory filters&quot;
+            </button>
+            <span><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Returns to the unfiltered All Inventory page.</span>
+        </div>
+
+        <div class="gtx-chat-command-guide-item">
+            <button type="button" data-chat-prompt="Open this vehicle">
+                &quot;Open this vehicle&quot;
+            </button>
+            <span><i class="bi bi-arrow-right-circle" aria-hidden="true"></i> Opens the vehicle when the latest result contains one match.</span>
+        </div>
+
+        <h3 class="gtx-chat-command-guide-group"><i class="bi bi-building" aria-hidden="true"></i> Dealership help</h3>
+
+        <div class="gtx-chat-command-guide-item">
+            <button type="button" data-chat-prompt="What are your hours Saturday?">
+                &quot;What are your hours Saturday?&quot;
+            </button>
+            <span><i class="bi bi-clock" aria-hidden="true"></i> Checks the current dealership schedule.</span>
+        </div>
+
+        <div class="gtx-chat-command-guide-item">
+            <button type="button" data-chat-prompt="Take me to the financing application">
+                &quot;Take me to the financing application&quot;
+            </button>
+            <span><i class="bi bi-file-earmark-text" aria-hidden="true"></i> Opens the online financing application.</span>
+        </div>
+
+        <div class="gtx-chat-command-guide-item">
+            <button type="button" data-chat-prompt="Open the staff page">
+                &quot;Open the staff page&quot;
+            </button>
+            <span><i class="bi bi-people" aria-hidden="true"></i> Opens the GTX team page.</span>
+        </div>
+
+        <div class="gtx-chat-command-guide-item">
+            <button type="button" data-chat-contact>
+                &quot;Contact sales&quot;
+            </button>
+            <span><i class="bi bi-person-lines-fill" aria-hidden="true"></i> Opens the sales contact form.</span>
+        </div>
+
+        @if (canTeachChatBot)
+        {
+            <h3 class="gtx-chat-command-guide-group"><i class="bi bi-mortarboard" aria-hidden="true"></i> Owner teaching</h3>
+
+            <div class="gtx-chat-command-guide-item is-teaching">
+                <button type="button" data-chat-prompt="Teach: &quot;lot manager&quot; means open Majordome inventory">
+                    &quot;Teach: lot manager means open Majordome inventory&quot;
+                </button>
+                <span><i class="bi bi-shield-check" aria-hidden="true"></i> Review the proposed phrase and destination, then approve it before it is saved.</span>
+            </div>
+        }
+    </div>
+
+    <footer class="gtx-chat-command-guide-tip">
+        <i class="bi bi-arrow-up-down" aria-hidden="true"></i>
+        Use the Up and Down arrow keys in the message box to browse your last 20 requests.
+    </footer>
+</section>
