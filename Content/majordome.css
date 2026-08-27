@@ -1346,6 +1346,16 @@ body.majordome-inventory-page .body-content {
             width: 100%;
         }
 
+    .majordome-background-preview-header {
+        background: linear-gradient(135deg, var(--bs-tertiary-bg), var(--bs-body-bg));
+        border-bottom: 1px solid var(--bs-border-color);
+        box-shadow: 0 .25rem .65rem rgba(15, 23, 42, .1);
+        min-width: 0;
+        padding: .45rem .55rem;
+        position: relative;
+        z-index: 1;
+    }
+
     .majordome-background-preview-details {
         background: linear-gradient(180deg, var(--bs-body-bg) 0%, var(--bs-tertiary-bg) 100%);
         box-shadow: 0 -.35rem .8rem rgba(15, 23, 42, .12);
@@ -1355,8 +1365,8 @@ body.majordome-inventory-page .body-content {
     }
 
     .majordome-background-preview-title {
-        font-size: .72rem;
-        font-weight: 700;
+        font-size: .7rem;
+        font-weight: 750;
         letter-spacing: .01em;
         line-height: 1.25;
     }
