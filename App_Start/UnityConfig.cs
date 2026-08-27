@@ -16,6 +16,7 @@ namespace GTX
             container.RegisterType<IVinDecoderService, VinDecoderService>();
             container.RegisterType<IEmployeesService, EmployyesService>();
             container.RegisterType<IContactService, ContactService>();
+            container.RegisterType<IChatBotTeachingService, ChatBotTeachingService>();
             container.RegisterType<ILogService, LogService>();
             container.RegisterType<IInventoryService, InventoryService>();
             container.RegisterType<IHttpContextProvider, HttpContextProvider>();

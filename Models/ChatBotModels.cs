@@ -23,6 +23,37 @@ namespace GTX.Models
         public string ResponseId { get; set; }
         public int? TotalVehicleMatches { get; set; }
         public ChatVehicleResult[] Vehicles { get; set; }
+        public ChatNavigationResult Navigation { get; set; }
+        public ChatTeachingProposal TeachingProposal { get; set; }
+    }
+
+    public sealed class ChatNavigationResult
+    {
+        public string Url { get; set; }
+        public string Label { get; set; }
+        public bool RequiresLogin { get; set; }
+        public string RequiredRole { get; set; }
+        public bool Learned { get; set; }
+    }
+
+    public sealed class ChatTeachingProposal
+    {
+        public string ProposalId { get; set; }
+        public string Phrase { get; set; }
+        public string ActionKey { get; set; }
+        public string ActionLabel { get; set; }
+        public string RequiredRole { get; set; }
+    }
+
+    public sealed class ChatTeachingConfirmRequest
+    {
+        [Required]
+        [StringLength(100)]
+        public string ChatRequestToken { get; set; }
+
+        [Required]
+        [StringLength(100)]
+        public string ProposalId { get; set; }
     }
 
     public sealed class ChatVehicleResult

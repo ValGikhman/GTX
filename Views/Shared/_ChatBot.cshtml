@@ -4,6 +4,7 @@
 <div id="gtxChatWidget"
      class="gtx-chat"
      data-message-url="@Url.Action("Message", "Chat")"
+     data-teach-url="@Url.Action("ConfirmTeaching", "Chat")"
      data-lead-url="@Url.Action("SubmitLead", "Chat")"
      data-salespeople-url="@Url.Action("Salespeople", "Chat")"
      data-home-url="@Url.Action("Index", "Home")"
@@ -23,14 +24,7 @@
      data-test-drive-url="@Url.RouteUrl("TestDriveContact")"
      data-blog-url="@Url.Action("List", "Blogs")"
      data-privacy-url="@Url.Action("PrivacyPolicy", "Home")"
-     data-terms-url="@Url.Action("TermsAndConditions", "Home")"
-     data-dashboard-url="@Url.Action("Dashboard", "InventoryManagement")"
-     data-inventory-management-url="@Url.Action("Index", "InventoryManagement")"
-     data-majordome-url="@Url.Action("Inventory", "Majordome")"
-     data-employees-url="@Url.Action("Index", "Employees")"
-     data-vin-decoder-url="@Url.Action("Index", "VinDecoder")"
-     data-announcements-url="@Url.Action("Index", "Announcements")"
-     data-blog-management-url="@Url.Action("Index", "Blogs")">
+     data-terms-url="@Url.Action("TermsAndConditions", "Home")">
     <button type="button"
             class="gtx-chat-launcher"
             aria-label="Open GTX Auto Assistant"

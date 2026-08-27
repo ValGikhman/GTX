@@ -1,4 +1,5 @@
 using Common;
+using GTX.Common;
 using GTX.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -23,6 +24,7 @@ namespace GTX.Controllers
     {
         private const string ResponsesUrl = "https://api.openai.com/v1/responses";
         private const string RequestTokenSessionKey = "GTX:ChatRequestToken";
+        private const string TeachingProposalSessionPrefix = "GTX:ChatTeaching:";
         private const string PromptCacheKey = "gtx-dealership-chat-v1";
         private const string DefaultChatModel = "gpt-4.1-mini";
         private const int MaxToolRounds = 2;
@@ -34,15 +36,18 @@ namespace GTX.Controllers
         private readonly IInventoryService _inventoryService;
         private readonly IContactService _contactService;
         private readonly IEmployeesService _employeesService;
+        private readonly IChatBotTeachingService _teachingService;
 
         public ChatController(
             IInventoryService inventoryService,
             IContactService contactService,
-            IEmployeesService employeesService)
+            IEmployeesService employeesService,
+            IChatBotTeachingService teachingService)
         {
             _inventoryService = inventoryService;
             _contactService = contactService;
             _employeesService = employeesService;
+            _teachingService = teachingService;
         }
 
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
@@ -96,18 +101,54 @@ namespace GTX.Controllers
                 return Json(new ChatBotResponse { Success = false, Reply = "Please enter a message." });
             }
 
-            var apiKey = ConfigurationManager.AppSettings["OpenAI:ApiKey"];
-            if (string.IsNullOrWhiteSpace(apiKey))
-            {
-                Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-                return Json(new ChatBotResponse { Success = false, Reply = "The assistant is temporarily unavailable. Please call (513) 489-2886." });
-            }
-
             var previousResponseId = NormalizeResponseId(request.PreviousResponseId);
+            var message = request.Message.Trim();
+            var currentRole = RoleCookie.GetCurrentRole(Request, Session);
 
             try
             {
-                var result = await GetAssistantReplyAsync(apiKey, request.Message.Trim(), previousResponseId);
+                var learnedNavigation = ResolveLearnedNavigation(message, currentRole);
+                if (learnedNavigation != null)
+                {
+                    return Json(new ChatBotResponse
+                    {
+                        Success = true,
+                        Reply = learnedNavigation.RequiresLogin
+                            ? "Please log in to open " + learnedNavigation.Label + "."
+                            : "Opening " + learnedNavigation.Label + "...",
+                        Navigation = learnedNavigation
+                    });
+                }
+
+                var apiKey = ConfigurationManager.AppSettings["OpenAI:ApiKey"];
+                if (string.IsNullOrWhiteSpace(apiKey))
+                {
+                    Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+                    return Json(new ChatBotResponse { Success = false, Reply = "The assistant is temporarily unavailable. Please call (513) 489-2886." });
+                }
+
+                if (currentRole == CommonUnit.Roles.Owner && LooksLikeTeachingRequest(message))
+                {
+                    var teaching = await CreateTeachingProposalAsync(apiKey, message, previousResponseId);
+                    if (teaching == null)
+                    {
+                        return Json(new ChatBotResponse
+                        {
+                            Success = true,
+                            Reply = "I could not identify both the phrase and the destination. Try: Teach: \"lot manager\" means open Majordome inventory."
+                        });
+                    }
+
+                    return Json(new ChatBotResponse
+                    {
+                        Success = true,
+                        Reply = "I prepared this lesson. Please review it before I remember it.",
+                        ResponseId = teaching.ResponseId,
+                        TeachingProposal = teaching.Proposal
+                    });
+                }
+
+                var result = await GetAssistantReplyAsync(apiKey, message, previousResponseId);
                 return Json(new ChatBotResponse
                 {
                     Success = true,
@@ -126,6 +167,75 @@ namespace GTX.Controllers
             {
                 Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 return Json(new ChatBotResponse { Success = false, Reply = "Something went wrong. Please try again or contact our sales team." });
+            }
+        }
+
+        [HttpPost]
+        public ActionResult ConfirmTeaching(ChatTeachingConfirmRequest request)
+        {
+            if (request == null || !HasValidRequestToken(request.ChatRequestToken))
+            {
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return Json(new { success = false, message = "Please refresh the page and try again." });
+            }
+
+            if (RoleCookie.GetCurrentRole(Request, Session) != CommonUnit.Roles.Owner)
+            {
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return Json(new { success = false, message = "Only an owner can teach navigation commands." });
+            }
+
+            if (!ModelState.IsValid || !Guid.TryParse(request.ProposalId, out var proposalId))
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, message = "That teaching proposal is invalid." });
+            }
+
+            if (!AllowRequest("teach", 20, TimeSpan.FromMinutes(10)))
+            {
+                Response.StatusCode = 429;
+                return Json(new { success = false, message = "Please wait before saving another lesson." });
+            }
+
+            var sessionKey = TeachingProposalSessionPrefix + proposalId.ToString("N");
+            var state = Session?[sessionKey] as TeachingProposalState;
+            if (state == null || state.ExpiresUtc < DateTime.UtcNow)
+            {
+                if (Session != null) Session.Remove(sessionKey);
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, message = "That teaching proposal expired. Please teach it again." });
+            }
+
+            var definition = ChatBotNavigationCatalog.Find(state.ActionKey);
+            if (definition == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, message = "That destination is no longer available." });
+            }
+
+            try
+            {
+                var lesson = _teachingService.SaveLesson(
+                    state.Phrase,
+                    state.NormalizedPhrase,
+                    state.ActionKey,
+                    CommonUnit.Roles.Owner.ToString());
+                Session.Remove(sessionKey);
+                return Json(new
+                {
+                    success = true,
+                    message = "Learned: \"" + lesson.Phrase + "\" now opens " + definition.Label + "."
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("Unable to save chatbot lesson: {0}", ex);
+                Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                return Json(new
+                {
+                    success = false,
+                    message = "I could not save the lesson. Make sure the chatbot teaching database migration has been applied."
+                });
             }
         }
 
@@ -221,6 +331,205 @@ namespace GTX.Controllers
                 Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 return Json(new { success = false, message = "We could not submit your request. Please call (513) 489-2886." });
             }
+        }
+
+        private ChatNavigationResult ResolveLearnedNavigation(string message, CommonUnit.Roles currentRole)
+        {
+            var normalizedPhrase = NormalizeTeachingPhrase(message);
+            if (string.IsNullOrWhiteSpace(normalizedPhrase)) return null;
+
+            ChatBotNavigationLesson lesson = null;
+            foreach (var lookupPhrase in NavigationLookupPhrases(normalizedPhrase))
+            {
+                lesson = _teachingService.FindActiveLesson(lookupPhrase);
+                if (lesson != null) break;
+            }
+            if (lesson == null) return null;
+
+            var definition = ChatBotNavigationCatalog.Find(lesson.ActionKey);
+            return definition == null ? null : BuildNavigationResult(definition, currentRole, true);
+        }
+
+        private static IEnumerable<string> NavigationLookupPhrases(string normalizedPhrase)
+        {
+            yield return normalizedPhrase;
+
+            var withoutRequestWords = Regex.Replace(
+                normalizedPhrase,
+                @"^(?:please\s+)?(?:open|go\s+to|navigate\s+to|take\s+me\s+to|show\s+me|show|visit|view)\s+(?:the\s+)?",
+                string.Empty,
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            withoutRequestWords = Regex.Replace(
+                withoutRequestWords,
+                @"\s+please$",
+                string.Empty,
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant).Trim();
+
+            if (withoutRequestWords.Length > 0
+                && !string.Equals(withoutRequestWords, normalizedPhrase, StringComparison.Ordinal))
+            {
+                yield return withoutRequestWords;
+            }
+        }
+
+        private ChatNavigationResult BuildNavigationResult(
+            ChatBotNavigationDefinition definition,
+            CommonUnit.Roles currentRole,
+            bool learned)
+        {
+            var hasAccess = !definition.RequiresAuthentication
+                || (definition.OwnerOnly
+                    ? currentRole == CommonUnit.Roles.Owner
+                    : currentRole != CommonUnit.Roles.User);
+            var url = string.Equals(definition.ActionKey, "test_drive_page", StringComparison.OrdinalIgnoreCase)
+                ? Url.RouteUrl("TestDriveContact")
+                : Url.Action(definition.Action, definition.Controller);
+
+            return new ChatNavigationResult
+            {
+                Url = url,
+                Label = definition.Label,
+                RequiresLogin = !hasAccess,
+                RequiredRole = definition.OwnerOnly
+                    ? "owner"
+                    : definition.RequiresAuthentication ? "admin" : null,
+                Learned = learned
+            };
+        }
+
+        private static bool LooksLikeTeachingRequest(string message)
+        {
+            var normalized = NormalizeTeachingPhrase(message);
+            return Regex.IsMatch(
+                normalized,
+                @"\b(teach|remember|learn|next time|means)\b",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        }
+
+        private async Task<TeachingProposalResult> CreateTeachingProposalAsync(
+            string apiKey,
+            string message,
+            string previousResponseId)
+        {
+            var actionDefinitions = new JArray(ChatBotNavigationCatalog.All.Select(definition => new JObject
+            {
+                ["action_key"] = definition.ActionKey,
+                ["label"] = definition.Label,
+                ["description"] = definition.Description,
+                ["access"] = definition.OwnerOnly
+                    ? "owner"
+                    : definition.RequiresAuthentication ? "authenticated staff" : "public"
+            }));
+            var actionKeys = new JArray(ChatBotNavigationCatalog.All
+                .Select(definition => definition.ActionKey)
+                .Concat(new[] { "__invalid__" }));
+
+            var model = ConfigurationManager.AppSettings["OpenAI:ChatModel"];
+            if (string.IsNullOrWhiteSpace(model)) model = DefaultChatModel;
+            else model = model.Trim();
+
+            var payload = new JObject
+            {
+                ["model"] = model,
+                ["instructions"] = @"Extract a chatbot navigation lesson from the owner's message.
+Return the exact short phrase the owner wants the bot to recognize and select exactly one action_key from the supplied catalog.
+Do not invent an action, URL, controller, route, or capability. If the phrase or destination is unclear, set valid to false and action_key to __invalid__.
+The explanation must be one brief sentence.",
+                ["input"] = new JArray(
+                    new JObject
+                    {
+                        ["role"] = "user",
+                        ["content"] = "Allowed navigation catalog:\n" + actionDefinitions.ToString(Formatting.None)
+                            + "\n\nOwner teaching message:\n" + message
+                    }),
+                ["max_output_tokens"] = 250,
+                ["store"] = true,
+                ["prompt_cache_key"] = PromptCacheKey + "-teacher-v1",
+                ["safety_identifier"] = BuildSafetyIdentifier(),
+                ["text"] = new JObject
+                {
+                    ["format"] = new JObject
+                    {
+                        ["type"] = "json_schema",
+                        ["name"] = "navigation_lesson",
+                        ["strict"] = true,
+                        ["schema"] = new JObject
+                        {
+                            ["type"] = "object",
+                            ["properties"] = new JObject
+                            {
+                                ["valid"] = new JObject { ["type"] = "boolean" },
+                                ["phrase"] = new JObject { ["type"] = "string" },
+                                ["action_key"] = new JObject { ["type"] = "string", ["enum"] = actionKeys },
+                                ["explanation"] = new JObject { ["type"] = "string" }
+                            },
+                            ["required"] = new JArray("valid", "phrase", "action_key", "explanation"),
+                            ["additionalProperties"] = false
+                        }
+                    }
+                }
+            };
+
+            if (!string.IsNullOrWhiteSpace(previousResponseId))
+            {
+                payload["previous_response_id"] = previousResponseId;
+            }
+
+            var response = await PostOpenAiAsync(apiKey, payload);
+            JObject extracted;
+            try
+            {
+                extracted = JObject.Parse(ExtractOutputText(response));
+            }
+            catch (JsonException)
+            {
+                return null;
+            }
+
+            var phrase = ((string)extracted["phrase"] ?? string.Empty).Trim();
+            var actionKey = ((string)extracted["action_key"] ?? string.Empty).Trim();
+            var normalizedPhrase = NormalizeTeachingPhrase(phrase);
+            var definition = ChatBotNavigationCatalog.Find(actionKey);
+            if ((bool?)extracted["valid"] != true
+                || phrase.Length == 0
+                || phrase.Length > 300
+                || normalizedPhrase.Length == 0
+                || definition == null)
+            {
+                return null;
+            }
+
+            var proposalId = Guid.NewGuid();
+            Session[TeachingProposalSessionPrefix + proposalId.ToString("N")] = new TeachingProposalState
+            {
+                Phrase = phrase,
+                NormalizedPhrase = normalizedPhrase,
+                ActionKey = definition.ActionKey,
+                ExpiresUtc = DateTime.UtcNow.AddMinutes(10)
+            };
+
+            return new TeachingProposalResult
+            {
+                ResponseId = (string)response["id"],
+                Proposal = new ChatTeachingProposal
+                {
+                    ProposalId = proposalId.ToString("D"),
+                    Phrase = phrase,
+                    ActionKey = definition.ActionKey,
+                    ActionLabel = definition.Label,
+                    RequiredRole = definition.OwnerOnly
+                        ? "Owner only"
+                        : definition.RequiresAuthentication ? "Authenticated staff" : "Public"
+                }
+            };
+        }
+
+        private static string NormalizeTeachingPhrase(string value)
+        {
+            value = (value ?? string.Empty).ToLowerInvariant();
+            value = Regex.Replace(value, @"[^a-z0-9]+", " ");
+            value = Regex.Replace(value, @"\s+", " ").Trim();
+            return value.Length <= 300 ? value : value.Substring(0, 300).Trim();
         }
 
         private async Task<AssistantResult> GetAssistantReplyAsync(string apiKey, string message, string previousResponseId)
@@ -992,6 +1301,7 @@ Be concise, friendly, factual, and respond in the language used by the shopper.
 Use the inventory tools for every question about current availability, price, mileage, features, or vehicle details. Never invent inventory or claim a vehicle is available without a tool result.
 Use get_dealership_hours for every question about business hours, working hours, opening or closing times, or whether the dealership is open. Never guess the schedule.
 Never claim that you changed or reset controls, filters, or other state on the shopper's page.
+Never claim that you permanently learned or saved a command. Owner teaching is handled by the website and requires a separate confirmation.
 For transmission questions, pass manual, automatic, or CVT in the search_inventory transmission parameter.
 For fuel or powertrain questions, pass electric, hybrid, gasoline, diesel, or flex-fuel in the search_inventory fuel_type parameter. Treat EV and BEV as electric and PHEV as hybrid.
 For engine-cylinder questions, pass the exact cylinder count in the search_inventory cylinders parameter. Treat V8 as 8 cylinders, V6 as 6 cylinders, and similar V-number requests accordingly.
@@ -1006,6 +1316,20 @@ Do not output HTML. Keep normal answers under 120 words unless the shopper asks 
             public string ResponseId { get; set; }
             public int? TotalVehicleMatches { get; set; }
             public List<ChatVehicleResult> Vehicles { get; set; } = new List<ChatVehicleResult>();
+        }
+
+        private sealed class TeachingProposalResult
+        {
+            public string ResponseId { get; set; }
+            public ChatTeachingProposal Proposal { get; set; }
+        }
+
+        private sealed class TeachingProposalState
+        {
+            public string Phrase { get; set; }
+            public string NormalizedPhrase { get; set; }
+            public string ActionKey { get; set; }
+            public DateTime ExpiresUtc { get; set; }
         }
 
         private sealed class RateCounter
