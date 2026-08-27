@@ -178,8 +178,21 @@ namespace GTX.Controllers
         }
 
         [HttpGet]
-        public ActionResult All() {
-            Model.Inventory.Vehicles = Model?.Inventory?.All ?? Array.Empty<Models.GTX>(); ;
+        public ActionResult All(string make, int? maximumYear) {
+            var vehicles = Model?.Inventory?.All ?? Array.Empty<Models.GTX>();
+
+            if (!string.IsNullOrWhiteSpace(make)) {
+                var requestedMake = make.Trim();
+                vehicles = vehicles
+                    .Where(vehicle => string.Equals(vehicle.Make, requestedMake, StringComparison.OrdinalIgnoreCase))
+                    .ToArray();
+            }
+
+            if (maximumYear.HasValue && maximumYear.Value >= 1886 && maximumYear.Value <= DateTime.UtcNow.Year + 2) {
+                vehicles = vehicles.Where(vehicle => vehicle.Year <= maximumYear.Value).ToArray();
+            }
+
+            Model.Inventory.Vehicles = vehicles;
             Model.Inventory.Title = "All";
             ViewBag.Message = "Inventory";
 

@@ -10,13 +10,17 @@
         var $messages = $widget.find("[data-chat-messages]");
         var $chatForm = $widget.find("[data-chat-form]");
         var $message = $widget.find("#gtxChatMessage");
+        var $commandGuide = $widget.find("#gtxChatCommandGuide");
+        var $commandGuideButton = $widget.find("[data-chat-help]");
         var $lead = $widget.find("[data-chat-lead]");
         var $leadForm = $widget.find("[data-chat-lead-form]");
         var $leadFeedback = $widget.find("[data-chat-lead-feedback]");
         var $salesperson = $leadForm.find("[name='EmployerId']");
         var chatStorageKey = "gtx-chat-session-v1";
+        var requestHistoryStorageKey = "gtx-chat-request-history-v1";
         var chatStorageLifetime = 60 * 60 * 1000;
         var maximumStoredMessages = 40;
+        var maximumStoredRequests = 20;
         var responseId = null;
         var sending = false;
         var salespeopleLoaded = false;
@@ -26,6 +30,68 @@
         var conversation = initialGreeting
             ? [{ role: "assistant", text: initialGreeting, extraClass: "", vehicles: [], totalMatches: null }]
             : [];
+        var requestHistory = loadRequestHistory();
+        var requestHistoryIndex = -1;
+        var requestHistoryDraft = "";
+        var applyingRequestHistory = false;
+
+        function loadRequestHistory() {
+            try {
+                var stored = JSON.parse(window.sessionStorage.getItem(requestHistoryStorageKey) || "[]");
+                if (!Array.isArray(stored)) return [];
+
+                return $.map(stored.slice(-maximumStoredRequests), function (item) {
+                    var value = $.trim(String(item || ""));
+                    return value && value.length <= 800 ? value : null;
+                });
+            } catch (_) {
+                return [];
+            }
+        }
+
+        function rememberRequest(text) {
+            requestHistory.push(text);
+            requestHistory = requestHistory.slice(-maximumStoredRequests);
+            requestHistoryIndex = -1;
+            requestHistoryDraft = "";
+
+            try {
+                window.sessionStorage.setItem(requestHistoryStorageKey, JSON.stringify(requestHistory));
+            } catch (_) {
+                // History remains available in memory when session storage is unavailable.
+            }
+        }
+
+        function showRequestHistoryValue(value) {
+            applyingRequestHistory = true;
+            $message.val(value).trigger("input");
+            applyingRequestHistory = false;
+
+            var input = $message.get(0);
+            if (input && typeof input.setSelectionRange === "function") {
+                input.setSelectionRange(input.value.length, input.value.length);
+            }
+        }
+
+        function moveThroughRequestHistory(direction) {
+            if (!requestHistory.length) return;
+
+            if (requestHistoryIndex === -1) {
+                requestHistoryDraft = $message.val();
+                requestHistoryIndex = direction < 0 ? requestHistory.length - 1 : 0;
+                showRequestHistoryValue(requestHistory[requestHistoryIndex]);
+                return;
+            }
+
+            requestHistoryIndex += direction;
+            if (requestHistoryIndex < 0 || requestHistoryIndex >= requestHistory.length) {
+                requestHistoryIndex = -1;
+                showRequestHistoryValue(requestHistoryDraft);
+                return;
+            }
+
+            showRequestHistoryValue(requestHistory[requestHistoryIndex]);
+        }
 
         function removeStoredChat() {
             try {
@@ -88,9 +154,22 @@
         }
 
         function closeChat() {
+            closeCommandGuide(false);
             $panel.prop("hidden", true);
             $launcher.attr("aria-expanded", "false").removeClass("d-none").trigger("focus");
             saveChat();
+        }
+
+        function openCommandGuide() {
+            $commandGuide.prop("hidden", false);
+            $commandGuideButton.attr("aria-expanded", "true");
+            $commandGuide.find("[data-chat-help-close]").trigger("focus");
+        }
+
+        function closeCommandGuide(restoreFocus) {
+            $commandGuide.prop("hidden", true);
+            $commandGuideButton.attr("aria-expanded", "false");
+            if (restoreFocus !== false) $commandGuideButton.trigger("focus");
         }
 
         function scrollMessages() {
@@ -321,10 +400,34 @@
             return amount > 0 && amount <= 10000000 ? amount : null;
         }
 
+        function requestedMaximumYear(text) {
+            var match = text.match(/\b(?:under|before|older than)\s+(?:model year\s+|year\s+)?((?:19|20)\d{2})\b/);
+            if (!match) return null;
+
+            var exclusiveYear = Number(match[1]) - 1;
+            var latestReasonableYear = new Date().getFullYear() + 2;
+            return exclusiveYear >= 1886 && exclusiveYear <= latestReasonableYear ? exclusiveYear : null;
+        }
+
+        function requestedInventoryMake(text) {
+            var match = text.match(/\binventory\s+(?:for|of)\s+([a-z][a-z0-9 .'-]*?)(?:\s+(?:under|before|older than|from|after|over|with)\b|$)/);
+            if (!match) return null;
+
+            var make = $.trim(match[1]);
+            return make && make.length <= 40 ? make : null;
+        }
+
         function withMaximumPrice(url, maximumPrice) {
             if (!maximumPrice) return url;
             var target = new URL(url, window.location.origin);
             target.searchParams.set("maximumPrice", maximumPrice);
+            return target.pathname + target.search + target.hash;
+        }
+
+        function withInventoryFilters(url, make, maximumYear) {
+            var target = new URL(url, window.location.origin);
+            if (make) target.searchParams.set("make", make);
+            if (maximumYear) target.searchParams.set("maximumYear", maximumYear);
             return target.pathname + target.search + target.hash;
         }
 
@@ -353,6 +456,8 @@
             var normalized = normalizedNavigationText(text);
             var hasVerb = hasNavigationVerb(normalized);
             var maximumPrice = requestedMaximumPrice(normalized);
+            var maximumYear = requestedMaximumYear(normalized);
+            var inventoryMake = requestedInventoryMake(normalized);
             var destination;
 
             if (/\b(this|that|the) vehicle\b/.test(normalized) && /\b(open|view|show|take|go)\b/.test(normalized)) {
@@ -408,7 +513,10 @@
             } else if (/\bcoupes?\b/.test(normalized)) {
                 destination = { url: withMaximumPrice($widget.data("coupes-url"), maximumPrice), label: "coupe inventory" };
             } else if (/\b(inventory|vehicles? for sale|all vehicles?)\b/.test(normalized)) {
-                destination = { url: $widget.data("inventory-url"), label: "inventory" };
+                destination = {
+                    url: withInventoryFilters($widget.data("inventory-url"), inventoryMake, maximumYear),
+                    label: inventoryMake || maximumYear ? "filtered inventory" : "inventory"
+                };
             } else if (/\b(home|home page|homepage)\b/.test(normalized)) {
                 destination = { url: $widget.data("home-url"), label: "home page" };
             }
@@ -459,6 +567,7 @@
             text = $.trim(text || "");
             if (!text || sending) return;
 
+            rememberRequest(text);
             addMessage("user", text);
             $message.val("");
 
@@ -504,6 +613,7 @@
         }
 
         function resetChat() {
+            closeCommandGuide(false);
             responseId = null;
             conversation = [];
             removeStoredChat();
@@ -595,8 +705,16 @@
 
         $launcher.on("click", openChat);
         $widget.on("click", "[data-chat-close]", closeChat);
+        $widget.on("click", "[data-chat-help]", function () {
+            if ($commandGuide.prop("hidden")) openCommandGuide();
+            else closeCommandGuide();
+        });
+        $widget.on("click", "[data-chat-help-close]", function () { closeCommandGuide(); });
         $widget.on("click", "[data-chat-reset]", resetChat);
-        $widget.on("click", "[data-chat-contact]", function () { showContactForm(""); });
+        $widget.on("click", "[data-chat-contact]", function () {
+            closeCommandGuide(false);
+            showContactForm("");
+        });
         $widget.on("click", "[data-chat-contact-close]", function () {
             $lead.addClass("d-none");
             $panel.removeClass("is-contact-open");
@@ -604,8 +722,16 @@
             $message.trigger("focus");
         });
         $widget.on("click", "[data-chat-prompt]", function () {
+            closeCommandGuide(false);
             openChat();
             sendMessage($(this).data("chat-prompt"));
+        });
+
+        $widget.on("keydown", function (event) {
+            if (event.key === "Escape" && !$commandGuide.prop("hidden")) {
+                event.preventDefault();
+                closeCommandGuide();
+            }
         });
 
         $chatForm.on("submit", function (event) {
@@ -614,11 +740,18 @@
         });
 
         $message.on("keydown", function (event) {
-            if (event.key === "Enter" && !event.shiftKey) {
+            if ((event.key === "ArrowUp" || event.key === "ArrowDown") && !event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey) {
+                event.preventDefault();
+                moveThroughRequestHistory(event.key === "ArrowUp" ? -1 : 1);
+            } else if (event.key === "Enter" && !event.shiftKey) {
                 event.preventDefault();
                 $chatForm.trigger("submit");
             }
         }).on("input", function () {
+            if (!applyingRequestHistory) {
+                requestHistoryIndex = -1;
+                requestHistoryDraft = this.value;
+            }
             this.style.height = "auto";
             this.style.height = Math.min(this.scrollHeight, 112) + "px";
         });

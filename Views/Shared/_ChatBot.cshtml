@@ -47,6 +47,9 @@
                 <div class="gtx-chat-title">GTX Auto Assistant <span>AI</span></div>
                 <div class="gtx-chat-status"><i aria-hidden="true"></i> Ready to help</div>
             </div>
+            <button type="button" class="gtx-chat-icon-button" data-chat-help title="View command guide" aria-label="View command guide" aria-expanded="false" aria-controls="gtxChatCommandGuide">
+                <i class="bi bi-question-lg" aria-hidden="true"></i>
+            </button>
             <button type="button" class="gtx-chat-icon-button" data-chat-reset title="Start a new chat" aria-label="Start a new chat">
                 <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
             </button>
@@ -54,6 +57,8 @@
                 <i class="bi bi-x-lg" aria-hidden="true"></i>
             </button>
         </header>
+
+        @Html.Partial("_ChatCommandGuide")
 
         <div class="gtx-chat-messages" data-chat-messages aria-live="polite" aria-relevant="additions">
             <div class="gtx-chat-message is-assistant">

@@ -93,6 +93,92 @@
 .gtx-chat-icon-button:hover,
 .gtx-chat-icon-button:focus-visible { background: rgba(255, 255, 255, .16); }
 
+.gtx-chat-command-guide {
+    position: absolute;
+    inset: 4rem 0 0;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    color: #172033;
+    background: #f5f7fb;
+}
+
+.gtx-chat-command-guide[hidden] { display: none; }
+
+.gtx-chat-command-guide-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    padding: .8rem 1rem;
+    border-bottom: 1px solid #dce3ed;
+    background: #fff;
+}
+
+.gtx-chat-command-guide-header strong { color: var(--gtx-chat-accent); }
+.gtx-chat-command-guide-header > div > div { margin-top: .15rem; color: #667085; font-size: .72rem; }
+
+.gtx-chat-guide-close {
+    border: 1px solid #d5dce7;
+    color: #344054;
+    background: #fff;
+}
+
+.gtx-chat-guide-close:hover,
+.gtx-chat-guide-close:focus-visible { background: #eef2f7; }
+
+.gtx-chat-command-guide-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding: .7rem;
+}
+
+.gtx-chat-command-guide-item {
+    padding: .65rem;
+    border: 1px solid #dce4ef;
+    border-radius: .7rem;
+    background: #fff;
+    box-shadow: 0 .15rem .45rem rgba(15, 23, 42, .06);
+}
+
+.gtx-chat-command-guide-item + .gtx-chat-command-guide-item { margin-top: .5rem; }
+
+.gtx-chat-command-guide-item button {
+    padding: 0;
+    border: 0;
+    color: var(--gtx-chat-accent);
+    background: transparent;
+    text-align: left;
+    font-size: .8rem;
+    font-weight: 800;
+}
+
+.gtx-chat-command-guide-item button:hover,
+.gtx-chat-command-guide-item button:focus-visible { text-decoration: underline; }
+
+.gtx-chat-command-guide-item span {
+    display: block;
+    margin-top: .3rem;
+    color: #526075;
+    font-size: .72rem;
+    line-height: 1.35;
+}
+
+.gtx-chat-command-guide-item span i { width: 1rem; color: var(--gtx-chat-accent); }
+
+.gtx-chat-command-guide-tip {
+    padding: .65rem .8rem;
+    border-top: 1px solid #dce3ed;
+    color: #526075;
+    background: #fff;
+    font-size: .7rem;
+    line-height: 1.35;
+}
+
+.gtx-chat-command-guide-tip i { margin-right: .25rem; color: var(--gtx-chat-accent); }
+
 .gtx-chat-messages {
     flex: 1 1 auto;
     min-height: 0;

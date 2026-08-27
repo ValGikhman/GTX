@@ -23,9 +23,12 @@ namespace GTX.Controllers
     {
         private const string ResponsesUrl = "https://api.openai.com/v1/responses";
         private const string RequestTokenSessionKey = "GTX:ChatRequestToken";
-        private const int MaxToolRounds = 3;
-        private static readonly HttpClient OpenAiClient = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+        private const string PromptCacheKey = "gtx-dealership-chat-v1";
+        private const string DefaultChatModel = "gpt-4.1-mini";
+        private const int MaxToolRounds = 2;
+        private static readonly HttpClient OpenAiClient = CreateOpenAiClient();
         private static readonly Regex ResponseIdPattern = new Regex(@"^resp_[A-Za-z0-9_-]+$", RegexOptions.Compiled);
+        private static readonly JArray AssistantTools = BuildTools();
         private static readonly MemoryCache RateLimitCache = MemoryCache.Default;
 
         private readonly IInventoryService _inventoryService;
@@ -40,6 +43,17 @@ namespace GTX.Controllers
             _inventoryService = inventoryService;
             _contactService = contactService;
             _employeesService = employeesService;
+        }
+
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            if (!ChatBotSettings.Enabled)
+            {
+                filterContext.Result = HttpNotFound();
+                return;
+            }
+
+            base.OnActionExecuting(filterContext);
         }
 
         [HttpGet]
@@ -76,7 +90,7 @@ namespace GTX.Controllers
                 return Json(new ChatBotResponse { Success = false, Reply = "Please wait a moment before sending another message." });
             }
 
-            if (request == null || !ModelState.IsValid || string.IsNullOrWhiteSpace(request.Message))
+            if (!ModelState.IsValid || string.IsNullOrWhiteSpace(request.Message))
             {
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 return Json(new ChatBotResponse { Success = false, Reply = "Please enter a message." });
@@ -218,11 +232,12 @@ namespace GTX.Controllers
             });
 
             var responseId = previousResponseId;
+            var safetyIdentifier = BuildSafetyIdentifier();
             var vehicleResults = new List<ChatVehicleResult>();
             int? totalVehicleMatches = null;
             for (var round = 0; round < MaxToolRounds; round++)
             {
-                var payload = BuildOpenAiPayload(input, responseId);
+                var payload = BuildOpenAiPayload(input, responseId, safetyIdentifier, includeTools: round == 0);
                 var response = await PostOpenAiAsync(apiKey, payload);
                 responseId = (string)response["id"];
 
@@ -266,22 +281,32 @@ namespace GTX.Controllers
             throw new OpenAiRequestException();
         }
 
-        private JObject BuildOpenAiPayload(JArray input, string previousResponseId)
+        private JObject BuildOpenAiPayload(
+            JArray input,
+            string previousResponseId,
+            string safetyIdentifier,
+            bool includeTools)
         {
             var model = ConfigurationManager.AppSettings["OpenAI:ChatModel"];
-            if (string.IsNullOrWhiteSpace(model)) model = "gpt-4o";
+            if (string.IsNullOrWhiteSpace(model)) model = DefaultChatModel;
+            else model = model.Trim();
 
             var payload = new JObject
             {
                 ["model"] = model,
                 ["instructions"] = AssistantInstructions,
                 ["input"] = input,
-                ["tools"] = BuildTools(),
-                ["parallel_tool_calls"] = false,
-                ["max_output_tokens"] = 500,
+                ["max_output_tokens"] = BoundedAppSetting("OpenAI:ChatMaxOutputTokens", 250, 100, 1000),
                 ["store"] = true,
-                ["safety_identifier"] = BuildSafetyIdentifier()
+                ["prompt_cache_key"] = PromptCacheKey,
+                ["safety_identifier"] = safetyIdentifier
             };
+
+            if (includeTools)
+            {
+                payload["tools"] = AssistantTools.DeepClone();
+                payload["parallel_tool_calls"] = true;
+            }
 
             if (!string.IsNullOrWhiteSpace(previousResponseId))
             {
@@ -338,8 +363,7 @@ namespace GTX.Controllers
 
         private string SearchInventory(JObject arguments)
         {
-            var inventory = _inventoryService.GetInventory(includeHiddenInventory: false, includeDataOneContent: false).vehicles
-                ?? Array.Empty<GTXDTO>();
+            var inventory = GetPublicInventory();
             IEnumerable<GTXDTO> query = inventory;
 
             query = FilterContains(query, (string)arguments["make"], vehicle => vehicle.Make);
@@ -468,7 +492,10 @@ namespace GTX.Controllers
 
         private static string GetDealershipHours()
         {
-            var hours = Utility.XMLHelpers.XmlRepository.GetOpenHours() ?? Array.Empty<OpenHours>();
+            var hours = AppCache.GetOrCreate(
+                Constants.OPENHOURS_CACHE,
+                () => Utility.XMLHelpers.XmlRepository.GetOpenHours() ?? Array.Empty<OpenHours>(),
+                minutes: 60) ?? Array.Empty<OpenHours>();
             DateTime localNow;
             try
             {
@@ -525,10 +552,20 @@ namespace GTX.Controllers
         {
             if (string.IsNullOrWhiteSpace(stock)) return null;
 
-            var dto = (_inventoryService.GetInventory(includeHiddenInventory: false, includeDataOneContent: false).vehicles
-                ?? Array.Empty<GTXDTO>())
+            var dto = GetPublicInventory()
                 .FirstOrDefault(vehicle => string.Equals(vehicle.Stock, stock, StringComparison.OrdinalIgnoreCase));
             return dto == null ? null : GTX.Models.GTX.ToGTX(new[] { dto }).FirstOrDefault();
+        }
+
+        private GTXDTO[] GetPublicInventory()
+        {
+            return AppCache.GetOrCreate(
+                Constants.CHAT_INVENTORY_CACHE,
+                () => _inventoryService.GetInventory(
+                    includeHiddenInventory: false,
+                    includeDataOneContent: false).vehicles ?? Array.Empty<GTXDTO>(),
+                minutes: BoundedAppSetting("OpenAI:ChatInventoryCacheMinutes", 1, 1, 60))
+                ?? Array.Empty<GTXDTO>();
         }
 
         private string BuildLeadComment(ChatLeadRequest request, GTX.Models.GTX vehicle, Employee salesperson)
@@ -897,6 +934,25 @@ namespace GTX.Controllers
         {
             int value;
             return token != null && int.TryParse(token.ToString(), out value) && value >= 0 ? value : (int?)null;
+        }
+
+        private static int BoundedAppSetting(string key, int fallback, int minimum, int maximum)
+        {
+            int value;
+            return int.TryParse(ConfigurationManager.AppSettings[key], out value)
+                && value >= minimum
+                && value <= maximum
+                ? value
+                : fallback;
+        }
+
+        private static HttpClient CreateOpenAiClient()
+        {
+            return new HttpClient
+            {
+                Timeout = TimeSpan.FromSeconds(
+                    BoundedAppSetting("OpenAI:ChatTimeoutSeconds", 30, 5, 120))
+            };
         }
 
         private static string Join(params string[] values)
