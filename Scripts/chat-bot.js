@@ -345,6 +345,12 @@
             } else {
                 appendLinkedText($item, text);
             }
+            if (extraClass === "is-thinking") {
+                $("<span>", {
+                    "class": "spinner-border spinner-border-sm gtx-chat-thinking-spinner",
+                    "aria-hidden": "true"
+                }).appendTo($item.find(".gtx-chat-copy").last());
+            }
             $messages.append($item);
             scrollMessages();
             if (persist !== false && extraClass !== "is-thinking") {
@@ -385,7 +391,7 @@
         }
 
         function hasNavigationVerb(text) {
-            return /\b(take|go|open|navigate|send|bring|show|visit|view)\b/.test(text);
+            return /\b(take|go|open|navigate|send|bring|show|visit|view|reset|clear|remove)\b/.test(text);
         }
 
         function requestedMaximumPrice(text) {
@@ -460,13 +466,13 @@
             var inventoryMake = requestedInventoryMake(normalized);
             var destination;
 
-            if (/\b(this|that|the) vehicle\b/.test(normalized) && /\b(open|view|show|take|go)\b/.test(normalized)) {
+            if (/\b(reset|clear|remove)\b.*\b(?:inventory\s+)?filters?\b/.test(normalized)) {
+                destination = { url: $widget.data("inventory-url"), label: "inventory with filters cleared" };
+            } else if (/\b(this|that|the) vehicle\b/.test(normalized) && /\b(open|view|show|take|go)\b/.test(normalized)) {
                 var vehicleDestination = recentVehicleDestination();
                 if (vehicleDestination && vehicleDestination.ambiguous) return { ambiguousVehicle: true };
                 return vehicleDestination || { missingVehicle: true };
-            }
-
-            if (/\b(inventory dashboard|dashboard)\b/.test(normalized)) {
+            } else if (/\b(inventory dashboard|dashboard)\b/.test(normalized)) {
                 destination = { url: $widget.data("dashboard-url"), label: "inventory dashboard", requiredRole: "owner" };
             } else if (/\b(inventory upload|upload inventory|inventory management)\b/.test(normalized)) {
                 destination = { url: $widget.data("inventory-management-url"), label: "inventory management", requiredRole: "owner" };
@@ -557,7 +563,7 @@
                 return;
             }
 
-            addMessage("assistant", "Opening " + destination.label + "...");
+            addMessage("assistant", "Opening " + destination.label + "...", "is-thinking", null, null, false);
             window.setTimeout(function () {
                 window.location.assign(destination.url);
             }, 150);

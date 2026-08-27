@@ -365,15 +365,18 @@ namespace GTX.Controllers
         {
             var inventory = GetPublicInventory();
             IEnumerable<GTXDTO> query = inventory;
+            var freeText = (string)arguments["query"];
+            var bodyType = (string)arguments["body_type"];
+            if (string.IsNullOrWhiteSpace(bodyType)) bodyType = InferBodyType(freeText);
 
             query = FilterContains(query, (string)arguments["make"], vehicle => vehicle.Make);
             query = FilterContains(query, (string)arguments["model"], vehicle => vehicle.Model);
-            query = FilterContains(query, (string)arguments["body_type"], vehicle => Join(vehicle.VehicleType, vehicle.Body, vehicle.VehicleStyle));
+            query = FilterContains(query, bodyType, vehicle => Join(vehicle.VehicleType, vehicle.Body, vehicle.VehicleStyle));
             query = FilterTransmission(query, (string)arguments["transmission"]);
             query = FilterFuelType(query, (string)arguments["fuel_type"]);
             var cylinders = PositiveInt(arguments["cylinders"]);
             if (cylinders.HasValue) query = query.Where(vehicle => vehicle.Cylinders == cylinders.Value);
-            query = FilterFreeText(query, (string)arguments["query"]);
+            query = FilterFreeText(query, freeText);
 
             var maximumPrice = PositiveInt(arguments["maximum_price"]);
             var maximumMileage = PositiveInt(arguments["maximum_mileage"]);
@@ -583,6 +586,10 @@ namespace GTX.Controllers
             {
                 parts.Add("Requested stock: " + Crop(request.VehicleStock.Trim(), 20) + ".");
             }
+            else
+            {
+                parts.Add("Vehicle: None selected - general sales inquiry.");
+            }
 
             if (!string.IsNullOrWhiteSpace(request.Message)) parts.Add(request.Message.Trim());
             return Crop(string.Join(Environment.NewLine, parts), 1200);
@@ -658,6 +665,20 @@ namespace GTX.Controllers
             return source.Where(item => (selector(item) ?? string.Empty).IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
+        private static string InferBodyType(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return null;
+            if (Regex.IsMatch(value, @"\b(?:suvs?|sport utility vehicles?)\b", RegexOptions.IgnoreCase)) return "SUV";
+            if (Regex.IsMatch(value, @"\b(?:trucks?|pickups?)\b", RegexOptions.IgnoreCase)) return "TRUCK";
+            if (Regex.IsMatch(value, @"\b(?:vans?|minivans?)\b", RegexOptions.IgnoreCase)) return "VAN";
+            if (Regex.IsMatch(value, @"\bhatchbacks?\b", RegexOptions.IgnoreCase)) return "HATCHBACK";
+            if (Regex.IsMatch(value, @"\bcoupes?\b", RegexOptions.IgnoreCase)) return "COUPE";
+            if (Regex.IsMatch(value, @"\bsedans?\b", RegexOptions.IgnoreCase)) return "SEDAN";
+            if (Regex.IsMatch(value, @"\bconvertibles?\b", RegexOptions.IgnoreCase)) return "CONVERTIBLE";
+            if (Regex.IsMatch(value, @"\bwagons?\b", RegexOptions.IgnoreCase)) return "WAGON";
+            return null;
+        }
+
         private static IEnumerable<GTXDTO> FilterTransmission(IEnumerable<GTXDTO> source, string value)
         {
             if (string.IsNullOrWhiteSpace(value)) return source;
@@ -720,7 +741,7 @@ namespace GTX.Controllers
 
             var residual = Regex.Replace(
                 value,
-                @"\b(?:v\s*-?\s*)?\d{1,2}\s*(?:-?\s*cyl(?:inder)?s?)\b|\bv\s*-?\s*\d{1,2}\b|\b(manuals?|automatics?|cvt|continuously|variable|transmissions?|gearboxes?|electric|evs?|bevs?|hybrids?|phevs?|diesel|gasoline|gas|flex[ -]?fuel|fuel|powered|any|do|you|have|show|find|me|with|vehicles?|cars?)\b",
+                @"\b(?:v\s*-?\s*)?\d{1,2}\s*(?:-?\s*cyl(?:inder)?s?)\b|\bv\s*-?\s*\d{1,2}\b|\b(manuals?|automatics?|cvt|continuously|variable|transmissions?|gearboxes?|electric|evs?|bevs?|hybrids?|phevs?|diesel|gasoline|gas|flex[ -]?fuel|fuel|powered|suvs?|sport|utility|trucks?|pickups?|vans?|minivans?|hatchbacks?|coupes?|sedans?|convertibles?|wagons?|available|availability|current|currently|inventory|what|which|are|is|list|please|looking|for|any|do|you|have|show|find|me|with|vehicles?|cars?)\b",
                 " ",
                 RegexOptions.IgnoreCase);
             var terms = Regex.Matches(residual, @"[A-Za-z0-9-]+")
@@ -970,6 +991,7 @@ namespace GTX.Controllers
 Be concise, friendly, factual, and respond in the language used by the shopper.
 Use the inventory tools for every question about current availability, price, mileage, features, or vehicle details. Never invent inventory or claim a vehicle is available without a tool result.
 Use get_dealership_hours for every question about business hours, working hours, opening or closing times, or whether the dealership is open. Never guess the schedule.
+Never claim that you changed or reset controls, filters, or other state on the shopper's page.
 For transmission questions, pass manual, automatic, or CVT in the search_inventory transmission parameter.
 For fuel or powertrain questions, pass electric, hybrid, gasoline, diesel, or flex-fuel in the search_inventory fuel_type parameter. Treat EV and BEV as electric and PHEV as hybrid.
 For engine-cylinder questions, pass the exact cylinder count in the search_inventory cylinders parameter. Treat V8 as 8 cylinders, V6 as 6 cylinders, and similar V-number requests accordingly.
