@@ -1309,6 +1309,108 @@ body.majordome-inventory-page .body-content {
             padding: .4rem .55rem;
         }
 
+    .majordome-bulk-preview {
+        max-height: min(42dvh, 24rem);
+        overflow-y: auto;
+        padding: .15rem;
+    }
+
+    .majordome-background-preview-grid {
+        display: grid;
+        gap: .75rem;
+        grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+    }
+
+    .majordome-background-preview-card {
+        background: var(--bs-body-bg);
+        border: 1px solid var(--bs-border-color);
+        border-radius: .75rem;
+        box-shadow: 0 .25rem .75rem rgba(15, 23, 42, .08);
+        min-width: 0;
+        opacity: .58;
+        overflow: hidden;
+        transition: border-color .18s ease, box-shadow .18s ease, opacity .18s ease, transform .18s ease;
+    }
+
+    .majordome-background-preview-card.is-selected {
+        border-color: rgba(var(--bs-primary-rgb), .55);
+        box-shadow: 0 .45rem 1rem rgba(15, 23, 42, .16);
+        opacity: 1;
+        transform: translateY(-1px);
+    }
+
+        .majordome-background-preview-card img {
+            aspect-ratio: 4 / 3;
+            display: block;
+            object-fit: cover;
+            width: 100%;
+        }
+
+    .majordome-background-preview-details {
+        background: linear-gradient(180deg, var(--bs-body-bg) 0%, var(--bs-tertiary-bg) 100%);
+        box-shadow: 0 -.35rem .8rem rgba(15, 23, 42, .12);
+        min-width: 0;
+        padding: .42rem .55rem .5rem;
+        position: relative;
+    }
+
+    .majordome-background-preview-title {
+        font-size: .72rem;
+        font-weight: 700;
+        letter-spacing: .01em;
+        line-height: 1.25;
+    }
+
+    .majordome-background-preview-footer {
+        align-items: center;
+        cursor: pointer;
+        display: flex;
+        gap: .4rem;
+        justify-content: space-between;
+        margin-top: .2rem;
+        min-width: 0;
+    }
+
+    .majordome-background-preview-name {
+        color: var(--bs-secondary-color);
+        font-size: .64rem;
+        line-height: 1.2;
+        min-width: 0;
+    }
+
+    .majordome-background-preview-footer .form-check-input {
+        flex: 0 0 auto;
+        height: .95rem;
+        margin: 0;
+        width: .95rem;
+    }
+
+    .majordome-remove-bg-toggle-all {
+        align-items: center;
+        background: var(--bs-tertiary-bg);
+        border: 1px solid var(--bs-border-color);
+        border-radius: 999px;
+        color: var(--bs-body-color);
+        display: inline-flex;
+        font-size: .72rem;
+        font-weight: 700;
+        margin: 0 .15rem 0 0;
+        min-height: 1.55rem;
+        padding: .18rem .65rem;
+        transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+    }
+
+    .majordome-remove-bg-toggle-all:hover:not(:disabled) {
+        background: var(--bs-primary-bg-subtle);
+        border-color: rgba(var(--bs-primary-rgb), .45);
+        color: var(--bs-primary-text-emphasis);
+        transform: translateY(-1px);
+    }
+
+    .majordome-remove-bg-toggle-all:focus-visible {
+        box-shadow: 0 0 0 .2rem rgba(var(--bs-primary-rgb), .2);
+    }
+
     .majordome-inventory-summary {
         align-items: center;
         display: flex;
@@ -1318,6 +1420,26 @@ body.majordome-inventory-page .body-content {
 
     #majordomeBulkProgressSummary {
         min-height: 1.5rem;
+    }
+
+        #majordomeBulkProgressSummary .js-remove-bg-token-count.is-updated {
+            animation: majordome-token-count-update .55s ease;
+        }
+
+    @keyframes majordome-token-count-update {
+        0% {
+            transform: scale(1);
+        }
+
+        45% {
+            box-shadow: 0 0 0 .3rem rgba(var(--bs-primary-rgb), .18);
+            transform: scale(1.08);
+        }
+
+        100% {
+            box-shadow: none;
+            transform: scale(1);
+        }
     }
 
     #majordomeBulkProgressBar {
@@ -1456,6 +1578,16 @@ body.majordome-inventory-page .body-content {
     html.theme-navy .majordome-management-shell {
         --inventory-selected-accent: #245f96;
         --inventory-selected-bg: rgba(36, 95, 150, .14);
+    }
+
+    @media (max-width: 575.98px) {
+        .majordome-background-preview-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .majordome-background-preview-details {
+            padding: .45rem .5rem .55rem;
+        }
     }
 
     html.theme-green .majordome-management-shell {
