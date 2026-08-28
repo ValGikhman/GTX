@@ -1,0 +1,128 @@
+/* Shared Bootstrap modal treatment. Keep this last in the CSS bundle. */
+html body .modal .modal-content {
+    overflow: hidden;
+    border: 1px solid rgba(148, 163, 184, .28) !important;
+    border-radius: 1rem !important;
+    color: var(--bs-modal-color, var(--bs-body-color, #172033));
+    background: var(--bs-modal-bg, var(--bs-body-bg, #fff));
+    box-shadow: 0 1.25rem 3rem rgba(15, 23, 42, .24) !important;
+}
+
+html body .modal .modal-header {
+    min-height: 4rem;
+    align-items: center;
+    gap: .7rem;
+    padding: .8rem 1rem !important;
+    border: 0 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, .18) !important;
+    color: #fff !important;
+    background: var(--gtx-grad, linear-gradient(135deg, #0b5ed7, #163a72)) !important;
+    box-shadow: 0 .35rem 1rem rgba(15, 23, 42, .14);
+}
+
+html body .modal .modal-header .modal-title {
+    min-width: 0;
+    margin: 0 !important;
+    color: inherit !important;
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1.2;
+    text-shadow: none;
+}
+
+html body .gtx-modal-title-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    flex: 0 0 2.2rem;
+    border: 1px solid rgba(255, 255, 255, .2);
+    border-radius: .7rem;
+    color: inherit;
+    background: rgba(255, 255, 255, .14);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .16), 0 .25rem .6rem rgba(15, 23, 42, .14);
+    font-size: 1rem;
+}
+
+html body .modal .modal-header > .btn-close,
+html body .modal .modal-header .btn-close {
+    width: 2rem;
+    height: 2rem;
+    flex: 0 0 2rem;
+    box-sizing: border-box;
+    margin: 0 0 0 auto !important;
+    padding: 0 !important;
+    border: 0;
+    border-radius: .5rem;
+    opacity: 1;
+    background-color: transparent;
+    background-size: .8rem;
+    filter: invert(1) grayscale(100%) brightness(200%);
+    transition: background-color .16s ease, box-shadow .16s ease, transform .16s ease;
+}
+
+html body .modal .modal-header .btn-close:hover,
+html body .modal .modal-header .btn-close:focus-visible {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, .18);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18), 0 .3rem .7rem rgba(15, 23, 42, .2);
+    transform: translateY(-1px);
+}
+
+html body .modal .modal-body {
+    color: var(--bs-modal-color, var(--bs-body-color, #172033));
+    background: var(--bs-modal-bg, var(--bs-body-bg, #fff));
+}
+
+html body .modal .modal-footer {
+    gap: .5rem;
+    border-top: 1px solid rgba(148, 163, 184, .22);
+    background: var(--bs-tertiary-bg, #f8fafc);
+}
+
+html.theme-silver body .modal .modal-header,
+html.theme-metallica body .modal .modal-header {
+    color: #172033 !important;
+}
+
+html.theme-silver body #openHours .open-hours-panel-controls,
+html.theme-metallica body #openHours .open-hours-panel-controls {
+    color: #172033 !important;
+}
+
+html.theme-silver body .modal .modal-header .btn-close,
+html.theme-metallica body .modal .modal-header .btn-close {
+    filter: none !important;
+}
+
+html.theme-silver body #openHours .open-hours-close-btn,
+html.theme-metallica body #openHours .open-hours-close-btn {
+    filter: none !important;
+}
+
+html.theme-silver body .gtx-modal-title-icon,
+html.theme-metallica body .gtx-modal-title-icon {
+    border-color: rgba(15, 23, 42, .15);
+    background: rgba(255, 255, 255, .38);
+}
+
+html.theme-silver body .modal .modal-header .btn-close:hover,
+html.theme-silver body .modal .modal-header .btn-close:focus-visible,
+html.theme-metallica body .modal .modal-header .btn-close:hover,
+html.theme-metallica body .modal .modal-header .btn-close:focus-visible {
+    background-color: rgba(15, 23, 42, .1);
+}
+
+html.theme-silver body #openHours .open-hours-close-btn:hover,
+html.theme-silver body #openHours .open-hours-close-btn:focus-visible,
+html.theme-metallica body #openHours .open-hours-close-btn:hover,
+html.theme-metallica body #openHours .open-hours-close-btn:focus-visible {
+    background-color: rgba(15, 23, 42, .1) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html body .modal .modal-header .btn-close {
+        transition: none;
+    }
+}

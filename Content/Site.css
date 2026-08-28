@@ -1986,9 +1986,10 @@ html.inventory-page-loading #loadingOverlay {
     height: min(78vh, 48rem);
     max-height: min(78vh, 48rem);
     z-index: 1055;
-    border-radius: .75rem;
-    box-shadow: 0 .95rem 2.2rem rgba(0, 0, 0, .28);
-    background-color: #fff;
+    border: 1px solid rgba(148, 163, 184, .28);
+    border-radius: 1rem;
+    box-shadow: 0 1.25rem 3rem rgba(15, 23, 42, .24);
+    background-color: var(--bs-modal-bg, var(--bs-body-bg, #fff));
     overflow: hidden;
     display: none;
 }
@@ -2006,40 +2007,34 @@ html.inventory-page-loading #loadingOverlay {
 
 #openHours .open-hours-panel-controls {
     display: flex;
-    justify-content: center;
     align-items: center;
-    position: relative;
+    gap: .7rem;
+    min-height: 4rem;
     margin: 0 -.9rem .6rem;
-    padding: 1.1rem;
+    padding: .8rem 1rem;
     background: var(--gtx-grad, linear-gradient(180deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1) 94%));
-    border-top: 1px solid rgba(255, 255, 255, .2);
-    border-bottom: 1px solid rgba(0, 0, 0, .2);
-    border-radius: .72rem .72rem 0 0;
+    border-bottom: 1px solid rgba(255, 255, 255, .18);
+    border-radius: 1rem 1rem 0 0;
     color: #fff;
-    text-shadow: 0 1px 1px rgba(0, 0, 0, .3);
+    box-shadow: 0 .35rem 1rem rgba(15, 23, 42, .14);
 }
 
 #openHours .open-hours-panel-title {
-    font-size: .98rem;
+    min-width: 0;
+    margin: 0;
+    font-size: 1rem;
     font-weight: 800;
-    letter-spacing: .02em;
-    text-transform: uppercase;
-    line-height: 1.1;
-    width: 100%;
-    max-width: none;
-    padding: 0 2.6rem;
-    text-align: center;
+    line-height: 1.2;
+    text-shadow: none;
 }
 
 #openHours .open-hours-close-btn {
     width: 2rem;
     height: 2rem;
-    min-width: 2rem;
-    padding: .45rem;
-    position: absolute;
-    top: 50%;
-    right: .7rem;
-    transform: translateY(-50%);
+    flex: 0 0 2rem;
+    box-sizing: border-box;
+    margin: 0 0 0 auto;
+    padding: 0;
     border: 0 !important;
     border-radius: .5rem;
     background-color: transparent !important;
@@ -2173,7 +2168,7 @@ html.inventory-page-loading #loadingOverlay {
     #openHours .open-hours-panel-controls {
         position: relative;
         margin: 0 -.65rem .5rem;
-        padding: 1.1rem;
+        padding: .8rem 1rem;
         border-radius: 0;
     }
 

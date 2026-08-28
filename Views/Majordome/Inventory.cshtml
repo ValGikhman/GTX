@@ -55,7 +55,9 @@
     <div id="majordomeBulkProgressDialog" class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
+                <span class="gtx-modal-title-icon" aria-hidden="true"><i id="majordomeBulkProgressIcon" class="bi bi-collection-fill"></i></span>
                 <div class="modal-title" id="majordomeBulkProgressTitle">Bulk update</div>
+                <button type="button" id="majordomeBulkHeaderClose" class="btn-close" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <p id="majordomeBulkProgressIntro" class="mb-2"></p>
@@ -72,8 +74,8 @@
                 <div id="majordomeBulkProgressLog" class="majordome-bulk-progress-log list-group small mt-3" aria-live="polite"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" id="majordomeBulkCancel" class="btn btn-outline-secondary">Cancel</button>
-                <button type="button" id="majordomeBulkStart" class="btn btn-gradient">Start</button>
+                <button type="button" id="majordomeBulkCancel" class="btn btn-outline-secondary"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>
+                <button type="button" id="majordomeBulkStart" class="btn btn-gradient"><i class="bi bi-play-fill me-1" aria-hidden="true"></i>Start</button>
             </div>
         </div>
     </div>
@@ -84,9 +86,9 @@
         <div class="modal-content">
             <div class="hero modal-header majordome-editor-hero d-flex align-items-center justify-content-between border-0">
                 <div class="d-flex align-items-center gap-3">
-                    <div class="majordome-editor-icon">
-                        <i class="bi bi-pencil-square"></i>
-                    </div>
+                    <span class="gtx-modal-title-icon" aria-hidden="true">
+                        <i id="majordomeInventoryEditorIcon" class="bi bi-pencil-square"></i>
+                    </span>
                     <div>
                         <div class="modal-title majordome-editor-title mb-0" id="majordomeInventoryEditorTitle">Inventory item</div>
                     </div>
@@ -269,7 +271,7 @@
                     </div>
                 </div>
                 <div class="modal-footer majordome-editor-footer">
-                    <button type="button" class="btn btn-outline-secondary majordome-editor-cancel-btn" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-outline-secondary majordome-editor-cancel-btn" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>
                     <button type="submit" class="btn btn-gradient shadow majordome-editor-save-btn" id="majordomeInventoryEditorSave">
                         <i class="bi bi-check2-circle me-1"></i>Save inventory
                     </button>
@@ -306,8 +308,8 @@
 </div>
 <template id="actions">
     <button type="button" id="btnAddInventory" class="btn btn-gradient shadow"><i class="bi bi-plus-circle me-1"></i>Add inventory</button>
-    <button type="button" id="btnDecodeAll" class="btn btn-gradient shadow">Decode all</button>
-    <button type="button" id="btnReStoryAll" class="btn btn-gradient shadow">Re-story all</button>
+    <button type="button" id="btnDecodeAll" class="btn btn-gradient shadow"><i class="bi bi-car-front me-1" aria-hidden="true"></i>Decode all</button>
+    <button type="button" id="btnReStoryAll" class="btn btn-gradient shadow"><i class="bi bi-book-half me-1" aria-hidden="true"></i>Re-story all</button>
     <button type="button" id="btnRemoveBackgrounds" class="btn btn-gradient shadow"><i class="bi bi-eraser-fill me-1"></i>Remove backgrounds</button>
 </template>
 
@@ -514,7 +516,8 @@
                 title: "Delete image",
                 message: "Do you want to delete this file?",
                 confirmText: "Delete",
-                variant: "danger"
+                variant: "danger",
+                iconClass: "bi bi-trash"
             });
             if (confirmed) {
                 deleteImage(id, file, this);
@@ -586,7 +589,7 @@
             startMajordomeBulkJob();
         });
 
-        $("#majordomeBulkCancel").on("click", function () {
+        $("#majordomeBulkCancel, #majordomeBulkHeaderClose").on("click", function () {
             cancelMajordomeBulkJob();
         });
 
@@ -677,7 +680,8 @@
                 title: "Create story",
                 message: `Do you want to create story for Stock# ${stock}?`,
                 confirmText: "Create",
-                variant: "success"
+                variant: "success",
+                iconClass: "bi bi-book"
             });
             if (confirmed) {
                 createStory(stock);
@@ -691,7 +695,8 @@
                 title: "Delete story",
                 message: `Do you want to delete story for Stock# ${stock}?`,
                 confirmText: "Delete",
-                variant: "danger"
+                variant: "danger",
+                iconClass: "bi bi-book-fill"
             });
             if (confirmed) {
                 deleteStory(stock);
@@ -708,7 +713,8 @@
                 title: "Save story",
                 message: `Do you want to save story for Stock# ${stock}?`,
                 confirmText: "Save",
-                variant: "primary"
+                variant: "primary",
+                iconClass: "bi bi-save"
             });
 
             if (!confirmed) {
@@ -881,7 +887,8 @@
                 title: "Create story",
                 message: `Do you want to create story for Stock# ${stock}?`,
                 confirmText: "Create",
-                variant: "success"
+                variant: "success",
+                iconClass: "bi bi-book"
             });
             if (confirmed) {
                 createStory(stock);
@@ -897,7 +904,8 @@
                 title: "Delete story",
                 message: `Do you want to delete story for Stock# ${stock}?`,
                 confirmText: "Delete",
-                variant: "danger"
+                variant: "danger",
+                iconClass: "bi bi-book-fill"
             });
             if (confirmed) {
                 deleteStory(stock);
@@ -912,7 +920,8 @@
                 title: "Override DataOne",
                 message: `Do you want to decode and override DataOne details for VIN# ${vin}?`,
                 confirmText: "Decode",
-                variant: "warning"
+                variant: "warning",
+                iconClass: "bi bi-car-front"
             });
             if (confirmed) {
                 decodeDataOne(vin);
@@ -927,7 +936,8 @@
                 title: "Delete DataOne",
                 message: `Do you want to delete DataOne for Stock# ${stock}?`,
                 confirmText: "Delete",
-                variant: "danger"
+                variant: "danger",
+                iconClass: "bi bi-car-front-fill"
             });
             if (confirmed) {
                 deleteDataOne(stock);
@@ -1230,6 +1240,7 @@
         $("#majordomeInventoryEditorMode").val(isEdit ? "edit" : "add");
         $("#majordomeInventoryEditorOriginalStock").val(isEdit ? stock : "");
         $("#majordomeInventoryEditorTitle").text(isEdit ? "Edit inventory" : "Add inventory");
+        $("#majordomeInventoryEditorIcon").attr("class", isEdit ? "bi bi-pencil-square" : "bi bi-plus-circle");
         renderMajordomeInventoryEditorSelects(row);
 
         majordomeInventoryEditorFields.forEach(function (field) {
@@ -2121,7 +2132,7 @@
         $("#majordomeBulkStart")
             .toggleClass("d-none", !canStart)
             .prop("disabled", !canStart);
-        $("#majordomeBulkCancel").text(canStart ? "Cancel" : "Close");
+        setMajordomeBulkActionButton($("#majordomeBulkCancel"), canStart ? "Cancel" : "Close", "bi-x-lg");
 
         if (!job.accountReady) {
             setMajordomeBulkStatus("Checking the live remove.bg token balance...");
@@ -2748,6 +2759,7 @@
         if (actionKey === "restory") {
             return {
                 title: "Re-story all vehicles",
+                iconClass: "bi bi-book-half",
                 emptyText: "No vehicles need a re-story.",
                 intro: function (count) {
                     return `Ready to create stories for ${count} vehicles missing a story.`;
@@ -2773,6 +2785,7 @@
 
             return {
                 title: "Remove first-image backgrounds",
+                iconClass: "bi bi-eraser-fill",
                 emptyText: "No vehicles have an eligible first image. Images already containing -RB are skipped.",
                 initialStatus: "Checking the live remove.bg token balance...",
                 cancelMessage: "Cancel requested. The current vehicle will finish, then the remaining vehicles will stop.",
@@ -2829,6 +2842,7 @@
         if (actionKey === "dataone") {
             return {
                 title: "Decode DataOne for all vehicles",
+                iconClass: "bi bi-car-front",
                 emptyText: "No vehicles need DataOne decoding.",
                 intro: function (count) {
                     return `Ready to decode DataOne for ${count} vehicles without saved DataOne details.`;
@@ -2856,6 +2870,7 @@
 
             return {
                 title: `Upload images for Stock# ${stock}`,
+                iconClass: "bi bi-upload",
                 emptyText: "No image files were selected.",
                 cancelMessage: "Cancel requested. The current upload will stop if possible, then the remaining files will stop.",
                 intro: function (count) {
@@ -2903,6 +2918,10 @@
 
             return {
                 title: `Delete images for Stock# ${stock}`,
+                iconClass: "bi bi-trash",
+                startText: "Delete images",
+                startIconClass: "bi-trash",
+                startButtonClass: "btn-danger",
                 emptyText: `No images to delete for Stock# ${stock}.`,
                 cancelMessage: "Cancel requested. The current deletion will finish, then the remaining images will stop.",
                 intro: function (count) {
@@ -3013,9 +3032,31 @@
         $("#majordomeBulkProgressStatus").text(message || "");
     }
 
+    function setMajordomeBulkActionButton($button, label, iconClass) {
+        $button.empty();
+        $("<i>", {
+            "class": "bi " + iconClass + " me-1",
+            "aria-hidden": "true"
+        }).appendTo($button);
+        $button.append(document.createTextNode(label));
+        return $button;
+    }
+
+    function setMajordomeBulkStartButton($button, config) {
+        const settings = config || {};
+        $button
+            .removeClass("btn-gradient btn-danger btn-success")
+            .addClass(settings.startButtonClass || "btn-gradient");
+
+        return setMajordomeBulkActionButton(
+            $button,
+            settings.startText || "Start",
+            settings.startIconClass || "bi-play-fill");
+    }
+
     function showMajordomeBulkCloseButton() {
         $("#majordomeBulkStart").prop("disabled", true).addClass("d-none");
-        $("#majordomeBulkCancel").prop("disabled", false).text("Close");
+        setMajordomeBulkActionButton($("#majordomeBulkCancel").prop("disabled", false), "Close", "bi-x-lg");
     }
 
     function appendMajordomeBulkLog(message, status) {
@@ -3076,6 +3117,7 @@
         majordomeBulkJob = job;
 
         $("#majordomeBulkProgressTitle").text(config.title);
+        $("#majordomeBulkProgressIcon").attr("class", config.iconClass || "bi bi-collection-fill");
         $("#majordomeBulkProgressIntro").text(items.length > 0 ? config.intro(items.length) : config.emptyText);
         $("#majordomeBulkProgressSummary").empty().addClass("d-none");
         $("#majordomeBulkPreview").empty().addClass("d-none");
@@ -3094,13 +3136,15 @@
         }
 
         const hasPreflight = items.length > 0 && typeof config.preflight === "function";
-        $("#majordomeBulkStart")
-            .toggleClass("d-none", hasPreflight || (items.length === 0 && config.hideStartWhenUnavailable === true))
-            .prop("disabled", hasPreflight || items.length === 0)
-            .text(config.startText || "Start");
-        $("#majordomeBulkCancel")
-            .prop("disabled", false)
-            .text(items.length > 0 && !hasPreflight ? "Cancel" : "Close");
+        setMajordomeBulkStartButton(
+            $("#majordomeBulkStart")
+                .toggleClass("d-none", hasPreflight || (items.length === 0 && config.hideStartWhenUnavailable === true))
+                .prop("disabled", hasPreflight || items.length === 0),
+            config);
+        setMajordomeBulkActionButton(
+            $("#majordomeBulkCancel").prop("disabled", false),
+            items.length > 0 && !hasPreflight ? "Cancel" : "Close",
+            "bi-x-lg");
 
         showMajordomeBulkModal();
 
@@ -3112,11 +3156,12 @@
 
             job.canStart = result?.canStart === true;
             setMajordomeBulkStatus(result?.status || (job.canStart ? "Ready to start." : "This batch cannot run."));
-            $("#majordomeBulkStart")
-                .toggleClass("d-none", !job.canStart)
-                .prop("disabled", !job.canStart)
-                .text(config.startText || "Start");
-            $("#majordomeBulkCancel").text(job.canStart ? "Cancel" : "Close");
+            setMajordomeBulkStartButton(
+                $("#majordomeBulkStart")
+                    .toggleClass("d-none", !job.canStart)
+                    .prop("disabled", !job.canStart),
+                config);
+            setMajordomeBulkActionButton($("#majordomeBulkCancel"), job.canStart ? "Cancel" : "Close", "bi-x-lg");
         } catch (error) {
             if (majordomeBulkJob !== job) return;
 
@@ -3127,7 +3172,7 @@
             setMajordomeBulkStatus(`Cannot run: ${message}`);
             appendMajordomeBulkLog(`Token check failed: ${message}`, "error");
             $("#majordomeBulkStart").addClass("d-none").prop("disabled", true);
-            $("#majordomeBulkCancel").text("Close");
+            setMajordomeBulkActionButton($("#majordomeBulkCancel"), "Close", "bi-x-lg");
         }
     }
 
@@ -3249,7 +3294,7 @@
         job.running = true;
         setMajordomeBulkToolbarBusy(true);
         $("#majordomeBulkStart").prop("disabled", true);
-        $("#majordomeBulkCancel").prop("disabled", false).text("Cancel");
+        setMajordomeBulkActionButton($("#majordomeBulkCancel").prop("disabled", false), "Cancel", "bi-x-lg");
         if (job.config.clearLogOnStart) {
             $("#majordomeBulkProgressLog").empty();
         }
@@ -3325,7 +3370,7 @@
                 });
                 majordomeBulkJob.abortRequests.clear();
             }
-            $("#majordomeBulkCancel").prop("disabled", true).text("Stopping...");
+            setMajordomeBulkActionButton($("#majordomeBulkCancel").prop("disabled", true), "Stopping...", "bi-hourglass-split");
             setMajordomeBulkStatus(majordomeBulkJob.config.cancelMessage || "Cancel requested. The current item will finish, then the job will stop.");
             return;
         }
@@ -3701,7 +3746,7 @@
                 <div class="majordome-action-group">
                     <div class="majordome-action-title">Edit</div>
                     <div class="majordome-action-buttons">
-                        <button type="button" class="btn btn-gradient border-dark shadow-sm js-amm-edit-inventory" data-stock="${stock}" title="Edit inventory for Stock# ${stock}">
+                        <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-edit-inventory" data-stock="${stock}" title="Edit inventory for Stock# ${stock}">
                             <i class="bi bi-pencil-square"></i>
                         </button>
                     </div>

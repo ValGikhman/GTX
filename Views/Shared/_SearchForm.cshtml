@@ -2,8 +2,8 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <img src="@SiteImageUrl.Build("brand-light.png")" width="60" />
-                <div class="modal-title mx-3">@I18n.R("Filter_ChooseYourFilters")</div>
+                <span class="gtx-modal-title-icon" aria-hidden="true"><i class="bi bi-sliders"></i></span>
+                <div class="modal-title">@I18n.R("Filter_ChooseYourFilters")</div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-0">
@@ -11,10 +11,10 @@
             </div>
             <div class="modal-footer mt-3">
                 <button type="button" class="btn btn-close-white rounded-4 shadow" data-bs-dismiss="modal" id="btnClose">
-                    <i class="bi bi-x-lg"></i>@I18n.R("All_Close")
+                    <i class="bi bi-x-lg me-1" aria-hidden="true"></i>@I18n.R("All_Close")
                 </button>
-                <button type="button" class="btn btn-close-white btn-gradient-grey border-dark rounded-4 shadow" id="btnSearch">
-                    <i class="bi bi-search"></i>@I18n.R("All_Search")
+                <button type="button" class="btn btn-gradient border-dark rounded-4 shadow" id="btnSearch">
+                    <i class="bi bi-search me-1" aria-hidden="true"></i>@I18n.R("All_Search")
                 </button>
             </div>
         </div>

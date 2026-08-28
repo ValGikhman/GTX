@@ -85,8 +85,9 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content shadow">
             <div class="modal-header">
+                <span class="gtx-modal-title-icon" aria-hidden="true"><i class="bi bi-arrow-counterclockwise"></i></span>
                 <h5 class="modal-title" id="inventoryManagementRollbackTitle">
-                    <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>Roll back latest inventory upload
+                    Roll back latest inventory upload
                 </h5>
                 <button type="button" class="btn-close inventory-management-rollback-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -114,10 +115,10 @@
                 <div id="inventoryManagementRollbackStatus" class="small mt-3" aria-live="polite"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary inventory-management-rollback-close" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-outline-secondary inventory-management-rollback-close" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>
                 <button type="button" id="inventoryManagementRollbackConfirm" class="btn btn-danger" disabled>
                     <span id="inventoryManagementRollbackSpinner" class="spinner-border spinner-border-sm me-2 d-none" aria-hidden="true"></span>
-                    Delete latest and restore previous
+                    <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i>Delete latest and restore previous
                 </button>
             </div>
         </div>

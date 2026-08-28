@@ -213,10 +213,11 @@
 @Html.Action("LoginModal", "Home")
 <body class="main-container overflow-hidden d-flex flex-column min-vh-100 @(isHomeIndexPage ? "home-index" : string.Empty) @(isMajordomeInventoryPage ? "majordome-inventory-page" : string.Empty)">
     <!-- Offcanvas open hours -->
-    <div class="offcanvas-top-fixed-center" tabindex="-1" id="openHours" aria-label="Open hours">
+    <div class="offcanvas-top-fixed-center" tabindex="-1" id="openHours" aria-labelledby="openHoursTitle">
         <div class="offcanvas-body">
             <div class="open-hours-panel-controls">
-                <div class="open-hours-panel-title">Open Hours</div>
+                <span class="gtx-modal-title-icon" aria-hidden="true"><i class="bi bi-stopwatch"></i></span>
+                <div class="open-hours-panel-title" id="openHoursTitle">Open Hours</div>
                 <button type="button"
                         class="btn-close open-hours-close-btn"
                         data-bs-dismiss="offcanvas"
@@ -653,7 +654,6 @@
                     ".gtx-confirm-backdrop{z-index:1085;}",
                     ".gtx-confirm-modal .modal-content{border:1px solid var(--bs-border-color-translucent,rgba(148,163,184,.2));border-radius:12px;background:var(--bs-modal-bg,var(--bs-body-bg,#fff));color:var(--bs-modal-color,var(--bs-body-color,#172033));box-shadow:0 1.25rem 3rem rgba(15,23,42,.22);overflow:hidden;}",
                     ".gtx-confirm-modal .modal-header{min-height:0;align-items:center;gap:.7rem;padding:.7rem .85rem!important;border-bottom:1px solid var(--bs-border-color-translucent,rgba(148,163,184,.2));background:var(--gtx-grad,linear-gradient(180deg,var(--bs-tertiary-bg,#f8fafc) 0%,var(--bs-body-bg,#fff) 100%))!important;color:#fff;}",
-                    ".gtx-confirm-modal .gtx-confirm-icon{width:2.1rem;height:2.1rem;flex:0 0 2.1rem;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;background:var(--gtx-confirm-soft);color:currentColor;font-size:1rem;}",
                     ".gtx-confirm-modal .modal-title{margin:0!important;color:inherit;font-size:1rem!important;font-weight:650!important;line-height:1.2!important;}",
                     ".gtx-confirm-modal .btn-close{flex:0 0 auto;margin:0 0 0 .5rem!important;opacity:.9;filter:invert(1) grayscale(100%) brightness(200%);}",
                     "html.theme-silver .gtx-confirm-modal .btn-close{filter:none;}",
@@ -680,7 +680,7 @@
                     '  <div class="modal-dialog modal-dialog-centered">' +
                     '    <div class="modal-content">' +
                     '      <div class="modal-header">' +
-                    '        <span class="gtx-confirm-icon" aria-hidden="true"><i id="gtxConfirmIcon" class="bi bi-question-circle"></i></span>' +
+                    '        <span class="gtx-modal-title-icon" aria-hidden="true"><i id="gtxConfirmIcon" class="bi bi-question-circle"></i></span>' +
                     '        <div class="min-w-0 flex-grow-1">' +
                     '          <div class="modal-title mb-0" id="gtxConfirmModalTitle">Confirm action</div>' +
                     '        </div>' +
@@ -690,8 +690,8 @@
                     '        <p class="mb-0" id="gtxConfirmMessage"></p>' +
                     '      </div>' +
                     '      <div class="modal-footer">' +
-                    '        <button type="button" class="btn btn-outline-secondary" id="gtxConfirmCancel" data-bs-dismiss="modal">Cancel</button>' +
-                    '        <button type="button" class="btn btn-primary" id="gtxConfirmOk">Confirm</button>' +
+                    '        <button type="button" class="btn btn-outline-secondary" id="gtxConfirmCancel" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>' +
+                    '        <button type="button" class="btn btn-gradient" id="gtxConfirmOk"><i class="bi bi-check2-circle me-1" aria-hidden="true"></i>Confirm</button>' +
                     '      </div>' +
                     '    </div>' +
                     '  </div>' +
@@ -739,7 +739,7 @@
             }
 
             function setButtonVariant(button, variant) {
-                var classes = ["btn-primary", "btn-danger", "btn-warning", "btn-success", "btn-dark"];
+                var classes = ["btn-primary", "btn-danger", "btn-warning", "btn-success", "btn-dark", "btn-gradient"];
                 classes.forEach(function (className) {
                     button.classList.remove(className);
                 });
@@ -747,13 +747,13 @@
                 if (variant === "danger") {
                     button.classList.add("btn-danger");
                 } else if (variant === "warning") {
-                    button.classList.add("btn-warning");
+                    button.classList.add("btn-gradient");
                 } else if (variant === "success") {
                     button.classList.add("btn-success");
                 } else if (variant === "dark") {
                     button.classList.add("btn-dark");
                 } else {
-                    button.classList.add("btn-primary");
+                    button.classList.add("btn-gradient");
                 }
             }
 
@@ -812,6 +812,14 @@
                     message.textContent = settings.message;
                     confirmButton.textContent = settings.confirmText;
                     cancelButton.textContent = settings.cancelText;
+                    var confirmActionIcon = document.createElement("i");
+                    confirmActionIcon.className = settings.iconClass + " me-1";
+                    confirmActionIcon.setAttribute("aria-hidden", "true");
+                    confirmButton.prepend(confirmActionIcon);
+                    var cancelActionIcon = document.createElement("i");
+                    cancelActionIcon.className = "bi bi-x-lg me-1";
+                    cancelActionIcon.setAttribute("aria-hidden", "true");
+                    cancelButton.prepend(cancelActionIcon);
                     cancelButton.classList.toggle("d-none", !settings.showCancel);
                     icon.className = settings.iconClass;
                     setButtonVariant(confirmButton, settings.variant);

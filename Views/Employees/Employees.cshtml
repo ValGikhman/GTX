@@ -13,13 +13,14 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div id="header" class="modal-header shadow">
-                <img src="@SiteImageUrl.Build("brand-light.png")" width="60" />
-                <div id="title" class="modal-title test-shadow mx-3">Contact</div>
+                <span class="gtx-modal-title-icon" aria-hidden="true"><i class="bi bi-chat-dots-fill"></i></span>
+                <div id="title" class="modal-title">Contact</div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div id="messageBody" class="modal-body well">
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-close-white shadow" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i>Close</button>
+                <button type="button" class="btn btn-close-white shadow" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Close</button>
             </div>
         </div>
     </div>

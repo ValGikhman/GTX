@@ -68,7 +68,9 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
+                <span class="gtx-modal-title-icon" aria-hidden="true"><i class="bi bi-cloud-arrow-up-fill"></i></span>
                 <div class="modal-title" id="inventoryManagementUploadTitle">Upload inventory</div>
+                <button type="button" id="inventoryManagementUploadHeaderClose" class="btn-close" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <p id="inventoryManagementUploadIntro" class="mb-2"></p>
@@ -84,8 +86,8 @@
                 <div id="inventoryManagementUploadLog" class="inventory-management-upload-log list-group small mt-3" aria-live="polite"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" id="inventoryManagementUploadCancel" class="btn btn-outline-secondary">Cancel</button>
-                <button type="button" id="inventoryManagementUploadStart" class="btn btn-gradient">Start</button>
+                <button type="button" id="inventoryManagementUploadCancel" class="btn btn-outline-secondary"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>
+                <button type="button" id="inventoryManagementUploadStart" class="btn btn-gradient"><i class="bi bi-play-fill me-1" aria-hidden="true"></i>Start</button>
             </div>
         </div>
     </div>
@@ -157,6 +159,16 @@
             }).join(" ");
 
             return description || "vehicle";
+        }
+
+        function uploadSetActionButton($button, label, iconClass) {
+            $button.empty();
+            $("<i>", {
+                "class": "bi " + iconClass + " me-1",
+                "aria-hidden": "true"
+            }).appendTo($button);
+            $button.append(document.createTextNode(label));
+            return $button;
         }
 
         function uploadSetBusy(isBusy) {
@@ -325,7 +337,7 @@
             });
 
             $("#inventoryManagementUploadStart").addClass("d-none").prop("disabled", true);
-            $("#inventoryManagementUploadCancel").prop("disabled", false).text("Close");
+            uploadSetActionButton($("#inventoryManagementUploadCancel").prop("disabled", false), "Close", "bi-x-lg");
             uploadSetProgress(0, errors.length);
             uploadSetStatus("Correct the listed values in the CSV, then upload the file again.");
             uploadShowModal();
@@ -376,8 +388,8 @@
             $("#inventoryManagementUploadIntro").text(`Ready to import ${uploadFileLabel(file)}.`);
             $("#inventoryManagementUploadSummary").empty().addClass("d-none");
             $("#inventoryManagementUploadLog").empty();
-            $("#inventoryManagementUploadStart").removeClass("d-none").prop("disabled", total === 0).text("Start");
-            $("#inventoryManagementUploadCancel").prop("disabled", false).text(total > 0 ? "Cancel" : "Close");
+            uploadSetActionButton($("#inventoryManagementUploadStart").removeClass("d-none").prop("disabled", total === 0), "Start", "bi-play-fill");
+            uploadSetActionButton($("#inventoryManagementUploadCancel").prop("disabled", false), total > 0 ? "Cancel" : "Close", "bi-x-lg");
             uploadSetProgress(0, total);
             uploadSetStatus(total > 0 ? "Review the import statistics, then press Start." : "Nothing to import.");
             uploadRenderStats("Preview", preview);
@@ -430,7 +442,7 @@
 
             const total = uploadProgressTotal(inventoryManagementUploadPreview);
             uploadSetBusy(true);
-            $("#inventoryManagementUploadCancel").prop("disabled", false).text("Cancel");
+            uploadSetActionButton($("#inventoryManagementUploadCancel").prop("disabled", false), "Cancel", "bi-x-lg");
             $("#inventoryManagementUploadLog").empty();
             uploadSetProgress(0, total);
             uploadSetStatus("Uploading inventory CSV...");
@@ -461,7 +473,7 @@
                 }
 
                 $("#inventoryManagementUploadStart").addClass("d-none");
-                $("#inventoryManagementUploadCancel").prop("disabled", false).text("Close");
+                uploadSetActionButton($("#inventoryManagementUploadCancel").prop("disabled", false), "Close", "bi-x-lg");
             } catch (error) {
                 if (error && error.statusText === "abort") {
                     uploadSetStatus("Inventory upload canceled.");
@@ -492,7 +504,7 @@
 
             $("#inventoryManagementUploadStart").on("click", uploadStartImport);
 
-            $("#inventoryManagementUploadCancel").on("click", function () {
+            $("#inventoryManagementUploadCancel, #inventoryManagementUploadHeaderClose").on("click", function () {
                 if (inventoryManagementUploadRunning && inventoryManagementUploadRequest) {
                     inventoryManagementUploadRequest.abort();
                     return;
