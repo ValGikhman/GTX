@@ -12,10 +12,24 @@ using System.Web.Hosting;
 
 namespace GTX.Helpers
 {
+    internal sealed class CloudflareR2BucketStats
+    {
+        public long TotalObjects { get; set; }
+        public long ImageObjects { get; set; }
+        public long OtherObjects { get; set; }
+        public long TotalBytes { get; set; }
+        public long ImageBytes { get; set; }
+        public int StockFolders { get; set; }
+    }
+
     internal static class CloudflareR2Storage
     {
         private const string DefaultBucketName = "gtx";
         private static readonly Lazy<IAmazonS3> Client = new Lazy<IAmazonS3>(CreateClient);
+        private static readonly HashSet<string> ImageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ".avif", ".bmp", ".gif", ".heic", ".heif", ".jpeg", ".jpg", ".png", ".tif", ".tiff", ".webp"
+        };
 
         private static string BucketName => GetSetting("Cloudflare:R2:BucketName", DefaultBucketName);
 
@@ -117,6 +131,48 @@ namespace GTX.Helpers
                 BucketName = BucketName,
                 Key = BuildKey(stock, file)
             });
+        }
+
+        public static async Task<CloudflareR2BucketStats> GetBucketStatsAsync()
+        {
+            var stats = new CloudflareR2BucketStats();
+            var stockFolders = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            string continuationToken = null;
+
+            do
+            {
+                var response = await Client.Value.ListObjectsV2Async(new ListObjectsV2Request
+                {
+                    BucketName = BucketName,
+                    ContinuationToken = continuationToken,
+                    MaxKeys = 1000
+                });
+
+                foreach (var item in response.S3Objects ?? new List<S3Object>())
+                {
+                    stats.TotalObjects++;
+                    stats.TotalBytes += item.Size;
+
+                    if (ImageExtensions.Contains(Path.GetExtension(item.Key ?? string.Empty)))
+                    {
+                        stats.ImageObjects++;
+                        stats.ImageBytes += item.Size;
+                    }
+
+                    var slashIndex = (item.Key ?? string.Empty).IndexOf('/');
+                    if (slashIndex > 0)
+                    {
+                        stockFolders.Add(item.Key.Substring(0, slashIndex));
+                    }
+                }
+
+                continuationToken = response.IsTruncated ? response.NextContinuationToken : null;
+            }
+            while (!string.IsNullOrWhiteSpace(continuationToken));
+
+            stats.OtherObjects = stats.TotalObjects - stats.ImageObjects;
+            stats.StockFolders = stockFolders.Count;
+            return stats;
         }
 
         public static async Task DeleteManyAsync(string stock, IEnumerable<string> files)

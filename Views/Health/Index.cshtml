@@ -17,6 +17,7 @@
         max-width: 90%;
         margin-left: auto;
         margin-right: auto;
+        padding-bottom: 4.5rem;
     }
 
     .card-elev {
@@ -25,37 +26,14 @@
         box-shadow: 0 10px 30px rgba(0,0,0,.06);
     }
 
-    .health-page-head {
-        border: 1px solid rgba(15, 23, 42, .08);
-        border-radius: 22px;
-        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 52%, #edf7ff 100%);
-        box-shadow: 0 20px 52px rgba(15, 23, 42, .11), 0 3px 12px rgba(15, 23, 42, .06);
-        padding: 1.15rem 1.25rem;
-    }
-
-    .health-page-icon {
-        width: 3.15rem;
-        height: 3.15rem;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 1rem;
-        color: #fff;
-        background: linear-gradient(135deg, #0f766e, #2563eb);
-        box-shadow: 0 1rem 2rem rgba(37, 99, 235, .22);
-        font-size: 1.45rem;
-        flex: 0 0 auto;
-    }
-
     .health-cards-row {
-        display: flex;
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
         gap: 1rem;
     }
 
     .health-card-col {
-        flex: 1 1 240px;
-        min-width: 240px;
+        min-width: 0;
     }
 
     .health-card {
@@ -102,8 +80,20 @@
         background: linear-gradient(90deg, #64748b, #334155);
     }
 
+    .health-card-status::before {
+        background: linear-gradient(90deg, #0f766e, #2563eb);
+    }
+
     .health-card-cdn::before {
         background: linear-gradient(90deg, #f59e0b, #2563eb);
+    }
+
+    .health-card-remove-bg::before {
+        background: linear-gradient(90deg, #f59e0b, #7c3aed, #2563eb);
+    }
+
+    .health-card-bucket::before {
+        background: linear-gradient(90deg, #f97316, #f59e0b, #06b6d4);
     }
 
     .health-card-head {
@@ -138,6 +128,10 @@
         background: linear-gradient(135deg, #2563eb, #06b6d4);
     }
 
+    .health-icon-status {
+        background: linear-gradient(135deg, #0f766e, #2563eb);
+    }
+
     .health-icon-cpu {
         background: linear-gradient(135deg, #f97316, #ef4444);
     }
@@ -158,6 +152,29 @@
         background: linear-gradient(135deg, #f59e0b, #2563eb);
     }
 
+    .health-icon-remove-bg {
+        background: linear-gradient(135deg, #f59e0b, #7c3aed 55%, #2563eb);
+    }
+
+    .health-icon-bucket {
+        background: linear-gradient(135deg, #f97316, #f59e0b 50%, #06b6d4);
+    }
+
+    .health-token-value {
+        align-items: baseline;
+        display: flex;
+        flex-wrap: wrap;
+        gap: .4rem;
+    }
+
+    .health-token-unit {
+        color: #64748b;
+        font-size: .8rem;
+        font-weight: 750;
+        letter-spacing: .03em;
+        text-transform: uppercase;
+    }
+
     .health-card-cdn.is-disabled {
         background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
     }
@@ -168,6 +185,29 @@
 
     .health-card-cdn.is-disabled .health-icon-cdn {
         background: linear-gradient(135deg, #64748b, #334155);
+    }
+
+    .cdn-service-list {
+        display: grid;
+        gap: .9rem;
+    }
+
+    .cdn-service-name {
+        color: #334155;
+        font-size: .8rem;
+        font-weight: 800;
+    }
+
+    .cdn-purge-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .65rem;
+    }
+
+    .cdn-purge-actions .btn {
+        min-width: 0;
+        border-radius: .7rem;
+        white-space: nowrap;
     }
 
     .health-card-maintenance {
@@ -286,6 +326,21 @@
         cursor: pointer;
     }
 
+    .maintenance-switch-row {
+        padding-left: 0;
+        gap: .75rem;
+    }
+
+    .maintenance-switch-row .form-check-label,
+    .maintenance-switch-row .form-check-input {
+        flex: 0 0 auto;
+        margin: 0;
+    }
+
+    .maintenance-switch-row .form-check-input {
+        float: none;
+    }
+
         /* Improve thumb size/position for the bigger switch */
         .big-switch.form-check-input:checked {
             background-position: right center;
@@ -307,28 +362,34 @@
     { "Icon", "bi-activity" }
 })
 
-<div class="container py-4 wrap">
-
-    <!-- Header -->
-    <div class="health-page-head d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-3">
-        <div class="d-flex align-items-center gap-3">
-            <div class="health-page-icon">
-                <i class="bi bi-activity"></i>
-            </div>
-            <div>
-                <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <h2 class="mb-0" style="font-weight:850;">Live system status</h2>
-                    <span id="statusBadge" class="badge text-bg-secondary pill">Idle</span>
-                </div>
-                <div class="text-secondary small">
-                    <i class="bi bi-clock-history me-1"></i>Updated: <span class="mono" id="updated">—</span>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="container pt-4 wrap">
 
     <!-- ROW: Cards -->
     <div class="health-cards-row">
+
+        <!-- Live Status Card -->
+        <div class="health-card-col">
+            <div class="h-100 well p-4 health-card health-card-status">
+                <div class="health-card-head">
+                    <div class="health-card-title">
+                        <div class="health-icon health-icon-status">
+                            <i class="bi bi-activity"></i>
+                        </div>
+                        <div>
+                            <div class="kpi-label">Live status</div>
+                        </div>
+                    </div>
+                    <span id="statusBadge" class="badge text-bg-secondary pill">Idle</span>
+                </div>
+
+                <div class="mt-3">
+                    <div id="statusText" class="kpi-value">Polling…</div>
+                    <div class="kpi-sub mt-2">
+                        <i class="bi bi-clock-history me-1"></i>Updated: <span class="mono" id="updated">—</span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- IIS Card -->
         <div class="health-card-col">
@@ -388,7 +449,6 @@
                 </div>
                 <div class="d-flex align-items-end justify-content-between mt-1 flex-wrap gap-2">
                     <div class="kpi-value" id="totCpu">—</div>
-                    <div class="kpi-sub" id="statusText">Polling every 2 seconds</div>
                 </div>
                 <div class="progress mt-2">
                     <div id="totCpuBar" class="progress-bar" style="width:0%"></div>
@@ -450,7 +510,7 @@
 
         <!-- Offline / Maintenance Mode Card -->
         <div class="health-card-col">
-            <div id="maintenanceCard" class="h-100 well p-4 health-card health-card-maintenance">
+            <div id="maintenanceCard" class="h-100 well p-4 health-card health-card-maintenance d-flex flex-column">
                 <div class="health-card-head">
                     <div class="health-card-title">
                         <div class="health-icon health-icon-maintenance">
@@ -461,91 +521,138 @@
                             <div class="kpi-sub mt-1" id="offlineStatusText">Online</div>
                         </div>
                     </div>
-
-                    <!-- Bigger switch (top row) -->
-                    <div class="form-check form-switch m-0 d-flex align-items-center gap-2">
-                        <input class="form-check-input big-switch" type="checkbox" id="chkOffline" role="switch">
-                        <label class="form-check-label kpi-sub user-select-none mb-0" for="chkOffline">
-                            Enable
-                        </label>
-                    </div>
                 </div>
 
                 <!-- Body -->
-                <div class="mt-4">
-                    <div class="kpi-value">Offline</div>
+                <div class="flex-grow-1">
+                    <div id="maintenanceStateValue" class="kpi-value">Online</div>
                     <div class="kpi-sub mt-2">
                         When enabled, visitors are redirected to the out-of-service page.
                     </div>
                 </div>
+
+                <!-- Maintenance switch (bottom action) -->
+                <div class="form-check form-switch maintenance-switch-row m-0 d-flex flex-nowrap align-items-center pt-4 mt-auto">
+                    <label id="maintenanceSwitchLabel" class="form-check-label kpi-sub user-select-none text-nowrap mb-0" for="chkOffline">
+                        Maintenance mode
+                    </label>
+                    <input class="form-check-input big-switch m-0" type="checkbox" id="chkOffline" role="switch">
+                </div>
             </div>
         </div>
 
-        <!-- Inventory CDN Card -->
+        <!-- Cloudflare CDN Card -->
         <div class="health-card-col">
-            <div class="h-100 well p-4 health-card health-card-cdn @(cdnEnabled ? string.Empty : "is-disabled")">
+            <div class="h-100 well p-4 health-card health-card-cdn d-flex flex-column @(cdnEnabled ? string.Empty : "is-disabled")">
                 <div class="health-card-head">
                     <div class="health-card-title">
                         <div class="health-icon health-icon-cdn">
                             <i class="bi bi-cloud-arrow-down"></i>
                         </div>
                         <div>
-                            <div class="kpi-label mb-0">Inventory CDN</div>
+                            <div class="kpi-label mb-0">Cloudflare CDN Purge</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="mt-4">
+                <div class="flex-grow-1">
                     <div class="kpi-value">@(cdnEnabled ? "Cloudflare" : "Local")</div>
-                    <div id="inventoryCdnStatus" class="kpi-sub mt-2">
-                        @(cdnEnabled
-                            ? "Inventory images are served off-site through Cloudflare."
-                            : "Inventory images are served on-site; CDN refresh is unavailable.")
-                    </div>
-                    @if (isOwner)
-                    {
-                        <button type="button" id="btnRefreshInventoryCdn"
-                                class="btn btn-outline-warning shadow-sm mt-3"
-                                @(cdnEnabled ? null : "disabled")>
-                            <i class="bi bi-cloud-arrow-down me-1" aria-hidden="true"></i>Refresh inventory CDN
-                        </button>
-                    }
-                </div>
-            </div>
-        </div>
-
-        <!-- Site Images / Video CDN Card -->
-        <div class="health-card-col">
-            <div class="h-100 well p-4 health-card health-card-cdn @(cdnEnabled ? string.Empty : "is-disabled")">
-                <div class="health-card-head">
-                    <div class="health-card-title">
-                        <div class="health-icon health-icon-cdn">
-                            <i class="bi bi-images"></i>
+                    <div class="cdn-service-list mt-3">
+                        <div>
+                            <div class="cdn-service-name"><i class="bi bi-car-front-fill me-1" aria-hidden="true"></i>Inventory purge</div>
+                        <div id="inventoryCdnStatus" class="kpi-sub mt-2">
+                            @(cdnEnabled
+                                ? "Inventory images"
+                                : "Inventory images are served on-site; CDN refresh is unavailable.")
+                        </div>
                         </div>
                         <div>
-                            <div class="kpi-label mb-0">Site Images CDN</div>
+                            <div class="cdn-service-name"><i class="bi bi-images me-1" aria-hidden="true"></i>Images purge</div>
+                        <div id="siteImagesCdnStatus" class="kpi-sub mt-2">
+                            @(cdnEnabled
+                                ? "GTX/SiteImages assets"
+                                : "Site images are served on-site; CDN refresh is unavailable.")
+                        </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="mt-4">
-                    <div class="kpi-value">SiteImages</div>
-                    <div id="siteImagesCdnStatus" class="kpi-sub mt-2">
-                        @(cdnEnabled
-                            ? "GTX/SiteImages assets and videos are served through Cloudflare."
-                            : "Site images are served on-site; CDN refresh is unavailable.")
-                    </div>
-                    @if (isOwner)
-                    {
-                        <button type="button" id="btnRefreshSiteImagesCdn"
-                                class="btn btn-outline-warning shadow-sm mt-3"
+                @if (isOwner)
+                {
+                    <div class="cdn-purge-actions pt-4 mt-auto">
+                        <button type="button" id="btnRefreshInventoryCdn"
+                                class="btn btn-sm btn-outline-warning shadow-sm"
                                 @(cdnEnabled ? null : "disabled")>
-                            <i class="bi bi-cloud-arrow-down me-1" aria-hidden="true"></i>Refresh SiteImages CDN
+                            <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>Inventory
                         </button>
-                    }
+                        <button type="button" id="btnRefreshSiteImagesCdn"
+                                class="btn btn-sm btn-outline-warning shadow-sm"
+                                @(cdnEnabled ? null : "disabled")>
+                            <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>Images
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- GTX Cloudflare Bucket Card -->
+        <div class="health-card-col">
+            <div id="cloudflareBucketHealthCard" class="h-100 well p-4 health-card health-card-bucket">
+                <div class="health-card-head">
+                    <div class="health-card-title">
+                        <div class="health-icon health-icon-bucket">
+                            <i class="bi bi-cloud-fill"></i>
+                        </div>
+                        <div>
+                            <div class="kpi-label mb-0">GTX R2 Bucket</div>
+                            <div class="kpi-sub mt-1">Cloudflare-hosted inventory</div>
+                        </div>
+                    </div>
+                    <span id="cloudflareBucketStatus" class="badge rounded-pill text-bg-warning">Counting</span>
+                </div>
+
+                <div class="mt-4">
+                    <div class="health-token-value">
+                        <div id="cloudflareImageCount" class="kpi-value">—</div>
+                        <div class="health-token-unit">images hosted</div>
+                    </div>
+                    <div id="cloudflareBucketDetail" class="kpi-sub mt-2">Reading the GTX bucket…</div>
+                    <button type="button" id="btnRefreshCloudflareBucket" class="btn btn-outline-warning shadow-sm mt-3">
+                        <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>Refresh count
+                    </button>
                 </div>
             </div>
         </div>
+
+        <!-- Background Removal Token Card -->
+        <div class="health-card-col">
+            <div id="removeBgHealthCard" class="h-100 well p-4 health-card health-card-remove-bg">
+                <div class="health-card-head">
+                    <div class="health-card-title">
+                        <div class="health-icon health-icon-remove-bg">
+                            <i class="bi bi-eraser-fill"></i>
+                        </div>
+                        <div>
+                            <div class="kpi-label mb-0">remove.bg Service</div>
+                            <div class="kpi-sub mt-1">Live token balance</div>
+                        </div>
+                    </div>
+                    <span id="removeBgTokenStatus" class="badge rounded-pill text-bg-warning">Checking</span>
+                </div>
+
+                <div class="mt-4">
+                    <div class="health-token-value">
+                        <div id="removeBgTokenCount" class="kpi-value">—</div>
+                        <div class="health-token-unit">tokens available</div>
+                    </div>
+                    <div id="removeBgTokenDetail" class="kpi-sub mt-2">Contacting remove.bg…</div>
+                    <button type="button" id="btnRefreshRemoveBgTokens" class="btn btn-outline-primary shadow-sm mt-3">
+                        <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>Refresh balance
+                    </button>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -555,6 +662,8 @@
     const setOfflineUrl = '@Url.Action("SetOffline", "Health")';
     const refreshInventoryCdnUrl = '@Url.Action("RefreshInventoryCdn", "Health")';
     const refreshSiteImagesCdnUrl = '@Url.Action("RefreshSiteImagesCdn", "Health")';
+    const inventoryBucketStatsUrl = '@Url.Action("InventoryBucketStats", "Health")';
+    const removeBgAccountUrl = '@Url.Action("GetRemoveBgAccount", "Majordome")';
     const POLL_VISIBLE_MS = 2000;
 
     let pollTimer = null;
@@ -631,63 +740,179 @@
 
     const dom = {};
 
-    function bindCdnRefresh(buttonSelector, statusSelector, url, options) {
-        $(buttonSelector).on("click", async function () {
-            const $button = $(this);
-            const $status = $(statusSelector);
-            if ($button.is(":disabled")) return;
+    const cdnRefreshTargets = {
+        inventory: {
+            buttonSelector: "#btnRefreshInventoryCdn",
+            statusSelector: "#inventoryCdnStatus",
+            url: refreshInventoryCdnUrl,
+            title: "Refresh entire inventory CDN cache",
+            message: "Refresh the complete inventory image hostname? The next image requests will be fetched fresh from R2 and may be briefly slower while the CDN warms again.",
+            progressText: "Refreshing the inventory CDN cache..."
+        },
+        site: {
+            buttonSelector: "#btnRefreshSiteImagesCdn",
+            statusSelector: "#siteImagesCdnStatus",
+            url: refreshSiteImagesCdnUrl,
+            title: "Refresh SiteImages CDN cache",
+            message: "Refresh the GTX/SiteImages CDN prefix, including site images and videos? The next requests may be briefly slower while the CDN warms again.",
+            progressText: "Refreshing the SiteImages and video CDN cache..."
+        }
+    };
 
-            const confirmed = await window.gtxConfirm({
-                title: options.title,
-                message: options.message,
-                confirmText: "Refresh cache",
-                variant: "warning",
-                iconClass: "bi bi-cloud-arrow-down"
-            });
-            if (!confirmed) return;
+    function bindCdnRefresh() {
+        $.each(cdnRefreshTargets, function (_, target) {
+            $(target.buttonSelector).on("click", async function () {
+                const $button = $(this);
+                const $status = $(target.statusSelector);
+                if ($button.is(":disabled")) return;
 
-            const originalHtml = $button.html();
-            $button.prop("disabled", true)
-                .html('<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>Refreshing...');
-            $status.text(options.progressText);
+                const confirmed = await window.gtxConfirm({
+                    title: target.title,
+                    message: target.message,
+                    confirmText: "Purge cache",
+                    variant: "warning",
+                    iconClass: "bi bi-cloud-arrow-down"
+                });
+                if (!confirmed) return;
 
-            $.ajax({
-                url: url,
-                method: "POST",
-                dataType: "json",
-                timeout: 30000
-            })
-                .done(function (response) {
-                    if (!response || !response.success) {
-                        const message = (response && response.message) || "Cloudflare cache refresh failed.";
+                const originalHtml = $button.html();
+                $button.prop("disabled", true)
+                    .html('<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>Purging...');
+                $status.text(target.progressText);
+
+                $.ajax({
+                    url: target.url,
+                    method: "POST",
+                    dataType: "json",
+                    timeout: 30000
+                })
+                    .done(function (response) {
+                        if (!response || !response.success) {
+                            const message = (response && response.message) || "Cloudflare cache purge failed.";
+                            $status.text(message);
+                            window.gtxAlert(message);
+                            return;
+                        }
+
+                        $status.text("Purged");
+                        $button
+                            .removeClass("btn-outline-warning")
+                            .addClass("btn-outline-success")
+                            .html('<i class="bi bi-check2-circle me-1" aria-hidden="true"></i>Purged');
+                    })
+                    .fail(function (xhr) {
+                        const message = xhr.responseJSON && xhr.responseJSON.message
+                            ? xhr.responseJSON.message
+                            : "Cloudflare cache purge failed.";
                         $status.text(message);
                         window.gtxAlert(message);
-                        return;
-                    }
-
-                    $status.text(response.message);
-                    $button
-                        .removeClass("btn-outline-warning")
-                        .addClass("btn-outline-success")
-                        .html('<i class="bi bi-check2-circle me-1" aria-hidden="true"></i>Cache refreshed');
-                })
-                .fail(function (xhr) {
-                    const message = xhr.responseJSON && xhr.responseJSON.message
-                        ? xhr.responseJSON.message
-                        : "Cloudflare cache refresh failed.";
-                    $status.text(message);
-                    window.gtxAlert(message);
-                })
-                .always(function () {
-                    window.setTimeout(function () {
-                        $button
-                            .prop("disabled", false)
-                            .removeClass("btn-outline-success")
-                            .addClass("btn-outline-warning")
-                            .html(originalHtml);
-                    }, 2500);
-                });
+                    })
+                    .always(function () {
+                        window.setTimeout(function () {
+                            $button
+                                .prop("disabled", false)
+                                .removeClass("btn-outline-success")
+                                .addClass("btn-outline-warning")
+                                .html(originalHtml);
+                        }, 2500);
+                    });
+            });
         });
+    }
+
+    function refreshRemoveBgTokenBalance() {
+        const $button = $("#btnRefreshRemoveBgTokens");
+        const $status = $("#removeBgTokenStatus");
+        const $count = $("#removeBgTokenCount");
+        const $detail = $("#removeBgTokenDetail");
+        const originalHtml = $button.html();
+
+        $button.prop("disabled", true)
+            .html('<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>Checking…');
+        $status.removeClass("text-bg-success text-bg-danger text-bg-secondary").addClass("text-bg-warning").text("Checking");
+        $detail.text("Contacting remove.bg…");
+
+        $.ajax({
+            url: removeBgAccountUrl,
+            method: "GET",
+            cache: false,
+            dataType: "json",
+            timeout: 25000
+        })
+            .done(function (response) {
+                if (!response || !response.success) {
+                    $count.text("—");
+                    $status.removeClass("text-bg-warning text-bg-success").addClass("text-bg-danger").text("Unavailable");
+                    $detail.text((response && response.message) || "The remove.bg balance could not be loaded.");
+                    return;
+                }
+
+                const total = Math.max(0, Math.floor(Number(response.totalTokens) || 0));
+                const credits = Math.max(0, Number(response.credits) || 0);
+                const freeCalls = Math.max(0, Number(response.freeCalls) || 0);
+                $count.text(total.toLocaleString("en-US"));
+                $status.removeClass("text-bg-warning text-bg-danger").addClass(total > 0 ? "text-bg-success" : "text-bg-danger").text(total > 0 ? "Available" : "Empty");
+                $detail.text(`${credits.toLocaleString("en-US")} credits + ${freeCalls.toLocaleString("en-US")} free calls`);
+            })
+            .fail(function (xhr) {
+                const message = xhr.responseJSON && xhr.responseJSON.message
+                    ? xhr.responseJSON.message
+                    : "The remove.bg balance could not be loaded.";
+                $count.text("—");
+                $status.removeClass("text-bg-warning text-bg-success").addClass("text-bg-danger").text("Unavailable");
+                $detail.text(message);
+            })
+            .always(function () {
+                $button.prop("disabled", false).html(originalHtml);
+            });
+    }
+
+    function refreshCloudflareBucketStats() {
+        const $button = $("#btnRefreshCloudflareBucket");
+        const $status = $("#cloudflareBucketStatus");
+        const $count = $("#cloudflareImageCount");
+        const $detail = $("#cloudflareBucketDetail");
+        const originalHtml = $button.html();
+
+        $button.prop("disabled", true)
+            .html('<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>Counting…');
+        $status.removeClass("text-bg-success text-bg-danger text-bg-secondary").addClass("text-bg-warning").text("Counting");
+        $detail.text("Reading the GTX bucket…");
+
+        $.ajax({
+            url: inventoryBucketStatsUrl,
+            method: "GET",
+            cache: false,
+            dataType: "json",
+            timeout: 30000
+        })
+            .done(function (response) {
+                if (!response || !response.success) {
+                    $count.text("—");
+                    $status.removeClass("text-bg-warning text-bg-success").addClass("text-bg-danger").text("Unavailable");
+                    $detail.text((response && response.message) || "The GTX bucket could not be counted.");
+                    return;
+                }
+
+                const imageCount = Math.max(0, Number(response.ImageObjects) || 0);
+                const stockFolders = Math.max(0, Number(response.StockFolders) || 0);
+                const imageBytes = Math.max(0, Number(response.ImageBytes) || 0);
+                const otherObjects = Math.max(0, Number(response.OtherObjects) || 0);
+                $count.text(imageCount.toLocaleString("en-US"));
+                $status.removeClass("text-bg-warning text-bg-danger").addClass("text-bg-success").text("Available");
+                $detail.text(`${stockFolders.toLocaleString("en-US")} stock folders · ${fmtBytes(imageBytes)} images · ${otherObjects.toLocaleString("en-US")} other objects`);
+            })
+            .fail(function (xhr) {
+                const message = xhr.responseJSON && xhr.responseJSON.message
+                    ? xhr.responseJSON.message
+                    : "The GTX bucket could not be counted.";
+                $count.text("—");
+                $status.removeClass("text-bg-warning text-bg-success").addClass("text-bg-danger").text("Unavailable");
+                $detail.text(message);
+            })
+            .always(function () {
+                $button.prop("disabled", false).html(originalHtml);
+            });
     }
 
     function refreshNow() {
@@ -778,6 +1003,8 @@
         dom.activeSessions = $("#activeSessions");
         dom.chkOffline = $("#chkOffline");
         dom.offlineStatusText = $("#offlineStatusText");
+        dom.maintenanceStateValue = $("#maintenanceStateValue");
+        dom.maintenanceSwitchLabel = $("#maintenanceSwitchLabel");
         dom.maintenanceCard = $("#maintenanceCard");
         let offlineState = false;
         let offlineConfirmationPending = false;
@@ -786,6 +1013,8 @@
             offlineState = !!isOffline;
             dom.chkOffline.prop("checked", isOffline);
             dom.offlineStatusText.text(isOffline ? "Offline (redirecting users)" : "Online");
+            dom.maintenanceStateValue.text(isOffline ? "Offline" : "Online");
+            dom.maintenanceSwitchLabel.text("Maintenance mode");
             dom.maintenanceCard.toggleClass("is-offline", isOffline);
         }
 
@@ -836,25 +1065,12 @@
                 });
         });
 
-        bindCdnRefresh(
-            "#btnRefreshInventoryCdn",
-            "#inventoryCdnStatus",
-            refreshInventoryCdnUrl,
-            {
-                title: "Refresh entire inventory CDN cache",
-                message: "Refresh the complete inventory image hostname? The next image requests will be fetched fresh from R2 and may be briefly slower while the CDN warms again.",
-                progressText: "Refreshing the inventory CDN cache..."
-            });
+        bindCdnRefresh();
 
-        bindCdnRefresh(
-            "#btnRefreshSiteImagesCdn",
-            "#siteImagesCdnStatus",
-            refreshSiteImagesCdnUrl,
-            {
-                title: "Refresh SiteImages CDN cache",
-                message: "Refresh the GTX/SiteImages CDN prefix, including site images and videos? The next requests may be briefly slower while the CDN warms again.",
-                progressText: "Refreshing the SiteImages and video CDN cache..."
-            });
+        $("#btnRefreshRemoveBgTokens").on("click", refreshRemoveBgTokenBalance);
+        refreshRemoveBgTokenBalance();
+        $("#btnRefreshCloudflareBucket").on("click", refreshCloudflareBucketStats);
+        refreshCloudflareBucketStats();
 
         $(document).on("visibilitychange.health", function () {
             if (document.visibilityState === "visible") {

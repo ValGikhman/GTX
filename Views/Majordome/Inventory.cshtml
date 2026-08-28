@@ -1872,6 +1872,7 @@
             if (value) locations[value] = safeText(item?.Vehicle?.LocationCode).trim() || value;
         });
 
+        const $priorityRow = $("<div></div>").addClass("majordome-remove-bg-priority-row");
         const $toolbar = $("<div></div>").addClass("majordome-remove-bg-filterbar");
         const $heading = $("<div></div>").addClass("majordome-remove-bg-filter-heading")
             .append($("<span></span>").addClass("majordome-remove-bg-filter-icon").append($("<i></i>").addClass("bi bi-funnel-fill")))
@@ -1911,7 +1912,26 @@
 
         $locationGroup.append($location).appendTo($controls);
         $dateGroup.append($date).appendTo($controls);
-        $toolbar.append($heading, $controls).appendTo($preview);
+        $toolbar.append($heading, $controls).appendTo($priorityRow);
+
+        const available = Math.max(0, Math.floor(Number(job?.availableTokens) || 0));
+        const $tokenCard = $("<div></div>")
+            .addClass("majordome-remove-bg-token-card")
+            .attr("aria-live", "polite")
+            .append($("<span></span>")
+                .addClass("majordome-remove-bg-token-card-icon")
+                .append($("<i></i>").addClass("bi bi-cloud-check-fill")))
+            .append($("<div></div>")
+                .addClass("majordome-remove-bg-token-card-body")
+                .append($("<div></div>").addClass("majordome-remove-bg-token-card-label").text("Cloudflare processing"))
+                .append($("<div></div>")
+                    .addClass("majordome-remove-bg-token-card-count js-remove-bg-token-card-count")
+                    .text(job?.accountReady ? `${available} token${available === 1 ? "" : "s"} available` : "Checking tokens..."))
+                .append($("<div></div>")
+                    .addClass("majordome-remove-bg-token-card-detail js-remove-bg-token-card-detail")
+                    .text(job?.accountReady ? "Live remove.bg balance" : "Contacting remove.bg")));
+
+        $priorityRow.append($tokenCard).appendTo($preview);
     }
 
     function renderMajordomeRemoveBackgroundPreview(job) {
@@ -1934,6 +1954,9 @@
                 ? formatMajordomeRemoveBackgroundDate(vehicle.InventoryStartDate)
                 : "";
             const purchasedDate = formatMajordomeRemoveBackgroundDate(vehicle.PurchaseDate);
+            const priorityDate = addedDate || purchasedDate;
+            const prioritySource = addedDate ? "Added" : "Purchased";
+            const priorityToneClass = addedDate ? "is-added" : "is-purchased";
             const vehicleName = getMajordomeRemoveBackgroundVehicleName(vehicle);
             const imageUrl = inventoryImageVariantUrl(toInventoryImageUrl(item.Source, item.Stock), "card");
             const checkboxId = `majordomeRemoveBgImage${index}`;
@@ -1975,21 +1998,14 @@
                 .attr("title", "Location")
                 .text(locationBadge.label)
                 .appendTo($meta);
-            if (addedDate) {
+            if (priorityDate) {
                 $("<span></span>")
-                    .addClass("inventory-dashboard-history-status is-added majordome-background-preview-date")
-                    .append($("<i></i>").addClass("bi bi-calendar-plus-fill"))
-                    .append(document.createTextNode(` Added ${addedDate}`))
+                    .addClass(`inventory-dashboard-history-status ${priorityToneClass} majordome-background-preview-date`)
+                    .append($("<i></i>").addClass(addedDate ? "bi bi-calendar-plus-fill" : "bi bi-cart-check-fill"))
+                    .append(document.createTextNode(` ${prioritySource} ${priorityDate}`))
                     .appendTo($meta);
             }
-            if (purchasedDate) {
-                $("<span></span>")
-                    .addClass("inventory-dashboard-history-status is-purchased majordome-background-preview-date")
-                    .append($("<i></i>").addClass("bi bi-cart-check-fill"))
-                    .append(document.createTextNode(` Purchased ${purchasedDate}`))
-                    .appendTo($meta);
-            }
-            if (!addedDate && !purchasedDate) {
+            if (!priorityDate) {
                 $("<span></span>")
                     .addClass("inventory-dashboard-history-status majordome-background-preview-date")
                     .append($("<i></i>").addClass("bi bi-calendar-x"))
@@ -2121,13 +2137,23 @@
     function updateMajordomeRemoveBackgroundTokenCount(available) {
         const tokenCount = Math.max(0, Math.floor(Number(available) || 0));
         const $badge = $("#majordomeBulkProgressSummary .js-remove-bg-token-count");
-        if (!$badge.length) return;
-
         $badge
             .text(`${tokenCount} token${tokenCount === 1 ? "" : "s"} available`)
             .removeClass("is-updated");
-        void $badge[0].offsetWidth;
-        $badge.addClass("is-updated");
+        if ($badge.length) {
+            void $badge[0].offsetWidth;
+            $badge.addClass("is-updated");
+        }
+
+        const $cardCount = $("#majordomeBulkPreview .js-remove-bg-token-card-count");
+        $cardCount
+            .text(`${tokenCount} token${tokenCount === 1 ? "" : "s"} available`)
+            .removeClass("is-updated");
+        if ($cardCount.length) {
+            void $cardCount[0].offsetWidth;
+            $cardCount.addClass("is-updated");
+        }
+        $("#majordomeBulkPreview .js-remove-bg-token-card-detail").text("Live remove.bg balance");
     }
 
     async function removeMajordomeFirstImageBackground(item, job) {
@@ -2776,6 +2802,7 @@
                     const available = Math.max(0, Math.floor(Number(account.totalTokens) || 0));
                     job.availableTokens = available;
                     job.accountReady = true;
+                    updateMajordomeRemoveBackgroundTokenCount(available);
                     updateMajordomeRemoveBackgroundSelection(job);
 
                     return {
@@ -3095,6 +3122,8 @@
 
             job.canStart = false;
             const message = (error && error.message) || "The required preflight check failed.";
+            $("#majordomeBulkPreview .js-remove-bg-token-card-count").text("Unavailable");
+            $("#majordomeBulkPreview .js-remove-bg-token-card-detail").text("remove.bg balance could not be loaded");
             setMajordomeBulkStatus(`Cannot run: ${message}`);
             appendMajordomeBulkLog(`Token check failed: ${message}`, "error");
             $("#majordomeBulkStart").addClass("d-none").prop("disabled", true);
