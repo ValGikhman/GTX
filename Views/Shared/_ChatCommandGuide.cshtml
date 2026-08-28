@@ -1,9 +1,3 @@
-@{
-    var canTeachChatBot = string.Equals(
-        Convert.ToString(ViewBag.CurrentRole ?? string.Empty),
-        CommonUnit.Roles.Owner.ToString(),
-        StringComparison.OrdinalIgnoreCase);
-}
 <section id="gtxChatCommandGuide"
          class="gtx-chat-command-guide"
          aria-label="Chat command guide"
@@ -115,17 +109,6 @@
             <span><i class="bi bi-person-lines-fill" aria-hidden="true"></i> Opens the sales contact form.</span>
         </div>
 
-        @if (canTeachChatBot)
-        {
-            <h3 class="gtx-chat-command-guide-group"><i class="bi bi-mortarboard" aria-hidden="true"></i> Owner teaching</h3>
-
-            <div class="gtx-chat-command-guide-item is-teaching">
-                <button type="button" data-chat-prompt="Teach: &quot;lot manager&quot; means open Majordome inventory">
-                    &quot;Teach: lot manager means open Majordome inventory&quot;
-                </button>
-                <span><i class="bi bi-shield-check" aria-hidden="true"></i> Review the proposed phrase and destination, then approve it before it is saved.</span>
-            </div>
-        }
     </div>
 
     <footer class="gtx-chat-command-guide-tip">

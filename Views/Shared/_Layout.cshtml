@@ -355,6 +355,10 @@
                             <li id="menuEmployees">@Html.ActionLink("Employees", "Index", "Employees")</li>
                             <li id="menuHealth">@Html.ActionLink("Health", "Index", "Health")</li>
                             <li id="menuSitemap">@Html.ActionLink("Sitemap", "Index", "Sitemap")</li>
+                            @if (isOwner)
+                            {
+                                <li id="menuChatBotCommands" class="d-none d-lg-block">@Html.ActionLink("Chat Bot", "Index", "ChatBotCommands")</li>
+                            }
                         </ul>
                     </li>
                     <li class=" mx-2">

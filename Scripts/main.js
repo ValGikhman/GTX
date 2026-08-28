@@ -199,6 +199,7 @@ function setMajordomeMenu(role) {
             $("#menuEmployees").show();
             $("#menuHealth").show();
             $("#menuSitemap").show();
+            $("#menuChatBotCommands").show();
             break;
 
         case "sales":
@@ -237,7 +238,7 @@ function setMajordomeMenu(role) {
             $("#menuSitemap").show();
             break;
         default:
-            $("#menuVinDecoder, #menuInventory, #menuInventoryDashboard, #menuInventoryManagement, #menuAnnouncements, #menuBlogs, #menuEmployees, #menuHealth, #menuSitemap").hide();
+            $("#menuVinDecoder, #menuInventory, #menuInventoryDashboard, #menuInventoryManagement, #menuAnnouncements, #menuBlogs, #menuEmployees, #menuHealth, #menuSitemap, #menuChatBotCommands").hide();
             break;
     }
     // text
