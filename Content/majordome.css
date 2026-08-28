@@ -1456,24 +1456,16 @@ body.majordome-inventory-page .body-content {
         margin-bottom: .3rem;
     }
 
-    .majordome-background-preview-chip {
-        align-items: center;
-        background: var(--bs-secondary-bg);
-        border: 1px solid var(--bs-border-color);
-        border-radius: 999px;
-        color: var(--bs-secondary-color);
-        display: inline-flex;
-        font-size: .57rem;
-        font-weight: 700;
-        line-height: 1;
-        max-width: 100%;
-        padding: .22rem .38rem;
+    .majordome-background-preview-location {
+        min-height: 1.35rem;
+        min-width: 1.35rem;
     }
 
-    .majordome-background-preview-chip.is-location {
-        background: var(--bs-primary-bg-subtle);
-        border-color: rgba(var(--bs-primary-rgb), .22);
-        color: var(--bs-primary-text-emphasis);
+    .majordome-background-preview-date {
+        font-size: .6rem;
+        gap: .18rem;
+        min-width: 0;
+        padding: .22rem .42rem;
     }
 
     .majordome-remove-bg-empty {
