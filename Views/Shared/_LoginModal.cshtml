@@ -77,10 +77,9 @@
         <div class="modal-content rounded-4 shadow">
 
             <div class="modal-header">
-                <div class="rounded-5 d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary p-3"
-                     style="width:22px;height:22px;">
-                    <i class="bi bi-shield-lock fs-5"></i>
-                </div>
+                <span class="gtx-modal-title-icon" aria-hidden="true">
+                    <i class="bi bi-shield-lock"></i>
+                </span>
 
                 <div class="modal-title fw-semibold mx-2" id="loginModalLabel">Admin Login</div>
 
@@ -113,7 +112,7 @@
                                 </button>
                             </div>
 
-                            <button type="submit" class="btn btn-primary" id="btnLogin">
+                            <button type="submit" class="btn btn-gradient" id="btnLogin">
                                 <i class="bi bi-box-arrow-in-right me-1"></i> Log in
                             </button>
                         </div>
@@ -131,7 +130,7 @@
             <!-- Footer row: Cancel + Logout -->
             <div class="modal-footer d-flex justify-content-between">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                    Cancel
+                    <i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel
                 </button>
 
                 @using (Html.BeginForm("Logout", "Home", FormMethod.Post, new { id = "logoutForm", @class = "m-0" }))

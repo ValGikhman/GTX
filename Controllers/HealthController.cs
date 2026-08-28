@@ -228,6 +228,36 @@ public class HealthController : BaseController
         return Json(new { isOffline = MaintenanceFlag.IsOffline() }, JsonRequestBehavior.AllowGet);
     }
 
+    [HttpGet]
+    [OutputCache(NoStore = true, Duration = 0, VaryByParam = "none")]
+    public async Task<ActionResult> InventoryBucketStats()
+    {
+        if (!InventoryImageSettings.CloudflareEnabled)
+        {
+            return Json(new { success = false, message = "Cloudflare inventory images are disabled." }, JsonRequestBehavior.AllowGet);
+        }
+
+        try
+        {
+            var stats = await CloudflareR2Storage.GetBucketStatsAsync();
+            return Json(new
+            {
+                success = true,
+                stats.TotalObjects,
+                stats.ImageObjects,
+                stats.OtherObjects,
+                stats.TotalBytes,
+                stats.ImageBytes,
+                stats.StockFolders
+            }, JsonRequestBehavior.AllowGet);
+        }
+        catch (Exception ex)
+        {
+            Log(ex);
+            return Json(new { success = false, message = "Unable to read the GTX Cloudflare bucket: " + ex.Message }, JsonRequestBehavior.AllowGet);
+        }
+    }
+
     [HttpPost]
     [RequireAdminRole(RequiredRole = CommonUnit.Roles.Owner)]
     public async Task<ActionResult> RefreshInventoryCdn()

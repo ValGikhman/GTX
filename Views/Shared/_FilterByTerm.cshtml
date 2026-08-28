@@ -335,12 +335,8 @@
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow">
             <div class="modal-header">
-                <div class="modal-title" id="searchHelpModalTitle">
-                    <span class="bg-light d-flex align-items-center gap-2">
-                        <i class="bi bi-question-circle-fill text-primary fs-5 text-white"></i>
-                        <span class="text-white">Available search tokens</span>
-                    </span>
-                </div>
+                <span class="gtx-modal-title-icon" aria-hidden="true"><i class="bi bi-question-circle-fill"></i></span>
+                <div class="modal-title" id="searchHelpModalTitle">Available search tokens</div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
@@ -349,7 +345,7 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">@I18n.R("All_Close")</button>
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>@I18n.R("All_Close")</button>
             </div>
         </div>
     </div>

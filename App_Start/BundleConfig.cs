@@ -50,7 +50,8 @@ namespace GTX {
                       "~/Content/vehicle-details.css",
                       "~/Content/open-hours.css",
                       "~/Content/staff.css",
-                      "~/Content/marketing-pages.css"
+                      "~/Content/marketing-pages.css",
+                      "~/Content/modal-system.css"
 
                 ));
         }

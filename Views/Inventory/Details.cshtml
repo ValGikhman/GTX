@@ -161,15 +161,16 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div id="header" class="modal-header shadow">
-                <img src="@SiteImageUrl.Build("brand-light.png")" width="60" />
-                <div id="titleModal" class="modal-title test-shadow mx-3">
+                <span class="gtx-modal-title-icon" aria-hidden="true"><i id="dynamicModalIcon" class="bi bi-person-vcard"></i></span>
+                <div id="titleModal" class="modal-title">
                     @I18n.R("Nav_Contact")
                 </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div id="messageBody" class="modal-body well">
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-close-white shadow" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i>Close</button>
+                <button type="button" class="btn btn-close-white shadow" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Close</button>
             </div>
         </div>
     </div>
@@ -558,14 +559,14 @@
         </a>
 
         @*Contact us*@
-        <button class="w-100 btn btn-gradient shadow mb-3" type="button" id="btnContactForm" data-url="Inventory/ContactModal/" data-title="Contact us">
+        <button class="w-100 btn btn-gradient shadow mb-3" type="button" id="btnContactForm" data-url="Inventory/ContactModal/" data-title="Contact us" data-modal-icon="bi-person-vcard">
             <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
                 <i class="bi bi-person-vcard mx-2"></i>@I18n.R("Nav_ContactUs")
             </h5>
         </button>
 
         @*Test drive*@
-        <button class="w-100 btn btn-gradient mb-3 shadow" type="button" id="btnTestDriveForm" data-url="Inventory/TestDriveModal/" data-title="Schedule test drive">
+        <button class="w-100 btn btn-gradient mb-3 shadow" type="button" id="btnTestDriveForm" data-url="Inventory/TestDriveModal/" data-title="Schedule test drive" data-modal-icon="bi-calendar3">
             <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
                 <i class="bi bi-calendar3 mx-2"></i>@I18n.R("Nav_ScheduleTestDrive")
             </h5>
@@ -573,7 +574,7 @@
 
 
         @*Loan app*@
-        <button class="w-100 btn btn-gradient mb-3 shadow" type="button" id="btnLoanApplication" data-url="Inventory/ApplicationModal" data-title="Get prequalified">
+        <button class="w-100 btn btn-gradient mb-3 shadow" type="button" id="btnLoanApplication" data-url="Inventory/ApplicationModal" data-title="Get prequalified" data-modal-icon="bi-currency-dollar">
             <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
                 <i class="bi bi-currency-dollar mx-2"></i>@I18n.R("Nav_GetPrequalified")
             </h5>
@@ -697,11 +698,13 @@
         $("#btnLoanApplication, #btnTestDriveForm, #btnContactForm").on("click", function () {
             var url = `${$(this).data("url")}`;
             var title = `${$(this).data("title")}`;
+            var icon = `${$(this).attr("data-modal-icon") || "bi-person-vcard"}`;
 
             $.get(`${root}${url}`)
                 .done(function (result) {
                     $("#messageBody").html(result);
                     $("#titleModal").text(title);
+                    $("#dynamicModalIcon").attr("class", `bi ${icon}`);
                     $("#dynamicModal").modal("show");
                 })
                 .fail(function () {

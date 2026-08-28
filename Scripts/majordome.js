@@ -593,7 +593,7 @@ function loadGallery(vehicle) {
     images.forEach(function (img, index) {
         var source = (img.Source || "").toString();
         var showImageEdit = "";
-        var imageIcon = "bi bi-image";
+        var imageIcon = "bi bi-layers-fill";
 
         if (source.includes("-O")) {
             showImageEdit = "visually-hidden";
@@ -1119,7 +1119,7 @@ function showRemoveBackgroundConfirmation(options) {
                 <div class="modal-dialog modal-lg modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <span class="majordome-remove-bg-icon" aria-hidden="true"><i class="bi bi-eraser"></i></span>
+                            <span class="gtx-modal-title-icon" aria-hidden="true"><i class="bi bi-eraser"></i></span>
                             <h5 class="modal-title" id="majordomeRemoveBgTitle">Remove background</h5>
                             <button type="button" class="btn-close majordome-remove-bg-header-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
@@ -1156,9 +1156,9 @@ function showRemoveBackgroundConfirmation(options) {
                             <div class="alert alert-danger py-2 px-3 mt-3 mb-0 d-none majordome-remove-bg-error" role="alert"></div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-secondary majordome-remove-bg-close" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-outline-secondary d-none majordome-remove-bg-keep">Keep original</button>
-                            <button type="button" class="btn btn-success d-none majordome-remove-bg-use">Use this image</button>
+                            <button type="button" class="btn btn-outline-secondary majordome-remove-bg-close" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Close</button>
+                            <button type="button" class="btn btn-outline-secondary d-none majordome-remove-bg-keep"><i class="bi bi-image me-1" aria-hidden="true"></i>Keep original</button>
+                            <button type="button" class="btn btn-success d-none majordome-remove-bg-use"><i class="bi bi-check2-circle me-1" aria-hidden="true"></i>Use this image</button>
                         </div>
                     </div>
                 </div>

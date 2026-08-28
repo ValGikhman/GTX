@@ -113,8 +113,8 @@
         <button type="button" class="btn btn-outline-secondary shadow" data-bs-dismiss="modal">
             <i class="bi bi-x-lg me-1"></i>Cancel
         </button>
-        <button type="submit" class="btn btn-primary shadow">
-            <i class="bi bi-check2-circle me-1"></i>@(isEdit ? "Save" : "Create")
+        <button type="submit" class="btn @(isEdit ? "btn-gradient" : "btn-success") shadow">
+            <i class="bi @(isEdit ? "bi-save" : "bi-plus-circle") me-1"></i>@(isEdit ? "Save" : "Create")
         </button>
     </div>
 
