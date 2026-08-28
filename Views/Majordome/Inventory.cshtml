@@ -1769,7 +1769,24 @@
                 Selected: true
             });
             return items;
-        }, []);
+        }, []).sort(function (left, right) {
+            const leftDays = getMajordomeRemoveBackgroundAgeDays(left);
+            const rightDays = getMajordomeRemoveBackgroundAgeDays(right);
+            if (leftDays !== rightDays) {
+                if (!Number.isFinite(leftDays)) return 1;
+                if (!Number.isFinite(rightDays)) return -1;
+                return rightDays - leftDays;
+            }
+
+            const leftDate = getMajordomeRemoveBackgroundPriorityTime(left);
+            const rightDate = getMajordomeRemoveBackgroundPriorityTime(right);
+            if (leftDate !== rightDate) {
+                if (!Number.isFinite(leftDate)) return 1;
+                if (!Number.isFinite(rightDate)) return -1;
+                return leftDate - rightDate;
+            }
+            return compareMajordomeText(left?.Stock, right?.Stock);
+        });
     }
 
     function getMajordomeRemoveBackgroundVehicleName(vehicle) {
@@ -1779,6 +1796,126 @@
             .join(" ") || "Vehicle";
     }
 
+    function getMajordomeRemoveBackgroundLocation(item) {
+        return normalizeMajordomeGtxFilterValue(item?.Vehicle?.LocationCode);
+    }
+
+    function getMajordomeRemoveBackgroundPriorityTime(item) {
+        const vehicle = item?.Vehicle || {};
+        const value = vehicle.InventoryStartDate || vehicle.PurchaseDate;
+        const text = safeText(value).trim();
+        const isoDate = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(text);
+        if (isoDate) {
+            return new Date(Number(isoDate[1]), Number(isoDate[2]) - 1, Number(isoDate[3])).getTime();
+        }
+
+        return toMajordomeDateSortValue(value);
+    }
+
+    function getMajordomeRemoveBackgroundAgeDays(item) {
+        const savedDays = Number.parseInt(item?.Vehicle?.DaysInInventory, 10);
+        if (!Number.isNaN(savedDays) && savedDays >= 0) return savedDays;
+
+        const priorityTime = getMajordomeRemoveBackgroundPriorityTime(item);
+        if (!Number.isFinite(priorityTime)) return Number.NaN;
+
+        const priorityDate = new Date(priorityTime);
+        const today = new Date();
+        const todayUtc = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+        const priorityUtc = Date.UTC(priorityDate.getFullYear(), priorityDate.getMonth(), priorityDate.getDate());
+        return Math.max(0, Math.floor((todayUtc - priorityUtc) / 86400000));
+    }
+
+    function formatMajordomeRemoveBackgroundPriorityDate(item) {
+        const vehicle = item?.Vehicle || {};
+        const value = vehicle.InventoryStartDate || vehicle.PurchaseDate;
+        const text = safeText(value).trim();
+        const isoDate = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(text);
+        if (isoDate) {
+            return new Date(Number(isoDate[1]), Number(isoDate[2]) - 1, Number(isoDate[3])).toLocaleDateString("en-US");
+        }
+
+        return formatPurchaseDate(value);
+    }
+
+    function matchesMajordomeRemoveBackgroundFilters(item, filters) {
+        const selectedLocation = normalizeMajordomeGtxFilterValue(filters?.location);
+        if (selectedLocation && getMajordomeRemoveBackgroundLocation(item) !== selectedLocation) {
+            return false;
+        }
+
+        const ageFilter = safeText(filters?.days).trim().toLowerCase();
+        if (!ageFilter) return true;
+
+        const ageDays = getMajordomeRemoveBackgroundAgeDays(item);
+        if (!Number.isFinite(ageDays)) return false;
+
+        if (ageFilter === "over30") {
+            return ageDays > 30;
+        }
+
+        const maximumDays = parseInt(ageFilter, 10) || 0;
+        if (!maximumDays) return true;
+        return ageDays <= maximumDays;
+    }
+
+    function getMajordomeFilteredRemoveBackgroundItems(job) {
+        return Array.isArray(job?.items)
+            ? job.items.filter(function (item) {
+                return matchesMajordomeRemoveBackgroundFilters(item, job.removeBgFilters);
+            })
+            : [];
+    }
+
+    function renderMajordomeRemoveBackgroundFilters(job, $preview) {
+        const locations = {};
+        job.items.forEach(function (item) {
+            const value = getMajordomeRemoveBackgroundLocation(item);
+            if (value) locations[value] = safeText(item?.Vehicle?.LocationCode).trim() || value;
+        });
+
+        const $toolbar = $("<div></div>").addClass("majordome-remove-bg-filterbar");
+        const $heading = $("<div></div>").addClass("majordome-remove-bg-filter-heading")
+            .append($("<span></span>").addClass("majordome-remove-bg-filter-icon").append($("<i></i>").addClass("bi bi-funnel-fill")))
+            .append($("<div></div>")
+                .append($("<div></div>").addClass("majordome-remove-bg-filter-title").text("Build your priority batch"))
+                .append($("<div></div>").addClass("majordome-remove-bg-filter-copy").text("Filters update the selected vehicles automatically.")));
+        const $controls = $("<div></div>").addClass("majordome-remove-bg-filter-controls");
+        const $locationGroup = $("<label></label>").addClass("majordome-remove-bg-filter-field")
+            .append($("<span></span>").append($("<i></i>").addClass("bi bi-geo-alt-fill")).append(document.createTextNode(" Location")));
+        const $location = $("<select></select>")
+            .addClass("form-select form-select-sm js-remove-bg-location")
+            .attr("aria-label", "Filter background removal by location")
+            .append($("<option></option>").val("").text("All locations"));
+
+        Object.keys(locations).sort(compareMajordomeText).forEach(function (value) {
+            $location.append($("<option></option>").val(value).text(locations[value]));
+        });
+        $location.val(job.removeBgFilters.location || "");
+
+        const $dateGroup = $("<label></label>").addClass("majordome-remove-bg-filter-field")
+            .append($("<span></span>").append($("<i></i>").addClass("bi bi-calendar-check-fill")).append(document.createTextNode(" Inventory age")));
+        const $date = $("<select></select>")
+            .addClass("form-select form-select-sm js-remove-bg-days")
+            .attr("aria-label", "Filter background removal by inventory age");
+        [
+            ["", "Any inventory age"],
+            ["1", "1 day or less"],
+            ["3", "3 days or less"],
+            ["7", "7 days or less"],
+            ["14", "14 days or less"],
+            ["30", "30 days or less"],
+            ["over30", "More than 30 days"]
+        ].forEach(function (option) {
+            $date.append($("<option></option>").val(option[0]).text(option[1]));
+        });
+        $date.val(job.removeBgFilters.days || "");
+
+        $locationGroup.append($location).appendTo($controls);
+        $dateGroup.append($date).appendTo($controls);
+        $toolbar.append($heading, $controls).appendTo($preview);
+    }
+
     function renderMajordomeRemoveBackgroundPreview(job) {
         const $preview = $("#majordomeBulkPreview").empty();
         if (!job || !Array.isArray(job.items) || !job.items.length) {
@@ -1786,8 +1923,12 @@
             return;
         }
 
+        job.removeBgFilters = job.removeBgFilters || { location: "", days: "" };
+        renderMajordomeRemoveBackgroundFilters(job, $preview);
+        const filteredItems = getMajordomeFilteredRemoveBackgroundItems(job);
         const $grid = $("<div></div>").addClass("majordome-background-preview-grid");
-        job.items.forEach(function (item, index) {
+        filteredItems.forEach(function (item) {
+            const index = job.items.indexOf(item);
             const vehicle = item.Vehicle || {};
             const vehicleName = getMajordomeRemoveBackgroundVehicleName(vehicle);
             const imageUrl = inventoryImageVariantUrl(toInventoryImageUrl(item.Source, item.Stock), "card");
@@ -1801,6 +1942,7 @@
                 .attr("alt", `${item.Label} first image`)
                 .attr("loading", "lazy");
             const $details = $("<div></div>").addClass("majordome-background-preview-details");
+            const $meta = $("<div></div>").addClass("majordome-background-preview-meta");
             const $footer = $("<label></label>")
                 .addClass("majordome-background-preview-footer")
                 .attr("for", checkboxId);
@@ -1824,13 +1966,44 @@
                 .attr("title", item.Source)
                 .text(getMajordomeImageFileLabel(item.Source))
                 .appendTo($footer);
+            $("<span></span>")
+                .addClass("majordome-background-preview-chip is-location")
+                .append($("<i></i>").addClass("bi bi-geo-alt-fill"))
+                .append(document.createTextNode(` ${safeText(vehicle.LocationCode).trim() || "No location"}`))
+                .appendTo($meta);
+            $("<span></span>")
+                .addClass("majordome-background-preview-chip")
+                .append($("<i></i>").addClass("bi bi-calendar3"))
+                .append(document.createTextNode(` ${safeText(vehicle.InventoryStartSource).trim() || "Purchased"} ${formatMajordomeRemoveBackgroundPriorityDate(item) || "date unavailable"}`))
+                .appendTo($meta);
+            $details.append($meta);
             $footer.append($checkbox).appendTo($details);
 
             $card.append($header, $image, $details).appendTo($grid);
         });
 
+        if (!filteredItems.length) {
+            $("<div></div>")
+                .addClass("majordome-remove-bg-empty")
+                .append($("<i></i>").addClass("bi bi-search"))
+                .append($("<strong></strong>").text("No vehicles match these filters"))
+                .append($("<span></span>").text("Try another location or a wider purchase window."))
+                .appendTo($preview);
+        }
+
         $preview
             .off("change.removeBgBatch")
+            .on("change.removeBgBatch", ".js-remove-bg-location, .js-remove-bg-days", function () {
+                if (job.running) return;
+
+                job.removeBgFilters.location = safeText($preview.find(".js-remove-bg-location").val());
+                job.removeBgFilters.days = safeText($preview.find(".js-remove-bg-days").val());
+                job.items.forEach(function (item) {
+                    item.Selected = matchesMajordomeRemoveBackgroundFilters(item, job.removeBgFilters);
+                });
+                renderMajordomeRemoveBackgroundPreview(job);
+                updateMajordomeRemoveBackgroundSelection(job);
+            })
             .on("change.removeBgBatch", ".js-remove-bg-select", function () {
                 if (job.running) return;
 
@@ -1840,8 +2013,8 @@
                 }
                 updateMajordomeRemoveBackgroundSelection(job);
             })
-            .removeClass("d-none")
-            .append($grid);
+            .removeClass("d-none");
+        if (filteredItems.length) $preview.append($grid);
     }
 
     function getMajordomeSelectedRemoveBackgroundItems(job) {
@@ -1854,6 +2027,7 @@
         const available = Math.max(0, Math.floor(Number(job?.availableTokens) || 0));
         const required = getMajordomeSelectedRemoveBackgroundItems(job).length;
         const total = job?.items?.length || 0;
+        const filteredTotal = getMajordomeFilteredRemoveBackgroundItems(job).length;
         const difference = available - required;
         const $summary = $("#majordomeBulkProgressSummary").empty().removeClass("d-none");
         const $toggle = $("<button></button>")
@@ -1864,6 +2038,9 @@
 
         $toggle.appendTo($summary);
         $("<span></span>").addClass("badge text-bg-primary").text(`${required} of ${total} selected`).appendTo($summary);
+        if (filteredTotal !== total) {
+            $("<span></span>").addClass("badge majordome-remove-bg-filtered-badge").text(`${filteredTotal} matching filters`).appendTo($summary);
+        }
         $("<span></span>")
             .addClass("badge text-bg-secondary js-remove-bg-token-count")
             .text(`${available} token${available === 1 ? "" : "s"} available`)
@@ -1881,7 +2058,9 @@
             .on("click.removeBgBatch", ".js-remove-bg-toggle-all", function () {
                 if (job.running) return;
 
-                job.items.forEach(function (item) { item.Selected = item.Selected !== true; });
+                const filteredItems = getMajordomeFilteredRemoveBackgroundItems(job);
+                const shouldSelect = filteredItems.some(function (item) { return item.Selected !== true; });
+                filteredItems.forEach(function (item) { item.Selected = shouldSelect; });
                 $("#majordomeBulkPreview .js-remove-bg-select").each(function () {
                     const index = parseInt($(this).attr("data-remove-bg-index"), 10);
                     $(this).prop("checked", !!job.items[index]?.Selected);
@@ -1967,7 +2146,8 @@
                 applyUploadedImagesToMajordomeState(item.Stock, response.images, {
                     image: response.image,
                     selectVehicle: false,
-                    updateGallery: false
+                    updateGallery: false,
+                    activateGallery: false
                 });
             }
 
@@ -2586,7 +2766,7 @@
                 prepareStart: function (job) {
                     job.items = getMajordomeSelectedRemoveBackgroundItems(job);
                     job.progressTotal = job.items.length;
-                    $("#majordomeBulkPreview .js-remove-bg-select, #majordomeBulkProgressSummary .js-remove-bg-toggle-all")
+                    $("#majordomeBulkPreview .js-remove-bg-select, #majordomeBulkPreview select, #majordomeBulkProgressSummary .js-remove-bg-toggle-all")
                         .prop("disabled", true);
                     updateMajordomeBulkProgress(0, job.progressTotal);
                 },
