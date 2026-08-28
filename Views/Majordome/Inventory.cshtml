@@ -307,10 +307,34 @@
     </div>
 </div>
 <template id="actions">
-    <button type="button" id="btnAddInventory" class="btn btn-gradient shadow"><i class="bi bi-plus-circle me-1"></i>Add inventory</button>
-    <button type="button" id="btnDecodeAll" class="btn btn-gradient shadow"><i class="bi bi-car-front me-1" aria-hidden="true"></i>Decode all</button>
-    <button type="button" id="btnReStoryAll" class="btn btn-gradient shadow"><i class="bi bi-book-half me-1" aria-hidden="true"></i>Re-story all</button>
-    <button type="button" id="btnRemoveBackgrounds" class="btn btn-gradient shadow"><i class="bi bi-eraser-fill me-1"></i>Remove backgrounds</button>
+    <div class="dropdown majordome-batch-actions-dropdown">
+        <button type="button"
+                id="majordomeBatchActionsDropdown"
+                class="btn btn-sm btn-gradient dropdown-toggle d-flex align-items-center gap-2 text-nowrap shadow"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
+            <i class="bi bi-collection-fill" aria-hidden="true"></i>
+            <span>Actions</span>
+        </button>
+        <div class="dropdown-menu dropdown-menu-end majordome-batch-actions-menu p-1 shadow" aria-labelledby="majordomeBatchActionsDropdown">
+            <button type="button" id="btnAddInventory" class="dropdown-item majordome-batch-action rounded-3">
+                <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-plus-circle"></i></span>
+                <span><strong>Add inventory</strong><small>Create one inventory vehicle</small></span>
+            </button>
+            <button type="button" id="btnDecodeAll" class="dropdown-item majordome-batch-action rounded-3">
+                <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-car-front"></i></span>
+                <span><strong>Decode all</strong><small>Fill missing DataOne details</small></span>
+            </button>
+            <button type="button" id="btnReStoryAll" class="dropdown-item majordome-batch-action rounded-3">
+                <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-book-half"></i></span>
+                <span><strong>Re-story all</strong><small>Create missing vehicle stories</small></span>
+            </button>
+            <button type="button" id="btnRemoveBackgrounds" class="dropdown-item majordome-batch-action rounded-3">
+                <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-eraser-fill"></i></span>
+                <span><strong>Remove backgrounds</strong><small>Process eligible first images</small></span>
+            </button>
+        </div>
+    </div>
 </template>
 
 <input type="hidden" id="currentVehicle" />
@@ -2977,7 +3001,7 @@
     }
 
     function setMajordomeBulkToolbarBusy(isBusy) {
-        $("#purgeStockImageCache, #btnAddInventory, #btnReStoryAll, #btnRemoveBackgrounds, #btnDecodeAll, #upload, #deleteAll, .js-amm-edit-inventory, .js-amm-upload-trigger, .js-amm-upload-input")
+        $("#purgeStockImageCache, #majordomeBatchActionsDropdown, #btnAddInventory, #btnReStoryAll, #btnRemoveBackgrounds, #btnDecodeAll, #upload, #deleteAll, .js-amm-edit-inventory, .js-amm-upload-trigger, .js-amm-upload-input")
             .prop("disabled", isBusy)
             .toggleClass("disabled", isBusy);
 

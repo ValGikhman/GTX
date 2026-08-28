@@ -961,6 +961,38 @@
                     applyTheme(a.dataset.theme);
                 });
             });
+
+            const headerDropdownToggles = [
+                document.getElementById("themeDropdown"),
+                document.getElementById("langDropdown")
+            ].filter(Boolean);
+            const chatLauncher = document.querySelector(".gtx-chat-launcher");
+
+            if (chatLauncher) {
+                const syncChatLauncher = () => {
+                    const dropdownIsOpen = headerDropdownToggles.some(toggle =>
+                        toggle.getAttribute("aria-expanded") === "true" ||
+                        toggle.closest(".dropdown")?.querySelector(".dropdown-menu.show")
+                    );
+
+                    chatLauncher.classList.toggle("gtx-chat-launcher--dropdown-hidden", !!dropdownIsOpen);
+                };
+
+                headerDropdownToggles.forEach(toggle => {
+                    const dropdown = toggle.closest(".dropdown");
+                    if (!dropdown) return;
+
+                    dropdown.addEventListener("show.bs.dropdown", () => {
+                        chatLauncher.classList.add("gtx-chat-launcher--dropdown-hidden");
+                    });
+                    dropdown.addEventListener("hidden.bs.dropdown", () => {
+                        window.requestAnimationFrame(syncChatLauncher);
+                    });
+                });
+
+                syncChatLauncher();
+            }
+
             // ----------------------------
             // LANGUAGE (POST + reload)
             // ----------------------------

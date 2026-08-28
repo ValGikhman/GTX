@@ -999,6 +999,64 @@ body.majordome-inventory-page .body-content {
         pointer-events: auto;
     }
 
+    #inventoryGridShell .majordome-batch-actions-dropdown {
+        position: relative;
+    }
+
+    #inventoryGridShell .majordome-batch-actions-menu {
+        width: min(18rem, calc(100vw - 1rem));
+        border: 1px solid var(--inventory-border);
+        background: var(--inventory-surface);
+    }
+
+    #inventoryGridShell .majordome-batch-action {
+        display: grid;
+        grid-template-columns: 2.15rem minmax(0, 1fr);
+        gap: .7rem;
+        align-items: center;
+        min-height: 3.25rem;
+        margin: .12rem 0;
+        padding: .45rem .6rem;
+        color: var(--inventory-ink);
+        white-space: normal;
+    }
+
+    #inventoryGridShell .majordome-batch-action:hover,
+    #inventoryGridShell .majordome-batch-action:focus {
+        color: var(--inventory-ink);
+        background: var(--inventory-surface-alt);
+    }
+
+    #inventoryGridShell .majordome-batch-action-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.15rem;
+        height: 2.15rem;
+        border: 1px solid var(--inventory-line);
+        border-radius: .65rem;
+        color: var(--inventory-muted);
+        background: linear-gradient(180deg, var(--inventory-surface) 0%, var(--inventory-surface-alt) 100%);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35);
+    }
+
+    #inventoryGridShell .majordome-batch-action strong,
+    #inventoryGridShell .majordome-batch-action small {
+        display: block;
+    }
+
+    #inventoryGridShell .majordome-batch-action strong {
+        font-size: .78rem;
+        line-height: 1.2;
+    }
+
+    #inventoryGridShell .majordome-batch-action small {
+        margin-top: .15rem;
+        color: var(--inventory-muted);
+        font-size: .66rem;
+        line-height: 1.25;
+    }
+
         #inventoryGridShell .majordome-inventory-bulk-actions .btn {
             position: relative;
             z-index: 4;
@@ -1723,6 +1781,15 @@ body.majordome-inventory-page .body-content {
         #inventoryGridShell .majordome-inventory-bulk-actions {
             margin-left: 0;
         }
+
+            #inventoryGridShell .majordome-batch-actions-dropdown,
+            #inventoryGridShell #majordomeBatchActionsDropdown {
+                width: 100%;
+            }
+
+            #inventoryGridShell .majordome-batch-actions-menu {
+                width: 100%;
+            }
 
             #inventoryGridShell .majordome-inventory-bulk-actions .btn {
                 flex: 1 1 0;
