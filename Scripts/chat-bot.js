@@ -555,58 +555,9 @@
             }, 150);
         }
 
-        function isOwnerTeachingRequest(text) {
-            var role = $.trim(String(window.gtx && window.gtx.currentRole || "user")).toLowerCase();
-            if (role !== "owner") return false;
-            var normalized = $.trim(String(text || "").toLowerCase().replace(/[^a-z0-9]+/g, " "));
-            return /\b(teach|remember|learn|next time|means)\b/.test(normalized);
-        }
-
-        function isDatabaseNavigationPhrase(text) {
+        function isSavedCommandPhrase(text) {
             var normalized = $.trim(String(text || "").toLowerCase().replace(/[^a-z0-9]+/g, " "));
             return /\b(inventory dashboard|inventory management|majordome inventory)\b/.test(normalized);
-        }
-
-        function appendTeachingProposal($messageItem, proposal) {
-            var proposalId = proposal && (proposal.ProposalId || proposal.proposalId);
-            var phrase = proposal && (proposal.Phrase || proposal.phrase);
-            var actionLabel = proposal && (proposal.ActionLabel || proposal.actionLabel);
-            var requiredRole = proposal && (proposal.RequiredRole || proposal.requiredRole);
-            if (!proposalId || !phrase || !actionLabel) return;
-
-            var $card = $("<section>", {
-                "class": "gtx-chat-teaching-card",
-                "data-teaching-proposal": proposalId,
-                "aria-label": "Teaching proposal"
-            }).appendTo($messageItem);
-            $("<div>", { "class": "gtx-chat-teaching-title" })
-                .append($("<i>", { "class": "bi bi-mortarboard-fill", "aria-hidden": "true" }))
-                .append($("<strong>", { text: "New navigation lesson" }))
-                .appendTo($card);
-
-            function addDetail(label, value) {
-                var $row = $("<div>", { "class": "gtx-chat-teaching-detail" }).appendTo($card);
-                $("<span>", { text: label }).appendTo($row);
-                $("<strong>", { text: value }).appendTo($row);
-            }
-
-            addDetail("When someone says", "\u201c" + phrase + "\u201d");
-            addDetail("Open", actionLabel);
-            addDetail("Access", requiredRole || "Public");
-
-            var $actions = $("<div>", { "class": "gtx-chat-teaching-actions" }).appendTo($card);
-            $("<button>", {
-                type: "button",
-                "class": "btn btn-sm btn-outline-secondary",
-                "data-teaching-cancel": "",
-                text: "Cancel"
-            }).appendTo($actions);
-            $("<button>", {
-                type: "button",
-                "class": "btn btn-sm btn-primary",
-                "data-teaching-confirm": "",
-                text: "Approve & learn"
-            }).appendTo($actions);
         }
 
         function handleServerNavigation(navigation) {
@@ -632,7 +583,7 @@
                 return;
             }
 
-            var destination = isOwnerTeachingRequest(text) || isDatabaseNavigationPhrase(text)
+            var destination = isSavedCommandPhrase(text)
                 ? null
                 : navigationRequest(text);
             if (destination) {
@@ -659,14 +610,12 @@
                 var vehicles = data && (data.Vehicles || data.vehicles) || [];
                 var totalMatches = data && (data.TotalVehicleMatches != null ? data.TotalVehicleMatches : data.totalVehicleMatches);
                 var navigation = data && (data.Navigation || data.navigation);
-                var teachingProposal = data && (data.TeachingProposal || data.teachingProposal);
                 if (navigation) {
                     handleServerNavigation(navigation);
                     return;
                 }
 
-                var $reply = addMessage("assistant", reply || "I could not prepare an answer. Please try again.", "", vehicles, totalMatches);
-                if (teachingProposal) appendTeachingProposal($reply, teachingProposal);
+                addMessage("assistant", reply || "I could not prepare an answer. Please try again.", "", vehicles, totalMatches);
             }).fail(function (xhr) {
                 $thinking.remove();
                 if (responseId && xhr && xhr.status === 502) responseId = null;
@@ -790,42 +739,6 @@
             closeCommandGuide(false);
             openChat();
             sendMessage($(this).data("chat-prompt"));
-        });
-        $widget.on("click", "[data-teaching-cancel]", function () {
-            var $card = $(this).closest("[data-teaching-proposal]");
-            $card.find(".gtx-chat-teaching-actions").remove();
-            $("<div>", { "class": "gtx-chat-teaching-status is-cancelled", text: "Lesson cancelled. Nothing was saved." }).appendTo($card);
-            scrollMessages();
-        });
-        $widget.on("click", "[data-teaching-confirm]", function () {
-            var $button = $(this);
-            var $card = $button.closest("[data-teaching-proposal]");
-            var proposalId = $card.attr("data-teaching-proposal");
-            var token = $chatForm.find("input[name='ChatRequestToken']").val();
-            var $buttons = $card.find("button").prop("disabled", true);
-            $button.empty()
-                .append($("<span>", { "class": "spinner-border spinner-border-sm", "aria-hidden": "true" }))
-                .append(document.createTextNode(" Saving..."));
-
-            $.ajax({
-                url: $widget.data("teach-url"),
-                method: "POST",
-                data: { ChatRequestToken: token, ProposalId: proposalId }
-            }).done(function (data) {
-                var message = data && (data.message || data.Message) || "The lesson was saved.";
-                $card.find(".gtx-chat-teaching-actions").remove();
-                $("<div>", { "class": "gtx-chat-teaching-status is-saved", text: message }).appendTo($card);
-                addMessage("assistant", message);
-            }).fail(function (xhr) {
-                $buttons.prop("disabled", false);
-                $button.text("Approve & learn");
-                $card.find(".gtx-chat-teaching-status").remove();
-                $("<div>", {
-                    "class": "gtx-chat-teaching-status is-error",
-                    text: errorMessage(xhr, "I could not save this lesson. Please try again.")
-                }).appendTo($card);
-                scrollMessages();
-            });
         });
 
         $widget.on("keydown", function (event) {

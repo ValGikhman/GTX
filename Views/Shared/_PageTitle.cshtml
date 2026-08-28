@@ -1,7 +1,7 @@
 @{
     var controllerName = (ViewContext.RouteData.Values["controller"] ?? string.Empty).ToString();
     var actionName = (ViewContext.RouteData.Values["action"] ?? string.Empty).ToString();
-    var majordomeIndexControllers = new[] { "InventoryManagement", "VinDecoder", "Announcements", "Blogs", "Employees", "Health", "Sitemap" };
+    var majordomeIndexControllers = new[] { "InventoryManagement", "VinDecoder", "Announcements", "Blogs", "Employees", "Health", "Sitemap", "ChatBotCommands" };
     var isMajordomeMenuPage = (controllerName.Equals("Majordome", StringComparison.OrdinalIgnoreCase)
             && actionName.Equals("Inventory", StringComparison.OrdinalIgnoreCase))
         || (controllerName.Equals("InventoryManagement", StringComparison.OrdinalIgnoreCase)
