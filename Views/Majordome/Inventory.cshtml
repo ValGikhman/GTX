@@ -1826,9 +1826,7 @@
         return Math.max(0, Math.floor((todayUtc - priorityUtc) / 86400000));
     }
 
-    function formatMajordomeRemoveBackgroundPriorityDate(item) {
-        const vehicle = item?.Vehicle || {};
-        const value = vehicle.InventoryStartDate || vehicle.PurchaseDate;
+    function formatMajordomeRemoveBackgroundDate(value) {
         const text = safeText(value).trim();
         const isoDate = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(text);
         if (isoDate) {
@@ -1930,6 +1928,12 @@
         filteredItems.forEach(function (item) {
             const index = job.items.indexOf(item);
             const vehicle = item.Vehicle || {};
+            const locationBadge = getMajordomeGtxBadgeInfo(vehicle.LocationCode);
+            const inventoryStartSource = safeText(vehicle.InventoryStartSource).trim();
+            const addedDate = inventoryStartSource.toLowerCase() === "added"
+                ? formatMajordomeRemoveBackgroundDate(vehicle.InventoryStartDate)
+                : "";
+            const purchasedDate = formatMajordomeRemoveBackgroundDate(vehicle.PurchaseDate);
             const vehicleName = getMajordomeRemoveBackgroundVehicleName(vehicle);
             const imageUrl = inventoryImageVariantUrl(toInventoryImageUrl(item.Source, item.Stock), "card");
             const checkboxId = `majordomeRemoveBgImage${index}`;
@@ -1967,15 +1971,31 @@
                 .text(getMajordomeImageFileLabel(item.Source))
                 .appendTo($footer);
             $("<span></span>")
-                .addClass("majordome-background-preview-chip is-location")
-                .append($("<i></i>").addClass("bi bi-geo-alt-fill"))
-                .append(document.createTextNode(` ${safeText(vehicle.LocationCode).trim() || "No location"}`))
+                .addClass(`majordome-status-pill majordome-status-location majordome-background-preview-location ${locationBadge.toneClass} shadow`)
+                .attr("title", "Location")
+                .text(locationBadge.label)
                 .appendTo($meta);
-            $("<span></span>")
-                .addClass("majordome-background-preview-chip")
-                .append($("<i></i>").addClass("bi bi-calendar3"))
-                .append(document.createTextNode(` ${safeText(vehicle.InventoryStartSource).trim() || "Purchased"} ${formatMajordomeRemoveBackgroundPriorityDate(item) || "date unavailable"}`))
-                .appendTo($meta);
+            if (addedDate) {
+                $("<span></span>")
+                    .addClass("inventory-dashboard-history-status is-added majordome-background-preview-date")
+                    .append($("<i></i>").addClass("bi bi-calendar-plus-fill"))
+                    .append(document.createTextNode(` Added ${addedDate}`))
+                    .appendTo($meta);
+            }
+            if (purchasedDate) {
+                $("<span></span>")
+                    .addClass("inventory-dashboard-history-status is-purchased majordome-background-preview-date")
+                    .append($("<i></i>").addClass("bi bi-cart-check-fill"))
+                    .append(document.createTextNode(` Purchased ${purchasedDate}`))
+                    .appendTo($meta);
+            }
+            if (!addedDate && !purchasedDate) {
+                $("<span></span>")
+                    .addClass("inventory-dashboard-history-status majordome-background-preview-date")
+                    .append($("<i></i>").addClass("bi bi-calendar-x"))
+                    .append(document.createTextNode(" Date unavailable"))
+                    .appendTo($meta);
+            }
             $details.append($meta);
             $footer.append($checkbox).appendTo($details);
 
