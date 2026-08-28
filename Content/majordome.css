@@ -1683,8 +1683,18 @@ body.majordome-inventory-page .body-content {
     }
 
     #majordomeBulkProgressSummary {
+        --majordome-summary-control-height: 1.55rem;
+        --majordome-summary-control-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075);
         min-height: 1.5rem;
     }
+
+        #majordomeBulkProgressSummary > .majordome-remove-bg-toggle-all,
+        #majordomeBulkProgressSummary > .badge {
+            align-items: center;
+            box-shadow: var(--majordome-summary-control-shadow);
+            display: inline-flex;
+            height: var(--majordome-summary-control-height);
+        }
 
         #majordomeBulkProgressSummary .js-remove-bg-token-count.is-updated {
             animation: majordome-token-count-update .55s ease;
@@ -1701,7 +1711,7 @@ body.majordome-inventory-page .body-content {
         }
 
         100% {
-            box-shadow: none;
+            box-shadow: var(--majordome-summary-control-shadow);
             transform: scale(1);
         }
     }
