@@ -419,8 +419,16 @@
             var match = text.match(/\binventory\s+(?:for|of)\s+([a-z][a-z0-9 .'-]*?)(?:\s+(?:under|before|older than|from|after|over|with)\b|$)/);
             if (!match) return null;
 
-            var make = $.trim(match[1]);
+            var make = $.trim(match[1]
+                .replace(/\b(?:black|white|silver|gr[ae]y|red|blue|green|brown|beige|gold|orange|yellow|purple|burgundy|maroon|tan|cream|bronze)\b/g, " ")
+                .replace(/\b(?:cars?|vehicles?|automobiles?|autos?)\b/g, " ")
+                .replace(/\s+/g, " "));
             return make && make.length <= 40 ? make : null;
+        }
+
+        function requestedInventoryColor(text) {
+            var match = text.match(/\b(black|white|silver|gr[ae]y|red|blue|green|brown|beige|gold|orange|yellow|purple|burgundy|maroon|tan|cream|bronze)\b/);
+            return match ? match[1] : null;
         }
 
         function withMaximumPrice(url, maximumPrice) {
@@ -430,10 +438,11 @@
             return target.pathname + target.search + target.hash;
         }
 
-        function withInventoryFilters(url, make, maximumYear) {
+        function withInventoryFilters(url, make, maximumYear, color) {
             var target = new URL(url, window.location.origin);
             if (make) target.searchParams.set("make", make);
             if (maximumYear) target.searchParams.set("maximumYear", maximumYear);
+            if (color) target.searchParams.set("color", color);
             return target.pathname + target.search + target.hash;
         }
 
@@ -464,6 +473,7 @@
             var maximumPrice = requestedMaximumPrice(normalized);
             var maximumYear = requestedMaximumYear(normalized);
             var inventoryMake = requestedInventoryMake(normalized);
+            var inventoryColor = requestedInventoryColor(normalized);
             var destination;
 
             if (/\b(reset|clear|remove)\b.*\b(?:inventory\s+)?filters?\b/.test(normalized)) {
@@ -506,8 +516,8 @@
                 destination = { url: withMaximumPrice($widget.data("coupes-url"), maximumPrice), label: "coupe inventory" };
             } else if (/\b(inventory|vehicles? for sale|all vehicles?)\b/.test(normalized)) {
                 destination = {
-                    url: withInventoryFilters($widget.data("inventory-url"), inventoryMake, maximumYear),
-                    label: inventoryMake || maximumYear ? "filtered inventory" : "inventory"
+                    url: withInventoryFilters($widget.data("inventory-url"), inventoryMake, maximumYear, inventoryColor),
+                    label: inventoryMake || maximumYear || inventoryColor ? "filtered inventory" : "inventory"
                 };
             } else if (/\b(home|home page|homepage)\b/.test(normalized)) {
                 destination = { url: $widget.data("home-url"), label: "home page" };

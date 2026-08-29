@@ -455,11 +455,12 @@ namespace GTX.Controllers
             var inventory = GetPublicInventory();
             IEnumerable<GTXDTO> query = inventory;
             var freeText = (string)arguments["query"];
-            var bodyType = (string)arguments["body_type"];
+            var bodyType = NormalizeBodyTypeFilter((string)arguments["body_type"]);
             if (string.IsNullOrWhiteSpace(bodyType)) bodyType = InferBodyType(freeText);
 
             query = FilterContains(query, (string)arguments["make"], vehicle => vehicle.Make);
             query = FilterContains(query, (string)arguments["model"], vehicle => vehicle.Model);
+            query = FilterContains(query, (string)arguments["color"], vehicle => Join(vehicle.Color, vehicle.Color2));
             query = FilterContains(query, bodyType, vehicle => Join(vehicle.VehicleType, vehicle.Body, vehicle.VehicleStyle));
             query = FilterTransmission(query, (string)arguments["transmission"]);
             query = FilterFuelType(query, (string)arguments["fuel_type"]);
@@ -708,6 +709,7 @@ namespace GTX.Controllers
                             'query':{'type':'string'},
                             'make':{'type':'string'},
                             'model':{'type':'string'},
+                            'color':{'type':'string','description':'Exterior or interior vehicle color, such as red, black, white, or silver.'},
                             'body_type':{'type':'string'},
                             'transmission':{'type':'string','description':'Transmission type such as manual, automatic, or CVT.'},
                             'fuel_type':{'type':'string','description':'Fuel type such as electric, hybrid, gasoline, diesel, or flex-fuel.'},
@@ -766,6 +768,19 @@ namespace GTX.Controllers
             if (Regex.IsMatch(value, @"\bconvertibles?\b", RegexOptions.IgnoreCase)) return "CONVERTIBLE";
             if (Regex.IsMatch(value, @"\bwagons?\b", RegexOptions.IgnoreCase)) return "WAGON";
             return null;
+        }
+
+        private static string NormalizeBodyTypeFilter(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return null;
+
+            var term = value.Trim();
+            return Regex.IsMatch(
+                term,
+                @"^(?:cars?|vehicles?|automobiles?|autos?)$",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+                ? null
+                : term;
         }
 
         private static IEnumerable<GTXDTO> FilterTransmission(IEnumerable<GTXDTO> source, string value)
@@ -860,6 +875,7 @@ namespace GTX.Controllers
                 vehicle.VehicleType,
                 vehicle.Body,
                 vehicle.Color,
+                vehicle.Color2,
                 vehicle.Features,
                 vehicle.Transmission,
                 TransmissionDescription(vehicle.Transmission),
@@ -1084,6 +1100,8 @@ Never claim that you changed or reset controls, filters, or other state on the s
 Do not claim that you can create, edit, or delete chatbot commands from the chat window.
 For transmission questions, pass manual, automatic, or CVT in the search_inventory transmission parameter.
 For fuel or powertrain questions, pass electric, hybrid, gasoline, diesel, or flex-fuel in the search_inventory fuel_type parameter. Treat EV and BEV as electric and PHEV as hybrid.
+For vehicle-color questions, pass the requested exterior or interior color in the search_inventory color parameter.
+Treat car, cars, vehicle, and vehicles as generic inventory words; never pass them as the body_type. Only use body_type for a specific category such as SUV, truck, van, sedan, coupe, hatchback, convertible, or wagon.
 For engine-cylinder questions, pass the exact cylinder count in the search_inventory cylinders parameter. Treat V8 as 8 cylinders, V6 as 6 cylinders, and similar V-number requests accordingly.
 The website renders inventory tool results as standardized vehicle cards. When a vehicle tool returns one or more vehicles, reply with one short introductory or request-specific sentence only; do not enumerate vehicles, repeat vehicle facts, include prices, or include vehicle links in your text. The cards display the advertised price + documentary fee = price with documentary fee using the exact tool values. Say that price and availability can change and should be confirmed with the dealership.
 You may explain general shopping, trade-in, and financing concepts, but never guarantee credit approval, quote binding loan terms, appraise a trade, negotiate a price, or request SSNs, bank details, driver's-license numbers, or credit-card information.

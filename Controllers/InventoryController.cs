@@ -178,7 +178,7 @@ namespace GTX.Controllers
         }
 
         [HttpGet]
-        public ActionResult All(string make, int? maximumYear) {
+        public ActionResult All(string make, int? maximumYear, string color) {
             var vehicles = Model?.Inventory?.All ?? Array.Empty<Models.GTX>();
 
             if (!string.IsNullOrWhiteSpace(make)) {
@@ -190,6 +190,15 @@ namespace GTX.Controllers
 
             if (maximumYear.HasValue && maximumYear.Value >= 1886 && maximumYear.Value <= DateTime.UtcNow.Year + 2) {
                 vehicles = vehicles.Where(vehicle => vehicle.Year <= maximumYear.Value).ToArray();
+            }
+
+            if (!string.IsNullOrWhiteSpace(color)) {
+                var requestedColor = color.Trim();
+                vehicles = vehicles
+                    .Where(vehicle =>
+                        (vehicle.Color ?? string.Empty).IndexOf(requestedColor, StringComparison.OrdinalIgnoreCase) >= 0
+                        || (vehicle.Color2 ?? string.Empty).IndexOf(requestedColor, StringComparison.OrdinalIgnoreCase) >= 0)
+                    .ToArray();
             }
 
             Model.Inventory.Vehicles = vehicles;
