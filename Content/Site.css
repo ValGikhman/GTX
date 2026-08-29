@@ -3271,13 +3271,12 @@ body.home-index .home-hero .video-background-video {
 }
 
 .home-hero-copy {
-    top: 5rem;
     position: relative;
     z-index: 1;
     max-width: 51rem;
     align-self: center;
     color: #fff;
-    transform: translateY(0);
+    transform: translateY(10rem);
 }
 
 .home-hero-brand {
@@ -3303,8 +3302,6 @@ body.home-index .home-hero .video-background-video {
 }
 
 .home-hero-slogan {
-    top: 1.5rem;
-    left: 13rem;
     position: relative;
     width: max-content;
     max-width: 100%;
@@ -3446,9 +3443,9 @@ body.home-index .home-hero .video-background-video {
 }
 
 .home-memberships {
-    width: min(100%, 39rem);
-    margin-top: 1rem;
-    padding: .68rem .75rem .68rem .9rem;
+    width: min(100%, 31rem);
+    margin-top: .8rem;
+    padding: .5rem .58rem .5rem .72rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -3477,7 +3474,7 @@ body.home-index .home-hero .video-background-video {
 
 .home-memberships-copy strong {
     color: rgba(255, 255, 255, .92);
-    font-size: .78rem;
+    font-size: .68rem;
     font-weight: 800;
     line-height: 1.25;
 }
@@ -3490,9 +3487,9 @@ body.home-index .home-hero .video-background-video {
 }
 
 .home-memberships-logos a {
-    min-width: 4.6rem;
-    height: 3.25rem;
-    padding: .32rem .48rem;
+    min-width: 3.7rem;
+    height: 2.5rem;
+    padding: .26rem .38rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -3512,7 +3509,7 @@ body.home-index .home-hero .video-background-video {
 .home-memberships-logos img {
     display: block;
     width: auto;
-    max-width: 7rem;
+    max-width: 5.5rem;
     height: 100%;
     object-fit: contain;
 }
@@ -4023,7 +4020,10 @@ html.theme-silver .home-quick-icon {
     }
 
     .home-hero-primary-actions {
+        width: 75%;
         margin-top: 10rem;
+        margin-right: auto;
+        margin-left: auto;
         gap: .65rem;
         justify-content: center;
     }
@@ -4058,9 +4058,10 @@ html.theme-silver .home-quick-icon {
     }
 
     .home-memberships {
+        width: 78%;
         margin: .65rem auto 0;
-        padding: .48rem .55rem .48rem .65rem;
-        gap: .55rem;
+        padding: .38rem .42rem .38rem .52rem;
+        gap: .42rem;
     }
 
     .home-memberships-copy span {
@@ -4068,7 +4069,7 @@ html.theme-silver .home-quick-icon {
     }
 
     .home-memberships-copy strong {
-        font-size: .68rem;
+        font-size: .62rem;
     }
 
     .home-memberships-logos {
@@ -4076,13 +4077,13 @@ html.theme-silver .home-quick-icon {
     }
 
     .home-memberships-logos a {
-        min-width: 3.7rem;
-        height: 2.7rem;
-        padding: .26rem .36rem;
+        min-width: 3rem;
+        height: 2.1rem;
+        padding: .2rem .28rem;
     }
 
     .home-memberships-logos img {
-        max-width: 5.4rem;
+        max-width: 4.2rem;
     }
 
     .home-inventory-card-media {
@@ -4097,6 +4098,9 @@ html.theme-silver .home-quick-icon {
     }
 
     .home-hero-quick-actions {
+        width: 75%;
+        margin-right: auto;
+        margin-left: auto;
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
