@@ -42,25 +42,28 @@
     var usCulture = CultureInfo.GetCultureInfo("en-US");
 }
 
-<div class="row justify-content-center well mb-3">
-    <button class="w-100 btn btn-gradient position-relative collapse-toggle"
+<section class="gtx-vehicle-overview gtx-dataone-card well mb-3" aria-labelledby="dataOneDetailsTitle">
+    <button class="gtx-overview-toggle w-100 btn btn-gradient position-relative collapse-toggle"
+            type="button"
             data-bs-toggle="collapse"
             data-bs-target="#details"
             aria-expanded="true"
             aria-controls="details">
-        <div class="bg-lighter py-2 px-3 text-center hand-pointer">
-            <h5 class="fw-bold text-uppercase text-white">
-                <i class="bi bi-car-front mx-2"></i>@I18n.R("All_Details")
-            </h5>
-        </div>
-        <span class="toggle-icons position-absolute end-0 top-50 translate-middle-y pe-3" aria-hidden="true">
+        <span class="gtx-overview-toggle-copy">
+            <span class="gtx-overview-toggle-icon" aria-hidden="true"><i class="bi bi-car-front"></i></span>
+            <span>
+                <small>DataOne vehicle profile</small>
+                <strong id="dataOneDetailsTitle">@I18n.R("All_Details")</strong>
+            </span>
+        </span>
+        <span class="toggle-icons" aria-hidden="true">
             <i class="bi bi-plus-lg icon-plus"></i>
             <i class="bi bi-dash-lg icon-minus"></i>
         </span>
     </button>
 
-    <div class="text-shadow-small show" id="details">
-        <div class="mt-2  px-3" id="dataOneContainer">
+    <div class="collapse show gtx-dataone-body" id="details">
+        <div id="dataOneContainer">
             @if (Model.CurrentVehicle.VehicleDataOneDetails?.QueryResponses?.Items == null || !Model.CurrentVehicle.VehicleDataOneDetails.QueryResponses.Items.Any())
             {
                 <div class="alert alert-warning">No query responses.</div>
@@ -630,4 +633,4 @@
         }
         </div>
     </div>
-</div>
+</section>

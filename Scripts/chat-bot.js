@@ -134,7 +134,8 @@
                         text: String(item.text || ""),
                         extraClass: extraClass,
                         vehicles: Array.isArray(item.vehicles) ? item.vehicles.slice(0, 5) : [],
-                        totalMatches: item.totalMatches == null ? null : Number(item.totalMatches)
+                        totalMatches: item.totalMatches == null ? null : Number(item.totalMatches),
+                        inventoryUrl: /^\/Inventory\/All\?/i.test(item.inventoryUrl || "") ? item.inventoryUrl : null
                     };
                 });
                 state.responseId = /^resp_[A-Za-z0-9_-]+$/.test(state.responseId || "") ? state.responseId : null;
@@ -286,7 +287,7 @@
             $("<span>", { text: value }).appendTo($detail);
         }
 
-        function appendStructuredVehicles($container, vehicles, totalMatches) {
+        function appendStructuredVehicles($container, vehicles, totalMatches, inventoryUrl) {
             var total = Number(totalMatches);
             if (!Number.isFinite(total)) total = vehicles.length;
 
@@ -333,13 +334,23 @@
                 }
             });
 
+            if (total > 0 && /^\/Inventory\/All\?/i.test(inventoryUrl || "")) {
+                var $allLink = $("<a>", {
+                    "class": "gtx-chat-inventory-link",
+                    href: inventoryUrl,
+                    title: "View all " + formatWholeNumber(total) + " matching vehicles"
+                }).appendTo($container);
+                $("<i>", { "class": "bi bi-grid-3x3-gap-fill", "aria-hidden": "true" }).appendTo($allLink);
+                $("<span>", { text: "View all " + formatWholeNumber(total) + " matching vehicles" }).appendTo($allLink);
+            }
+
             $container.addClass("has-vehicle-results");
         }
 
-        function addMessage(role, text, extraClass, vehicles, totalMatches, persist) {
+        function addMessage(role, text, extraClass, vehicles, totalMatches, persist, inventoryUrl) {
             var $item = $("<div>", { "class": "gtx-chat-message is-" + role + (extraClass ? " " + extraClass : "") });
             if (role === "assistant" && vehicles && vehicles.length) {
-                appendStructuredVehicles($item, vehicles, totalMatches);
+                appendStructuredVehicles($item, vehicles, totalMatches, inventoryUrl);
             } else if (role === "assistant") {
                 appendAssistantText($item, text);
             } else {
@@ -359,7 +370,8 @@
                     text: String(text || ""),
                     extraClass: extraClass || "",
                     vehicles: vehicles && vehicles.length ? vehicles.slice(0, 5) : [],
-                    totalMatches: totalMatches == null ? null : Number(totalMatches)
+                    totalMatches: totalMatches == null ? null : Number(totalMatches),
+                    inventoryUrl: /^\/Inventory\/All\?/i.test(inventoryUrl || "") ? inventoryUrl : null
                 });
                 conversation = conversation.slice(-maximumStoredMessages);
                 saveChat();
@@ -619,13 +631,14 @@
                 responseId = data && (data.ResponseId || data.responseId) || null;
                 var vehicles = data && (data.Vehicles || data.vehicles) || [];
                 var totalMatches = data && (data.TotalVehicleMatches != null ? data.TotalVehicleMatches : data.totalVehicleMatches);
+                var inventoryUrl = data && (data.InventoryUrl || data.inventoryUrl);
                 var navigation = data && (data.Navigation || data.navigation);
                 if (navigation) {
                     handleServerNavigation(navigation);
                     return;
                 }
 
-                addMessage("assistant", reply || "I could not prepare an answer. Please try again.", "", vehicles, totalMatches);
+                addMessage("assistant", reply || "I could not prepare an answer. Please try again.", "", vehicles, totalMatches, undefined, inventoryUrl);
             }).fail(function (xhr) {
                 $thinking.remove();
                 if (responseId && xhr && xhr.status === 502) responseId = null;
@@ -734,6 +747,14 @@
             else closeCommandGuide();
         });
         $widget.on("click", "[data-chat-help-close]", function () { closeCommandGuide(); });
+        $widget.on("click", "[data-chat-guide-toggle]", function () {
+            var $toggle = $(this);
+            var expanded = $toggle.attr("aria-expanded") === "true";
+            $toggle.attr("aria-expanded", expanded ? "false" : "true");
+            $toggle.closest(".gtx-chat-command-guide-group")
+                .nextUntil(".gtx-chat-command-guide-group")
+                .prop("hidden", expanded);
+        });
         $widget.on("click", "[data-chat-reset]", resetChat);
         $widget.on("click", "[data-chat-contact]", function () {
             closeCommandGuide(false);
@@ -829,7 +850,8 @@
                         item.extraClass,
                         item.vehicles,
                         item.totalMatches,
-                        false);
+                        false,
+                        item.inventoryUrl);
                 });
             }
 

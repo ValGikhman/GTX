@@ -824,6 +824,461 @@ html.theme-silver .vdp-contact-action-primary small {
     letter-spacing: .055em;
 }
 
+/* Shared fallback details card — public detail page and dashboard modal. */
+.gtx-vehicle-overview {
+    --overview-accent: var(--vdp-accent, var(--gtx-accent-solid, #1e73be));
+    --overview-gradient: var(--vdp-theme-gradient, var(--gtx-grad, linear-gradient(145deg, #155a96, #1e73be)));
+    --overview-surface: var(--vdp-surface, var(--bs-body-bg, #fff));
+    --overview-soft: var(--vdp-soft, var(--bs-tertiary-bg, #f3f5f6));
+    --overview-line: var(--vdp-line, rgba(17, 24, 32, .12));
+    margin-right: 0;
+    margin-left: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--overview-line) !important;
+    border-radius: 1.1rem;
+    background: var(--overview-surface);
+    box-shadow: 0 .9rem 2.5rem rgba(20, 29, 38, .08);
+}
+
+.gtx-overview-toggle {
+    min-height: 4rem !important;
+    padding: .58rem .8rem !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #fff;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: var(--overview-gradient);
+    box-shadow: none !important;
+    text-align: left;
+}
+
+.gtx-overview-toggle:hover,
+.gtx-overview-toggle:focus-visible {
+    color: #fff;
+}
+
+html.theme-silver .gtx-overview-toggle {
+    color: #20262c;
+}
+
+.gtx-overview-toggle-copy,
+.gtx-overview-section-heading,
+.gtx-overview-spec,
+.gtx-overview-color {
+    display: flex;
+    align-items: center;
+}
+
+.gtx-overview-toggle-copy {
+    gap: .72rem;
+}
+
+.gtx-overview-toggle-copy > span:last-child,
+.gtx-overview-section-heading > span:nth-child(2),
+.gtx-overview-spec > span:last-child,
+.gtx-overview-color > span:last-child {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.gtx-overview-toggle-copy small {
+    color: rgba(255, 255, 255, .68);
+    font-size: .58rem;
+    font-weight: 800;
+    letter-spacing: .14em;
+    line-height: 1.1;
+    text-transform: uppercase;
+}
+
+.gtx-overview-toggle-copy strong {
+    margin-top: .15rem;
+    font-size: .84rem;
+    font-weight: 850;
+    letter-spacing: .06em;
+    line-height: 1.15;
+    text-transform: uppercase;
+}
+
+html.theme-silver .gtx-overview-toggle-copy small {
+    color: rgba(32, 38, 44, .65);
+}
+
+.gtx-overview-toggle-icon,
+.gtx-overview-heading-icon,
+.gtx-overview-spec-icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+}
+
+.gtx-overview-toggle-icon {
+    width: 2.65rem;
+    height: 2.65rem;
+    border: 1px solid rgba(255, 255, 255, .22);
+    border-radius: .75rem;
+    background: rgba(255, 255, 255, .12);
+    box-shadow: inset 0 1px rgba(255, 255, 255, .12);
+    font-size: 1.1rem;
+}
+
+.gtx-overview-toggle .toggle-icons {
+    position: static !important;
+    width: 2.2rem;
+    height: 2.2rem;
+    padding: 0 !important;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    border: 1px solid rgba(255, 255, 255, .2);
+    border-radius: 50%;
+    background: rgba(0, 0, 0, .1);
+    transform: none !important;
+}
+
+.gtx-overview-body {
+    padding: clamp(.85rem, 2.4vw, 1.5rem);
+    background:
+        radial-gradient(circle at 100% 0, color-mix(in srgb, var(--overview-accent) 9%, transparent), transparent 18rem),
+        var(--overview-surface);
+}
+
+.gtx-overview-summary {
+    padding: .15rem .15rem 1.15rem;
+    border-bottom: 1px solid var(--overview-line);
+}
+
+.gtx-overview-kicker,
+.gtx-overview-summary small,
+.gtx-overview-spec small,
+.gtx-overview-section-heading small,
+.gtx-overview-color small {
+    color: var(--bs-secondary-color, #65707c);
+    font-size: .6rem;
+    font-weight: 800;
+    letter-spacing: .11em;
+    line-height: 1.15;
+    text-transform: uppercase;
+}
+
+.gtx-overview-kicker {
+    color: var(--overview-accent);
+}
+
+.gtx-overview-summary h2 {
+    margin: .25rem 0 .55rem;
+    color: var(--bs-heading-color, var(--bs-body-color, #111820));
+    font-size: clamp(1.15rem, 2.6vw, 1.65rem);
+    font-weight: 850;
+    letter-spacing: -.035em;
+    line-height: 1.08;
+}
+
+.gtx-overview-identifiers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem .9rem;
+    color: var(--bs-secondary-color, #65707c);
+    font-size: .68rem;
+    font-weight: 700;
+}
+
+.gtx-overview-identifiers span {
+    display: inline-flex;
+    gap: .35rem;
+    align-items: center;
+}
+
+.gtx-overview-identifiers i {
+    color: var(--overview-accent);
+}
+
+.gtx-overview-specs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .6rem;
+    padding-top: 1rem;
+}
+
+.gtx-overview-spec {
+    min-width: 0;
+    min-height: 4.15rem;
+    gap: .68rem;
+    padding: .66rem .72rem;
+    border: 1px solid var(--overview-line);
+    border-radius: .8rem;
+    background: var(--overview-soft);
+    transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease;
+}
+
+.gtx-overview-spec:hover {
+    border-color: color-mix(in srgb, var(--overview-accent) 32%, transparent);
+    transform: translateY(-1px);
+    box-shadow: 0 .45rem 1rem rgba(20, 29, 38, .07);
+}
+
+.gtx-overview-spec-icon,
+.gtx-overview-heading-icon {
+    color: var(--overview-accent);
+    border-radius: .65rem;
+    background: color-mix(in srgb, var(--overview-accent) 10%, var(--overview-surface));
+}
+
+.gtx-overview-spec-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+}
+
+.gtx-overview-spec strong,
+.gtx-overview-color strong {
+    margin-top: .16rem;
+    overflow: hidden;
+    color: var(--bs-body-color, #111820);
+    font-size: .76rem;
+    font-weight: 800;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+}
+
+.gtx-overview-colors,
+.gtx-overview-features {
+    margin-top: .85rem;
+    padding: .85rem;
+    border: 1px solid var(--overview-line);
+    border-radius: .85rem;
+    background: var(--overview-surface);
+}
+
+.gtx-overview-section-heading {
+    gap: .65rem;
+    margin-bottom: .72rem;
+}
+
+.gtx-overview-heading-icon {
+    width: 2.1rem;
+    height: 2.1rem;
+}
+
+.gtx-overview-section-heading strong {
+    margin-top: .1rem;
+    color: var(--bs-heading-color, var(--bs-body-color, #111820));
+    font-size: .82rem;
+    font-weight: 850;
+}
+
+.gtx-overview-count {
+    min-width: 1.75rem;
+    margin-left: auto;
+    padding: .22rem .45rem;
+    color: var(--overview-accent);
+    border: 1px solid color-mix(in srgb, var(--overview-accent) 22%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--overview-accent) 8%, transparent);
+    font-size: .64rem;
+    font-weight: 850;
+    text-align: center;
+}
+
+.gtx-overview-color-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .55rem;
+}
+
+.gtx-overview-color {
+    min-width: 0;
+    gap: .65rem;
+    padding: .55rem .65rem;
+    border: 1px solid var(--overview-line);
+    border-radius: .72rem;
+    background: var(--overview-soft);
+}
+
+.gtx-overview-color-swatch {
+    width: 2rem;
+    height: 2rem;
+    flex: 0 0 auto;
+    border: .22rem solid var(--overview-surface);
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px var(--overview-line), 0 .25rem .6rem rgba(20, 29, 38, .15);
+}
+
+.gtx-overview-feature-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .42rem;
+}
+
+.gtx-overview-feature-list > span {
+    padding: .42rem .62rem;
+    display: inline-flex;
+    gap: .35rem;
+    align-items: center;
+    color: var(--bs-body-color, #111820);
+    border: 1px solid var(--overview-line);
+    border-radius: 999px;
+    background: var(--overview-soft);
+    font-size: .68rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.gtx-overview-feature-list i {
+    color: var(--overview-accent);
+    font-size: .75rem;
+}
+
+.gtx-story-body,
+.gtx-suggestion-body,
+.gtx-dataone-body {
+    background:
+        radial-gradient(circle at 100% 0, color-mix(in srgb, var(--overview-accent) 7%, transparent), transparent 18rem),
+        var(--overview-surface);
+}
+
+.gtx-dataone-card #dataOneContainer {
+    padding: clamp(.75rem, 2.4vw, 1.25rem);
+}
+
+.gtx-dataone-card #dataOneContainer > .alert {
+    margin: 0;
+    border-radius: .8rem;
+}
+
+.gtx-story-content {
+    padding: clamp(1rem, 3vw, 1.75rem);
+    color: var(--bs-body-color, #111820);
+    font-size: .9rem;
+    line-height: 1.75;
+    text-shadow: none;
+}
+
+.gtx-story-content > :first-child {
+    margin-top: 0;
+}
+
+.gtx-story-content > :last-child {
+    margin-bottom: 0;
+}
+
+.gtx-story-content h1,
+.gtx-story-content h2,
+.gtx-story-content h3,
+.gtx-story-content h4 {
+    margin: 1.35rem 0 .65rem;
+    color: var(--bs-heading-color, var(--bs-body-color, #111820));
+    font-weight: 850;
+    letter-spacing: -.025em;
+    line-height: 1.2;
+}
+
+.gtx-story-content p,
+.gtx-story-content ul,
+.gtx-story-content ol {
+    margin-bottom: .9rem;
+}
+
+.gtx-story-content blockquote {
+    margin: 1rem 0;
+    padding: .8rem 1rem;
+    color: var(--bs-secondary-color, #65707c);
+    border-left: .22rem solid var(--overview-accent);
+    border-radius: 0 .65rem .65rem 0;
+    background: var(--overview-soft);
+}
+
+.gtx-story-content a {
+    color: var(--overview-accent);
+    font-weight: 750;
+    text-underline-offset: .18em;
+}
+
+.gtx-story-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: .75rem;
+}
+
+.gtx-suggestion-body {
+    padding: .7rem;
+}
+
+.gtx-suggestion-body .details-suggestion-rail {
+    gap: .5rem;
+}
+
+.gtx-suggestion-body .scroll-container {
+    padding: .65rem;
+    border-radius: .8rem;
+    background: var(--overview-soft);
+}
+
+@media (max-width: 767.98px) {
+    .gtx-overview-body {
+        padding: .75rem;
+    }
+
+    .gtx-overview-specs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .45rem;
+    }
+
+    .gtx-overview-spec {
+        min-height: 3.75rem;
+        gap: .5rem;
+        padding: .55rem;
+    }
+
+    .gtx-overview-spec-icon {
+        width: 1.9rem;
+        height: 1.9rem;
+    }
+
+    .gtx-story-content {
+        padding: 1rem;
+        font-size: .84rem;
+        line-height: 1.65;
+    }
+
+    .gtx-suggestion-body {
+        padding: .45rem;
+    }
+}
+
+@media (max-width: 479.98px) {
+    .gtx-overview-toggle {
+        min-height: 3.6rem !important;
+    }
+
+    .gtx-overview-toggle-icon {
+        width: 2.25rem;
+        height: 2.25rem;
+    }
+
+    .gtx-overview-summary h2 {
+        font-size: 1.08rem;
+    }
+
+    .gtx-overview-specs,
+    .gtx-overview-color-list {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .gtx-overview-colors,
+    .gtx-overview-features {
+        padding: .68rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gtx-overview-spec {
+        transition: none;
+    }
+}
+
 .vehicle-detail-page #nav-pictures {
     padding: .65rem;
 }

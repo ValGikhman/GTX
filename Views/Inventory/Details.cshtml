@@ -293,26 +293,32 @@
                 @*Story*@
                 @if (@Model.CurrentVehicle.VehicleDetails.Story != null)
                 {
-                    <div class="row justify-content-center well mb-3">
-                        <button class="w-100 btn btn-gradient position-relative collapse-toggle"
+                    <section class="gtx-vehicle-overview gtx-story-card well mb-3" aria-labelledby="vehicleStoryTitle">
+                        <button class="gtx-overview-toggle w-100 btn btn-gradient position-relative collapse-toggle"
                                 type="button"
                                 data-bs-toggle="collapse"
                                 data-bs-target="#story"
                                 aria-expanded="true"
                                 aria-controls="story">
-                            <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2"><i class="bi bi-pen mx-2"></i>@Model.CurrentVehicle.VehicleDetails.Story.Title</h5>
-
-                            <!-- right-side +/–, stays out of the flow so the H5 can center -->
-                            <span class="toggle-icons position-absolute end-0 top-50 translate-middle-y pe-3" aria-hidden="true">
+                            <span class="gtx-overview-toggle-copy">
+                                <span class="gtx-overview-toggle-icon" aria-hidden="true"><i class="bi bi-pen"></i></span>
+                                <span>
+                                    <small>Vehicle story</small>
+                                    <strong id="vehicleStoryTitle">@Model.CurrentVehicle.VehicleDetails.Story.Title</strong>
+                                </span>
+                            </span>
+                            <span class="toggle-icons" aria-hidden="true">
                                 <i class="bi bi-plus-lg icon-plus"></i>
                                 <i class="bi bi-dash-lg icon-minus"></i>
                             </span>
                         </button>
 
-                        <div class="collapse show p-3 text-shadow-small well" id="story">
-                            @Html.Raw(SecuritySanitizer.SanitizeRichHtml(Model.CurrentVehicle.VehicleDetails.Story.HtmlContent))
+                        <div class="collapse show gtx-story-body" id="story">
+                            <article class="gtx-story-content">
+                                @Html.Raw(SecuritySanitizer.SanitizeRichHtml(Model.CurrentVehicle.VehicleDetails.Story.HtmlContent))
+                            </article>
                         </div>
-                    </div>
+                    </section>
                 }
             </div>
             <!-- Pictures Tab -->
@@ -502,19 +508,21 @@
 
         </div>
         @*May also like*@
-        <div class="details-suggestions vdp-suggestions mb-5">
-            <button class="w-100 btn btn-gradient position-relative collapse-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#suggestion" aria-expanded="true" aria-controls="suggestion">
-                <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
-                    <i class="bi bi-hand-thumbs-up mx-2"></i>@I18n.R("All_YouMayLike")
-                </h5>
-
-                <!-- right-side +/–, stays out of the flow so the H5 can center -->
-                <span class="toggle-icons position-absolute end-0 top-50 translate-middle-y pe-3" aria-hidden="true">
+        <section class="details-suggestions vdp-suggestions gtx-vehicle-overview mb-5" aria-labelledby="vehicleSuggestionsTitle">
+            <button class="gtx-overview-toggle w-100 btn btn-gradient position-relative collapse-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#suggestion" aria-expanded="true" aria-controls="suggestion">
+                <span class="gtx-overview-toggle-copy">
+                    <span class="gtx-overview-toggle-icon" aria-hidden="true"><i class="bi bi-hand-thumbs-up"></i></span>
+                    <span>
+                        <small>More to explore</small>
+                        <strong id="vehicleSuggestionsTitle">@I18n.R("All_YouMayLike")</strong>
+                    </span>
+                </span>
+                <span class="toggle-icons" aria-hidden="true">
                     <i class="bi bi-plus-lg icon-plus"></i>
                     <i class="bi bi-dash-lg icon-minus"></i>
                 </span>
             </button>
-            <div class="collapse show p-0" id="suggestion">
+            <div class="collapse show gtx-suggestion-body" id="suggestion">
                 <div class="details-suggestion-rail d-flex">
                     <button class="btn btn-gradient-grey scroll-button bi bi-arrow-left-circle" onclick="scrollSuggestions(-300)"></button>
                     <div class="scroll-container well shadow" id="suggestionScroll">
@@ -530,7 +538,7 @@
                     <button class="btn btn-gradient-grey scroll-button bi bi-arrow-right-circle" onclick="scrollSuggestions(300)"></button>
                 </div>
             </div>
-        </div>
+        </section>
     </div>
     <!-- Buttons Carfax/ schedules etc-->
     <div id="modalShortcuts" class="inventory-details-actions vdp-action-stack">

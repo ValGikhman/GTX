@@ -178,8 +178,20 @@ namespace GTX.Controllers
         }
 
         [HttpGet]
-        public ActionResult All(string make, int? maximumYear, string color) {
+        public ActionResult All(string make, int? maximumYear, string color, string stocks) {
             var vehicles = Model?.Inventory?.All ?? Array.Empty<Models.GTX>();
+
+            if (!string.IsNullOrWhiteSpace(stocks)) {
+                var requestedStocks = new HashSet<string>(
+                    stocks.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(stock => stock.Trim())
+                        .Where(stock => stock.Length > 0 && stock.Length <= 20)
+                        .Take(250),
+                    StringComparer.OrdinalIgnoreCase);
+                vehicles = vehicles
+                    .Where(vehicle => vehicle != null && requestedStocks.Contains(vehicle.Stock ?? string.Empty))
+                    .ToArray();
+            }
 
             if (!string.IsNullOrWhiteSpace(make)) {
                 var requestedMake = make.Trim();

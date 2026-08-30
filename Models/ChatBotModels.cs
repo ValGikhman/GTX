@@ -22,6 +22,7 @@ namespace GTX.Models
         public string Reply { get; set; }
         public string ResponseId { get; set; }
         public int? TotalVehicleMatches { get; set; }
+        public string InventoryUrl { get; set; }
         public ChatVehicleResult[] Vehicles { get; set; }
         public ChatNavigationResult Navigation { get; set; }
     }
