@@ -198,16 +198,29 @@
         font-weight: 800;
     }
 
-    .cdn-purge-actions {
+    .health-refresh-actions {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: .65rem;
     }
 
-    .cdn-purge-actions .btn {
+    .health-refresh-actions .btn {
+        width: 100%;
+        min-height: 2.15rem;
         min-width: 0;
         border-radius: .7rem;
         white-space: nowrap;
+    }
+
+    .health-refresh-actions-single {
+        grid-template-columns: minmax(0, 1fr);
+        justify-items: center;
+    }
+
+    .health-refresh-actions-single .btn {
+        width: auto;
+        min-width: 9.5rem;
+        max-width: 100%;
     }
 
     .health-card-maintenance {
@@ -579,14 +592,14 @@
 
                 @if (isOwner)
                 {
-                    <div class="cdn-purge-actions pt-4 mt-auto">
+                    <div class="health-refresh-actions pt-4 mt-auto">
                         <button type="button" id="btnRefreshInventoryCdn"
-                                class="btn btn-sm btn-outline-warning shadow-sm"
+                                class="btn btn-sm btn-outline-success shadow-sm"
                                 @(cdnEnabled ? null : "disabled")>
                             <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>Inventory
                         </button>
                         <button type="button" id="btnRefreshSiteImagesCdn"
-                                class="btn btn-sm btn-outline-warning shadow-sm"
+                                class="btn btn-sm btn-outline-success shadow-sm"
                                 @(cdnEnabled ? null : "disabled")>
                             <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>Images
                         </button>
@@ -597,7 +610,7 @@
 
         <!-- GTX Cloudflare Bucket Card -->
         <div class="health-card-col">
-            <div id="cloudflareBucketHealthCard" class="h-100 well p-4 health-card health-card-bucket">
+            <div id="cloudflareBucketHealthCard" class="h-100 well p-4 health-card health-card-bucket d-flex flex-column">
                 <div class="health-card-head">
                     <div class="health-card-title">
                         <div class="health-icon health-icon-bucket">
@@ -605,50 +618,52 @@
                         </div>
                         <div>
                             <div class="kpi-label mb-0">GTX R2 Bucket</div>
-                            <div class="kpi-sub mt-1">Cloudflare-hosted inventory</div>
+                            <div class="kpi-sub mt-1">Cloudflare Inventory</div>
                         </div>
                     </div>
-                    <span id="cloudflareBucketStatus" class="badge rounded-pill text-bg-warning">Counting</span>
                 </div>
 
-                <div class="mt-4">
+                <div class="mt-4 d-flex flex-column flex-grow-1">
                     <div class="health-token-value">
                         <div id="cloudflareImageCount" class="kpi-value">—</div>
                         <div class="health-token-unit">images hosted</div>
                     </div>
                     <div id="cloudflareBucketDetail" class="kpi-sub mt-2">Reading the GTX bucket…</div>
-                    <button type="button" id="btnRefreshCloudflareBucket" class="btn btn-outline-warning shadow-sm mt-3">
-                        <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>Refresh count
-                    </button>
+                    <div class="health-refresh-actions health-refresh-actions-single pt-4 mt-auto">
+                        <button type="button" id="btnRefreshCloudflareBucket" class="btn btn-sm btn-outline-success shadow-sm">
+                            <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>Refresh count
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Background Removal Token Card -->
         <div class="health-card-col">
-            <div id="removeBgHealthCard" class="h-100 well p-4 health-card health-card-remove-bg">
+            <div id="removeBgHealthCard" class="h-100 well p-4 health-card health-card-remove-bg d-flex flex-column">
                 <div class="health-card-head">
                     <div class="health-card-title">
                         <div class="health-icon health-icon-remove-bg">
                             <i class="bi bi-eraser-fill"></i>
                         </div>
                         <div>
-                            <div class="kpi-label mb-0">remove.bg Service</div>
-                            <div class="kpi-sub mt-1">Live token balance</div>
+                            <div class="kpi-label mb-0">remove.bg</div>
+                            <div class="kpi-sub mt-1">Token balance</div>
                         </div>
                     </div>
-                    <span id="removeBgTokenStatus" class="badge rounded-pill text-bg-warning">Checking</span>
                 </div>
 
-                <div class="mt-4">
+                <div class="mt-4 d-flex flex-column flex-grow-1">
                     <div class="health-token-value">
                         <div id="removeBgTokenCount" class="kpi-value">—</div>
                         <div class="health-token-unit">tokens available</div>
                     </div>
                     <div id="removeBgTokenDetail" class="kpi-sub mt-2">Contacting remove.bg…</div>
-                    <button type="button" id="btnRefreshRemoveBgTokens" class="btn btn-outline-primary shadow-sm mt-3">
-                        <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>Refresh balance
-                    </button>
+                    <div class="health-refresh-actions health-refresh-actions-single pt-4 mt-auto">
+                        <button type="button" id="btnRefreshRemoveBgTokens" class="btn btn-sm btn-outline-success shadow-sm">
+                            <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>Refresh balance
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -796,8 +811,6 @@
 
                         $status.text("Purged");
                         $button
-                            .removeClass("btn-outline-warning")
-                            .addClass("btn-outline-success")
                             .html('<i class="bi bi-check2-circle me-1" aria-hidden="true"></i>Purged');
                     })
                     .fail(function (xhr) {
@@ -811,8 +824,6 @@
                         window.setTimeout(function () {
                             $button
                                 .prop("disabled", false)
-                                .removeClass("btn-outline-success")
-                                .addClass("btn-outline-warning")
                                 .html(originalHtml);
                         }, 2500);
                     });
@@ -822,14 +833,12 @@
 
     function refreshRemoveBgTokenBalance() {
         const $button = $("#btnRefreshRemoveBgTokens");
-        const $status = $("#removeBgTokenStatus");
         const $count = $("#removeBgTokenCount");
         const $detail = $("#removeBgTokenDetail");
         const originalHtml = $button.html();
 
         $button.prop("disabled", true)
             .html('<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>Checking…');
-        $status.removeClass("text-bg-success text-bg-danger text-bg-secondary").addClass("text-bg-warning").text("Checking");
         $detail.text("Contacting remove.bg…");
 
         $.ajax({
@@ -842,7 +851,6 @@
             .done(function (response) {
                 if (!response || !response.success) {
                     $count.text("—");
-                    $status.removeClass("text-bg-warning text-bg-success").addClass("text-bg-danger").text("Unavailable");
                     $detail.text((response && response.message) || "The remove.bg balance could not be loaded.");
                     return;
                 }
@@ -851,7 +859,6 @@
                 const credits = Math.max(0, Number(response.credits) || 0);
                 const freeCalls = Math.max(0, Number(response.freeCalls) || 0);
                 $count.text(total.toLocaleString("en-US"));
-                $status.removeClass("text-bg-warning text-bg-danger").addClass(total > 0 ? "text-bg-success" : "text-bg-danger").text(total > 0 ? "Available" : "Empty");
                 $detail.text(`${credits.toLocaleString("en-US")} credits + ${freeCalls.toLocaleString("en-US")} free calls`);
             })
             .fail(function (xhr) {
@@ -859,7 +866,6 @@
                     ? xhr.responseJSON.message
                     : "The remove.bg balance could not be loaded.";
                 $count.text("—");
-                $status.removeClass("text-bg-warning text-bg-success").addClass("text-bg-danger").text("Unavailable");
                 $detail.text(message);
             })
             .always(function () {
@@ -869,14 +875,12 @@
 
     function refreshCloudflareBucketStats() {
         const $button = $("#btnRefreshCloudflareBucket");
-        const $status = $("#cloudflareBucketStatus");
         const $count = $("#cloudflareImageCount");
         const $detail = $("#cloudflareBucketDetail");
         const originalHtml = $button.html();
 
         $button.prop("disabled", true)
             .html('<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>Counting…');
-        $status.removeClass("text-bg-success text-bg-danger text-bg-secondary").addClass("text-bg-warning").text("Counting");
         $detail.text("Reading the GTX bucket…");
 
         $.ajax({
@@ -889,7 +893,6 @@
             .done(function (response) {
                 if (!response || !response.success) {
                     $count.text("—");
-                    $status.removeClass("text-bg-warning text-bg-success").addClass("text-bg-danger").text("Unavailable");
                     $detail.text((response && response.message) || "The GTX bucket could not be counted.");
                     return;
                 }
@@ -899,7 +902,6 @@
                 const imageBytes = Math.max(0, Number(response.ImageBytes) || 0);
                 const otherObjects = Math.max(0, Number(response.OtherObjects) || 0);
                 $count.text(imageCount.toLocaleString("en-US"));
-                $status.removeClass("text-bg-warning text-bg-danger").addClass("text-bg-success").text("Available");
                 $detail.text(`${stockFolders.toLocaleString("en-US")} stock folders · ${fmtBytes(imageBytes)} images · ${otherObjects.toLocaleString("en-US")} other objects`);
             })
             .fail(function (xhr) {
@@ -907,7 +909,6 @@
                     ? xhr.responseJSON.message
                     : "The GTX bucket could not be counted.";
                 $count.text("—");
-                $status.removeClass("text-bg-warning text-bg-success").addClass("text-bg-danger").text("Unavailable");
                 $detail.text(message);
             })
             .always(function () {
