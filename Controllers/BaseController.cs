@@ -87,7 +87,7 @@ namespace GTX.Controllers
 
                 Model.Responsibility = CommonUnit.GetConfiguredResponsibility();
                 Model.Environment = CommonUnit.GetConfiguredEnvironment();
-                Model.IsDataOne = ConfigurationManager.AppSettings["isDataOne"] == "true";
+                Model.IsDataOne = ConfigurationManager.AppSettings["DataOne"] == "true";
 
                 SessionData.Responsibility = Model.Responsibility;
                 SessionData.Environment = Model.Environment;

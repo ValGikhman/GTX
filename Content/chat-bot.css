@@ -2,6 +2,11 @@
     --gtx-chat-theme: var(--gtx-grad, linear-gradient(135deg, #0b5ed7, #163a72));
     --gtx-chat-accent: var(--gtx-accent-solid, #0b5ed7);
     --gtx-chat-on-theme: #fff;
+    --gtx-chat-card-border: rgba(203, 213, 225, .82);
+    --gtx-chat-card-radius: .85rem;
+    --gtx-chat-card-shadow: 0 .22rem .62rem rgba(15, 23, 42, .075);
+    --gtx-chat-card-shadow-hover: 0 .5rem 1.1rem rgba(22, 58, 114, .13);
+    --gtx-chat-card-surface: rgba(255, 255, 255, .96);
     position: fixed;
     right: 1rem;
     bottom: calc(var(--gtx-footer-height, 0px) + 1rem);
@@ -206,13 +211,28 @@
 .gtx-chat-command-guide-group {
     display: flex;
     align-items: center;
-    gap: .35rem;
     margin: 1rem .15rem .5rem;
+}
+
+.gtx-chat-command-guide-group button {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .2rem;
+    border: 0;
     color: #526075;
+    background: transparent;
     font-size: .66rem;
     font-weight: 800;
     letter-spacing: .08em;
+    line-height: 1.3;
+    text-align: left;
     text-transform: uppercase;
+}
+
+.gtx-chat-command-guide-group button:hover,
+.gtx-chat-command-guide-group button:focus-visible {
+    color: var(--gtx-chat-accent);
 }
 
 .gtx-chat-command-guide-group::after {
@@ -225,14 +245,22 @@
 
 .gtx-chat-command-guide-group i { color: var(--gtx-chat-accent); font-size: .78rem; }
 
+.gtx-chat-guide-chevron {
+    transition: transform .18s ease;
+}
+
+[data-chat-guide-toggle][aria-expanded="true"] .gtx-chat-guide-chevron {
+    transform: rotate(180deg);
+}
+
 .gtx-chat-command-guide-item {
     position: relative;
     padding: .72rem .75rem;
     overflow: hidden;
-    border: 1px solid rgba(203, 213, 225, .8);
-    border-radius: .85rem;
-    background: rgba(255, 255, 255, .94);
-    box-shadow: 0 .18rem .55rem rgba(15, 23, 42, .055);
+    border: 1px solid var(--gtx-chat-card-border);
+    border-radius: var(--gtx-chat-card-radius);
+    background: var(--gtx-chat-card-surface);
+    box-shadow: var(--gtx-chat-card-shadow);
     transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
 }
 
@@ -247,7 +275,7 @@
 
 .gtx-chat-command-guide-item:hover {
     border-color: rgba(13, 110, 253, .35);
-    box-shadow: 0 .45rem 1.05rem rgba(22, 58, 114, .12);
+    box-shadow: var(--gtx-chat-card-shadow-hover);
     transform: translateY(-1px);
 }
 
@@ -388,10 +416,17 @@
 .gtx-chat-vehicle-card {
     margin-top: .65rem;
     overflow: hidden;
-    border: 1px solid #dbe3ee;
-    border-radius: .7rem;
-    background: #fff;
-    box-shadow: 0 .2rem .55rem rgba(15, 23, 42, .08);
+    border: 1px solid var(--gtx-chat-card-border);
+    border-radius: var(--gtx-chat-card-radius);
+    background: var(--gtx-chat-card-surface);
+    box-shadow: var(--gtx-chat-card-shadow);
+    transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+
+.gtx-chat-vehicle-card:hover {
+    border-color: rgba(13, 110, 253, .35);
+    box-shadow: var(--gtx-chat-card-shadow-hover);
+    transform: translateY(-1px);
 }
 
 .gtx-chat-vehicle-title {
@@ -422,26 +457,48 @@
     font-weight: 700;
 }
 
-.gtx-chat-vehicle-link {
+.gtx-chat-vehicle-link,
+.gtx-chat-inventory-link {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: .45rem;
     width: 100%;
-    margin-top: .1rem;
-    padding: .42rem .65rem;
-    border-radius: .5rem;
+    min-height: 2.3rem;
+    padding: .5rem .7rem;
+    border: 1px solid var(--gtx-chat-accent);
+    border-radius: .6rem;
     color: var(--gtx-chat-on-theme) !important;
     background: var(--gtx-chat-theme);
+    box-shadow: 0 .22rem .5rem rgba(22, 58, 114, .14);
+    font-size: .76rem;
+    line-height: 1.2;
+    text-align: center;
     text-decoration: none;
+    transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
 }
 
-.gtx-chat-vehicle-link i { font-size: 1rem; }
+.gtx-chat-vehicle-link { margin-top: .1rem; }
+
+.gtx-chat-inventory-link { margin-top: .75rem; }
+
+.gtx-chat-vehicle-link i,
+.gtx-chat-inventory-link i { font-size: 1rem; }
 
 .gtx-chat-vehicle-link:hover,
-.gtx-chat-vehicle-link:focus-visible {
+.gtx-chat-vehicle-link:focus-visible,
+.gtx-chat-inventory-link:hover,
+.gtx-chat-inventory-link:focus-visible {
     color: var(--gtx-chat-on-theme) !important;
     filter: brightness(1.08);
+    box-shadow: 0 .4rem .8rem rgba(22, 58, 114, .2);
+    transform: translateY(-1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gtx-chat-vehicle-card,
+    .gtx-chat-vehicle-link,
+    .gtx-chat-inventory-link { transition: none; }
 }
 
 .gtx-chat-suggestions {

@@ -133,6 +133,7 @@ namespace GTX.Controllers
                     Reply = result.Reply,
                     ResponseId = result.ResponseId,
                     TotalVehicleMatches = result.TotalVehicleMatches,
+                    InventoryUrl = result.InventoryUrl,
                     Vehicles = result.Vehicles.ToArray()
                 });
             }
@@ -324,6 +325,7 @@ namespace GTX.Controllers
             var safetyIdentifier = BuildSafetyIdentifier();
             var vehicleResults = new List<ChatVehicleResult>();
             int? totalVehicleMatches = null;
+            string inventoryUrl = null;
             for (var round = 0; round < MaxToolRounds; round++)
             {
                 var payload = BuildOpenAiPayload(input, responseId, safetyIdentifier, includeTools: round == 0);
@@ -348,6 +350,7 @@ namespace GTX.Controllers
                         Reply = reply.Trim(),
                         ResponseId = responseId,
                         TotalVehicleMatches = totalVehicleMatches,
+                        InventoryUrl = inventoryUrl,
                         Vehicles = vehicleResults
                     };
                 }
@@ -357,7 +360,12 @@ namespace GTX.Controllers
                 {
                     var toolName = (string)call["name"];
                     var toolOutput = ExecuteTool(toolName, (string)call["arguments"]);
-                    CaptureVehicleResults(toolName, toolOutput, vehicleResults, ref totalVehicleMatches);
+                    CaptureVehicleResults(
+                        toolName,
+                        toolOutput,
+                        vehicleResults,
+                        ref totalVehicleMatches,
+                        ref inventoryUrl);
                     input.Add(new JObject
                     {
                         ["type"] = "function_call_output",
@@ -452,7 +460,8 @@ namespace GTX.Controllers
 
         private string SearchInventory(JObject arguments)
         {
-            var inventory = GetPublicInventory();
+            var snapshot = GetChatInventorySnapshot();
+            var inventory = snapshot.Vehicles;
             IEnumerable<GTXDTO> query = inventory;
             var freeText = (string)arguments["query"];
             var bodyType = NormalizeBodyTypeFilter((string)arguments["body_type"]);
@@ -466,7 +475,25 @@ namespace GTX.Controllers
             query = FilterFuelType(query, (string)arguments["fuel_type"]);
             var cylinders = PositiveInt(arguments["cylinders"]);
             if (cylinders.HasValue) query = query.Where(vehicle => vehicle.Cylinders == cylinders.Value);
-            query = FilterFreeText(query, freeText);
+
+            var doors = PositiveInt(arguments["doors"]);
+            var minimumHorsepower = PositiveInt(arguments["minimum_horsepower"]);
+            var minimumCityMpg = PositiveInt(arguments["minimum_city_mpg"]);
+            var minimumHighwayMpg = PositiveInt(arguments["minimum_highway_mpg"]);
+            var minimumSeating = PositiveInt(arguments["minimum_seating"]);
+            if (doors.HasValue) query = query.Where(vehicle => DataOneMatches(snapshot, vehicle, data => data.Doors.Contains(doors.Value)));
+            if (minimumHorsepower.HasValue) query = query.Where(vehicle => DataOneMatches(snapshot, vehicle, data => data.Horsepower.Any(value => value >= minimumHorsepower.Value)));
+            if (minimumCityMpg.HasValue) query = query.Where(vehicle => DataOneMatches(snapshot, vehicle, data => data.CityMpg.Any(value => value >= minimumCityMpg.Value)));
+            if (minimumHighwayMpg.HasValue) query = query.Where(vehicle => DataOneMatches(snapshot, vehicle, data => data.HighwayMpg.Any(value => value >= minimumHighwayMpg.Value)));
+            if (minimumSeating.HasValue) query = query.Where(vehicle => DataOneMatches(snapshot, vehicle, data => data.Seating.Any(value => value >= minimumSeating.Value)));
+            query = FilterDataOneText(query, (string)arguments["features"], snapshot);
+            freeText = StripStructuredDataOnePhrases(
+                freeText,
+                doors.HasValue,
+                minimumHorsepower.HasValue,
+                minimumCityMpg.HasValue || minimumHighwayMpg.HasValue,
+                minimumSeating.HasValue);
+            query = FilterFreeText(query, freeText, snapshot);
 
             var maximumPrice = PositiveInt(arguments["maximum_price"]);
             var maximumMileage = PositiveInt(arguments["maximum_mileage"]);
@@ -474,22 +501,46 @@ namespace GTX.Controllers
             if (maximumMileage.HasValue) query = query.Where(vehicle => vehicle.Mileage <= maximumMileage.Value);
 
             var limit = Math.Max(1, Math.Min(5, PositiveInt(arguments["limit"]) ?? 5));
-            var totalMatches = query.Count();
-            var matches = query
+            var matchingVehicles = query
                 .OrderBy(vehicle => EffectivePrice(vehicle))
                 .ThenBy(vehicle => vehicle.Mileage)
-                .Take(limit)
-                .Select(ToVehicleSummary)
                 .ToArray();
+            var totalMatches = matchingVehicles.Length;
+            var matches = matchingVehicles
+                .Take(limit)
+                .Select(vehicle => ToVehicleSummary(vehicle, GetDataOneSearch(snapshot, vehicle.Stock)))
+                .ToArray();
+            var inventoryUrl = totalMatches > 0
+                ? MatchingInventoryUrl(matchingVehicles)
+                : null;
 
-            return JsonConvert.SerializeObject(new { count = totalMatches, displayed_count = matches.Length, vehicles = matches });
+            return JsonConvert.SerializeObject(new
+            {
+                count = totalMatches,
+                displayed_count = matches.Length,
+                inventory_url = inventoryUrl,
+                vehicles = matches
+            });
+        }
+
+        private string MatchingInventoryUrl(IEnumerable<GTXDTO> vehicles)
+        {
+            var stocks = vehicles
+                .Where(vehicle => vehicle != null && !string.IsNullOrWhiteSpace(vehicle.Stock))
+                .Select(vehicle => vehicle.Stock.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+            if (stocks.Length == 0) return null;
+
+            return Url.Action("All", "Inventory", new { stocks = string.Join(",", stocks) });
         }
 
         private static void CaptureVehicleResults(
             string toolName,
             string toolOutput,
             ICollection<ChatVehicleResult> results,
-            ref int? totalMatches)
+            ref int? totalMatches,
+            ref string inventoryUrl)
         {
             if (!string.Equals(toolName, "search_inventory", StringComparison.OrdinalIgnoreCase)
                 && !string.Equals(toolName, "get_vehicle", StringComparison.OrdinalIgnoreCase))
@@ -511,6 +562,7 @@ namespace GTX.Controllers
             if (string.Equals(toolName, "search_inventory", StringComparison.OrdinalIgnoreCase))
             {
                 totalMatches = (int?)payload["count"] ?? 0;
+                inventoryUrl = (string)payload["inventory_url"];
                 foreach (var vehicle in (payload["vehicles"] as JArray ?? new JArray()).OfType<JObject>())
                 {
                     results.Add(ToChatVehicleResult(vehicle));
@@ -520,6 +572,7 @@ namespace GTX.Controllers
 
             var found = (bool?)payload["found"] == true;
             totalMatches = found ? 1 : 0;
+            inventoryUrl = null;
             if (found) results.Add(ToChatVehicleResult(payload));
         }
 
@@ -558,6 +611,7 @@ namespace GTX.Controllers
                 return JsonConvert.SerializeObject(new { found = false });
             }
 
+            var dataOne = GetDataOneSearch(GetChatInventorySnapshot(), vehicle.Stock);
             return JsonConvert.SerializeObject(new
             {
                 found = true,
@@ -579,6 +633,7 @@ namespace GTX.Controllers
                 transmission = TransmissionDescription(vehicle.Transmission),
                 vehicle.FuelType,
                 features = Crop(vehicle.Features, 1200),
+                data_one = DataOneSummary(dataOne),
                 url = VehicleUrl(vehicle.Stock)
             });
         }
@@ -621,7 +676,7 @@ namespace GTX.Controllers
             });
         }
 
-        private object ToVehicleSummary(GTXDTO vehicle)
+        private object ToVehicleSummary(GTXDTO vehicle, ChatDataOneSearch dataOne)
         {
             return new
             {
@@ -637,6 +692,7 @@ namespace GTX.Controllers
                 documentary_fee = DocumentaryFee(vehicle),
                 price_with_documentary_fee = EffectivePrice(vehicle) + DocumentaryFee(vehicle),
                 transmission = TransmissionDescription(vehicle.Transmission),
+                data_one = DataOneSummary(dataOne),
                 url = VehicleUrl(vehicle.Stock)
             };
         }
@@ -652,13 +708,48 @@ namespace GTX.Controllers
 
         private GTXDTO[] GetPublicInventory()
         {
+            return GetChatInventorySnapshot().Vehicles;
+        }
+
+        private ChatInventorySnapshot GetChatInventorySnapshot()
+        {
+            var includeDataOne = ChatDataOneEnabled();
+            var cacheKey = Constants.CHAT_INVENTORY_CACHE + (includeDataOne ? ":DataOne" : ":Standard");
             return AppCache.GetOrCreate(
-                Constants.CHAT_INVENTORY_CACHE,
-                () => _inventoryService.GetInventory(
-                    includeHiddenInventory: false,
-                    includeDataOneContent: false).vehicles ?? Array.Empty<GTXDTO>(),
+                cacheKey,
+                () => BuildChatInventorySnapshot(includeDataOne),
                 minutes: BoundedAppSetting("OpenAI:ChatInventoryCacheMinutes", 1, 1, 60))
-                ?? Array.Empty<GTXDTO>();
+                ?? new ChatInventorySnapshot();
+        }
+
+        private ChatInventorySnapshot BuildChatInventorySnapshot(bool includeDataOne)
+        {
+            var vehicles = _inventoryService.GetInventory(
+                includeHiddenInventory: false,
+                includeDataOneContent: includeDataOne).vehicles ?? Array.Empty<GTXDTO>();
+            var dataOneByStock = new Dictionary<string, ChatDataOneSearch>(StringComparer.OrdinalIgnoreCase);
+
+            if (includeDataOne)
+            {
+                foreach (var vehicle in vehicles)
+                {
+                    var content = vehicle.DataOne == null ? null : vehicle.DataOne.DataOneContent;
+                    var search = BuildDataOneSearch(vehicle, content);
+                    if (search != null && !string.IsNullOrWhiteSpace(vehicle.Stock))
+                    {
+                        dataOneByStock[vehicle.Stock.Trim()] = search;
+                    }
+
+                    // Retain only the flattened, approved search fields in the chatbot cache.
+                    vehicle.DataOne = null;
+                }
+            }
+
+            return new ChatInventorySnapshot
+            {
+                Vehicles = vehicles,
+                DataOneByStock = dataOneByStock
+            };
         }
 
         private string BuildLeadComment(ChatLeadRequest request, GTX.Models.GTX vehicle, Employee salesperson)
@@ -714,6 +805,12 @@ namespace GTX.Controllers
                             'transmission':{'type':'string','description':'Transmission type such as manual, automatic, or CVT.'},
                             'fuel_type':{'type':'string','description':'Fuel type such as electric, hybrid, gasoline, diesel, or flex-fuel.'},
                             'cylinders':{'type':'integer','description':'Exact engine cylinder count, such as 4, 6, or 8.'},
+                            'doors':{'type':'integer','description':'Exact door count from DataOne specifications, such as 2 or 4.'},
+                            'minimum_horsepower':{'type':'integer','description':'Minimum horsepower from DataOne engine specifications.'},
+                            'minimum_city_mpg':{'type':'integer','description':'Minimum EPA city MPG from DataOne specifications.'},
+                            'minimum_highway_mpg':{'type':'integer','description':'Minimum EPA highway MPG from DataOne specifications.'},
+                            'minimum_seating':{'type':'integer','description':'Minimum seating or passenger capacity from DataOne specifications.'},
+                            'features':{'type':'string','description':'A standard equipment or specification phrase from DataOne, such as heated seats or blind spot monitoring.'},
                             'maximum_price':{'type':'integer'},
                             'maximum_mileage':{'type':'integer'},
                             'limit':{'type':'integer','minimum':1,'maximum':5}
@@ -747,6 +844,291 @@ namespace GTX.Controllers
                     }")
                 }
             };
+        }
+
+        private static bool ChatDataOneEnabled()
+        {
+            bool enabled;
+            return bool.TryParse(ConfigurationManager.AppSettings["DataOne"], out enabled) && enabled;
+        }
+
+        private static ChatDataOneSearch BuildDataOneSearch(GTXDTO vehicle, string content)
+        {
+            if (string.IsNullOrWhiteSpace(content)) return null;
+
+            var decoded = GTX.Models.GTX.SetDecodedData(content);
+            var queryResponses = decoded == null || decoded.QueryResponses == null
+                ? null
+                : decoded.QueryResponses.Items;
+            if (queryResponses == null) return null;
+
+            var styles = queryResponses
+                .Where(response => response != null
+                    && response.UsMarketData != null
+                    && response.UsMarketData.UsStyles != null
+                    && response.UsMarketData.UsStyles.Styles != null)
+                .SelectMany(response => response.UsMarketData.UsStyles.Styles)
+                .Where(style => style != null)
+                .ToArray();
+            if (styles.Length == 0) return null;
+
+            if (styles.Length > 1)
+            {
+                var styleTerm = (vehicle.VehicleStyle ?? string.Empty).Trim();
+                if (styleTerm.Length > 0)
+                {
+                    var matchingStyles = styles.Where(style => Join(
+                            style.Name,
+                            style.BasicData == null ? null : style.BasicData.Trim,
+                            style.BasicData == null ? null : style.BasicData.OemBodyStyle)
+                        .IndexOf(styleTerm, StringComparison.OrdinalIgnoreCase) >= 0)
+                        .ToArray();
+                    if (matchingStyles.Length == 1) styles = matchingStyles;
+                }
+            }
+
+            if (styles.Length > 1 && !string.IsNullOrWhiteSpace(vehicle.Transmission))
+            {
+                var transmissionCode = vehicle.Transmission.Trim()[0];
+                var matchingStyles = styles.Where(style => style.Transmissions != null
+                        && style.Transmissions.Items != null
+                        && style.Transmissions.Items.Any(transmission => transmission != null
+                            && !string.IsNullOrWhiteSpace(transmission.Type)
+                            && char.ToUpperInvariant(transmission.Type[0]) == char.ToUpperInvariant(transmissionCode)))
+                    .ToArray();
+                if (matchingStyles.Length == 1) styles = matchingStyles;
+            }
+
+            // Do not combine specifications from multiple trims and present them as one vehicle.
+            if (styles.Length != 1) return null;
+
+            var doors = new HashSet<int>();
+            var horsepower = new HashSet<int>();
+            var cityMpg = new HashSet<int>();
+            var highwayMpg = new HashSet<int>();
+            var seating = new HashSet<int>();
+            var equipment = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var searchValues = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var style in styles)
+            {
+                AddSearchValues(searchValues, style.Name);
+                var basic = style.BasicData;
+                if (basic != null)
+                {
+                    AddSearchValues(searchValues,
+                        basic.Trim,
+                        basic.VehicleType,
+                        basic.BodyType,
+                        basic.BodySubtype,
+                        basic.OemBodyStyle,
+                        basic.PackageSummary,
+                        basic.DriveType,
+                        basic.BrakeSystem,
+                        basic.CountryOfManufacture,
+                        basic.Doors == null ? null : basic.Doors + " doors",
+                        basic.OemDoors == null ? null : basic.OemDoors + " doors");
+                    AddPositiveInts(doors, basic.Doors, basic.OemDoors);
+                }
+
+                foreach (var engine in style.Engines == null || style.Engines.Items == null
+                    ? Enumerable.Empty<Engine>()
+                    : style.Engines.Items.Where(item => item != null))
+                {
+                    AddSearchValues(searchValues,
+                        engine.Name,
+                        engine.MarketingName,
+                        engine.EngineType,
+                        engine.IceAspiration,
+                        engine.IceBlockType,
+                        engine.IceDisplacement,
+                        engine.FuelType,
+                        engine.TotalMaxHp == null ? null : engine.TotalMaxHp + " horsepower hp",
+                        engine.IceMaxHp == null ? null : engine.IceMaxHp + " horsepower hp",
+                        engine.ElectricMaxHp == null ? null : engine.ElectricMaxHp + " horsepower hp");
+                    AddPositiveInts(horsepower, engine.TotalMaxHp, engine.IceMaxHp, engine.ElectricMaxHp);
+                }
+
+                foreach (var record in style.EpaFuelEfficiency == null || style.EpaFuelEfficiency.Records == null
+                    ? Enumerable.Empty<EpaMpgRecord>()
+                    : style.EpaFuelEfficiency.Records.Where(item => item != null))
+                {
+                    AddSearchValues(searchValues,
+                        record.City == null ? null : record.City + " city mpg",
+                        record.Highway == null ? null : record.Highway + " highway mpg",
+                        record.Combined == null ? null : record.Combined + " combined mpg",
+                        record.FuelType);
+                    AddPositiveInts(cityMpg, record.City);
+                    AddPositiveInts(highwayMpg, record.Highway);
+                }
+
+                foreach (var category in style.StandardSpecifications == null || style.StandardSpecifications.Categories == null
+                    ? Enumerable.Empty<SpecificationCategory>()
+                    : style.StandardSpecifications.Categories.Where(item => item != null))
+                {
+                    foreach (var value in category.Values == null
+                        ? Enumerable.Empty<SpecificationValue>()
+                        : category.Values.Where(item => item != null))
+                    {
+                        AddSearchValues(searchValues, category.Name, value.Name, value.Value, Join(category.Name, value.Name, value.Value));
+                        if (Regex.IsMatch(Join(category.Name, value.Name), @"\b(seats?|seating|passengers?|occupants?|capacity)\b", RegexOptions.IgnoreCase))
+                        {
+                            AddPositiveInts(seating, value.Value);
+                        }
+                    }
+                }
+
+                AddStandardEquipment(style.StandardGenericEquipment, equipment, searchValues);
+            }
+
+            return new ChatDataOneSearch
+            {
+                Doors = doors.ToArray(),
+                Horsepower = horsepower.ToArray(),
+                CityMpg = cityMpg.ToArray(),
+                HighwayMpg = highwayMpg.ToArray(),
+                Seating = seating.ToArray(),
+                Equipment = equipment.OrderBy(value => value).Take(100).ToArray(),
+                SearchText = Crop(string.Join(" ", searchValues), 30000)
+            };
+        }
+
+        private static void AddStandardEquipment(
+            GenericEquipmentGroups groups,
+            ISet<string> equipment,
+            ISet<string> searchValues)
+        {
+            if (groups == null || groups.Groups == null) return;
+
+            foreach (var group in groups.Groups.Where(item => item != null))
+            {
+                foreach (var category in group.Categories == null
+                    ? Enumerable.Empty<GenericEquipmentCategory>()
+                    : group.Categories.Where(item => item != null))
+                {
+                    foreach (var item in category.Equipments == null
+                        ? Enumerable.Empty<GenericEquipment>()
+                        : category.Equipments.Where(value => value != null))
+                    {
+                        var values = item.Values == null
+                            ? Array.Empty<string>()
+                            : item.Values.Where(value => value != null && !string.IsNullOrWhiteSpace(value.Value))
+                                .Select(value => value.Value.Trim())
+                                .ToArray();
+                        var description = Join(group.Name, category.Name, item.Name, string.Join(" ", values));
+                        AddSearchValues(searchValues, description);
+                        if (!string.IsNullOrWhiteSpace(item.Name)) equipment.Add(item.Name.Trim());
+                    }
+                }
+            }
+        }
+
+        private static void AddSearchValues(ISet<string> target, params string[] values)
+        {
+            foreach (var value in values.Where(item => !string.IsNullOrWhiteSpace(item)))
+            {
+                target.Add(value.Trim());
+            }
+        }
+
+        private static void AddPositiveInts(ISet<int> target, params string[] values)
+        {
+            foreach (var value in values.Where(item => !string.IsNullOrWhiteSpace(item)))
+            {
+                foreach (Match match in Regex.Matches(value, @"\d+"))
+                {
+                    int parsed;
+                    if (int.TryParse(match.Value, out parsed) && parsed > 0) target.Add(parsed);
+                }
+            }
+        }
+
+        private static ChatDataOneSearch GetDataOneSearch(ChatInventorySnapshot snapshot, string stock)
+        {
+            ChatDataOneSearch search;
+            return snapshot != null
+                && !string.IsNullOrWhiteSpace(stock)
+                && snapshot.DataOneByStock.TryGetValue(stock.Trim(), out search)
+                ? search
+                : null;
+        }
+
+        private static bool DataOneMatches(
+            ChatInventorySnapshot snapshot,
+            GTXDTO vehicle,
+            Func<ChatDataOneSearch, bool> predicate)
+        {
+            var search = GetDataOneSearch(snapshot, vehicle == null ? null : vehicle.Stock);
+            return search != null && predicate(search);
+        }
+
+        private static IEnumerable<GTXDTO> FilterDataOneText(
+            IEnumerable<GTXDTO> source,
+            string value,
+            ChatInventorySnapshot snapshot)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return source;
+            var terms = Regex.Matches(value, @"[A-Za-z0-9-]+")
+                .Cast<Match>()
+                .Select(match => match.Value)
+                .Where(term => term.Length > 1)
+                .ToArray();
+            return source.Where(vehicle =>
+            {
+                var dataOne = GetDataOneSearch(snapshot, vehicle.Stock);
+                var text = Join(vehicle.Features, dataOne == null ? null : dataOne.SearchText);
+                return terms.All(term => text.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0);
+            });
+        }
+
+        private static object DataOneSummary(ChatDataOneSearch dataOne)
+        {
+            if (dataOne == null) return null;
+            return new
+            {
+                doors = dataOne.Doors,
+                horsepower_max = MaximumOrNull(dataOne.Horsepower),
+                city_mpg_max = MaximumOrNull(dataOne.CityMpg),
+                highway_mpg_max = MaximumOrNull(dataOne.HighwayMpg),
+                seating_max = MaximumOrNull(dataOne.Seating),
+                standard_equipment = dataOne.Equipment.Take(25).ToArray()
+            };
+        }
+
+        private static int? MaximumOrNull(IEnumerable<int> values)
+        {
+            var items = values == null ? Array.Empty<int>() : values.ToArray();
+            return items.Length == 0 ? (int?)null : items.Max();
+        }
+
+        private static string StripStructuredDataOnePhrases(
+            string value,
+            bool hasDoors,
+            bool hasHorsepower,
+            bool hasMpg,
+            bool hasSeating)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return value;
+
+            if (hasDoors)
+            {
+                value = Regex.Replace(value, @"\b(?:\d+|one|two|three|four|five|six)[ -]?doors?\b", " ", RegexOptions.IgnoreCase);
+            }
+            if (hasHorsepower)
+            {
+                value = Regex.Replace(value, @"\b(?:(?:at\s+least|minimum(?:\s+of)?|over|more\s+than)\s+)?\d+\s*(?:horsepower|hp)\b", " ", RegexOptions.IgnoreCase);
+            }
+            if (hasMpg)
+            {
+                value = Regex.Replace(value, @"\b(?:(?:at\s+least|minimum(?:\s+of)?|over|more\s+than)\s+)?\d+\s*(?:(?:city|highway)\s+)?mpg\b", " ", RegexOptions.IgnoreCase);
+            }
+            if (hasSeating)
+            {
+                value = Regex.Replace(value, @"\b(?:seats?|seating)\s+(?:(?:at\s+least|minimum(?:\s+of)?)\s+)?\d+(?:\s+(?:people|passengers?))?\b", " ", RegexOptions.IgnoreCase);
+                value = Regex.Replace(value, @"\b(?:(?:at\s+least|minimum(?:\s+of)?)\s+)?\d+\s+(?:seats?|people|passengers?)\b", " ", RegexOptions.IgnoreCase);
+            }
+
+            return value;
         }
 
         private static IEnumerable<GTXDTO> FilterContains(IEnumerable<GTXDTO> source, string value, Func<GTXDTO, string> selector)
@@ -805,7 +1187,10 @@ namespace GTX.Controllers
                 .IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
-        private static IEnumerable<GTXDTO> FilterFreeText(IEnumerable<GTXDTO> source, string value)
+        private static IEnumerable<GTXDTO> FilterFreeText(
+            IEnumerable<GTXDTO> source,
+            string value,
+            ChatInventorySnapshot snapshot)
         {
             if (string.IsNullOrWhiteSpace(value)) return source;
 
@@ -857,14 +1242,16 @@ namespace GTX.Controllers
             foreach (var term in terms)
             {
                 var searchTerm = term;
-                source = source.Where(vehicle => SearchableVehicleText(vehicle)
+                source = source.Where(vehicle => SearchableVehicleText(
+                        vehicle,
+                        GetDataOneSearch(snapshot, vehicle.Stock))
                     .IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0);
             }
 
             return source;
         }
 
-        private static string SearchableVehicleText(GTXDTO vehicle)
+        private static string SearchableVehicleText(GTXDTO vehicle, ChatDataOneSearch dataOne)
         {
             return Join(
                 vehicle.Stock,
@@ -879,7 +1266,8 @@ namespace GTX.Controllers
                 vehicle.Features,
                 vehicle.Transmission,
                 TransmissionDescription(vehicle.Transmission),
-                vehicle.FuelType);
+                vehicle.FuelType,
+                dataOne == null ? null : dataOne.SearchText);
         }
 
         private static IEnumerable<GTXDTO> FilterFuelType(IEnumerable<GTXDTO> source, string value)
@@ -1103,6 +1491,10 @@ For fuel or powertrain questions, pass electric, hybrid, gasoline, diesel, or fl
 For vehicle-color questions, pass the requested exterior or interior color in the search_inventory color parameter.
 Treat car, cars, vehicle, and vehicles as generic inventory words; never pass them as the body_type. Only use body_type for a specific category such as SUV, truck, van, sedan, coupe, hatchback, convertible, or wagon.
 For engine-cylinder questions, pass the exact cylinder count in the search_inventory cylinders parameter. Treat V8 as 8 cylinders, V6 as 6 cylinders, and similar V-number requests accordingly.
+For door-count questions, pass the exact count in the search_inventory doors parameter.
+For minimum horsepower, city MPG, highway MPG, or seating requests, use the corresponding minimum_horsepower, minimum_city_mpg, minimum_highway_mpg, or minimum_seating parameter.
+For requested equipment or features, pass the shopper's concise feature phrase in the search_inventory features parameter.
+DataOne specifications are included only when available for the current vehicle. Treat returned DataOne equipment as verified standard equipment only, never as optional equipment that is installed. If no vehicles match or DataOne is unavailable, say so without guessing.
 The website renders inventory tool results as standardized vehicle cards. When a vehicle tool returns one or more vehicles, reply with one short introductory or request-specific sentence only; do not enumerate vehicles, repeat vehicle facts, include prices, or include vehicle links in your text. The cards display the advertised price + documentary fee = price with documentary fee using the exact tool values. Say that price and availability can change and should be confirmed with the dealership.
 You may explain general shopping, trade-in, and financing concepts, but never guarantee credit approval, quote binding loan terms, appraise a trade, negotiate a price, or request SSNs, bank details, driver's-license numbers, or credit-card information.
 Invite interested shoppers to use the Contact sales form in the chat window or call (513) 489-2886. Do not claim that you submitted a lead yourself.
@@ -1113,7 +1505,26 @@ Do not output HTML. Keep normal answers under 120 words unless the shopper asks 
             public string Reply { get; set; }
             public string ResponseId { get; set; }
             public int? TotalVehicleMatches { get; set; }
+            public string InventoryUrl { get; set; }
             public List<ChatVehicleResult> Vehicles { get; set; } = new List<ChatVehicleResult>();
+        }
+
+        private sealed class ChatInventorySnapshot
+        {
+            public GTXDTO[] Vehicles { get; set; } = Array.Empty<GTXDTO>();
+            public Dictionary<string, ChatDataOneSearch> DataOneByStock { get; set; }
+                = new Dictionary<string, ChatDataOneSearch>(StringComparer.OrdinalIgnoreCase);
+        }
+
+        private sealed class ChatDataOneSearch
+        {
+            public int[] Doors { get; set; } = Array.Empty<int>();
+            public int[] Horsepower { get; set; } = Array.Empty<int>();
+            public int[] CityMpg { get; set; } = Array.Empty<int>();
+            public int[] HighwayMpg { get; set; } = Array.Empty<int>();
+            public int[] Seating { get; set; } = Array.Empty<int>();
+            public string[] Equipment { get; set; } = Array.Empty<string>();
+            public string SearchText { get; set; }
         }
 
         private sealed class RateCounter
