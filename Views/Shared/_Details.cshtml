@@ -62,11 +62,11 @@ else
                         <div class="gtx-overview-identifiers">
                             @if (!string.IsNullOrWhiteSpace(vehicle.Stock))
                             {
-                                <span title="Stock number"><i class="bi bi-upc-scan" aria-hidden="true"></i> Stock @vehicle.Stock</span>
+                                <span class="copyable" data-copy-value="@vehicle.Stock" title="Double-click to copy Stock#"><i class="bi bi-upc-scan" aria-hidden="true"></i> Stock @vehicle.Stock</span>
                             }
                             @if (!string.IsNullOrWhiteSpace(vehicle.VIN))
                             {
-                                <span class="copyable" title="VIN — click to copy"><i class="bi bi-fingerprint" aria-hidden="true"></i> @vehicle.VIN</span>
+                                <span class="copyable" data-copy-value="@vehicle.VIN" title="Double-click to copy VIN"><i class="bi bi-fingerprint" aria-hidden="true"></i> @vehicle.VIN</span>
                             }
                         </div>
                     </div>

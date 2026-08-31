@@ -13,6 +13,7 @@
         window.inventoryImagesCloudflareEnabled = @Html.Raw(InventoryImageSettings.CloudflareEnabled ? "true" : "false");
     </script>
     <script src="~/Scripts/majordome.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome.js")).Ticks)"></script>
+    <script src="~/Scripts/majordome-inventory-grid.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome-inventory-grid.js")).Ticks)"></script>
     <script src="~/Scripts/inventory-history.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/inventory-history.js")).Ticks)"></script>
 
     <!-- Lightbox2 JS -->
@@ -359,7 +360,6 @@
     const majordomeHistoryRequests = {};
     const expandedMajordomeHistoryStocks = {};
     window.majordomeSelectedStock = "";
-    const majordomeSortState = { key: "", direction: "" };
     const majordomeUploadMaxAttempts = 3;
     const majordomeUploadRequestTimeoutMs = 120000;
     const majordomeUploadMaxFileBytes = 25 * 1024 * 1024;
@@ -484,13 +484,11 @@
 
         const initialStock = "@ViewBag.Stock";
         if (initialStock !== null && initialStock !== "") {
-            $("#filterTerm").val(initialStock);
             applyFilterTerm(initialStock);
             selectFirstVisibleMajordomeVehicle(false);
         } else if (window.gtxInventorySearch) {
             const storedTerm = window.gtxInventorySearch.readStoredTerm();
             if (storedTerm) {
-                $("#filterTerm").val(storedTerm);
                 applyFilterTerm(storedTerm);
                 selectFirstVisibleMajordomeVehicle(false);
             }
@@ -587,7 +585,11 @@
             updateGalleryDisplay();
         });
 
-        $("#majordomeInventoryBulkActions").empty().append($("#actions").contents().clone());
+        const $inventoryBulkActions = $("#majordomeInventoryBulkActions")
+            .empty()
+            .append($("#actions").contents().clone())
+            .removeClass("d-none");
+        $("#majordomeInventoryGrid .pg-search-input-group").after($inventoryBulkActions);
 
         $(document).on("click", "#btnAddInventory", function (e) {
             e.preventDefault();
@@ -783,41 +785,8 @@
             uploadFiles(stock, fileInput);
         });
 
-        $("#filterTerm").on("input", function () {
-            const inputEl = this;
-            const start = typeof inputEl.selectionStart === "number" ? inputEl.selectionStart : null;
-            const end = typeof inputEl.selectionEnd === "number" ? inputEl.selectionEnd : null;
-
-            applyFilterTerm($(inputEl).val() || "");
-            selectFirstVisibleMajordomeVehicle();
-
-            if (document.activeElement !== inputEl) {
-                inputEl.focus({ preventScroll: true });
-            }
-
-            if (start !== null && end !== null && typeof inputEl.setSelectionRange === "function") {
-                inputEl.setSelectionRange(start, end);
-            }
-        });
-
-        $("#majordomeGtxFilter").on("change", function () {
-            applyFilterTerm($("#filterTerm").val() || "");
-            selectFirstVisibleMajordomeVehicle();
-        });
-
-        $("#majordomeInventoryTable").on("click", "th.majordome-sortable-th", function () {
-            const sortKey = safeText($(this).attr("data-sort-key")).toLowerCase();
-            if (!sortKey) return;
-
-            toggleMajordomeSort(sortKey);
-            const currentFilter = $("#filterTerm").val() || "";
-            renderMajordomeInventoryRows();
-            applyFilterTerm(currentFilter);
-            selectFirstVisibleMajordomeVehicle();
-        });
-
-        $("#majordomeInventoryBody").on("click", ".majordome-vehicle-row", function (e) {
-            if ($(e.target).closest(".majordome-actions").length) return;
+        $("#majordomeInventoryGrid").on("click", ".majordome-vehicle-row", function (e) {
+            if ($(e.target).closest(".majordome-actions, .copyable").length) return;
             const stock = $(this).attr("data-stock");
             selectMajordomeVehicle(stock);
             toggleMajordomeHistoryRow($(this));
@@ -840,7 +809,7 @@
             await purgeMajordomeImageCache(`${root}Majordome/PurgeStockImageCache`, { stock }, $(this));
         });
 
-        $("#majordomeInventoryBody").on("keydown", ".inventory-dashboard-expand-button", function (e) {
+        $("#majordomeInventoryGrid").on("keydown", ".inventory-dashboard-expand-button", function (e) {
             if (e.key !== "Enter" && e.key !== " ") return;
             e.preventDefault();
             e.stopPropagation();
@@ -849,13 +818,14 @@
             toggleMajordomeHistoryRow($row);
         });
 
-        $("#majordomeInventoryBody").on("click", ".inventory-dashboard-history-change-toggle", function (e) {
+        $("#majordomeInventoryGrid").on("click", ".inventory-dashboard-history-change-toggle", function (e) {
             e.preventDefault();
             e.stopPropagation();
             toggleMajordomeHistoryChange($(this));
         });
 
-        $("#majordomeInventoryBody").on("dblclick", ".majordome-row-details", function (e) {
+        $("#majordomeInventoryGrid").on("dblclick", ".majordome-row-details", function (e) {
+            if ($(e.target).closest(".copyable").length) return;
             e.preventDefault();
             e.stopPropagation();
             const stock = $(this).closest(".majordome-vehicle-row").attr("data-stock");
@@ -863,7 +833,7 @@
             $("#details-tab").tab("show");
         });
 
-        $("#majordomeInventoryBody").on("dblclick", ".majordome-row-image", function (e) {
+        $("#majordomeInventoryGrid").on("dblclick", ".majordome-row-image", function (e) {
             e.preventDefault();
             e.stopPropagation();
             const stock = $(this).closest(".majordome-vehicle-row").attr("data-stock");
@@ -871,13 +841,13 @@
             $("#gallery-tab").tab("show");
         });
 
-        $("#majordomeInventoryBody").on("click", ".js-amm-upload-trigger", function (e) {
+        $("#majordomeInventoryGrid").on("click", ".js-amm-upload-trigger", function (e) {
             e.preventDefault();
             e.stopPropagation();
             $(this).closest(".majordome-actions").find(".js-amm-upload-input").trigger("click");
         });
 
-        $("#majordomeInventoryBody").on("click", ".js-amm-edit-inventory", function (e) {
+        $("#majordomeInventoryGrid").on("click", ".js-amm-edit-inventory", function (e) {
             e.preventDefault();
             e.stopPropagation();
             const stock = $(this).attr("data-stock");
@@ -885,7 +855,7 @@
             openMajordomeInventoryEditor(findMajordomeInventoryVehicle(stock), "edit");
         });
 
-        $("#majordomeInventoryBody").on("change", ".js-amm-upload-input", function (e) {
+        $("#majordomeInventoryGrid").on("change", ".js-amm-upload-input", function (e) {
             e.stopPropagation();
             const stock = $(this).attr("data-stock");
             const files = this.files ? Array.from(this.files) : [];
@@ -894,7 +864,7 @@
             }
         });
 
-        $("#majordomeInventoryBody").on("click", ".js-amm-delete-images", function (e) {
+        $("#majordomeInventoryGrid").on("click", ".js-amm-delete-images", function (e) {
             e.preventDefault();
             e.stopPropagation();
             const stock = $(this).attr("data-stock");
@@ -902,7 +872,7 @@
             openMajordomeImageDeleteProgressModal(stock, count);
         });
 
-        $("#majordomeInventoryBody").on("click", ".js-amm-create-story", async function (e) {
+        $("#majordomeInventoryGrid").on("click", ".js-amm-create-story", async function (e) {
             e.preventDefault();
             e.stopPropagation();
             const stock = $(this).attr("data-stock");
@@ -919,7 +889,7 @@
             }
         });
 
-        $("#majordomeInventoryBody").on("click", ".js-amm-delete-story", async function (e) {
+        $("#majordomeInventoryGrid").on("click", ".js-amm-delete-story", async function (e) {
             e.preventDefault();
             e.stopPropagation();
             const stock = $(this).attr("data-stock");
@@ -936,7 +906,7 @@
             }
         });
 
-        $("#majordomeInventoryBody").on("click", ".js-amm-decode-dataone", async function (e) {
+        $("#majordomeInventoryGrid").on("click", ".js-amm-decode-dataone", async function (e) {
             e.preventDefault();
             e.stopPropagation();
             const vin = $(this).data("vin");
@@ -952,7 +922,7 @@
             }
         });
 
-        $("#majordomeInventoryBody").on("click", ".js-amm-delete-dataone", async function (e) {
+        $("#majordomeInventoryGrid").on("click", ".js-amm-delete-dataone", async function (e) {
             e.preventDefault();
             e.stopPropagation();
             const stock = $(this).attr("data-stock");
@@ -1595,7 +1565,7 @@
 
             const savedStock = safeText(payload.Stock).trim();
             if (mode === "add" && savedStock) {
-                $("#filterTerm").val(savedStock);
+                applyFilterTerm(savedStock);
             }
 
             if (savedStock) {
@@ -1832,7 +1802,7 @@
     }
 
     function getMajordomeRemoveBackgroundLocation(item) {
-        return normalizeMajordomeGtxFilterValue(item?.Vehicle?.LocationCode);
+        return normalizeMajordomeGtxValue(item?.Vehicle?.LocationCode);
     }
 
     function getMajordomeRemoveBackgroundPriorityTime(item) {
@@ -1872,7 +1842,7 @@
     }
 
     function matchesMajordomeRemoveBackgroundFilters(item, filters) {
-        const selectedLocation = normalizeMajordomeGtxFilterValue(filters?.location);
+        const selectedLocation = normalizeMajordomeGtxValue(filters?.location);
         if (selectedLocation && getMajordomeRemoveBackgroundLocation(item) !== selectedLocation) {
             return false;
         }
@@ -2414,10 +2384,6 @@
         });
 
         return { files: validFiles, errors: errors };
-    }
-
-    function getMajordomeImageUploadFiles(files) {
-        return validateMajordomeImageUploadFiles(files).files;
     }
 
     function syncMajordomeDataOneBulkLocalState(stock) {
@@ -3408,10 +3374,6 @@
         return !/no[\s\-_]*image/i.test(image);
     }
 
-    function toYnSortFlag(value) {
-        return safeText(value).trim().toUpperCase() === "Y" ? 1 : 0;
-    }
-
     function toMajordomeDateSortValue(value) {
         const text = safeText(value).trim();
         if (!text) return Number.NEGATIVE_INFINITY;
@@ -3477,166 +3439,12 @@
         };
     }
 
-    function normalizeMajordomeGtxFilterValue(value) {
+    function normalizeMajordomeGtxValue(value) {
         return safeText(value).trim().toUpperCase();
-    }
-
-    function getSelectedMajordomeGtxFilter() {
-        return normalizeMajordomeGtxFilterValue($("#majordomeGtxFilter").val());
-    }
-
-    function getMajordomeGtxFilterOptions(sourceRows) {
-        const optionsByValue = {};
-
-        (Array.isArray(sourceRows) ? sourceRows : []).forEach(function (vehicle) {
-            const label = safeText(vehicle?.LocationCode).trim();
-            const value = normalizeMajordomeGtxFilterValue(label);
-            if (!value || optionsByValue[value]) return;
-
-            optionsByValue[value] = label;
-        });
-
-        return Object.keys(optionsByValue)
-            .sort(function (left, right) {
-                return compareMajordomeText(optionsByValue[left], optionsByValue[right]);
-            })
-            .map(function (value) {
-                return {
-                    value: value,
-                    label: optionsByValue[value]
-                };
-            });
-    }
-
-    function renderMajordomeGtxFilterOptions(sourceRows) {
-        const $select = $("#majordomeGtxFilter");
-        if (!$select.length) return;
-
-        const currentValue = getSelectedMajordomeGtxFilter();
-        const options = getMajordomeGtxFilterOptions(sourceRows);
-        const hasCurrentValue = options.some(function (option) {
-            return option.value === currentValue;
-        });
-        const optionsHtml = ['<option value="">All</option>'];
-
-        options.forEach(function (option) {
-            optionsHtml.push(`<option value="${escapeHtml(option.value)}">${escapeHtml(option.label)}</option>`);
-        });
-
-        $select.html(optionsHtml.join(""));
-        $select.val(hasCurrentValue ? currentValue : "");
     }
 
     function compareMajordomeText(left, right) {
         return safeText(left).localeCompare(safeText(right), undefined, { numeric: true, sensitivity: "base" });
-    }
-
-    function compareMajordomeVehicles(left, right, key) {
-        switch (key) {
-            case "image": {
-                const imagePresence = (hasMajordomeImage(left) ? 1 : 0) - (hasMajordomeImage(right) ? 1 : 0);
-                if (imagePresence !== 0) return imagePresence;
-                return compareMajordomeText(left?.Image, right?.Image);
-            }
-            case "vehicle": {
-                const makeDiff = compareMajordomeText(left?.Make, right?.Make);
-                if (makeDiff !== 0) return makeDiff;
-
-                const yearLeft = Number.parseInt(safeText(left?.Year), 10);
-                const yearRight = Number.parseInt(safeText(right?.Year), 10);
-                const safeYearLeft = Number.isNaN(yearLeft) ? -1 : yearLeft;
-                const safeYearRight = Number.isNaN(yearRight) ? -1 : yearRight;
-                if (safeYearLeft !== safeYearRight) return safeYearLeft - safeYearRight;
-
-                const modelDiff = compareMajordomeText(left?.Model, right?.Model);
-                if (modelDiff !== 0) return modelDiff;
-
-                return compareMajordomeText(left?.VehicleStyle, right?.VehicleStyle);
-            }
-            case "purchased":
-                return toMajordomeDateSortValue(left?.PurchaseDate) - toMajordomeDateSortValue(right?.PurchaseDate);
-            case "stock":
-                return compareMajordomeText(left?.Stock, right?.Stock);
-            case "counter":
-                return toMajordomeCounter(left?.DetailsCounter) - toMajordomeCounter(right?.DetailsCounter);
-            case "gtx":
-                return compareMajordomeText(left?.LocationCode, right?.LocationCode);
-            case "days": {
-                const daysLeft = Number.parseInt(left?.DaysInInventory, 10);
-                const daysRight = Number.parseInt(right?.DaysInInventory, 10);
-                const safeDaysLeft = Number.isNaN(daysLeft) ? Number.NEGATIVE_INFINITY : daysLeft;
-                const safeDaysRight = Number.isNaN(daysRight) ? Number.NEGATIVE_INFINITY : daysRight;
-                return safeDaysLeft - safeDaysRight;
-            }
-            case "upload":
-                return toYnSortFlag(left?.SetToUpload) - toYnSortFlag(right?.SetToUpload);
-            case "story":
-                return (hasStory(left) ? 1 : 0) - (hasStory(right) ? 1 : 0);
-            case "dataone":
-                return (hasDataOne(left) ? 1 : 0) - (hasDataOne(right) ? 1 : 0);
-            default:
-                return 0;
-        }
-    }
-
-    function sortMajordomeVehicles(sourceRows) {
-        const rows = Array.isArray(sourceRows) ? sourceRows.slice() : [];
-
-        if (!majordomeSortState.key || !majordomeSortState.direction) {
-            return rows;
-        }
-
-        const directionMultiplier = majordomeSortState.direction === "desc" ? -1 : 1;
-
-        return rows
-            .map(function (row, index) { return { row: row, index: index }; })
-            .sort(function (left, right) {
-                const diff = compareMajordomeVehicles(left.row, right.row, majordomeSortState.key);
-                if (diff !== 0) return diff * directionMultiplier;
-                return left.index - right.index;
-            })
-            .map(function (entry) { return entry.row; });
-    }
-
-    function updateMajordomeSortHeaders() {
-        $("#majordomeInventoryTable th.majordome-sortable-th").each(function () {
-            const $header = $(this);
-            const key = safeText($header.attr("data-sort-key")).toLowerCase();
-            const $icon = $header.find(".majordome-sort-indicator");
-            const isActive = key === majordomeSortState.key && !!majordomeSortState.direction;
-
-            $header.toggleClass("is-active", isActive);
-            $icon.removeClass("bi-arrow-down-up bi-arrow-up bi-arrow-down");
-            $icon.addClass(!isActive ? "bi-arrow-down-up" : (majordomeSortState.direction === "asc" ? "bi-arrow-up" : "bi-arrow-down"));
-            $header.attr("aria-sort", !isActive ? "none" : (majordomeSortState.direction === "asc" ? "ascending" : "descending"));
-        });
-    }
-
-    function toggleMajordomeSort(key) {
-        const normalizedKey = safeText(key).toLowerCase();
-        if (!normalizedKey) return;
-
-        const firstDirection = normalizedKey === "days" ? "desc" : "asc";
-        const secondDirection = firstDirection === "asc" ? "desc" : "asc";
-
-        if (majordomeSortState.key !== normalizedKey) {
-            majordomeSortState.key = normalizedKey;
-            majordomeSortState.direction = firstDirection;
-            return;
-        }
-
-        if (majordomeSortState.direction === firstDirection) {
-            majordomeSortState.direction = secondDirection;
-            return;
-        }
-
-        if (majordomeSortState.direction === secondDirection) {
-            majordomeSortState.key = "";
-            majordomeSortState.direction = "";
-            return;
-        }
-
-        majordomeSortState.direction = firstDirection;
     }
 
     function buildMajordomeVehicleSearchObject(vehicle) {
@@ -3742,18 +3550,12 @@
 
     function syncMajordomeEmptyState() {
         const matchedRows = getMajordomeFilterMatchedRows().length;
-        $("#majordomeInventoryEmpty").toggleClass("d-none", matchedRows > 0);
+        const componentShowsEmptyState = $("#majordomeInventoryGrid .pg-state-msg.pg-empty").length > 0;
+        $("#majordomeInventoryEmpty").toggleClass("d-none", matchedRows > 0 || componentShowsEmptyState);
     }
 
     function getMajordomeFilterMatchedRows() {
-        return $("#majordomeInventoryBody .majordome-vehicle-row").filter(function () {
-            return !$(this).hasClass("is-filter-hidden");
-        });
-    }
-
-    function syncMajordomeInventoryCount() {
-        const matchedRows = getMajordomeFilterMatchedRows().length;
-        $("#majordomeShownVehiclesCount").text(matchedRows);
+        return $("#majordomeInventoryBody .majordome-vehicle-row");
     }
 
     function renderMajordomeActionButtons(vehicle) {
@@ -3813,20 +3615,19 @@
         `;
     }
 
-    function renderMajordomeInventoryRow(vehicle) {
+    function buildMajordomeInventoryGridRow(vehicle) {
         const row = normalizeVehicle(vehicle);
         const searchObject = buildMajordomeVehicleSearchObject(row);
         const stock = safeText(row.Stock);
-        const search = escapeHtml(buildVehicleSearch(searchObject));
-        const tokenSearch = escapeHtml(buildVehicleTokenSearch(searchObject));
-        const vin = safeText(row.VIN);
+        const search = buildVehicleSearch(searchObject);
+        const tokenSearch = buildVehicleTokenSearch(searchObject);
         const purchaseDate = formatPurchaseDate(row.PurchaseDate);
         const upload = safeText(row.SetToUpload).toUpperCase() === "Y";
         const story = hasStory(row);
         const dataOne = hasDataOne(row);
         const detailsCounter = toMajordomeCounter(row.DetailsCounter);
         const gtxBadge = getMajordomeGtxBadgeInfo(row.LocationCode);
-        const gtxValue = normalizeMajordomeGtxFilterValue(row.LocationCode);
+        const gtxValue = normalizeMajordomeGtxValue(row.LocationCode);
         const daysValue = row.DaysInInventory;
         const daysText = daysValue === null || daysValue === undefined || daysValue === ""
             ? "-"
@@ -3841,47 +3642,63 @@
         const stockKey = window.gtxInventoryHistory.normalizeStockKey(stock);
         const historyRowId = `majordomeInventoryHistory-${stockKey.replace(/[^A-Z0-9_-]/g, "-")}`;
         const isExpanded = !!expandedMajordomeHistoryStocks[stockKey];
+        const statusLabels = (Array.isArray(row.HistoryStatuses) ? row.HistoryStatuses : [])
+            .map(function (code) { return getMajordomeStatusDotInfo(code).label; })
+            .filter(Boolean);
+        const purchaseTimestamp = row.PurchaseDate ? new Date(row.PurchaseDate).getTime() : Number.NEGATIVE_INFINITY;
+        const safePurchaseTimestamp = Number.isFinite(purchaseTimestamp) ? purchaseTimestamp : Number.NEGATIVE_INFINITY;
+        const numericDays = Number(daysValue);
+        const imageRenderer = window.majordomeVehicleCells && window.majordomeVehicleCells.renderImageContent;
+        const detailsRenderer = window.majordomeVehicleCells && window.majordomeVehicleCells.renderDetailsContent;
 
-        return `
-            <tr class="majordome-vehicle-row inventory-dashboard-main-row ${isExpanded ? "is-expanded" : ""}" data-stock="${escapeHtml(stock)}" data-stock-key="${escapeHtml(stockKey)}" data-history-target="${escapeHtml(historyRowId)}" data-search="${search}" data-search-tokens="${tokenSearch}" data-gtx="${escapeHtml(gtxValue)}" aria-expanded="${isExpanded ? "true" : "false"}">
-                <td class="inventory-dashboard-expand-cell">
-                    <button type="button" class="inventory-dashboard-expand-button" aria-expanded="${isExpanded ? "true" : "false"}" aria-controls="${escapeHtml(historyRowId)}" title="Show inventory history">
-                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
-                        <span class="visually-hidden">Show inventory history</span>
-                    </button>
-                </td>
-                ${window.renderMajordomeVehicleImageCell(row)}
-                ${window.renderMajordomeVehicleDetailsCell(row)}
-                <td class="d-none d-lg-table-cell majordome-date-cell">${escapeHtml(purchaseDate)}</td>
-                <td class="text-center"><span class="shadow majordome-status-pill majordome-status-location ${escapeHtml(gtxBadge.toneClass)} px-2">${escapeHtml(stock)}</span></td>
-                <td class="text-center d-none d-xl-table-cell">
-                    <span class="majordome-status-pill majordome-status-location ${escapeHtml(gtxBadge.toneClass)} shadow">${escapeHtml(gtxBadge.label)}</span>
-                </td>
-                <td class="inventory-dashboard-status-dot-cell">${renderMajordomeStatusDots(row.HistoryStatuses)}</td>
-                <td class="inventory-dashboard-days-cell" title="${escapeHtml(daysTitle)}">
-                    <span class="inventory-dashboard-days-number ${daysToneClass}">
-                        ${daysIconClass ? `<i class="bi ${daysIconClass}" aria-hidden="true"></i>` : ""}
-                        <span>${escapeHtml(daysText)}</span>
-                    </span>
-                </td>
-                <td class="text-center">
-                    <span class="shadow majordome-status-pill majordome-status-counter" title="${detailsCounter} Details page views"><i class="bi bi-eye-fill me-1" aria-hidden="true"></i>${detailsCounter}</span>
-                </td>
-                <td class="text-center d-none d-md-table-cell">
-                    <span class="shadow majordome-status-pill majordome-status-upload ${upload ? "is-on" : ""}">${upload ? "Y" : "N"}</span>
-                </td>
-                <td class="text-center d-none d-md-table-cell">
-                    <span class="shadow majordome-status-pill majordome-status-story ${story ? "is-on" : ""}">${story ? "Y" : "N"}</span>
-                </td>
-                <td class="text-center d-none d-md-table-cell">
-                    <span class="shadow majordome-status-pill majordome-status-dataone ${dataOne ? "is-on" : ""}">${dataOne ? "Y" : "N"}</span>
-                </td>
-                <td class="shadow text-start majordome-actions-cell">${renderMajordomeActionButtons(row)}</td>
-            </tr>
-            <tr id="${escapeHtml(historyRowId)}" class="majordome-inventory-history-row ${isExpanded ? "" : "d-none"}" data-history-row-for="${escapeHtml(stockKey)}">
-                <td colspan="13">${window.gtxInventoryHistory.renderPanel(stockKey, majordomeHistoryCache[stockKey])}</td>
-            </tr>
-        `;
+        return {
+            Original: row,
+            ExpandKey: stock,
+            ImageCount: hasMajordomeImage(row)
+                ? Math.max(1, Array.isArray(row.Images) ? row.Images.length : 0)
+                : 0,
+            VehicleLabel: `${safeText(row.Year)} ${safeText(row.Make)} ${safeText(row.Model)} ${safeText(row.VehicleStyle)}`.trim(),
+            VehicleSort: `${safeText(row.Make)} ${safeText(row.Year)} ${safeText(row.Model)} ${safeText(row.VehicleStyle)}`.trim(),
+            PurchasedDisplay: purchaseDate,
+            PurchasedSort: safePurchaseTimestamp,
+            Stock: stock,
+            Gtx: gtxValue,
+            Status: statusLabels.join(", ") || "None",
+            Days: Number.isFinite(numericDays) ? numericDays : Number.NEGATIVE_INFINITY,
+            DaysFilter: daysText,
+            Counter: detailsCounter,
+            Upload: upload ? "Y" : "N",
+            Story: story ? "Y" : "N",
+            DataOne: dataOne ? "Y" : "N",
+            ActionsKey: stock,
+            StockKey: stockKey,
+            HistoryRowId: historyRowId,
+            HistoryExpanded: isExpanded,
+            SearchText: `${search} ${tokenSearch}`.trim(),
+            SearchTokens: tokenSearch,
+            ExpandHtml: `
+                <button type="button" class="inventory-dashboard-expand-button" aria-expanded="${isExpanded ? "true" : "false"}" aria-controls="${escapeHtml(historyRowId)}" title="Show inventory history">
+                    <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    <span class="visually-hidden">Show inventory history</span>
+                </button>`,
+            ImageHtml: imageRenderer ? imageRenderer(row) : "",
+            VehicleHtml: detailsRenderer ? detailsRenderer(row) : escapeHtml(`${row.Year || ""} ${row.Make || ""} ${row.Model || ""}`),
+            PurchasedHtml: escapeHtml(purchaseDate),
+            StockHtml: `<span class="shadow majordome-status-pill majordome-status-location ${escapeHtml(gtxBadge.toneClass)} px-2">${escapeHtml(stock)}</span>`,
+            GtxHtml: `<span class="majordome-status-pill majordome-status-location ${escapeHtml(gtxBadge.toneClass)} shadow">${escapeHtml(gtxBadge.label)}</span>`,
+            StatusHtml: renderMajordomeStatusDots(row.HistoryStatuses),
+            DaysHtml: `
+                <span class="inventory-dashboard-days-number ${escapeHtml(daysToneClass)}" title="${escapeHtml(daysTitle)}">
+                    ${daysIconClass ? `<i class="bi ${escapeHtml(daysIconClass)}" aria-hidden="true"></i>` : ""}
+                    <span>${escapeHtml(daysText)}</span>
+                </span>`,
+            CounterHtml: `<span class="shadow majordome-status-pill majordome-status-counter" title="${detailsCounter} Details page views"><i class="bi bi-eye-fill me-1" aria-hidden="true"></i>${detailsCounter}</span>`,
+            UploadHtml: `<span class="shadow majordome-status-pill majordome-status-upload ${upload ? "is-on" : ""}">${upload ? "Y" : "N"}</span>`,
+            StoryHtml: `<span class="shadow majordome-status-pill majordome-status-story ${story ? "is-on" : ""}">${story ? "Y" : "N"}</span>`,
+            DataOneHtml: `<span class="shadow majordome-status-pill majordome-status-dataone ${dataOne ? "is-on" : ""}">${dataOne ? "Y" : "N"}</span>`,
+            ActionsHtml: renderMajordomeActionButtons(row),
+            HistoryHtml: window.gtxInventoryHistory.renderPanel(stockKey, majordomeHistoryCache[stockKey])
+        };
     }
 
     function majordomeHistoryContents(stockKey) {
@@ -3902,12 +3719,35 @@
         });
     }
 
+    function getMajordomeGridDataItem(stockKey) {
+        const normalized = window.gtxInventoryHistory.normalizeStockKey(stockKey);
+        if (window.majordomeInventoryAddGrid && typeof window.majordomeInventoryAddGrid.findDataItem === "function") {
+            const item = window.majordomeInventoryAddGrid.findDataItem(normalized);
+            if (item) return item;
+        }
+        const row = $("#majordomeInventoryBody .majordome-vehicle-row").filter(function () {
+            return window.gtxInventoryHistory.normalizeStockKey($(this).attr("data-stock-key")) === normalized;
+        }).get(0);
+        return row && window.majordomeInventoryAddGrid
+            ? window.majordomeInventoryAddGrid.getDataItem(row)
+            : null;
+    }
+
+    function syncMajordomeGridHistoryData(stockKey) {
+        const normalized = window.gtxInventoryHistory.normalizeStockKey(stockKey);
+        const item = getMajordomeGridDataItem(normalized);
+        if (item) {
+            item.HistoryHtml = window.gtxInventoryHistory.renderPanel(normalized, majordomeHistoryCache[normalized]);
+        }
+    }
+
     function loadMajordomeVehicleHistory(stockKey) {
         const normalized = window.gtxInventoryHistory.normalizeStockKey(stockKey);
         const $contents = majordomeHistoryContents(normalized);
         if (!normalized || !$contents.length) return;
 
         if (majordomeHistoryCache[normalized]) {
+            syncMajordomeGridHistoryData(normalized);
             setMajordomeHistoryHtml($contents, window.gtxInventoryHistory.renderRows(majordomeHistoryCache[normalized], normalized));
             return;
         }
@@ -3917,6 +3757,7 @@
             .done(function (payload) {
                 const history = payload && payload.success !== false ? (payload.history || payload.History || []) : [];
                 majordomeHistoryCache[normalized] = history;
+                syncMajordomeGridHistoryData(normalized);
                 setMajordomeHistoryHtml(majordomeHistoryContents(normalized), window.gtxInventoryHistory.renderRows(history, normalized));
             })
             .fail(function () {
@@ -3932,6 +3773,8 @@
         const targetId = $row.attr("data-history-target");
         const $historyRow = $(`#${targetId}`);
         if (!stockKey || !$historyRow.length) return;
+        const gridItem = getMajordomeGridDataItem(stockKey);
+        if (gridItem) gridItem.HistoryExpanded = isExpanded;
 
         if (isExpanded) {
             $("#majordomeInventoryBody .majordome-vehicle-row.is-expanded").each(function () {
@@ -4012,20 +3855,30 @@
             inventoryVehiclesSource = data.map(normalizeVehicle);
         }
 
-        inventoryVehicles = sortMajordomeVehicles(inventoryVehiclesSource);
-        renderMajordomeGtxFilterOptions(inventoryVehiclesSource);
-        const rowsHtml = inventoryVehicles.map(renderMajordomeInventoryRow).join("");
-        if (window.gtxSecurity && typeof window.gtxSecurity.setSafeHtml === "function") {
-            window.gtxSecurity.setSafeHtml($("#majordomeInventoryBody"), rowsHtml);
-        } else {
-            const bodyElement = document.getElementById("majordomeInventoryBody");
-            if (bodyElement) {
-                bodyElement.innerHTML = rowsHtml;
+        inventoryVehicles = inventoryVehiclesSource.slice();
+        const gridRows = inventoryVehicles.map(buildMajordomeInventoryGridRow);
+        const grid = window.majordomeInventoryAddGrid;
+
+        if (!grid || !grid.initialize(gridRows, {
+            onRender: function () {
+                markSelectedRow(selectedVehicleStock);
+                syncMajordomeEmptyState();
+                syncMajordomeGalleryAvailability();
+            },
+            onSearchChange: function (detail) {
+                if (window.gtxInventorySearch) {
+                    window.gtxInventorySearch.writeStoredTerm(detail && detail.term);
+                }
+                selectFirstVisibleMajordomeVehicle();
+            },
+            onFilterChange: function () {
+                selectFirstVisibleMajordomeVehicle();
             }
+        })) {
+            console.error("Majordome Inventory addGrid could not be initialized.");
         }
-        updateMajordomeSortHeaders();
+
         syncMajordomeEmptyState();
-        syncMajordomeInventoryCount();
         markSelectedRow(selectedVehicleStock);
         syncMajordomeGalleryAvailability();
     }
@@ -4097,33 +3950,10 @@
 
     function applyFilterTerm(term) {
         const raw = safeText(term);
-        const normalized = raw.trim().toUpperCase();
-        const terms = normalized.split(/\s+/).filter(Boolean);
-        const selectedGtx = getSelectedMajordomeGtxFilter();
-        const search = window.gtxInventorySearch;
+        const grid = window.majordomeInventoryAddGrid;
 
-        if (search) {
-            search.writeStoredTerm(raw);
-        } else if (!normalized) {
-            sessionStorage.removeItem("term");
-        }
-
-        $("#majordomeInventoryBody .majordome-vehicle-row").each(function () {
-            const haystack = safeText($(this).data("search")).toUpperCase();
-            const tokenHaystack = safeText($(this).data("search-tokens")).toUpperCase();
-            const matchedTerm = search
-                ? search.matches(haystack, raw, tokenHaystack)
-                : terms.length === 0 || terms.every(function (t) { return haystack.includes(t); });
-            const rowGtx = normalizeMajordomeGtxFilterValue($(this).attr("data-gtx"));
-            const matchedGtx = !selectedGtx || rowGtx === selectedGtx;
-            const matched = matchedTerm && matchedGtx;
-            $(this).toggleClass("is-filter-hidden", !matched);
-            $(this).toggle(matched);
-            const historyTarget = $(this).attr("data-history-target");
-            if (historyTarget) {
-                $(`#${historyTarget}`).toggleClass("d-none", !(matched && $(this).hasClass("is-expanded")));
-            }
-        });
+        if (grid) grid.setSearch(raw);
+        if (window.gtxInventorySearch) window.gtxInventorySearch.writeStoredTerm(raw);
 
         const stocks = getMajordomeFilterMatchedRows().map(function () {
             return $(this).attr("data-stock");
@@ -4135,18 +3965,18 @@
             localStorage.removeItem("matchedStocks");
         }
 
-        if (!search && normalized) {
-            sessionStorage.setItem("term", raw);
-        }
         syncMajordomeEmptyState();
-        syncMajordomeInventoryCount();
     }
 
     function syncMajordomeQrCode(vehicle) {
         if (!vehicle) return;
         const qrUrl = "/Majordome/Qr?stock=" + encodeURIComponent(vehicle.Stock || "") + "&vin=" + encodeURIComponent(vehicle.VIN || "");
         $("#qrImg").attr("src", qrUrl);
-        $("#qrText").text(`${vehicle.Year} ${vehicle.Make} ${vehicle.Model} Stock# ${vehicle.Stock}`);
+        $("#qrText")
+            .text(`${vehicle.Year} ${vehicle.Make} ${vehicle.Model} Stock# ${vehicle.Stock}`)
+            .addClass("copyable")
+            .attr("data-copy-value", safeText(vehicle.Stock))
+            .attr("title", "Double-click to copy Stock#");
         $("#QR-code-tab").removeClass("d-none");
     }
 
@@ -4174,7 +4004,9 @@
         const preferredStock = safeText(selectedVehicleStock || selectedVehicle?.Stock || window.majordomeSelectedStock || "").trim();
         const forcedTabId = safeText(window.majordomeForceActiveTab || "").trim();
         const activeTabId = forcedTabId || $("#myTab button.active").attr("id") || "inventory-tab";
-        const currentFilter = $("#filterTerm").val() || "";
+        const currentFilter = window.majordomeInventoryAddGrid
+            ? window.majordomeInventoryAddGrid.getSearch()
+            : (window.gtxInventorySearch ? window.gtxInventorySearch.readStoredTerm() : "");
 
         if (preferredStock) {
             window.majordomeSelectedStock = preferredStock;
@@ -4266,22 +4098,10 @@
     }
 
     function showVehicleDetails(vehicle) {
-        const activeElement = document.activeElement;
-        const shouldRestoreFilterFocus = activeElement && activeElement.id === "filterTerm";
-        const restoreStart = shouldRestoreFilterFocus && typeof activeElement.selectionStart === "number" ? activeElement.selectionStart : null;
-        const restoreEnd = shouldRestoreFilterFocus && typeof activeElement.selectionEnd === "number" ? activeElement.selectionEnd : null;
-
         $('#vin').val(vehicle.VIN);
         $('#storyTitle').val(vehicle.Story?.Title);
         quill.setContents([]);
         quill.clipboard.dangerouslyPasteHTML(0, vehicle?.Story?.HtmlContent || "", "api");
-
-        if (shouldRestoreFilterFocus) {
-            activeElement.focus({ preventScroll: true });
-            if (restoreStart !== null && restoreEnd !== null && typeof activeElement.setSelectionRange === "function") {
-                activeElement.setSelectionRange(restoreStart, restoreEnd);
-            }
-        }
 
         if (vehicle.Stock) {
             $.ajax({

@@ -24,50 +24,16 @@
                 </div>
             </aside>
             <div id="majordome-management-results" class="majordome-management-results">
-                <div class="majordome-management-toolbar">
-                    <div class="majordome-management-toolbar-main">
-                        <button type="button" id="inventoryManagementUploadInventoryButton" class="btn btn-gradient shadow inventory-management-upload-button">Upload inventory</button>
+                <div class="d-none">
+                    <div>
+                        <button type="button" id="inventoryManagementUploadInventoryButton" class="btn btn-gradient shadow inventory-management-upload-button">
+                            <i class="bi bi-cloud-arrow-up-fill me-1" aria-hidden="true"></i>Upload inventory
+                        </button>
                         <input type="file" name="dataCsv" id="inventoryManagementDataCsv" class="d-none" accept=".csv,text/csv" />
-                        <select id="majordomeManagementLocationFilter" class="form-select majordome-management-location-filter" aria-label="Filter inventory management rows by location">
-                            <option value="all" selected>All locations</option>
-                        </select>
-                    </div>
-                    <div class="majordome-management-toolbar-actions">
-                        <div id="majordomeManagementSummary" class="majordome-management-summary shadow-sm" aria-live="polite">
-                            <span class="majordome-management-summary-label">Vehicles</span>
-                            <span id="majordomeManagementCount" class="badge bg-secondary shadow">0</span>
-                        </div>
-                        <div id="majordomeManagementSearchSlot" class="majordome-management-search-slot">
-                            @{ Html.RenderPartial("~/Views/Shared/_FilterByTerm.cshtml"); }
-                            </div>
                     </div>
                 </div>
                 <div class="majordome-management-table-wrap table-responsive">
-                    <table id="majordomeManagementTable" class="table align-middle m-0">
-                        <colgroup>
-                            <col class="majordome-management-col-expand" />
-                            <col class="majordome-management-col-image" />
-                            <col class="majordome-management-col-vehicle" />
-                            <col class="majordome-management-col-stock" />
-                            <col class="majordome-management-col-gtx" />
-                            <col class="majordome-management-col-status" />
-                            <col class="majordome-management-col-details" />
-                            <col />
-                        </colgroup>
-                        <thead class="table-light">
-                            <tr>
-                                <th class="majordome-management-col-expand"></th>
-                                <th class="majordome-sortable-th majordome-management-col-image" data-sort-key="image">Image <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
-                                <th class="majordome-sortable-th majordome-management-col-vehicle" data-sort-key="vehicle">Vehicle <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
-                                <th class="majordome-sortable-th majordome-management-col-stock" data-sort-key="stock">Stock <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
-                                <th class="text-center majordome-sortable-th majordome-management-col-gtx" data-sort-key="gtx">GTX <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
-                                <th class="text-center majordome-sortable-th majordome-management-col-status" data-sort-key="status">Status <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
-                                <th class="text-center majordome-management-col-details">Details</th>
-                                <th class="majordome-management-spacer-cell" aria-hidden="true"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="majordomeManagementBody"></tbody>
-                    </table>
+                    <div id="majordomeManagementGrid" class="majordome-management-add-grid"></div>
                 </div>
                 <div id="majordomeManagementEmpty" class="p-4 text-center text-muted d-none">
                     No added, updated, sold, or stalled vehicles were found for this inventory date.
@@ -76,6 +42,16 @@
         </div>
     </div>
 </div>
+
+<script type="text/x-addgrid-template" id="management-add-grid-expand-template">{{ExpandHtml}}</script>
+<script type="text/x-addgrid-template" id="management-add-grid-image-template">{{ImageHtml}}</script>
+<script type="text/x-addgrid-template" id="management-add-grid-vehicle-template">{{VehicleHtml}}</script>
+<script type="text/x-addgrid-template" id="management-add-grid-stock-template">{{StockHtml}}</script>
+<script type="text/x-addgrid-template" id="management-add-grid-gtx-template">{{GtxHtml}}</script>
+<script type="text/x-addgrid-template" id="management-add-grid-status-template">{{StatusHtml}}</script>
+<script type="text/x-addgrid-template" id="management-add-grid-details-template">{{DetailsHtml}}</script>
+<script type="text/x-addgrid-template" id="management-add-grid-spacer-template">{{SpacerHtml}}</script>
+<script type="text/x-addgrid-template" id="management-add-grid-detail-template">{{DetailHtml}}</script>
 
 <div id="inventoryManagementRollbackToken" class="d-none">
     <input type="hidden" name="rollbackToken" value="@ViewBag.InventoryRollbackToken" />
@@ -138,7 +114,6 @@
         let majordomeManagementSelectedMonth = "";
         let inventoryManagementRollbackRunning = false;
         let inventoryManagementRollbackLatestLog = null;
-        const majordomeManagementSortState = { key: "", direction: "" };
         const majordomeManagementMonthNames = [
             "January", "February", "March", "April", "May", "June",
             "July", "August", "September", "October", "November", "December"
@@ -237,16 +212,6 @@
             return true;
         }
 
-        function managementLocationKey(value) {
-            const text = managementText(value).trim();
-            return text ? text.toUpperCase() : "__blank";
-        }
-
-        function managementLocationLabel(value) {
-            const text = managementText(value).trim();
-            return text || "No location";
-        }
-
         function managementSearchText(value) {
             return managementText(value).trim().toLowerCase();
         }
@@ -313,13 +278,6 @@
 
         function managementLogTotalCount(log) {
             return Number(managementValue(log, "TotalCount", 0)) || 0;
-        }
-
-        function selectedMajordomeManagementLog() {
-            const selectedLogId = managementText($("#majordomeManagementLogSelect").val());
-            return majordomeManagementLogs.find(function (log) {
-                return managementText(managementValue(log, "Id", "")) === selectedLogId;
-            }) || null;
         }
 
         function latestMajordomeManagementLogs() {
@@ -439,100 +397,6 @@
             };
         }
 
-        function compareMajordomeManagementText(left, right) {
-            return managementText(left).localeCompare(managementText(right), undefined, { numeric: true, sensitivity: "base" });
-        }
-
-        function compareMajordomeManagementRows(left, right, key) {
-            switch (key) {
-                case "image": {
-                    const imagePresence = (managementHasImage(left) ? 1 : 0) - (managementHasImage(right) ? 1 : 0);
-                    if (imagePresence !== 0) return imagePresence;
-                    return compareMajordomeManagementText(managementImageUrl(managementValue(left, "Stock", "")), managementImageUrl(managementValue(right, "Stock", "")));
-                }
-                case "vehicle": {
-                    const makeDiff = compareMajordomeManagementText(managementValue(left, "Make", ""), managementValue(right, "Make", ""));
-                    if (makeDiff !== 0) return makeDiff;
-
-                    const yearLeft = Number.parseInt(managementText(managementValue(left, "Year", "")), 10);
-                    const yearRight = Number.parseInt(managementText(managementValue(right, "Year", "")), 10);
-                    const safeYearLeft = Number.isNaN(yearLeft) ? -1 : yearLeft;
-                    const safeYearRight = Number.isNaN(yearRight) ? -1 : yearRight;
-                    if (safeYearLeft !== safeYearRight) return safeYearLeft - safeYearRight;
-
-                    const modelDiff = compareMajordomeManagementText(managementValue(left, "Model", ""), managementValue(right, "Model", ""));
-                    if (modelDiff !== 0) return modelDiff;
-
-                    return compareMajordomeManagementText(managementValue(left, "VehicleStyle", ""), managementValue(right, "VehicleStyle", ""));
-                }
-                case "stock":
-                    return compareMajordomeManagementText(managementValue(left, "Stock", ""), managementValue(right, "Stock", ""));
-                case "gtx":
-                    return compareMajordomeManagementText(managementValue(left, "LocationCode", ""), managementValue(right, "LocationCode", ""));
-                case "status":
-                    return compareMajordomeManagementText(managementValue(left, "StatusText", ""), managementValue(right, "StatusText", ""));
-                default:
-                    return 0;
-            }
-        }
-
-        function sortMajordomeManagementRows(sourceRows) {
-            const rows = Array.isArray(sourceRows) ? sourceRows.slice() : [];
-
-            if (!majordomeManagementSortState.key || !majordomeManagementSortState.direction) {
-                return rows;
-            }
-
-            const directionMultiplier = majordomeManagementSortState.direction === "desc" ? -1 : 1;
-
-            return rows
-                .map(function (row, index) { return { row: row, index: index }; })
-                .sort(function (left, right) {
-                    const diff = compareMajordomeManagementRows(left.row, right.row, majordomeManagementSortState.key);
-                    if (diff !== 0) return diff * directionMultiplier;
-                    return left.index - right.index;
-                })
-                .map(function (entry) { return entry.row; });
-        }
-
-        function updateMajordomeManagementSortHeaders() {
-            $("#majordomeManagementTable th.majordome-sortable-th").each(function () {
-                const $header = $(this);
-                const key = managementText($header.attr("data-sort-key")).toLowerCase();
-                const $icon = $header.find(".majordome-sort-indicator");
-                const isActive = key === majordomeManagementSortState.key && !!majordomeManagementSortState.direction;
-
-                $header.toggleClass("is-active", isActive);
-                $icon.removeClass("bi-arrow-down-up bi-arrow-up bi-arrow-down");
-                $icon.addClass(!isActive ? "bi-arrow-down-up" : (majordomeManagementSortState.direction === "asc" ? "bi-arrow-up" : "bi-arrow-down"));
-                $header.attr("aria-sort", !isActive ? "none" : (majordomeManagementSortState.direction === "asc" ? "ascending" : "descending"));
-            });
-        }
-
-        function toggleMajordomeManagementSort(key) {
-            const normalizedKey = managementText(key).toLowerCase();
-            if (!normalizedKey) return;
-
-            if (majordomeManagementSortState.key !== normalizedKey) {
-                majordomeManagementSortState.key = normalizedKey;
-                majordomeManagementSortState.direction = "asc";
-                return;
-            }
-
-            if (majordomeManagementSortState.direction === "asc") {
-                majordomeManagementSortState.direction = "desc";
-                return;
-            }
-
-            if (majordomeManagementSortState.direction === "desc") {
-                majordomeManagementSortState.key = "";
-                majordomeManagementSortState.direction = "";
-                return;
-            }
-
-            majordomeManagementSortState.direction = "asc";
-        }
-
         function managementRowSearchValue(row) {
             const changeText = getMajordomeManagementRowEntries(row).map(function (entry) {
                 const changes = managementValue(entry, "Changes", []) || [];
@@ -584,89 +448,24 @@
         }
 
         function getMajordomeManagementFilteredRows() {
-            const rawTerm = managementText($("#filterTerm").val());
-            const term = managementSearchText(rawTerm);
-            const terms = window.gtxInventorySearch
-                ? window.gtxInventorySearch.splitTerms(rawTerm)
-                : term.split(/\s+/).filter(Boolean);
             const statusFilter = managementStatusKey(majordomeManagementSelectedStatus || "all");
-            const locationFilter = $("#majordomeManagementLocationFilter").val() || "all";
 
             return majordomeManagementRows.filter(function (row) {
                 const rowStatus = managementStatusKey(managementValue(row, "StatusText", ""));
-                const rowLocation = managementLocationKey(managementValue(row, "LocationCode", ""));
-                const matchesStatus = statusFilter === "all" || rowStatus === statusFilter;
-                const matchesLocation = locationFilter === "all" || rowLocation === locationFilter;
-                const searchValue = managementRowSearchValue(row);
-                const matchesTerm = window.gtxInventorySearch
-                    ? window.gtxInventorySearch.matches(searchValue, rawTerm, managementRowTokenSearchValue(row))
-                    : terms.length === 0 || terms.every(function (part) {
-                        return searchValue.indexOf(part) !== -1;
-                    });
-
-                return matchesStatus && matchesLocation && matchesTerm;
+                return statusFilter === "all" || rowStatus === statusFilter;
             });
         }
 
         function updateMajordomeManagementEmptyState(filteredCount, totalCount) {
             const hasFilteredRows = filteredCount > 0;
             const message = totalCount > 0
-                ? "No vehicles match the current search, status, or location filter."
+                ? "No vehicles match the current filters."
                 : "No added, updated, sold, or stalled vehicles were found for this inventory date.";
 
             $("#majordomeManagementEmpty")
                 .toggleClass("d-none", hasFilteredRows)
                 .text(message);
             $(".majordome-management-table-wrap").toggleClass("d-none", !hasFilteredRows);
-        }
-
-        function updateMajordomeManagementCount() {
-            const total = managementLogTotalCount(selectedMajordomeManagementLog());
-            $("#majordomeManagementCount").text(managementFormatInteger(total));
-        }
-
-        function syncMajordomeManagementLocationFilter() {
-            const $locationFilter = $("#majordomeManagementLocationFilter");
-            const selected = $locationFilter.val() || "all";
-            const locationsByKey = {};
-
-            majordomeManagementRows.forEach(function (row) {
-                const location = managementValue(row, "LocationCode", "");
-                const key = managementLocationKey(location);
-
-                if (!locationsByKey[key]) {
-                    locationsByKey[key] = managementLocationLabel(location);
-                }
-            });
-
-            const locations = Object.keys(locationsByKey)
-                .map(function (key) {
-                    return {
-                        key: key,
-                        label: locationsByKey[key]
-                    };
-                })
-                .sort(function (a, b) {
-                    if (a.key === "__blank") return 1;
-                    if (b.key === "__blank") return -1;
-                    return a.label.localeCompare(b.label, undefined, { numeric: true, sensitivity: "base" });
-                });
-
-            $locationFilter.empty().append($("<option>").val("all").text("All locations"));
-
-            locations.forEach(function (location) {
-                $("<option>")
-                    .val(location.key)
-                    .text(location.label)
-                    .appendTo($locationFilter);
-            });
-
-            const hasSelected = selected === "all" || locations.some(function (location) {
-                return location.key === selected;
-            });
-
-            $locationFilter.val(hasSelected ? selected : "all");
-            $locationFilter.prop("disabled", locations.length === 0);
         }
 
         function managementVehicleByStock(stock) {
@@ -1120,7 +919,6 @@
 
         function setMajordomeManagementRows(rows) {
             majordomeManagementRows = groupMajordomeManagementRows(rows);
-            syncMajordomeManagementLocationFilter();
             applyMajordomeManagementFilters();
         }
 
@@ -1129,6 +927,9 @@
             if (!stockKey) return;
 
             majordomeManagementSelectedStock = stockKey;
+            if (window.inventoryManagementAddGrid) {
+                window.inventoryManagementAddGrid.selectDataItem(stockKey);
+            }
             $("#majordomeManagementBody .majordome-management-row").removeClass("is-selected");
             $row.addClass("is-selected");
         }
@@ -1137,23 +938,43 @@
             renderMajordomeManagementRows(getMajordomeManagementFilteredRows(), majordomeManagementRows.length);
         }
 
-        function renderMajordomeManagementRows(rows, totalCount) {
-            const vehicles = sortMajordomeManagementRows(rows);
-            const total = typeof totalCount === "number" ? totalCount : vehicles.length;
-            const html = vehicles.map(renderMajordomeManagementRow).join("");
+        function placeInventoryManagementUploadButton() {
+            const $search = $("#majordomeManagementGrid .pg-search-input-group");
+            const $sourceButton = $("#inventoryManagementUploadInventoryButton");
+            if (!$search.length || !$sourceButton.length || $("#inventoryManagementUploadToolbarButton").length) return;
 
-            if (window.gtxSecurity && typeof window.gtxSecurity.setSafeHtml === "function") {
-                window.gtxSecurity.setSafeHtml($("#majordomeManagementBody"), html);
-            } else {
-                $("#majordomeManagementBody").html(html);
-            }
-
-            updateMajordomeManagementCount();
-            updateMajordomeManagementEmptyState(vehicles.length, total);
-            updateMajordomeManagementSortHeaders();
+            const $toolbarButton = $sourceButton.clone(false)
+                .attr("id", "inventoryManagementUploadToolbarButton")
+                .addClass("btn-sm");
+            $search.after($toolbarButton);
         }
 
-        function renderMajordomeManagementRow(row, index) {
+        function renderMajordomeManagementRows(rows, totalCount) {
+            const vehicles = Array.isArray(rows) ? rows : [];
+            const total = typeof totalCount === "number" ? totalCount : vehicles.length;
+            const gridRows = vehicles.map(buildMajordomeManagementGridRow);
+
+            updateMajordomeManagementEmptyState(vehicles.length, total);
+            if (!window.inventoryManagementAddGrid || !window.inventoryManagementAddGrid.initialize(gridRows, {
+                onRender: function () {
+                    placeInventoryManagementUploadButton();
+                    const selectedStock = managementStockKey(majordomeManagementSelectedStock);
+                    if (!selectedStock) return;
+                    $("#majordomeManagementBody .majordome-management-row").filter(function () {
+                        return managementStockKey($(this).attr("data-stock")) === selectedStock;
+                    }).addClass("is-selected");
+                },
+                onSearchChange: function (detail) {
+                    if (window.gtxInventorySearch) {
+                        window.gtxInventorySearch.writeStoredTerm(detail && detail.term);
+                    }
+                }
+            })) {
+                console.error("Inventory Management addGrid could not be initialized.");
+            }
+        }
+
+        function buildMajordomeManagementGridRow(row, index) {
             const stock = managementValue(row, "Stock", "");
             const year = managementValue(row, "Year", "");
             const make = managementValue(row, "Make", "");
@@ -1171,11 +992,9 @@
             const image = managementValue(row, "Image", "") || managementImageUrl(stock);
             const gtxBadge = getMajordomeManagementGtxBadgeInfo(locationCode);
             const statusClass = isUpdated ? "bg-primary" : (isRemoved ? "bg-danger" : (isSkipped ? "bg-secondary" : "bg-success"));
-            const rowToneClass = index % 2 === 1 ? "is-alt" : "";
             const stockKey = managementStockKey(stock);
-            const selectedClass = stockKey && stockKey === majordomeManagementSelectedStock ? "is-selected" : "";
-            const rowSearch = managementEscapeHtml(managementRowSearchValue(row));
-            const rowTokenSearch = managementEscapeHtml(managementRowTokenSearchValue(row));
+            const rowSearch = managementRowSearchValue(row);
+            const rowTokenSearch = managementRowTokenSearchValue(row);
             const vehicleTitle = [year, make, model, stock]
                 .filter(function (part) {
                     return part !== null && part !== undefined && managementText(part).trim() !== "";
@@ -1195,36 +1014,47 @@
             const toggle = isUpdated
                 ? `<button type="button" class="btn btn-outline-secondary majordome-management-toggle" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="false" aria-controls="${collapseId}" title="Show changed values"><i class="bi bi-chevron-right" aria-hidden="true"></i></button>`
                 : "";
+            const imageRenderer = window.majordomeVehicleCells && window.majordomeVehicleCells.renderImageContent;
+            const detailsRenderer = window.majordomeVehicleCells && window.majordomeVehicleCells.renderDetailsContent;
 
-            return `
-                <tr class="majordome-management-row ${rowToneClass} ${selectedClass}" data-stock="${managementEscapeHtml(stockKey)}" data-status="${managementEscapeHtml(statusKey)}" data-search="${rowSearch}" data-search-tokens="${rowTokenSearch}">
-                    <td>${toggle}</td>
-                    ${window.renderMajordomeVehicleImageCell(displayVehicle)}
-                    ${window.renderMajordomeVehicleDetailsCell(displayVehicle)}
-                    <td class="text-center"><span class="shadow majordome-status-pill majordome-status-location ${managementEscapeHtml(gtxBadge.toneClass)} px-2">${managementEscapeHtml(stock)}</span></td>
-                    <td class="text-center">
-                        <span class="majordome-status-pill majordome-status-location ${managementEscapeHtml(gtxBadge.toneClass)} shadow">${managementEscapeHtml(gtxBadge.label)}</span>
-                    </td>
-                    <td class="text-center"><span class="badge rounded-pill ${statusClass} shadow">${managementEscapeHtml(statusText)}</span></td>
-                    <td class="inventory-dashboard-details-cell majordome-management-details-cell">
-                        <button type="button"
-                                class="btn btn-outline-secondary inventory-dashboard-details-button"
-                                data-dashboard-details-stock="${managementEscapeHtml(stock)}"
-                                data-dashboard-details-title="${managementEscapeHtml(vehicleTitle)}"
-                                title="Show vehicle details">
-                            <i class="bi bi-card-list" aria-hidden="true"></i>
-                            <span class="visually-hidden">Show vehicle details</span>
-                        </button>
-                    </td>
-                    <td class="majordome-management-spacer-cell" aria-hidden="true"></td>
-                </tr>
-                <tr class="majordome-management-detail-row ${rowToneClass}">
-                    <td class="majordome-management-detail-cell" colspan="8">
-                        <div id="${collapseId}" class="collapse" data-bs-parent="#majordomeManagementBody">
-                            ${buildMajordomeManagementDetails(row)}
-                        </div>
-                    </td>
-                </tr>`;
+            return {
+                Original: row,
+                ExpandKey: stockKey,
+                ImageCount: managementHasImage(row) ? 1 : 0,
+                ImageSort: `${managementHasImage(row) ? 1 : 0} ${managementImageUrl(stock)}`,
+                VehicleLabel: [year, make, model, style].filter(Boolean).join(" "),
+                VehicleSort: [make, year, model, style].join(" "),
+                Stock: stock,
+                Gtx: gtxBadge.label,
+                GtxSort: managementText(locationCode),
+                GtxFilter: gtxBadge.label,
+                Status: statusText,
+                StatusFilter: statusText,
+                StatusKey: statusKey,
+                DetailsKey: stockKey,
+                Spacer: "",
+                StockKey: stockKey,
+                SearchText: rowSearch,
+                SearchTokens: rowTokenSearch,
+                Selected: stockKey && stockKey === managementStockKey(majordomeManagementSelectedStock),
+                ExpandHtml: toggle,
+                ImageHtml: typeof imageRenderer === "function" ? imageRenderer(displayVehicle) : managementEscapeHtml(image),
+                VehicleHtml: typeof detailsRenderer === "function" ? detailsRenderer(displayVehicle) : managementEscapeHtml(vehicleTitle),
+                StockHtml: `<span class="shadow majordome-status-pill majordome-status-location ${managementEscapeHtml(gtxBadge.toneClass)} px-2">${managementEscapeHtml(stock)}</span>`,
+                GtxHtml: `<span class="majordome-status-pill majordome-status-location ${managementEscapeHtml(gtxBadge.toneClass)} shadow">${managementEscapeHtml(gtxBadge.label)}</span>`,
+                StatusHtml: `<span class="badge rounded-pill ${statusClass} shadow">${managementEscapeHtml(statusText)}</span>`,
+                DetailsHtml: `
+                    <button type="button"
+                            class="btn btn-outline-secondary inventory-dashboard-details-button"
+                            data-dashboard-details-stock="${managementEscapeHtml(stock)}"
+                            data-dashboard-details-title="${managementEscapeHtml(vehicleTitle)}"
+                            title="Show vehicle details">
+                        <i class="bi bi-card-list" aria-hidden="true"></i>
+                        <span class="visually-hidden">Show vehicle details</span>
+                    </button>`,
+                SpacerHtml: "",
+                DetailHtml: `<div id="${collapseId}" class="collapse" data-bs-parent="#majordomeManagementBody">${buildMajordomeManagementDetails(row)}</div>`
+            };
         }
 
         function buildMajordomeManagementDetails(row) {
@@ -1250,8 +1080,8 @@
                     const field = managementValue(change, "Field", "");
                     const previousValue = managementValue(change, "PreviousValue", "");
                     const currentValue = managementValue(change, "CurrentValue", "");
-                    const previousClass = managementIsNumericChangeValue(field, previousValue) ? ` class="majordome-management-change-number"` : "";
-                    const currentClass = managementIsNumericChangeValue(field, currentValue) ? ` class="majordome-management-change-number"` : "";
+                    const previousClass = managementIsNumericChangeValue(field, previousValue) ? ` class="inventory-dashboard-change-number"` : "";
+                    const currentClass = managementIsNumericChangeValue(field, currentValue) ? ` class="inventory-dashboard-change-number"` : "";
 
                     return `
                         <tr>
@@ -1270,13 +1100,13 @@
             return `
                 <div class="majordome-management-detail-panel">
                     <div class="table-responsive">
-                        <table class="table table-sm majordome-management-change-table">
+                        <table class="table table-sm inventory-dashboard-change-table">
                             <thead>
                                 <tr>
-                                    <th class="text-dark">Field</th>
-                                    <th class="text-dark">Previous</th>
-                                    <th class="text-dark">New</th>
-                                    <th class="text-dark">Updated</th>
+                                    <th scope="col">Field</th>
+                                    <th scope="col">Previous</th>
+                                    <th scope="col">Current</th>
+                                    <th scope="col">Updated</th>
                                 </tr>
                             </thead>
                             <tbody>${rowsHtml}</tbody>
@@ -1293,10 +1123,8 @@
 
             majordomeManagementRows = [];
             majordomeManagementSelectedStock = "";
-            syncMajordomeManagementLocationFilter();
-            $("#majordomeManagementBody").html(`<tr><td colspan="8" class="text-center text-muted p-4">Loading management records...</td></tr>`);
-            $("#majordomeManagementEmpty").addClass("d-none");
-            $(".majordome-management-table-wrap").removeClass("d-none");
+            $("#majordomeManagementEmpty").removeClass("d-none").text("Loading management records...");
+            $(".majordome-management-table-wrap").addClass("d-none");
 
             $.get(`${managementRoot()}InventoryManagement/GetInventoryManagementLogVehicles`, {
                 inventoryLogId: logId,
@@ -1312,9 +1140,8 @@
                 })
                 .fail(function () {
                     majordomeManagementRows = [];
-                    syncMajordomeManagementLocationFilter();
-                    $("#majordomeManagementBody").html(`<tr><td colspan="8" class="text-center text-danger p-4">Unable to load management records.</td></tr>`);
-                    $("#majordomeManagementCount").text("0");
+                    $("#majordomeManagementEmpty").removeClass("d-none").text("Unable to load management records.");
+                    $(".majordome-management-table-wrap").addClass("d-none");
                 });
         }
 
@@ -1337,19 +1164,13 @@
         };
 
         function applyManagementFilterTerm(term) {
-            $("#filterTerm").val(managementText(term));
-            if (window.gtxInventorySearch) {
-                window.gtxInventorySearch.writeStoredTerm(term || "");
+            if (window.inventoryManagementAddGrid) {
+                window.inventoryManagementAddGrid.setSearch(managementText(term));
             }
-            applyMajordomeManagementFilters();
         }
 
         $(function () {
             window.applyMajordomeInventoryFilter = applyManagementFilterTerm;
-
-            if (window.gtxInventorySearch) {
-                $("#filterTerm").val(window.gtxInventorySearch.readStoredTerm());
-            }
 
             renderMajordomeManagementLogs();
 
@@ -1368,8 +1189,6 @@
                     showInventoryManagementRollbackModal();
                 });
 
-            $("#majordomeManagementLocationFilter").on("change", applyMajordomeManagementFilters);
-
             $("#inventoryManagementRollbackAcknowledge").on("change", syncInventoryManagementRollbackConfirmation);
             $("#inventoryManagementRollbackConfirm").on("click", rollbackLatestInventoryUpload);
 
@@ -1384,16 +1203,9 @@
                 renderMajordomeManagementLogs();
             });
 
-            $("#majordomeManagementTable").on("click", "th.majordome-sortable-th", function () {
-                const sortKey = managementText($(this).attr("data-sort-key")).toLowerCase();
-                if (!sortKey) return;
-
-                toggleMajordomeManagementSort(sortKey);
-                applyMajordomeManagementFilters();
-            });
-
-            $("#majordomeManagementBody")
-                .on("click", ".majordome-management-row", function () {
+            $("#majordomeManagementGrid")
+                .on("click", ".majordome-management-row", function (event) {
+                    if ($(event.target).closest(".copyable").length) return;
                     selectMajordomeManagementRow($(this));
                 })
                 .on("shown.bs.collapse", ".collapse", function () {

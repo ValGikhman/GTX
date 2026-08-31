@@ -57,11 +57,12 @@
         };
 
         $(function () {
-            $("#inventoryDashboardStatusBody, #majordomeManagementBody")
+            $("#inventoryDashboardStatusGrid, #majordomeManagementGrid")
                 .off("click.inventoryDashboardDetails", ".inventory-dashboard-details-button")
                 .on("click.inventoryDashboardDetails", ".inventory-dashboard-details-button", function (event) {
                     event.preventDefault();
                     event.stopPropagation();
+                    event.stopImmediatePropagation();
                     const $button = $(this);
                     window.loadDashboardVehicleDetails(
                         $button.attr("data-dashboard-details-stock"),

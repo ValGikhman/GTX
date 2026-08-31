@@ -13,6 +13,7 @@
         window.inventoryImagesCloudflareEnabled = @Html.Raw(InventoryImageSettings.CloudflareEnabled ? "true" : "false");
     </script>
     <script src="~/Scripts/majordome.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome.js")).Ticks)"></script>
+    <script src="~/Scripts/inventory-management-grid.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/inventory-management-grid.js")).Ticks)"></script>
 </head>
 
 <script type="text/javascript">
@@ -173,7 +174,7 @@
 
         function uploadSetBusy(isBusy) {
             inventoryManagementUploadRunning = isBusy;
-            $("#inventoryManagementUploadInventoryButton, #inventoryManagementDataCsv, #inventoryManagementUploadStart")
+            $("#inventoryManagementUploadInventoryButton, #inventoryManagementUploadToolbarButton, #inventoryManagementDataCsv, #inventoryManagementUploadStart")
                 .prop("disabled", isBusy)
                 .toggleClass("disabled", isBusy);
         }
@@ -492,7 +493,7 @@
         }
 
         $(function () {
-            $("#inventoryManagementUploadInventoryButton").on("click", function () {
+            $(document).on("click", "#inventoryManagementUploadInventoryButton, #inventoryManagementUploadToolbarButton", function () {
                 $("#inventoryManagementDataCsv").trigger("click");
             });
 

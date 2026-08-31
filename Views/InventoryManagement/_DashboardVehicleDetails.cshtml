@@ -13,26 +13,28 @@
 else
 {
     <div class="inventory-dashboard-modal-details">
-        <div class="row justify-content-center well mb-3">
-            <button class="w-100 btn btn-gradient position-relative collapse-toggle"
+        <section class="gtx-vehicle-overview well mb-3" aria-labelledby="dashboardVehiclePhotosTitle">
+            <button class="gtx-overview-toggle w-100 btn btn-gradient position-relative collapse-toggle"
                     type="button"
                     data-bs-toggle="collapse"
                     data-bs-target="#dashboardVehiclePictures"
                     aria-expanded="true"
                     aria-controls="dashboardVehiclePictures">
-                <div class="bg-lighter py-2 px-3 text-center hand-pointer">
-                    <h5 class="fw-bold text-uppercase text-white">
-                        <i class="bi bi-camera mx-2"></i>Photos
-                    </h5>
-                </div>
-                <span class="toggle-icons position-absolute end-0 top-50 translate-middle-y pe-3" aria-hidden="true">
+                <span class="gtx-overview-toggle-copy">
+                    <span class="gtx-overview-toggle-icon" aria-hidden="true"><i class="bi bi-camera-fill"></i></span>
+                    <span>
+                        <small>Vehicle gallery</small>
+                        <strong id="dashboardVehiclePhotosTitle">Photos</strong>
+                    </span>
+                </span>
+                <span class="toggle-icons" aria-hidden="true">
                     <i class="bi bi-plus-lg icon-plus"></i>
                     <i class="bi bi-dash-lg icon-minus"></i>
                 </span>
             </button>
 
             <div class="collapse show" id="dashboardVehiclePictures">
-                <div class="p-2">
+                <div class="gtx-overview-body">
                     @if (hasImages)
                     {
                         <div class="ratio ratio-carousel overflow-hidden">
@@ -51,7 +53,7 @@ else
                     }
                 </div>
             </div>
-        </div>
+        </section>
 
         @if (Model.CurrentVehicle.VehicleDataOneDetails == null)
         {

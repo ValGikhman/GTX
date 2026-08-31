@@ -4,41 +4,21 @@
 
 <div class="shadow rounded-4 overflow-hidden">
 
-    <!-- FIXED HEADER (stays visible) -->
     <div class="card-header bg-white p-3 border-0 sticky-top" style="z-index: 1020;">
-        <div class="d-flex align-items-center justify-content-between flex-nowrap gap-3">
-            <!-- Search (left) -->
-            <div class="input-group flex-grow-1" style="max-width: 520px;">
-                <span class="input-group-text bg-white">
-                    <i class="bi bi-search"></i>
-                </span>
-                <input id="empSearch" type="text" class="form-control" placeholder="Search name / email / phone..." />
-            </div>
-
-            <!-- Filter + New (right) -->
-            <div class="d-flex align-items-center gap-2 flex-shrink-0">
-                <select id="empFilter" class="form-select" style="width: 170px;">
-                    <option value="all" selected>All</option>
-                    <option value="active">Active</option>
-                    <option value="notactive">Not Active</option>
-                    <option value="withphoto">With Photo</option>
-                    <option value="nophoto">No Photo</option>
-                </select>
-
-                <a id="newEmployee" class="btn btn-gradient"
-                   data-employee-modal="true"
-                   data-title="New Employee"
-                   href="@Url.Action("Create", "Employees")">
-                    <i class="bi bi-plus-lg me-1"></i> New
-                </a>
-            </div>
+        <div class="d-flex align-items-center justify-content-end">
+            <a id="newEmployee" class="btn btn-gradient"
+               data-employee-modal="true"
+               data-title="New Employee"
+               href="@Url.Action("Create", "Employees")">
+                <i class="bi bi-plus-lg me-1"></i> New
+            </a>
         </div>
     </div>
 
-    <!-- SCROLL AREA (only table scrolls) -->
     <div class="card-body p-0">
-        <div class="table-scroll">
-            <table class="table table-hover align-middle m-0 majordome-admin-grid" id="empTable">
+        <div id="employeesAddGrid" class="gtx-admin-add-grid"></div>
+        <div class="d-none" aria-hidden="true">
+            <table id="empTableSource">
                 <thead class="table-light">
                     <tr>
                         <th style="min-width:90px;">Photo</th>
@@ -68,7 +48,7 @@
                             var hasPhoto = !string.IsNullOrWhiteSpace(e.PhotoPath);
                             var active = e.Active;
 
-                            <tr data-hasphoto="@(hasPhoto ? "1" : "0")" data-active="@(active ? "active" : "notactive")">
+                            <tr data-grid-row="true" data-hasphoto="@(hasPhoto ? "1" : "0")" data-active="@(active ? "active" : "notactive")">
                                 <td>
                                     @if (hasPhoto)
                                     {
@@ -134,15 +114,16 @@
 
 </div>
 
-<script>
-    function getEmpEls() {
-        return {
-            search: document.getElementById('empSearch'),
-            filter: document.getElementById('empFilter'),
-            table: document.getElementById('empTable')
-        };
-    }
+<script type="text/x-addgrid-template" id="employee-grid-photo-template">{{PhotoHtml}}</script>
+<script type="text/x-addgrid-template" id="employee-grid-name-template">{{NameHtml}}</script>
+<script type="text/x-addgrid-template" id="employee-grid-position-template">{{PositionHtml}}</script>
+<script type="text/x-addgrid-template" id="employee-grid-email-template">{{EmailHtml}}</script>
+<script type="text/x-addgrid-template" id="employee-grid-phone-template">{{PhoneHtml}}</script>
+<script type="text/x-addgrid-template" id="employee-grid-status-template">{{StatusHtml}}</script>
+<script type="text/x-addgrid-template" id="employee-grid-added-template">{{AddedHtml}}</script>
+<script type="text/x-addgrid-template" id="employee-grid-actions-template">{{ActionsHtml}}</script>
 
+<script>
     async function deleteEmployee(id) {
         if (!id) return;
 
@@ -164,68 +145,92 @@
     };
 
     function refreshEmployees() {
-        const term = $("#empSearch").val() || "";
-        const mode = $("#empFilter").val() || "all";
+        const $grid = $("#employeesAddGrid");
+        window.gtxAdminGridState = window.gtxAdminGridState || {};
+        window.gtxAdminGridState.employeesSearch = $grid.data("add-grid")
+            ? $grid.addGrid("getSearch")
+            : (window.gtxAdminGridState.employeesSearch || "");
         const listContainerSelector = "#tab-employees";
 
-        $(listContainerSelector).load(`${root}Employees/ListPartial`, function () {
-            $("#empSearch").val(term);
-            $("#empFilter").val(mode).trigger("change");
-            $("#empSearch").trigger("input");
-        });
+        $(listContainerSelector).load(`${root}Employees/ListPartial`);
     }
 
-    function applyEmployees() {
-        const { search, filter, table } = getEmpEls();
-        if (!search || !filter || !table) return;
+    $(function initializeEmployeesAddGrid() {
+        const $source = $("#empTableSource");
+        const rows = $source.find("tbody tr[data-grid-row='true']").map(function () {
+            const $row = $(this);
+            const $cells = $row.children("td");
+            const photoState = $row.attr("data-hasphoto") === "1" ? "With Photo" : "No Photo";
+            const name = $.trim($cells.eq(1).text());
+            const position = $.trim($cells.eq(2).text());
+            const email = $.trim($cells.eq(3).text());
+            const phone = $.trim($cells.eq(4).text());
+            const status = $.trim($cells.eq(5).text());
+            const added = $.trim($cells.eq(6).text());
 
-        const term = (search.value || '').toLowerCase().trim();
-        const mode = (filter.value || 'all').toLowerCase();
+            return {
+                PhotoState: photoState,
+                Name: name,
+                Position: position,
+                Email: email,
+                Phone: phone,
+                Status: status,
+                Added: added,
+                SearchText: [name, position, email, phone, status].join(" "),
+                PhotoHtml: $cells.eq(0).html(),
+                NameHtml: $cells.eq(1).html(),
+                PositionHtml: $cells.eq(2).html(),
+                EmailHtml: $cells.eq(3).html(),
+                PhoneHtml: $cells.eq(4).html(),
+                StatusHtml: $cells.eq(5).html(),
+                AddedHtml: $cells.eq(6).html(),
+                ActionsHtml: $cells.eq(7).html()
+            };
+        }).get();
 
-        const rows = table.querySelectorAll('tbody tr');
+        $source.parent().remove();
+        window.gtxAdminGridState = window.gtxAdminGridState || {};
 
-        rows.forEach(r => {
-            // keep your "group/header" rows visible
-            if (r.children.length === 1) return;
-
-            const hasPhoto = r.getAttribute('data-hasphoto') === '1';
-            const activeState = (r.getAttribute('data-active') || '').toLowerCase(); // "active" | "notactive"
-
-            const name = (r.querySelector('td:nth-child(2)')?.innerText || '').toLowerCase();
-            const position = (r.querySelector('td:nth-child(3)')?.innerText || '').toLowerCase();
-            const email = (r.querySelector('td:nth-child(4)')?.innerText || '').toLowerCase();
-            const phone = (r.querySelector('td:nth-child(5)')?.innerText || '').toLowerCase();
-
-            const hay = `${name} ${position} ${email} ${phone} ${activeState}`.trim();
-            const matchText = !term || hay.includes(term);
-
-            let matchFilter = true;
-            switch (mode) {
-                case 'withphoto':
-                    matchFilter = hasPhoto;
-                    break;
-                case 'nophoto':
-                    matchFilter = !hasPhoto;
-                    break;
-                case 'active':
-                    matchFilter = activeState === 'active';
-                    break;
-                case 'notactive':
-                    matchFilter = activeState === 'notactive';
-                    break;
-                case 'all':
-                default:
-                    matchFilter = true;
-                    break;
+        const $grid = $("#employeesAddGrid");
+        $grid.addGrid({
+            data: rows,
+            columns: [
+                { field: "PhotoState", title: "Photo", width: 110, filterable: false, searchable: false, template: "#employee-grid-photo-template" },
+                { field: "Name", title: "Name", width: 190, filterable: false, searchable: true, searchField: "SearchText", template: "#employee-grid-name-template" },
+                { field: "Position", title: "Position", width: 150, searchable: false, template: "#employee-grid-position-template" },
+                { field: "Email", title: "Email", width: 220, filterable: false, searchable: false, template: "#employee-grid-email-template" },
+                { field: "Phone", title: "Phone", width: 150, filterable: false, searchable: false, template: "#employee-grid-phone-template" },
+                { field: "Status", title: "Status", width: 120, searchable: false, headerClass: "text-center", cellClass: "text-center", template: "#employee-grid-status-template" },
+                { field: "Added", title: "Added", width: 130, filterable: false, searchable: false, headerClass: "text-center", cellClass: "text-center", template: "#employee-grid-added-template" },
+                { field: "Actions", title: "Actions", width: 120, filterable: false, searchable: false, headerClass: "text-center", cellClass: "text-center", template: "#employee-grid-actions-template" }
+            ],
+            tableClass: "table align-middle m-0",
+            height: null,
+            pageable: false,
+            showRecordCount: true,
+            recordType: { singular: "employee", plural: "employees", icon: "bi bi-people-fill" },
+            sortable: false,
+            filterable: true,
+            resizable: false,
+            reorderable: false,
+            searchable: true,
+            showSearch: true,
+            searchTerm: window.gtxAdminGridState.employeesSearch || "",
+            searchPlaceholder: "Search name, email, or phone…",
+            showFilterChips: true,
+            exportToExcel: false,
+            exportToPdf: false,
+            groupable: false,
+            alternateRows: true,
+            emptyText: "No employees match the current filters.",
+            emptyHint: "Adjust the search or column filters to see more employees.",
+            onSearchChange: function (detail) {
+                window.gtxAdminGridState.employeesSearch = detail.term || "";
             }
-
-            r.style.display = (matchText && matchFilter) ? '' : 'none';
         });
-    }
 
-
-    $(document).on('input', '#empSearch', applyEmployees);
-    $(document).on('change', '#empFilter', applyEmployees);
-
-    $(applyEmployees);
+        const $newButton = $("#newEmployee").detach().addClass("btn-sm");
+        $grid.find(".pg-search-input-group").after($newButton);
+        $grid.closest(".shadow").children(".card-header").remove();
+    });
 </script>

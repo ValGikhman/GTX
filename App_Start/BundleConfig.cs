@@ -10,6 +10,7 @@ namespace GTX {
                         "~/Scripts/jquery/jquery.magnific-popup.min.js",
                         "~/Scripts/jquery/jquery.slicknav.js",
                         "~/Scripts/bootstrap/bootstrap-datepicker.min.js",
+                        "~/Scripts/addTools/addGrid.js",
                         "~/Scripts/main.js",
                         "~/Scripts/chosen/chosen.jquery.js"
                 )
@@ -27,6 +28,7 @@ namespace GTX {
                       "~/Content/jquery/jquery-ui.min.css",
                       "~/Content/bootstrap/bootstrap.css",
                       "~/Content/bootstrap/bootstrap-datepicker.css",
+                      "~/Content/addTools/addGrid.css",
                       "~/Content/elegant-icons.css",
                       "~/Content/font-awesome.min.css",
                       "~/Content/magnific-popup.css",

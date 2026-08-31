@@ -211,7 +211,7 @@
         return '<div class="inventory-dashboard-change-detail-panel">' +
             '<div class="table-responsive">' +
             '<table class="table table-sm inventory-dashboard-change-table">' +
-            '<thead><tr><th>Field</th><th>Previous</th><th>New</th><th>Date updated</th></tr></thead>' +
+            '<thead><tr><th scope="col">Field</th><th scope="col">Previous</th><th scope="col">Current</th><th scope="col">Updated</th></tr></thead>' +
             "<tbody>" + rowsHtml + "</tbody></table></div></div>";
     }
 
@@ -235,18 +235,18 @@
                   '<i class="bi bi-chevron-right" aria-hidden="true"></i><span class="visually-hidden">Show updated values</span></button>'
                 : "";
 
-            return "<tr>" +
+            return '<div class="inventory-dashboard-history-group">' +
+                '<table class="table inventory-dashboard-history-table"><tbody><tr>' +
                 '<td class="inventory-dashboard-history-toggle-cell">' + toggleHtml + "</td>" +
                 "<td>" + settings.escapeHtml(group.dateText || "-") + "</td>" +
-                '<td><span class="inventory-dashboard-history-status ' + statusClass(group.status) + '">' + settings.escapeHtml(group.status) + "</span></td></tr>" +
+                '<td><span class="inventory-dashboard-history-status ' + statusClass(group.status) + '">' + settings.escapeHtml(group.status) + "</span></td></tr></tbody></table>" +
                 (isUpdated
-                    ? '<tr id="' + settings.escapeHtml(rowId) + '" class="inventory-dashboard-history-change-row d-none"><td class="inventory-dashboard-change-detail-cell" colspan="3">' + renderChangesForEntries(group.entries, settings) + "</td></tr>"
-                    : "");
+                    ? '<div id="' + settings.escapeHtml(rowId) + '" class="inventory-dashboard-history-change-row d-none">' + renderChangesForEntries(group.entries, settings) + "</div>"
+                    : "") +
+                "</div>";
         }).join("");
 
-        return '<div class="table-responsive"><table class="table inventory-dashboard-history-table">' +
-            '<thead><tr><th class="inventory-dashboard-history-toggle-cell"></th><th>Date</th><th>Status</th></tr></thead>' +
-            "<tbody>" + body + "</tbody></table></div>";
+        return '<div class="inventory-dashboard-history-list">' + body + "</div>";
     }
 
     function renderPanel(stockKey, history, options) {

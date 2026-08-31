@@ -97,7 +97,7 @@ html.theme-metallica .inventory-dashboard {
     .inventory-dashboard-period-control .form-select {
         width: auto;
         min-width: 10rem;
-        min-height: 2.15rem;
+        height: 2.15rem;
         padding-block: .25rem;
         border-color: var(--dashboard-line);
         border-radius: .7rem;
@@ -105,6 +105,10 @@ html.theme-metallica .inventory-dashboard {
         font-size: .78rem;
         font-weight: 750;
     }
+
+#inventoryDashboardRange {
+    height: 2.15rem;
+}
 
 .inventory-dashboard-card-header {
     display: flex;
@@ -566,81 +570,6 @@ html.theme-metallica .inventory-dashboard {
     flex-wrap: wrap;
 }
 
-.inventory-dashboard-grid-actions {
-    flex: 1 1 520px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: .5rem;
-    min-width: 0;
-    margin-left: auto;
-}
-
-.inventory-dashboard-summary {
-    flex: 0 0 auto;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: .4rem;
-    padding: .25rem .6rem;
-    min-height: 2.2rem;
-    border: 1px solid var(--dashboard-border);
-    border-radius: .65rem;
-    background: linear-gradient(180deg, var(--dashboard-surface) 0%, var(--dashboard-surface-alt) 100%);
-    color: var(--dashboard-ink);
-    white-space: nowrap;
-    box-shadow: 0 .25rem .75rem rgba(15, 23, 42, .06);
-}
-
-.inventory-dashboard-summary-label {
-    color: var(--dashboard-muted);
-    font-size: .72rem;
-    font-weight: 800;
-    letter-spacing: .03em;
-    text-transform: uppercase;
-}
-
-    .inventory-dashboard-grid-actions #filterByTerm.inventory-result-toolbar {
-        flex: 1 1 340px;
-        max-width: 340px;
-        min-width: 220px;
-        min-height: 0 !important;
-        width: min(100%, 340px) !important;
-        margin: 0 !important;
-        margin-top: 0 !important;
-        padding: 0 !important;
-        position: static !important;
-        top: auto !important;
-        right: auto !important;
-        bottom: auto !important;
-        left: auto !important;
-        transform: none !important;
-        background: none;
-        box-shadow: none;
-        z-index: auto;
-    }
-
-    .inventory-dashboard-grid-actions #filterByTerm.inventory-result-toolbar .inventory-toolbar-shell {
-        width: 100%;
-        min-height: 0;
-        padding: 0;
-        justify-content: flex-end !important;
-    }
-
-    .inventory-dashboard-grid-actions #filterByTerm.inventory-result-toolbar .inventory-term-search,
-    .inventory-dashboard-grid-actions #filterByTerm.inventory-result-toolbar #filterWrapper {
-        width: 100% !important;
-        flex: 1 1 auto;
-    }
-
-    .inventory-dashboard-grid-actions .filterLiked,
-    .inventory-dashboard-grid-actions .filterLast,
-    .inventory-dashboard-grid-actions .filterHelp,
-    .inventory-dashboard-grid-actions .sort,
-    .inventory-dashboard-grid-actions .inventory-toolbar-paging {
-        display: none !important;
-    }
-
 .inventory-dashboard-grid-wrap {
     flex: 1 1 auto;
     min-height: 0;
@@ -723,31 +652,27 @@ html.theme-metallica .inventory-dashboard {
     }
 
     #inventoryDashboardStatusTable .inventory-dashboard-col-image {
-        width: 100px;
+        width: 81px;
     }
 
     #inventoryDashboardStatusTable .inventory-dashboard-col-vehicle {
-        width: auto;
+        width: 187px;
     }
 
     #inventoryDashboardStatusTable .inventory-dashboard-col-status {
-        width: 110px;
+        width: 106px;
     }
 
     #inventoryDashboardStatusTable .inventory-dashboard-col-location {
-        width: 120px;
+        width: 105px;
     }
 
     #inventoryDashboardStatusTable .inventory-dashboard-col-days {
-        width: 100px;
-    }
-
-    #inventoryDashboardStatusTable .inventory-dashboard-col-views {
-        width: 92px;
+        width: 94px;
     }
 
     #inventoryDashboardStatusTable .inventory-dashboard-col-details {
-        width: 88px;
+        width: 90px;
     }
 
     #inventoryDashboardStatusTable > thead > tr > th {
@@ -764,49 +689,10 @@ html.theme-metallica .inventory-dashboard {
         white-space: nowrap;
     }
 
-.inventory-dashboard-sortable-th {
-    cursor: pointer;
-    user-select: none;
-    transition: background-color .15s, color .15s;
-}
-
-    .inventory-dashboard-sortable-th .inventory-dashboard-sort-indicator {
-        display: inline-block;
-        width: 1rem;
-        margin-left: .3rem;
-        font-size: .9rem;
-        font-weight: 900;
-        line-height: 1;
-        text-align: center;
-        vertical-align: middle;
-        opacity: .55;
-        transition: opacity .2s, transform .2s;
-    }
-
-    .inventory-dashboard-sortable-th.is-active .inventory-dashboard-sort-indicator {
-        opacity: 1;
-        transform: translateY(-1px);
-    }
-
-    .inventory-dashboard-sortable-th:hover {
-        background-color: rgba(var(--bs-primary-rgb, 37, 99, 235), .045);
-    }
-
 .inventory-dashboard-days-cell {
     width: 5rem;
     text-align: right;
     font-weight: 800;
-}
-
-.inventory-dashboard-views-cell {
-    width: 5rem;
-    text-align: center;
-    font-variant-numeric: tabular-nums;
-}
-
-.inventory-dashboard-views-cell .majordome-status-counter {
-    padding-right: .4rem;
-    padding-left: .4rem;
 }
 
 .inventory-dashboard-days-number.badge {
@@ -900,6 +786,21 @@ html.theme-metallica .inventory-dashboard {
     max-width: 170px;
 }
 
+.inventory-dashboard .inventory-dashboard-vehicle-cell {
+    position: relative;
+    padding-right: 3.75rem;
+}
+
+.inventory-dashboard .inventory-dashboard-vehicle-views {
+    position: absolute;
+    top: .3rem;
+    right: .4rem;
+    z-index: 1;
+    padding-right: .4rem;
+    padding-left: .4rem;
+    font-variant-numeric: tabular-nums;
+}
+
 .inventory-dashboard .majordome-vehicle-title {
     color: var(--dashboard-ink);
     font-size: .9rem;
@@ -950,18 +851,6 @@ html.theme-metallica .inventory-dashboard {
     .inventory-dashboard-grid-header {
         align-items: stretch;
         flex-direction: column;
-    }
-
-    .inventory-dashboard-grid-actions,
-    .inventory-dashboard-grid-actions #filterByTerm.inventory-result-toolbar {
-        width: 100%;
-        max-width: none;
-        min-width: 0;
-    }
-
-    .inventory-dashboard-summary {
-        width: auto;
-        justify-content: center;
     }
 
     #inventoryDashboardClearStatus {
@@ -1046,4 +935,96 @@ html.theme-metallica .inventory-dashboard {
 .inventory-dashboard-modal-details .ratio-carousel {
     max-height: 58vh;
 }
+
+/* addGrid owns the Dashboard table; these overrides retain the existing Dashboard theme. */
+.inventory-dashboard-grid-wrap {
+    overflow: hidden;
+}
+
+#inventoryDashboardStatusGrid {
+    --pg-color-border: var(--dashboard-border);
+    --pg-color-border-inner: var(--dashboard-border);
+    --pg-color-border-cell: var(--dashboard-border);
+    --pg-color-border-accent: color-mix(in srgb, var(--dashboard-selected-accent) 30%, var(--dashboard-border));
+    --pg-color-border-subtle: var(--dashboard-surface-alt);
+    --pg-color-bg: var(--dashboard-surface);
+    --pg-color-bg-muted: var(--dashboard-header-bg);
+    --pg-color-bg-row-odd: var(--dashboard-surface-alt);
+    --pg-color-bg-row-hover: rgba(37, 99, 235, .045);
+    --pg-color-bg-row-selected: var(--dashboard-selected-bg);
+    --pg-color-text: var(--dashboard-ink);
+    --pg-color-text-header: var(--dashboard-header-color);
+    --pg-color-text-muted: var(--dashboard-muted);
+    --pg-color-text-subtle: var(--dashboard-muted);
+    --pg-color-accent: var(--dashboard-selected-accent);
+    height: 100%;
+    min-height: 0;
+}
+
+    #inventoryDashboardStatusGrid .pg-grid-wrapper {
+        height: 100%;
+        min-height: 0;
+        border: 0;
+        border-radius: 0;
+        background: var(--dashboard-surface);
+    }
+
+    #inventoryDashboardStatusGrid .pg-grid-scroll {
+        min-height: 0;
+        overflow: auto;
+        scrollbar-color: rgba(71, 85, 105, .45) transparent;
+        scrollbar-width: thin;
+    }
+
+    #inventoryDashboardStatusGrid .pg-grid-table thead {
+        background: var(--dashboard-header-bg);
+    }
+
+    #inventoryDashboardStatusGrid .pg-th-label,
+    #inventoryDashboardStatusGrid .pg-sort-icon,
+    #inventoryDashboardStatusGrid .pg-filter-btn {
+        color: var(--dashboard-header-color);
+    }
+
+    #inventoryDashboardStatusGrid .pg-filter-btn.pg-filter-active i {
+        color: inherit;
+    }
+
+    #inventoryDashboardStatusGrid .pg-filter-chips-bar {
+        background: var(--dashboard-surface);
+        border-color: var(--dashboard-border);
+    }
+
+    #inventoryDashboardStatusGrid .inventory-dashboard-expand-button,
+    #inventoryDashboardStatusGrid .inventory-dashboard-details-button {
+        padding: 0;
+        font-size: inherit;
+    }
+
+    #inventoryDashboardStatusGrid .pg-th-drop-before {
+        box-shadow: inset 3px 0 0 var(--dashboard-selected-accent);
+    }
+
+    #inventoryDashboardStatusGrid .pg-th-drop-after {
+        box-shadow: inset -3px 0 0 var(--dashboard-selected-accent);
+    }
+
+    #inventoryDashboardStatusTable > tbody > tr.pg-row-odd > td,
+    #inventoryDashboardStatusTable > tbody > tr.pg-row-odd + tr.inventory-dashboard-history-row > td {
+        background: var(--dashboard-surface-alt);
+    }
+
+.dashboard-add-grid-filter {
+    --pg-color-bg: var(--bs-body-bg, #fff);
+    --pg-color-border-accent: var(--bs-border-color, #dee2e6);
+    --pg-color-border-subtle: var(--bs-tertiary-bg, #f8f9fa);
+    --pg-color-text-dark: var(--bs-body-color, #212529);
+    --pg-color-accent: var(--gtx-accent-solid, #1e73be);
+    color: var(--bs-body-color, #212529);
+}
+
+    .dashboard-add-grid-filter .pg-filter-apply {
+        border-color: var(--gtx-accent-solid, #1e73be);
+        background: var(--gtx-accent-solid, #1e73be);
+    }
 
