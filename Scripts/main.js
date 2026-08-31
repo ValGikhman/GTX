@@ -19,15 +19,109 @@
         }
     });
 
-    $(".copyable").on("dblclick", function () {
-        const textContent = $(this).text().trim();
-        const temp = $('<textarea>');
-        $('body').append(temp);
-        temp.val(textContent).select();
-        document.execCommand('copy');
-        temp.remove();
-        playBeep();
-    })
+    function legacyCopyText(text) {
+        const $temp = $('<textarea>')
+            .attr('readonly', true)
+            .css({ position: 'fixed', left: '-9999px', opacity: 0 })
+            .val(text)
+            .appendTo('body');
+
+        try {
+            $temp.trigger('focus').trigger('select');
+            return document.execCommand('copy');
+        } catch (error) {
+            return false;
+        } finally {
+            $temp.remove();
+        }
+    }
+
+    window.gtxCopyText = function (text) {
+        const value = String(text || "").trim();
+        if (!value) return Promise.resolve(false);
+
+        if (legacyCopyText(value)) {
+            playBeep();
+            return Promise.resolve(true);
+        }
+
+        if (navigator.clipboard && window.isSecureContext) {
+            return navigator.clipboard.writeText(value)
+                .then(function () {
+                    playBeep();
+                    return true;
+                })
+                .catch(function () { return false; });
+        }
+
+        return Promise.resolve(false);
+    };
+
+    window.gtxCopyElement = function (element) {
+        const $copyable = $(element).closest(".copyable");
+        if (!$copyable.length) return Promise.resolve(false);
+
+        const value = String($copyable.attr("data-copy-value") || $copyable.clone().find(".copyable-trigger").remove().end().text() || "").trim();
+        if (!value) return Promise.resolve(false);
+
+        return window.gtxCopyText(value).then(function (copied) {
+            if (copied) {
+                $(".copyable.is-copied").removeClass("is-copied");
+                $copyable.addClass("is-copied");
+            }
+            return copied;
+        });
+    };
+
+    function decorateCopyables(rootElement) {
+        const $root = $(rootElement);
+        const $copyables = $root.is(".copyable") ? $root.add($root.find(".copyable")) : $root.find(".copyable");
+
+        $copyables.each(function () {
+            const $copyable = $(this);
+            if ($copyable.children(".copyable-trigger").length) return;
+
+            $("<button>", {
+                type: "button",
+                class: "copyable-trigger",
+                title: "Copy to clipboard",
+                "aria-label": "Copy to clipboard"
+            }).append($("<i>", {
+                class: "bi bi-copy",
+                "aria-hidden": "true"
+            })).appendTo($copyable);
+        });
+    }
+
+    $(function () {
+        decorateCopyables(document);
+
+        if (window.MutationObserver && document.body) {
+            const copyableObserver = new MutationObserver(function (mutations) {
+                mutations.forEach(function (mutation) {
+                    Array.prototype.forEach.call(mutation.addedNodes, function (node) {
+                        if (node.nodeType === 1) decorateCopyables(node);
+                    });
+                });
+            });
+            copyableObserver.observe(document.body, { childList: true, subtree: true });
+        }
+    });
+
+    document.addEventListener("click", function (event) {
+        const trigger = event.target && event.target.closest ? event.target.closest(".copyable-trigger") : null;
+        if (!trigger) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+        window.gtxCopyElement(trigger);
+    }, true);
+
+    $(document).on("dblclick", ".copyable", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        window.gtxCopyElement(this);
+    });
 
     /*------------------
         Background Set

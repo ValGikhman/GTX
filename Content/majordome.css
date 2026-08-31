@@ -265,20 +265,6 @@ html.theme-silver .majordome-remove-bg-switch-wrap.is-remove .majordome-remove-b
     }
 }
 
-/* the scroll container for the table */
-.table-scroll {
-    height: 73vh;
-    overflow-y: auto;
-    overflow-x: auto;
-}
-
-    /* sticky THEAD inside the scroll container */
-    .table-scroll thead th {
-        position: sticky;
-        top: 0;
-        z-index: 5;
-    }
-
 /* Shared Inventory-style table treatment for Majordome/Admin grids. */
 .majordome-admin-grid {
     --admin-grid-line: var(--inventory-line, var(--bs-border-color-translucent, rgba(148, 163, 184, .22)));
@@ -460,20 +446,23 @@ html.theme-silver .majordome-admin-grid {
 }
 
 #majordomeInventoryTable .majordome-inventory-col-vehicle {
-    min-width: 220px;
+    min-width: 200px;
 }
 
-#majordomeInventoryTable .majordome-inventory-col-purchased,
+#majordomeInventoryTable .majordome-inventory-col-purchased {
+    min-width: 132px;
+}
+
 #majordomeInventoryTable .majordome-inventory-col-gtx {
-    min-width: 120px;
+    min-width: 109px;
 }
 
 #majordomeInventoryTable .majordome-inventory-col-stock {
-    min-width: 110px;
+    min-width: 97px;
 }
 
 #majordomeInventoryTable .majordome-inventory-col-status {
-    width: 86px;
+    width: 110px;
 }
 
 #majordomeInventoryTable .majordome-inventory-col-days {
@@ -492,10 +481,16 @@ html.theme-silver .majordome-admin-grid {
     --dashboard-surface-alt: var(--inventory-surface-alt);
 }
 
-#majordomeInventoryTable .majordome-inventory-col-counter,
-#majordomeInventoryTable .majordome-inventory-col-upload,
+#majordomeInventoryTable .majordome-inventory-col-counter {
+    width: 102px;
+}
+
+#majordomeInventoryTable .majordome-inventory-col-upload {
+    width: 132px;
+}
+
 #majordomeInventoryTable .majordome-inventory-col-story {
-    width: 68px;
+    width: 123px;
 }
 
 #majordomeInventoryTable .majordome-status-counter {
@@ -504,11 +499,11 @@ html.theme-silver .majordome-admin-grid {
 }
 
 #majordomeInventoryTable .majordome-inventory-col-dataone {
-    width: 90px;
+    width: 138px;
 }
 
 #majordomeInventoryTable .majordome-actions-col {
-    min-width: 320px;
+    min-width: 300px;
 }
 
 #majordomeManagementTable .majordome-management-col-expand {
@@ -867,24 +862,71 @@ body.majordome-inventory-page .body-content {
     padding-inline: .25rem;
 }
 
-#inventoryGridShell .filterLiked,
-#inventoryGridShell .filterLast,
-#inventoryGridShell .filterHelp,
-#inventoryGridShell .sort {
-        display: none !important;
+    .gtx-admin-add-grid {
+        --gtx-admin-grid-workspace-height: clamp(22rem, calc(100vh - 20rem), 52rem);
+        --gtx-admin-grid-workspace-height: clamp(22rem, calc(100dvh - 20rem), 52rem);
+        --gtx-admin-grid-line: var(--bs-border-color-translucent, rgba(148, 163, 184, .22));
+        --gtx-admin-grid-surface: var(--bs-body-bg, #fff);
+        --gtx-admin-grid-surface-alt: var(--bs-tertiary-bg, #f8fafc);
+        --gtx-admin-grid-muted: var(--bs-secondary-color, #64748b);
+        --gtx-admin-grid-header: var(--gtx-grad, var(--bs-primary-bg-subtle, #f8fafc));
+        --gtx-admin-grid-header-text: #fff;
+        --pg-color-border: var(--gtx-admin-grid-line);
+        --pg-color-border-inner: var(--gtx-admin-grid-line);
+        --pg-color-border-cell: var(--gtx-admin-grid-line);
+        --pg-color-border-accent: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 30%, var(--gtx-admin-grid-line));
+        --pg-color-border-subtle: var(--gtx-admin-grid-surface-alt);
+        --pg-color-bg: var(--gtx-admin-grid-surface);
+        --pg-color-bg-muted: var(--gtx-admin-grid-header);
+        --pg-color-bg-row-odd: var(--gtx-admin-grid-surface-alt);
+        --pg-color-bg-row-hover: var(--bs-table-hover-bg, rgba(37, 99, 235, .045));
+        --pg-color-bg-row-selected: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 12%, var(--gtx-admin-grid-surface));
+        --pg-color-text: var(--bs-body-color, #172033);
+        --pg-color-text-header: var(--gtx-admin-grid-header-text);
+        --pg-color-text-muted: var(--gtx-admin-grid-muted);
+        --pg-color-text-subtle: var(--gtx-admin-grid-muted);
+        --pg-color-accent: var(--gtx-accent-solid, #1e73be);
+        min-height: 0;
     }
 
-    #inventoryGridShell #filterWrapper {
-        width: min(100%, 520px) !important;
-    }
+        .gtx-admin-add-grid .pg-grid-wrapper {
+            height: var(--gtx-admin-grid-workspace-height);
+            max-height: var(--gtx-admin-grid-workspace-height);
+            min-height: 0;
+            overflow: hidden;
+        }
 
-    #inventoryGridShell #filterByTerm {
-        position: relative !important;
-        left: auto !important;
-        transform: none !important;
-        background: none;
-        padding: unset;
-        box-shadow: none
+        .gtx-admin-add-grid .pg-grid-scroll {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow: auto;
+            overscroll-behavior: contain;
+            scrollbar-color: rgba(71, 85, 105, .45) transparent;
+            scrollbar-width: thin;
+        }
+
+        .gtx-admin-add-grid .pg-search-bar,
+        .gtx-admin-add-grid .pg-filter-chips-bar,
+        .gtx-admin-add-grid .pg-grid-footer {
+            flex-shrink: 0;
+        }
+
+        .gtx-admin-add-grid .pg-grid-table thead {
+            background: var(--gtx-admin-grid-header);
+        }
+
+        .gtx-admin-add-grid .pg-th-label,
+        .gtx-admin-add-grid .pg-sort-icon,
+        .gtx-admin-add-grid .pg-filter-btn {
+            color: var(--gtx-admin-grid-header-text);
+        }
+
+        .gtx-admin-add-grid .pg-filter-btn.pg-filter-active i {
+            color: inherit;
+        }
+
+    html.theme-silver .gtx-admin-add-grid {
+        --gtx-admin-grid-header-text: #111827;
     }
 
     .majordome-inventory-shell {
@@ -919,129 +961,6 @@ body.majordome-inventory-page .body-content {
         --inventory-header-border: rgba(15, 23, 42, .16);
     }
 
-    #inventoryGridShell #filtersWrap {
-        width: 100%;
-        max-width: none;
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        gap: .45rem;
-        padding: .4rem .5rem;
-        position: relative;
-    }
-
-    #inventoryGridShell .majordome-gtx-filter {
-        flex: 0 0 auto;
-        display: flex;
-        align-items: center;
-        min-width: 0;
-        width: auto;
-    }
-
-        #inventoryGridShell .majordome-gtx-filter .input-group-text {
-            height: 2.15rem;
-            min-height: 2.15rem;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding-top: 0;
-            padding-bottom: 0;
-            border-color: var(--inventory-border);
-            border-radius: .65rem 0 0 .65rem;
-            background: linear-gradient(180deg, #fff 0%, var(--inventory-surface-alt) 100%);
-            white-space: nowrap;
-        }
-
-    #inventoryGridShell .majordome-gtx-filter-control {
-        width: auto;
-        min-width: 10rem;
-        max-width: 14rem;
-        align-items: stretch;
-        flex-wrap: nowrap;
-        border-radius: .65rem;
-        box-shadow: 0 .25rem .75rem rgba(15, 23, 42, .06);
-    }
-
-    #inventoryGridShell #majordomeGtxFilter {
-        min-width: 6rem;
-        height: 2.15rem;
-        min-height: 2.15rem;
-        border-color: var(--inventory-border);
-        border-left: 0;
-        border-radius: 0 .65rem .65rem 0;
-        box-shadow: none;
-        font-size: .88rem;
-        font-weight: 700;
-        line-height: 1.2;
-        padding-top: 0;
-        padding-bottom: 0;
-    }
-
-    #inventoryGridShell #filterByTerm {
-        flex: 1 1 360px;
-        min-width: 260px;
-        max-width: 540px;
-        width: min(100%, 540px) !important;
-        margin: 0 auto;
-        padding: 0 !important;
-        position: relative !important;
-        left: auto !important;
-        transform: none !important;
-        z-index: 1;
-        justify-content: center !important;
-        gap: .75rem;
-    }
-
-        #inventoryGridShell #filterByTerm .inventory-toolbar-shell {
-            width: 100%;
-            min-height: 0;
-            padding: 0;
-            justify-content: center !important;
-        }
-
-        #inventoryGridShell #filterByTerm .inventory-term-search {
-            flex: 1 1 auto;
-            width: 100%;
-            justify-content: center !important;
-        }
-
-        #inventoryGridShell #filterByTerm #filterWrapper {
-            width: 100% !important;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        #inventoryGridShell #filterByTerm #filterTerm {
-            height: 2.15rem;
-            min-height: 2.15rem;
-            border-color: var(--inventory-border);
-            border-radius: .65rem;
-            box-shadow: 0 .25rem .75rem rgba(15, 23, 42, .06);
-            font-weight: 600;
-        }
-
-            #inventoryGridShell #filterByTerm #filterTerm:focus,
-            #inventoryGridShell #majordomeGtxFilter:focus {
-                border-color: rgba(37, 99, 235, .5);
-                box-shadow: 0 0 0 .22rem rgba(37, 99, 235, .12);
-            }
-
-    #inventoryGridShell .majordome-inventory-count {
-        flex: 0 0 auto;
-        min-height: 2.15rem;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: .45rem;
-        padding: .25rem .6rem;
-        border: 1px solid var(--inventory-border);
-        border-radius: .65rem;
-        background: linear-gradient(180deg, #fff 0%, var(--inventory-surface-alt) 100%);
-        color: var(--inventory-ink);
-        box-shadow: 0 .25rem .75rem rgba(15, 23, 42, .06);
-        white-space: nowrap;
-    }
-
     #inventoryGridShell .majordome-inventory-bulk-actions {
         flex: 0 0 auto;
         margin-left: 0;
@@ -1051,7 +970,7 @@ body.majordome-inventory-page .body-content {
         gap: .35rem;
         min-height: 2.15rem;
         position: relative;
-        z-index: 3;
+        z-index: 10;
         pointer-events: auto;
     }
 
@@ -1121,14 +1040,6 @@ body.majordome-inventory-page .body-content {
             padding-block: .3rem;
         }
 
-    #inventoryGridShell .majordome-inventory-count-label {
-        color: var(--inventory-muted);
-        font-size: .72rem;
-        font-weight: 800;
-        letter-spacing: .03em;
-        text-transform: uppercase;
-    }
-
     #majordomeInventoryTable {
         --bs-table-bg: transparent;
         --bs-table-hover-bg: rgba(37, 99, 235, .045);
@@ -1154,6 +1065,10 @@ body.majordome-inventory-page .body-content {
             background: var(--inventory-surface-alt);
         }
 
+        #majordomeInventoryTable > tbody > tr.pg-row-odd > td {
+            background: var(--inventory-surface-alt);
+        }
+
         #majordomeInventoryTable > tbody > tr:first-child > td {
             border-top: 0;
         }
@@ -1162,7 +1077,7 @@ body.majordome-inventory-page .body-content {
         flex: 1 1 auto;
         min-height: 0;
         max-height: none;
-        overflow: auto;
+        overflow: hidden;
         background: var(--inventory-surface-alt);
         scrollbar-color: rgba(71, 85, 105, .45) transparent;
         scrollbar-width: thin;
@@ -1179,7 +1094,7 @@ body.majordome-inventory-page .body-content {
             border-radius: 999px;
         }
 
-        .majordome-inventory-table-wrap > table > thead > tr > th {
+        #majordomeInventoryTable > thead > tr > th {
             position: sticky;
             top: 0;
             z-index: 2;
@@ -1195,29 +1110,80 @@ body.majordome-inventory-page .body-content {
             white-space: nowrap;
         }
 
-    .majordome-sortable-th {
-        cursor: pointer;
-        user-select: none;
-        transition: background-color .15s, color .15s;
+    #majordomeInventoryGrid {
+        --pg-color-border: var(--inventory-line);
+        --pg-color-border-inner: var(--inventory-line);
+        --pg-color-border-cell: var(--inventory-line);
+        --pg-color-border-accent: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 30%, var(--inventory-line));
+        --pg-color-border-subtle: var(--inventory-surface-alt);
+        --pg-color-bg: var(--inventory-surface);
+        --pg-color-bg-muted: var(--inventory-header-bg);
+        --pg-color-bg-row-odd: var(--inventory-surface-alt);
+        --pg-color-bg-row-hover: var(--bs-table-hover-bg, rgba(37, 99, 235, .045));
+        --pg-color-bg-row-selected: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 12%, var(--inventory-surface));
+        --pg-color-text: var(--inventory-ink);
+        --pg-color-text-header: var(--inventory-header-color);
+        --pg-color-text-muted: var(--inventory-muted);
+        --pg-color-text-subtle: var(--inventory-muted);
+        --pg-color-accent: var(--gtx-accent-solid, #1e73be);
+        height: 100%;
+        min-height: 0;
     }
 
-        .majordome-sortable-th .majordome-sort-indicator {
-            display: inline-block;
-            width: 1rem;
-            margin-left: .3rem;
-            font-size: .9rem;
-            font-weight: 900;
-            line-height: 1;
-            text-align: center;
-            vertical-align: middle;
-            color: currentColor;
-            opacity: .62;
-            transition: opacity .15s, transform .15s;
+        #majordomeInventoryGrid .pg-grid-wrapper {
+            height: 100%;
+            min-height: 0;
+            border: 0;
+            border-radius: 0;
+            background: var(--inventory-surface);
         }
 
-        .majordome-sortable-th.is-active .majordome-sort-indicator {
-            opacity: 1;
-            transform: translateY(-1px);
+        #majordomeInventoryGrid .pg-grid-scroll {
+            min-height: 0;
+            overflow: auto;
+            scrollbar-color: rgba(71, 85, 105, .45) transparent;
+            scrollbar-width: thin;
+        }
+
+        #majordomeInventoryGrid .pg-grid-table thead {
+            background: var(--inventory-header-bg);
+        }
+
+        #majordomeInventoryGrid .pg-th-label,
+        #majordomeInventoryGrid .pg-sort-icon,
+        #majordomeInventoryGrid .pg-filter-btn {
+            color: var(--inventory-header-color);
+        }
+
+        #majordomeInventoryGrid .pg-filter-btn.pg-filter-active i {
+            color: inherit;
+        }
+
+        #majordomeInventoryGrid .pg-filter-chips-bar {
+            background: var(--inventory-surface);
+            border-color: var(--inventory-line);
+        }
+
+        #majordomeInventoryGrid .pg-th-drop-before {
+            box-shadow: inset 3px 0 0 var(--gtx-accent-solid, #1e73be);
+        }
+
+        #majordomeInventoryGrid .pg-th-drop-after {
+            box-shadow: inset -3px 0 0 var(--gtx-accent-solid, #1e73be);
+        }
+
+    .majordome-add-grid-filter {
+        --pg-color-bg: var(--bs-body-bg, #fff);
+        --pg-color-border-accent: var(--bs-border-color, #dee2e6);
+        --pg-color-border-subtle: var(--bs-tertiary-bg, #f8f9fa);
+        --pg-color-text-dark: var(--bs-body-color, #212529);
+        --pg-color-accent: var(--gtx-accent-solid, #1e73be);
+        color: var(--bs-body-color, #212529);
+    }
+
+        .majordome-add-grid-filter .pg-filter-apply {
+            border-color: var(--gtx-accent-solid, #1e73be);
+            background: var(--gtx-accent-solid, #1e73be);
         }
 
     #majordomeInventoryBody .majordome-vehicle-row {
@@ -1787,14 +1753,6 @@ body.majordome-inventory-page .body-content {
             align-items: stretch !important;
         }
 
-        #inventoryGridShell #filterByTerm {
-            justify-content: flex-start;
-        }
-
-            #inventoryGridShell #filterByTerm .inventory-term-search {
-                justify-content: flex-start;
-            }
-
         .majordome-inventory-table-wrap {
             max-height: none;
         }
@@ -1825,23 +1783,10 @@ body.majordome-inventory-page .body-content {
                 height: 1.85rem;
             }
 
-        #inventoryGridShell #filtersWrap {
-            flex-wrap: wrap;
-            padding: .75rem;
-        }
-
-        #inventoryGridShell .majordome-gtx-filter,
-        #inventoryGridShell #filterByTerm,
-        #inventoryGridShell .majordome-inventory-count,
         #inventoryGridShell .majordome-inventory-bulk-actions {
             flex: 1 1 100%;
             max-width: none;
             width: 100%;
-        }
-
-        #inventoryGridShell .majordome-inventory-count {
-            margin-left: 0;
-            justify-content: space-between;
         }
 
         #inventoryGridShell .majordome-inventory-bulk-actions {
@@ -1861,15 +1806,20 @@ body.majordome-inventory-page .body-content {
                 flex: 1 1 0;
             }
 
-        #inventoryGridShell .majordome-gtx-filter-control {
-            max-width: none;
-            width: 100%;
+        #inventoryGridShell #majordomeInventoryGrid .pg-search-bar .majordome-inventory-bulk-actions {
+            flex: 0 0 auto;
+            width: auto;
         }
 
-        #inventoryGridShell #majordomeGtxFilter {
-            flex: 1 1 auto;
-            min-width: 0;
-        }
+            #inventoryGridShell #majordomeInventoryGrid .pg-search-bar .majordome-batch-actions-dropdown,
+            #inventoryGridShell #majordomeInventoryGrid .pg-search-bar #majordomeBatchActionsDropdown {
+                width: auto;
+            }
+
+            #inventoryGridShell #majordomeInventoryGrid .pg-search-bar .majordome-batch-actions-menu {
+                width: min(18rem, calc(100vw - 1rem));
+            }
+
     }
 
 
@@ -1966,45 +1916,6 @@ body.majordome-inventory-page .body-content {
     html.theme-metallica .majordome-management-shell {
         --inventory-selected-accent: #9aa0a8;
         --inventory-selected-bg: rgba(154, 160, 168, .18);
-    }
-
-    .majordome-management-toolbar {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: space-between;
-        gap: .5rem;
-        padding: .45rem .6rem;
-        background: linear-gradient(180deg, var(--inventory-surface) 0%, var(--inventory-surface-alt) 100%);
-        border-bottom: 1px solid var(--inventory-line);
-    }
-
-    .majordome-management-toolbar-main,
-    .majordome-management-toolbar-actions {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: .5rem;
-        min-width: 0;
-    }
-
-    .majordome-management-toolbar-main {
-        flex: 0 1 auto;
-    }
-
-    .majordome-management-toolbar-actions {
-        flex: 1 1 520px;
-        justify-content: flex-end;
-        margin-left: auto;
-    }
-
-    .majordome-management-search-slot {
-        flex: 0 0 300px;
-        width: 300px;
-        max-width: min(100%, 300px);
-        min-width: 240px;
-        display: flex;
-        justify-content: flex-end;
     }
 
     .majordome-management-workspace {
@@ -2284,30 +2195,8 @@ body.majordome-inventory-page .body-content {
             flex: 0 0 auto;
         }
 
-        #majordomeManagementSearchSlot .filterLiked,
-        #majordomeManagementSearchSlot .filterLast,
-        #majordomeManagementSearchSlot .filterHelp,
-        #majordomeManagementSearchSlot .sort,
-        #majordomeManagementSearchSlot .inventory-toolbar-paging {
-            display: none !important;
-        }
-
-    .majordome-management-location-filter {
-        flex: 0 0 130px;
-        width: 130px;
-        height: 2.2rem;
-        min-height: 2.2rem;
-        border-color: var(--inventory-border);
-        border-radius: .65rem;
-        box-shadow: 0 .25rem .75rem rgba(15, 23, 42, .06);
-        font-size: .88rem;
-        font-weight: 700;
-    }
-
         .majordome-management-log-date-toggle:focus,
-        .majordome-management-log-status:focus,
-        .majordome-management-toolbar #filterTerm:focus,
-        .majordome-management-location-filter:focus {
+        .majordome-management-log-status:focus {
             border-color: rgba(37, 99, 235, .5);
             box-shadow: 0 0 0 .22rem rgba(37, 99, 235, .12);
         }
@@ -2317,29 +2206,6 @@ body.majordome-inventory-page .body-content {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-    }
-
-    .majordome-management-summary {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: .4rem;
-        padding: .25rem .6rem;
-        min-height: 2.2rem;
-        border: 1px solid var(--inventory-border);
-        border-radius: .65rem;
-        background: linear-gradient(180deg, #fff 0%, var(--inventory-surface-alt) 100%);
-        color: var(--inventory-ink);
-        white-space: nowrap;
-        box-shadow: 0 .25rem .75rem rgba(15, 23, 42, .06);
-    }
-
-    .majordome-management-summary-label {
-        color: var(--inventory-muted);
-        font-size: .72rem;
-        font-weight: 800;
-        letter-spacing: .03em;
-        text-transform: uppercase;
     }
 
     .majordome-management-table-wrap {
@@ -2363,7 +2229,7 @@ body.majordome-inventory-page .body-content {
             border-radius: 999px;
         }
 
-        .majordome-management-table-wrap thead th {
+        #majordomeManagementTable > thead > tr > th {
             position: sticky;
             top: 0;
             z-index: 2;
@@ -2379,31 +2245,6 @@ body.majordome-inventory-page .body-content {
             white-space: nowrap;
         }
 
-    .majordome-sortable-th {
-        cursor: pointer;
-        user-select: none;
-        transition: background-color .15s, color .15s;
-    }
-
-        .majordome-sortable-th .majordome-sort-indicator {
-            display: inline-block;
-            width: 1rem;
-            margin-left: .3rem;
-            font-size: .9rem;
-            font-weight: 900;
-            line-height: 1;
-            text-align: center;
-            vertical-align: middle;
-            color: currentColor;
-            opacity: .62;
-            transition: opacity .15s, transform .15s;
-        }
-
-        .majordome-sortable-th.is-active .majordome-sort-indicator {
-            opacity: 1;
-            transform: translateY(-1px);
-        }
-
     #majordomeManagementTable {
         --bs-table-bg: transparent;
         --bs-table-hover-bg: rgba(37, 99, 235, .045);
@@ -2417,12 +2258,103 @@ body.majordome-inventory-page .body-content {
         width: 100%;
     }
 
-        #majordomeManagementTable th,
-        #majordomeManagementTable td {
+    .majordome-management-table-wrap {
+        overflow: hidden;
+    }
+
+    #majordomeManagementGrid {
+        --pg-color-border: var(--inventory-line);
+        --pg-color-border-inner: var(--inventory-line);
+        --pg-color-border-cell: var(--inventory-line);
+        --pg-color-border-accent: color-mix(in srgb, var(--inventory-selected-accent) 30%, var(--inventory-line));
+        --pg-color-border-subtle: var(--inventory-surface-alt);
+        --pg-color-bg: var(--inventory-surface);
+        --pg-color-bg-muted: var(--inventory-header-bg);
+        --pg-color-bg-row-odd: var(--inventory-surface-alt);
+        --pg-color-bg-row-hover: rgba(37, 99, 235, .045);
+        --pg-color-bg-row-selected: var(--inventory-selected-bg);
+        --pg-color-text: var(--inventory-ink);
+        --pg-color-text-header: var(--inventory-header-color);
+        --pg-color-text-muted: var(--inventory-muted);
+        --pg-color-text-subtle: var(--inventory-muted);
+        --pg-color-accent: var(--inventory-selected-accent);
+        height: 100%;
+        min-height: 0;
+    }
+
+        #majordomeManagementGrid .pg-grid-wrapper {
+            height: 100%;
+            min-height: 0;
+            border: 0;
+            border-radius: 0;
+            background: var(--inventory-surface);
+        }
+
+        #majordomeManagementGrid .pg-grid-scroll {
+            min-height: 0;
+            overflow: auto;
+            scrollbar-color: rgba(71, 85, 105, .45) transparent;
+            scrollbar-width: thin;
+        }
+
+        #majordomeManagementGrid .pg-grid-table thead {
+            background: var(--inventory-header-bg);
+        }
+
+        #majordomeManagementGrid .pg-th-label,
+        #majordomeManagementGrid .pg-sort-icon,
+        #majordomeManagementGrid .pg-filter-btn {
+            color: var(--inventory-header-color);
+        }
+
+        #majordomeManagementGrid .pg-filter-btn.pg-filter-active i {
+            color: inherit;
+        }
+
+        #majordomeManagementGrid .pg-filter-chips-bar {
+            background: var(--inventory-surface);
             border-color: var(--inventory-line);
         }
 
-        #majordomeManagementTable tbody td {
+        #majordomeManagementGrid .pg-th-drop-before {
+            box-shadow: inset 3px 0 0 var(--inventory-selected-accent);
+        }
+
+        #majordomeManagementGrid .pg-th-drop-after {
+            box-shadow: inset -3px 0 0 var(--inventory-selected-accent);
+        }
+
+        #majordomeManagementGrid .majordome-management-toggle,
+        #majordomeManagementGrid .inventory-dashboard-details-button {
+            padding: 0;
+            font-size: inherit;
+        }
+
+        #majordomeManagementTable tbody tr.pg-row-odd > td,
+        #majordomeManagementTable tbody tr.pg-row-odd + tr.majordome-management-detail-row > td {
+            background: var(--inventory-surface-alt);
+        }
+
+    .management-add-grid-filter {
+        --pg-color-bg: var(--bs-body-bg, #fff);
+        --pg-color-border-accent: var(--bs-border-color, #dee2e6);
+        --pg-color-border-subtle: var(--bs-tertiary-bg, #f8f9fa);
+        --pg-color-text-dark: var(--bs-body-color, #212529);
+        --pg-color-accent: var(--gtx-accent-solid, #1e73be);
+        color: var(--bs-body-color, #212529);
+    }
+
+        .management-add-grid-filter .pg-filter-apply {
+            border-color: var(--gtx-accent-solid, #1e73be);
+            background: var(--gtx-accent-solid, #1e73be);
+        }
+
+        #majordomeManagementTable > thead > tr > th,
+        #majordomeManagementTable > tbody > tr > td {
+            border-color: var(--inventory-line);
+        }
+
+        #majordomeManagementTable > tbody > tr > td {
             background: var(--inventory-surface);
             padding: .25rem .4rem;
             vertical-align: middle;
@@ -2433,17 +2365,15 @@ body.majordome-inventory-page .body-content {
             background: var(--inventory-surface-alt);
         }
 
-        #majordomeManagementTable tbody tr:first-child td {
+        #majordomeManagementTable > tbody > tr:first-child > td {
             border-top: 0;
         }
 
-        #majordomeManagementTable th:nth-child(5),
-        #majordomeManagementTable td:nth-child(5) {
+        #majordomeManagementTable .majordome-management-col-gtx {
             padding-right: .35rem;
         }
 
-        #majordomeManagementTable th:nth-child(6),
-        #majordomeManagementTable td:nth-child(6) {
+        #majordomeManagementTable .majordome-management-col-status {
             padding-left: .35rem;
         }
 
@@ -2455,9 +2385,11 @@ body.majordome-inventory-page .body-content {
     .majordome-management-toggle {
         width: 1.75rem;
         height: 1.75rem;
-        display: inline-flex;
+        display: flex;
         align-items: center;
         justify-content: center;
+        margin-right: auto;
+        margin-left: auto;
         padding: 0;
         border-radius: .5rem;
     }
@@ -2524,62 +2456,6 @@ body.majordome-inventory-page .body-content {
         border-top: 1px solid var(--inventory-line);
         background: rgba(248, 250, 252, .82);
     }
-
-    .majordome-management-change-table {
-        margin: 0 0 0 3rem;
-        font-size: .88rem;
-        max-width: calc(100% - 3rem);
-        min-width: min(420px, calc(100% - 3rem));
-        table-layout: auto;
-        width: auto;
-    }
-
-        .majordome-management-change-table th:nth-child(1),
-        .majordome-management-change-table td:nth-child(1) {
-            min-width: 9rem;
-            white-space: nowrap;
-        }
-
-        .majordome-management-change-table th:nth-child(2),
-        .majordome-management-change-table td:nth-child(2),
-        .majordome-management-change-table th:nth-child(3),
-        .majordome-management-change-table td:nth-child(3) {
-            min-width: 8rem;
-            width: auto;
-        }
-
-        .majordome-management-change-table th:nth-child(4),
-        .majordome-management-change-table td:nth-child(4) {
-            min-width: 12rem;
-            text-align: center;
-            width: auto;
-            white-space: nowrap;
-        }
-
-        .majordome-management-change-table th {
-            background: linear-gradient(180deg, rgb(255 255 255), #AAAAB3) !important;
-            border-bottom: 1px solid rgba(15, 23, 42, .18);
-            color: #111827;
-            font-size: .72rem;
-            font-weight: 800;
-            letter-spacing: .03em;
-            line-height: 1.15;
-            padding-bottom: .4rem !important;
-            padding-top: .4rem !important;
-            text-transform: uppercase;
-        }
-
-        .majordome-management-change-table td {
-            background: #fff !important;
-            max-width: 34rem;
-            overflow-wrap: anywhere;
-        }
-
-        .majordome-management-change-table td.majordome-management-change-number {
-            font-variant-numeric: tabular-nums;
-            text-align: right;
-            white-space: nowrap;
-        }
 
     .majordome-thumb {
         width: 64px;
@@ -2648,41 +2524,9 @@ body.majordome-inventory-page .body-content {
             max-height: none;
         }
 
-        .majordome-management-toolbar {
-            align-items: stretch;
-        }
-
         .majordome-management-results {
             max-height: none;
             overflow: visible;
-        }
-
-        .majordome-management-toolbar-main,
-        .majordome-management-toolbar-actions {
-            width: 100%;
-            margin-left: 0;
-        }
-
-        .majordome-management-search-slot,
-        .majordome-management-search-slot #filterByTerm.inventory-result-toolbar,
-        .majordome-management-location-filter,
-        .majordome-management-summary,
-        .majordome-management-toolbar-main > .btn {
-            flex: 1 1 100%;
-            width: 100%;
-            max-width: none;
-        }
-
-        .majordome-management-summary {
-            margin-left: 0;
-        }
-
-        .majordome-management-summary {
-            justify-content: space-between;
-        }
-
-        #majordomeManagementSearchSlot #filterByTerm.inventory-result-toolbar {
-            margin-left: 0;
         }
 
         .majordome-management-table-wrap {
@@ -2699,44 +2543,6 @@ body.majordome-inventory-page .body-content {
         }
 
     }
-
-#majordomeManagementSearchSlot > #filterByTerm.inventory-result-toolbar {
-                                    position: static !important;
-                                    left: auto !important;
-                                    right: auto !important;
-                                    top: auto !important;
-                                    transform: none !important;
-                                    width: 100% !important;
-                                    max-width: 100% !important;
-                                    min-width: 0 !important;
-                                    margin: 0 !important;
-                                    padding: 0 !important;
-                                    justify-content: flex-end !important;
-                                }
-
-                                #majordomeManagementSearchSlot #filterByTerm .inventory-toolbar-shell,
-                                #majordomeManagementSearchSlot #filterByTerm .inventory-term-search {
-                                    position: relative !important;
-                                    left: auto !important;
-                                    transform: none !important;
-                                    width: 100% !important;
-                                    max-width: 340px !important;
-                                    margin: 0 !important;
-                                    justify-content: flex-end !important;
-                                }
-
-                                #majordomeManagementSearchSlot #filterByTerm #filterWrapper {
-                                    position: relative !important;
-                                    left: auto !important;
-                                    transform: none !important;
-                                    flex: 0 0 auto !important;
-                                    width: min(100%, 340px) !important;
-                                    max-width: 340px !important;
-                                    margin-left: auto !important;
-                                    margin-right: 0 !important;
-                                    justify-content: flex-end !important;
-                                }
-
 
 /* Majordome extracted from _Majordome-QRCode.cshtml */
 #qrPrintArea {

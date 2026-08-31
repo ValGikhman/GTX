@@ -180,6 +180,46 @@ html body #MajordomeLink > a.gradient {
     text-align: left;
 }
 
+.copyable {
+    cursor: copy !important;
+}
+
+.copyable-trigger {
+    width: 1.15rem;
+    height: 1.15rem;
+    margin-left: .28rem;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    border: 0;
+    border-radius: .25rem;
+    background: transparent;
+    color: currentColor;
+    font-size: .68rem;
+    line-height: 1;
+    opacity: .58;
+    transition: background-color .15s, opacity .15s, transform .15s;
+}
+
+.copyable:hover .copyable-trigger,
+.copyable-trigger:hover,
+.copyable-trigger:focus-visible {
+    background: rgba(127, 127, 127, .16);
+    opacity: 1;
+}
+
+.copyable-trigger:active {
+    transform: scale(.9);
+}
+
+.copyable.is-copied {
+    border-radius: .2rem;
+    outline: 1px dotted var(--bs-success, #198754);
+    outline-offset: 1px;
+}
+
     .collapse-toggle .toggle-icons {
         display: inline-flex;
         align-items: center;

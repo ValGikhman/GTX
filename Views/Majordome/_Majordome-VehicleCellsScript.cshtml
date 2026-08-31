@@ -19,7 +19,7 @@
             return row;
         }
 
-        function renderImageCell(vehicle) {
+        function renderImageContent(vehicle) {
             const row = cellNormalizeVehicle(vehicle);
             const stock = cellText(row.Stock);
             const imageSource = cellText(row.Image).trim() || cellText(window.inventoryImagesPlaceholderUrl).trim();
@@ -33,10 +33,14 @@
                 ? `<img src="${cellEscapeHtml(thumbnail)}" alt="${cellEscapeHtml(stock)}" class="majordome-thumb majordome-row-image vehicle-image" width="88" height="66" loading="lazy" decoding="async" />`
                 : `<div class="majordome-thumb majordome-row-image d-flex align-items-center justify-content-center text-muted small">No image</div>`;
 
-            return `<td>${imageHtml}</td>`;
+            return imageHtml;
         }
 
-        function renderDetailsCell(vehicle) {
+        function renderImageCell(vehicle) {
+            return `<td>${renderImageContent(vehicle)}</td>`;
+        }
+
+        function renderDetailsContent(vehicle) {
             const row = cellNormalizeVehicle(vehicle);
             const yearMake = `${cellText(row.Year)} ${cellText(row.Make)}`.trim();
             const modelStyle = `${cellText(row.Model)} ${cellText(row.VehicleStyle)}`.trim();
@@ -44,17 +48,21 @@
             const stock = cellText(row.Stock);
 
             return `
-                <td class="majordome-row-details">
-                    <div class="majordome-vehicle-title">${cellEscapeHtml(yearMake)}</div>
-                    <div class="majordome-vehicle-meta">${cellEscapeHtml(modelStyle)}</div>
-                    <div class="majordome-vehicle-meta majordome-vin-line">VIN: ${cellEscapeHtml(vin)}</div>
-                    <div class="majordome-vehicle-meta majordome-vin-line">Stock: ${cellEscapeHtml(stock)}</div>
-                </td>
+                <div class="majordome-vehicle-title">${cellEscapeHtml(yearMake)}</div>
+                <div class="majordome-vehicle-meta">${cellEscapeHtml(modelStyle)}</div>
+                <div class="copyable majordome-vehicle-meta majordome-vin-line" data-copy-value="${cellEscapeHtml(vin)}" title="Double-click to copy VIN">VIN: ${cellEscapeHtml(vin)}</div>
+                <div class="copyable majordome-vehicle-meta majordome-vin-line" data-copy-value="${cellEscapeHtml(stock)}" title="Double-click to copy Stock#">Stock: ${cellEscapeHtml(stock)}</div>
             `;
         }
 
+        function renderDetailsCell(vehicle) {
+            return `<td class="majordome-row-details">${renderDetailsContent(vehicle)}</td>`;
+        }
+
         window.majordomeVehicleCells = {
+            renderImageContent: renderImageContent,
             renderImageCell: renderImageCell,
+            renderDetailsContent: renderDetailsContent,
             renderDetailsCell: renderDetailsCell
         };
         window.renderMajordomeVehicleImageCell = renderImageCell;

@@ -1,47 +1,9 @@
 <div class="tab-pane fade show active py-2" id="tab-inventory" role="tabpanel">
     <div class="container-fluid">
         <div id="inventoryGridShell" class="majordome-inventory-shell overflow-hidden">
-            <div class="majordome-inventory-header">
-                <div class="d-flex flex-column align-items-stretch gap-2">
-                    <div id="filtersWrap">
-                        <div id="majordomeInventoryCount" class="majordome-inventory-count shadow rounded-4" aria-live="polite" title="Vehicles shown">
-                            <span class="majordome-inventory-count-label">Vehicles shown</span>
-                            <span id="majordomeShownVehiclesCount" class="badge badge bg-secondary shadow">0</span>
-                        </div>
-                        <div class="majordome-gtx-filter shadow rounded-4">
-                            <div class="input-group majordome-gtx-filter-control">
-                                <label class="input-group-text majordome-inventory-count-label" for="majordomeGtxFilter">GTX</label>
-                                <select id="majordomeGtxFilter" class="form-select " aria-label="Filter inventory by GTX">
-                                    <option value="">All</option>
-                                </select>
-                            </div>
-                        </div>
-                        @{ Html.RenderPartial("_FilterByTerm"); }
-                        <div id="majordomeInventoryBulkActions" class="majordome-inventory-bulk-actions"></div>
-                    </div>
-                </div>
-            </div>
+            <div id="majordomeInventoryBulkActions" class="majordome-inventory-bulk-actions d-none"></div>
             <div class="majordome-inventory-table-wrap table-responsive">
-                <table id="majordomeInventoryTable" class="table align-middle m-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="majordome-inventory-col-expand" aria-label="Expand"></th>
-                            <th class="majordome-sortable-th majordome-inventory-col-image" data-sort-key="image">Image <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
-                            <th class="majordome-sortable-th majordome-inventory-col-vehicle" data-sort-key="vehicle">Vehicle <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
-                            <th class="d-none d-lg-table-cell majordome-sortable-th majordome-inventory-col-purchased" data-sort-key="purchased">Purchased <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
-                            <th class="majordome-sortable-th majordome-inventory-col-stock" data-sort-key="stock">Stock <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
-                            <th class="text-center d-none d-xl-table-cell majordome-sortable-th majordome-inventory-col-gtx" data-sort-key="gtx">GTX <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
-                            <th class="text-center majordome-inventory-col-status">Status</th>
-                            <th class="text-end majordome-sortable-th majordome-inventory-col-days" data-sort-key="days">Days <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
-                            <th class="text-center majordome-sortable-th majordome-inventory-col-counter" data-sort-key="counter" title="Sort by Details page views"><i class="bi bi-eye-fill" aria-hidden="true"></i> <span class="visually-hidden">Views</span><i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
-                            <th class="text-center d-none d-md-table-cell majordome-sortable-th majordome-inventory-col-upload" data-sort-key="upload">Upload <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
-                            <th class="text-center d-none d-md-table-cell majordome-sortable-th majordome-inventory-col-story" data-sort-key="story">Story <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
-                            <th class="text-center d-none d-md-table-cell majordome-sortable-th majordome-inventory-col-dataone" data-sort-key="dataone">DataOne <i class="bi bi-arrow-down-up majordome-sort-indicator" aria-hidden="true"></i></th>
-                            <th class="text-center majordome-actions-col">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="majordomeInventoryBody"></tbody>
-                </table>
+                <div id="majordomeInventoryGrid" class="majordome-add-grid"></div>
             </div>
             <div id="majordomeInventoryEmpty" class="p-4 text-center text-muted d-none">
                 No vehicles match the current filter.
@@ -49,3 +11,18 @@
         </div>
     </div>
 </div>
+
+<script type="text/x-addgrid-template" id="majordome-add-grid-expand-template">{{ExpandHtml}}</script>
+<script type="text/x-addgrid-template" id="majordome-add-grid-image-template">{{ImageHtml}}</script>
+<script type="text/x-addgrid-template" id="majordome-add-grid-vehicle-template">{{VehicleHtml}}</script>
+<script type="text/x-addgrid-template" id="majordome-add-grid-purchased-template">{{PurchasedHtml}}</script>
+<script type="text/x-addgrid-template" id="majordome-add-grid-stock-template">{{StockHtml}}</script>
+<script type="text/x-addgrid-template" id="majordome-add-grid-gtx-template">{{GtxHtml}}</script>
+<script type="text/x-addgrid-template" id="majordome-add-grid-status-template">{{StatusHtml}}</script>
+<script type="text/x-addgrid-template" id="majordome-add-grid-days-template">{{DaysHtml}}</script>
+<script type="text/x-addgrid-template" id="majordome-add-grid-counter-template">{{CounterHtml}}</script>
+<script type="text/x-addgrid-template" id="majordome-add-grid-upload-template">{{UploadHtml}}</script>
+<script type="text/x-addgrid-template" id="majordome-add-grid-story-template">{{StoryHtml}}</script>
+<script type="text/x-addgrid-template" id="majordome-add-grid-dataone-template">{{DataOneHtml}}</script>
+<script type="text/x-addgrid-template" id="majordome-add-grid-actions-template">{{ActionsHtml}}</script>
+<script type="text/x-addgrid-template" id="majordome-add-grid-history-template">{{HistoryHtml}}</script>

@@ -195,18 +195,18 @@
                                         <tbody>
                                             <tr class="d-none d-sm-table-row">
                                                 <td class="fw-bold">VIN#</td>
-                                                <td class="copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.VIN)</td>
+                                                <td class="copyable" data-copy-value="@(Model?.CurrentVehicle?.VehicleDetails?.VIN)" title="Double-click to copy VIN"> @(Model?.CurrentVehicle?.VehicleDetails?.VIN)</td>
                                                 <td class="fw-bold">Stock#</td>
-                                                <td class="copyable"> @(Model?.CurrentVehicle?.VehicleDetails?.Stock)</td>
+                                                <td class="copyable" data-copy-value="@(Model?.CurrentVehicle?.VehicleDetails?.Stock)" title="Double-click to copy Stock#"> @(Model?.CurrentVehicle?.VehicleDetails?.Stock)</td>
                                             </tr>
 
                                             <tr class="d-table-row d-sm-none">
                                                 <td class="fw-bold">VIN#</td>
-                                                <td colspan="3"> @(Model?.CurrentVehicle?.VehicleDetails?.VIN)</td>
+                                                <td colspan="3" class="copyable" data-copy-value="@(Model?.CurrentVehicle?.VehicleDetails?.VIN)" title="Double-click to copy VIN"> @(Model?.CurrentVehicle?.VehicleDetails?.VIN)</td>
                                             </tr>
                                             <tr class="d-table-row d-sm-none">
                                                 <td class="fw-bold">Stock#</td>
-                                                <td colspan="3"> @(Model?.CurrentVehicle?.VehicleDetails?.Stock)</td>
+                                                <td colspan="3" class="copyable" data-copy-value="@(Model?.CurrentVehicle?.VehicleDetails?.Stock)" title="Double-click to copy Stock#"> @(Model?.CurrentVehicle?.VehicleDetails?.Stock)</td>
                                             </tr>
 
                                             <tr>

@@ -3,40 +3,22 @@
 
 <div class="shadow rounded-4 overflow-hidden">
 
-    <!-- FIXED HEADER -->
     <div class="card-header bg-white p-3 border-0 sticky-top" style="z-index: 1020;">
-        <div class="d-flex align-items-center justify-content-between flex-nowrap gap-3">
-            <!-- Search (left) -->
-            <div class="input-group flex-grow-1" style="max-width: 520px;">
-                <span class="input-group-text bg-white">
-                    <i class="bi bi-search"></i>
-                </span>
-                <input id="anSearch" type="text" class="form-control" placeholder="Search title / message..." />
-            </div>
-
-            <!-- Filter + New (right) -->
-            <div class="d-flex align-items-center gap-2 flex-shrink-0">
-                <select id="anFilter" class="form-select" style="width: 170px;">
-                    <option value="all" selected>All</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                </select>
-
-                <a id="newAnnouncement"
-                   class="btn btn-gradient"
-                   data-announcement-modal="true"
-                   data-title="New Announcement"
-                   href="@Url.Action("Create", "Announcements")">
-                    <i class="bi bi-plus-lg me-1"></i> New
-                </a>
-            </div>
+        <div class="d-flex align-items-center justify-content-end">
+            <a id="newAnnouncement"
+               class="btn btn-gradient"
+               data-announcement-modal="true"
+               data-title="New Announcement"
+               href="@Url.Action("Create", "Announcements")">
+                <i class="bi bi-plus-lg me-1"></i> New
+            </a>
         </div>
     </div>
 
-    <!-- SCROLL AREA -->
-    <div id="announcementsList" class="card-body p-0">
-        <div class="table-scroll">
-            <table class="table table-hover align-middle m-0 majordome-admin-grid" id="anTable">
+    <div class="card-body p-0">
+        <div id="announcementsAddGrid" class="gtx-admin-add-grid"></div>
+        <div class="d-none" aria-hidden="true">
+            <table id="anTableSource">
                 <thead class="table-light">
                     <tr>
                         <th style="min-width:160px;">Title</th>
@@ -61,7 +43,8 @@
                     {
                         foreach (var announcement in Model)
                         {
-                            <tr data-active="@(announcement.Active ? "1" : "0")"
+                            <tr data-grid-row="true"
+                                data-active="@(announcement.Active ? "1" : "0")"
                                 data-message="@(announcement.MessageHtml ?? string.Empty)">
                                 <td>
                                     <div class="fw-semibold">@announcement.Title</div>
@@ -171,6 +154,12 @@
 
 </div>
 
+<script type="text/x-addgrid-template" id="announcement-grid-title-template">{{TitleHtml}}</script>
+<script type="text/x-addgrid-template" id="announcement-grid-display-template">{{DisplayHtml}}</script>
+<script type="text/x-addgrid-template" id="announcement-grid-type-template">{{TypeHtml}}</script>
+<script type="text/x-addgrid-template" id="announcement-grid-date-template">{{DateHtml}}</script>
+<script type="text/x-addgrid-template" id="announcement-grid-active-template">{{ActiveHtml}}</script>
+<script type="text/x-addgrid-template" id="announcement-grid-actions-template">{{ActionsHtml}}</script>
 
 <script>
     $(document).on("click", "[data-close-announcement-preview='true']", function (e) {
@@ -208,47 +197,86 @@
     }
 
     function refreshList() {
-        var term = $.trim($("#anSearch").val() || "").toLowerCase();
-        var mode = $("#anFilter").val() || "all";
+        var $grid = $("#announcementsAddGrid");
+        window.gtxAdminGridState = window.gtxAdminGridState || {};
+        window.gtxAdminGridState.announcementsSearch = $grid.data("add-grid")
+            ? $grid.addGrid("getSearch")
+            : (window.gtxAdminGridState.announcementsSearch || "");
         const listContainerSelector = "#tab-announcement";
 
-        $(listContainerSelector).load(`${root}Announcements/ListPartial`, function () {
-            $("#anSearch").val(term);
-            $("#anFilter").val(mode).trigger("change");
-            $("#anSearch").trigger("input");
-
-        });
-    }
-    function applyAnnouncements() {
-        var term = $.trim($("#anSearch").val() || "").toLowerCase();
-        var mode = $("#anFilter").val() || "all";
-
-        $("#anTable tbody tr").each(function () {
-            var $r = $(this);
-
-            // Skip "No announcements..." row
-            if ($r.children("td").length === 1) return;
-
-            var active = ($r.attr("data-active") === "1");
-
-            // Search the visible title and the hidden message value.
-            var title = ($r.find("td:eq(0)").text() || "").toLowerCase();
-            var message = ($r.attr("data-message") || "").toLowerCase();
-            var hay = $.trim(title + " " + message);
-
-            var matchText = (!term || hay.indexOf(term) !== -1);
-            var matchActive =
-                mode === "all" ||
-                (mode === "active" && active) ||
-                (mode === "inactive" && !active);
-
-            $r.toggle(matchText && matchActive);
-        });
+        $(listContainerSelector).load(`${root}Announcements/ListPartial`);
     }
 
-    $(document).on("input", "#anSearch", applyAnnouncements);
-    $(document).on("change", "#anFilter", applyAnnouncements);
+    $(function initializeAnnouncementsAddGrid() {
+        const $source = $("#anTableSource");
+        const rows = $source.find("tbody tr[data-grid-row='true']").map(function () {
+            const $row = $(this);
+            const $cells = $row.children("td");
+            const title = $.trim($cells.eq(0).text());
+            const display = $.trim($cells.eq(1).text());
+            const type = $.trim($cells.eq(2).text());
+            const date = $.trim($cells.eq(3).text()).replace(/\s+/g, " ");
+            const active = $.trim($cells.eq(4).text());
+            const message = $.trim($row.attr("data-message") || "").replace(/<[^>]*>/g, " ");
 
-    $(applyAnnouncements);
+            return {
+                Title: title,
+                Display: display,
+                Type: type,
+                DateRange: date,
+                Active: active,
+                SearchText: [title, message, display, type, date, active].join(" "),
+                TitleHtml: $cells.eq(0).html(),
+                DisplayHtml: $cells.eq(1).html(),
+                TypeHtml: $cells.eq(2).html(),
+                DateHtml: $cells.eq(3).html(),
+                ActiveHtml: $cells.eq(4).html(),
+                ActionsHtml: $cells.eq(5).html()
+            };
+        }).get();
+
+        $source.parent().remove();
+        window.gtxAdminGridState = window.gtxAdminGridState || {};
+
+        const $grid = $("#announcementsAddGrid");
+        $grid.addGrid({
+            data: rows,
+            columns: [
+                { field: "Title", title: "Title", width: 220, filterable: false, searchable: true, searchField: "SearchText", template: "#announcement-grid-title-template" },
+                { field: "Display", title: "Display", width: 120, searchable: false, headerClass: "text-center", cellClass: "text-center", template: "#announcement-grid-display-template" },
+                { field: "Type", title: "Type", width: 120, searchable: false, headerClass: "text-center", cellClass: "text-center", template: "#announcement-grid-type-template" },
+                { field: "DateRange", title: "Date Range", width: 190, filterable: false, searchable: false, headerClass: "text-center", cellClass: "text-center text-muted", template: "#announcement-grid-date-template" },
+                { field: "Active", title: "Active", width: 120, searchable: false, headerClass: "text-center", cellClass: "text-center", template: "#announcement-grid-active-template" },
+                { field: "Actions", title: "Actions", width: 180, filterable: false, searchable: false, headerClass: "text-center", cellClass: "text-center", template: "#announcement-grid-actions-template" }
+            ],
+            tableClass: "table align-middle m-0",
+            height: null,
+            pageable: false,
+            showRecordCount: true,
+            recordType: { singular: "announcement", plural: "announcements", icon: "bi bi-megaphone-fill" },
+            sortable: false,
+            filterable: true,
+            resizable: false,
+            reorderable: false,
+            searchable: true,
+            showSearch: true,
+            searchTerm: window.gtxAdminGridState.announcementsSearch || "",
+            searchPlaceholder: "Search title or message…",
+            showFilterChips: true,
+            exportToExcel: false,
+            exportToPdf: false,
+            groupable: false,
+            alternateRows: true,
+            emptyText: "No announcements match the current filters.",
+            emptyHint: "Adjust the search or column filters to see more alerts.",
+            onSearchChange: function (detail) {
+                window.gtxAdminGridState.announcementsSearch = detail.term || "";
+            }
+        });
+
+        const $newButton = $("#newAnnouncement").detach().addClass("btn-sm");
+        $grid.find(".pg-search-input-group").after($newButton);
+        $grid.closest(".shadow").children(".card-header").remove();
+    });
 </script>
 

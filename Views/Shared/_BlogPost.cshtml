@@ -3,39 +3,21 @@
 
 <div class="shadow rounded-4 overflow-hidden">
 
-    <!-- FIXED HEADER -->
     <div class="card-header bg-white p-3 border-0 sticky-top" style="z-index: 1020;">
-        <div class="d-flex align-items-center justify-content-between flex-nowrap gap-3">
-            <!-- Search (left) -->
-            <div class="input-group flex-grow-1" style="max-width: 520px;">
-                <span class="input-group-text bg-white">
-                    <i class="bi bi-search"></i>
-                </span>
-                <input id="bpSearch" type="text" class="form-control" placeholder="Search title / author..." />
-            </div>
-
-            <!-- Filter + New (right) -->
-            <div class="d-flex align-items-center gap-2 flex-shrink-0">
-                <select id="bpFilter" class="form-select" style="width: 170px;">
-                    <option value="all" selected>All</option>
-                    <option value="published">Published</option>
-                    <option value="unpublished">Unpublished</option>
-                </select>
-
-                <a id="newBlog" class="btn btn-gradient"
-                   data-blog-modal="true"
-                   data-title="New Blog Post"
-                   href="@Url.Action("Create", "Blogs")">
-                    <i class="bi bi-plus-lg me-1"></i> New
-                </a>
-            </div>
+        <div class="d-flex align-items-center justify-content-end">
+            <a id="newBlog" class="btn btn-gradient"
+               data-blog-modal="true"
+               data-title="New Blog Post"
+               href="@Url.Action("Create", "Blogs")">
+                <i class="bi bi-plus-lg me-1"></i> New
+            </a>
         </div>
     </div>
 
-    <!-- SCROLL AREA -->
     <div class="card-body p-0">
-        <div class="table-scroll">
-            <table class="table table-hover align-middle m-0 majordome-admin-grid" id="bpTable">
+        <div id="blogsAddGrid" class="gtx-admin-add-grid"></div>
+        <div class="d-none" aria-hidden="true">
+            <table id="bpTableSource">
                 <thead class="table-light">
                     <tr>
                         <th style="min-width:90px;">Image</th>
@@ -60,7 +42,7 @@
                     {
                         foreach (var p in Model)
                         {
-                            <tr data-published="@(p.IsPublished ? "1" : "0")">
+                            <tr data-grid-row="true" data-published="@(p.IsPublished ? "1" : "0")">
                                 <td>
                                     <img width="90" height="60" class="rounded-2 border"
                                          src="@($"{p.MediaURL}?h=60")" />
@@ -120,16 +102,14 @@
 
 </div>
 
+<script type="text/x-addgrid-template" id="blog-grid-image-template">{{ImageHtml}}</script>
+<script type="text/x-addgrid-template" id="blog-grid-title-template">{{TitleHtml}}</script>
+<script type="text/x-addgrid-template" id="blog-grid-author-template">{{AuthorHtml}}</script>
+<script type="text/x-addgrid-template" id="blog-grid-published-template">{{PublishedHtml}}</script>
+<script type="text/x-addgrid-template" id="blog-grid-created-template">{{CreatedHtml}}</script>
+<script type="text/x-addgrid-template" id="blog-grid-actions-template">{{ActionsHtml}}</script>
 
 <script>
-    function getEls() {
-        return {
-            search: document.getElementById('bpSearch'),
-            filter: document.getElementById('bpFilter'),
-            table: document.getElementById('bpTable')
-        };
-    }
-
     async function deleteBlog(id) {
         if (!id) return;
 
@@ -156,49 +136,82 @@
     };
 
     function refreshList() {
-        const term = $("#bpSearch").val() || "";
-        const mode = $("#bpPublishedFilter").val() || "all";
+        const $grid = $("#blogsAddGrid");
+        window.gtxAdminGridState = window.gtxAdminGridState || {};
+        window.gtxAdminGridState.blogsSearch = $grid.data("add-grid")
+            ? $grid.addGrid("getSearch")
+            : (window.gtxAdminGridState.blogsSearch || "");
         const listContainerSelector = "#tab-blog";
 
-        $(listContainerSelector).load(`${root}Blogs/ListPartial`, function () {
-            $("#bpSearch").val(term);
-            $("#bpPublishedFilter").val(mode).trigger("change");
-            $("#bpSearch").trigger("input");
-
-        });
+        $(listContainerSelector).load(`${root}Blogs/ListPartial`);
     }
 
-    function apply() {
-        const { search, filter, table } = getEls();
-        if (!search || !filter || !table) return;
+    $(function initializeBlogsAddGrid() {
+        const $source = $("#bpTableSource");
+        const rows = $source.find("tbody tr[data-grid-row='true']").map(function () {
+            const $cells = $(this).children("td");
+            const title = $.trim($cells.eq(1).text());
+            const author = $.trim($cells.eq(2).text());
+            const published = $.trim($cells.eq(3).text());
+            const created = $.trim($cells.eq(4).text());
 
-        const term = (search.value || '').toLowerCase().trim();
-        const mode = filter.value;
+            return {
+                ImageState: $cells.eq(0).find("img").length ? "Has Image" : "No Image",
+                Title: title,
+                Author: author,
+                Published: published,
+                Created: created,
+                SearchText: [title, author, published, created].join(" "),
+                ImageHtml: $cells.eq(0).html(),
+                TitleHtml: $cells.eq(1).html(),
+                AuthorHtml: $cells.eq(2).html(),
+                PublishedHtml: $cells.eq(3).html(),
+                CreatedHtml: $cells.eq(4).html(),
+                ActionsHtml: $cells.eq(5).html()
+            };
+        }).get();
 
-        const rows = table.querySelectorAll('tbody tr');
-        rows.forEach(r => {
-            // Skip "No posts yet..." row (colspan row)
-            if (r.children.length === 1) return;
+        $source.parent().remove();
+        window.gtxAdminGridState = window.gtxAdminGridState || {};
 
-            const published = r.getAttribute('data-published') === '1';
-
-            // Only search Title + Author columns (more accurate than innerText)
-            const title = (r.querySelector('td:nth-child(1)')?.innerText || '').toLowerCase();
-            const author = (r.querySelector('td:nth-child(2)')?.innerText || '').toLowerCase();
-            const hay = (title + ' ' + author).trim();
-
-            const matchText = !term || hay.includes(term);
-            const matchPub =
-                mode === 'all' ||
-                (mode === 'published' && published) ||
-                (mode === 'unpublished' && !published);
-
-            r.style.display = (matchText && matchPub) ? '' : 'none';
+        const $grid = $("#blogsAddGrid");
+        $grid.addGrid({
+            data: rows,
+            columns: [
+                { field: "ImageState", title: "Image", width: 110, filterable: false, searchable: false, template: "#blog-grid-image-template" },
+                { field: "Title", title: "Title", width: 230, filterable: false, searchable: true, searchField: "SearchText", template: "#blog-grid-title-template" },
+                { field: "Author", title: "Author", width: 180, searchable: false, template: "#blog-grid-author-template" },
+                { field: "Published", title: "Published", width: 130, searchable: false, headerClass: "text-center", cellClass: "text-center", template: "#blog-grid-published-template" },
+                { field: "Created", title: "Created", width: 130, filterable: false, searchable: false, headerClass: "text-center", cellClass: "text-center text-muted", template: "#blog-grid-created-template" },
+                { field: "Actions", title: "Actions", width: 140, filterable: false, searchable: false, headerClass: "text-center", cellClass: "text-center", template: "#blog-grid-actions-template" }
+            ],
+            tableClass: "table align-middle m-0",
+            height: null,
+            pageable: false,
+            showRecordCount: true,
+            recordType: { singular: "blog", plural: "blogs", icon: "bi bi-newspaper" },
+            sortable: false,
+            filterable: true,
+            resizable: false,
+            reorderable: false,
+            searchable: true,
+            showSearch: true,
+            searchTerm: window.gtxAdminGridState.blogsSearch || "",
+            searchPlaceholder: "Search title or author…",
+            showFilterChips: true,
+            exportToExcel: false,
+            exportToPdf: false,
+            groupable: false,
+            alternateRows: true,
+            emptyText: "No blog posts match the current filters.",
+            emptyHint: "Adjust the search or column filters to see more posts.",
+            onSearchChange: function (detail) {
+                window.gtxAdminGridState.blogsSearch = detail.term || "";
+            }
         });
-    }
 
-    $(document).on('input', '#bpSearch', apply);
-    $(document).on('change', '#bpFilter', apply);
-
-    $(apply);
+        const $newButton = $("#newBlog").detach().addClass("btn-sm");
+        $grid.find(".pg-search-input-group").after($newButton);
+        $grid.closest(".shadow").children(".card-header").remove();
+    });
 </script>

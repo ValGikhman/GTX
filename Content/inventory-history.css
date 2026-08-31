@@ -35,14 +35,39 @@
     background: linear-gradient(180deg, rgba(248, 250, 252, .95) 0%, rgba(241, 245, 249, .95) 100%);
 }
 
+.inventory-dashboard-history-list,
+.inventory-dashboard-history-group {
+    max-width: 100%;
+}
+
 .inventory-dashboard-history-table {
+    display: inline-table;
     margin: 0;
     font-size: .84rem;
+    max-width: 100%;
+    table-layout: auto;
+    width: auto;
 }
 
     .inventory-dashboard-history-table .inventory-dashboard-history-toggle-cell {
+        max-width: 2.75rem;
+        min-width: 2.75rem;
+        padding-left: 0;
+        padding-right: .25rem;
         width: 2.75rem;
-        text-align: center;
+        text-align: left;
+    }
+
+    .inventory-dashboard-history-table > tbody > tr:not(.inventory-dashboard-history-change-row) > td:nth-child(2) {
+        text-align: left;
+        width: 0;
+        white-space: nowrap;
+    }
+
+    .inventory-dashboard-history-table > tbody > tr:not(.inventory-dashboard-history-change-row) > td:nth-child(3) {
+        text-align: left;
+        width: 0;
+        white-space: nowrap;
     }
 
     .inventory-dashboard-history-table th {
@@ -54,6 +79,7 @@
         font-size: .72rem;
         font-weight: 800;
         letter-spacing: normal;
+        text-align: center;
         text-transform: uppercase;
         white-space: nowrap;
     }
@@ -62,6 +88,7 @@
         padding: .5rem;
         background: transparent !important;
         border-color: rgba(148, 163, 184, .22);
+        text-align: center;
         vertical-align: middle;
     }
 
@@ -113,6 +140,20 @@
     line-height: 1;
 }
 
+.inventory-dashboard-expand-button:hover:not(:disabled),
+.inventory-dashboard-history-change-toggle:hover:not(:disabled),
+.majordome-management-toggle:hover:not(:disabled) {
+    border-color: var(--bs-secondary, #6c757d);
+    background: var(--bs-secondary, #6c757d);
+    color: #fff;
+}
+
+    .inventory-dashboard-expand-button:hover:not(:disabled) i,
+    .inventory-dashboard-history-change-toggle:hover:not(:disabled) i,
+    .majordome-management-toggle:hover:not(:disabled) i {
+        color: #fff;
+    }
+
     .inventory-dashboard-history-change-toggle i {
         color: var(--dashboard-muted);
         font-size: .85rem;
@@ -122,11 +163,6 @@
     .inventory-dashboard-history-change-toggle.is-expanded i {
         transform: rotate(90deg);
     }
-
-.inventory-dashboard-change-detail-cell {
-    padding: 0 !important;
-    border-top: 0 !important;
-}
 
 .inventory-dashboard-change-detail-panel {
     padding: .9rem 1rem 1rem;
@@ -147,6 +183,10 @@
     .inventory-dashboard-change-table td:nth-child(1) {
         min-width: 9rem;
         white-space: nowrap;
+    }
+
+    .inventory-dashboard-change-table td:nth-child(1) {
+        text-align: left;
     }
 
     .inventory-dashboard-change-table th:nth-child(2),
@@ -176,6 +216,7 @@
         letter-spacing: .03em;
         line-height: 1.15;
         padding: .4rem .5rem !important;
+        text-align: center;
         text-transform: uppercase;
     }
 
@@ -184,10 +225,11 @@
         background: #fff !important;
         max-width: 34rem;
         overflow-wrap: anywhere;
+        text-align: center;
     }
 
     .inventory-dashboard-change-table td.inventory-dashboard-change-number {
         font-variant-numeric: tabular-nums;
-        text-align: right;
+        text-align: center;
         white-space: nowrap;
     }

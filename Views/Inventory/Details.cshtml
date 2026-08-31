@@ -183,7 +183,7 @@
     <div class="vdp-identity-copy">
         <div class="vdp-eyebrow">
             <span class="vdp-availability"><span aria-hidden="true"></span> Available now</span>
-            <span>Stock @vehicle.Stock</span>
+            <span class="copyable" data-copy-value="@vehicle.Stock" title="Double-click to copy Stock#">Stock @vehicle.Stock</span>
         </div>
         <div class="vdp-title-row">
             @if (!string.IsNullOrWhiteSpace(makeLogoName))
