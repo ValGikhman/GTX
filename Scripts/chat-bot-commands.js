@@ -5,10 +5,7 @@
         var $page = $("[data-command-page]");
         if (!$page.length) return;
 
-        var $body = $page.find("[data-command-body]");
-        var $search = $page.find("[data-command-search]");
-        var $empty = $page.find("[data-command-empty]");
-        var $emptyMessage = $page.find("[data-command-empty-message]");
+        var $grid = $("#chatCommandAddGrid");
         var $modal = $("#chatCommandWizardModal");
         var modalElement = $modal.get(0);
         var modal = window.bootstrap && modalElement ? window.bootstrap.Modal.getOrCreateInstance(modalElement) : null;
@@ -21,29 +18,80 @@
             return response && (response.message || response.Message) || fallback;
         }
 
-        function commandRows() {
-            return $body.find("[data-command-row]");
-        }
-
-        function updateCounts() {
-            var total = commandRows().length;
-            var visible = commandRows().filter(":visible").length;
-            $page.find("[data-command-total], [data-command-count]").text(total);
-            $page.find("[data-command-visible]").text(visible);
-            $empty.toggleClass("d-none", visible !== 0);
-            $emptyMessage.text(total === 0
-                ? "Add the chatbot's first custom phrase."
-                : "No commands match your quick search.");
-        }
-
-        function applyQuickSearch() {
-            var query = $.trim(String($search.val() || "")).toLowerCase();
-            commandRows().each(function () {
+        function initializeGrid() {
+            var $source = $("#chatCommandTableSource");
+            var rows = $source.find("tbody tr").map(function () {
                 var $row = $(this);
-                var matches = !query || String($row.attr("data-command-search-text") || "").indexOf(query) >= 0;
-                $row.toggleClass("d-none", !matches);
+                var $cells = $row.children("td");
+
+                return {
+                    Id: Number($row.attr("data-command-id")),
+                    Phrase: $row.attr("data-command-phrase") || "",
+                    ActionLabel: $.trim($cells.eq(1).find(".chat-command-action-name").text()),
+                    ActionKey: $row.attr("data-command-action") || "",
+                    Description: $.trim($cells.eq(2).text()),
+                    CreatedBy: $.trim($cells.eq(3).text()),
+                    Updated: $.trim($cells.eq(4).text()),
+                    UpdatedSort: $row.attr("data-command-updated-sort") || "",
+                    SearchText: $row.attr("data-command-search-text") || "",
+                    PhraseHtml: $cells.eq(0).html(),
+                    ActionHtml: $cells.eq(1).html(),
+                    DescriptionHtml: $cells.eq(2).html(),
+                    RoleHtml: $cells.eq(3).html(),
+                    UpdatedHtml: $cells.eq(4).html(),
+                    ActionsHtml: $cells.eq(5).html()
+                };
+            }).get();
+
+            $source.parent().remove();
+            if (!$grid.length || typeof $.fn.addGrid !== "function") return;
+
+            $grid.addGrid({
+                data: rows,
+                columns: [
+                    { field: "Phrase", title: "Command phrase", width: 240, filterable: false, searchField: "SearchText", template: "#chat-command-phrase-template" },
+                    { field: "ActionLabel", title: "Action dependency", width: 220, searchable: false, template: "#chat-command-action-template" },
+                    { field: "Description", title: "Description", width: 300, searchable: false, template: "#chat-command-description-template" },
+                    { field: "CreatedBy", title: "Created by", width: 130, searchable: false, template: "#chat-command-role-template" },
+                    { field: "Updated", title: "Updated", width: 130, sortField: "UpdatedSort", searchable: false, template: "#chat-command-updated-template" },
+                    { field: "Actions", title: "Actions", width: 120, sortable: false, filterable: false, searchable: false, resizable: false, reorderable: false, headerClass: "text-center", cellClass: "text-center", template: "#chat-command-actions-template" }
+                ],
+                tableClass: "table align-middle m-0 chat-command-grid",
+                rowClass: "chat-command-main-row",
+                rowAttributes: function (item) {
+                    return { "data-command-row": item.Id };
+                },
+                filterDropdownClass: "majordome-add-grid-filter",
+                height: null,
+                pageable: false,
+                showRecordCount: true,
+                recordType: { singular: "command", plural: "commands", icon: "bi bi-command" },
+                sortable: true,
+                filterable: true,
+                resizable: true,
+                reorderable: true,
+                searchable: true,
+                showSearch: true,
+                searchPlaceholder: "Search phrase or action…",
+                showFilterChips: true,
+                exportToExcel: false,
+                exportToPdf: false,
+                groupable: true,
+                alternateRows: true,
+                emptyText: "No commands match the current filters.",
+                emptyHint: "Adjust the search, grouping, or column filters.",
+                onRowDblClick: function (detail) {
+                    if ($(detail.event.target).closest("button, a, input, select").length) return;
+                    openWizard({
+                        id: detail.dataItem.Id,
+                        phrase: detail.dataItem.Phrase,
+                        actionKey: detail.dataItem.ActionKey
+                    });
+                }
             });
-            updateCounts();
+
+            var $newButton = $("#chatCommandNew").detach().removeClass("d-none");
+            $grid.find(".pg-search-input-group").after($newButton);
         }
 
         function selectedAction() {
@@ -114,20 +162,7 @@
             if (modal) modal.show();
         }
 
-        $search.on("input", applyQuickSearch);
-
-        $page.on("click", "[data-command-row]", function (event) {
-            if ($(event.target).closest("button, a, input, select").length) return;
-            commandRows().removeClass("is-selected");
-            $(this).addClass("is-selected");
-        });
-
-        $page.on("dblclick", "[data-command-row]", function (event) {
-            if ($(event.target).closest("button, a, input, select").length) return;
-            $(this).find("[data-command-edit]").trigger("click");
-        });
-
-        $page.on("click", "[data-command-add]", function () {
+        $(document).on("click", "[data-command-add]", function () {
             openWizard(null);
         });
 
@@ -209,11 +244,10 @@
                         id: id
                     }
                 }).done(function () {
-                    var $row = $body.find("[data-command-row='" + id + "']");
-                    $row.fadeOut(180, function () {
-                        $row.remove();
-                        applyQuickSearch();
+                    var rows = $grid.addGrid("getData").filter(function (item) {
+                        return String(item.Id) !== String(id);
                     });
+                    $grid.addGrid("setData", rows, { preserveState: true });
                 }).fail(function (xhr) {
                     $button.prop("disabled", false);
                     if (window.gtxAlert) {
@@ -223,6 +257,6 @@
             });
         });
 
-        updateCounts();
+        initializeGrid();
     });
 })(jQuery, window, document);

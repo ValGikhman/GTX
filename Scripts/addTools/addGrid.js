@@ -685,8 +685,8 @@
             self._headerRow.querySelectorAll('.pg-sort-icon').forEach(function (el) {
                 const dir  = self._getSortDir(el.dataset.field);
                 const icon = el.querySelector('i');
-                icon.className = dir === 'asc'  ? 'bi bi-arrow-up-short pg-sort-on'
-                               : dir === 'desc' ? 'bi bi-arrow-down-short pg-sort-on'
+                icon.className = dir === 'asc'  ? 'bi bi-arrow-up pg-sort-on'
+                               : dir === 'desc' ? 'bi bi-arrow-down pg-sort-on'
                                :                  'bi bi-arrow-down-up';
             });
         },
