@@ -34,97 +34,60 @@
     <main class="chat-command-page">
         <div class="container-fluid">
             <section id="chatCommandGridShell" class="majordome-inventory-shell overflow-hidden" aria-label="CB commands">
-                <div class="majordome-inventory-header">
-                    <div class="chat-command-toolbar">
-                        <div class="input-group chat-command-search-wrap">
-                            <span class="input-group-text bg-white">
-                                <i class="bi bi-search" aria-hidden="true"></i>
-                            </span>
-                            <label class="visually-hidden" for="chatCommandQuickSearch">Quick search commands</label>
-                            <input id="chatCommandQuickSearch" class="form-control" type="text" placeholder="Search phrase / action..." autocomplete="off" data-command-search />
-                        </div>
-
-                        <div class="chat-command-toolbar-actions">
-                            <button type="button" class="btn btn-gradient" data-command-add>
-                                <i class="bi bi-plus-lg me-1" aria-hidden="true"></i> New
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="majordome-inventory-table-wrap table-responsive chat-command-grid-wrap">
-                    <table id="chatCommandTable" class="table align-middle m-0 majordome-admin-grid chat-command-grid">
-                <colgroup>
-                    <col class="chat-command-col-phrase" />
-                    <col class="chat-command-col-action" />
-                    <col class="chat-command-col-description" />
-                    <col class="chat-command-col-role" />
-                    <col class="chat-command-col-updated" />
-                    <col class="chat-command-col-actions" />
-                </colgroup>
-                <thead>
-                    <tr>
-                        <th>Command phrase</th>
-                        <th>Action dependency</th>
-                        <th>Description</th>
-                        <th>Created by</th>
-                        <th>Updated</th>
-                        <th class="text-end">Actions</th>
-                    </tr>
-                </thead>
-                <tbody data-command-body>
-                    @foreach (var command in commands)
-                    {
-                        var searchText = string.Join(" ", new[]
-                        {
-                            command.Phrase, command.NormalizedPhrase, command.ActionLabel, command.ActionKey,
-                            command.ActionDescription, command.CreatedByRole
-                        }.Where(value => !string.IsNullOrWhiteSpace(value))).ToLowerInvariant();
-
-                        <tr class="chat-command-main-row"
-                            data-command-row="@command.Id"
-                            data-command-search-text="@searchText">
-                            <td>
-                                <div class="chat-command-phrase"><i class="bi bi-chat-square-quote" aria-hidden="true"></i><strong>@command.Phrase</strong></div>
-                            </td>
-                            <td>
-                                <div class="chat-command-action-name">@command.ActionLabel</div>
-                                <code>@command.ActionKey</code>
-                            </td>
-                            <td><span class="chat-command-description">@command.ActionDescription</span></td>
-                            <td><span class="chat-command-role"><i class="bi bi-person-check" aria-hidden="true"></i>@command.CreatedByRole</span></td>
-                            <td>
-                                <time datetime="@command.UpdatedUtc.ToString("O")">@command.UpdatedUtc.ToString("MMM d, yyyy")</time>
-                            </td>
-                            <td>
-                                <div class="chat-command-row-actions majordome-actions">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-command-edit data-command-id="@command.Id" data-command-phrase="@command.Phrase" data-command-action="@command.ActionKey" title="Edit @command.Phrase">
-                                        <i class="bi bi-pencil-square" aria-hidden="true"></i><span class="visually-hidden">Edit</span>
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-outline-danger is-delete" data-command-delete data-command-id="@command.Id" data-command-phrase="@command.Phrase" title="Delete @command.Phrase">
-                                        <i class="bi bi-trash3" aria-hidden="true"></i><span class="visually-hidden">Delete</span>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-
-                <div class="chat-command-empty @(commands.Count == 0 ? "" : "d-none")" data-command-empty>
-                    <span><i class="bi bi-chat-square-dots" aria-hidden="true"></i></span>
-                    <h3>No commands found</h3>
-                    <p data-command-empty-message>Add the chatbot's first custom phrase.</p>
+                    <div id="chatCommandAddGrid" class="majordome-add-grid"></div>
                 </div>
-                <footer class="chat-command-grid-footer">
-                    <span>Showing <strong data-command-visible>@commands.Count</strong> of <strong data-command-count>@commands.Count</strong> commands</span>
-                    <span><i class="bi bi-shield-lock" aria-hidden="true"></i> Owner-only management</span>
-                </footer>
+                <button id="chatCommandNew" type="button" class="btn btn-gradient btn-sm d-none" data-command-add>
+                    <i class="bi bi-plus-lg me-1" aria-hidden="true"></i> New
+                </button>
             </section>
+
+            <div class="d-none" aria-hidden="true">
+                <table id="chatCommandTableSource">
+                    <tbody>
+                        @foreach (var command in commands)
+                        {
+                            var searchText = string.Join(" ", new[]
+                            {
+                                command.Phrase, command.NormalizedPhrase, command.ActionLabel, command.ActionKey,
+                                command.ActionDescription, command.CreatedByRole
+                            }.Where(value => !string.IsNullOrWhiteSpace(value)));
+
+                            <tr data-command-id="@command.Id"
+                                data-command-phrase="@command.Phrase"
+                                data-command-action="@command.ActionKey"
+                                data-command-updated-sort="@command.UpdatedUtc.ToString("O")"
+                                data-command-search-text="@searchText">
+                                <td><div class="chat-command-phrase"><i class="bi bi-chat-square-quote" aria-hidden="true"></i><strong>@command.Phrase</strong></div></td>
+                                <td><div class="chat-command-action-name">@command.ActionLabel</div><code>@command.ActionKey</code></td>
+                                <td><span class="chat-command-description">@command.ActionDescription</span></td>
+                                <td><span class="chat-command-role"><i class="bi bi-person-check" aria-hidden="true"></i>@command.CreatedByRole</span></td>
+                                <td><time datetime="@command.UpdatedUtc.ToString("O")">@command.UpdatedUtc.ToString("MMM d, yyyy")</time></td>
+                                <td>
+                                    <div class="chat-command-row-actions majordome-actions">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" data-command-edit data-command-id="@command.Id" data-command-phrase="@command.Phrase" data-command-action="@command.ActionKey" title="Edit @command.Phrase">
+                                            <i class="bi bi-pencil-square" aria-hidden="true"></i><span class="visually-hidden">Edit</span>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger is-delete" data-command-delete data-command-id="@command.Id" data-command-phrase="@command.Phrase" title="Delete @command.Phrase">
+                                            <i class="bi bi-trash3" aria-hidden="true"></i><span class="visually-hidden">Delete</span>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
 </div>
+
+<script type="text/x-addgrid-template" id="chat-command-phrase-template">{{PhraseHtml}}</script>
+<script type="text/x-addgrid-template" id="chat-command-action-template">{{ActionHtml}}</script>
+<script type="text/x-addgrid-template" id="chat-command-description-template">{{DescriptionHtml}}</script>
+<script type="text/x-addgrid-template" id="chat-command-role-template">{{RoleHtml}}</script>
+<script type="text/x-addgrid-template" id="chat-command-updated-template">{{UpdatedHtml}}</script>
+<script type="text/x-addgrid-template" id="chat-command-actions-template">{{ActionsHtml}}</script>
 
 <div class="modal fade chat-command-modal" id="chatCommandWizardModal" tabindex="-1" aria-labelledby="chatCommandWizardTitle" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
