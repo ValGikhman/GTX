@@ -80,6 +80,48 @@ namespace GTX.Controllers
         }
 
         [HttpPost]
+        public async Task<ActionResult> Greeting(ChatGreetingRequest request)
+        {
+            if (request == null || !HasValidRequestToken(request.ChatRequestToken))
+            {
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return Json(new ChatBotResponse { Success = false });
+            }
+
+            if (!AllowRequest("greeting", 10, TimeSpan.FromMinutes(1)))
+            {
+                Response.StatusCode = 429;
+                return Json(new ChatBotResponse { Success = false });
+            }
+
+            var apiKey = ConfigurationManager.AppSettings["OpenAI:ApiKey"];
+            if (string.IsNullOrWhiteSpace(apiKey))
+            {
+                Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+                return Json(new ChatBotResponse { Success = false });
+            }
+
+            try
+            {
+                return Json(new ChatBotResponse
+                {
+                    Success = true,
+                    Reply = await GetGreetingAsync(apiKey)
+                });
+            }
+            catch (OpenAiRequestException)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadGateway;
+                return Json(new ChatBotResponse { Success = false });
+            }
+            catch (Exception)
+            {
+                Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                return Json(new ChatBotResponse { Success = false });
+            }
+        }
+
+        [HttpPost]
         public async Task<ActionResult> Message(ChatBotRequest request)
         {
             if (request == null || !HasValidRequestToken(request.ChatRequestToken))
@@ -376,6 +418,33 @@ namespace GTX.Controllers
             }
 
             throw new OpenAiRequestException();
+        }
+
+        private async Task<string> GetGreetingAsync(string apiKey)
+        {
+            var model = ConfigurationManager.AppSettings["OpenAI:ChatModel"];
+            if (string.IsNullOrWhiteSpace(model)) model = DefaultChatModel;
+            else model = model.Trim();
+
+            var payload = new JObject
+            {
+                ["model"] = model,
+                ["instructions"] = GreetingInstructions,
+                ["input"] = new JArray(new JObject
+                {
+                    ["role"] = "user",
+                    ["content"] = "Create a fresh greeting. Private variation seed: "
+                        + Guid.NewGuid().ToString("N")
+                        + ". Never mention the seed."
+                }),
+                ["max_output_tokens"] = 100,
+                ["store"] = false,
+                ["safety_identifier"] = BuildSafetyIdentifier()
+            };
+
+            var reply = ExtractOutputText(await PostOpenAiAsync(apiKey, payload));
+            if (string.IsNullOrWhiteSpace(reply)) throw new OpenAiRequestException();
+            return reply.Trim();
         }
 
         private JObject BuildOpenAiPayload(
@@ -1482,6 +1551,7 @@ namespace GTX.Controllers
 
         private const string AssistantInstructions = @"You are the GTX Auto Group website AI assistant for a used-car dealership in Cincinnati, Ohio.
 Be concise, friendly, factual, and respond in the language used by the shopper.
+Write every shopper-facing reply as one compact, natural rhyming verse, normally two short lines with no heading or blank lines. Preserve exact vehicle facts, prices, phone numbers, and other factual details.
 Use the inventory tools for every question about current availability, price, mileage, features, or vehicle details. Never invent inventory or claim a vehicle is available without a tool result.
 Use get_dealership_hours for every question about business hours, working hours, opening or closing times, or whether the dealership is open. Never guess the schedule.
 Never claim that you changed or reset controls, filters, or other state on the shopper's page.
@@ -1495,10 +1565,16 @@ For door-count questions, pass the exact count in the search_inventory doors par
 For minimum horsepower, city MPG, highway MPG, or seating requests, use the corresponding minimum_horsepower, minimum_city_mpg, minimum_highway_mpg, or minimum_seating parameter.
 For requested equipment or features, pass the shopper's concise feature phrase in the search_inventory features parameter.
 DataOne specifications are included only when available for the current vehicle. Treat returned DataOne equipment as verified standard equipment only, never as optional equipment that is installed. If no vehicles match or DataOne is unavailable, say so without guessing.
-The website renders inventory tool results as standardized vehicle cards. When a vehicle tool returns one or more vehicles, reply with one short introductory or request-specific sentence only; do not enumerate vehicles, repeat vehicle facts, include prices, or include vehicle links in your text. The cards display the advertised price + documentary fee = price with documentary fee using the exact tool values. Say that price and availability can change and should be confirmed with the dealership.
+The website renders inventory tool results as standardized vehicle cards. When a vehicle tool returns one or more vehicles, reply with a fresh compact two-line rhyming introduction. State the exact total match count and, when only a subset is returned, the exact number of cards shown. Vary the wording and rhyme instead of reusing a stock couplet. Do not enumerate vehicles, repeat vehicle facts, include prices, or include vehicle links in your text. The cards display the advertised price + documentary fee = price with documentary fee using the exact tool values. Say that price and availability can change and should be confirmed with the dealership.
 You may explain general shopping, trade-in, and financing concepts, but never guarantee credit approval, quote binding loan terms, appraise a trade, negotiate a price, or request SSNs, bank details, driver's-license numbers, or credit-card information.
 Invite interested shoppers to use the Contact sales form in the chat window or call (513) 489-2886. Do not claim that you submitted a lead yourself.
 Do not output HTML. Keep normal answers under 120 words unless the shopper asks for more detail.";
+
+        private const string GreetingInstructions = @"Write an opening greeting for the GTX Auto Group used-car dealership chatbot.
+Return only one fresh, friendly, natural rhyming verse of exactly two short lines and no more than 30 words total.
+Invite the shopper to describe the vehicle or features they want.
+Vary the wording and imagery. Do not use a heading, bullets, quotation marks, markdown, HTML, prices, or unverified vehicle claims.
+The variation seed is private and must never appear in the greeting.";
 
         private sealed class AssistantResult
         {

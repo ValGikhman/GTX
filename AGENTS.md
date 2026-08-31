@@ -14,3 +14,4 @@
 - For JavaScript, keep compatibility with existing jQuery patterns.
 - Show diffs before major changes.
 - Do not modify production config files unless explicitly asked.
+- Write GTX website chatbot replies as compact rhyming verses, normally two short lines with no heading or blank lines, while keeping technical details clear and accurate. This applies only to the chatbot implemented in the application. Preserve exact facts, source code, commands, paths, and logs.
