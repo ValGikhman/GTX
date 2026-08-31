@@ -26,10 +26,9 @@
         var salespeopleLoaded = false;
         var salespeopleRequest = null;
         var salespeople = [];
-        var initialGreeting = $.trim($messages.find(".gtx-chat-message.is-assistant").first().text());
-        var conversation = initialGreeting
-            ? [{ role: "assistant", text: initialGreeting, extraClass: "", vehicles: [], totalMatches: null }]
-            : [];
+        var greetingRequested = false;
+        var greetingRequestVersion = 0;
+        var conversation = [];
         var requestHistory = loadRequestHistory();
         var requestHistoryIndex = -1;
         var requestHistoryDraft = "";
@@ -150,6 +149,7 @@
         function openChat() {
             $panel.prop("hidden", false);
             $launcher.attr("aria-expanded", "true").addClass("d-none");
+            requestGreeting();
             saveChat();
             window.setTimeout(function () { $message.trigger("focus"); }, 50);
         }
@@ -287,16 +287,12 @@
             $("<span>", { text: value }).appendTo($detail);
         }
 
-        function appendStructuredVehicles($container, vehicles, totalMatches, inventoryUrl) {
+        function appendStructuredVehicles($container, introText, vehicles, totalMatches, inventoryUrl) {
             var total = Number(totalMatches);
             if (!Number.isFinite(total)) total = vehicles.length;
 
-            var intro = total > vehicles.length
-                ? "I found " + formatWholeNumber(total) + " matching vehicles. Here are the first " + vehicles.length + ":"
-                : vehicles.length === 1
-                    ? "I found this vehicle:"
-                    : "I found " + vehicles.length + " matching vehicles:";
-            $("<div>", { "class": "gtx-chat-copy", text: intro }).appendTo($container);
+            var intro = $.trim(String(introText || ""));
+            if (intro) $("<div>", { "class": "gtx-chat-copy", text: intro }).appendTo($container);
 
             $.each(vehicles, function (_, vehicle) {
                 var title = resultValue(vehicle, "Title", "title") || "Vehicle";
@@ -350,7 +346,7 @@
         function addMessage(role, text, extraClass, vehicles, totalMatches, persist, inventoryUrl) {
             var $item = $("<div>", { "class": "gtx-chat-message is-" + role + (extraClass ? " " + extraClass : "") });
             if (role === "assistant" && vehicles && vehicles.length) {
-                appendStructuredVehicles($item, vehicles, totalMatches, inventoryUrl);
+                appendStructuredVehicles($item, text, vehicles, totalMatches, inventoryUrl);
             } else if (role === "assistant") {
                 appendAssistantText($item, text);
             } else {
@@ -655,10 +651,37 @@
             conversation = [];
             removeStoredChat();
             $messages.empty();
-            addMessage("assistant", "New conversation started. What kind of vehicle can I help you find?");
+            greetingRequested = false;
+            requestGreeting();
             $lead.addClass("d-none");
             $panel.removeClass("is-contact-open");
             $chatForm.removeClass("d-none");
+        }
+
+        function requestGreeting() {
+            if (greetingRequested) return;
+            greetingRequested = true;
+            var requestVersion = ++greetingRequestVersion;
+            var token = $chatForm.find("input[name='ChatRequestToken']").val();
+            var $connecting = addMessage("assistant", "Connecting...", "is-thinking", null, null, false);
+
+            $.ajax({
+                url: $widget.data("greeting-url"),
+                method: "POST",
+                data: { ChatRequestToken: token }
+            }).done(function (data) {
+                if (requestVersion !== greetingRequestVersion) return;
+
+                var greeting = $.trim(String(data && (data.Reply || data.reply) || ""));
+                if (!greeting || conversation.length) return;
+
+                $messages.empty();
+                addMessage("assistant", greeting);
+            }).fail(function () {
+                if (requestVersion === greetingRequestVersion) greetingRequested = false;
+            }).always(function () {
+                $connecting.remove();
+            });
         }
 
         function loadSalespeople() {
@@ -841,6 +864,7 @@
 
             responseId = state.responseId;
             conversation = state.messages;
+            greetingRequested = conversation.length > 0;
             if (conversation.length) {
                 $messages.empty();
                 $.each(conversation, function (_, item) {
@@ -858,6 +882,7 @@
             if (state.isOpen) {
                 $panel.prop("hidden", false);
                 $launcher.attr("aria-expanded", "true").addClass("d-none");
+                requestGreeting();
                 scrollMessages();
             }
         })();

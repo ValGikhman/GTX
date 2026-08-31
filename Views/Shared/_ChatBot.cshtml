@@ -3,6 +3,7 @@
 }
 <div id="gtxChatWidget"
      class="gtx-chat"
+     data-greeting-url="@Url.Action("Greeting", "Chat")"
      data-message-url="@Url.Action("Message", "Chat")"
      data-lead-url="@Url.Action("SubmitLead", "Chat")"
      data-salespeople-url="@Url.Action("Salespeople", "Chat")"
@@ -53,9 +54,7 @@
 
         @Html.Partial("_ChatCommandGuide")
 
-        <div class="gtx-chat-messages" data-chat-messages aria-live="polite" aria-relevant="additions">
-            <div class="gtx-chat-message is-assistant">Hi! I can search our live inventory, answer vehicle questions, or help you contact our sales team. What are you looking for?</div>
-        </div>
+        <div class="gtx-chat-messages" data-chat-messages aria-live="polite" aria-relevant="additions"></div>
 
         <div class="gtx-chat-suggestions" data-chat-suggestions>
             <button type="button" data-chat-prompt="Show me SUVs under $20,000">SUVs under $20k</button>

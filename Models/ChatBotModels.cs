@@ -16,6 +16,13 @@ namespace GTX.Models
         public string PreviousResponseId { get; set; }
     }
 
+    public sealed class ChatGreetingRequest
+    {
+        [Required]
+        [StringLength(100)]
+        public string ChatRequestToken { get; set; }
+    }
+
     public sealed class ChatBotResponse
     {
         public bool Success { get; set; }
