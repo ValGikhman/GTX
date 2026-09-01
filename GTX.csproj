@@ -279,6 +279,7 @@
     <Compile Include="Common\CloudflareR2Storage.cs" />
     <Compile Include="Common\Constants.cs" />
     <Compile Include="Common\OpenAiRateLimitHealth.cs" />
+    <Compile Include="Common\PublicInventoryDataOneCache.cs" />
     <Compile Include="Common\SecuritySanitizer.cs" />
     <Compile Include="Common\SessionRequestToken.cs" />
     <Compile Include="Common\Properties\AssemblyInfo.cs" />
@@ -316,6 +317,7 @@
     <Compile Include="Models\HealthModel.cs" />
     <Compile Include="Models\MobileApiModels.cs" />
     <Compile Include="Models\SitemapModel.cs" />
+    <Compile Include="Models\VehicleComparisonModels.cs" />
     <Compile Include="Session\HttpContextProvider.cs" />
     <Compile Include="Session\IHttpContextProvider.cs" />
     <Compile Include="Session\ISessionData.cs" />
@@ -616,6 +618,7 @@
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Inventory\Index.cshtml" />
+    <Content Include="Views\Inventory\_VehicleComparison.cshtml" />
     <Content Include="Views\Home\Staff.cshtml" />
     <Content Include="Views\Home\Application.cshtml" />
     <Content Include="Views\Shared\_ContactForm.cshtml" />

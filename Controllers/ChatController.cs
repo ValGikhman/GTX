@@ -799,9 +799,12 @@ namespace GTX.Controllers
 
         private ChatInventorySnapshot BuildChatInventorySnapshot(bool includeDataOne)
         {
-            var vehicles = _inventoryService.GetInventory(
-                includeHiddenInventory: false,
-                includeDataOneContent: includeDataOne).vehicles ?? Array.Empty<GTXDTO>();
+            var cacheMinutes = BoundedAppSetting("OpenAI:ChatInventoryCacheMinutes", 1, 1, 60);
+            var vehicles = includeDataOne
+                ? PublicInventoryDataOneCache.Get(_inventoryService, cacheMinutes).Vehicles
+                : _inventoryService.GetInventory(
+                    includeHiddenInventory: false,
+                    includeDataOneContent: false).vehicles ?? Array.Empty<GTXDTO>();
             var dataOneByStock = new Dictionary<string, ChatDataOneSearch>(StringComparer.OrdinalIgnoreCase);
 
             if (includeDataOne)
@@ -815,8 +818,8 @@ namespace GTX.Controllers
                         dataOneByStock[vehicle.Stock.Trim()] = search;
                     }
 
-                    // Retain only the flattened, approved search fields in the chatbot cache.
-                    vehicle.DataOne = null;
+                    // Only the flattened fields below are included in chatbot tool payloads.
+                    // Full DataOne content remains server-side in the shared snapshot cache.
                 }
             }
 

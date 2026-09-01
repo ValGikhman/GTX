@@ -1912,9 +1912,59 @@ li.search-field {
     transition: filter 0.3s ease;
 }
 
-    .hover-bw:hover {
-        filter: grayscale(100%);
-    }
+.hover-bw:hover {
+    filter: grayscale(100%);
+}
+
+/* Theme-aware loading and progress indicators used throughout GTX. */
+.spinner-border,
+.spinner-grow {
+    color: var(--gtx-accent-solid, #1e73be) !important;
+}
+
+.progress {
+    --bs-progress-bar-bg: var(--gtx-accent-solid, #1e73be);
+}
+
+.progress-bar {
+    background-color: var(--gtx-accent-solid, #1e73be) !important;
+}
+
+.progress-bar:not(.progress-bar-striped) {
+    background-image: var(--gtx-grad, linear-gradient(180deg, #155a96, #1e73be)) !important;
+}
+
+progress {
+    accent-color: var(--gtx-accent-solid, #1e73be);
+}
+
+progress::-webkit-progress-value {
+    background: var(--gtx-grad, var(--gtx-accent-solid, #1e73be));
+}
+
+progress::-moz-progress-bar {
+    background: var(--gtx-grad, var(--gtx-accent-solid, #1e73be));
+}
+
+/* LC Lightbox is loaded after the main bundle on vehicle pages. */
+#lcll_1,
+#lcll_2 {
+    border-color: var(--gtx-accent-solid, #1e73be) var(--gtx-accent-solid, #1e73be) transparent !important;
+}
+
+#lcll_2 {
+    border-right-color: transparent !important;
+}
+
+#lcl_progressbar {
+    background: var(--gtx-grad, var(--gtx-accent-solid, #1e73be)) !important;
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 45%, transparent) !important;
+}
+
+.mfp-preloader,
+.icon_loading {
+    color: var(--gtx-accent-solid, #1e73be) !important;
+}
 
 .spinner-overlay {
     position: fixed;

@@ -21,6 +21,10 @@ namespace GTX
 
         protected void Application_Start()
         {
+            // MVC's anti-forgery helper writes X-Frame-Options through an API that
+            // is unavailable in IIS Classic mode. The header is added in BeginRequest.
+            System.Web.Helpers.AntiForgeryConfig.SuppressXFrameOptionsHeader = true;
+
             AreaRegistration.RegisterAllAreas();
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             GlobalConfiguration.Configure(Api.WebApiConfig.Register);
@@ -65,6 +69,7 @@ namespace GTX
             if (response == null) return;
 
             response.AppendHeader("X-Content-Type-Options", "nosniff");
+            response.AppendHeader("X-Frame-Options", "SAMEORIGIN");
             response.AppendHeader("Referrer-Policy", "strict-origin-when-cross-origin");
         }
 

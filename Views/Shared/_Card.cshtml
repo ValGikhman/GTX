@@ -110,6 +110,15 @@
                 </span>
             </div>
 
+            <button type="button"
+                    class="gtx-compare-toggle"
+                    data-stock="@Model.Stock"
+                    aria-pressed="false"
+                    title="Compare @carTitle specifications">
+                <i class="bi bi-columns-gap" aria-hidden="true"></i>
+                <span>Compare</span>
+            </button>
+
             @if (isPriorityCardImage)
             {
                 <img class="gtx-img vehicle-image" src="@cardImageUrl" alt="@carTitle" width="@cardImageRenderWidth" height="@cardImageRenderHeight" loading="eager" fetchpriority="high" decoding="async" />

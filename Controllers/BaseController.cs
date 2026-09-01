@@ -1,4 +1,6 @@
+using Common;
 using GTX.Helpers;
+using GTX.Common;
 using GTX.Models;
 using Services;
 using System;
@@ -243,17 +245,32 @@ namespace GTX.Controllers
 
         private Inventory LoadInventory(bool includeHiddenInventory, bool includeDataOneContent)
         {
-            var dto = InventoryService.GetInventory(includeHiddenInventory, includeDataOneContent);
-            var vehicles = Models.GTX.ToGTX(dto.vehicles);
+            var dto = includeDataOneContent && !includeHiddenInventory
+                ? PublicInventoryDataOneCache.Get(InventoryService, DataOneInventoryCacheMinutes())
+                : null;
+            var sourceVehicles = dto == null
+                ? InventoryService.GetInventory(includeHiddenInventory, includeDataOneContent)
+                : default((GTXDTO[] vehicles, DateTime InventoryDate));
+            var inventoryVehicles = dto?.Vehicles ?? sourceVehicles.vehicles;
+            var inventoryDate = dto?.Published ?? sourceVehicles.InventoryDate;
+            var vehicles = Models.GTX.ToGTX(inventoryVehicles);
             ApplyDetailsCounters(vehicles);
             var inventory = new Inventory
             {
-                Published = dto.InventoryDate,
+                Published = inventoryDate,
                 All = DecideImages(vehicles)
             };
 
             inventory.Vehicles = inventory.All;
             return inventory;
+        }
+
+        private static int DataOneInventoryCacheMinutes()
+        {
+            int minutes;
+            return int.TryParse(ConfigurationManager.AppSettings["OpenAI:ChatInventoryCacheMinutes"], out minutes)
+                ? Math.Max(1, Math.Min(60, minutes))
+                : 1;
         }
 
         private void ApplyDetailsCounters(Models.GTX[] vehicles)
