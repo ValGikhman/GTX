@@ -15,6 +15,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -37,6 +38,7 @@ namespace GTX.Controllers
         private const string RemoveBgEndpoint = "https://api.remove.bg/v1.0/removebg";
         private const string RemoveBgAccountEndpoint = "https://api.remove.bg/v1.0/account";
         private const int QrTextMaxLength = 2048;
+        private static readonly HttpClient OpenAiStoryClient = CreateOpenAiStoryClient();
 
         private static readonly HashSet<string> UploadImageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {
             ".jpg",
@@ -2107,36 +2109,72 @@ namespace GTX.Controllers
         }
 
         private async Task<string> GetChatGptResponse(string prompt) {
-            var apiUrl = "https://api.openai.com/v1/chat/completions";
+            var apiUrl = RequiredOpenAiSetting("OpenAI:ResponsesUrl");
+            var model = RequiredOpenAiSetting("OpenAI:ChatModel");
+            if (string.IsNullOrWhiteSpace(openAiApiKey)) {
+                throw new ConfigurationErrorsException("OpenAI:ApiKey is not configured.");
+            }
 
-            using (var httpClient = new HttpClient()) {
-                httpClient.DefaultRequestHeaders.Clear();
-                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {openAiApiKey}");
+            var requestBody = new JObject {
+                ["model"] = model,
+                ["input"] = prompt,
+                ["max_output_tokens"] = 700,
+                ["temperature"] = 0.9,
+                ["store"] = false
+            };
 
-                var requestBody = new {
-                    model = "gpt-4o",
-                    messages = new[]
-                    {
-                        new { role = "user", content = prompt }
-                    },
-                    max_tokens = 700,
-                    temperature = 0.9
-                };
+            using (var request = new HttpRequestMessage(HttpMethod.Post, apiUrl)) {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", openAiApiKey);
+                request.Content = new StringContent(requestBody.ToString(Formatting.None), Encoding.UTF8, "application/json");
 
-                var content = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
+                using (var response = await OpenAiStoryClient.SendAsync(request)) {
+                    OpenAiRateLimitHealth.Capture(response.Headers, model);
+                    var responseBody = await response.Content.ReadAsStringAsync();
+                    if (!response.IsSuccessStatusCode) {
+                        throw new HttpRequestException(
+                            $"OpenAI story request failed with status {(int)response.StatusCode} ({response.StatusCode}).");
+                    }
 
-                var response = await httpClient.PostAsync(apiUrl, content);
+                    var story = ExtractOpenAiResponseText(JObject.Parse(responseBody));
+                    if (string.IsNullOrWhiteSpace(story)) {
+                        throw new InvalidOperationException("OpenAI returned an empty story response.");
+                    }
 
-                if (response.IsSuccessStatusCode) {
-                    var jsonResponse = await response.Content.ReadAsStringAsync();
-                    dynamic result = JsonConvert.DeserializeObject(jsonResponse);
-
-                    return result.choices[0].message.content.ToString();
-                }
-                else {
-                    return $"Error: {response.StatusCode}";
+                    return story.Trim();
                 }
             }
+        }
+
+        private static string RequiredOpenAiSetting(string key) {
+            var value = ConfigurationManager.AppSettings[key];
+            if (string.IsNullOrWhiteSpace(value)) {
+                throw new ConfigurationErrorsException(key + " is not configured.");
+            }
+
+            return value.Trim();
+        }
+
+        private static string ExtractOpenAiResponseText(JObject response) {
+            var text = response["output"]
+                ?.Children<JObject>()
+                .Where(item => string.Equals((string)item["type"], "message", StringComparison.OrdinalIgnoreCase))
+                .SelectMany(item => item["content"]?.Children<JObject>() ?? Enumerable.Empty<JObject>())
+                .Where(item => string.Equals((string)item["type"], "output_text", StringComparison.OrdinalIgnoreCase))
+                .Select(item => (string)item["text"])
+                .Where(item => !string.IsNullOrWhiteSpace(item));
+
+            return string.Join(Environment.NewLine, text ?? Enumerable.Empty<string>());
+        }
+
+        private static HttpClient CreateOpenAiStoryClient() {
+            int timeoutSeconds;
+            if (!int.TryParse(ConfigurationManager.AppSettings["OpenAI:ChatTimeoutSeconds"], out timeoutSeconds)
+                || timeoutSeconds < 5
+                || timeoutSeconds > 120) {
+                timeoutSeconds = 30;
+            }
+
+            return new HttpClient { Timeout = TimeSpan.FromSeconds(timeoutSeconds) };
         }
 
         private string GetPrompt(Models.GTX vehicle) {
@@ -2154,13 +2192,15 @@ namespace GTX.Controllers
     General: {car} is being sold by the GTX Autogroup here in Cincinnati Ohio area.
     Our sales crew: {reps} will help you will help you buy a perfect car you need.
 
-    Your response must:
+    Your response must be a poem with 5 verses:
     1. Start with a catchy **title inside <title> tags** (for example: <title>The Electric Dream</title>).
-    2. Write a minimum of **5 sentences**, each inside a separate <p class='p-story'> tag.
-    3. Write in very technical tone with a touch sales person can be to make story vivid, rich, and atmospheric.
+    2. Write a poem minimum of **5 verses**, each verse has 4 lines inside a separate <p class='p-story'> tag.
+    3. Write a poem in very technical tone with a touch sales person can be to make story vivid, rich, and atmospheric.
     4. Mention at least **5 car features** from the provided list and wrap each feature in <strong class='strong-story'> tags as well as the car.
     5. Do **not use double quotes** anywhere in the story.
     6. End the story with a sense of joy, adventure, opportunity.
+    7. The response must be a poem a with a little jewsh specific humor.
+
 
     The output should be **only the HTML story** without any extra text before or after.
     Please do not place any other characters like **``` and **```html text in front of the output.

@@ -5,6 +5,7 @@ using GTX.Helpers;
 using Services;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Management;
@@ -204,13 +205,20 @@ public class HealthController : BaseController
         };
 
         var activeSessions = Convert.ToInt32(HttpContext.Application["TotalSessions"] ?? 0);
+        var openAiRateLimit = OpenAiRateLimitHealth.GetLatest();
 
         return Json(new
         {
             ServerTime = DateTimeOffset.Now,
             Totals = totals,
             IIS = iisObj,
-            ActiveSessions = activeSessions
+            ActiveSessions = activeSessions,
+            OpenAI = new
+            {
+                Configured = !string.IsNullOrWhiteSpace(openAiApiKey),
+                Model = ConfigurationManager.AppSettings["OpenAI:ChatModel"],
+                RateLimit = openAiRateLimit
+            }
         }, JsonRequestBehavior.AllowGet);
     }
 
