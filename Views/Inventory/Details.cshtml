@@ -315,6 +315,12 @@
 
                         <div class="collapse show gtx-story-body" id="story">
                             <article class="gtx-story-content">
+                                <img class="gtx-story-watermark"
+                                     src="https://cdn.usedcarscincinnati.com/SiteImages/video/cartoon0.gif"
+                                     alt=""
+                                     loading="lazy"
+                                     decoding="async"
+                                     aria-hidden="true" />
                                 @Html.Raw(SecuritySanitizer.SanitizeRichHtml(Model.CurrentVehicle.VehicleDetails.Story.HtmlContent))
                             </article>
                         </div>

@@ -1139,6 +1139,25 @@ html.theme-silver .gtx-overview-toggle-copy small {
         var(--overview-surface);
 }
 
+.gtx-story-body {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+}
+
+.gtx-story-watermark {
+    float: right;
+    width: clamp(10rem, 45%, 27rem);
+    max-width: 46%;
+    height: auto;
+    max-height: 22rem;
+    margin: .1rem 0 .75rem 1.25rem;
+    opacity: .9;
+    object-fit: contain;
+    object-position: right center;
+    pointer-events: none;
+}
+
 .gtx-dataone-card #dataOneContainer {
     padding: clamp(.75rem, 2.4vw, 1.25rem);
 }
@@ -1149,11 +1168,20 @@ html.theme-silver .gtx-overview-toggle-copy small {
 }
 
 .gtx-story-content {
+    position: relative;
+    z-index: 1;
+    display: flow-root;
     padding: clamp(1rem, 3vw, 1.75rem);
     color: var(--bs-body-color, #111820);
     font-size: .9rem;
     line-height: 1.75;
     text-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gtx-story-watermark {
+        display: none;
+    }
 }
 
 .gtx-story-content > :first-child {
