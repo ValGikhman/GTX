@@ -16,6 +16,7 @@ public static class Constants {
     // Cache keys - you can include tenant/store id etc. if needed
     public const string INVENTORY_CACHE = "GTX:Inventory";
     public const string CHAT_INVENTORY_CACHE = "GTX:Chat:PublicInventory";
+    public const string DATAONE_INVENTORY_CACHE = CHAT_INVENTORY_CACHE + ":DataOne:FullSnapshot";
     public const string MAJORDOME_INVENTORY_CACHE = "GTX:MajordomeInventory";
     public const string MAJORDOME_DASHBOARD_CACHE = "GTX:MajordomeDashboard:7";
     public const string INVENTORY_MANAGEMENT_LOGS_CACHE_PREFIX = "GTX:InventoryManagement:Logs:";

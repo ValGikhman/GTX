@@ -57,6 +57,722 @@
         line-height: 1.1;
     }
 
+    .gtx-compare-toggle {
+        position: absolute;
+        right: .65rem;
+        bottom: .65rem;
+        z-index: 4;
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        border: 1px solid color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 55%, #fff);
+        border-radius: 999px;
+        padding: .38rem .7rem;
+        background: var(--gtx-grad, var(--gtx-accent-solid, #1e73be));
+        color: #fff;
+        font-size: .76rem;
+        font-weight: 800;
+        box-shadow: 0 .5rem 1.25rem color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 36%, transparent);
+        backdrop-filter: blur(7px);
+        transition: background-color .18s ease, transform .18s ease, box-shadow .18s ease;
+    }
+
+    .gtx-compare-toggle:hover,
+    .gtx-compare-toggle:focus-visible {
+        background: var(--gtx-grad-rev, var(--gtx-grad, var(--gtx-accent-solid, #1e73be)));
+        color: #fff;
+        transform: translateY(-1px);
+    }
+
+    .gtx-compare-toggle.is-selected {
+        border-color: #fff;
+        background: linear-gradient(
+            180deg,
+            #fff,
+            color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 15%, #fff));
+        color: var(--gtx-accent-solid, #1e73be);
+        box-shadow:
+            0 0 0 .22rem color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 28%, transparent),
+            0 .5rem 1.25rem color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 42%, transparent);
+    }
+
+    .inventory-compare-bar {
+        position: fixed;
+        left: 50%;
+        top: calc(var(--gtx-header-height, 0px) + .75rem);
+        bottom: auto;
+        z-index: 1040;
+        width: fit-content;
+        min-width: min(350px, calc(100% - 1.25rem));
+        max-width: calc(100% - 1.25rem);
+        transform: translate(-50%, calc(-100% - 2rem));
+        opacity: 0;
+        pointer-events: none;
+        overflow: hidden;
+        border: 1px solid color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 28%, #fff);
+        border-radius: 1.3rem;
+        padding: .8rem;
+        background:
+            radial-gradient(circle at 8% -20%, color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 18%, transparent), transparent 32%),
+            linear-gradient(145deg, rgba(255,255,255,.98), rgba(241,245,249,.96));
+        box-shadow:
+            0 1rem 2.6rem rgba(15, 23, 42, .22),
+            0 .35rem 1rem color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 18%, transparent);
+        backdrop-filter: blur(18px) saturate(145%);
+        transition: transform .22s ease, opacity .22s ease;
+    }
+
+    .inventory-compare-bar::before {
+        position: absolute;
+        top: 0;
+        right: 1.25rem;
+        left: 1.25rem;
+        height: 3px;
+        border-radius: 0 0 999px 999px;
+        background: var(--gtx-grad, var(--gtx-accent-solid, #1e73be));
+        content: "";
+    }
+
+    .inventory-compare-bar.is-visible {
+        transform: translate(-50%, 0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .inventory-compare-bar-inner {
+        align-items: stretch !important;
+        flex-direction: column;
+    }
+
+    .inventory-compare-main {
+        min-width: 0;
+    }
+
+    .inventory-compare-heading {
+        min-width: 0;
+        color: #0f172a;
+        font-size: .9rem;
+        font-weight: 850;
+        letter-spacing: -.01em;
+    }
+
+    .inventory-compare-heading-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.75rem;
+        height: 1.75rem;
+        border-radius: .6rem;
+        background: var(--gtx-grad, var(--gtx-accent-solid, #1e73be));
+        color: #fff;
+        box-shadow: 0 .3rem .7rem color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 28%, transparent);
+    }
+
+    #inventoryCompareCount {
+        border: 1px solid color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 28%, #fff);
+        border-radius: 999px;
+        padding: .35rem .58rem;
+        background: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 11%, #fff);
+        color: var(--gtx-accent-solid, #1e73be);
+        font-weight: 850;
+    }
+
+    #inventoryCompareOpen {
+        border-color: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 62%, #fff);
+        border-radius: 999px;
+        padding: .48rem .82rem;
+        background: var(--gtx-grad, var(--gtx-accent-solid, #1e73be));
+        color: #fff;
+        font-weight: 800;
+        box-shadow: 0 .4rem 1rem color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 30%, transparent);
+        transition: background-color .18s ease, transform .18s ease, box-shadow .18s ease;
+    }
+
+    #inventoryCompareOpen:hover,
+    #inventoryCompareOpen:focus-visible {
+        border-color: #fff;
+        background: var(--gtx-grad-rev, var(--gtx-grad, var(--gtx-accent-solid, #1e73be)));
+        color: #fff;
+        transform: translateY(-1px);
+        box-shadow: 0 .55rem 1.2rem color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 38%, transparent);
+    }
+
+    #inventoryCompareOpen:disabled {
+        border-color: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 20%, #cbd5e1);
+        background: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 35%, #cbd5e1);
+        color: rgba(255, 255, 255, .9);
+        box-shadow: none;
+        opacity: .72;
+    }
+
+    #inventoryCompareClear {
+        border-radius: .75rem;
+        padding: .48rem .82rem;
+        background: transparent !important;
+        color: #475569;
+        font-weight: 800;
+        box-shadow: 0 .4rem 1rem rgba(51, 65, 85, .18);
+        transition: color .18s ease, transform .18s ease, box-shadow .18s ease;
+    }
+
+    #inventoryCompareClear:hover,
+    #inventoryCompareClear:focus-visible {
+        background: transparent !important;
+        color: #1e293b;
+        transform: translateY(-1px);
+        box-shadow: 0 .55rem 1.2rem rgba(51, 65, 85, .26);
+    }
+
+    .inventory-compare-selection {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        width: max-content;
+        max-width: calc(100vw - 2.85rem);
+        min-width: 0;
+        padding: .15rem .1rem .2rem;
+        overflow-x: auto;
+        scrollbar-width: thin;
+        scrollbar-color: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 45%, #cbd5e1) transparent;
+    }
+
+    .inventory-compare-actions {
+        justify-content: center;
+        width: 100%;
+        border-top: 1px solid rgba(148, 163, 184, .22);
+        padding-top: .55rem;
+    }
+
+    .inventory-compare-chip {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        flex: 0 0 210px;
+        align-items: center;
+        gap: .48rem;
+        min-width: 0;
+        border: 1px solid color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 18%, #dbe3ed);
+        border-radius: .9rem;
+        padding: .42rem .45rem;
+        background:
+            radial-gradient(circle at 0 0, color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 10%, transparent), transparent 42%),
+            rgba(255, 255, 255, .9);
+        color: #0f172a;
+        box-shadow: 0 .28rem .75rem rgba(15, 23, 42, .09);
+    }
+
+    .inventory-compare-chip-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        border-radius: .65rem;
+        background: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 13%, #fff);
+        color: var(--gtx-accent-solid, #1e73be);
+        font-size: .95rem;
+    }
+
+    .inventory-compare-chip-copy {
+        display: grid;
+        min-width: 0;
+        line-height: 1.15;
+    }
+
+    .inventory-compare-chip-title {
+        display: -webkit-box;
+        min-height: 1.7rem;
+        overflow: hidden;
+        font-size: .74rem;
+        font-weight: 850;
+        line-height: 1.15;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+    .inventory-compare-remove {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.25rem;
+        height: 1.25rem;
+        border: 1px solid color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 14%, #dbe3ed);
+        border-radius: 50%;
+        padding: 0;
+        background: #fff;
+        color: #64748b;
+        font-size: .66rem;
+        transition: background-color .18s ease, color .18s ease, transform .18s ease;
+    }
+
+    .inventory-compare-remove:hover,
+    .inventory-compare-remove:focus-visible {
+        border-color: var(--gtx-accent-solid, #1e73be);
+        background: var(--gtx-accent-solid, #1e73be);
+        color: #fff;
+        transform: scale(1.08);
+    }
+
+    .vehicle-comparison-modal .modal-content {
+        height: 100%;
+        border: 0;
+        border-radius: 1.35rem;
+        overflow: hidden;
+        box-shadow: 0 1.5rem 4rem rgba(15, 23, 42, .3);
+    }
+
+    .vehicle-comparison-modal .modal-dialog {
+        height: calc(100vh - 1rem);
+        margin-top: .5rem;
+        margin-bottom: .5rem;
+    }
+
+    html body .modal.vehicle-comparison-modal .modal-header {
+        color: #fff !important;
+        background: var(--gtx-grad, linear-gradient(135deg, #0b5ed7, #163a72)) !important;
+    }
+
+    .vehicle-comparison-modal-header-copy {
+        min-width: 0;
+    }
+
+    .vehicle-comparison-modal-kicker {
+        color: rgba(255, 255, 255, .76);
+        font-size: .66rem;
+        font-weight: 800;
+        letter-spacing: .08em;
+        line-height: 1.1;
+        text-transform: uppercase;
+    }
+
+    html body .modal.vehicle-comparison-modal .modal-header .btn-close {
+        filter: invert(1) grayscale(100%) brightness(220%) !important;
+    }
+
+    .vehicle-comparison-ai {
+        border: 1px solid rgba(16, 163, 127, .22);
+        border-radius: 1rem;
+        padding: 1rem;
+        background: linear-gradient(135deg, rgba(236,253,245,.96), rgba(239,246,255,.96));
+    }
+
+    .vehicle-comparison-ai-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.6rem;
+        height: 2.6rem;
+        border-radius: .8rem;
+        background: linear-gradient(135deg, #10a37f, #2563eb);
+        color: #fff;
+        box-shadow: 0 .55rem 1.25rem rgba(37, 99, 235, .18);
+    }
+
+    .vehicle-comparison-recommendations {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(205px, 1fr);
+        gap: .65rem;
+        overflow-x: auto;
+        padding: .15rem .1rem .45rem;
+        scrollbar-width: thin;
+    }
+
+    .vehicle-comparison-recommendation {
+        --recommendation-accent: 15, 118, 110;
+        position: relative;
+        display: grid;
+        align-content: start;
+        gap: .4rem;
+        min-height: 132px;
+        overflow: hidden;
+        border: 1px solid rgba(var(--recommendation-accent), .24);
+        border-radius: .85rem;
+        padding: .72rem .78rem .78rem;
+        background:
+            radial-gradient(circle at 100% 0, rgba(var(--recommendation-accent), .14), transparent 42%),
+            linear-gradient(145deg, rgba(255,255,255,.98), rgba(248,250,252,.92));
+        box-shadow: 0 .55rem 1.25rem rgba(15, 23, 42, .08);
+        color: #334155;
+        font-size: .76rem;
+        line-height: 1.35;
+    }
+
+    .vehicle-comparison-recommendation::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto;
+        height: 3px;
+        background: linear-gradient(90deg, rgba(var(--recommendation-accent), 1), rgba(var(--recommendation-accent), .38));
+    }
+
+    .vehicle-comparison-recommendation:nth-child(2) {
+        --recommendation-accent: 37, 99, 235;
+    }
+
+    .vehicle-comparison-recommendation:nth-child(3) {
+        --recommendation-accent: 180, 83, 9;
+    }
+
+    .vehicle-comparison-recommendation:nth-child(4) {
+        --recommendation-accent: 124, 58, 237;
+    }
+
+    .vehicle-comparison-recommendation-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .5rem;
+    }
+
+    .vehicle-comparison-recommendation .badge {
+        border: 1px solid rgba(var(--recommendation-accent), .2);
+        padding: .32rem .48rem;
+        background: rgba(var(--recommendation-accent), .1) !important;
+        color: rgb(var(--recommendation-accent)) !important;
+        font-size: .66rem;
+        font-weight: 850;
+        letter-spacing: .025em;
+    }
+
+    .vehicle-comparison-recommendation-mark {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.7rem;
+        height: 1.7rem;
+        border-radius: .55rem;
+        background: rgba(var(--recommendation-accent), .1);
+        color: rgb(var(--recommendation-accent));
+        font-size: .82rem;
+    }
+
+    .vehicle-comparison-recommendation strong {
+        color: #0f172a;
+        font-size: .86rem;
+        line-height: 1.2;
+    }
+
+    .vehicle-comparison-recommendation-label {
+        color: rgb(var(--recommendation-accent));
+        font-size: .62rem;
+        font-weight: 850;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+
+    .vehicle-comparison-recommendation-reason {
+        color: #475569;
+        white-space: pre-line;
+    }
+
+    .vehicle-comparison-table-wrap {
+        position: relative;
+        isolation: isolate;
+        border: 1px solid color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 22%, #cbd5e1);
+        border-radius: 1.25rem;
+        padding: .45rem;
+        background:
+            radial-gradient(circle at 100% 0, color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 9%, transparent), transparent 28rem),
+            linear-gradient(145deg, #f8fafc, #e8eef5);
+        box-shadow:
+            0 1.2rem 2.8rem rgba(15, 23, 42, .16),
+            inset 0 1px 0 rgba(255, 255, 255, .95);
+        scrollbar-width: thin;
+        scrollbar-color: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 55%, #94a3b8) #e2e8f0;
+    }
+
+    .vehicle-comparison-table-wrap::before {
+        position: absolute;
+        z-index: 6;
+        top: 0;
+        right: 1.5rem;
+        left: 1.5rem;
+        height: 4px;
+        border-radius: 0 0 999px 999px;
+        background: var(--gtx-grad, var(--gtx-accent-solid, #1e73be));
+        content: "";
+        pointer-events: none;
+    }
+
+    .vehicle-comparison-table-wrap::-webkit-scrollbar {
+        height: .65rem;
+    }
+
+    .vehicle-comparison-table-wrap::-webkit-scrollbar-track {
+        border-radius: 999px;
+        background: #e2e8f0;
+    }
+
+    .vehicle-comparison-table-wrap::-webkit-scrollbar-thumb {
+        border: 2px solid #e2e8f0;
+        border-radius: 999px;
+        background: var(--gtx-grad, var(--gtx-accent-solid, #1e73be));
+    }
+
+    .vehicle-comparison-table {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: .9rem;
+        overflow: hidden;
+        background: rgba(255, 255, 255, .94);
+        box-shadow: inset 0 0 0 1px rgba(148, 163, 184, .18);
+    }
+
+    .vehicle-comparison-table th,
+    .vehicle-comparison-table td {
+        min-width: 170px;
+        border-color: rgba(148, 163, 184, .2);
+        vertical-align: middle;
+    }
+
+    .vehicle-comparison-table thead th {
+        border-bottom: 1px solid color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 20%, #cbd5e1);
+    }
+
+    .vehicle-comparison-table tbody tr:not(.vehicle-comparison-section-row) > th,
+    .vehicle-comparison-table tbody tr:not(.vehicle-comparison-section-row) > td {
+        height: 2rem;
+        padding: .3rem .7rem;
+        background: rgba(255, 255, 255, .96);
+        transition: background-color .16s ease, box-shadow .16s ease, color .16s ease;
+    }
+
+    .vehicle-comparison-table tbody tr:not(.vehicle-comparison-section-row):nth-child(odd) > th,
+    .vehicle-comparison-table tbody tr:not(.vehicle-comparison-section-row):nth-child(odd) > td {
+        background: #f8fafc;
+    }
+
+    .vehicle-comparison-table tbody tr:not(.vehicle-comparison-section-row):hover > th,
+    .vehicle-comparison-table tbody tr:not(.vehicle-comparison-section-row):hover > td {
+        background: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 7%, #fff);
+    }
+
+    .vehicle-comparison-table tbody td {
+        color: #334155;
+        font-size: .84rem;
+        font-weight: 650;
+        line-height: 1.35;
+        text-align: center;
+    }
+
+    .vehicle-comparison-spec-heading,
+    .vehicle-comparison-spec {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        min-width: 180px !important;
+        box-shadow:
+            .65rem 0 1rem -.9rem rgba(15, 23, 42, .65),
+            inset -1px 0 rgba(148, 163, 184, .18);
+    }
+
+    .vehicle-comparison-spec-heading {
+        z-index: 4;
+        padding: 1rem !important;
+        background: transparent !important;
+        color: #334155 !important;
+        text-shadow: none;
+        vertical-align: middle !important;
+    }
+
+    .vehicle-comparison-spec-poem {
+        display: block;
+        border-left: 3px solid var(--gtx-accent-solid, #1e73be);
+        padding: .2rem 0 .2rem .75rem;
+        color: #334155;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: .76rem;
+        font-style: italic;
+        font-weight: 700;
+        letter-spacing: .01em;
+        line-height: 1.55;
+        text-align: left;
+        text-transform: none;
+        white-space: pre-line;
+    }
+
+    .vehicle-comparison-spec {
+        border-left: 3px solid color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 65%, #fff);
+        color: #0f172a !important;
+        font-size: .84rem;
+        font-weight: 800;
+        letter-spacing: normal;
+        line-height: 1.35;
+    }
+
+    .vehicle-comparison-vehicle-heading {
+        --vehicle-heading-accent: 15, 118, 110;
+        padding: .5rem !important;
+        text-align: center;
+        background: #f8fafc !important;
+    }
+
+    .vehicle-comparison-vehicle-heading:nth-child(3) {
+        --vehicle-heading-accent: 37, 99, 235;
+    }
+
+    .vehicle-comparison-vehicle-heading:nth-child(4) {
+        --vehicle-heading-accent: 180, 83, 9;
+    }
+
+    .vehicle-comparison-vehicle-heading:nth-child(5) {
+        --vehicle-heading-accent: 124, 58, 237;
+    }
+
+    .vehicle-comparison-vehicle-card {
+        position: relative;
+        display: grid;
+        grid-template-rows: 1fr auto;
+        gap: .55rem;
+        width: 100%;
+        height: 286px;
+        overflow: hidden;
+        border: 1px solid rgba(var(--vehicle-heading-accent), .22);
+        border-radius: .9rem;
+        padding: .55rem;
+        background:
+            radial-gradient(circle at 100% 0, rgba(var(--vehicle-heading-accent), .13), transparent 38%),
+            linear-gradient(155deg, #fff, #f8fafc);
+        box-shadow: 0 .5rem 1.2rem rgba(15, 23, 42, .08);
+    }
+
+    .vehicle-comparison-vehicle-card::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto;
+        height: 3px;
+        background: linear-gradient(90deg, rgba(var(--vehicle-heading-accent), 1), rgba(var(--vehicle-heading-accent), .35));
+    }
+
+    .vehicle-comparison-vehicle-link {
+        display: grid;
+        grid-template-rows: 150px 2.45rem 2.2rem;
+        gap: .32rem;
+        min-width: 0;
+        align-content: start;
+    }
+
+    .vehicle-comparison-vehicle-heading img {
+        display: block;
+        width: 100%;
+        height: 150px;
+        margin: 0 auto;
+        border: 1px solid rgba(var(--vehicle-heading-accent), .16);
+        border-radius: .72rem;
+        object-fit: cover;
+        box-shadow: 0 .35rem .75rem rgba(15, 23, 42, .1);
+    }
+
+    .vehicle-comparison-title,
+    .vehicle-comparison-subtitle {
+        display: block;
+    }
+
+    .vehicle-comparison-title {
+        display: -webkit-box;
+        overflow: hidden;
+        align-self: center;
+        color: #0f172a;
+        font-weight: 850;
+        line-height: 1.18;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+    .vehicle-comparison-subtitle {
+        display: -webkit-box;
+        overflow: hidden;
+        align-self: start;
+        line-height: 1.15;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+    .vehicle-comparison-subtitle {
+        color: #64748b;
+        font-size: .78rem;
+    }
+
+    .vehicle-comparison-source-badge {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        min-height: 1.8rem;
+        width: 100%;
+        border: 1px solid rgba(var(--vehicle-heading-accent), .2);
+        padding: .3rem .4rem;
+        background: rgba(var(--vehicle-heading-accent), .1) !important;
+        color: rgb(var(--vehicle-heading-accent)) !important;
+        font-size: .66rem;
+        line-height: 1.1;
+        white-space: normal;
+    }
+
+    .vehicle-comparison-section-row th {
+        border-top: .2rem solid #eef2f7;
+        border-bottom: 0;
+        padding: .38rem .8rem;
+        background:
+            radial-gradient(circle at 100% 50%, color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 34%, transparent), transparent 28%),
+            linear-gradient(100deg, #172033 0%, #334155 100%);
+        color: #fff;
+        font-size: .76rem;
+        font-weight: 900;
+        letter-spacing: .075em;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, .3);
+        text-transform: uppercase;
+    }
+
+    .vehicle-comparison-section-row th i {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.65rem;
+        height: 1.65rem;
+        border-radius: .5rem;
+        background: rgba(255, 255, 255, .13);
+        color: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 42%, #fff);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1);
+    }
+
+    .vehicle-comparison-best {
+        color: #b91c1c !important;
+        font-weight: 850 !important;
+    }
+
+    .vehicle-comparison-best-badge {
+        display: table;
+        margin: .18rem auto 0;
+        border: 1px solid rgba(220, 38, 38, .22);
+        border-radius: 999px;
+        padding: .18rem .42rem;
+        background: rgba(254, 242, 242, .88);
+        color: #b91c1c;
+        font-size: .61rem;
+        font-weight: 850;
+        letter-spacing: .035em;
+        text-transform: uppercase;
+    }
+
+    @@media (max-width: 575.98px) {
+        .inventory-compare-bar {
+            top: calc(var(--gtx-header-height, 0px) + .5rem);
+            bottom: auto;
+            padding: .7rem;
+        }
+
+        .inventory-compare-actions {
+            display: grid !important;
+            grid-template-columns: 1fr 2fr;
+        }
+
+        .inventory-compare-chip {
+            flex-basis: 185px;
+        }
+    }
+
     @@media only screen and (min-width: 768px) and (max-width: 991px) {
         #title {
             margin-left: -160px !important;
@@ -241,6 +957,51 @@
     </div>
 </div>
 
+<form id="inventoryCompareToken" class="d-none">
+    @Html.AntiForgeryToken()
+</form>
+
+<div id="inventoryCompareBar" class="inventory-compare-bar" aria-live="polite">
+    <div class="inventory-compare-bar-inner d-flex align-items-center gap-2">
+        <div class="inventory-compare-main flex-grow-1 min-width-0">
+            <div class="d-flex align-items-center justify-content-between gap-2 mb-1">
+                <strong class="inventory-compare-heading d-flex align-items-center gap-2">
+                    <span class="inventory-compare-heading-icon"><i class="bi bi-columns-gap" aria-hidden="true"></i></span>
+                    Compare vehicles
+                </strong>
+                <span id="inventoryCompareCount" class="badge">0 / 4</span>
+            </div>
+            <div id="inventoryCompareSelection" class="inventory-compare-selection"></div>
+        </div>
+        <div class="inventory-compare-actions d-flex gap-2 flex-shrink-0">
+            <button type="button" id="inventoryCompareClear" class="btn rounded-4 border-0 shadow">
+                <i class="bi bi-eraser me-1" aria-hidden="true"></i>Clear
+            </button>
+            <button type="button" id="inventoryCompareOpen" class="btn btn-sm" disabled>
+                <i class="bi bi-stars me-1" aria-hidden="true"></i>Compare
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade vehicle-comparison-modal" id="vehicleComparisonModal" tabindex="-1" aria-labelledby="vehicleComparisonModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="gtx-modal-title-icon" aria-hidden="true"><i class="bi bi-columns-gap"></i></span>
+                <div class="vehicle-comparison-modal-header-copy">
+                    <div class="vehicle-comparison-modal-kicker">GTX vehicle comparison</div>
+                    <h4 class="modal-title" id="vehicleComparisonModalTitle">DataOne Specifications</h4>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="vehicleComparisonContent">
+                <div class="text-center py-5 text-muted">Choose 2–4 vehicles to compare.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript">
     $(function () {
         $("#filterTerm").removeClass("rounded-end-4");
@@ -348,7 +1109,132 @@
             }
         });
 
-        $("#inventory").on("click", ".card", function () {
+        const comparisonStocks = [];
+        const comparisonMaximum = 4;
+
+        function showComparisonMessage(message) {
+            if (typeof window.gtxAlert === "function") {
+                window.gtxAlert(message);
+                return;
+            }
+
+            window.alert(message);
+        }
+
+        function comparisonVehicleTitle(stock) {
+            const $card = $("#inventory .card").filter(function () {
+                return String($(this).data("stock") || "").toUpperCase() === stock;
+            }).first();
+            const yearMake = $.trim($card.find(".gtx-title").first().text());
+            const modelStyle = $.trim($card.find(".gtx-trimline").first().text());
+            return $.trim(yearMake + " " + modelStyle) || stock;
+        }
+
+        function renderComparisonSelection() {
+            $("#inventory .gtx-compare-toggle").each(function () {
+                const stock = String($(this).data("stock") || "").toUpperCase();
+                const selected = comparisonStocks.indexOf(stock) !== -1;
+                $(this)
+                    .toggleClass("is-selected", selected)
+                    .attr("aria-pressed", selected ? "true" : "false")
+                    .attr("title", selected ? "Remove from comparison" : "Add to comparison");
+                $(this).find("i").attr("class", selected ? "bi bi-check2" : "bi bi-columns-gap");
+            });
+
+            const $selection = $("#inventoryCompareSelection").empty();
+            $.each(comparisonStocks, function (_, stock) {
+                const $chip = $("<span></span>", { "class": "inventory-compare-chip" });
+                $("<span></span>", { "class": "inventory-compare-chip-icon" })
+                    .append($("<i></i>", { "class": "bi bi-car-front-fill", "aria-hidden": "true" }))
+                    .appendTo($chip);
+                const $copy = $("<span></span>", { "class": "inventory-compare-chip-copy" }).appendTo($chip);
+                $("<span></span>", { "class": "inventory-compare-chip-title" })
+                    .text(comparisonVehicleTitle(stock))
+                    .appendTo($copy);
+                $("<button></button>", {
+                    type: "button",
+                    "class": "inventory-compare-remove",
+                    "data-stock": stock,
+                    "aria-label": "Remove " + stock + " from comparison",
+                    title: "Remove"
+                }).append($("<i></i>", { "class": "bi bi-x-lg" })).appendTo($chip);
+                $selection.append($chip);
+            });
+
+            $("#inventoryCompareCount").text(comparisonStocks.length + " / " + comparisonMaximum);
+            $("#inventoryCompareOpen").prop("disabled", comparisonStocks.length < 2 || comparisonStocks.length > comparisonMaximum);
+            $("#inventoryCompareBar").toggleClass("is-visible", comparisonStocks.length > 0);
+        }
+
+        $("#inventory").on("click", ".gtx-compare-toggle", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const stock = String($(this).data("stock") || "").toUpperCase();
+            if (!stock) return;
+
+            const existingIndex = comparisonStocks.indexOf(stock);
+            if (existingIndex !== -1) {
+                comparisonStocks.splice(existingIndex, 1);
+            } else if (comparisonStocks.length >= comparisonMaximum) {
+                showComparisonMessage("You can compare up to 4 vehicles at a time.");
+                return;
+            } else {
+                comparisonStocks.push(stock);
+            }
+
+            renderComparisonSelection();
+        });
+
+        $("#inventoryCompareSelection").on("click", ".inventory-compare-remove", function () {
+            const stock = String($(this).data("stock") || "").toUpperCase();
+            const index = comparisonStocks.indexOf(stock);
+            if (index !== -1) comparisonStocks.splice(index, 1);
+            renderComparisonSelection();
+        });
+
+        $("#inventoryCompareClear").on("click", function () {
+            comparisonStocks.length = 0;
+            renderComparisonSelection();
+        });
+
+        $("#inventoryCompareOpen").on("click", function () {
+            if (comparisonStocks.length < 2 || comparisonStocks.length > comparisonMaximum) {
+                showComparisonMessage("Choose between 2 and 4 vehicles to compare.");
+                return;
+            }
+
+            const modalElement = document.getElementById("vehicleComparisonModal");
+            const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+            const $content = $("#vehicleComparisonContent");
+            $content.html('<div class="text-center py-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading comparison...</span></div><div class="mt-3 text-muted">Building your vehicle comparison...</div></div>');
+            modal.show();
+
+            $.ajax({
+                url: '@Url.Action("Compare", "Inventory")',
+                type: "POST",
+                traditional: true,
+                timeout: 45000,
+                data: {
+                    __RequestVerificationToken: $("#inventoryCompareToken input[name='__RequestVerificationToken']").val(),
+                    stocks: comparisonStocks.slice()
+                }
+            }).done(function (html) {
+                $content.html(html);
+            }).fail(function (xhr) {
+                const message = xhr.responseJSON && xhr.responseJSON.message
+                    ? xhr.responseJSON.message
+                    : "The comparison could not be built. Please try again.";
+                $content.empty().append(
+                    $("<div></div>", { "class": "alert alert-warning mb-0", role: "alert" }).text(message)
+                );
+            });
+        });
+
+        renderComparisonSelection();
+
+        $("#inventory").on("click", ".card", function (event) {
+            if ($(event.target).closest(".gtx-compare-toggle").length) return;
             if (detailsNavigationStarted) return;
 
             const url = $(this).data("url");

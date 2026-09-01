@@ -1,0 +1,118 @@
+@model GTX.Models.VehicleComparisonViewModel
+@using System.Linq
+@{
+    var comparisonTableMinimumWidth = 180 + (Model.Vehicles.Count * 205);
+}
+
+<div class="vehicle-comparison-result">
+    @if (Model.Analysis != null)
+    {
+        <section class="vehicle-comparison-ai mb-4" aria-labelledby="vehicleComparisonAiTitle">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="vehicle-comparison-ai-icon"><i class="bi bi-stars" aria-hidden="true"></i></span>
+                <div>
+                    <div class="small text-uppercase fw-bold text-muted">AI-assisted overview</div>
+                    <h5 id="vehicleComparisonAiTitle" class="mb-0">The practical differences</h5>
+                </div>
+            </div>
+            @if (Model.Analysis.Recommendations != null && Model.Analysis.Recommendations.Any())
+            {
+                <div class="vehicle-comparison-recommendations">
+                    @foreach (var recommendation in Model.Analysis.Recommendations)
+                    {
+                        <div class="vehicle-comparison-recommendation h-100">
+                            <div class="vehicle-comparison-recommendation-top">
+                                <span class="badge rounded-pill">Stock @recommendation.Stock</span>
+                                <span class="vehicle-comparison-recommendation-mark" aria-hidden="true"><i class="bi bi-car-front-fill"></i></span>
+                            </div>
+                            <span class="vehicle-comparison-recommendation-label">Best fit</span>
+                            <strong>@recommendation.BestFor</strong>
+                            <span class="vehicle-comparison-recommendation-reason">@recommendation.Reason</span>
+                        </div>
+                    }
+                </div>
+            }
+
+        </section>
+    }
+    else if (!string.IsNullOrWhiteSpace(Model.AiNotice))
+    {
+        <div class="alert alert-light border shadow-sm mb-4">
+            <i class="bi bi-info-circle me-1" aria-hidden="true"></i>@Model.AiNotice
+        </div>
+    }
+
+    <div class="table-responsive vehicle-comparison-table-wrap">
+        <table class="table align-middle vehicle-comparison-table mb-0" style="min-width: @(comparisonTableMinimumWidth)px;">
+            <colgroup>
+                <col style="width: 180px;" />
+                @foreach (var vehicle in Model.Vehicles)
+                {
+                    <col />
+                }
+            </colgroup>
+            <thead>
+                <tr>
+                    <th scope="col" class="vehicle-comparison-spec-heading">
+                        @if (Model.Analysis != null && !string.IsNullOrWhiteSpace(Model.Analysis.Summary))
+                        {
+                            <span class="vehicle-comparison-spec-poem">@Model.Analysis.Summary</span>
+                        }
+                    </th>
+                    @foreach (var vehicle in Model.Vehicles)
+                    {
+                        <th scope="col" class="vehicle-comparison-vehicle-heading">
+                            <div class="vehicle-comparison-vehicle-card">
+                                <a href="@vehicle.DetailsUrl"
+                                   class="vehicle-comparison-vehicle-link text-decoration-none"
+                                   target="_blank"
+                                   rel="noopener"
+                                   title="@vehicle.Title @vehicle.Subtitle">
+                                    <img src="@vehicle.ImageUrl" alt="@vehicle.Title" loading="lazy" decoding="async" />
+                                    <span class="vehicle-comparison-title">@vehicle.Title</span>
+                                    <span class="vehicle-comparison-subtitle">@vehicle.Subtitle</span>
+                                </a>
+                                <span class="badge rounded-pill vehicle-comparison-source-badge">
+                                    <i class="bi @(vehicle.HasDataOne ? "bi-database-check" : "bi-card-list") me-1" aria-hidden="true"></i>
+                                    @(vehicle.HasDataOne ? "DataOne specifications" : "Inventory specifications")
+                                </span>
+                            </div>
+                        </th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var comparisonSection in Model.Sections)
+                {
+                    <tr class="vehicle-comparison-section-row">
+                        <th colspan="@(Model.Vehicles.Count + 1)">
+                            <i class="bi @comparisonSection.Icon me-2" aria-hidden="true"></i>@comparisonSection.Name
+                        </th>
+                    </tr>
+
+                    foreach (var row in comparisonSection.Rows)
+                    {
+                        <tr>
+                            <th scope="row" class="vehicle-comparison-spec">@row.Label</th>
+                            @for (var index = 0; index < Model.Vehicles.Count; index++)
+                            {
+                                var highlighted = row.Highlights.Count > index && row.Highlights[index];
+                                <td class="@(highlighted ? "vehicle-comparison-best" : string.Empty)">
+                                    <span>@row.Values[index]</span>
+                                    @if (highlighted)
+                                    {
+                                        <span class="vehicle-comparison-best-badge"><i class="bi bi-check2-circle" aria-hidden="true"></i>Standout</span>
+                                    }
+                                </td>
+                            }
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <p class="small text-muted mt-3 mb-0">
+        Each vehicle uses its saved DataOne style when a confident match is available and otherwise falls back to the live GTX inventory record. Price, mileage, colors, and availability always come from GTX inventory and can change; confirm details with the dealership.
+    </p>
+</div>
