@@ -92,6 +92,10 @@
         background: linear-gradient(90deg, #f59e0b, #7c3aed, #2563eb);
     }
 
+    .health-card-openai::before {
+        background: linear-gradient(90deg, #10a37f, #2563eb, #7c3aed);
+    }
+
     .health-card-bucket::before {
         background: linear-gradient(90deg, #f97316, #f59e0b, #06b6d4);
     }
@@ -154,6 +158,10 @@
 
     .health-icon-remove-bg {
         background: linear-gradient(135deg, #f59e0b, #7c3aed 55%, #2563eb);
+    }
+
+    .health-icon-openai {
+        background: linear-gradient(135deg, #10a37f, #2563eb 55%, #7c3aed);
     }
 
     .health-icon-bucket {
@@ -668,6 +676,32 @@
             </div>
         </div>
 
+        <!-- OpenAI Rate-Limit Token Card -->
+        <div class="health-card-col">
+            <div id="openAiHealthCard" class="h-100 well p-4 health-card health-card-openai d-flex flex-column">
+                <div class="health-card-head">
+                    <div class="health-card-title">
+                        <div class="health-icon health-icon-openai">
+                            <i class="bi bi-stars"></i>
+                        </div>
+                        <div>
+                            <div class="kpi-label mb-0">OpenAI</div>
+                            <div class="kpi-sub mt-1">Rate-limit capacity</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex flex-column flex-grow-1">
+                    <div class="health-token-value">
+                        <div id="openAiTokenCount" class="kpi-value">—</div>
+                        <div class="health-token-unit">tokens remaining</div>
+                    </div>
+                    <div id="openAiTokenDetail" class="kpi-sub mt-2">Waiting for an OpenAI request…</div>
+                    <div class="kpi-sub mt-auto pt-4">Latest API rate-limit window, not billing credit.</div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -972,6 +1006,37 @@
                 const act = safeGet(data, "ActiveSessions", null);
                 dom.activeSessions.text(act === null ? "—" : act);
 
+                const openAi = safeGet(data, "OpenAI", null);
+                const openAiConfigured = !!safeGet(openAi, "Configured", false);
+                const openAiModel = safeGet(openAi, "Model", "OpenAI");
+                const rateLimit = safeGet(openAi, "RateLimit", null);
+
+                if (!openAiConfigured) {
+                    dom.openAiTokenCount.text("—");
+                    dom.openAiTokenDetail.text("OpenAI API key is not configured.");
+                } else if (!rateLimit) {
+                    dom.openAiTokenCount.text("—");
+                    dom.openAiTokenDetail.text(`${openAiModel} · waiting for the next chatbot or Create Story request`);
+                } else {
+                    const remainingTokens = safeGet(rateLimit, "RemainingTokens", null);
+                    const tokenLimit = safeGet(rateLimit, "TokenLimit", null);
+                    const remainingRequests = safeGet(rateLimit, "RemainingRequests", null);
+                    const tokenReset = safeGet(rateLimit, "TokenReset", null);
+                    const capturedAt = parseNetDate(safeGet(rateLimit, "CapturedAt", null));
+                    const details = [safeGet(rateLimit, "Model", openAiModel)];
+
+                    dom.openAiTokenCount.text(
+                        remainingTokens === null
+                            ? "—"
+                            : Number(remainingTokens).toLocaleString("en-US"));
+
+                    if (tokenLimit !== null) details.push(`${Number(tokenLimit).toLocaleString("en-US")} token limit`);
+                    if (remainingRequests !== null) details.push(`${Number(remainingRequests).toLocaleString("en-US")} requests left`);
+                    if (tokenReset) details.push(`resets in ${tokenReset}`);
+                    if (capturedAt) details.push(`sampled ${capturedAt.toLocaleTimeString()}`);
+                    dom.openAiTokenDetail.text(details.join(" · "));
+                }
+
                 setStatus("ok", "Live");
             },
             error: function (xhr) {
@@ -1002,6 +1067,8 @@
         dom.iisCpuBar = $("#iisCpuBar");
         dom.iisMemBar = $("#iisMemBar");
         dom.activeSessions = $("#activeSessions");
+        dom.openAiTokenCount = $("#openAiTokenCount");
+        dom.openAiTokenDetail = $("#openAiTokenDetail");
         dom.chkOffline = $("#chkOffline");
         dom.offlineStatusText = $("#offlineStatusText");
         dom.maintenanceStateValue = $("#maintenanceStateValue");
