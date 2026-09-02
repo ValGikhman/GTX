@@ -16,7 +16,22 @@
 
 <script>
 $(function () {
+    function syncBlogEditors($form) {
+        $form.find('textarea').each(function () {
+            const editor = $(this).data('add-edit');
+            if (editor) $(this).val(editor.value());
+        });
+    }
+
+    function destroyBlogEditors() {
+        $('#blogModalBody textarea').each(function () {
+            const $field = $(this);
+            if ($field.data('add-edit')) $field.addEdit('destroy');
+        });
+    }
+
     function openModal(url, title) {
+        destroyBlogEditors();
         $("#blogModalTitle").text(title || "Blog Post");
         $("#blogModalBody").html('<div class="text-muted">Loading...</div>');
 
@@ -43,6 +58,7 @@ $(function () {
         e.preventDefault();
 
         const $form = $(this);
+        syncBlogEditors($form);
         const url = $form.attr("action");
         const data = $form.serialize();
 
@@ -56,9 +72,11 @@ $(function () {
                 }
 
                 // validation errors -> server returns partial html
+                destroyBlogEditors();
                 $("#blogModalBody").html(res);
             })
             .fail(function (xhr) {
+                destroyBlogEditors();
                 $("#blogModalBody").html(`<div class="alert alert-danger mb-0">Save failed. Status: ${xhr.status}</div>`);
             });
     });

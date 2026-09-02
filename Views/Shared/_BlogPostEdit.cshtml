@@ -123,10 +123,8 @@
                             </span>
                         </div>
 
-                        @Html.HiddenFor(m => m.Content, new { id = "Content" })
-
                         <div class="shadow-sm rounded-3 overflow-hidden border">
-                            <div id="contentEditor" class="form-control border-0" style="height:260px"></div>
+                            @Html.TextAreaFor(m => m.Content, new { id = "Content", @class = "form-control border-0" })
                         </div>
 
                         @Html.ValidationMessageFor(m => m.Content, "", new { @class = "text-danger small" })
@@ -154,21 +152,12 @@
         var $form = $('form[data-blog-ajax="true"]');
         if (!$form.length) $form = $('form').first();
 
-        // -----------------------------
-        // Quill
-        // -----------------------------
-        var quill = new Quill('#contentEditor', {
-            theme: 'snow',
-            modules: {
-                toolbar: [
-                    [{ header: [1, 2, 3, false] }],
-                    ['bold', 'italic', 'underline', 'strike'],
-                    [{ list: 'ordered' }, { list: 'bullet' }],
-                    ['link', 'image'],
-                    ['clean']
-                ]
-            }
+        var $contentField = $('#Content', $form);
+        $contentField.addEdit({
+            height: 260,
+            placeholder: 'Write the post content...'
         });
+        var contentEditor = $contentField.data('add-edit');
 
         function normalizeEmpty(html) {
             var h = $.trim(html || '');
@@ -176,18 +165,12 @@
         }
 
         function syncContent() {
-            var html = normalizeEmpty(quill.root.innerHTML);
-            $('#Content', $form).val(html);
+            var html = normalizeEmpty(contentEditor ? contentEditor.value() : $contentField.val());
+            $contentField.val(html);
         }
 
-        // Load existing content (Edit mode)
-        var initialHtml = $('#Content', $form).val();
-        if (initialHtml) quill.clipboard.dangerouslyPasteHTML(initialHtml);
-
         // Sync on any submit (delegated helps if form is injected)
-        $(document).on('submit', 'form[data-blog-ajax="true"]', function () {
-            syncContent();
-        });
+        $form.on('submit.addEditBlog', syncContent);
 
         // Extra safety: sync on click (some AJAX serializers grab values on click)
         $form.on('click', 'button[type=submit], input[type=submit]', function () {

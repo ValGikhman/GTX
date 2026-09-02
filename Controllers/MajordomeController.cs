@@ -2186,25 +2186,42 @@ namespace GTX.Controllers
             string car = $"{vehicle.Year} {vehicle.Make} {vehicle.Model} {vehicle.VehicleStyle}";
             var features = $"{vehicle.Features}";
             string prompt = $@"
-    You are an expert used cars automotive sales person with a high level of technical skill. Write a short captivating, imaginative, vivid, and engaging story in HTML format for the following car:
-    Car: {car}  
-    Features: {features}
-    General: {car} is being sold by the GTX Autogroup here in Cincinnati Ohio area.
-    Our sales crew: {reps} will help you will help you buy a perfect car you need.
+You are an expert used-car salesperson with strong automotive technical knowledge.
+Write a short, vivid, captivating, rhyming sales poem for this vehicle.
 
-    Your response must be a poem with 5 verses:
-    1. Start with a catchy **title inside <title> tags** (for example: <title>The Electric Dream</title>).
-    2. Write a poem minimum of **5 verses**, each verse has 4 lines inside a separate <p class='p-story'> tag.
-    3. Write a poem in very technical tone with a touch sales person can be to make story vivid, rich, and atmospheric.
-    4. Mention at least **5 car features** from the provided list and wrap each feature in <strong class='strong-story'> tags as well as the car.
-    5. Do **not use double quotes** anywhere in the story.
-    6. End the story with a sense of joy, adventure, opportunity.
-    7. The response must be a poem a with a little jewsh specific humor.
+Vehicle: {car}
+Available features: {features}
+Dealership: GTX Auto Group in the Cincinnati, Ohio area
+Sales representatives: {reps}
 
+Follow every output rule exactly:
+1. Output one catchy title inside <title>...</title>.
+2. After the title, output exactly five verses and no other content.
+3. Put each complete verse inside exactly one <p class='p-story'>...</p> element.
+4. Each verse must contain exactly four poetic lines.
+5. Inside each paragraph, separate the four lines with exactly three <br> tags.
+6. Never put an individual poetic line in its own paragraph.
+7. Do not use literal line breaks between poetic lines; use <br> tags.
+8. The complete response must contain exactly five opening <p class='p-story'> tags and five closing </p> tags.
+9. Begin the first poetic line with <strong class='strong-story'>{car}</strong>.
+10. Never begin with In the heart of Cincinnati, In Cincinnati, Where dreams, or another location-based introduction.
+11. Mention at least five distinct features, using only feature names from the Available features value.
+12. Wrap every vehicle mention and every mentioned feature in <strong class='strong-story'>...</strong>.
+13. Preserve normal word spacing around every <strong> element. When surrounding words exist, put one literal space before the opening tag and one literal space after the closing tag.
+14. Never join a word directly to <strong or </strong>.
+15. Mention GTX Auto Group, Cincinnati, Ohio, and the supplied sales representatives naturally, but not in the opening line.
+16. Use an informed technical sales tone while keeping the poem imaginative, atmospheric, and rhyming.
+17. Include one brief, warm, respectful touch of Jewish humor without stereotypes or offensive language.
+18. End with joy, adventure, and the opportunity to own the vehicle.
+19. Use single quotes for HTML attributes. Do not use double quotes.
+20. Do not invent vehicle features or technical specifications.
+21. Do not output Markdown, code fences, explanations, headings outside <title>, or wrapper elements.
 
-    The output should be **only the HTML story** without any extra text before or after.
-    Please do not place any other characters like **``` and **```html text in front of the output.
-    Do not place any **<html>**, **<body>** and **<head>** tags
+Required output shape:
+<title>Catchy title</title><p class='p-story'>Line 1<br>Line 2<br>Line 3<br>Line 4</p><p class='p-story'>Line 1<br>Line 2<br>Line 3<br>Line 4</p><p class='p-story'>Line 1<br>Line 2<br>Line 3<br>Line 4</p><p class='p-story'>Line 1<br>Line 2<br>Line 3<br>Line 4</p><p class='p-story'>Line 1<br>Line 2<br>Line 3<br>Line 4</p>
+
+Before answering, silently verify the response has one title, five paragraphs, four lines per paragraph, and three <br> tags per paragraph.
+Return only the completed title and poem HTML.
     ";
             return prompt;
         }

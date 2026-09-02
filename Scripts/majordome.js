@@ -1466,6 +1466,31 @@ async function removeImageBackground(file, triggerElement) {
     }
 }
 
+function setMajordomeStoryEditorHtml(html) {
+    var $field = $("#story");
+    if (!$field.length) {
+        return;
+    }
+
+    var safeHtml = html || "";
+    if (window.gtxSecurity && typeof window.gtxSecurity.sanitizeHtmlFragment === "function") {
+        safeHtml = window.gtxSecurity.sanitizeHtmlFragment(safeHtml);
+    }
+
+    var editor = $field.data("add-edit");
+    if (editor) {
+        editor.value(safeHtml);
+    } else {
+        $field.val(safeHtml);
+    }
+}
+
+function getMajordomeStoryEditorHtml() {
+    var $field = $("#story");
+    var editor = $field.data("add-edit");
+    return editor ? editor.value() : ($field.val() || "");
+}
+
 async function createStory(stock) {
     var targetStock = (stock || "").toString().trim();
     if (!targetStock) {
@@ -1485,10 +1510,7 @@ async function createStory(stock) {
         const storyTitle = (response.Title || "").toString();
         const storyHtml = (response.Story || "").toString();
 
-        if (typeof quill !== "undefined" && quill && quill.clipboard) {
-            quill.setContents([]);
-            quill.clipboard.dangerouslyPasteHTML(0, storyHtml, "api");
-        }
+        setMajordomeStoryEditorHtml(storyHtml);
         $("#storyTitle").val(storyTitle);
 
         if (typeof syncMajordomeStoryLocalState === "function") {
@@ -1523,10 +1545,7 @@ async function deleteStory(stock) {
             throw new Error((response && response.message) || "Failed to delete story.");
         }
 
-        if (typeof quill !== "undefined" && quill && quill.clipboard) {
-            quill.setContents([]);
-            quill.clipboard.dangerouslyPasteHTML(0, "", "api");
-        }
+        setMajordomeStoryEditorHtml("");
         $("#storyTitle").val("");
 
         if (typeof syncMajordomeStoryLocalState === "function") {

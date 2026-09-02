@@ -363,41 +363,30 @@ html.theme-silver .majordome-admin-grid {
         overflow-y: auto;
     }
 
-    #story .ql-editor {
-        min-height: 480px;
-        max-height: 480px;
-        overflow-y: auto;
-    }
+.pe-body.majordome-story-editor {
+    height: 100%;
+    min-height: 480px;
+    max-height: 100%;
+    overflow-y: auto;
+}
 
-        #story .ql-editor p {
-            margin-top: 10px;
-            margin-bottom: 10px;
-            padding: 0;
-            font-size: clamp(0.9rem, 2vw, 1rem);
-            text-align: justify;
-        }
+.majordome-story-editor-source {
+    min-height: 480px;
+    max-height: 100%;
+    overflow-y: auto;
+}
 
-        /*So I need to override them for Quill*/
-        #story .ql-editor strong {
-            margin-top: 10px;
-            margin-bottom: 10px;
-            padding: 0;
-            font-size: clamp(0.9rem, 2vw, 1rem);
-            text-align: justify;
-        }
+.majordome-story-editor .p-story {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 0;
+    font-size: clamp(0.9rem, 2vw, 1rem);
+    text-align: justify;
+}
 
-    /*Quill strips away p-story and strong-story classes*/
-    .p-story {
-        margin-top: 10px;
-        margin-bottom: 10px;
-        padding: 0;
-        font-size: clamp(0.9rem, 2vw, 1rem);
-        text-align: justify;
-    }
-
-    .strong-story {
-        color: black;
-    }
+.majordome-story-editor .strong-story {
+    color: black;
+}
 
 
 /* Majordome extracted inline widths */
@@ -811,6 +800,18 @@ html.theme-silver .majordome-admin-grid {
 
 body.majordome-inventory-page .body-content {
     overflow-y: hidden !important;
+}
+
+.majordome-workspace #tab-details {
+    height: var(--majordome-inventory-workspace-height);
+    max-height: var(--majordome-inventory-workspace-height);
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(71, 85, 105, .45) transparent;
 }
 
 .majordome-workspace #tab-gallery > .d-flex {
