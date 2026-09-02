@@ -2196,20 +2196,20 @@ Sales representatives: {reps}
 
 Follow every output rule exactly:
 1. Output one catchy title inside <title>...</title>.
-2. After the title, output exactly five verses and no other content.
+2. After the title, output exactly three accentual-rhyming verses and no other content.
 3. Put each complete verse inside exactly one <p class='p-story'>...</p> element.
 4. Each verse must contain exactly four poetic lines.
 5. Inside each paragraph, separate the four lines with exactly three <br> tags.
 6. Never put an individual poetic line in its own paragraph.
 7. Do not use literal line breaks between poetic lines; use <br> tags.
-8. The complete response must contain exactly five opening <p class='p-story'> tags and five closing </p> tags.
-9. Begin the first poetic line with <strong class='strong-story'>{car}</strong>.
-10. Never begin with In the heart of Cincinnati, In Cincinnati, Where dreams, or another location-based introduction.
-11. Mention at least five distinct features, using only feature names from the Available features value.
-12. Wrap every vehicle mention and every mentioned feature in <strong class='strong-story'>...</strong>.
-13. Preserve normal word spacing around every <strong> element. When surrounding words exist, put one literal space before the opening tag and one literal space after the closing tag.
-14. Never join a word directly to <strong or </strong>.
-15. Mention GTX Auto Group, Cincinnati, Ohio, and the supplied sales representatives naturally, but not in the opening line.
+8. The complete response must contain exactly three opening <p class='p-story'> tags and three closing </p> tags.
+9. Never begin with In the heart of Cincinnati, In Cincinnati, Where dreams, or another location-based introduction.
+10. Mention at least three distinct features, using only feature names from the Available features value.
+11. Wrap every vehicle mention and every mentioned feature in <strong class='strong-story'>...</strong>.
+12. Preserve normal word spacing around every <strong> element. When surrounding words exist, put one literal space before the opening tag and one literal space after the closing tag.
+13. Never join a word directly to <strong or </strong>.
+14. Mention GTX Auto Group and the supplied sales representatives naturally, but not in the opening line.
+15. Wrap every mentioned sales representative's full name in <strong class='strong-story'>...</strong>.
 16. Use an informed technical sales tone while keeping the poem imaginative, atmospheric, and rhyming.
 17. Include one brief, warm, respectful touch of Jewish humor without stereotypes or offensive language.
 18. End with joy, adventure, and the opportunity to own the vehicle.
@@ -2218,9 +2218,9 @@ Follow every output rule exactly:
 21. Do not output Markdown, code fences, explanations, headings outside <title>, or wrapper elements.
 
 Required output shape:
-<title>Catchy title</title><p class='p-story'>Line 1<br>Line 2<br>Line 3<br>Line 4</p><p class='p-story'>Line 1<br>Line 2<br>Line 3<br>Line 4</p><p class='p-story'>Line 1<br>Line 2<br>Line 3<br>Line 4</p><p class='p-story'>Line 1<br>Line 2<br>Line 3<br>Line 4</p><p class='p-story'>Line 1<br>Line 2<br>Line 3<br>Line 4</p>
+<title>Catchy title</title><p class='p-story'>Line 1<br>Line 2<br>Line 3<br>Line 4</p><p class='p-story'>Line 1<br>Line 2<br>Line 3<br>Line 4</p><p class='p-story'>Line 1<br>Line 2<br>Line 3<br>Line 4</p>
 
-Before answering, silently verify the response has one title, five paragraphs, four lines per paragraph, and three <br> tags per paragraph.
+Before answering, silently verify the response has one title, three paragraphs, four lines per paragraph, three <br> tags per paragraph, and the required <strong class='strong-story'> formatting.
 Return only the completed title and poem HTML.
     ";
             return prompt;
