@@ -32,6 +32,11 @@
     var displayDocumentaryFee = string.Format("{0:C0}", Constants.DOCUMENTARY_FEE);
     var displayMileage = string.Format("{0:N0}", vehicle?.Mileage ?? 0);
     var makeLogoName = (vehicle?.Make ?? string.Empty).Trim().Replace(" ", "-").ToLowerInvariant();
+    var stock = (vehicle?.Stock ?? string.Empty).Trim();
+    var lastStockCharacter = stock.Length > 0 ? stock[stock.Length - 1] : '\0';
+    var storyCartoonFile = char.IsDigit(lastStockCharacter) && (lastStockCharacter - '0') % 2 == 0
+        ? "cartoon0.gif"
+        : "cartoon1.gif";
 }
 
 <style>
@@ -316,7 +321,7 @@
                         <div class="collapse show gtx-story-body" id="story">
                             <article class="gtx-story-content">
                                 <img class="gtx-story-watermark"
-                                     src="https://cdn.usedcarscincinnati.com/SiteImages/video/cartoon0.gif"
+                                     src="https://cdn.usedcarscincinnati.com/SiteImages/video/@storyCartoonFile"
                                      alt=""
                                      loading="lazy"
                                      decoding="async"
