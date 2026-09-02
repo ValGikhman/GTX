@@ -21,11 +21,9 @@
     <script src="https://cdn.jsdelivr.net/npm/lightbox2@2/dist/js/lightbox.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <link href="~/Content/addTools/addEdit.css?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/addTools/addEdit.css")).Ticks)" rel="stylesheet" />
+    <script src="~/Scripts/addTools/addEdit.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/addTools/addEdit.js")).Ticks)"></script>
 
-    <!-- Include stylesheet -->
-    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
-    <!-- Include the Quill library -->
-    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 </head>
 
 @Html.Partial("_MarketingHero", null, new ViewDataDictionary
@@ -442,37 +440,20 @@
         "Mileage"
     ];
 
-    const toolbarOptions = [
-        ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
-        //['blockquote', 'code-block'],
-        ['link', 'image', 'video'],
-
-        //[{ 'header': 1 }, { 'header': 2 }],               // custom button values
-        //[{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'list': 'check' }],
-        //[{ 'script': 'sub' }, { 'script': 'super' }],      // superscript/subscript
-        [{ 'indent': '-1' }, { 'indent': '+1' }],          // outdent/indent
-        //[{ 'direction': 'rtl' }],                         // text direction
-
-        [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
-        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-
-        [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
-        [{ 'font': [] }],
-        [{ 'align': [] }]
-
-        //['clean']                                         // remove formatting button
-    ];
-
-    const quill = new Quill('#story', {
-        modules: {
-            toolbar: toolbarOptions
-        },
-        theme: 'snow'
-    });
-    quill.root.setAttribute('aria-labelledby', 'storyLabel');
-    quill.root.setAttribute('aria-multiline', 'true');
-
     $(function () {
+        const $storyEditor = $("#story");
+        $storyEditor.addEdit({
+            height: "100%",
+            placeholder: "Write or generate the vehicle story...",
+            showToolSettings: true,
+            showContextMenu: true
+        });
+        const storyEditor = $storyEditor.data("add-edit");
+        if (storyEditor) {
+            storyEditor.$editable.addClass("majordome-story-editor");
+            storyEditor.$sourceArea.addClass("majordome-story-editor-source");
+        }
+
         renderMajordomeInventoryRows(inventoryVehiclesSource);
         selectFirstVisibleMajordomeVehicle();
 
@@ -732,7 +713,7 @@
         $("#saveStory").on("click", async function () {
             const stock = getSelectedVehicleStockOrWarn();
             if (!stock) return;
-            const story = quill.root.innerHTML;
+            const story = getMajordomeStoryEditorHtml();
             const title = $("#storyTitle").val();
 
             const confirmed = await window.gtxConfirm({
@@ -760,8 +741,7 @@
                 const savedStory = safeText(data.Story || story);
 
                 $("#storyTitle").val(savedTitle);
-                quill.setContents([]);
-                quill.clipboard.dangerouslyPasteHTML(0, savedStory || "", "api");
+                setMajordomeStoryEditorHtml(savedStory);
                 syncMajordomeStoryLocalState(stock, savedTitle, savedStory);
             } catch (error) {
                 console.error("SaveStory failed:", error);
@@ -4100,8 +4080,7 @@
     function showVehicleDetails(vehicle) {
         $('#vin').val(vehicle.VIN);
         $('#storyTitle').val(vehicle.Story?.Title);
-        quill.setContents([]);
-        quill.clipboard.dangerouslyPasteHTML(0, vehicle?.Story?.HtmlContent || "", "api");
+        setMajordomeStoryEditorHtml(vehicle?.Story?.HtmlContent || "");
 
         if (vehicle.Stock) {
             $.ajax({

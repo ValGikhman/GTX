@@ -18,7 +18,22 @@
 
 <script>
 $(function () {
+    function syncAnnouncementEditors($form) {
+        $form.find('textarea').each(function () {
+            const editor = $(this).data('add-edit');
+            if (editor) $(this).val(editor.value());
+        });
+    }
+
+    function destroyAnnouncementEditors() {
+        $('#announcementModalBody textarea').each(function () {
+            const $field = $(this);
+            if ($field.data('add-edit')) $field.addEdit('destroy');
+        });
+    }
+
     function openAnnouncementModal(url, title) {
+        destroyAnnouncementEditors();
         $("#announcementModalTitle").text(title || "Announcement");
         $("#announcementModalBody").html('<div class="text-muted">Loading...</div>');
 
@@ -46,6 +61,7 @@ $(function () {
         e.preventDefault();
 
         const $form = $(this);
+        syncAnnouncementEditors($form);
         const url = $form.attr("action");
         const data = $form.serialize();
 
@@ -59,9 +75,11 @@ $(function () {
                 }
 
                 // validation errors -> server returns partial html
+                destroyAnnouncementEditors();
                 $("#announcementModalBody").html(res);
             })
             .fail(function (xhr) {
+                destroyAnnouncementEditors();
                 $("#announcementModalBody").html(
                     `<div class="alert alert-danger mb-0">Save failed. Status: ${xhr.status}</div>`
                 );

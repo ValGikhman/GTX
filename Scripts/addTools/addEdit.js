@@ -2,9 +2,9 @@
  * Dependencies: jQuery 3+, Bootstrap Icons (bi-*)
  *
  * Usage:
- *   $('#Body').pepEdit({ tools: ['bold', 'italic', '|', 'createLink'] });
- *   $('#Body').data('pepEdit').value('<p>Hello</p>');
- *   var html = $('#Body').data('pepEdit').value();
+ *   $('#Body').addEdit({ tools: ['bold', 'italic', '|', 'createLink'] });
+ *   $('#Body').data('addEdit').value('<p>Hello</p>');
+ *   var html = $('#Body').data('addEdit').value();
  *
  * Lightweight, self-contained rich text editor:
  *   - Attaches to a <textarea>, keeps it in sync for normal form postback.
@@ -13,13 +13,12 @@
  *   - `.value()` getter/setter and `.body` (raw contenteditable DOM element)
  *     provide a simple API for reading/writing editor content.
  *
- * See README-PepEdit.md in this folder for full documentation and the tool
- * registry / plugin-extension API.
+ * The public API and tool registry extension points are documented inline.
  */
 ;(function ($) {
     'use strict';
 
-    const DATA_KEY = 'pep-edit';
+    const DATA_KEY = 'add-edit';
 
     function debounce(fn, wait) {
         let timer;
@@ -164,13 +163,12 @@
     registerTool('redo', { icon: 'bi-arrow-clockwise', title: 'Redo', command: 'redo' });
 
     const DEFAULT_TOOLS = [
-        'bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript', '|',
+        'bold', 'italic', 'underline', '|',
         'foreColor', 'backColor', '|',
-        'justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull', '|',
-        'insertOrderedList', 'insertUnorderedList', 'indent', 'outdent', '|',
-        'createLink', 'unlink', 'insertImage', '|',
-        'formatting', 'fontName', 'fontSize', '|',
+        'justifyLeft', 'justifyCenter', 'justifyRight', '|',
+        'createLink', 'unlink', '|',
         'cleanFormatting', 'viewHtml', '|',
+        'indent', 'outdent', '|',
         'undo', 'redo'
     ];
 
@@ -208,11 +206,11 @@
         /**
          * Zero-argument change callback, for compatibility with call sites
          * that only need a notification rather than the changed value:
-         *   pepEdit({ change: fn })
+         *   addEdit({ change: fn })
          */
         change: null,
 
-        /** pepEdit-style change callback. ({ value }) */
+        /** addEdit-style change callback. ({ value }) */
         onChange: null,
 
         /** Fires when the editable area gains focus. () */
@@ -231,9 +229,9 @@
     };
 
     // ════════════════════════════════════════════════════════════════════════
-    //  PepEdit constructor
+    //  AddEdit constructor
     // ════════════════════════════════════════════════════════════════════════
-    function PepEdit($el, options) {
+    function AddEdit($el, options) {
         this.$el   = $el;
         this._el   = $el[0];
         this._opts = $.extend({}, defaults, options);
@@ -250,7 +248,7 @@
         }
     }
 
-    PepEdit.prototype = {
+    AddEdit.prototype = {
 
         // ── UI construction ──────────────────────────────────────────────────
 
@@ -304,7 +302,7 @@
                 if (isSeparator(item)) { spec.push('|'); return; }
                 const name = typeof item === 'string' ? item : item.name;
                 if (!toolRegistry[name]) {
-                    console.warn('pepEdit: skipping tool "' + name + '" (unknown tool).');
+                    console.warn('addEdit: skipping tool "' + name + '" (unknown tool).');
                     return;
                 }
                 spec.push(name);
@@ -662,6 +660,7 @@
                 self._triggerChange();
             }, 150);
             this.$editable.on('input', this._onInput);
+            this.$sourceArea.on('input', this._onInput);
 
             this.$editable.on('focus', function () { self._trigger('focus'); });
             this.$editable.on('blur', function () { self._syncField(); self._trigger('blur'); });
@@ -687,12 +686,12 @@
         _trigger: function (name, detail) {
             const cbKey = 'on' + name.charAt(0).toUpperCase() + name.slice(1);
             const data = detail || {};
-            this.$el.trigger('pepedit:' + name.toLowerCase(), [data]);
+            this.$el.trigger('addedit:' + name.toLowerCase(), [data]);
             if (typeof this._opts[cbKey] === 'function') { this._opts[cbKey].call(this._el, data); }
         },
 
         _syncField: function () {
-            this._el.value = this.$editable.html();
+            this._el.value = this._sourceViewOn ? this.$sourceArea.val() : this.$editable.html();
         },
 
         _triggerChange: function () {
@@ -724,9 +723,10 @@
          */
         value: function (html) {
             if (arguments.length === 0) {
-                return this._sourceViewOn ? this._el.value : this.$editable.html();
+                return this._sourceViewOn ? this.$sourceArea.val() : this.$editable.html();
             }
             this.$editable.html(html || '');
+            this.$sourceArea.val(html || '');
             this._syncField();
             return undefined;
         },
@@ -751,7 +751,7 @@
         /** Run any execCommand-backed or custom-registered tool programmatically. */
         execTool: function (name, value) {
             const def = toolRegistry[name];
-            if (!def) { $.error('pepEdit: unknown tool "' + name + '".'); return this.$el; }
+            if (!def) { $.error('addEdit: unknown tool "' + name + '".'); return this.$el; }
             this.focus();
             this._exec(name, def, value);
             return this.$el;
@@ -801,7 +801,7 @@
     // ════════════════════════════════════════════════════════════════════════
     //  jQuery plugin bridge
     // ════════════════════════════════════════════════════════════════════════
-    $.fn.pepEdit = function (optionsOrMethod) {
+    $.fn.addEdit = function (optionsOrMethod) {
         const args = Array.prototype.slice.call(arguments, 1);
         let returnVal = this;
 
@@ -811,18 +811,18 @@
 
             if (typeof optionsOrMethod === 'string') {
                 if (!instance) {
-                    $.error('pepEdit has not been initialized on this element.');
+                    $.error('addEdit has not been initialized on this element.');
                     return;
                 }
                 if (typeof instance[optionsOrMethod] !== 'function') {
-                    $.error('pepEdit: method "' + optionsOrMethod + '" does not exist.');
+                    $.error('addEdit: method "' + optionsOrMethod + '" does not exist.');
                     return;
                 }
                 const result = instance[optionsOrMethod].apply(instance, args);
                 if (result !== undefined) { returnVal = result; return false; }
             } else {
                 if (!instance) {
-                    instance = new PepEdit($el, optionsOrMethod || {});
+                    instance = new AddEdit($el, optionsOrMethod || {});
                     $el.data(DATA_KEY, instance);
                 }
             }
@@ -832,9 +832,9 @@
     };
 
     /** Register a custom tool, extending the toolbar registry (see file header). */
-    $.fn.pepEdit.registerTool = registerTool;
+    $.fn.addEdit.registerTool = registerTool;
     /** Read-only introspection of the current tool registry. */
-    $.fn.pepEdit.tools = toolRegistry;
+    $.fn.addEdit.tools = toolRegistry;
 
 }(jQuery));
 
