@@ -36,7 +36,7 @@
                     <div id="majordomeManagementGrid" class="majordome-management-add-grid"></div>
                 </div>
                 <div id="majordomeManagementEmpty" class="p-4 text-center text-muted d-none">
-                    No added, updated, sold, or stalled vehicles were found for this inventory date.
+                    No added, updated, sold, or current vehicles were found for this inventory date.
                 </div>
             </div>
         </div>
@@ -122,7 +122,7 @@
             { key: "added", label: "Added", countKey: "AddedCount", badgeClass: "bg-success", iconClass: "bi-plus-circle" },
             { key: "updated", label: "Updated", countKey: "UpdatedCount", badgeClass: "bg-primary", iconClass: "bi-pencil-square" },
             { key: "removed", label: "Sold", countKey: "RemovedCount", badgeClass: "bg-danger", iconClass: "bi-trash3" },
-            { key: "skipped", label: "Stalled", countKey: "SkippedCount", badgeClass: "bg-secondary", iconClass: "bi-pause-circle" }
+            { key: "skipped", label: "Current", countKey: "SkippedCount", badgeClass: "bg-secondary", iconClass: "bi-pause-circle" }
         ];
 
         function managementRoot() {
@@ -248,7 +248,7 @@
                 return "removed";
             }
 
-            if (status === "skip" || status === "skipped" || status === "stall" || status === "stalled" || status === "existing") {
+            if (status === "skip" || status === "skipped" || status === "stall" || status === "stalled" || status === "existing" || status === "current") {
                 return "skipped";
             }
 
@@ -257,7 +257,7 @@
 
         function managementDisplayStatusText(value) {
             if (managementStatusKey(value) === "skipped") {
-                return "Stalled";
+                return "Current";
             }
 
             return managementText(value).trim();
@@ -460,7 +460,7 @@
             const hasFilteredRows = filteredCount > 0;
             const message = totalCount > 0
                 ? "No vehicles match the current filters."
-                : "No added, updated, sold, or stalled vehicles were found for this inventory date.";
+                : "No added, updated, sold, or current vehicles were found for this inventory date.";
 
             $("#majordomeManagementEmpty")
                 .toggleClass("d-none", hasFilteredRows)
