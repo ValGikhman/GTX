@@ -25,7 +25,7 @@
     function statusLabel(value) {
         var label = (value || "Status").toString().trim();
         var normalized = label.toLowerCase();
-        if (normalized === "skip" || normalized === "skipped" || normalized === "stall" || normalized === "stalled" || normalized === "existing") return "Stalled";
+        if (normalized === "skip" || normalized === "skipped" || normalized === "stall" || normalized === "stalled" || normalized === "existing" || normalized === "current") return "Current";
         if (normalized === "remove" || normalized === "removed") return "Sold";
         return label || "Status";
     }

@@ -145,6 +145,7 @@
             if (normalized.indexOf("existing") >= 0) return "bg-secondary p-2";
             if (normalized.indexOf("skip") >= 0) return "bg-secondary p-2";
             if (normalized.indexOf("stall") >= 0) return "bg-secondary p-2";
+            if (normalized.indexOf("current") >= 0) return "bg-secondary p-2";
             if (normalized.indexOf("update") >= 0) return "bg-primary p-2";
             return "bg-success p-2";
         }
@@ -266,12 +267,12 @@
                 { label: isPreview ? "to update" : "updated", count: updated.length },
                 { label: isPreview ? "to add" : "added", count: inserted.length },
                 { label: isPreview ? "to sell" : "sold", count: removed.length },
-                { label: "stalled", count: skipped.length }
+                { label: "Current", count: skipped.length }
             ]);
             uploadRenderStatusLines(isPreview ? "to be updated" : "updated", updated);
             uploadRenderStatusLines(isPreview ? "to be added" : "added", inserted);
             uploadRenderStatusLines(isPreview ? "to be sold" : "sold", removed);
-            uploadRenderStatusLines("stalled", skipped);
+            uploadRenderStatusLines("Current", skipped);
         }
 
         function uploadFormData(file) {
