@@ -1,4 +1,4 @@
-@{
+﻿@{
     Layout = null;
     bool available = ViewBag.ApkAvailable == true;
 }
@@ -16,7 +16,7 @@
         <a href="@Url.Content("~/")" aria-label="GTX Auto Group home"><img class="brand" src="@SiteImageUrl.Build("brand-dark.png")" alt="GTX Auto Group" width="120" /></a>
         <section class="download-card" aria-labelledby="download-title">
             <header>
-                <span class="eyebrow">GTX MAJORDOME · ANDROID</span>
+                <span class="eyebrow">GTX MAJORDOME &middot; ANDROID</span>
                 <h1 id="download-title">Your inventory.<br />On your phone.</h1>
                 <p>Inventory, vehicle photos, DataOne details, and activity history in one app.</p>
             </header>
@@ -26,20 +26,20 @@
                         <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5" /></svg>
                         Download for Android
                     </a>
-                    <p class="meta">Version 1.0.0 · @ViewBag.ApkSize MB · APK</p>
+                    <p class="meta">Version 1.0.0 &middot; @ViewBag.ApkSize MB &middot; APK</p>
                     <div id="download-next-step" class="next-step" role="status" hidden>
                         <strong>Next: tap Open in your browser</strong>
                         <p>Wait for the download to finish. When your browser shows <strong>File downloaded</strong>, tap <strong>Open</strong>, then <strong>Install</strong>.</p>
-                        <p>Missed it? In Chrome, tap <strong>⋮ → Downloads → GTX-Majordome-1.0.0.apk</strong>.</p>
+                        <p>Missed it? In Chrome, open the <strong>three-dot menu</strong>, choose <strong>Downloads</strong>, then tap <strong>GTX-Majordome-1.0.0.apk</strong>.</p>
                     </div>
                 } else {
                     <p role="status">The Android download is being prepared. Please check back shortly.</p>
                 }
-                <h2>Download → Open → Install</h2>
-                <p class="install-tip">Use <strong>Chrome on your Android phone</strong>. You can open the download right in Chrome—no File Explorer needed.</p>
+                <h2>Download &rarr; Open &rarr; Install</h2>
+                <p class="install-tip">Use <strong>Chrome on your Android phone</strong>. You can open the download right in Chrome&mdash;no File Explorer needed.</p>
                 <ol class="install-steps">
                     <li><strong>Download</strong><span>Tap the green button above and wait for the download to finish.</span></li>
-                    <li><strong>Open</strong><span>Tap <strong>Open</strong> on Chrome’s completed-download message, or tap the completed download notification.</span></li>
+                    <li><strong>Open</strong><span>Tap <strong>Open</strong> on the completed-download message in Chrome, or tap the completed download notification.</span></li>
                     <li><strong>Install</strong><span>Tap <strong>Install</strong>, then <strong>Open</strong>. Sign in with your GTX Owner password.</span></li>
                 </ol>
                 <details class="install-help">
@@ -47,15 +47,15 @@
                     <p>Tap <strong>Settings</strong> on that prompt, enable <strong>Allow from this source</strong> for Chrome, then go back and tap <strong>Install</strong>. Android may only ask the first time you install through this browser.</p>
                 </details>
                 <details class="install-help">
-                    <summary>Can’t find the Open button?</summary>
-                    <p>Stay in Chrome. Tap <strong>⋮</strong> at the top right, choose <strong>Downloads</strong>, then tap <strong>GTX-Majordome-1.0.0.apk</strong>.</p>
+                    <summary>Cannot find the Open button?</summary>
+                    <p>Stay in Chrome. Tap the <strong>three-dot menu</strong> at the top right, choose <strong>Downloads</strong>, then tap <strong>GTX-Majordome-1.0.0.apk</strong>.</p>
                     <p>If you opened this page inside a messaging app, open the page in Chrome first.</p>
                 </details>
                 <div class="notice"><strong>Current test version</strong><p>This version connects through the GTX PC. The PC and its connection must stay running to load inventory. Expo Go is not required.</p></div>
                 <p class="meta">Using an iPhone? This APK installs on Android only.</p>
             </div>
         </section>
-        <footer>GTX AUTO GROUP · MAJORDOME</footer>
+        <footer>GTX AUTO GROUP &middot; MAJORDOME</footer>
     </main>
     <script>
         (function () {
