@@ -1,24 +1,24 @@
+using GTX.Helpers;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using Services;
 using System;
 using System.Configuration;
 using System.Linq;
-using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 using System.Web.Caching;
 using System.Web.Mvc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using Services;
-using GTX.Helpers;
 
-namespace GTX.Controllers {
+namespace GTX.Controllers
+{
     // Native client API, separate from the anonymous public inventory API.
-    // Uses the existing configured Owner password and short-lived opaque sessions.
+    // Uses the existing configured Owner password and persistent, revocable opaque sessions.
     public sealed class MobileManagementController : Controller {
         private static readonly object LoginLock = new object();
         private readonly IInventoryService inventory;
-        private sealed class SessionTicket { public string PasswordHash; }
+        private MobileSessionStore Sessions => new MobileSessionStore(Server.MapPath("~/App_Data/MobileSessions"));
         private sealed class AttemptCounter { public int Count; }
         public sealed class LoginRequest { public string Password { get; set; } }
         public MobileManagementController() : this(new InventoryService()) { }
@@ -29,11 +29,11 @@ namespace GTX.Controllers {
         private static string Hash(string value) {
             using (var sha = SHA256.Create()) return Convert.ToBase64String(sha.ComputeHash(Encoding.UTF8.GetBytes(value ?? "")));
         }
-        private string TokenKey {
+        private string BearerToken {
             get {
                 var header = Request.Headers["Authorization"] ?? "";
                 return header.StartsWith("Bearer ", StringComparison.Ordinal) && header.Length < 512
-                    ? "mobile-session:" + Hash(header.Substring(7)) : null;
+                    ? header.Substring(7) : null;
             }
         }
         protected override void OnActionExecuting(ActionExecutingContext context) {
@@ -41,9 +41,7 @@ namespace GTX.Controllers {
             Response.Cache.SetNoStore();
             Response.SuppressFormsAuthenticationRedirect = true;
             if (!string.Equals(context.ActionDescriptor.ActionName, "Login", StringComparison.OrdinalIgnoreCase)) {
-                var key = TokenKey;
-                var ticket = key == null ? null : HttpRuntime.Cache[key] as SessionTicket;
-                if (ticket == null || ticket.PasswordHash != Hash(OwnerPassword)) {
+                if (!Sessions.IsValid(BearerToken, OwnerPassword)) {
                     context.Result = Payload(new { message = "Sign in with your GTX Owner account." }, 401);
                 }
             }
@@ -74,17 +72,13 @@ namespace GTX.Controllers {
             var supplied = request?.Password?.Trim();
             if (string.IsNullOrWhiteSpace(expected) || supplied == null || supplied.Length > 512 || Hash(expected) != Hash(supplied))
                 return Payload(new { message = "Invalid Owner password." }, 401);
-            var bytes = new byte[32];
-            using (var rng = RandomNumberGenerator.Create()) rng.GetBytes(bytes);
-            var token = Convert.ToBase64String(bytes);
-            HttpRuntime.Cache.Insert("mobile-session:" + Hash(token), new SessionTicket { PasswordHash = Hash(expected) },
-                null, DateTime.UtcNow.AddHours(8), Cache.NoSlidingExpiration);
+            var token = Sessions.Create(expected);
             HttpRuntime.Cache.Remove(key);
-            return Payload(new { token, expiresAt = DateTime.UtcNow.AddHours(8) });
+            return Payload(new { token });
         }
         [HttpPost]
         public ActionResult Logout() {
-            if (TokenKey != null) HttpRuntime.Cache.Remove(TokenKey);
+            Sessions.Revoke(BearerToken);
             return Payload(new { success = true });
         }
         [HttpGet]
