@@ -22,25 +22,50 @@
             </header>
             <div class="content">
                 @if (available) {
-                    <a class="download-button" href="@Url.Action("Download", "Mobile")" download="GTX-Majordome-1.0.0.apk">
+                    <a id="android-download" class="download-button" href="@Url.Action("Download", "Mobile")" download="GTX-Majordome-1.0.0.apk">
                         <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5" /></svg>
                         Download for Android
                     </a>
                     <p class="meta">Version 1.0.0 · @ViewBag.ApkSize MB · APK</p>
+                    <div id="download-next-step" class="next-step" role="status" hidden>
+                        <strong>Next: tap Open in your browser</strong>
+                        <p>Wait for the download to finish. When your browser shows <strong>File downloaded</strong>, tap <strong>Open</strong>, then <strong>Install</strong>.</p>
+                        <p>Missed it? In Chrome, tap <strong>⋮ → Downloads → GTX-Majordome-1.0.0.apk</strong>.</p>
+                    </div>
                 } else {
                     <p role="status">The Android download is being prepared. Please check back shortly.</p>
                 }
-                <h2>Install in a few steps</h2>
-                <ol>
-                    <li>Open this page on your Android phone and tap <strong>Download for Android</strong>.</li>
-                    <li>Open the downloaded APK. If prompted, allow your browser to install apps from this source.</li>
-                    <li>Tap <strong>Install</strong>, open <strong>GTX Majordome</strong>, and sign in with your GTX Owner password.</li>
+                <h2>Download → Open → Install</h2>
+                <p class="install-tip">Use <strong>Chrome on your Android phone</strong>. You can open the download right in Chrome—no File Explorer needed.</p>
+                <ol class="install-steps">
+                    <li><strong>Download</strong><span>Tap the green button above and wait for the download to finish.</span></li>
+                    <li><strong>Open</strong><span>Tap <strong>Open</strong> on Chrome’s completed-download message, or tap the completed download notification.</span></li>
+                    <li><strong>Install</strong><span>Tap <strong>Install</strong>, then <strong>Open</strong>. Sign in with your GTX Owner password.</span></li>
                 </ol>
+                <details class="install-help">
+                    <summary>Android asks for permission to install?</summary>
+                    <p>Tap <strong>Settings</strong> on that prompt, enable <strong>Allow from this source</strong> for Chrome, then go back and tap <strong>Install</strong>. Android may only ask the first time you install through this browser.</p>
+                </details>
+                <details class="install-help">
+                    <summary>Can’t find the Open button?</summary>
+                    <p>Stay in Chrome. Tap <strong>⋮</strong> at the top right, choose <strong>Downloads</strong>, then tap <strong>GTX-Majordome-1.0.0.apk</strong>.</p>
+                    <p>If you opened this page inside a messaging app, open the page in Chrome first.</p>
+                </details>
                 <div class="notice"><strong>Current test version</strong><p>This version connects through the GTX PC. The PC and its connection must stay running to load inventory. Expo Go is not required.</p></div>
                 <p class="meta">Using an iPhone? This APK installs on Android only.</p>
             </div>
         </section>
         <footer>GTX AUTO GROUP · MAJORDOME</footer>
     </main>
+    <script>
+        (function () {
+            var button = document.getElementById('android-download');
+            var nextStep = document.getElementById('download-next-step');
+            if (!button || !nextStep) return;
+            button.addEventListener('click', function () {
+                nextStep.hidden = false;
+            });
+        })();
+    </script>
 </body>
 </html>
