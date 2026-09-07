@@ -751,7 +751,7 @@ namespace GTX.Controllers
             var powertrain = NewComparisonSection("Powertrain", "bi-gear-wide-connected");
             AddComparisonRow(powertrain, "Engine", sources.Select(EngineDescription));
             AddComparisonRow(powertrain, "Fuel type", sources.Select(source => FirstText(source.Engine?.FuelType, source.Vehicle.FuelType)));
-            AddComparisonRow(powertrain, "Drive type", sources.Select(source => FirstText(source.Style?.BasicData?.DriveType, source.Vehicle.DriveTrain)));
+            AddDriveTypeComparisonRow(powertrain, sources.Select(source => FirstText(source.Style?.BasicData?.DriveType, source.Vehicle.DriveTrain)));
             AddComparisonRow(powertrain, "Transmission", sources.Select(TransmissionDescription));
             AddComparisonRow(
                 powertrain,
@@ -1028,6 +1028,20 @@ namespace GTX.Controllers
             }
 
             section.Rows.Add(row);
+        }
+
+        private static void AddDriveTypeComparisonRow(VehicleComparisonSection section, IEnumerable<string> values) {
+            var driveTypes = values.ToList();
+            var previousRowCount = section.Rows.Count;
+            AddComparisonRow(section, "Drive type", driveTypes);
+            if (section.Rows.Count == previousRowCount) return;
+
+            var normalized = driveTypes.Select(NormalizeDriveType).ToList();
+            var hasTwoWheelDrive = normalized.Any(value => value == "4X2" || value == "FWD" || value == "RWD");
+            // AWD and 4WD (including 4X4) share the badge only when a two-wheel-drive vehicle is present.
+            section.Rows.Last().Highlights = normalized
+                .Select(value => hasTwoWheelDrive && (value == "AWD" || value == "4WD"))
+                .ToList();
         }
 
         private static string FindSpecification(Style style, string pattern) {
