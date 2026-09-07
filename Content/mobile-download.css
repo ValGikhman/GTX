@@ -18,3 +18,14 @@ li { padding-left: 4px; margin-bottom: 12px; }
 .notice { background: #edf4fa; border-left: 3px solid #1e73be; border-radius: 8px; padding: 14px; font-size: 13px; }
 .notice p { margin: 4px 0 0; }
 footer { text-align: center; color: #64748b; font-size: 11px; letter-spacing: 1px; margin-top: 24px; }
+.next-step { padding: 16px; margin: 16px 0; background: #eaf7ef; border: 1px solid #a3cfbb; border-radius: 12px; color: #145b3b; }
+.next-step p { margin: 8px 0 0; font-size: 14px; }
+.install-tip { color: #475569; font-size: 14px; }
+.install-steps { list-style: none; padding: 0; counter-reset: install; }
+.install-steps li { position: relative; padding: 0 0 0 44px; margin-bottom: 20px; counter-increment: install; }
+.install-steps li::before { content: counter(install); position: absolute; left: 0; top: 2px; width: 30px; height: 30px; border-radius: 50%; background: #155a96; color: #fff; text-align: center; line-height: 30px; font-weight: 700; }
+.install-steps span { display: block; margin-top: 3px; font-size: 14px; color: #475569; }
+.install-help { border-top: 1px solid #e1e5eb; padding: 12px 0; font-size: 14px; }
+.install-help summary { cursor: pointer; font-weight: 700; min-height: 32px; }
+.install-help p { margin: 8px 0; }
+.install-help:last-of-type { margin-bottom: 14px; }
