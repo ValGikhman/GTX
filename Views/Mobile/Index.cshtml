@@ -1,0 +1,46 @@
+@{
+    Layout = null;
+    bool available = ViewBag.ApkAvailable == true;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>GTX Majordome for Android</title>
+    <link rel="stylesheet" href="@Url.Content("~/Content/mobile-download.css")" />
+</head>
+<body>
+    <main class="mobile-download">
+        <a href="@Url.Content("~/")" aria-label="GTX Auto Group home"><img class="brand" src="@SiteImageUrl.Build("brand-dark.png")" alt="GTX Auto Group" width="120" /></a>
+        <section class="download-card" aria-labelledby="download-title">
+            <header>
+                <span class="eyebrow">GTX MAJORDOME · ANDROID</span>
+                <h1 id="download-title">Your inventory.<br />On your phone.</h1>
+                <p>Inventory, vehicle photos, DataOne details, and activity history in one app.</p>
+            </header>
+            <div class="content">
+                @if (available) {
+                    <a class="download-button" href="@Url.Action("Download", "Mobile")" download="GTX-Majordome-1.0.0.apk">
+                        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5" /></svg>
+                        Download for Android
+                    </a>
+                    <p class="meta">Version 1.0.0 · @ViewBag.ApkSize MB · APK</p>
+                } else {
+                    <p role="status">The Android download is being prepared. Please check back shortly.</p>
+                }
+                <h2>Install in a few steps</h2>
+                <ol>
+                    <li>Open this page on your Android phone and tap <strong>Download for Android</strong>.</li>
+                    <li>Open the downloaded APK. If prompted, allow your browser to install apps from this source.</li>
+                    <li>Tap <strong>Install</strong>, open <strong>GTX Majordome</strong>, and sign in with your GTX Owner password.</li>
+                </ol>
+                <div class="notice"><strong>Current test version</strong><p>This version connects through the GTX PC. The PC and its connection must stay running to load inventory. Expo Go is not required.</p></div>
+                <p class="meta">Using an iPhone? This APK installs on Android only.</p>
+            </div>
+        </section>
+        <footer>GTX AUTO GROUP · MAJORDOME</footer>
+    </main>
+</body>
+</html>
