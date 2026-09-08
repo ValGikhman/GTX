@@ -1,5 +1,11 @@
 ﻿@model GTX.Models.BaseModel
 <head>
+    @{
+        var hasChatbotStockFilter = ViewBag.HasChatbotStockFilter == true;
+        var inventoryClearLabel = hasChatbotStockFilter ? "Reset" : "Clear";
+        var inventoryClearTitle = hasChatbotStockFilter ? "Reset chatbot results — show all inventory" : "Clear filters";
+        var inventoryClearIcon = hasChatbotStockFilter ? "bi-arrow-counterclockwise" : "bi-eraser-fill";
+    }
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-L828PN8ET1"></script>
     <script>
@@ -839,10 +845,10 @@
             <button type="button"
                     id="inventoryClearFilters"
                     class="btn btn-sm btn-gradient-grey border-dark rounded-3 shadow text-black fw-bold inventory-clear-btn inventory-filter-offcanvas-clear-btn"
-                    title="Clear filters"
-                    aria-label="Clear filters">
-                <i class="bi bi-eraser-fill"></i>
-                <span>Clear</span>
+                    title="@inventoryClearTitle"
+                    aria-label="@inventoryClearTitle">
+                <i class="bi @inventoryClearIcon"></i>
+                <span>@inventoryClearLabel</span>
             </button>
             <div class="inventory-filter-offcanvas-title-wrap">
                 <h5 class="offcanvas-title" id="inventoryFiltersLabel">
@@ -891,9 +897,9 @@
                     <button type="button"
                             id="inventoryMobileClearFilters"
                             class="btn btn-gradient-grey border-black shadow rounded-4 inventory-mobile-filter-action-btn inventory-mobile-clear-btn"
-                            title="@I18n.R("Filter_ClearFilters")"
-                            aria-label="@I18n.R("Filter_ClearFilters")">
-                        <i class="bi bi-eraser-fill"></i>
+                            title="@(hasChatbotStockFilter ? inventoryClearTitle : I18n.R("Filter_ClearFilters"))"
+                            aria-label="@(hasChatbotStockFilter ? inventoryClearTitle : I18n.R("Filter_ClearFilters"))">
+                        <i class="bi @inventoryClearIcon"></i>
                     </button>
                 </div>
             </div>

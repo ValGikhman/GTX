@@ -102,6 +102,7 @@
 
 @{
     var vehicles = Model.Inventory?.Vehicles ?? Enumerable.Empty<GTX.Models.GTX>();
+    var hasChatbotStockFilter = ViewBag.HasChatbotStockFilter == true;
     var yearValues = vehicles.Select(v => (decimal)v.Year).ToArray();
     var mileValues = vehicles.Select(v => (decimal)v.Mileage).ToArray();
     var priceValues = vehicles.Select(v => Convert.ToDecimal(v.InternetPrice)).ToArray();
@@ -125,9 +126,11 @@
                 <button type="button" id="inventorySidebarDockToggle" class="btn btn-sm btn-gradient-grey border-dark rounded-3 shadow text-black fw-bold inventory-clear-btn d-none d-lg-inline-flex" title="Dock filters on right" aria-label="Dock filters on right">
                     <i class="bi bi-layout-sidebar-reverse"></i>
                 </button>
-                <button type="button" id="inventoryClearFiltersDesktop" class="btn btn-sm btn-gradient-grey border-dark rounded-3 shadow text-black fw-bold inventory-clear-btn d-none d-lg-inline-flex">
-                    <i class="bi bi-eraser-fill"></i>
-                    <span>Clear</span>
+                <button type="button" id="inventoryClearFiltersDesktop" class="btn btn-sm btn-gradient-grey border-dark rounded-3 shadow text-black fw-bold inventory-clear-btn d-none d-lg-inline-flex"
+                        title="@(hasChatbotStockFilter ? "Reset chatbot results — show all inventory" : "Clear filters")"
+                        aria-label="@(hasChatbotStockFilter ? "Reset chatbot results — show all inventory" : "Clear filters")">
+                    <i class="bi @(hasChatbotStockFilter ? "bi-arrow-counterclockwise" : "bi-eraser-fill")"></i>
+                    <span>@(hasChatbotStockFilter ? "Reset" : "Clear")</span>
                 </button>
                 <button type="button" id="inventoryMobileCloseCanvas" class="btn btn-sm btn-gradient-grey border-dark rounded-3 shadow text-black fw-bold inventory-clear-btn d-lg-none">
                     <i class="bi bi-binoculars"></i>
