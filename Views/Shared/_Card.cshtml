@@ -149,7 +149,7 @@
                     <span><i class="bi bi-tag me-1"></i>@I18n.R("All_RetailPrice")</span>
                     <span class="gtx-price-amount">@Model.RetailPrice.ToString("C0", usCulture)</span>
                 </div>
- 
+
                 <div class="gtx-price-line gtx-price-muted">
                     <span><i class="bi bi-car-front me-1"></i>@I18n.R("All_InternetPrice")</span>
                     <span class="gtx-price-amount">@Model.InternetPrice.ToString("C0", usCulture)</span>
@@ -190,6 +190,12 @@
                    title="Open Carfax">
                     <img src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report">
                 </a>
+            </div>
+            <div class="capital-one-stacked-button"
+                 data-client-token="b9ecdc44-e99b-4f80-b521-088a74105eb1"
+                 data-sales-price="@Model.RetailPrice"
+                 data-vehicle-image-url=""
+                 data-vin="@Model.VIN">
             </div>
         </div>
     </div>
