@@ -207,7 +207,7 @@
         })(window);
     </script>
     <script src="~/Scripts/inventory-search.js"></script>
-    <script src="~/Scripts/inventory.js"></script>
+    <script src="~/Scripts/inventory.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/inventory.js")).Ticks)"></script>
 </head>
 
 @Html.Action("LoginModal", "Home")
