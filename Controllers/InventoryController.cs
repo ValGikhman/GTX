@@ -282,6 +282,7 @@ namespace GTX.Controllers
         [HttpGet]
         public ActionResult All(string make, int? maximumYear, string color, string stocks) {
             var vehicles = Model?.Inventory?.All ?? Array.Empty<Models.GTX>();
+            ViewBag.HasChatbotStockFilter = !string.IsNullOrWhiteSpace(stocks);
 
             if (!string.IsNullOrWhiteSpace(stocks)) {
                 var requestedStocks = new HashSet<string>(

@@ -1216,9 +1216,34 @@ function calculateMonthlyPayment(P, rate, month) {
             $("#inventoryClearFilters").trigger("click");
         });
 
+        var hasChatbotStockFilter = $("#inventorySplit").data("chatbot-stock-filter") === true;
+        if (hasChatbotStockFilter) {
+            var $resetButtons = $("#inventoryClearFilters, #inventoryClearFiltersDesktop, #inventoryMobileClearFilters");
+            $resetButtons.attr({
+                title: "Reset chatbot results — show all inventory",
+                "aria-label": "Reset chatbot results — show all inventory"
+            });
+            $resetButtons.find("i").removeClass("bi-eraser-fill").addClass("bi-arrow-counterclockwise");
+            $resetButtons.find("span").text("Reset");
+        }
+
         $("#inventoryClearFilters").on("click", function () {
             var type = routeTypeFilter();
             var allInventoryUrl = $("#inventorySplit").data("all-inventory-url");
+
+            if (hasChatbotStockFilter && allInventoryUrl) {
+                // The stock subset is server-rendered; reload All without its query string.
+                // Storage may be unavailable, but that must not prevent resetting the results.
+                try {
+                    sessionStorage.removeItem("term");
+                    sessionStorage.removeItem("lastVisitedPage");
+                    localStorage.removeItem("matchedStocks");
+                } catch (error) {
+                    // The full inventory can still be loaded without browser storage.
+                }
+                window.location.href = allInventoryUrl;
+                return;
+            }
 
             if (type && allInventoryUrl) {
                 window.location.href = allInventoryUrl;
