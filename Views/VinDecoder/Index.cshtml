@@ -25,7 +25,7 @@
     <section class="marketing-content-shell vin-decoder-shell">
         <div class="marketing-section-label">
             <span>Vehicle identity workspace</span>
-            <small>DataOne VIN intelligence</small>
+            <small>AutoDealer.dev VIN intelligence</small>
         </div>
 
         <section class="vin-decoder-console" aria-labelledby="vinDecoderConsoleTitle">
@@ -38,6 +38,7 @@
             </div>
 
             <div class="vin-decoder-controls">
+                @Html.AntiForgeryToken()
                 <div class="input-group input-group-lg vin-decoder-input-group flex-nowrap">
                     <span class="input-group-text">
                         <i class="bi bi-car-front-fill" aria-hidden="true"></i>
@@ -85,11 +86,13 @@
         const $errMsg = $("#vinError .msg");
         const $result = $("#dataOneVinDecoder");
         const $empty = $("#emptyState");
+        const $controls = $btn.add($clear).add($vin);
+        const $token = $(".vin-decoder-controls input[name='__RequestVerificationToken']");
+        let decoding = false;
 
         function showError(message) {
             $errMsg.text(message);
             $err.removeClass("d-none");
-            // Shake the input group subtly
             const $group = $vin.closest(".input-group");
             $group.addClass("shake");
             setTimeout(() => $group.removeClass("shake"), 300);
@@ -99,53 +102,18 @@
             $err.addClass("d-none");
         }
 
-        function normalizeVin(value) {
-            return (value || "").trim().toUpperCase();
-        }
-
         function validateVin(vin) {
-            // Basic VIN validation: 17 chars, no I O Q
             if (!vin) return "Please enter a VIN.";
             if (vin.length !== 17) return "VIN must be exactly 17 characters.";
-            if (/[IOQ]/.test(vin)) return "VIN cannot contain I, O, or Q.";
+            if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(vin)) return "VIN must contain only letters and numbers, excluding I, O, and Q.";
             return null;
         }
 
-        async function decodeDataOneByAnyVin(vin) {
-            showSpinner($overlay);
-            clearError();
+        async function submit() {
+            if (decoding) return;
 
-            try {
-                const res = await fetch(`${root}Vindecoder/DecodeDataOneByAnyVin?vin=${encodeURIComponent(vin)}`, {
-                    headers: { "X-Requested-With": "XMLHttpRequest" }
-                });
-
-                if (!res.ok) throw new Error(`Server returned ${res.status}`);
-
-                const html = await res.text();
-                $empty.hide();
-                if (window.gtxSecurity && typeof window.gtxSecurity.setSafeHtml === "function") {
-                    window.gtxSecurity.setSafeHtml($result, html);
-                } else {
-                    $result.text(html);
-                }
-
-                $result.addClass("fade-in");
-                setTimeout(() => $result.removeClass("fade-in"), 250);
-            }
-            catch (err) {
-                console.error("DecodeDataOneByAnyVin failed:", err);
-                showError("Failed to decode VIN. Please try again.");
-            }
-            finally {
-                hideSpinner($overlay);
-            }
-        }
-
-        function submit() {
-            const vin = normalizeVin($vin.val());
+            const vin = ($vin.val() || "").trim().toUpperCase();
             $vin.val(vin);
-
             const error = validateVin(vin);
             if (error) {
                 showError(error);
@@ -153,7 +121,53 @@
                 return;
             }
 
-            decodeDataOneByAnyVin(vin);
+            decoding = true;
+            $controls.prop("disabled", true);
+            showSpinner($overlay);
+            clearError();
+            $result.empty();
+            $empty.hide();
+
+            try {
+                const res = await fetch('@Url.Action("DecodeDataOneByAnyVin", "VinDecoder")', {
+                    method: "POST",
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+                    },
+                    body: $.param({
+                        vin: vin,
+                        __RequestVerificationToken: $token.val()
+                    })
+                });
+
+                if (!res.ok || res.redirected) {
+                    const message = res.status === 429
+                        ? "The VIN decoding limit has been reached. Please try again later."
+                        : res.status === 504
+                            ? "VIN decoding timed out. Please try again."
+                            : res.redirected || res.status === 401 || res.status === 403
+                                ? "Please sign in again to use the VIN decoder."
+                                : "Failed to decode VIN. Please try again.";
+                    throw new Error(message);
+                }
+
+                const html = await res.text();
+                window.gtxSecurity.setSafeHtml($result, html);
+                $result.find("details.avd-style").first().prop("open", true);
+
+                $result.addClass("fade-in");
+                setTimeout(() => $result.removeClass("fade-in"), 250);
+            }
+            catch (err) {
+                $empty.show();
+                showError(err.message || "Failed to decode VIN. Please try again.");
+            }
+            finally {
+                hideSpinner($overlay);
+                decoding = false;
+                $controls.prop("disabled", false);
+            }
         }
 
         $btn.on("click", submit);
@@ -163,10 +177,7 @@
                 e.preventDefault();
                 submit();
             }
-        }).on("input", function () {
-            // hide error as user types
-            clearError();
-        }).trigger("focus");
+        }).on("input", clearError).trigger("focus");
 
         $clear.on("click", function () {
             $vin.val("").trigger("focus");
