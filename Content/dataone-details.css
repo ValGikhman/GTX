@@ -1,4 +1,29 @@
 /* DataOne details partial styles */
+.gtx-dataone-style-picker {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    column-gap: .75rem;
+    margin-bottom: 1rem;
+    padding: .75rem 1rem;
+    border: 1px solid #d8e6f4;
+    border-radius: .75rem;
+    background: #eef5fc;
+}
+
+.gtx-dataone-style-picker .form-label {
+    white-space: nowrap;
+}
+
+.gtx-dataone-style-picker > p {
+    grid-column: 1 / -1;
+}
+
+.gtx-dataone-style-picker .form-select {
+    width: 100%;
+    min-width: 0;
+}
+
 .toggle {
     text-decoration: none;
     display: inline-flex;

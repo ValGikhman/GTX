@@ -4,6 +4,13 @@
     const currentRole = window.gtx?.currentRole || "";
     setMajordomeMenu(currentRole);
 
+    $(document).on("change", ".js-dataone-style", function () {
+        const selectedIndex = this.value;
+        $(this).closest(".gtx-dataone-card").find(".gtx-dataone-style-panel").each(function () {
+            $(this).toggleClass("d-none", $(this).attr("data-style-index") !== selectedIndex);
+        });
+    });
+
     $(document).on("click", ".card.V, #btnPrev, #btnNext", function (e) {
         showSpinner("#loadingOverlay");
     });
