@@ -839,7 +839,7 @@
         <i class="bi bi-map"></i> <strong> Map </strong>
     </a>
 </div>
-<div id="inventorySplit" class="inventory-wrapper inventory-split" data-route-type-filter="@inventoryRouteType" data-chatbot-stock-filter="@(ViewBag.HasChatbotStockFilter == true ? "true" : "false")" data-all-inventory-url="@Url.Action("All", "Inventory")">
+<div id="inventorySplit" class="inventory-wrapper inventory-split" data-route-type-filter="@inventoryRouteType" data-chatbot-stock-filter="@(hasChatbotStockFilter ? "true" : "false")" data-all-inventory-url="@Url.Action("All", "Inventory")">
     <div id="inventorySidebarPane" class="inventory-sidebar-pane offcanvas offcanvas-top inventory-filter-offcanvas" tabindex="-1" aria-labelledby="inventoryFiltersLabel">
         <div class="offcanvas-header inventory-filter-offcanvas-header d-lg-none">
             <button type="button"
