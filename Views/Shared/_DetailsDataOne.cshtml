@@ -40,6 +40,13 @@
     var documentaryFee = internetPrice > 0 ? Constants.DOCUMENTARY_FEE : 0;
     var transparentPrice = internetPrice + documentaryFee;
     var usCulture = CultureInfo.GetCultureInfo("en-US");
+    var availableStyles = Model?.CurrentVehicle?.VehicleDataOneDetails?.QueryResponses?.Items?
+        .Where(response => response?.UsMarketData?.UsStyles?.Styles != null)
+        .SelectMany(response => response.UsMarketData.UsStyles.Styles)
+        .Where(style => style != null)
+        .ToArray() ?? new GTX.Models.Style[0];
+    var styleSelectorId = "dataone-style-" + Guid.NewGuid().ToString("N");
+    var styleIndex = 0;
 }
 
 <section class="gtx-vehicle-overview gtx-dataone-card well mb-3" aria-labelledby="dataOneDetailsTitle">
@@ -64,6 +71,22 @@
 
     <div class="collapse show gtx-dataone-body" id="details">
         <div id="dataOneContainer">
+            @if (availableStyles.Length > 1)
+            {
+                <div class="gtx-dataone-style-picker">
+                    <label for="@styleSelectorId" class="form-label fw-semibold mb-0">
+                        <i class="bi bi-car-front me-1" aria-hidden="true"></i>Vehicle style
+                        <span class="badge rounded-pill bg-white text-secondary ms-1">@availableStyles.Length styles</span>
+                    </label>
+                    <select id="@styleSelectorId" class="form-select form-select-sm js-dataone-style" aria-describedby="@(styleSelectorId + "-help")">
+                        @for (var index = 0; index < availableStyles.Length; index++)
+                        {
+                            <option value="@index">@(index + 1). @(string.IsNullOrWhiteSpace(availableStyles[index].Name) ? "Vehicle style " + (index + 1) : availableStyles[index].Name)</option>
+                        }
+                    </select>
+                    <p id="@(styleSelectorId + "-help")" class="small text-muted mt-1 mb-0">Multiple styles are available for this VIN. Choose a style to view its specifications.</p>
+                </div>
+            }
             @if (Model.CurrentVehicle.VehicleDataOneDetails?.QueryResponses?.Items == null || !Model.CurrentVehicle.VehicleDataOneDetails.QueryResponses.Items.Any())
             {
                 <div class="alert alert-warning">No query responses.</div>
@@ -85,7 +108,7 @@
                     else
                     {
                         var si = 0;
-                        foreach (var style in qr.UsMarketData.UsStyles.Styles)
+                        foreach (var style in qr.UsMarketData.UsStyles.Styles.Where(item => item != null))
                         {
                             var sId = Id(qrId, "s", si++);
                             var bdId = Id("bd", sId);
@@ -101,7 +124,9 @@
                             var greenId = Id("green", sId);
                             var nhtsaId = Id("nhtsa", sId);
                             var tiresId = Id("tires", sId);
+                            var currentStyleIndex = styleIndex++;
 
+                        <div class="gtx-dataone-style-panel @(currentStyleIndex == 0 ? "" : "d-none")" data-style-index="@currentStyleIndex">
 
                         <!-- Transparent Price -->
                         <div class="section">
@@ -625,8 +650,7 @@
                                 @Html.Partial("_GenericEquipmentTree", style?.StandardGenericEquipment)
                             </div>
                         </div>
-                        @* Only the first style *@
-                        break;
+                        </div>
                     }
                 }
             }
