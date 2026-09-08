@@ -112,7 +112,26 @@
         </table>
     </div>
 
-    <p class="small text-muted mt-3 mb-0">
-        Each vehicle uses its saved DataOne style when a confident match is available and otherwise falls back to the live GTX inventory record. Price, mileage, colors, and availability always come from GTX inventory and can change; confirm details with the dealership.
-    </p>
+    <aside class="rounded-3 px-3 py-2 mt-2 small" style="background-color: #eef5fc; border: 1px solid #d8e6f4;" aria-labelledby="vehicleComparisonSourcesTitle">
+        <h6 id="vehicleComparisonSourcesTitle" class="d-flex align-items-center gap-2 small fw-bold mb-2">
+            <i class="bi bi-info-circle text-muted" aria-hidden="true"></i>
+            About this comparison
+        </h6>
+        <div class="row g-2">
+            <div class="col-md-6">
+                <div class="d-flex align-items-center gap-2 fw-semibold mb-1">
+                    <i class="bi bi-database text-muted" aria-hidden="true"></i>
+                    Vehicle specifications
+                </div>
+                <p class="text-muted mb-0" style="font-size: 12px;">Uses the first saved DataOne style, or GTX inventory when DataOne details are unavailable.</p>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex align-items-center gap-2 fw-semibold mb-1">
+                    <i class="bi bi-car-front text-muted" aria-hidden="true"></i>
+                    Inventory information
+                </div>
+                <p class="text-muted mb-0" style="font-size: 12px;">Price, mileage, colors, and availability come from GTX inventory and may change.</p>
+            </div>
+        </div>
+    </aside>
 </div>

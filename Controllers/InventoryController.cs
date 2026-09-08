@@ -80,7 +80,7 @@ namespace GTX.Controllers
             }
 
             var comparison = BuildVehicleComparison(vehicles);
-            var aiCacheKey = "GTX:VehicleComparisonAi:DataOneV4Poem:"
+            var aiCacheKey = "GTX:VehicleComparisonAi:DataOneV5FirstStylePoem:"
                 + Model.Inventory.Published.Ticks.ToString(CultureInfo.InvariantCulture)
                 + ":"
                 + string.Join("-", requestedStocks.OrderBy(stock => stock, StringComparer.OrdinalIgnoreCase));
@@ -837,83 +837,11 @@ namespace GTX.Controllers
         }
 
         private static Style SelectComparisonStyle(Models.GTX vehicle) {
-            var styles = vehicle?.DataOne?.QueryResponses?.Items?
+            // Match the first style displayed on the saved DataOne details page.
+            return vehicle?.DataOne?.QueryResponses?.Items?
                 .Where(response => response?.UsMarketData?.UsStyles?.Styles != null)
                 .SelectMany(response => response.UsMarketData.UsStyles.Styles)
-                .Where(style => style != null)
-                .ToArray() ?? Array.Empty<Style>();
-
-            if (styles.Length == 0) return null;
-            if (styles.Length == 1) return styles[0];
-
-            var rankedStyles = styles
-                .Select(style => new { Style = style, Score = ComparisonStyleScore(vehicle, style) })
-                .Where(candidate => candidate.Score >= 25)
-                .OrderByDescending(candidate => candidate.Score)
-                .ToArray();
-            if (rankedStyles.Length == 0) return null;
-
-            var bestStyles = rankedStyles
-                .Where(candidate => candidate.Score == rankedStyles[0].Score)
-                .Select(candidate => candidate.Style)
-                .ToArray();
-            if (bestStyles.Length == 1) return bestStyles[0];
-
-            // Multiple style IDs are safe only when the compared DataOne content is identical.
-            var fingerprints = bestStyles.Select(ComparisonStyleFingerprint).Distinct(StringComparer.Ordinal).ToArray();
-            return fingerprints.Length == 1 ? bestStyles[0] : null;
-        }
-
-        private static int ComparisonStyleScore(Models.GTX vehicle, Style style) {
-            var score = 0;
-            var styleTerm = NormalizeComparisonText(vehicle?.VehicleStyle);
-            var trim = NormalizeComparisonText(style?.BasicData?.Trim);
-            var styleText = NormalizeComparisonText(JoinText(
-                style?.Name,
-                style?.BasicData?.Trim,
-                style?.BasicData?.OemBodyStyle,
-                style?.BasicData?.PackageSummary));
-
-            if (styleTerm.Length > 0) {
-                if (styleTerm == trim) score += 100;
-                else if (styleText.Contains(styleTerm)) score += 60;
-                else score += ComparisonTokenOverlap(styleTerm, styleText) * 8;
-            }
-
-            var vehicleDrive = NormalizeDriveType(vehicle?.DriveTrain);
-            var dataOneDrive = NormalizeDriveType(style?.BasicData?.DriveType);
-            if (vehicleDrive.Length > 0 && dataOneDrive.Length > 0) score += vehicleDrive == dataOneDrive ? 30 : -25;
-
-            if (vehicle != null && vehicle.Cylinders > 0 && style?.Engines?.Items?.Any() == true) {
-                score += style.Engines.Items.Any(engine => engine != null
-                    && string.Equals(engine.IceCylinders, vehicle.Cylinders.ToString(CultureInfo.InvariantCulture), StringComparison.OrdinalIgnoreCase))
-                    ? 15
-                    : -15;
-            }
-
-            if (!string.IsNullOrWhiteSpace(vehicle?.FuelType) && style?.Engines?.Items?.Any() == true) {
-                var fuel = NormalizeComparisonText(vehicle.FuelType);
-                if (style.Engines.Items.Any(engine => NormalizeComparisonText(engine?.FuelType).Contains(fuel))) score += 10;
-            }
-
-            if (!string.IsNullOrWhiteSpace(vehicle?.Transmission) && style?.Transmissions?.Items?.Any() == true) {
-                var code = char.ToUpperInvariant(vehicle.Transmission.Trim()[0]);
-                if (style.Transmissions.Items.Any(transmission => transmission != null
-                    && !string.IsNullOrWhiteSpace(transmission.Type)
-                    && char.ToUpperInvariant(transmission.Type[0]) == code)) score += 8;
-            }
-
-            var vehicleBody = NormalizeComparisonText(JoinText(vehicle?.Body, vehicle?.VehicleType));
-            var dataOneBody = NormalizeComparisonText(JoinText(style?.BasicData?.BodyType, style?.BasicData?.BodySubtype, style?.BasicData?.OemBodyStyle));
-            score += Math.Min(ComparisonTokenOverlap(vehicleBody, dataOneBody) * 4, 12);
-            return score;
-        }
-
-        private static int ComparisonTokenOverlap(string first, string second) {
-            if (first.Length == 0 || second.Length == 0) return 0;
-            var secondTokens = new HashSet<string>(second.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries), StringComparer.Ordinal);
-            return first.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
-                .Count(token => token.Length > 1 && secondTokens.Contains(token));
+                .FirstOrDefault(style => style != null);
         }
 
         private static string NormalizeComparisonText(string value) {
@@ -927,30 +855,6 @@ namespace GTX.Controllers
             if (Regex.IsMatch(normalized, @"\b(FWD|FRONT WHEEL)\b")) return "FWD";
             if (Regex.IsMatch(normalized, @"\b(RWD|REAR WHEEL)\b")) return "RWD";
             return normalized;
-        }
-
-        private static string ComparisonStyleFingerprint(Style style) {
-            var values = new List<string> {
-                NormalizeComparisonText(style?.BasicData?.Trim),
-                NormalizeComparisonText(style?.BasicData?.BodyType),
-                NormalizeDriveType(style?.BasicData?.DriveType),
-                NormalizeComparisonText(style?.BasicData?.Doors)
-            };
-            values.AddRange((style?.Engines?.Items ?? new List<Engine>())
-                .Where(engine => engine != null)
-                .Select(engine => JoinText(engine.IceCylinders, engine.IceDisplacement, engine.FuelType, engine.TotalMaxHp, engine.IceMaxHp, engine.TotalMaxTorque, engine.IceMaxTorque))
-                .OrderBy(value => value, StringComparer.OrdinalIgnoreCase));
-            values.AddRange((style?.Transmissions?.Items ?? new List<GTX.Models.Transmission>())
-                .Where(transmission => transmission != null)
-                .Select(transmission => JoinText(transmission.Type, transmission.Gears, transmission.DetailType))
-                .OrderBy(value => value, StringComparer.OrdinalIgnoreCase));
-            values.AddRange((style?.StandardSpecifications?.Categories ?? new List<SpecificationCategory>())
-                .Where(category => category != null)
-                .SelectMany(category => (category.Values ?? new List<SpecificationValue>())
-                    .Where(value => value != null)
-                    .Select(value => JoinText(category.Name, value.Name, value.Value)))
-                .OrderBy(value => value, StringComparer.OrdinalIgnoreCase));
-            return string.Join("|", values);
         }
 
         private static Engine SelectComparisonEngine(Models.GTX vehicle, Style style) {
