@@ -1,11 +1,9 @@
 ﻿@model GTX.Models.BaseModel
 <head>
-    @{
-        var hasChatbotStockFilter = ViewBag.HasChatbotStockFilter == true;
-        var inventoryClearLabel = hasChatbotStockFilter ? "Reset" : "Clear";
-        var inventoryClearTitle = hasChatbotStockFilter ? "Reset chatbot results — show all inventory" : "Clear filters";
-        var inventoryClearIcon = hasChatbotStockFilter ? "bi-arrow-counterclockwise" : "bi-eraser-fill";
-    }
+    @{ var hasChatbotStockFilter = ViewBag.HasChatbotStockFilter == true;
+                    var inventoryClearLabel = hasChatbotStockFilter ? "Reset" : "Clear";
+                    var inventoryClearTitle = hasChatbotStockFilter ? "Reset chatbot results — show all inventory" : "Clear filters";
+                    var inventoryClearIcon = hasChatbotStockFilter ? "bi-arrow-counterclockwise" : "bi-eraser-fill"; }
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-L828PN8ET1"></script>
     <script>
@@ -51,10 +49,10 @@
         cursor: pointer;
     }
 
-    .inventory-contact-address.copied {
-        color: #0b7a2f;
-        text-decoration-color: #0b7a2f;
-    }
+        .inventory-contact-address.copied {
+            color: #0b7a2f;
+            text-decoration-color: #0b7a2f;
+        }
 
     .inventory-contact-map-btn {
         white-space: nowrap;
@@ -83,24 +81,19 @@
         transition: background-color .18s ease, transform .18s ease, box-shadow .18s ease;
     }
 
-    .gtx-compare-toggle:hover,
-    .gtx-compare-toggle:focus-visible {
-        background: var(--gtx-grad-rev, var(--gtx-grad, var(--gtx-accent-solid, #1e73be)));
-        color: #fff;
-        transform: translateY(-1px);
-    }
+        .gtx-compare-toggle:hover,
+        .gtx-compare-toggle:focus-visible {
+            background: var(--gtx-grad-rev, var(--gtx-grad, var(--gtx-accent-solid, #1e73be)));
+            color: #fff;
+            transform: translateY(-1px);
+        }
 
-    .gtx-compare-toggle.is-selected {
-        border-color: #fff;
-        background: linear-gradient(
-            180deg,
-            #fff,
-            color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 15%, #fff));
-        color: var(--gtx-accent-solid, #1e73be);
-        box-shadow:
-            0 0 0 .22rem color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 28%, transparent),
-            0 .5rem 1.25rem color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 42%, transparent);
-    }
+        .gtx-compare-toggle.is-selected {
+            border-color: #fff;
+            background: linear-gradient( 180deg, #fff, color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 15%, #fff));
+            color: var(--gtx-accent-solid, #1e73be);
+            box-shadow: 0 0 0 .22rem color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 28%, transparent), 0 .5rem 1.25rem color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 42%, transparent);
+        }
 
     .inventory-compare-bar {
         position: fixed;
@@ -118,32 +111,28 @@
         border: 1px solid color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 28%, #fff);
         border-radius: 1.3rem;
         padding: .8rem;
-        background:
-            radial-gradient(circle at 8% -20%, color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 18%, transparent), transparent 32%),
-            linear-gradient(145deg, rgba(255,255,255,.98), rgba(241,245,249,.96));
-        box-shadow:
-            0 1rem 2.6rem rgba(15, 23, 42, .22),
-            0 .35rem 1rem color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 18%, transparent);
+        background: radial-gradient(circle at 8% -20%, color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 18%, transparent), transparent 32%), linear-gradient(145deg, rgba(255,255,255,.98), rgba(241,245,249,.96));
+        box-shadow: 0 1rem 2.6rem rgba(15, 23, 42, .22), 0 .35rem 1rem color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 18%, transparent);
         backdrop-filter: blur(18px) saturate(145%);
         transition: transform .22s ease, opacity .22s ease;
     }
 
-    .inventory-compare-bar::before {
-        position: absolute;
-        top: 0;
-        right: 1.25rem;
-        left: 1.25rem;
-        height: 3px;
-        border-radius: 0 0 999px 999px;
-        background: var(--gtx-grad, var(--gtx-accent-solid, #1e73be));
-        content: "";
-    }
+        .inventory-compare-bar::before {
+            position: absolute;
+            top: 0;
+            right: 1.25rem;
+            left: 1.25rem;
+            height: 3px;
+            border-radius: 0 0 999px 999px;
+            background: var(--gtx-grad, var(--gtx-accent-solid, #1e73be));
+            content: "";
+        }
 
-    .inventory-compare-bar.is-visible {
-        transform: translate(-50%, 0);
-        opacity: 1;
-        pointer-events: auto;
-    }
+        .inventory-compare-bar.is-visible {
+            transform: translate(-50%, 0);
+            opacity: 1;
+            pointer-events: auto;
+        }
 
     .inventory-compare-bar-inner {
         align-items: stretch !important;
@@ -194,22 +183,22 @@
         transition: background-color .18s ease, transform .18s ease, box-shadow .18s ease;
     }
 
-    #inventoryCompareOpen:hover,
-    #inventoryCompareOpen:focus-visible {
-        border-color: #fff;
-        background: var(--gtx-grad-rev, var(--gtx-grad, var(--gtx-accent-solid, #1e73be)));
-        color: #fff;
-        transform: translateY(-1px);
-        box-shadow: 0 .55rem 1.2rem color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 38%, transparent);
-    }
+        #inventoryCompareOpen:hover,
+        #inventoryCompareOpen:focus-visible {
+            border-color: #fff;
+            background: var(--gtx-grad-rev, var(--gtx-grad, var(--gtx-accent-solid, #1e73be)));
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 .55rem 1.2rem color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 38%, transparent);
+        }
 
-    #inventoryCompareOpen:disabled {
-        border-color: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 20%, #cbd5e1);
-        background: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 35%, #cbd5e1);
-        color: rgba(255, 255, 255, .9);
-        box-shadow: none;
-        opacity: .72;
-    }
+        #inventoryCompareOpen:disabled {
+            border-color: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 20%, #cbd5e1);
+            background: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 35%, #cbd5e1);
+            color: rgba(255, 255, 255, .9);
+            box-shadow: none;
+            opacity: .72;
+        }
 
     #inventoryCompareClear {
         border-radius: .75rem;
@@ -221,13 +210,13 @@
         transition: color .18s ease, transform .18s ease, box-shadow .18s ease;
     }
 
-    #inventoryCompareClear:hover,
-    #inventoryCompareClear:focus-visible {
-        background: transparent !important;
-        color: #1e293b;
-        transform: translateY(-1px);
-        box-shadow: 0 .55rem 1.2rem rgba(51, 65, 85, .26);
-    }
+        #inventoryCompareClear:hover,
+        #inventoryCompareClear:focus-visible {
+            background: transparent !important;
+            color: #1e293b;
+            transform: translateY(-1px);
+            box-shadow: 0 .55rem 1.2rem rgba(51, 65, 85, .26);
+        }
 
     .inventory-compare-selection {
         display: flex;
@@ -259,9 +248,7 @@
         border: 1px solid color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 18%, #dbe3ed);
         border-radius: .9rem;
         padding: .42rem .45rem;
-        background:
-            radial-gradient(circle at 0 0, color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 10%, transparent), transparent 42%),
-            rgba(255, 255, 255, .9);
+        background: radial-gradient(circle at 0 0, color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 10%, transparent), transparent 42%), rgba(255, 255, 255, .9);
         color: #0f172a;
         box-shadow: 0 .28rem .75rem rgba(15, 23, 42, .09);
     }
@@ -310,13 +297,13 @@
         transition: background-color .18s ease, color .18s ease, transform .18s ease;
     }
 
-    .inventory-compare-remove:hover,
-    .inventory-compare-remove:focus-visible {
-        border-color: var(--gtx-accent-solid, #1e73be);
-        background: var(--gtx-accent-solid, #1e73be);
-        color: #fff;
-        transform: scale(1.08);
-    }
+        .inventory-compare-remove:hover,
+        .inventory-compare-remove:focus-visible {
+            border-color: var(--gtx-accent-solid, #1e73be);
+            background: var(--gtx-accent-solid, #1e73be);
+            color: #fff;
+            transform: scale(1.08);
+        }
 
     .vehicle-comparison-modal .modal-content {
         height: 100%;
@@ -394,34 +381,32 @@
         border: 1px solid rgba(var(--recommendation-accent), .24);
         border-radius: .85rem;
         padding: .72rem .78rem .78rem;
-        background:
-            radial-gradient(circle at 100% 0, rgba(var(--recommendation-accent), .14), transparent 42%),
-            linear-gradient(145deg, rgba(255,255,255,.98), rgba(248,250,252,.92));
+        background: radial-gradient(circle at 100% 0, rgba(var(--recommendation-accent), .14), transparent 42%), linear-gradient(145deg, rgba(255,255,255,.98), rgba(248,250,252,.92));
         box-shadow: 0 .55rem 1.25rem rgba(15, 23, 42, .08);
         color: #334155;
         font-size: .76rem;
         line-height: 1.35;
     }
 
-    .vehicle-comparison-recommendation::before {
-        content: "";
-        position: absolute;
-        inset: 0 0 auto;
-        height: 3px;
-        background: linear-gradient(90deg, rgba(var(--recommendation-accent), 1), rgba(var(--recommendation-accent), .38));
-    }
+        .vehicle-comparison-recommendation::before {
+            content: "";
+            position: absolute;
+            inset: 0 0 auto;
+            height: 3px;
+            background: linear-gradient(90deg, rgba(var(--recommendation-accent), 1), rgba(var(--recommendation-accent), .38));
+        }
 
-    .vehicle-comparison-recommendation:nth-child(2) {
-        --recommendation-accent: 37, 99, 235;
-    }
+        .vehicle-comparison-recommendation:nth-child(2) {
+            --recommendation-accent: 37, 99, 235;
+        }
 
-    .vehicle-comparison-recommendation:nth-child(3) {
-        --recommendation-accent: 180, 83, 9;
-    }
+        .vehicle-comparison-recommendation:nth-child(3) {
+            --recommendation-accent: 180, 83, 9;
+        }
 
-    .vehicle-comparison-recommendation:nth-child(4) {
-        --recommendation-accent: 124, 58, 237;
-    }
+        .vehicle-comparison-recommendation:nth-child(4) {
+            --recommendation-accent: 124, 58, 237;
+        }
 
     .vehicle-comparison-recommendation-top {
         display: flex;
@@ -477,43 +462,39 @@
         border: 1px solid color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 22%, #cbd5e1);
         border-radius: 1.25rem;
         padding: .45rem;
-        background:
-            radial-gradient(circle at 100% 0, color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 9%, transparent), transparent 28rem),
-            linear-gradient(145deg, #f8fafc, #e8eef5);
-        box-shadow:
-            0 1.2rem 2.8rem rgba(15, 23, 42, .16),
-            inset 0 1px 0 rgba(255, 255, 255, .95);
+        background: radial-gradient(circle at 100% 0, color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 9%, transparent), transparent 28rem), linear-gradient(145deg, #f8fafc, #e8eef5);
+        box-shadow: 0 1.2rem 2.8rem rgba(15, 23, 42, .16), inset 0 1px 0 rgba(255, 255, 255, .95);
         scrollbar-width: thin;
         scrollbar-color: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 55%, #94a3b8) #e2e8f0;
     }
 
-    .vehicle-comparison-table-wrap::before {
-        position: absolute;
-        z-index: 6;
-        top: 0;
-        right: 1.5rem;
-        left: 1.5rem;
-        height: 4px;
-        border-radius: 0 0 999px 999px;
-        background: var(--gtx-grad, var(--gtx-accent-solid, #1e73be));
-        content: "";
-        pointer-events: none;
-    }
+        .vehicle-comparison-table-wrap::before {
+            position: absolute;
+            z-index: 6;
+            top: 0;
+            right: 1.5rem;
+            left: 1.5rem;
+            height: 4px;
+            border-radius: 0 0 999px 999px;
+            background: var(--gtx-grad, var(--gtx-accent-solid, #1e73be));
+            content: "";
+            pointer-events: none;
+        }
 
-    .vehicle-comparison-table-wrap::-webkit-scrollbar {
-        height: .65rem;
-    }
+        .vehicle-comparison-table-wrap::-webkit-scrollbar {
+            height: .65rem;
+        }
 
-    .vehicle-comparison-table-wrap::-webkit-scrollbar-track {
-        border-radius: 999px;
-        background: #e2e8f0;
-    }
+        .vehicle-comparison-table-wrap::-webkit-scrollbar-track {
+            border-radius: 999px;
+            background: #e2e8f0;
+        }
 
-    .vehicle-comparison-table-wrap::-webkit-scrollbar-thumb {
-        border: 2px solid #e2e8f0;
-        border-radius: 999px;
-        background: var(--gtx-grad, var(--gtx-accent-solid, #1e73be));
-    }
+        .vehicle-comparison-table-wrap::-webkit-scrollbar-thumb {
+            border: 2px solid #e2e8f0;
+            border-radius: 999px;
+            background: var(--gtx-grad, var(--gtx-accent-solid, #1e73be));
+        }
 
     .vehicle-comparison-table {
         width: 100%;
@@ -526,42 +507,42 @@
         box-shadow: inset 0 0 0 1px rgba(148, 163, 184, .18);
     }
 
-    .vehicle-comparison-table th,
-    .vehicle-comparison-table td {
-        min-width: 170px;
-        border-color: rgba(148, 163, 184, .2);
-        vertical-align: middle;
-    }
+        .vehicle-comparison-table th,
+        .vehicle-comparison-table td {
+            min-width: 170px;
+            border-color: rgba(148, 163, 184, .2);
+            vertical-align: middle;
+        }
 
-    .vehicle-comparison-table thead th {
-        border-bottom: 1px solid color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 20%, #cbd5e1);
-    }
+        .vehicle-comparison-table thead th {
+            border-bottom: 1px solid color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 20%, #cbd5e1);
+        }
 
-    .vehicle-comparison-table tbody tr:not(.vehicle-comparison-section-row) > th,
-    .vehicle-comparison-table tbody tr:not(.vehicle-comparison-section-row) > td {
-        height: 2rem;
-        padding: .3rem .7rem;
-        background: rgba(255, 255, 255, .96);
-        transition: background-color .16s ease, box-shadow .16s ease, color .16s ease;
-    }
+        .vehicle-comparison-table tbody tr:not(.vehicle-comparison-section-row) > th,
+        .vehicle-comparison-table tbody tr:not(.vehicle-comparison-section-row) > td {
+            height: 2rem;
+            padding: .3rem .7rem;
+            background: rgba(255, 255, 255, .96);
+            transition: background-color .16s ease, box-shadow .16s ease, color .16s ease;
+        }
 
-    .vehicle-comparison-table tbody tr:not(.vehicle-comparison-section-row):nth-child(odd) > th,
-    .vehicle-comparison-table tbody tr:not(.vehicle-comparison-section-row):nth-child(odd) > td {
-        background: #f8fafc;
-    }
+        .vehicle-comparison-table tbody tr:not(.vehicle-comparison-section-row):nth-child(odd) > th,
+        .vehicle-comparison-table tbody tr:not(.vehicle-comparison-section-row):nth-child(odd) > td {
+            background: #f8fafc;
+        }
 
-    .vehicle-comparison-table tbody tr:not(.vehicle-comparison-section-row):hover > th,
-    .vehicle-comparison-table tbody tr:not(.vehicle-comparison-section-row):hover > td {
-        background: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 7%, #fff);
-    }
+        .vehicle-comparison-table tbody tr:not(.vehicle-comparison-section-row):hover > th,
+        .vehicle-comparison-table tbody tr:not(.vehicle-comparison-section-row):hover > td {
+            background: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 7%, #fff);
+        }
 
-    .vehicle-comparison-table tbody td {
-        color: #334155;
-        font-size: .84rem;
-        font-weight: 650;
-        line-height: 1.35;
-        text-align: center;
-    }
+        .vehicle-comparison-table tbody td {
+            color: #334155;
+            font-size: .84rem;
+            font-weight: 650;
+            line-height: 1.35;
+            text-align: center;
+        }
 
     .vehicle-comparison-spec-heading,
     .vehicle-comparison-spec {
@@ -569,9 +550,7 @@
         left: 0;
         z-index: 2;
         min-width: 180px !important;
-        box-shadow:
-            .65rem 0 1rem -.9rem rgba(15, 23, 42, .65),
-            inset -1px 0 rgba(148, 163, 184, .18);
+        box-shadow: .65rem 0 1rem -.9rem rgba(15, 23, 42, .65), inset -1px 0 rgba(148, 163, 184, .18);
     }
 
     .vehicle-comparison-spec-heading {
@@ -615,17 +594,17 @@
         background: #f8fafc !important;
     }
 
-    .vehicle-comparison-vehicle-heading:nth-child(3) {
-        --vehicle-heading-accent: 37, 99, 235;
-    }
+        .vehicle-comparison-vehicle-heading:nth-child(3) {
+            --vehicle-heading-accent: 37, 99, 235;
+        }
 
-    .vehicle-comparison-vehicle-heading:nth-child(4) {
-        --vehicle-heading-accent: 180, 83, 9;
-    }
+        .vehicle-comparison-vehicle-heading:nth-child(4) {
+            --vehicle-heading-accent: 180, 83, 9;
+        }
 
-    .vehicle-comparison-vehicle-heading:nth-child(5) {
-        --vehicle-heading-accent: 124, 58, 237;
-    }
+        .vehicle-comparison-vehicle-heading:nth-child(5) {
+            --vehicle-heading-accent: 124, 58, 237;
+        }
 
     .vehicle-comparison-vehicle-card {
         position: relative;
@@ -638,19 +617,17 @@
         border: 1px solid rgba(var(--vehicle-heading-accent), .22);
         border-radius: .9rem;
         padding: .55rem;
-        background:
-            radial-gradient(circle at 100% 0, rgba(var(--vehicle-heading-accent), .13), transparent 38%),
-            linear-gradient(155deg, #fff, #f8fafc);
+        background: radial-gradient(circle at 100% 0, rgba(var(--vehicle-heading-accent), .13), transparent 38%), linear-gradient(155deg, #fff, #f8fafc);
         box-shadow: 0 .5rem 1.2rem rgba(15, 23, 42, .08);
     }
 
-    .vehicle-comparison-vehicle-card::before {
-        content: "";
-        position: absolute;
-        inset: 0 0 auto;
-        height: 3px;
-        background: linear-gradient(90deg, rgba(var(--vehicle-heading-accent), 1), rgba(var(--vehicle-heading-accent), .35));
-    }
+        .vehicle-comparison-vehicle-card::before {
+            content: "";
+            position: absolute;
+            inset: 0 0 auto;
+            height: 3px;
+            background: linear-gradient(90deg, rgba(var(--vehicle-heading-accent), 1), rgba(var(--vehicle-heading-accent), .35));
+        }
 
     .vehicle-comparison-vehicle-link {
         display: grid;
@@ -720,9 +697,7 @@
         border-top: .2rem solid #eef2f7;
         border-bottom: 0;
         padding: .38rem .8rem;
-        background:
-            radial-gradient(circle at 100% 50%, color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 34%, transparent), transparent 28%),
-            linear-gradient(100deg, #172033 0%, #334155 100%);
+        background: radial-gradient(circle at 100% 50%, color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 34%, transparent), transparent 28%), linear-gradient(100deg, #172033 0%, #334155 100%);
         color: #fff;
         font-size: .76rem;
         font-weight: 900;
@@ -731,17 +706,17 @@
         text-transform: uppercase;
     }
 
-    .vehicle-comparison-section-row th i {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 1.65rem;
-        height: 1.65rem;
-        border-radius: .5rem;
-        background: rgba(255, 255, 255, .13);
-        color: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 42%, #fff);
-        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1);
-    }
+        .vehicle-comparison-section-row th i {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.65rem;
+            height: 1.65rem;
+            border-radius: .5rem;
+            background: rgba(255, 255, 255, .13);
+            color: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 42%, #fff);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1);
+        }
 
     .vehicle-comparison-best {
         color: #b91c1c !important;
@@ -1008,6 +983,7 @@
     </div>
 </div>
 
+<script src="https://digital-retail.autodriven.com/loader.js" charset="utf-8" data-page-type="SRP" data-inventory-type="USED"></script>
 <script type="text/javascript">
     $(function () {
         $("#filterTerm").removeClass("rounded-end-4");
