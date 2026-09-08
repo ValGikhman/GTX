@@ -1217,15 +1217,6 @@ function calculateMonthlyPayment(P, rate, month) {
         });
 
         var hasChatbotStockFilter = $("#inventorySplit").data("chatbot-stock-filter") === true;
-        if (hasChatbotStockFilter) {
-            var $resetButtons = $("#inventoryClearFilters, #inventoryClearFiltersDesktop, #inventoryMobileClearFilters");
-            $resetButtons.attr({
-                title: "Reset chatbot results — show all inventory",
-                "aria-label": "Reset chatbot results — show all inventory"
-            });
-            $resetButtons.find("i").removeClass("bi-eraser-fill").addClass("bi-arrow-counterclockwise");
-            $resetButtons.find("span").text("Reset");
-        }
 
         $("#inventoryClearFilters").on("click", function () {
             var type = routeTypeFilter();
@@ -1241,11 +1232,9 @@ function calculateMonthlyPayment(P, rate, month) {
                 } catch (error) {
                     // The full inventory can still be loaded without browser storage.
                 }
-                window.location.href = allInventoryUrl;
-                return;
             }
 
-            if (type && allInventoryUrl) {
+            if ((hasChatbotStockFilter || type) && allInventoryUrl) {
                 window.location.href = allInventoryUrl;
                 return;
             }
