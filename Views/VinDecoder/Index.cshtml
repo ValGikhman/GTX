@@ -154,7 +154,7 @@
 
                 const html = await res.text();
                 window.gtxSecurity.setSafeHtml($result, html);
-                $result.find("details.avd-style").first().prop("open", true);
+                $result.find("details.avd-style").prop("open", true);
 
                 $result.addClass("fade-in");
                 setTimeout(() => $result.removeClass("fade-in"), 250);
