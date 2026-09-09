@@ -1612,7 +1612,8 @@ html.theme-silver .gtx-overview-toggle-copy small {
     line-height: 1.55;
 }
 
-.vehicle-detail-page .vdp-action-stack > .btn,
+/* Capital One widgets use the shared compact button styles. */
+.vehicle-detail-page .vdp-action-stack > .btn:not(capital-one-button-widget),
 .vehicle-detail-page .vdp-action-stack > a.btn {
     min-height: 3.45rem;
     margin-bottom: .65rem !important;
@@ -1622,7 +1623,7 @@ html.theme-silver .gtx-overview-toggle-copy small {
     transition: transform .18s ease, box-shadow .18s ease;
 }
 
-.vehicle-detail-page .vdp-action-stack > .btn:hover,
+.vehicle-detail-page .vdp-action-stack > .btn:not(capital-one-button-widget):hover,
 .vehicle-detail-page .vdp-action-stack > a.btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 .65rem 1.4rem rgba(20, 29, 38, .12) !important;
