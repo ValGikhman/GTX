@@ -34,12 +34,13 @@ capital-one-entry-button {
     --btn-label-color: #fff;
 }
 
-/* Match the Carfax action's light surface, dark text and rounded border. */
+/* The companion script passes these values through AutoDriven's styleOverrides
+   property so its inline dealer colors cannot override the Carfax treatment. */
 capital-one-button-widget[data-widget-type="check-availability"],
 capital-one-button-widget[data-widget-type="trade-in"] {
-    --c1-button-bg: rgba(255, 255, 255, .88);
+    --c1-button-bg: #f5f6f7;
     --c1-button-color: #1f2933;
-    --c1-button-border: 1px solid rgba(255, 255, 255, .24);
+    --c1-button-border: 1px solid #d9dee3;
     --c1-button-border-radius: .45rem;
     --capital-one-button-font-size: .82rem;
     --capital-one-button-accent: var(--gtx-accent-solid, #1e73be);
