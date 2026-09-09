@@ -13,6 +13,8 @@
     }
 
     function applyStyle(button) {
+        button.classList.add('btn', 'btn-sm', 'btn-gradient-grey', 'border-dark',
+            'rounded-3', 'shadow', 'text-black');
         // Use the provider's reactive property; its closed Shadow DOM is untouched.
         // CSS variables keep hover/focus colors and all theme choices in the CSS file.
         button.styleOverrides = Object.assign({}, button.styleOverrides, {
@@ -21,7 +23,12 @@
             border: 'var(--c1-button-border)',
             'border-radius': 'var(--c1-button-border-radius)',
             'font-size': 'var(--capital-one-button-font-size)',
-            'font-weight': '900'
+            'font-weight': 'var(--bs-btn-font-weight)',
+            'line-height': 'var(--bs-btn-line-height)',
+            padding: 'var(--bs-btn-padding-y) var(--bs-btn-padding-x)',
+            'min-height': '0',
+            'text-align': 'center',
+            'justify-content': 'center'
         });
     }
 
