@@ -224,13 +224,12 @@
         <div class="vdp-concierge-heading">
             <span class="vdp-concierge-kicker">Financing</span>
             <strong>Capital One</strong>
-            <p>Explore financing, estimate payments, and get prequalified.</p>
-        </div>
-        <div class="capital-one-stacked-button"
-             data-client-token="b9ecdc44-e99b-4f80-b521-088a74105eb1"
-             data-sales-price="@capitalOneSalesPrice"
-             data-vehicle-image-url="@capitalOneImageUrl"
-             data-vin="@vehicle.VIN">
+            <div class="capital-one-stacked-button"
+                 data-client-token="b9ecdc44-e99b-4f80-b521-088a74105eb1"
+                 data-sales-price="@capitalOneSalesPrice"
+                 data-vehicle-image-url="@capitalOneImageUrl"
+                 data-vin="@vehicle.VIN">
+            </div>
         </div>
         <!-- CAPITAL ONE CALCULATOR -->
         <div style="display: none;"
@@ -688,7 +687,7 @@
         updateLastCars(stock);
 
         var titleElement = document.querySelector(".vehicle-title");
-        var $conciergeHeadings = $(".vdp-concierge-heading");
+        var $conciergeHeadings = $("#modalShortcuts .vdp-concierge-heading");
         var detailPage = document.querySelector(".vehicle-detail-page");
 
         if (titleElement && $conciergeHeadings.length && detailPage) {
