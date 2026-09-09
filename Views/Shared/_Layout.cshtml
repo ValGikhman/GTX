@@ -129,6 +129,7 @@
 
     <link href="@siteCssBundleUrl" rel="stylesheet" />
     <link href="@Url.Content("~/Content/capital-one-buttons.css")?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/capital-one-buttons.css")).Ticks)" rel="stylesheet" />
+    <script defer src="@Url.Content("~/Scripts/capital-one-buttons.js")?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/capital-one-buttons.js")).Ticks)"></script>
     <link href="@Url.Content("~/Content/majordome.css")?v=@majordomeCssVersion" rel="stylesheet" />
     @if (chatBotEnabled)
     {
