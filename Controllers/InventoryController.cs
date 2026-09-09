@@ -195,47 +195,16 @@ namespace GTX.Controllers
             Model.CurrentVehicle.VehicleDetails = vehicle;
             Model.CurrentVehicle.VehicleDetails.Story = vehicle.Story;
 
-            // If there is no DataOne get it
+            // Read saved DataOne content before considering a paid API decode.
             if (Model.IsDataOne)
             {
-                if (vehicle.DataOne == null && vehicle.HasDataOne)
+                try
                 {
-                    try
-                    {
-                        Model.CurrentVehicle.VehicleDataOneDetails = GetDecodedData(stock);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log($"Saved DataOne details could not be loaded for stock {stock}: {ex.Message}");
-                    }
+                    Model.CurrentVehicle.VehicleDataOneDetails = LoadVehicleDataOneDetails(vehicle);
                 }
-                else if (vehicle.DataOne == null)
+                catch (Exception ex)
                 {
-                    try
-                    {
-                        var details = VinDecoderService.DecodeVin(vehicle.VIN, dataOneApiKey, dataOneSecretApiKey);
-                        var dataOne = Models.GTX.SetDecodedData(details);
-
-                        if (dataOne != null)
-                        {
-                            InventoryService.SaveDataOneDetails(stock, details);
-                            vehicle.HasDataOne = true;
-                            vehicle.DataOne = dataOne;
-
-                            Model.CurrentVehicle.VehicleDataOneDetails = dataOne;
-                        }
-                        else
-                        {
-                            Log($"DataOne decode returned no details for stock {stock}, VIN {vehicle.VIN}.");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Log($"DataOne decode failed for stock {stock}, VIN {vehicle.VIN}: {ex.Message}");
-                    }
-                }
-                else {
-                    Model.CurrentVehicle.VehicleDataOneDetails = vehicle.DataOne;
+                    Log($"DataOne details could not be loaded for stock {stock}: {ex.Message}");
                 }
             }
 
@@ -255,6 +224,32 @@ namespace GTX.Controllers
             }
 
             return View("Details", Model);
+        }
+
+        private DecodedData LoadVehicleDataOneDetails(Models.GTX vehicle)
+        {
+            if (vehicle.DataOne != null) return vehicle.DataOne;
+
+            // HasDataOne belongs to the inventory cache and may be stale.
+            // A failed database read must not be treated as missing content.
+            var savedDetails = InventoryService.GetDataOneDetails(vehicle.Stock);
+            if (!string.IsNullOrWhiteSpace(savedDetails))
+            {
+                vehicle.HasDataOne = true;
+                vehicle.DataOne = Models.GTX.SetDecodedData(savedDetails);
+                return vehicle.DataOne;
+            }
+
+            var details = VinDecoderService.DecodeVin(vehicle.VIN, dataOneApiKey, dataOneSecretApiKey);
+            var dataOne = Models.GTX.SetDecodedData(details);
+            if (dataOne != null)
+            {
+                InventoryService.SaveDataOneDetails(vehicle.Stock, details);
+                vehicle.HasDataOne = true;
+                vehicle.DataOne = dataOne;
+            }
+
+            return dataOne;
         }
 
         [HttpGet]
