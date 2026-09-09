@@ -225,13 +225,13 @@
             <span class="vdp-concierge-kicker">Financing</span>
             <strong>Capital One</strong>
         </div>
-        <div class="capital-one-stacked-button mt-2 mb-2"
+        <div class="capital-one-stacked-button mt-2"
              data-client-token="b9ecdc44-e99b-4f80-b521-088a74105eb1"
              data-sales-price="@capitalOneSalesPrice"
              data-vehicle-image-url="@capitalOneImageUrl"
              data-vin="@vehicle.VIN">
         </div>
-        <div id="capitalOneTools" class="accordion">
+        <div id="capitalOneTools" class="accordion mt-2">
             <section class="mb-3">
                 <h3 class="m-0">
                     <button id="capitalOneCalculatorToggle" class="w-100 btn btn-gradient shadow collapse-toggle d-flex align-items-center justify-content-between text-start collapsed"
@@ -278,28 +278,11 @@
                     </div>
                 </div>
             </section>
-            <section>
-                <h3 class="m-0">
-                    <button id="capitalOneChatToggle" class="w-100 btn btn-gradient shadow collapse-toggle d-flex align-items-center justify-content-between text-start collapsed"
-                            type="button" data-bs-toggle="collapse" data-bs-target="#capitalOneChatPanel"
-                            aria-expanded="false" aria-controls="capitalOneChatPanel">
-                        <span><i class="bi bi-chat-dots me-2" aria-hidden="true"></i>Capital One chat</span>
-                        <span class="toggle-icons ms-2" aria-hidden="true">
-                            <i class="bi bi-plus-lg icon-plus"></i>
-                            <i class="bi bi-dash-lg icon-minus"></i>
-                        </span>
-                    </button>
-                </h3>
-                <div id="capitalOneChatPanel" class="collapse" data-bs-parent="#capitalOneTools" role="region" aria-labelledby="capitalOneChatToggle">
-                    <div class="pt-3">
-                        <!-- CAPITAL ONE CHAT -->
-                        <div class="capital-one-chat-embedded"
-                             data-client-token="b9ecdc44-e99b-4f80-b521-088a74105eb1"
-                             data-vin="@vehicle.VIN">
-                        </div>
-                    </div>
-                </div>
-            </section>
+        </div>
+        <!-- CAPITAL ONE CHAT -->
+        <div class="capital-one-chat-embedded"
+             data-client-token="b9ecdc44-e99b-4f80-b521-088a74105eb1"
+             data-vin="@vehicle.VIN">
         </div>
     </div>
     <div class="inventory-details-main">
