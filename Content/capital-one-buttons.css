@@ -34,24 +34,20 @@ capital-one-entry-button {
     --btn-label-color: #fff;
 }
 
-/* The companion script passes these values through AutoDriven's styleOverrides
-   property so its inline dealer colors cannot override the Carfax treatment. */
+/* Bootstrap classes style the host. Keep the inner provider button transparent
+   and pass btn-sm sizing through styleOverrides to avoid double padding/borders. */
 capital-one-button-widget[data-widget-type="check-availability"],
 capital-one-button-widget[data-widget-type="trade-in"] {
-    --c1-button-bg: #f5f6f7;
-    --c1-button-color: #1f2933;
-    --c1-button-border: 1px solid #d9dee3;
-    --c1-button-border-radius: .45rem;
-    --capital-one-button-font-size: .82rem;
+    --c1-button-bg: transparent;
+    --c1-button-color: #000;
+    --c1-button-border: 0;
+    --c1-button-border-radius: var(--bs-border-radius-lg, .5rem);
+    --capital-one-button-font-size: var(--bs-btn-font-size, .875rem);
     --capital-one-button-accent: var(--gtx-accent-solid, #1e73be);
-}
-
-capital-one-button-widget[data-widget-type="check-availability"]:hover,
-capital-one-button-widget[data-widget-type="check-availability"]:focus-within,
-capital-one-button-widget[data-widget-type="trade-in"]:hover,
-capital-one-button-widget[data-widget-type="trade-in"]:focus-within {
-    --c1-button-bg: #fff;
-    --c1-button-color: #111827;
+    padding: 0;
+    /* btn-gradient-grey removes borders; restore the requested dark outline. */
+    border: var(--bs-border-width, 1px) solid;
+    margin-inline-end: 0;
 }
 
 capital-one-entry-button:focus-within,
