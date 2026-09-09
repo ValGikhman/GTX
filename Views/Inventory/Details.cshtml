@@ -29,6 +29,10 @@
     var internetPrice = vehicle?.InternetPrice ?? 0;
     var transparentPrice = internetPrice > 0 ? internetPrice + Constants.DOCUMENTARY_FEE : 0;
     var displayPrice = string.Format("{0:C0}", transparentPrice);
+    var capitalOneSalesPrice = transparentPrice.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    var capitalOneImageUrl = string.IsNullOrWhiteSpace(vehicle?.Image)
+        ? string.Empty
+        : new Uri(Request.Url, Url.Content(vehicle.Image)).AbsoluteUri;
     var displayDocumentaryFee = string.Format("{0:C0}", Constants.DOCUMENTARY_FEE);
     var displayMileage = string.Format("{0:N0}", vehicle?.Mileage ?? 0);
     var makeLogoName = (vehicle?.Make ?? string.Empty).Trim().Replace(" ", "-").ToLowerInvariant();
@@ -216,6 +220,31 @@
 </section>
 
 <div class="details-container inventory-details-layout">
+    <div id="capitalOneShortcuts" class="inventory-details-actions vdp-action-stack" role="region" aria-label="Capital One financing">
+        <div class="vdp-concierge-heading">
+            <span class="vdp-concierge-kicker">Financing</span>
+            <strong>Capital One</strong>
+            <p>Explore financing, estimate payments, and get prequalified.</p>
+        </div>
+        <div class="capital-one-stacked-button"
+             data-client-token="b9ecdc44-e99b-4f80-b521-088a74105eb1"
+             data-sales-price="@capitalOneSalesPrice"
+             data-vehicle-image-url="@capitalOneImageUrl"
+             data-vin="@vehicle.VIN">
+        </div>
+        <!-- CAPITAL ONE CALCULATOR -->
+        <div style="display: none;"
+             class="capital-one-finance-tool"
+             data-client-token="b9ecdc44-e99b-4f80-b521-088a74105eb1"
+             data-sales-price="@capitalOneSalesPrice"
+             data-vehicle-image-url="@capitalOneImageUrl"
+             data-vin="@vehicle.VIN">
+        </div>
+        <!-- PROVIDED BY CAPITAL ONE -->
+        <div class="capital-one-prequal-standalone-embedded"
+             data-client-token="b9ecdc44-e99b-4f80-b521-088a74105eb1">
+        </div>
+    </div>
     <div class="inventory-details-main">
         <!-- Buttons -->
         <nav class="vdp-tabs" aria-label="Vehicle information">
@@ -585,13 +614,6 @@
             </h5>
         </button>
 
-        @*Capital one*@
-        <div class="capital-one-stacked-button"
-             data-client-token="b9ecdc44-e99b-4f80-b521-088a74105eb1"
-             data-sales-price="@Model.CurrentVehicle.VehicleDetails.RetailPrice"
-             data-vehicle-image-url=""
-             data-vin="@Model.CurrentVehicle.VehicleDetails.VIN">
-        </div>
     </div>
 </div>
 
@@ -666,12 +688,12 @@
         updateLastCars(stock);
 
         var titleElement = document.querySelector(".vehicle-title");
-        var conciergeHeading = document.querySelector(".vdp-concierge-heading");
+        var $conciergeHeadings = $(".vdp-concierge-heading");
         var detailPage = document.querySelector(".vehicle-detail-page");
 
-        if (titleElement && conciergeHeading && detailPage) {
+        if (titleElement && $conciergeHeadings.length && detailPage) {
             detailPage.classList.add("vdp-has-concierge-reveal");
-            conciergeHeading.setAttribute("aria-hidden", "true");
+            $conciergeHeadings.attr("aria-hidden", "true");
 
             var detailScrollContainer = document.querySelector(".body-content");
             var detailScrollTarget = detailScrollContainer || window;
@@ -686,8 +708,8 @@
                     : 0;
                 var showConciergeHeading = titleBounds.bottom <= scrollBoundary;
 
-                conciergeHeading.classList.toggle("is-visible", showConciergeHeading);
-                conciergeHeading.setAttribute("aria-hidden", showConciergeHeading ? "false" : "true");
+                $conciergeHeadings.toggleClass("is-visible", showConciergeHeading);
+                $conciergeHeadings.attr("aria-hidden", showConciergeHeading ? "false" : "true");
             }
 
             function requestConciergeHeadingUpdate() {
@@ -699,8 +721,8 @@
             detailScrollTarget.addEventListener("scroll", requestConciergeHeadingUpdate, { passive: true });
             window.addEventListener("resize", requestConciergeHeadingUpdate, { passive: true });
             updateConciergeHeading();
-        } else if (conciergeHeading) {
-            conciergeHeading.setAttribute("aria-hidden", "false");
+        } else if ($conciergeHeadings.length) {
+            $conciergeHeadings.attr("aria-hidden", "false");
         }
 
         $("[data-vdp-trigger]").on("click", function () {
