@@ -121,16 +121,14 @@
         <meta property="product:price:amount" content="@price" />
         <meta property="product:price:currency" content="USD" />
     }
-    <script src="~/Scripts/Lightbox/lc_lightbox.lite.min.js" type="text/javascript"></script>
+    <script defer src="~/Scripts/Lightbox/lc_lightbox.lite.min.js" type="text/javascript"></script>
     <link href="~/Content/Lightbox/lc_lightbox.min.css?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/Lightbox/lc_lightbox.min.css")).Ticks)" rel="stylesheet" />
 
     <!-- SKINS -->
     <link href="~/Content/Lightbox/dark.css?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/Lightbox/dark.css")).Ticks)" rel="stylesheet" />
-    <!-- New button-->
-    <link rel="stylesheet" href="https://c.maxallowance.com/widget/css/tradein-maxallowance.css?ver=0.0.1">
 
     <!-- ASSETS -->
-    <script src="~/Scripts/AlloyFinger/alloy_finger.min.js" type="text/javascript"></script>
+    <script defer src="~/Scripts/AlloyFinger/alloy_finger.min.js" type="text/javascript"></script>
     <script id="cfx-script" src="https://ratings.carfax.com/top-rated/v1/js/cfx-loader.js" type="module"></script>
 
     <script type="application/ld+json">
@@ -558,18 +556,6 @@
             <strong>@displayPrice</strong>
             <p>Questions, financing, or a test drive-our team can help you make the next step.</p>
         </div>
-        @*Maxallowance button*@
-        <button id="maxallowance-tradein" class="d-none maxallowance-tradein w-100 btn btn-gradient-green mb-3 shadow" data-max-id="gtxautogroup">
-            <h5 class="fw-bold text-uppercase text-white m-0 text-center py-2">
-                <i class="bi bi-cash-coin mx-2"></i>@I18n.R("All_MaxAllowance")
-            </h5>
-        </button>
-
-        @* Instant pre approval *@
-        <span class="mb-3 d-none">
-            @Html.Partial("_Button")
-        </span>
-
         @*Carfax*@
         <a class="w-100 btn btn-gradient mb-3 shadow" type="button" id="btnCarfax" href="http://www.carfax.com/VehicleHistory/p/Report.cfx?partner=DVW_1&vin=@Model.CurrentVehicle.VehicleDetails.VIN" target="_blank">
             <h5 class="fw-bold text-uppercase text-white m-0 text-center py-1">
@@ -609,7 +595,7 @@
     </div>
 </div>
 
-<script src="https://digital-retail.autodriven.com/loader.js" charset="utf-8" data-page-type="VDP" data-inventory-type="USED"></script>
+<script defer src="https://digital-retail.autodriven.com/loader.js" charset="utf-8" data-page-type="VDP" data-inventory-type="USED"></script>
 
 <div class="vdp-mobile-dock" aria-label="Vehicle actions">
     <a href="tel:+15137712888"><i class="bi bi-telephone-fill" aria-hidden="true"></i><span>Call</span></a>
@@ -906,11 +892,3 @@
         }
     }
 </script>
-
-@*<script src="https://max-allowance.s3.us-east-2.amazonaws.com/trade-in-maxallowance.js"></script>
-*@
-<script src="https://widget.mycreditdriveapp.com/offerlogix/js/OfferLogixWidgetForm.js?_=1770841571886"></script>
-
-
-
-
