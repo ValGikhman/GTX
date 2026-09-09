@@ -876,7 +876,7 @@
         const $statusTotal = $("#vdpStatusTotal");
 
         if (!$statusTotal.data("initialized")) {
-            $statusTotal.text(savedStocks.length || "—").data("initialized", true);
+            $statusTotal.text(savedStocks.length || "-").data("initialized", true);
         }
 
         if (savedStocks.length === 0) {
