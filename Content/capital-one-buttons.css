@@ -1,5 +1,13 @@
 /* AutoDriven's inherited CSS variables style the buttons inside its Shadow DOM.
    Keep provider markup, logos, labels and click handling intact. */
+
+/* The embedded prequalification form uses a cross-origin iframe. Scale its
+   contents together; compensate the width so it still fills the VDP panel. */
+#capitalOnePrequalPanel .capital-one-prequal-standalone-embedded {
+    zoom: .875;
+    width: calc(100% / .875);
+}
+
 capital-one-entry-button,
 capital-one-button-widget[data-widget-type="check-availability"],
 capital-one-button-widget[data-widget-type="trade-in"] {
