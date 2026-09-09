@@ -1,0 +1,61 @@
+/* AutoDriven's inherited CSS variables style the buttons inside its Shadow DOM.
+   Keep provider markup, logos, labels and click handling intact. */
+capital-one-entry-button,
+capital-one-button-widget[data-widget-type="check-availability"],
+capital-one-button-widget[data-widget-type="trade-in"] {
+    --capital-one-stacked-button-margin-between: .45rem;
+    --capital-one-stacked-button-margin-left: 0px;
+    --capital-one-stacked-button-margin-right: 0px;
+    --btn-label-font-family: var(--bs-body-font-family, Arial, sans-serif);
+    display: block;
+    width: 100%;
+    border-radius: .45rem;
+    box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .15);
+}
+
+/* A darkened theme accent keeps the provider's white labels and logo legible,
+   including on GTX's light Silver and Metallica themes. */
+capital-one-entry-button {
+    --gtx-capital-one-accent: var(--gtx-accent-solid, #1e73be);
+    --c1-base-button-bg: linear-gradient(180deg, #155a96, #1e73be);
+    --c1-base-button-bg: linear-gradient(180deg,
+        color-mix(in srgb, var(--gtx-capital-one-accent) 80%, #000),
+        color-mix(in srgb, var(--gtx-capital-one-accent) 65%, #000));
+    --c1-base-button-bg-hover: var(--gtx-capital-one-accent);
+    --c1-base-button-bg-hover: linear-gradient(0deg,
+        color-mix(in srgb, var(--gtx-capital-one-accent) 75%, #000),
+        color-mix(in srgb, var(--gtx-capital-one-accent) 60%, #000));
+    --capital-one-button-accent: var(--gtx-capital-one-accent);
+    --c1-base-button-border: 1px solid rgba(255, 255, 255, .24);
+    --c1-base-button-border-radius: .45rem;
+    --c1-base-button-color: #fff;
+    --c1-base-button-font-family: var(--bs-body-font-family, Arial, sans-serif);
+    --c1-base-button-height: 56px;
+    --btn-label-color: #fff;
+}
+
+/* Match the Carfax action's light surface, dark text and rounded border. */
+capital-one-button-widget[data-widget-type="check-availability"],
+capital-one-button-widget[data-widget-type="trade-in"] {
+    --c1-button-bg: rgba(255, 255, 255, .88);
+    --c1-button-color: #1f2933;
+    --c1-button-border: 1px solid rgba(255, 255, 255, .24);
+    --c1-button-border-radius: .45rem;
+    --capital-one-button-font-size: .82rem;
+    --capital-one-button-accent: var(--gtx-accent-solid, #1e73be);
+}
+
+capital-one-button-widget[data-widget-type="check-availability"]:hover,
+capital-one-button-widget[data-widget-type="check-availability"]:focus-within,
+capital-one-button-widget[data-widget-type="trade-in"]:hover,
+capital-one-button-widget[data-widget-type="trade-in"]:focus-within {
+    --c1-button-bg: #fff;
+    --c1-button-color: #111827;
+}
+
+capital-one-entry-button:focus-within,
+capital-one-button-widget[data-widget-type="check-availability"]:focus-within,
+capital-one-button-widget[data-widget-type="trade-in"]:focus-within {
+    outline: 2px solid var(--gtx-accent-solid, #1e73be);
+    outline-offset: 3px;
+}
