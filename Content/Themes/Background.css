@@ -1,0 +1,596 @@
+/* Background themes are independent of the existing accent/gradient themes.
+   Light intentionally uses the original site styles. Grey uses slightly darker
+   silver surfaces with dark ink and muted labels. */
+html[data-background-theme="grey"] {
+    color-scheme: light;
+    --gtx-page-bg: #9fa6ac;
+    --bs-body-bg: #ccd1d5;
+    --bs-body-bg-rgb: 204, 209, 213;
+    --bs-body-color: #172131;
+    --bs-body-color-rgb: 23, 33, 49;
+    --bs-emphasis-color: #172131;
+    --bs-emphasis-color-rgb: 23, 33, 49;
+    --bs-secondary-color: #566377;
+    --bs-secondary-color-rgb: 86, 99, 119;
+    --bs-secondary-bg: #afb6bd;
+    --bs-secondary-bg-rgb: 175, 182, 189;
+    --bs-tertiary-bg: #bcc3c9;
+    --bs-tertiary-bg-rgb: 188, 195, 201;
+}
+
+/* Chrome-inspired neutral charcoal surfaces and light foregrounds. */
+html[data-background-theme="dark"] {
+    color-scheme: dark;
+    --gtx-page-bg: #202124;
+    --bs-body-bg: #292a2d;
+    --bs-body-bg-rgb: 41, 42, 45;
+    --bs-body-color: #e8eaed;
+    --bs-body-color-rgb: 232, 234, 237;
+    --bs-emphasis-color: #e8eaed;
+    --bs-emphasis-color-rgb: 232, 234, 237;
+    --bs-secondary-color: #bdc1c6;
+    --bs-secondary-color-rgb: 189, 193, 198;
+    --bs-secondary-bg: #35363a;
+    --bs-secondary-bg-rgb: 53, 54, 58;
+    --bs-tertiary-bg: #323337;
+    --bs-tertiary-bg-rgb: 50, 51, 55;
+}
+
+html[data-background-theme="grey"] body,
+html[data-background-theme="dark"] body {
+    background-color: var(--gtx-page-bg);
+    color: var(--bs-body-color);
+}
+
+/* Override the important base and home-page backgrounds. */
+html[data-background-theme="grey"] body .body-content,
+html[data-background-theme="dark"] body .body-content {
+    background: transparent !important;
+}
+
+html[data-background-theme="grey"] .majordome-management-sidebar-pane,
+html[data-background-theme="dark"] .majordome-management-sidebar-pane {
+    background: transparent;
+}
+
+/* Keep log-tree surfaces and labels on the background palette; selected dates
+   retain the existing accent-theme highlight. */
+html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-sidebar-pane {
+    --inventory-ink: var(--bs-body-color);
+    --inventory-muted: var(--bs-secondary-color);
+    --inventory-border: var(--bs-border-color);
+    --inventory-line: var(--bs-border-color);
+    --inventory-surface-alt: var(--bs-tertiary-bg);
+    color: var(--bs-body-color);
+    scrollbar-color: var(--bs-secondary-color) transparent;
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-log-date {
+    background: var(--bs-body-bg);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-log-status-list {
+    background: var(--bs-tertiary-bg);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-log-date-toggle:not(.is-selected):not(.is-active) {
+    background: linear-gradient(180deg, var(--bs-body-bg), var(--bs-tertiary-bg));
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-log-status:not(.is-selected):not(.is-active):not(:disabled):is(:hover, :focus) {
+    background: var(--bs-secondary-bg);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-sidebar-pane::-webkit-scrollbar-thumb {
+    background: var(--bs-secondary-color);
+}
+
+/* Animated search hints use slate in grey mode and soft silver in dark mode. */
+html:is([data-background-theme="grey"], [data-background-theme="dark"]) :is(#filterTerm, .term)::placeholder {
+    color: var(--bs-secondary-color);
+    opacity: 1 !important;
+}
+
+/* Bootstrap button states and the grid's label/border overrides share the palette. */
+html[data-background-theme]:not([data-background-theme="light"]) .pg-search-clear {
+    --pg-color-border: var(--bs-border-color);
+    --pg-color-text-subtle: var(--bs-secondary-color);
+    --pg-color-text-dark: var(--bs-body-color);
+    --bs-btn-color: var(--bs-body-color);
+    --bs-btn-bg: var(--bs-body-bg);
+    --bs-btn-border-color: var(--bs-border-color);
+    --bs-btn-hover-color: var(--bs-body-color);
+    --bs-btn-hover-bg: var(--bs-secondary-bg);
+    --bs-btn-hover-border-color: var(--bs-border-color);
+    --bs-btn-focus-shadow-rgb: var(--bs-body-color-rgb);
+    --bs-btn-active-color: var(--bs-body-color);
+    --bs-btn-active-bg: var(--bs-tertiary-bg);
+    --bs-btn-active-border-color: var(--bs-border-color);
+    --bs-btn-disabled-color: var(--bs-secondary-color);
+    --bs-btn-disabled-bg: var(--bs-body-bg);
+    --bs-btn-disabled-border-color: var(--bs-border-color);
+}
+
+/* Match the adjacent search input's grid border in the grey palette. */
+html[data-background-theme="grey"] .pg-search-input-group .pg-search-clear {
+    --pg-color-border: inherit;
+    --bs-btn-border-color: var(--pg-color-border);
+    --bs-btn-hover-border-color: var(--pg-color-border);
+    --bs-btn-active-border-color: var(--pg-color-border);
+    --bs-btn-disabled-border-color: var(--pg-color-border);
+}
+
+/* Grouping controls use the same surfaces and readable labels as other controls. */
+html[data-background-theme]:not([data-background-theme="light"]) .pg-group-bar {
+    --pg-color-bg-muted: var(--bs-tertiary-bg);
+    --pg-color-text-muted: var(--bs-secondary-color);
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) .pg-group-bar:not(.pg-drag-over) {
+    border-color: var(--bs-border-color);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) .pg-group-bar :is(.pg-group-bar-label, .pg-group-bar-placeholder) {
+    color: var(--bs-secondary-color);
+    text-shadow: none;
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) .pg-group-bar .pg-group-chip {
+    background: var(--bs-body-bg);
+    border-color: var(--bs-border-color);
+    border-left-color: var(--bs-secondary-color);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) .pg-group-bar .pg-group-chip-label {
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) .pg-group-bar .pg-group-chip-remove:not(:hover) {
+    color: var(--bs-secondary-color);
+}
+
+/* Health cards share the background palette while keeping their status accents. */
+html[data-background-theme]:not([data-background-theme="light"]) .health-card {
+    background: linear-gradient(180deg, var(--bs-body-bg), var(--bs-tertiary-bg));
+    border-color: var(--bs-border-color);
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) .health-card :is(.kpi-label, .kpi-sub, .health-token-unit) {
+    color: var(--bs-secondary-color);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) .health-card .cdn-service-name {
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) .health-card .progress,
+html[data-background-theme]:not([data-background-theme="light"]) .health-card-cdn.is-disabled {
+    background: var(--bs-secondary-bg);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) .health-card-maintenance.is-offline {
+    background: var(--bs-danger-bg-subtle);
+    border-color: var(--bs-danger-border-subtle);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) .health-card-maintenance.is-offline :is(.kpi-label, .kpi-sub, .kpi-value, #offlineStatusText) {
+    color: var(--bs-danger-text-emphasis) !important;
+}
+
+/* Match AutoDealer's base .eyebrow silver gradient in the opt-in palettes. */
+html[data-background-theme="grey"] .gtx-open,
+html[data-background-theme="dark"] .gtx-open {
+    background: linear-gradient(145deg, #a0a6ac 0%, #858c93 48%, #6f767e 100%);
+}
+
+/* Scope overrides to the two opt-in palettes so Light restores the original. */
+html[data-background-theme]:not([data-background-theme="light"]) #inventory,
+html[data-background-theme]:not([data-background-theme="light"]) .inventory-results-zone {
+    background: var(--gtx-page-bg);
+    color: var(--bs-body-color);
+}
+
+/* The filter partial and mobile styles supply their own literal light surfaces. */
+html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-log-tree,
+html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane :is(.inventory-filter-shell, .inventory-filter-offcanvas-body, .inventory-filter-scroll) {
+    background: var(--bs-tertiary-bg);
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane :is(.inventory-filter-panel, .inventory-filter-panel-body, .inventory-dependent-empty) {
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane .inventory-filter-panel-toggle {
+    background: linear-gradient(180deg, var(--bs-body-bg), var(--bs-tertiary-bg));
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane :is(.inventory-filter-panel-count, .inventory-range-values, .inventory-range-output, .inventory-check-row) {
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane .inventory-check-row:hover,
+html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane .inventory-check-hit,
+html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-log-date-toggle::after,
+html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane .inventory-filter-panel-toggle::after {
+    background: var(--bs-secondary-bg);
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-log-tree::-webkit-scrollbar-track,
+html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane .inventory-filter-scroll::-webkit-scrollbar-track {
+    background: var(--bs-tertiary-bg);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-log-tree::-webkit-scrollbar-thumb,
+html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane .inventory-filter-scroll::-webkit-scrollbar-thumb {
+    border-color: var(--bs-tertiary-bg);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) .inventory-empty-filter {
+    background: var(--bs-body-bg);
+    color: var(--bs-secondary-color);
+}
+
+@media (max-width: 991.98px) {
+    html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane .inventory-filter-stats {
+        background: var(--bs-tertiary-bg);
+        color: var(--bs-body-color) !important;
+    }
+
+    html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane .inventory-filter-match {
+        color: var(--bs-body-color);
+    }
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) .marketing-page {
+    --mp-ink: var(--bs-body-color);
+    --mp-muted: var(--bs-secondary-color);
+    --mp-paper: var(--gtx-page-bg);
+    background: var(--gtx-page-bg);
+}
+
+/* Staff cards and the contact dialog share the selected background palette. */
+html[data-background-theme]:not([data-background-theme="light"]) .staff-page {
+    --staff-ink: var(--bs-body-color);
+    --staff-paper: var(--gtx-page-bg);
+    --staff-line: var(--bs-border-color);
+    background: var(--staff-paper);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) :is(.staff-card, .staff-empty-state, .staff-contact-modal .modal-content, .staff-contact-body) {
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    border-color: var(--bs-border-color);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) .staff-card-photo {
+    background: var(--bs-tertiary-bg);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) :is(.staff-section-heading, .staff-contact-error strong) {
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) :is(.staff-section-heading small, .staff-card-identity small, .staff-empty-state p, .staff-contact-loading, .staff-contact-error) {
+    color: var(--bs-secondary-color);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) .staff-contact-footer {
+    background: var(--bs-tertiary-bg);
+    border-color: var(--bs-border-color);
+    color: var(--bs-secondary-color);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) .staff-modal-close {
+    background: var(--bs-secondary-bg);
+    border-color: var(--bs-border-color);
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) .staff-contact-error i {
+    color: var(--bs-danger-text-emphasis);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) .about-value {
+    background: var(--bs-tertiary-bg);
+    border-color: var(--bs-border-color);
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) .vehicle-detail-page {
+    --vdp-ink: var(--bs-body-color);
+    --vdp-muted: var(--bs-secondary-color);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) :is(.gtx-card, .home-inventory-card-body, .home-inventory-specs > div, .about-story, .contact-showroom, .contact-form-panel, .blog-list-card, .blog-empty, .legal-document, .testimonials-page .t-card, .ui-widget-content, .chosen-container .chosen-drop, .chosen-container-single .chosen-single, .chosen-container-multi .chosen-choices) {
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) :is(.bg-white, .bg-light, #inventorySidebarPane.inventory-filter-offcanvas) {
+    background-color: var(--bs-tertiary-bg) !important;
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) :is(.dropdown-menu, .card, .modal-content, .offcanvas, .list-group-item, .accordion) {
+    --bs-dropdown-bg: var(--bs-body-bg);
+    --bs-dropdown-color: var(--bs-body-color);
+    --bs-dropdown-link-color: var(--bs-body-color);
+    --bs-dropdown-link-hover-color: var(--bs-body-color);
+    --bs-dropdown-link-hover-bg: var(--bs-secondary-bg);
+    --bs-dropdown-header-color: var(--bs-secondary-color);
+    --bs-card-bg: var(--bs-body-bg);
+    --bs-card-color: var(--bs-body-color);
+    --bs-modal-bg: var(--bs-body-bg);
+    --bs-modal-color: var(--bs-body-color);
+    --bs-offcanvas-bg: var(--bs-body-bg);
+    --bs-offcanvas-color: var(--bs-body-color);
+    --bs-list-group-bg: var(--bs-body-bg);
+    --bs-list-group-color: var(--bs-body-color);
+    --bs-accordion-bg: var(--bs-body-bg);
+    --bs-accordion-color: var(--bs-body-color);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) :is(.form-control, .form-select, .input-group-text) {
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) :is(.form-control, .form-select):disabled {
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-secondary-color);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) .theme-dropdown-menu .active {
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-body-color);
+}
+
+/* Base typography has literal light-mode colors; component/hero colors still win. */
+:where(html[data-background-theme]:not([data-background-theme="light"])) :is(h1, h2, h3, h4, h5, h6, h7, h8, p) {
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) :is(.about-story > p, .legal-content, .legal-content h3, .legal-content p, .legal-content .text-secondary, .testimonials-page .t-card p, .home-inventory-card-heading, .home-inventory-call) {
+    color: var(--bs-body-color) !important;
+}
+
+/* AddEdit's detached context menu shares the editor's dark palette. */
+html[data-background-theme="dark"] :is(.pe-editor, .pe-context-menu) {
+    --pe-color-border: var(--bs-border-color);
+    --pe-color-border-strong: #69717c;
+    --pe-color-border-focus: #8ab4f8;
+    --pe-color-bg: var(--bs-body-bg);
+    --pe-color-bg-toolbar: var(--bs-tertiary-bg);
+    --pe-color-bg-group: var(--bs-secondary-bg);
+    --pe-color-bg-btn-hover: #45484e;
+    --pe-color-bg-btn-active: #304361;
+    --pe-color-text: var(--bs-body-color);
+    --pe-color-text-muted: var(--bs-secondary-color);
+    --pe-color-text-subtle: var(--bs-secondary-color);
+    --pe-color-placeholder: #a4abb4;
+    --pe-color-accent: #8ab4f8;
+    --pe-color-shadow-focus: rgba(138, 180, 248, .25);
+    --pe-color-shadow-toolbar: rgba(0, 0, 0, .18);
+    --pe-color-shadow-group: rgba(0, 0, 0, .2);
+    --pe-text-shadow: none;
+    color: var(--pe-color-text);
+}
+
+html[data-background-theme="dark"] :is(.pe-editor, .pe-context-menu) .pe-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23bdc1c6' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+}
+
+html[data-background-theme="dark"] :is(.pe-editor, .pe-context-menu) .pe-select option {
+    background: var(--pe-color-bg);
+    color: var(--pe-color-text);
+}
+
+html[data-background-theme="dark"] .pe-editor .pe-btn.pe-active {
+    box-shadow: inset 0 0 0 1px var(--pe-color-border-focus);
+}
+
+html[data-background-theme="dark"] .pe-editor .pe-body .strong-story {
+    color: var(--pe-color-text);
+}
+
+html[data-background-theme="dark"] .pe-editor .pe-source {
+    background: var(--gtx-page-bg);
+    color: var(--pe-color-text);
+}
+
+html[data-background-theme="dark"] .majordome-action-group {
+    background: linear-gradient(180deg, var(--bs-tertiary-bg), var(--bs-body-bg));
+    border-color: var(--bs-border-color);
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme="dark"] .majordome-action-group .majordome-action-title {
+    color: var(--bs-secondary-color);
+}
+
+html[data-background-theme="dark"] .majordome-action-buttons .btn,
+html[data-background-theme="dark"] .majordome-action-buttons .btn i {
+    color: #212529 !important;
+}
+
+/* Override the literal light selected-row fill without affecting nested history. */
+html[data-background-theme="dark"] .majordome-vehicle-row.is-selected {
+    --pg-color-bg-row-selected: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 22%, var(--bs-secondary-bg));
+    background: var(--pg-color-bg-row-selected);
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme="dark"] .majordome-vehicle-row.is-selected > td {
+    background: var(--pg-color-bg-row-selected) !important;
+    color: var(--bs-body-color);
+    border-color: var(--bs-border-color);
+}
+
+html[data-background-theme="dark"] .inventory-dashboard-expand-button,
+html[data-background-theme="dark"] .inventory-dashboard-expand-button i {
+    color: #212529;
+}
+
+/* Expanded history uses layered charcoal surfaces, including nested changes. */
+html[data-background-theme="dark"] .inventory-dashboard-history-panel {
+    --dashboard-line: var(--bs-border-color);
+    --dashboard-muted: var(--bs-secondary-color);
+    background: linear-gradient(180deg, var(--bs-tertiary-bg), var(--bs-body-bg));
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme="dark"] .inventory-dashboard-history-panel :is(.inventory-dashboard-history-table, .inventory-dashboard-change-table) {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--bs-body-color);
+    --bs-table-border-color: var(--bs-border-color);
+    --bs-table-striped-color: var(--bs-body-color);
+    --bs-table-hover-color: var(--bs-body-color);
+}
+
+html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-change-detail-panel {
+    background: var(--bs-body-bg);
+}
+
+html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-change-table th {
+    background: var(--bs-secondary-bg) !important;
+    border-color: var(--bs-border-color);
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-change-table td {
+    background: var(--bs-body-bg) !important;
+}
+
+html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-history-change-toggle {
+    background: var(--bs-secondary-bg);
+    border-color: var(--bs-border-color);
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-history-change-toggle:is(:hover, :focus-visible) {
+    background: var(--bs-tertiary-bg);
+    border-color: var(--bs-secondary-color);
+}
+
+html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-history-status {
+    background: var(--bs-secondary-bg);
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-history-status.is-added {
+    background: var(--bs-success-bg-subtle);
+    color: var(--bs-success-text-emphasis);
+}
+
+html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-history-status.is-removed {
+    background: var(--bs-danger-bg-subtle);
+    color: var(--bs-danger-text-emphasis);
+}
+
+html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-history-status.is-updated {
+    background: var(--bs-primary-bg-subtle);
+    color: var(--bs-primary-text-emphasis);
+}
+
+html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-history-status.is-purchased {
+    background: var(--bs-warning-bg-subtle);
+    color: var(--bs-warning-text-emphasis);
+}
+
+html[data-background-theme="dark"] .vin-decoder-input-group {
+    border-color: #8a9099;
+}
+
+/* The desktop action buttons keep their light silver backgrounds in dark mode. */
+html[data-background-theme="dark"] .main-menu.no-wrap-group .btn {
+    --bs-btn-color: #212529;
+    --bs-btn-hover-color: #212529;
+    --bs-btn-active-color: #212529;
+    --bs-btn-disabled-color: #212529;
+}
+
+html[data-background-theme="dark"] #shorts .btn,
+html[data-background-theme="dark"] .btn.inventory-contact-map-btn {
+    color: #212529 !important;
+}
+
+html[data-background-theme="dark"] .btn.btn-gradient-grey.text-shadow-small:not(.active) {
+    color: #212529 !important;
+}
+
+html[data-background-theme="dark"] .article.btn.btn-gradient-grey.collapse-toggle {
+    color: #212529 !important;
+}
+
+html body .btn.btn-gradient-grey.text-shadow-small.active {
+    color: #fff !important;
+}
+
+/* Inventory card lettering stays dark on its silver headers and controls. */
+html[data-background-theme="dark"] .gtx-card,
+html[data-background-theme="dark"] .gtx-card :is(a, button, div, span, strong, small) {
+    color: #212529 !important;
+}
+
+html[data-background-theme="dark"] .gtx-card .gtx-compare-toggle,
+html[data-background-theme="dark"] .gtx-card .gtx-compare-toggle span,
+html[data-background-theme="dark"] .gtx-card .gtx-compare-toggle i {
+    color: #fff !important;
+}
+
+html[data-background-theme="dark"] .gtx-card .gtx-compare-toggle.is-selected,
+html[data-background-theme="dark"] .gtx-card .gtx-compare-toggle.is-selected span,
+html[data-background-theme="dark"] .gtx-card .gtx-compare-toggle.is-selected i {
+    color: #212529 !important;
+}
+
+html[data-background-theme="dark"] .gtx-card .gtx-no-hidden-fees {
+    color: #fff !important;
+}
+
+html[data-background-theme="dark"] .majordome-status-pill {
+    color: #fff;
+}
+
+html[data-background-theme="dark"] .majordome-status-pill.majordome-status-counter {
+    color: #212529;
+}
+
+html[data-background-theme="dark"] .text-dark {
+    color: var(--bs-body-color) !important;
+}
+
+/* Outline links sit directly on the dark mobile drawer rather than silver buttons. */
+html[data-background-theme="dark"] #menuAboutMobile .btn-outline-dark {
+    --bs-btn-color: var(--bs-body-color);
+    --bs-btn-border-color: var(--bs-secondary-color);
+    --bs-btn-hover-color: var(--bs-body-color);
+    --bs-btn-hover-bg: var(--bs-secondary-bg);
+    --bs-btn-hover-border-color: var(--bs-body-color);
+    --bs-btn-focus-shadow-rgb: var(--bs-body-color-rgb);
+    --bs-btn-active-color: var(--bs-body-color);
+    --bs-btn-active-bg: var(--bs-secondary-bg);
+    --bs-btn-active-border-color: var(--bs-body-color);
+    --bs-btn-disabled-color: var(--bs-secondary-color);
+    --bs-btn-disabled-border-color: var(--bs-border-color);
+}
+
+/* Mobile gradient controls keep dark lettering in every background palette. */
+@media (max-width: 991.98px) {
+    html[class][data-background-theme] body :is(.gradient, .btn-gradient-grey),
+    html[class][data-background-theme] body :is(.gradient, .btn-gradient-grey):is(:hover, :focus, :active, .active),
+    html body .btn.btn-gradient-grey.text-shadow-small.active,
+    html[class][data-background-theme] body :is(.gradient, .btn-gradient-grey) .text-dark {
+        color: #212529 !important;
+        --bs-btn-color: #212529;
+        --bs-btn-hover-color: #212529;
+        --bs-btn-active-color: #212529;
+        --bs-btn-disabled-color: #212529;
+    }
+}

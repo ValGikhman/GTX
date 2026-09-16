@@ -74,9 +74,14 @@
             break;
     }
 
+    var backgroundTheme = (Request.Cookies["gtx-background-theme"]?.Value ?? "light").ToLowerInvariant();
+    if (backgroundTheme != "grey" && backgroundTheme != "dark")
+    {
+        backgroundTheme = "light";
+    }
     var themeClass = "theme-" + t;
 }
-<html class="@themeClass">
+<html class="@themeClass" data-background-theme="@backgroundTheme" data-bs-theme="@(backgroundTheme == "dark" ? "dark" : "light")">
 <head class="flex-shrink-0">
     <meta charset="utf-8" />
     @RenderSection("Meta", required: false)
@@ -100,23 +105,28 @@
 
             var KEY = "gtx-theme";
             const THEMES = ["blue", "grey", "navy", "green", "red", "deep-purple", "metallica", "black", "silver"];
-            var t = localStorage.getItem(KEY) || "blue"; // default
+            function readPreference(key, fallback) {
+                try { return localStorage.getItem(key) || fallback; }
+                catch (e) { return fallback; }
+            }
+            var t = readPreference(KEY, "@t");
             var root = document.documentElement;
+            var background = readPreference("gtx-background-theme", root.dataset.backgroundTheme);
+            if (["light", "grey", "dark"].indexOf(background) < 0) background = "light";
+            root.dataset.backgroundTheme = background;
+            root.dataset.bsTheme = background === "dark" ? "dark" : "light";
 
             if (t === "pink") {
                 t = "navy";
-                localStorage.setItem(KEY, t);
             } else if (t === "dark-green") {
                 t = "green";
-                localStorage.setItem(KEY, t);
             } else if (t === "dark-red") {
                 t = "red";
-                localStorage.setItem(KEY, t);
             } else if (t === "dark") {
                 t = "black";
-                localStorage.setItem(KEY, t);
             }
 
+            if (THEMES.indexOf(t) < 0) t = "blue";
             // remove any theme classes first
             root.classList.remove(...THEMES.map(t => "theme-" + t));
             root.classList.remove("theme-pink", "theme-dark-green", "theme-dark-red", "theme-dark");
@@ -131,6 +141,7 @@
     <link href="@Url.Content("~/Content/capital-one-buttons.css")?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/capital-one-buttons.css")).Ticks)" rel="stylesheet" />
     <script defer src="@Url.Content("~/Scripts/capital-one-buttons.js")?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/capital-one-buttons.js")).Ticks)"></script>
     <link href="@Url.Content("~/Content/majordome.css")?v=@majordomeCssVersion" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/Themes/Background.css")?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/Themes/Background.css")).Ticks)" rel="stylesheet" />
     @if (chatBotEnabled)
     {
         <link href="~/Content/chat-bot.css?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/chat-bot.css")).Ticks)" rel="stylesheet" />
@@ -544,11 +555,12 @@
                     <!-- Theme dropdown -->
                     <div class="dropdown">
                         <button class="btn btn-sm btn-gradient dropdown-toggle text-nowrap"
-                                type="button" id="themeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            Theme: <span id="themeLabel">Blue</span>
+                                type="button" id="themeDropdown" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                            Theme: <span id="themeLabel">Blue</span> / <span id="backgroundThemeLabel">Light</span>
                         </button>
 
                         <ul class="dropdown-menu dropdown-menu-end theme-dropdown-menu" aria-labelledby="themeDropdown">
+                            <li class="theme-section-title"><span class="dropdown-header">Color theme</span></li>
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="blue"><span class="theme-swatch swatch-blue"></span> Blue</a></li>
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="grey"><span class="theme-swatch swatch-grey"></span> Grey</a></li>
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="navy"><span class="theme-swatch swatch-navy"></span> Navy</a></li>
@@ -558,6 +570,10 @@
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="metallica"><span class="theme-swatch swatch-metallica"></span> Metallica</a></li>
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="silver"><span class="theme-swatch swatch-silver"></span> Silver</a></li>
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="black"><span class="theme-swatch swatch-black"></span> Black</a></li>
+                            <li class="theme-section-title"><hr class="dropdown-divider" /><span class="dropdown-header">Background theme</span></li>
+                            <li><button type="button" class="dropdown-item background-theme-item" data-background="light"><span class="theme-swatch swatch-background-light"></span> Light</button></li>
+                            <li><button type="button" class="dropdown-item background-theme-item" data-background="grey"><span class="theme-swatch swatch-background-grey"></span> Grey</button></li>
+                            <li><button type="button" class="dropdown-item background-theme-item" data-background="dark"><span class="theme-swatch swatch-background-dark"></span> Dark</button></li>
                         </ul>
                     </div>
 
@@ -943,23 +959,18 @@
                 themes.forEach(t => root.classList.remove("theme-" + t));
                 root.classList.add("theme-" + theme);
 
-                localStorage.setItem(KEY, theme);
+                try { localStorage.setItem(KEY, theme); } catch (e) { /* Cookies remain available. */ }
                 setCookie(KEY, theme);
 
                 if (label) label.textContent = pretty(theme);
+                items.forEach(item => {
+                    item.classList.toggle("active", item.dataset.theme === theme);
+                    item.setAttribute("aria-current", item.dataset.theme === theme ? "true" : "false");
+                });
             }
 
-            const storedTheme = localStorage.getItem(KEY) || "blue";
-            const saved = storedTheme === "pink"
-                ? "navy"
-                : storedTheme === "dark-green"
-                    ? "green"
-                    : storedTheme === "dark-red"
-                        ? "red"
-                        : storedTheme === "dark"
-                            ? "black"
-                            : storedTheme;
-            if (themes.includes(saved)) applyTheme(saved);
+            const saved = themes.find(theme => root.classList.contains("theme-" + theme)) || "blue";
+            applyTheme(saved);
 
             items.forEach(a => {
                 a.addEventListener("click", (e) => {
@@ -967,6 +978,23 @@
                     applyTheme(a.dataset.theme);
                 });
             });
+
+            const backgroundItems = Array.from(document.querySelectorAll(".background-theme-item"));
+            function applyBackground(background) {
+                if (!["light", "grey", "dark"].includes(background)) background = "light";
+                root.dataset.backgroundTheme = background;
+                root.dataset.bsTheme = background === "dark" ? "dark" : "light";
+                try { localStorage.setItem("gtx-background-theme", background); } catch (e) { /* Cookie fallback. */ }
+                setCookie("gtx-background-theme", background);
+                document.getElementById("backgroundThemeLabel").textContent = pretty(background);
+                backgroundItems.forEach(item => {
+                    const selected = item.dataset.background === background;
+                    item.classList.toggle("active", selected);
+                    item.setAttribute("aria-pressed", selected ? "true" : "false");
+                });
+            }
+            applyBackground(root.dataset.backgroundTheme);
+            backgroundItems.forEach(item => item.addEventListener("click", () => applyBackground(item.dataset.background)));
 
             const headerDropdownToggles = [
                 document.getElementById("themeDropdown"),

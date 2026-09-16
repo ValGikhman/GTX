@@ -42,20 +42,33 @@ html body #MajordomeLink > a.gradient {
 }
 
 .theme-dropdown-menu {
-    width: min(30rem, calc(100vw - 1rem));
-    padding: .55rem;
+    width: min(23rem, calc(100vw - 1rem));
+    padding: .4rem;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: .3rem;
+    gap: .15rem;
 }
 
 .theme-dropdown-menu.show {
     display: grid;
 }
 
-.theme-dropdown-menu .theme-item {
-    min-height: 2.4rem;
+.theme-dropdown-menu .theme-item,
+.theme-dropdown-menu .background-theme-item {
+    min-height: 2rem;
+    padding: .3rem .4rem;
+    font-size: .8rem;
     white-space: normal;
 }
+
+.theme-section-title { grid-column: 1 / -1; }
+.theme-section-title .dropdown-header { padding: .25rem .4rem; font-size: .7rem; }
+.theme-section-title .dropdown-divider { margin: .2rem 0; }
+.background-theme-item { display: flex; align-items: center; gap: .4rem; }
+.theme-dropdown-menu .theme-swatch { width: 18px; height: 12px; flex-shrink: 0; }
+.theme-dropdown-menu .active { box-shadow: inset 0 0 0 1px currentColor; }
+.swatch-background-light { background: #fff; }
+.swatch-background-grey { background: linear-gradient(#ccd1d5, #9fa6ac); }
+.swatch-background-dark { background: linear-gradient(#35363a, #202124); }
 
     .dropdown-item:hover {
         filter: brightness(1.02);
@@ -1134,9 +1147,6 @@ html body #MajordomeLink > a.gradient {
         margin-bottom: 0 !important;
     }
 
-    .inventory-details-main #nav-details > .row.justify-content-center.well.mb-3:last-child {
-        margin-bottom: 0 !important;
-    }
 }
 
 .inventory-details-main {
@@ -1535,15 +1545,6 @@ input::placeholder {
     font-size: 14px;
     color: darkslategrey;
     font-weight: bold
-}
-
-.well {
-    min-height: 20px;
-    background-color: #f5f5f5;
-    border: 1px solid #e3e3e3;
-    border-radius: 4px;
-    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .05);
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .05);
 }
 
 .menu-strip {
@@ -4284,4 +4285,87 @@ html.theme-silver .home-quick-icon {
     width: 100%;
     aspect-ratio: 4 / 3;
     object-fit: cover;
+}
+
+/* Shared inventory filter and management log scroll surfaces. */
+:is(.inventory-filter-scroll, .majordome-management-log-tree) {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: .55rem;
+    scroll-padding-bottom: .55rem;
+    background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+    scrollbar-width: thin;
+    scrollbar-color: auto;
+}
+
+:is(.inventory-filter-scroll, .majordome-management-log-tree)::-webkit-scrollbar {
+    width: .55rem;
+}
+
+:is(.inventory-filter-scroll, .majordome-management-log-tree)::-webkit-scrollbar-track {
+    background: #eef2f7;
+}
+
+:is(.inventory-filter-scroll, .majordome-management-log-tree)::-webkit-scrollbar-thumb {
+    background: #9ca3af;
+    border-radius: 999px;
+    border: 2px solid #eef2f7;
+}
+
+/* Shared inventory and management accordion headers. */
+:is(.inventory-filter-panel-toggle, .majordome-management-log-date-toggle) {
+    width: 100%;
+    border: 0 !important;
+    background: linear-gradient(180deg, #ffffff 0%, #eef2f7 100%);
+    color: #111827;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    position: relative;
+    padding: .65rem .75rem;
+    font-weight: 600;
+    text-align: left;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .78);
+    transition: filter .14s ease, box-shadow .14s ease;
+}
+
+:is(.inventory-filter-panel-toggle, .majordome-management-log-date-toggle)::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: .25rem;
+    background: var(--gtx-grad, linear-gradient(180deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1) 94%));
+}
+
+:is(.inventory-filter-panel-toggle, .majordome-management-log-date-toggle):hover,
+:is(.inventory-filter-panel-toggle, .majordome-management-log-date-toggle):focus {
+    filter: brightness(1.03);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 3px 10px rgba(15, 23, 42, .14);
+}
+
+:is(.inventory-filter-panel-toggle, .majordome-management-log-date-toggle)::after {
+    content: "-";
+    width: 1.45rem;
+    height: 1.45rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, #ffffff, #e5e7eb);
+    color: #111827;
+    border: 1px solid rgba(0, 0, 0, .15);
+    font-size: 1rem;
+    font-weight: 900;
+    line-height: 1;
+    order: 3;
+    text-shadow: none;
+    box-shadow: 0 2px 7px rgba(15, 23, 42, .18);
+}
+
+:is(.inventory-filter-panel-toggle, .majordome-management-log-date-toggle).collapsed::after {
+    content: "+";
 }

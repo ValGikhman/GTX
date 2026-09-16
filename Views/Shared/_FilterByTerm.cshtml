@@ -7,7 +7,7 @@
         <!-- Sort -->
         <div class="sort d-none d-lg-flex align-items-center gap-2 z-3">
             <label for="sortField" class="fw-bold mb-0">@I18n.R("Filter_SortBy")</label>
-            <select id="sortField" class="form-select d-inline-block w-auto shadow rounded-4">
+            <select id="sortField" class="form-select inventory-toolbar-select shadow rounded-4">
                 <option value="make">Make</option>
                 <option value="year">Year</option>
                 <option value="miles">Miles</option>
@@ -47,7 +47,7 @@
         <div class="inventory-toolbar-paging d-none d-lg-flex align-items-center justify-content-center gap-2">
             <div class="inventory-page-size d-flex align-items-center gap-2 z-3">
                 <label for="inventoryPageSize" class="fw-bold mb-0">Show</label>
-                <select id="inventoryPageSize" class="inventory-page-size-select form-select form-select-sm shadow rounded-4" aria-label="Vehicles per page" title="Vehicles per page">
+                <select id="inventoryPageSize" class="inventory-page-size-select form-select inventory-toolbar-select shadow rounded-4" aria-label="Vehicles per page" title="Vehicles per page">
                     <option value="20">20</option>
                     <option value="40">40</option>
                     <option value="60">60</option>
@@ -136,29 +136,10 @@
         white-space: nowrap;
     }
 
-    .inventory-page-size .form-select {
-        width: 4rem;
-        min-height: 1.9rem;
-        padding-top: .2rem;
-        padding-bottom: .2rem;
-        border-color: rgba(15, 23, 42, .28);
-        background-color: #155a96;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e"), var(--gtx-grad, linear-gradient(180deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1) 94%));
-        background-repeat: no-repeat, no-repeat;
-        background-position: right .75rem center, center;
-        background-size: 16px 12px, cover;
-        color: #fff;
-        font-weight: 800;
-    }
-
-    .inventory-page-size .form-select option {
-        background: #fff;
-        color: #111827;
-    }
-
-    .inventory-page-size .form-select:focus {
-        border-color: rgba(0, 0, 0, .35);
-        box-shadow: 0 0 0 .2rem rgba(15, 23, 42, .16);
+    /* Shared sort and page-size layout; Bootstrap supplies themed select states. */
+    .inventory-toolbar-select {
+        display: inline-block;
+        width: auto;
     }
 
     .inventory-page-size-label {
@@ -236,11 +217,6 @@
         background: var(--gtx-grad, linear-gradient(180deg, #267cff 0%, #0d6efd 100%));
         color: #fff;
         box-shadow: 0 .35rem .8rem rgba(13, 110, 253, .22);
-    }
-
-    html.theme-silver .inventory-page-size .form-select {
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23111' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e"), var(--gtx-grad);
-        color: #111;
     }
 
     html.theme-silver .inventory-page-number-btn:hover,

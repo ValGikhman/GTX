@@ -435,19 +435,20 @@
     font-size: 1.15rem;
 }
 
-.contact-form-panel .input-group-text {
+/* Dark mode uses the shared form styles, just like the contact popup. */
+:where(html:not([data-background-theme="dark"])) .contact-form-panel .input-group-text {
     color: var(--mp-accent);
     border-color: var(--mp-line);
     background: #f1f3f5;
     box-shadow: none !important;
 }
 
-.contact-form-panel .form-control {
+:where(html:not([data-background-theme="dark"])) .contact-form-panel .form-control {
     border-color: var(--mp-line);
     box-shadow: none !important;
 }
 
-.contact-form-panel .form-control:focus {
+:where(html:not([data-background-theme="dark"])) .contact-form-panel .form-control:focus {
     border-color: var(--mp-accent);
     box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--mp-accent) 13%, transparent) !important;
 }

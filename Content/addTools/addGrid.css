@@ -798,14 +798,18 @@ body.pg-col-resizing {
 }
 
 .pg-pager-info-nums,
-.pg-pager-info-total {
+.pg-pager-info-total,
+.pg-pager-info-label {
   color: #343a40;
+}
+
+.pg-pager-info-nums,
+.pg-pager-info-total {
   font-weight: 700;
   letter-spacing: 0.01em;
 }
 
-.pg-pager-info-of,
-.pg-pager-info-label {
+.pg-pager-info-of {
   color: var(--pg-color-text-subtle);
 }
 
