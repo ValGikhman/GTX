@@ -174,7 +174,7 @@
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div id="messageBody" class="modal-body well">
+            <div id="messageBody" class="modal-body ">
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-close-white shadow" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Close</button>
@@ -285,7 +285,7 @@
             <div class="tab-pane fade show active" id="nav-details" role="tabpanel" aria-labelledby="nav-details-tab">
                 @if (Model.CurrentVehicle.VehicleDetails.Images?.Count() > 0)
                 {
-                    <div class="row well mb-1 vdp-gallery-card">
+                    <div class="row mb-1 vdp-gallery-card">
                         <div class="col-12 col-lg-12 col-md-12 col-sm-12">
                             <div class="hero ratio ratio-carousel overflow-hidden">
                                 @Html.Partial("_Carousel", Model.CurrentVehicle)
@@ -339,7 +339,7 @@
                 @*Story*@
                 @if (@Model.CurrentVehicle.VehicleDetails.Story != null)
                 {
-                    <section class="gtx-vehicle-overview gtx-story-card well mb-3" aria-labelledby="vehicleStoryTitle">
+                    <section class="gtx-vehicle-overview gtx-story-card mb-3" aria-labelledby="vehicleStoryTitle">
                         <button class="gtx-overview-toggle w-100 btn btn-gradient position-relative collapse-toggle"
                                 type="button"
                                 data-bs-toggle="collapse"
@@ -376,7 +376,7 @@
             <!-- Pictures Tab -->
             @if (Model.CurrentVehicle.VehicleDetails.Images?.Count() > 0)
             {
-                <div class="tab-pane fade well" id="nav-pictures" role="tabpanel" aria-labelledby="nav-picture-tab">
+                <div class="tab-pane fade " id="nav-pictures" role="tabpanel" aria-labelledby="nav-picture-tab">
                     <div class="vdp-photo-gallery">
                         <header class="hero vdp-photo-gallery-heading">
                             <div>
@@ -409,7 +409,7 @@
                     </div>
                 </div>
             }
-            <div class="tab-pane fade well" id="nav-call" role="tabpanel" aria-labelledby="nav-call-tab">
+            <div class="tab-pane fade " id="nav-call" role="tabpanel" aria-labelledby="nav-call-tab">
                 <div class="vdp-contact-card">
                     <section class="vdp-contact-intro">
                         <span class="vdp-contact-kicker">Visit the showroom</span>
@@ -468,7 +468,7 @@
                 </div>
             </div>
             <!-- Payment Tab -->
-            <div class="tab-pane fade well d-none" id="nav-payment" role="tabpanel" aria-labelledby="nav-payment-tab">
+            <div class="tab-pane fade d-none" id="nav-payment" role="tabpanel" aria-labelledby="nav-payment-tab">
                 <div class="text-shadow-small rounded shadow" id="calculator">
                     <div class="text-center border-bottom p-3 my-auto">
                         <h6 class="text-uppercase fw-bold">@Model.CurrentVehicle.VehicleDetails.Year @Model.CurrentVehicle.VehicleDetails.Make @Model.CurrentVehicle.VehicleDetails.Model @Model.CurrentVehicle.VehicleDetails.VehicleType @Model.CurrentVehicle.VehicleDetails.VehicleStyle</h6>
@@ -577,7 +577,7 @@
             <div class="collapse show gtx-suggestion-body" id="suggestion">
                 <div class="details-suggestion-rail d-flex">
                     <button class="btn btn-gradient-grey scroll-button bi bi-arrow-left-circle" onclick="scrollSuggestions(-300)"></button>
-                    <div class="scroll-container well shadow" id="suggestionScroll">
+                    <div class="scroll-container shadow" id="suggestionScroll">
                         <div class="details-suggestion-list d-flex">
                             @foreach (var suggestion in Model.CurrentVehicle.VehicleSuggesion)
                             {

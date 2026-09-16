@@ -2005,24 +2005,6 @@ body.majordome-inventory-page .body-content {
                 box-shadow: 0 0 0 .22rem rgba(37, 99, 235, .12);
             }
 
-    .majordome-management-log-tree {
-        flex: 1 1 auto;
-        min-height: 0;
-        overflow-y: auto;
-        padding-right: .15rem;
-        scrollbar-color: rgba(71, 85, 105, .45) transparent;
-        scrollbar-width: thin;
-    }
-
-        .majordome-management-log-tree::-webkit-scrollbar {
-            width: .55rem;
-        }
-
-        .majordome-management-log-tree::-webkit-scrollbar-thumb {
-            background: rgba(71, 85, 105, .35);
-            border-radius: 999px;
-        }
-
     .majordome-management-log-date {
         border: 1px solid var(--inventory-border);
         border-radius: .65rem;
@@ -2033,26 +2015,6 @@ body.majordome-inventory-page .body-content {
 
         .majordome-management-log-date + .majordome-management-log-date {
             margin-top: .3rem;
-        }
-
-    .majordome-management-log-date-toggle {
-        width: 100%;
-        min-height: 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: .55rem;
-        padding: .40rem .65rem;
-        border: 0;
-        background: linear-gradient(180deg, #fff 0%, var(--inventory-surface-alt) 100%);
-        color: var(--inventory-ink);
-        text-align: left;
-    }
-
-        .majordome-management-log-date-toggle:hover,
-        .majordome-management-log-date-toggle:focus {
-            background: #eef2f7;
-            outline: none;
         }
 
         .majordome-management-log-date-toggle.is-selected,
@@ -2071,9 +2033,7 @@ body.majordome-inventory-page .body-content {
             }
 
             .majordome-management-log-date-toggle.is-selected .majordome-management-log-option-date,
-            .majordome-management-log-date-toggle.is-selected .majordome-management-log-date-chevron,
             .majordome-management-log-date-toggle.is-active .majordome-management-log-option-date,
-            .majordome-management-log-date-toggle.is-active .majordome-management-log-date-chevron,
             .majordome-management-log-option-date.is-selected,
             .majordome-management-log-option-date.is-active {
                 color: var(--inventory-header-color);
@@ -2093,9 +2053,7 @@ body.majordome-inventory-page .body-content {
         color: #111827;
     }
 
-    html.theme-silver .majordome-management-log-date-toggle.is-selected .majordome-management-log-date-chevron,
     html.theme-silver .majordome-management-log-date-toggle.is-selected .majordome-management-log-option-date,
-    html.theme-silver .majordome-management-log-date-toggle.is-active .majordome-management-log-date-chevron,
     html.theme-silver .majordome-management-log-date-toggle.is-active .majordome-management-log-option-date,
     html.theme-silver .majordome-management-log-option-date.is-selected,
     html.theme-silver .majordome-management-log-option-date.is-active {
@@ -2119,23 +2077,13 @@ body.majordome-inventory-page .body-content {
 
     .majordome-management-log-date-main {
         min-width: 0;
+        flex: 1 1 auto;
         display: flex;
         align-items: center;
-        gap: .45rem;
-    }
-
-    .majordome-management-log-date-chevron {
-        flex: 0 0 auto;
-        color: var(--inventory-muted);
-        font-size: .9rem;
-        transition: transform .15s ease;
-    }
-
-    .majordome-management-log-date-toggle[aria-expanded="true"] .majordome-management-log-date-chevron {
-        transform: rotate(90deg);
     }
 
     .majordome-management-log-date-count {
+        margin-left: auto;
         flex: 0 0 auto;
     }
 
@@ -2196,7 +2144,6 @@ body.majordome-inventory-page .body-content {
             flex: 0 0 auto;
         }
 
-        .majordome-management-log-date-toggle:focus,
         .majordome-management-log-status:focus {
             border-color: rgba(37, 99, 235, .5);
             box-shadow: 0 0 0 .22rem rgba(37, 99, 235, .12);
@@ -2204,9 +2151,11 @@ body.majordome-inventory-page .body-content {
 
     .majordome-management-log-option-date {
         min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        font-family: inherit;
+        font-size: .75rem;
+        font-weight: 600;
+        line-height: 1.35;
+        white-space: normal;
     }
 
     .majordome-management-table-wrap {

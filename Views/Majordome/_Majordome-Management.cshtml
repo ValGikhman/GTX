@@ -11,11 +11,9 @@
                 <div class="dropdown majordome-management-log-picker">
                     <div class="majordome-management-log-period" aria-label="Filter inventory dates">
                         <div>
-                            <label for="majordomeManagementLogYear" class="form-label">Year</label>
                             <select id="majordomeManagementLogYear" class="form-select form-select-sm" aria-label="Filter inventory dates by year"></select>
                         </div>
                         <div>
-                            <label for="majordomeManagementLogMonth" class="form-label">Month</label>
                             <select id="majordomeManagementLogMonth" class="form-select form-select-sm" aria-label="Filter inventory dates by month"></select>
                         </div>
                     </div>
@@ -109,9 +107,9 @@
         let majordomeManagementLogs = Array.isArray(initialMajordomeManagementLogs) ? initialMajordomeManagementLogs : [];
         let majordomeManagementRows = [];
         let majordomeManagementSelectedStock = "";
-        let majordomeManagementSelectedStatus = "all";
         let majordomeManagementSelectedYear = "";
         let majordomeManagementSelectedMonth = "";
+        let majordomeManagementSelectedStatus = "all";
         let inventoryManagementRollbackRunning = false;
         let inventoryManagementRollbackLatestLog = null;
         const majordomeManagementMonthNames = [
@@ -808,8 +806,7 @@
                             aria-expanded="${expanded}"
                             aria-controls="${managementEscapeHtml(collapseId)}">
                         <span class="majordome-management-log-date-main">
-                            <i class="bi bi-chevron-right majordome-management-log-date-chevron" aria-hidden="true"></i>
-                            <span class="majordome-management-log-option-date">${managementEscapeHtml(managementFormatDate(dateCreated))}</span>
+                            <span class="majordome-management-log-option-date text-shadow-small">${managementEscapeHtml(managementFormatDate(dateCreated))}</span>
                         </span>
                         <span class="badge rounded-pill bg-dark majordome-management-log-date-count">${managementEscapeHtml(managementFormatInteger(total))}</span>
                     </button>
