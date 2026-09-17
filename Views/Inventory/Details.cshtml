@@ -35,6 +35,18 @@
         : new Uri(Request.Url, Url.Content(vehicle.Image)).AbsoluteUri;
     var displayDocumentaryFee = string.Format("{0:C0}", Constants.DOCUMENTARY_FEE);
     var displayMileage = string.Format("{0:N0}", vehicle?.Mileage ?? 0);
+    var displayTransmission = !string.IsNullOrWhiteSpace(vehicle?.TransmissionWord)
+        ? vehicle.TransmissionWord
+        : vehicle?.Transmission;
+    if (!string.IsNullOrWhiteSpace(displayTransmission) && vehicle.TransmissionSpeed > 0)
+    {
+        displayTransmission += ":" + vehicle.TransmissionSpeed + "-speed";
+    }
+    var primaryStyle = Model.CurrentVehicle?.VehicleDataOneDetails?.QueryResponses?.Items?
+        .Where(response => response?.UsMarketData?.UsStyles?.Styles != null)
+        .SelectMany(response => response.UsMarketData.UsStyles.Styles)
+        .FirstOrDefault(style => style != null);
+    var combinedMpg = primaryStyle?.EpaFuelEfficiency?.Records?.FirstOrDefault()?.Combined;
     var makeLogoName = (vehicle?.Make ?? string.Empty).Trim().Replace(" ", "-").ToLowerInvariant();
     var stock = (vehicle?.Stock ?? string.Empty).Trim();
     var lastStockCharacter = stock.Length > 0 ? stock[stock.Length - 1] : '\0';
@@ -191,6 +203,7 @@
         <div class="vdp-eyebrow">
             <span class="vdp-availability"><span aria-hidden="true"></span> Available now</span>
             <span class="copyable" data-copy-value="@vehicle.Stock" title="Double-click to copy Stock#">Stock @vehicle.Stock</span>
+            <span class="copyable" data-copy-value="@vehicle.VIN" title="Double-click to copy VIN#">VIN @vehicle.VIN</span>
         </div>
         <div class="vdp-title-row">
             @if (!string.IsNullOrWhiteSpace(makeLogoName))
@@ -207,6 +220,18 @@
             <span><i class="bi bi-speedometer2" aria-hidden="true"></i> @displayMileage mi</span>
             <span><i class="bi bi-car-front" aria-hidden="true"></i> @vehicle.Body</span>
             <span><i class="bi bi-gear-wide-connected" aria-hidden="true"></i> @vehicle.DriveTrain</span>
+            @if (!string.IsNullOrWhiteSpace(displayTransmission))
+            {
+                <span><i class="bi bi-shuffle" aria-hidden="true"></i> @displayTransmission</span>
+            }
+            @if (!string.IsNullOrWhiteSpace(vehicle.Engine))
+            {
+                <span><i class="bi bi-lightning-charge" aria-hidden="true"></i> Engine: @vehicle.Engine</span>
+            }
+            @if (!string.IsNullOrWhiteSpace(combinedMpg))
+            {
+                <span><i class="bi bi-fuel-pump" aria-hidden="true"></i> MPG: @combinedMpg</span>
+            }
         </div>
     </div>
     <div class="vdp-price-card">

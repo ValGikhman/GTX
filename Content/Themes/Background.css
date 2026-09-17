@@ -179,10 +179,9 @@ html[data-background-theme]:not([data-background-theme="light"]) .health-card-ma
     color: var(--bs-danger-text-emphasis) !important;
 }
 
-/* Match AutoDealer's base .eyebrow silver gradient in the opt-in palettes. */
-html[data-background-theme="grey"] .gtx-open,
-html[data-background-theme="dark"] .gtx-open {
-    background: linear-gradient(145deg, #a0a6ac 0%, #858c93 48%, #6f767e 100%);
+/* Keep the light-surface details shortcut consistent in every palette. */
+html[data-background-theme] .gtx-open.text-dark {
+    color: #212529 !important;
 }
 
 /* Scope overrides to the two opt-in palettes so Light restores the original. */
@@ -272,11 +271,11 @@ html[data-background-theme]:not([data-background-theme="light"]) .staff-card-pho
     background: var(--bs-tertiary-bg);
 }
 
-html[data-background-theme]:not([data-background-theme="light"]) :is(.staff-section-heading, .staff-contact-error strong) {
+html[data-background-theme]:not([data-background-theme="light"]) .staff-contact-error strong {
     color: var(--bs-body-color);
 }
 
-html[data-background-theme]:not([data-background-theme="light"]) :is(.staff-section-heading small, .staff-card-identity small, .staff-empty-state p, .staff-contact-loading, .staff-contact-error) {
+html[data-background-theme]:not([data-background-theme="light"]) :is(.staff-card-identity small, .staff-empty-state p, .staff-contact-loading, .staff-contact-error) {
     color: var(--bs-secondary-color);
 }
 
@@ -508,6 +507,19 @@ html[data-background-theme="dark"] .vin-decoder-input-group {
 }
 
 /* The desktop action buttons keep their light silver backgrounds in dark mode. */
+/* Silver button surfaces keep dark lettering when the page palette changes. */
+html[data-background-theme="dark"] .btn:is(.gradient, .btn-gradient-grey:not(.active)) {
+    color: #212529 !important;
+    --bs-btn-color: #212529;
+    --bs-btn-hover-color: #212529;
+    --bs-btn-active-color: #212529;
+    --bs-btn-disabled-color: #212529;
+}
+
+html[data-background-theme="dark"] .btn:is(.gradient, .btn-gradient-grey:not(.active)) :is(.text-dark, .text-white) {
+    color: #212529 !important;
+}
+
 html[data-background-theme="dark"] .main-menu.no-wrap-group .btn {
     --bs-btn-color: #212529;
     --bs-btn-hover-color: #212529;
@@ -520,7 +532,44 @@ html[data-background-theme="dark"] .btn.inventory-contact-map-btn {
     color: #212529 !important;
 }
 
+html[data-background-theme="grey"] .testimonials-page .t-title {
+    color: #212529;
+}
+
+html[data-background-theme="grey"] .testimonials-page .testimonial-featured .text-secondary {
+    color: #212529 !important;
+}
+
+html[data-background-theme="dark"] .contact-address span {
+    color: #fff;
+}
+
+html[data-background-theme="dark"] .vdp-record-status-total,
+html[data-background-theme="dark"] .vdp-record-status-number {
+    color: #fff;
+}
+
+html[data-background-theme="dark"] .page-title .btn {
+    --bs-btn-color: #212529;
+    --bs-btn-hover-color: #212529;
+    --bs-btn-active-color: #212529;
+    --bs-btn-disabled-color: #212529;
+    color: #212529 !important;
+}
+
+html[data-background-theme="dark"] .page-title .btn :is(i, span, strong) {
+    color: #212529 !important;
+}
+
 html[data-background-theme="dark"] .btn.btn-gradient-grey.text-shadow-small:not(.active) {
+    color: #212529 !important;
+}
+
+html[data-background-theme="dark"] .nav.nav-tabs :is(.nav-link, .btn[role="tab"]) {
+    color: #fff !important;
+}
+
+html[data-background-theme="dark"] .nav.nav-tabs.no-wrap-group .btn.btn-gradient-grey:not(.active) {
     color: #212529 !important;
 }
 
@@ -581,16 +630,26 @@ html[data-background-theme="dark"] #menuAboutMobile .btn-outline-dark {
     --bs-btn-disabled-border-color: var(--bs-border-color);
 }
 
-/* Mobile gradient controls keep dark lettering in every background palette. */
+/* Mobile silver controls keep dark lettering; active tabs retain accent colors. */
 @media (max-width: 991.98px) {
-    html[class][data-background-theme] body :is(.gradient, .btn-gradient-grey),
-    html[class][data-background-theme] body :is(.gradient, .btn-gradient-grey):is(:hover, :focus, :active, .active),
-    html body .btn.btn-gradient-grey.text-shadow-small.active,
-    html[class][data-background-theme] body :is(.gradient, .btn-gradient-grey) .text-dark {
+    html[class][data-background-theme] body :is(.gradient, .btn-gradient-grey):not(.active):not(:where(.vdp-tabs .btn)),
+    html[class][data-background-theme] body :is(.gradient, .btn-gradient-grey):not(.active):not(:where(.vdp-tabs .btn)):is(:hover, :focus, :active),
+    html[class][data-background-theme] body :is(.gradient, .btn-gradient-grey):not(.active):not(:where(.vdp-tabs .btn)) .text-dark {
         color: #212529 !important;
         --bs-btn-color: #212529;
         --bs-btn-hover-color: #212529;
         --bs-btn-active-color: #212529;
         --bs-btn-disabled-color: #212529;
     }
+}
+
+/* Vehicle utility buttons use dark surfaces instead of silver gradients. */
+html[class][data-background-theme="dark"] body .vdp-utility-actions .btn.btn-gradient-grey {
+    color: #fff !important;
+    --bs-btn-color: #fff;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-active-color: #fff;
+    --bs-btn-disabled-color: #fff;
+    border-color: var(--bs-border-color) !important;
+    text-shadow: none;
 }
