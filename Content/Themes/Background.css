@@ -355,8 +355,14 @@ html[data-background-theme]:not([data-background-theme="light"]) .theme-dropdown
     color: var(--bs-body-color);
 }
 
-html[data-background-theme]:not([data-background-theme="light"]) :is(.about-story > p, .legal-content, .legal-content h3, .legal-content p, .legal-content .text-secondary, .testimonials-page .t-card p, .home-inventory-card-heading, .home-inventory-call) {
+html[data-background-theme]:not([data-background-theme="light"]) :is(.about-story > p, .legal-content, .legal-content h3, .legal-content p, .legal-content .text-secondary, .testimonials-page .t-card p) {
     color: var(--bs-body-color) !important;
+}
+
+/* Home card copy stays white on dark surfaces; offers retain their accent-theme colors. */
+html[data-background-theme="dark"] .home-inventory-card .home-inventory-card-body,
+html[data-background-theme="dark"] .home-inventory-card-body :is(.home-inventory-card-heading, h2, p, dt, dd, dt i) {
+    color: #fff;
 }
 
 /* AddEdit's detached context menu shares the editor's dark palette. */
