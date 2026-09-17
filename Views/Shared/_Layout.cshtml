@@ -556,7 +556,7 @@
                     <div class="dropdown">
                         <button class="btn btn-sm btn-gradient dropdown-toggle text-nowrap"
                                 type="button" id="themeDropdown" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                            Theme: <span id="themeLabel">Blue</span> / <span id="backgroundThemeLabel">Light</span>
+                            <i id="backgroundThemeIcon" class="bi @(backgroundTheme == "dark" ? "bi-moon" : backgroundTheme == "grey" ? "bi-circle-half" : "bi-sun")" aria-hidden="true"></i> <span id="themeLabel">Blue</span><span class="visually-hidden">, <span id="backgroundThemeLabel">Light</span> background</span>
                         </button>
 
                         <ul class="dropdown-menu dropdown-menu-end theme-dropdown-menu" aria-labelledby="themeDropdown">
@@ -571,9 +571,9 @@
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="silver"><span class="theme-swatch swatch-silver"></span> Silver</a></li>
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="black"><span class="theme-swatch swatch-black"></span> Black</a></li>
                             <li class="theme-section-title"><hr class="dropdown-divider" /><span class="dropdown-header">Background theme</span></li>
-                            <li><button type="button" class="dropdown-item background-theme-item" data-background="light"><span class="theme-swatch swatch-background-light"></span> Light</button></li>
-                            <li><button type="button" class="dropdown-item background-theme-item" data-background="grey"><span class="theme-swatch swatch-background-grey"></span> Grey</button></li>
-                            <li><button type="button" class="dropdown-item background-theme-item" data-background="dark"><span class="theme-swatch swatch-background-dark"></span> Dark</button></li>
+                            <li><button type="button" class="dropdown-item background-theme-item" data-background="light"><i class="bi bi-sun" aria-hidden="true"></i> Light</button></li>
+                            <li><button type="button" class="dropdown-item background-theme-item" data-background="grey"><i class="bi bi-circle-half" aria-hidden="true"></i> Grey</button></li>
+                            <li><button type="button" class="dropdown-item background-theme-item" data-background="dark"><i class="bi bi-moon" aria-hidden="true"></i> Dark</button></li>
                         </ul>
                     </div>
 
@@ -987,6 +987,11 @@
                 try { localStorage.setItem("gtx-background-theme", background); } catch (e) { /* Cookie fallback. */ }
                 setCookie("gtx-background-theme", background);
                 document.getElementById("backgroundThemeLabel").textContent = pretty(background);
+                document.getElementById("backgroundThemeIcon").className = "bi " + {
+                    light: "bi-sun",
+                    grey: "bi-circle-half",
+                    dark: "bi-moon"
+                }[background];
                 backgroundItems.forEach(item => {
                     const selected = item.dataset.background === background;
                     item.classList.toggle("active", selected);
