@@ -393,6 +393,11 @@
                                 <li>@Html.ActionLink(I18n.R("Nav_Testimonials"), "Testimonials", "Home")</li>
                             </ul>
                         </li>
+                        <li class="mx-2 d-none d-lg-inline-block">
+                            <a href="@Url.Action("CapitalOnePQTS", "Home")">
+                                <i class="bi bi-currency-dollar me-1"></i> Get Pre-qualified with Capital One
+                            </a>
+                        </li>
                         <li id="fakeSearch" class="fake-input hand-pointer d-none" data-bs-toggle="modal" data-bs-target="#filtersModal">
                             @Html.Partial("_SearchByTerm")
                         </li>
