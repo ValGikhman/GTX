@@ -77,6 +77,11 @@ html[data-background-theme]:not([data-background-theme="light"]) .majordome-mana
     background: linear-gradient(180deg, var(--bs-body-bg), var(--bs-tertiary-bg));
 }
 
+html[data-background-theme="dark"] .majordome-management-log-date-toggle:is(.collapsed, [aria-expanded="false"]),
+html[data-background-theme="dark"] .majordome-management-log-date-toggle:is(.collapsed, [aria-expanded="false"]) :is(.majordome-management-log-option-date, .majordome-management-log-date-count) {
+    color: #fff;
+}
+
 html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-log-status:not(.is-selected):not(.is-active):not(:disabled):is(:hover, :focus) {
     background: var(--bs-secondary-bg);
 }
