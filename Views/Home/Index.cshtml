@@ -30,27 +30,27 @@
 
     <div class="home-hero-shell">
         <div class="home-hero-copy">
-            <p class="home-hero-slogan" aria-label="Your car, your style, your way">
-                <span>Your car</span>
+            <p class="home-hero-slogan" aria-label="@I18n.R("Home_Slogan")">
+                <span>@I18n.R("Home_YourCar")</span>
                 <i class="bi bi-chevron-double-right" aria-hidden="true"></i>
-                <span>Your style</span>
+                <span>@I18n.R("Home_YourStyle")</span>
                 <i class="bi bi-chevron-double-right" aria-hidden="true"></i>
-                <strong>Your way</strong>
+                <strong>@I18n.R("Home_YourWay")</strong>
             </p>
 
             <h1 id="homeHeroTitle">
-                Find the drive
-                <span>that feels like you.</span>
+                @I18n.R("Home_Title")
+                <span>@I18n.R("Home_Accent")</span>
             </h1>
 
             <p class="home-hero-lead">
-                Carefully selected vehicles, straightforward guidance, and a local team ready to help you drive with confidence.
+                @I18n.R("Home_Description")
             </p>
 
             <div class="home-hero-primary-actions">
                 <a href="@Url.Action("All", "Inventory")" class="home-hero-button home-hero-button-primary">
                     <i class="bi bi-car-front-fill" aria-hidden="true"></i>
-                    <span>@I18n.R("Nav_All") @I18n.R("Nav_Inventory")</span>
+                    <span>@I18n.R("Home_BrowseInventory")</span>
                     <i class="bi bi-arrow-right" aria-hidden="true"></i>
                 </a>
                 <a href="@Url.RouteUrl("TestDriveContact")" class="home-hero-button home-hero-button-secondary">
@@ -59,54 +59,54 @@
                 </a>
             </div>
 
-            <ul class="home-hero-trust list-unstyled" aria-label="Why choose GTX Auto Group">
-                <li><i class="bi bi-star-fill" aria-hidden="true"></i> Top rated in Cincinnati</li>
-                <li><i class="bi bi-shield-check" aria-hidden="true"></i> Straightforward buying</li>
-                <li><i class="bi bi-geo-alt-fill" aria-hidden="true"></i> Local, personal service</li>
+            <ul class="home-hero-trust list-unstyled" aria-label="@I18n.R("Home_WhyChoose")">
+                <li><i class="bi bi-star-fill" aria-hidden="true"></i> @I18n.R("Home_TopRated")</li>
+                <li><i class="bi bi-shield-check" aria-hidden="true"></i> @I18n.R("Home_StraightforwardBuying")</li>
+                <li><i class="bi bi-geo-alt-fill" aria-hidden="true"></i> @I18n.R("Home_LocalService")</li>
             </ul>
 
             <section class="home-memberships" aria-labelledby="homeMembershipsTitle">
                 <div class="home-memberships-copy">
-                    <span>Trust you can verify</span>
-                    <strong id="homeMembershipsTitle">Accredited locally. Connected statewide.</strong>
+                    <span>@I18n.R("Home_Trust")</span>
+                    <strong id="homeMembershipsTitle">@I18n.R("Home_Accreditation")</strong>
                 </div>
                 <div class="home-memberships-logos">
                     <a href="https://www.bbb.org/"
                        target="_blank"
                        rel="noopener"
-                       aria-label="View GTX Auto Group's BBB Accredited Business profile">
+                       aria-label="@I18n.R("Home_BbbProfile")">
                         <img src="https://m.bbb.org/brand/seals/Accredited_Business_Seal_NoRating_RGB.svg"
-                             alt="BBB Accredited Business" />
+                             alt="@I18n.R("Home_BbbAlt")" />
                     </a>
                     <a href="https://ohiada.memberzone.com/list/member/gtx-auto-group-inc-7279"
                        target="_blank"
                        rel="noopener"
-                       aria-label="View GTX Auto Group's OIADA member profile">
+                       aria-label="@I18n.R("Home_OiadaProfile")">
                         <img src="https://www.ohiada.org/wp-content/uploads/2025/03/OIADALogo.png"
-                             alt="Ohio Independent Automobile Dealers Association member" />
+                             alt="@I18n.R("Home_OiadaAlt")" />
                     </a>
                 </div>
             </section>
 
         </div>
 
-        <aside class="home-hero-side" aria-label="Featured inventory and quick actions">
+        <aside class="home-hero-side" aria-label="@I18n.R("Home_FeaturedAndActions")">
             @Html.Partial("_HomeInventoryPlayer", Model)
 
-            <nav class="home-hero-quick-actions" aria-label="Quick actions">
+            <nav class="home-hero-quick-actions" aria-label="@I18n.R("Home_QuickActions")">
                 <a href="@Url.Action("Application", "Home")">
                     <span class="home-quick-icon"><i class="bi bi-currency-dollar" aria-hidden="true"></i></span>
-                    <span><small>Financing</small><strong>@I18n.R("Nav_GetPrequalified")</strong></span>
+                    <span><small>@I18n.R("Home_Financing")</small><strong>@I18n.R("Nav_GetPrequalified")</strong></span>
                     <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
                 </a>
                 <a href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })">
                     <span class="home-quick-icon"><i class="bi bi-chat-dots" aria-hidden="true"></i></span>
-                    <span><small>Questions?</small><strong>@I18n.R("Nav_ContactUs")</strong></span>
+                    <span><small>@I18n.R("Home_Questions")</small><strong>@I18n.R("Nav_ContactUs")</strong></span>
                     <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
                 </a>
                 <a href="tel:+15134892886">
                     <span class="home-quick-icon"><i class="bi bi-telephone" aria-hidden="true"></i></span>
-                    <span><small>Call our team</small><strong>(513) 489-2886</strong></span>
+                    <span><small>@I18n.R("Home_CallTeam")</small><strong>(513) 489-2886</strong></span>
                     <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
                 </a>
             </nav>
@@ -147,13 +147,13 @@
                     if (playerPaused) {
                         carousel.pause();
                         $(this).find("i").removeClass("bi-pause-fill").addClass("bi-play-fill");
-                        this.setAttribute("aria-label", "Play featured inventory");
-                        this.setAttribute("title", "Play");
+                        this.setAttribute("aria-label", playerButton.dataset.playLabel);
+                        this.setAttribute("title", playerButton.dataset.playTitle);
                     } else {
                         carousel.cycle();
                         $(this).find("i").removeClass("bi-play-fill").addClass("bi-pause-fill");
-                        this.setAttribute("aria-label", "Pause featured inventory");
-                        this.setAttribute("title", "Pause");
+                        this.setAttribute("aria-label", playerButton.dataset.pauseLabel);
+                        this.setAttribute("title", playerButton.dataset.pauseTitle);
                     }
                 });
             }
@@ -163,8 +163,8 @@
                 playerPaused = true;
                 if (playerButton) {
                     $(playerButton).find("i").removeClass("bi-pause-fill").addClass("bi-play-fill");
-                    playerButton.setAttribute("aria-label", "Play featured inventory");
-                    playerButton.setAttribute("title", "Play");
+                    playerButton.setAttribute("aria-label", playerButton.dataset.playLabel);
+                    playerButton.setAttribute("title", playerButton.dataset.playTitle);
                 }
             }
         }

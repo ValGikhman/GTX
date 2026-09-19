@@ -1119,7 +1119,7 @@
                 $(this)
                     .toggleClass("is-selected", selected)
                     .attr("aria-pressed", selected ? "true" : "false")
-                    .attr("title", selected ? "Remove from comparison" : "Add to comparison");
+                    .attr("title", selected ? this.dataset.removeTitle : this.dataset.addTitle);
                 $(this).find("i").attr("class", selected ? "bi bi-check2" : "bi bi-columns-gap");
             });
 

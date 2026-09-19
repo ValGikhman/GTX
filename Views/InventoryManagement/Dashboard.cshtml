@@ -10,11 +10,11 @@
 
 @Html.Partial("_MarketingHero", null, new ViewDataDictionary
 {
-    { "Kicker", "Inventory intelligence at a glance" },
-    { "Title", "See the movement." },
-    { "Accent", "Lead the inventory." },
-    { "Description", "Track status, location, aging, and recent activity from one focused operational view." },
-    { "Word", "PULSE" },
+    { "Kicker", I18n.R("Hero_Dashboard_Kicker") },
+    { "Title", I18n.R("Hero_Dashboard_Title") },
+    { "Accent", I18n.R("Hero_Dashboard_Accent") },
+    { "Description", I18n.R("Hero_Dashboard_Description") },
+    { "Word", I18n.R("Hero_Dashboard_Word") },
     { "Icon", "bi-speedometer2" }
 })
 
@@ -476,7 +476,7 @@
                 const numeric = Number(text.replace(/[$,\s]/g, ""));
                 if (!Number.isFinite(numeric)) return text;
 
-                return new Intl.NumberFormat(undefined, {
+                return new Intl.NumberFormat("en-US", {
                     style: "currency",
                     currency: "USD",
                     maximumFractionDigits: 0

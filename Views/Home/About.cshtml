@@ -9,19 +9,19 @@
 
 @Html.Partial("_MarketingHero", null, new ViewDataDictionary
 {
-    { "Kicker", "Driven by trust since day one" },
-    { "Title", "More than cars." },
-    { "Accent", "A better journey." },
-    { "Description", "A West Chester dealership built around honest guidance, carefully selected vehicles, and people who genuinely listen." },
-    { "Word", "STORY" },
+    { "Kicker", I18n.R("Hero_About_Kicker") },
+    { "Title", I18n.R("Hero_About_Title") },
+    { "Accent", I18n.R("Hero_About_Accent") },
+    { "Description", I18n.R("Hero_About_Description") },
+    { "Word", I18n.R("Hero_About_Word") },
     { "Icon", "bi-compass" }
 })
 
 <main class="marketing-page about-page">
     <section class="marketing-content-shell">
         <div class="marketing-section-label">
-            <span>Our story</span>
-            <small>GTX Auto Group &middot; West Chester, Ohio</small>
+            <span>@I18n.R("Section_OurStory")</span>
+            <small>@I18n.R("Section_DealershipLocation")</small>
         </div>
 
         <div class="about-feature">

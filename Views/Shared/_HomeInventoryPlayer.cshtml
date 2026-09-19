@@ -43,11 +43,11 @@
              data-bs-ride="carousel"
              data-bs-interval="5500"
              data-bs-pause="hover"
-             aria-label="Newest vehicles">
+             aria-label="@I18n.R("Home_NewestVehicles")">
         <div class="home-inventory-player-bar">
             <span class="home-inventory-player-label">
                 <i class="bi bi-stars" aria-hidden="true"></i>
-                Fresh arrivals
+                @I18n.R("Home_FreshArrivals")
             </span>
             <span class="home-inventory-player-status" aria-live="polite">
                 <strong data-home-player-current>1</strong> / @featuredVehicles.Length
@@ -55,8 +55,12 @@
             <button type="button"
                     class="home-inventory-player-button"
                     data-home-player-toggle
-                    aria-label="Pause featured inventory"
-                    title="Pause">
+                    data-play-label="@I18n.R("Home_PlayInventory")"
+                    data-pause-label="@I18n.R("Home_PauseInventory")"
+                    data-play-title="@I18n.R("Home_Play")"
+                    data-pause-title="@I18n.R("Home_Pause")"
+                    aria-label="@I18n.R("Home_PauseInventory")"
+                    title="@I18n.R("Home_Pause")">
                 <i class="bi bi-pause-fill" aria-hidden="true"></i>
             </button>
         </div>
@@ -73,12 +77,12 @@
                 var transmission = !string.IsNullOrWhiteSpace(vehicle.TransmissionWord)
                     ? vehicle.TransmissionWord
                     : vehicle.Transmission;
-                var engine = string.IsNullOrWhiteSpace(vehicle.Engine) ? "Engine N/A" : vehicle.Engine;
+                var engine = string.IsNullOrWhiteSpace(vehicle.Engine) ? I18n.R("Home_EngineUnavailable") : vehicle.Engine;
                 var cardImageUrl = InventoryImageUrl.Build(vehicle.Images[0].Source, vehicle.Stock, InventoryImageVariant.Card);
 
                 <article class="carousel-item @(index == 0 ? "active" : string.Empty)">
                     <div class="home-inventory-card">
-                        <a class="home-inventory-card-media" href="@detailsUrl" aria-label="View @title details">
+                        <a class="home-inventory-card-media" href="@detailsUrl" aria-label="@I18n.F("Home_ViewVehicleDetails", title)">
                             <img class="vehicle-image" src="@cardImageUrl"
                                  alt="@title"
                                  width="600"
@@ -89,31 +93,31 @@
                         </a>
                         <div class="home-inventory-card-body">
                             <div class="home-inventory-card-heading-row">
-                                <a class="home-inventory-card-heading" href="@detailsUrl" aria-label="View @title details">
+                                <a class="home-inventory-card-heading" href="@detailsUrl" aria-label="@I18n.F("Home_ViewVehicleDetails", title)">
                                     <h2>@vehicle.Year @vehicle.Make @vehicle.Model</h2>
-                                    <p>@(string.IsNullOrWhiteSpace(vehicle.VehicleStyle) ? "Available now" : vehicle.VehicleStyle)</p>
+                                    <p>@(string.IsNullOrWhiteSpace(vehicle.VehicleStyle) ? I18n.R("Home_AvailableNow") : vehicle.VehicleStyle)</p>
                                 </a>
-                                <a class="home-inventory-offer home-inventory-call" href="tel:+15134892886" aria-label="Call GTX Auto Group for the price of @title">
+                                <a class="home-inventory-offer home-inventory-call" href="tel:+15134892886" aria-label="@I18n.F("Home_CallVehiclePrice", title)">
                                     <i class="bi bi-telephone-fill" aria-hidden="true"></i>
-                                    <span><small>Pricing</small><strong>Call for price</strong></span>
+                                    <span><small>@I18n.R("Home_Pricing")</small><strong>@I18n.R("Home_CallForPrice")</strong></span>
                                 </a>
                             </div>
                             <dl class="home-inventory-specs">
                                 <div>
-                                    <dt><i class="bi bi-speedometer2" aria-hidden="true"></i> Miles</dt>
+                                    <dt><i class="bi bi-speedometer2" aria-hidden="true"></i> @I18n.R("Home_Miles")</dt>
                                     <dd>@vehicle.Mileage.ToString("N0", usCulture)</dd>
                                 </div>
                                 <div>
-                                    <dt><i class="bi bi-gear-wide-connected" aria-hidden="true"></i> Cylinders</dt>
-                                    <dd>@(vehicle.Cylinders > 0 ? vehicle.Cylinders.ToString() : "N/A")</dd>
+                                    <dt><i class="bi bi-gear-wide-connected" aria-hidden="true"></i> @I18n.R("Home_Cylinders")</dt>
+                                    <dd>@(vehicle.Cylinders > 0 ? vehicle.Cylinders.ToString() : I18n.R("Home_NotAvailable"))</dd>
                                 </div>
                                 <div>
-                                    <dt><i class="bi bi-lightning-charge" aria-hidden="true"></i> Engine</dt>
+                                    <dt><i class="bi bi-lightning-charge" aria-hidden="true"></i> @I18n.R("Home_Engine")</dt>
                                     <dd title="@engine">@engine</dd>
                                 </div>
                                 <div>
-                                    <dt><i class="bi bi-shuffle" aria-hidden="true"></i> Trans</dt>
-                                    <dd title="@transmission">@(string.IsNullOrWhiteSpace(transmission) ? "N/A" : transmission)</dd>
+                                    <dt><i class="bi bi-shuffle" aria-hidden="true"></i> @I18n.R("Home_Transmission")</dt>
+                                    <dd title="@transmission">@(string.IsNullOrWhiteSpace(transmission) ? I18n.R("Home_NotAvailable") : transmission)</dd>
                                 </div>
                             </dl>
                         </div>
@@ -128,14 +132,14 @@
                     type="button"
                     data-bs-target="#homeInventoryPlayer"
                     data-bs-slide="prev"
-                    aria-label="Previous vehicle">
+                    aria-label="@I18n.R("Home_PreviousVehicle")">
                 <i class="bi bi-chevron-left" aria-hidden="true"></i>
             </button>
             <button class="carousel-control-next home-inventory-control"
                     type="button"
                     data-bs-target="#homeInventoryPlayer"
                     data-bs-slide="next"
-                    aria-label="Next vehicle">
+                    aria-label="@I18n.R("Home_NextVehicle")">
                 <i class="bi bi-chevron-right" aria-hidden="true"></i>
             </button>
         }
