@@ -5,11 +5,11 @@
 
 @Html.Partial("_MarketingHero", null, new ViewDataDictionary
 {
-    { "Kicker", "Seventeen characters. One complete picture." },
-    { "Title", "Decode with" },
-    { "Accent", "confidence." },
-    { "Description", "Turn a VIN into clear vehicle specifications with a fast, focused decoding workspace." },
-    { "Word", "DECODE" },
+    { "Kicker", I18n.R("Hero_VinDecoder_Kicker") },
+    { "Title", I18n.R("Hero_VinDecoder_Title") },
+    { "Accent", I18n.R("Hero_VinDecoder_Accent") },
+    { "Description", I18n.R("Hero_VinDecoder_Description") },
+    { "Word", I18n.R("Hero_VinDecoder_Word") },
     { "Icon", "bi-upc-scan" }
 })
 
@@ -24,8 +24,8 @@
 <main class="marketing-page vin-decoder-page">
     <section class="marketing-content-shell vin-decoder-shell">
         <div class="marketing-section-label">
-            <span>Vehicle identity workspace</span>
-            <small>AutoDealer.dev VIN intelligence</small>
+            <span>@I18n.R("Section_VehicleIdentity")</span>
+            <small>@I18n.R("Section_VinIntelligence")</small>
         </div>
 
         <section class="vin-decoder-console" aria-labelledby="vinDecoderConsoleTitle">

@@ -97,7 +97,7 @@
         if (!raw) return "";
         var numeric = Number(raw.replace(/[$,\s]/g, ""));
         if (!Number.isFinite(numeric)) return raw;
-        return new Intl.NumberFormat(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(numeric);
+        return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(numeric);
     }
 
     function formatChangeValue(field, value) {

@@ -375,11 +375,11 @@
 
 @Html.Partial("_MarketingHero", null, new ViewDataDictionary
 {
-    { "Kicker", "Live operational awareness" },
-    { "Title", "Know the system." },
-    { "Accent", "Stay ahead." },
-    { "Description", "Monitor application health, server resources, active sessions, and maintenance state in real time." },
-    { "Word", "HEALTH" },
+    { "Kicker", I18n.R("Hero_Health_Kicker") },
+    { "Title", I18n.R("Hero_Health_Title") },
+    { "Accent", I18n.R("Hero_Health_Accent") },
+    { "Description", I18n.R("Hero_Health_Description") },
+    { "Word", I18n.R("Hero_Health_Word") },
     { "Icon", "bi-activity" }
 })
 

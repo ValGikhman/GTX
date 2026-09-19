@@ -565,7 +565,7 @@
             const numeric = Number(text.replace(/[$,\s]/g, ""));
             if (!Number.isFinite(numeric)) return text;
 
-            return new Intl.NumberFormat(undefined, {
+            return new Intl.NumberFormat("en-US", {
                 style: "currency",
                 currency: "USD",
                 maximumFractionDigits: 0

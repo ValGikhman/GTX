@@ -22,19 +22,19 @@
 
 @Html.Partial("_MarketingHero", null, new ViewDataDictionary
 {
-    { "Kicker", "Ideas for the road ahead" },
-    { "Title", "Stories worth" },
-    { "Accent", "taking with you." },
-    { "Description", "Buying guidance, dealership news, and thoughtful reads from the people who know the road." },
-    { "Word", "READ" },
+    { "Kicker", I18n.R("Hero_BlogList_Kicker") },
+    { "Title", I18n.R("Hero_BlogList_Title") },
+    { "Accent", I18n.R("Hero_BlogList_Accent") },
+    { "Description", I18n.R("Hero_BlogList_Description") },
+    { "Word", I18n.R("Hero_BlogList_Word") },
     { "Icon", "bi-journal-richtext" }
 })
 
 <main class="marketing-page blog-list-page">
     <section class="marketing-content-shell">
         <div class="marketing-section-label">
-            <span>From the journal</span>
-            <small>@posts.Count @(posts.Count == 1 ? "story" : "stories")</small>
+            <span>@I18n.R("Section_Journal")</span>
+            <small>@I18n.F("Section_StoryCount", posts.Count)</small>
         </div>
 
         @if (posts.Count == 0)

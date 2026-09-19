@@ -38,19 +38,19 @@
 
 @Html.Partial("_MarketingHero", null, new ViewDataDictionary
 {
-    { "Kicker", "Meet the people behind the drive" },
-    { "Title", "Real people." },
-    { "Accent", "Remarkable service." },
-    { "Description", "Knowledgeable, approachable, and ready to help you find the right vehicle with confidence." },
-    { "Word", "TEAM" },
+    { "Kicker", I18n.R("Hero_Staff_Kicker") },
+    { "Title", I18n.R("Hero_Staff_Title") },
+    { "Accent", I18n.R("Hero_Staff_Accent") },
+    { "Description", I18n.R("Hero_Staff_Description") },
+    { "Word", I18n.R("Hero_Staff_Word") },
     { "Icon", "bi-stars" }
 })
 
 <main class="staff-page">
     <section class="staff-showcase" aria-label="Our staff">
         <div class="marketing-section-label">
-            <span>Faces you can trust</span>
-            <small>GTX Auto Group · West Chester, Ohio</small>
+            <span>@I18n.R("Section_TrustedFaces")</span>
+            <small>@I18n.R("Section_DealershipLocation")</small>
         </div>
 
         @if (employers.Length > 0)

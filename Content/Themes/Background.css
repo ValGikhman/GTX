@@ -18,6 +18,11 @@ html[data-background-theme="grey"] {
     --bs-tertiary-bg-rgb: 188, 195, 201;
 }
 
+/* Keep these footer labels dark on the footer surface in dark mode. */
+html[data-background-theme="dark"] :is(.footer-copyright, .footer-call-terms) {
+    color: #212529 !important;
+}
+
 /* Chrome-inspired neutral charcoal surfaces and light foregrounds. */
 html[data-background-theme="dark"] {
     color-scheme: dark;

@@ -131,7 +131,7 @@ namespace GTX.Controllers
         public ActionResult CapitalOnePQTS()
         {
             ViewBag.Message = "Application";
-            ViewBag.Title = "Get Pre-qualified with Capital One";
+            ViewBag.Title = I18n.R("Nav_CapitalOnePrequalified");
 
             return View();
         }

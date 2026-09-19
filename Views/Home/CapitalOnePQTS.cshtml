@@ -1,18 +1,18 @@
 ﻿@Html.Partial("_MarketingHero", null, new ViewDataDictionary
 {
-    { "Kicker", "Capital One pre-qualification" },
-    { "Title", "Get pre-qualified." },
-    { "Accent", "Explore what's next." },
-    { "Description", "Start your next car search with Capital One pre-qualification, then find your next vehicle at GTX Auto Group. Our team is here to help along the way." },
-    { "Word", "DRIVE" },
+    { "Kicker", I18n.R("Hero_CapitalOne_Kicker") },
+    { "Title", I18n.R("Hero_CapitalOne_Title") },
+    { "Accent", I18n.R("Hero_CapitalOne_Accent") },
+    { "Description", I18n.R("Hero_CapitalOne_Description") },
+    { "Word", I18n.R("Hero_CapitalOne_Word") },
     { "Icon", "bi-key" }
 })
 
 <main class="marketing-page">
     <section class="marketing-content-shell" aria-label="Capital One pre-qualification">
         <div class="marketing-section-label">
-            <span>Get started with Capital One</span>
-            <small>GTX Auto Group &middot; West Chester, Ohio</small>
+            <span>@I18n.R("Section_CapitalOne")</span>
+            <small>@I18n.R("Section_DealershipLocation")</small>
         </div>
 
         <!-- PROVIDED BY CAPITAL ONE -->
@@ -20,3 +20,4 @@
         <!-- PROVIDED BY CAPITAL ONE -->
     </section>
 </main>
+<script defer src="https://digital-retail.autodriven.com/loader.js" charset="utf-8" data-page-type="VDP" data-inventory-type="USED"></script>

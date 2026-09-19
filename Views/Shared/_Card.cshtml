@@ -113,10 +113,12 @@
             <button type="button"
                     class="gtx-compare-toggle"
                     data-stock="@Model.Stock"
+                    data-add-title="@I18n.R("Compare_Add")"
+                    data-remove-title="@I18n.R("Compare_Remove")"
                     aria-pressed="false"
-                    title="Compare @carTitle specifications">
+                    title="@I18n.F("Compare_VehicleSpecifications", carTitle)">
                 <i class="bi bi-columns-gap" aria-hidden="true"></i>
-                <span>Compare</span>
+                <span>@I18n.R("Compare_Button")</span>
             </button>
 
             @if (isPriorityCardImage)

@@ -315,11 +315,16 @@
 
                     <!-- Prequalified (success-ish outline) -->
                     <li class="mb-2 shadow-sm">
-                        <a href="@Url.Action("Application", "Home")" class="btn btn-outline-success w-100 rounded-3 fw-semibold">
+                        <a href="@Url.Action("Application", "Home")" class="btn btn-success w-100 rounded-3 fw-semibold">
                             <i class="bi bi-currency-dollar me-1"></i>@I18n.R("Nav_GetPrequalified")
                         </a>
                     </li>
-
+                    <!-- Capital One -->
+                    <li class="mb-2 shadow-sm">
+                        <a href="@Url.Action("CapitalOnePQTS", "Home")" class="btn btn-primary w-100 rounded-3 fw-semibold">
+                            <i class="bi bi-currency-dollar me-1"></i>@I18n.R("Nav_CapitalOnePrequalified")
+                        </a>
+                    </li>
                 </ul>
             </div>
 
@@ -395,7 +400,7 @@
                         </li>
                         <li class="mx-2 d-none d-lg-inline-block">
                             <a href="@Url.Action("CapitalOnePQTS", "Home")">
-                                <i class="bi bi-currency-dollar me-1"></i> Get Pre-qualified with Capital One
+                                <i class="bi bi-currency-dollar me-1"></i>@I18n.R("Nav_CapitalOnePrequalified")
                             </a>
                         </li>
                         <li id="fakeSearch" class="fake-input hand-pointer d-none" data-bs-toggle="modal" data-bs-target="#filtersModal">
@@ -525,7 +530,7 @@
 
                         <!-- Brand/env (desktop only) -->
                         <span class="text-muted text-shadow d-none d-lg-inline-flex align-items-center gap-2">
-                            <span>Copyright &copy; @DateTime.Now.Year</span>
+                            <span class="footer-copyright">Copyright &copy; @DateTime.Now.Year</span>
                             <a href="https://autodealer.dev/" target="_blank" rel="noopener" aria-label="AutoDealer.dev" style="margin-top: 5px">
                                 <img src="https://autodealer.dev/Content/images/autodealer-logo-light.png" alt="AutoDealer.dev" style="height: 26px; width: auto;" />
                             </a>
@@ -545,7 +550,7 @@
                         </a>
 
                         <!-- Terms sentence (desktop only) -->
-                        <span class="text-muted text-shadow d-none d-lg-inline text-nowrap">
+                        <span class="footer-call-terms text-muted text-shadow d-none d-lg-inline text-nowrap">
                             By placing calls to this dealership you agree to the
                             <a href="@Url.Action("TermsAndConditions", "Home")" class="link-primary text-decoration-underline" target="_blank" rel="noopener">
                                 @I18n.R("Title_Terms")
@@ -1059,7 +1064,12 @@
                         body: new FormData(langForm),
                         credentials: "same-origin"
                     })
-                        .then(() => window.location.reload())
+                        .then(response => {
+                            if (!response.ok) throw new Error("Language selection failed.");
+                            const url = new URL(window.location.href);
+                            url.searchParams.delete("lang");
+                            window.location.replace(url.toString());
+                        })
                         .catch(() => {
                             const url = new URL(window.location.href);
                             url.searchParams.set("lang", lang);
