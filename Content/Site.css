@@ -3355,8 +3355,8 @@ body.home-index .home-hero .video-background-video {
     margin: 0 auto;
     padding: clamp(1.5rem, 4vw, 4rem);
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(18rem, 24rem);
-    gap: clamp(2rem, 6vw, 7rem);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.45fr);
+    gap: clamp(1.25rem, 2vw, 2rem);
     align-items: center;
     transform: translateY(-2.5%);
 }
@@ -3612,6 +3612,137 @@ body.home-index .home-hero .video-background-video {
     align-self: center;
 }
 
+/* The player sets the row height; reviews scroll inside an equally sized card. */
+.home-featured-panels {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: .8rem;
+    min-width: 0;
+}
+
+.home-reviews {
+    contain: size;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 0;
+    border-radius: 1rem;
+    background: var(--bs-body-bg, #fff);
+    box-shadow: 0 1.4rem 3.5rem rgba(0, 0, 0, .3);
+    opacity: .85;
+}
+
+.home-reviews-heading {
+    display: flex;
+    align-items: center;
+}
+
+.home-featured-panels > .home-reviews:only-child {
+    contain: none;
+    height: 22rem;
+    grid-column: 1 / -1;
+}
+
+.home-reviews-card {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    padding: .75rem;
+    overflow-y: auto;
+    overflow-wrap: anywhere;
+    overscroll-behavior-y: contain;
+    scrollbar-width: thin;
+    color: var(--bs-body-color, #172433);
+    font-size: .8rem;
+}
+
+.home-reviews-card:focus-visible {
+    outline: 2px solid #1e73be;
+    outline-offset: -3px;
+}
+
+/* Hibu content follows the background palette independently of the hero. */
+.home-reviews-card > p,
+.home-reviews-card #fdnReviewsWidget .review {
+    color: var(--bs-body-color, #172433);
+    border-color: var(--bs-secondary-bg, #eee);
+}
+
+.home-reviews-card #fdnReviewsWidget .meta {
+    color: var(--bs-secondary-color, #64707a);
+}
+
+.home-reviews-card #homeReviewsError a {
+    color: var(--home-reviews-link, #074b83);
+}
+.home-reviews-card .home-reviews-filter-note {
+    color: var(--bs-body-color, #172433);
+    font-size: .75rem;
+    line-height: 1.5;
+}
+
+.home-reviews-filter-note a {
+    display: block;
+    color: var(--home-reviews-link, #074b83);
+    font-weight: 700;
+    text-decoration: underline;
+}
+
+.home-reviews-card #homeReviewsEmpty {
+    color: var(--bs-body-color, #172433);
+}
+
+.home-reviews-card #fdnReviewsWidget .single-review[hidden] {
+    display: none !important;
+}
+
+.home-reviews-card #fdnReviewsWidget p:has(> img[alt="hibu"]) {
+    display: none;
+}
+
+.home-reviews-card .home-review-action {
+    padding: .55rem .6rem;
+    border: 1px solid rgba(0, 0, 0, .2);
+    background: var(--gtx-grad, linear-gradient(180deg, #155a96, #1e73be));
+    color: #fff;
+    font-size: .8rem;
+    font-weight: 700;
+    line-height: 1.35;
+    white-space: normal;
+}
+
+.home-reviews-card #fdnReviewsWidget .comment,
+.home-reviews-card #fdnReviewsWidget .comment p {
+    color: var(--bs-body-color, #172433);
+    line-height: 1.6;
+}
+
+.home-reviews-card #fdnReviewsWidget .comment a {
+    padding: .1rem .3rem;
+    border-radius: .25rem;
+    color: var(--home-reviews-link, #074b83);
+    background: var(--bs-tertiary-bg, #e4f1fc);
+    font-weight: 800;
+    text-decoration: underline;
+    text-underline-offset: .15em;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.home-reviews-card #fdnReviewsWidget .comment a:hover,
+.home-reviews-card #fdnReviewsWidget .comment a:focus-visible {
+    color: #fff;
+    background: #074b83;
+}
+
+.home-reviews-card #fdnReviewsWidget .comment a:focus-visible {
+    outline: 2px solid #074b83;
+    outline-offset: 2px;
+}
+
 .home-inventory-player {
     position: relative;
     min-width: 0;
@@ -3625,13 +3756,12 @@ body.home-index .home-hero .video-background-video {
     opacity: .85;
 }
 
-.home-inventory-player-bar {
-    min-height: 2.25rem;
+.home-panel-heading {
+    flex: 0 0 auto;
+    /* Match the player's 1.55rem control, vertical padding, and divider. */
+    min-height: calc(2.31rem + 1px);
     padding: .38rem .55rem .38rem .72rem;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    align-items: center;
-    gap: .55rem;
+    color: #fff;
     border-bottom: 1px solid rgba(255, 255, 255, .16);
     background:
         linear-gradient(110deg, rgba(255, 255, 255, .13), transparent 58%),
@@ -3639,7 +3769,17 @@ body.home-index .home-hero .video-background-video {
     box-shadow: inset 0 1px rgba(255, 255, 255, .16);
 }
 
-.home-inventory-player-label {
+.home-inventory-player-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: .55rem;
+}
+
+.home-panel-title {
+    margin: 0;
+    color: inherit;
+    line-height: 1.5;
     min-width: 0;
     overflow: hidden;
     font-size: .66rem;
@@ -3650,7 +3790,7 @@ body.home-index .home-hero .video-background-video {
     white-space: nowrap;
 }
 
-.home-inventory-player-label i {
+.home-panel-title i {
     margin-right: .3rem;
     color: #ffd36a;
 }
@@ -3684,7 +3824,7 @@ body.home-index .home-hero .video-background-video {
     background: rgba(255, 255, 255, .18);
 }
 
-html.theme-silver .home-inventory-player-bar {
+html.theme-silver .home-panel-heading {
     color: #111820;
     border-bottom-color: rgba(17, 24, 32, .24);
     box-shadow: inset 0 1px rgba(255, 255, 255, .92);
@@ -3995,6 +4135,22 @@ html.theme-silver .home-quick-icon {
     color: #171b20;
 }
 
+@media (min-width: 768px) {
+    .home-hero-quick-actions {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .home-hero-quick-actions > a {
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: .5rem;
+        padding: .6rem;
+    }
+
+    .home-hero-quick-actions > a > .bi-arrow-up-right {
+        display: none;
+    }
+}
+
 @media (max-width: 1099.98px) {
     .home-hero-shell {
         grid-template-columns: minmax(0, 1fr);
@@ -4008,12 +4164,8 @@ html.theme-silver .home-quick-icon {
     }
 
     .home-hero-side {
-        grid-template-columns: minmax(19rem, 1.25fr) minmax(16rem, 1fr);
-        align-items: stretch;
-    }
-
-    .home-hero-quick-actions {
         grid-template-columns: minmax(0, 1fr);
+        align-items: stretch;
     }
 
     .home-hero-quick-actions > a:hover,
@@ -4062,6 +4214,15 @@ html.theme-silver .home-quick-icon {
 
     .home-inventory-player {
         display: none;
+    }
+
+    .home-featured-panels {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .home-reviews {
+        contain: none;
+        height: 22rem;
     }
 
     .home-hero-brand {

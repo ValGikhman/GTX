@@ -1261,6 +1261,41 @@ html.theme-silver .vin-schema-button-primary {
 }
 
 /* Testimonials */
+.google-reviews-page .hr-review-icon {
+    flex: 0 0 auto;
+}
+
+.google-reviews-page .hr-review-icon > img {
+    display: block;
+    width: 2.6rem;
+    height: 2.6rem;
+    object-fit: contain;
+}
+
+.google-review-comment {
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
+.google-review-rating {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .2rem;
+    color: #fdd663;
+    font-size: .85rem;
+    font-weight: 700;
+}
+
+.google-review-stars {
+    display: inline-flex;
+    gap: .15rem;
+}
+
+.google-review-rating-label {
+    color: var(--bs-body-color, #172433);
+}
+
 .testimonials-wrap {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));

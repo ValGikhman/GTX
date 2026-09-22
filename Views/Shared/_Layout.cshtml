@@ -282,6 +282,7 @@
                             <li class="mb-1 shadow-sm"><a class="btn btn-outline-dark w-100 text-start rounded-3" data-bs-dismiss="offcanvas" href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })">@I18n.R("Nav_ContactUs")</a></li>
                             <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_OurStaff"), "Staff", "Home", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
                             <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_Testimonials"), "Testimonials", "Home", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1 shadow-sm"><a href="@Url.Action("Reviews", "Home")" class="btn btn-outline-dark w-100 text-start rounded-3">@I18n.R("Nav_CustomerReviews")</a></li>
                         </ul>
                     </li>
 
@@ -396,6 +397,7 @@
                                 <li><a href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })">@I18n.R("Nav_ContactUs")</a></li>
                                 <li>@Html.ActionLink(I18n.R("Nav_OurStaff"), "Staff", "Home")</li>
                                 <li>@Html.ActionLink(I18n.R("Nav_Testimonials"), "Testimonials", "Home")</li>
+                                <li><a href="@Url.Action("Reviews", "Home")">@I18n.R("Nav_CustomerReviews")</a></li>
                             </ul>
                         </li>
                         <li class="mx-2 d-none d-lg-inline-block">

@@ -91,7 +91,30 @@
         </div>
 
         <aside class="home-hero-side" aria-label="@I18n.R("Home_FeaturedAndActions")">
-            @Html.Partial("_HomeInventoryPlayer", Model)
+            <div class="home-featured-panels">
+                @Html.Partial("_HomeInventoryPlayer", Model)
+
+                <section id="homeReviews" class="home-reviews" aria-labelledby="homeReviewsTitle">
+                    <div class="home-reviews-heading home-panel-heading">
+                        <h2 id="homeReviewsTitle" class="home-panel-title">
+                            <i class="bi bi-chat-quote-fill" aria-hidden="true"></i>
+                            @I18n.R("Section_CustomerStories")
+                        </h2>
+                    </div>
+                    <div class="home-reviews-card" tabindex="0" role="region" aria-labelledby="homeReviewsTitle">
+                        <p class="home-reviews-filter-note">
+                            <a href="@Url.Action("Reviews", "Home")">@I18n.R("Home_ReviewsViewAll")</a>
+                        </p>
+                        <p id="homeReviewsEmpty" role="status" hidden>@I18n.R("Home_ReviewsNoMatches")</p>
+                        <p id="homeReviewsLoading" role="status">@I18n.R("Home_ReviewsLoading")</p>
+                        <p id="homeReviewsError" role="status" hidden>
+                            @I18n.R("Home_ReviewsUnavailable")
+                            <a href="https://hibu.us/merchants/77018-gtx-auto-group" target="_blank" rel="noopener">@I18n.R("Home_ReviewsReadOnHibu")</a>
+                        </p>
+                        <div id="fdnReviewsWidget" data-merchant="77018"></div>
+                    </div>
+                </section>
+            </div>
 
             <nav class="home-hero-quick-actions" aria-label="@I18n.R("Home_QuickActions")">
                 <a href="@Url.Action("Application", "Home")">
@@ -113,6 +136,68 @@
         </aside>
     </div>
 </section>
+
+<script>
+    // Hibu uses protocol-relative API URLs. Its HTTP-to-HTTPS redirect has no
+    // CORS headers, so local HTTP pages must request the HTTPS API directly.
+    if (window.location.protocol === "http:" && window.fetch) {
+        (function (originalFetch) {
+            window.fetch = function (input) {
+                if (typeof input === "string" && input.indexOf("//hibu.us/api/") === 0) {
+                    arguments[0] = "https:" + input;
+                }
+                return originalFetch.apply(this, arguments);
+            };
+        })(window.fetch);
+    }
+</script>
+<script id="homeReviewsScript" defer src="https://widget.hibu.us/static/js/front.js"></script>
+<script>
+    (function () {
+        var widget = document.getElementById("fdnReviewsWidget");
+        var loading = document.getElementById("homeReviewsLoading");
+        var error = document.getElementById("homeReviewsError");
+        var empty = document.getElementById("homeReviewsEmpty");
+        function filterReviews() {
+            var reviews = widget.querySelectorAll(".single-review");
+            var visibleCount = 0;
+            Array.prototype.forEach.call(reviews, function (review) {
+                var rating = 0;
+                // Hibu renders one container per star, with a percentage width
+                // on partial stars. Unrated recommendations are not star ratings.
+                var stars = review.querySelectorAll(".review .fdn-rating .fdn-star-on-png");
+                Array.prototype.forEach.call(stars, function (star) {
+                    rating += star.style.width ? parseFloat(star.style.width) / 100 : 1;
+                });
+                review.hidden = !(rating >= 4 && rating <= 5);
+                if (!review.hidden) visibleCount++;
+            });
+            empty.hidden = reviews.length === 0 || visibleCount > 0;
+        }
+        function showError() {
+            loading.hidden = true;
+            error.hidden = false;
+        }
+        var timeout = window.setTimeout(showError, 15000);
+        var observer = new MutationObserver(function () {
+            filterReviews();
+            // Hibu's footer actions may be recreated after loading more reviews.
+            // Keep its click handlers while applying the site's shared buttons.
+            var actions = widget.querySelectorAll(":scope > div > a, :scope > div > span > a");
+            Array.prototype.forEach.call(actions, function (action) {
+                action.classList.add("btn", "btn-gradient", "shadow", "rounded-4", "home-review-action");
+            });
+            // Hibu renders its review links after receiving the merchant data.
+            if (widget.querySelector("a")) {
+                loading.hidden = true;
+                error.hidden = true;
+                window.clearTimeout(timeout);
+            }
+        });
+        observer.observe(widget, { childList: true, subtree: true });
+        document.getElementById("homeReviewsScript").addEventListener("error", showError);
+    })();
+</script>
 
 <script>
     $(function () {
