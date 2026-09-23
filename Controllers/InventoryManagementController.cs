@@ -335,8 +335,8 @@ namespace GTX.Controllers
                 var vehicles = ParseUploadedInventoryVehicles(dataCsv);
                 var result = InventoryService.SyncInventory(GTX.Models.GTX.ToDTOs(vehicles));
                 AppCache.ClearAll();
-
-                return CreateInventoryImportJsonResult(result, "Inventory upload completed.");
+                var sitemapWarning = RefreshInventorySitemap();
+                return CreateInventoryImportJsonResult(result, sitemapWarning ?? "Inventory upload completed.");
             }
             catch (InventoryCsvValidationException ex)
             {
@@ -471,11 +471,12 @@ namespace GTX.Controllers
             {
                 var result = InventoryService.RollbackLatestInventoryUpload(expectedLatestInventoryLogId);
                 AppCache.ClearAll();
+                var sitemapWarning = RefreshInventorySitemap();
 
                 return Json(new
                 {
                     success = true,
-                    message = "The latest inventory upload was removed and the previous inventory was restored.",
+                    message = sitemapWarning ?? "The latest inventory upload was removed and the previous inventory was restored.",
                     rollback = result
                 });
             }

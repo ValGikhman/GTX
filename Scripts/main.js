@@ -274,10 +274,15 @@ function setMajordomeMenu(role) {
         "tech": "bi-tools",                  // tech
         "manager": "bi-clipboard-check",     // manager
         "sales": "bi-currency-dollar",       // sales
-        "support": "bi-wrench"               // support
+        "support": "bi-wrench",              // support
+        "blogger": "bi-pencil-square"
     };
 
     switch (r) {
+        case "blogger":
+            $("#MajordomeLink .dropdown > li").hide();
+            $("#menuBlogs").show();
+            break;
         case "tech":
             $("#menuInventory").show();
             $("#menuInventoryDashboard").hide();

@@ -54,26 +54,6 @@ namespace Utility.XMLHelpers {
                 }).ToArray();
         }
 
-        public static (GTX.Models.GTX[] Vehicles, DateTime InventoryDate) GetInventory() {
-            string path = $"{xmlFilePath}\\Inventory\\Current\\GTX-Inventory.xml";
-            var fileInfo = new FileInfo(path);
-            DateTime inventoryDate = fileInfo.LastWriteTime;
-
-            GTXInventory inventory = ReadXmlFile(path);
-            inventory.Vehicles = inventory.Vehicles.Where(m => !string.IsNullOrEmpty(m.VIN)).ToArray();
-
-            return (inventory.Vehicles, inventoryDate);
-        }
-
-        public static GTXInventory ReadXmlFile(string filePath) {
-            XmlSerializer serializer = new XmlSerializer(typeof(GTXInventory));
-
-            using (StreamReader reader = new StreamReader(filePath)) {
-                GTXInventory inventory = (GTXInventory)serializer.Deserialize(reader);
-                return inventory;
-            }
-        }
-
         public async static Task<AdfLeadDeliveryResult> SendAdfLeadAsync(ContactModel model) {
             try {
                 string filePath = $"{xmlFilePath}adf.xml";

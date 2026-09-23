@@ -37,6 +37,12 @@ namespace GTX.Common
                 ? role != CommonUnit.Roles.User
                 : role == RequiredRole;
 
+            if (role == CommonUnit.Roles.Blogger &&
+                !string.Equals(filterContext.ActionDescriptor.ControllerDescriptor.ControllerName, "Blogs", StringComparison.OrdinalIgnoreCase))
+            {
+                hasAccess = false;
+            }
+
             if (!hasAccess)
             {
                 // Preserve return url

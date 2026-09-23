@@ -150,6 +150,18 @@ namespace GTX.Controllers
 
         #region Public
 
+        protected string RefreshInventorySitemap() {
+            try {
+                SitemapWriter.Write(InventoryService);
+                return null;
+            }
+            catch (Exception ex) {
+                // The inventory transaction already committed; report a separate warning.
+                System.Diagnostics.Trace.TraceError("Inventory saved, but sitemap refresh failed: {0}", ex);
+                return "Inventory was saved, but the sitemap could not be refreshed. Check server logs and sitemap file permissions.";
+            }
+        }
+
         public void Log(Exception ex) {
             LogService.Log(SessionData.LogHeader, ex);
         }
@@ -185,8 +197,12 @@ namespace GTX.Controllers
             var expected = Model.Passwords.FirstOrDefault(m => m.Password == password);
             if (expected == null) return false;
 
-            if (!string.IsNullOrWhiteSpace(expected.Role) &&
-                Enum.TryParse(expected.Role, true, out CommonUnit.Roles role))
+            // Preserve the existing sitePassword:Blog setting as a Blogger login.
+            var roleName = string.Equals(expected.Role, "Blog", StringComparison.OrdinalIgnoreCase)
+                ? nameof(CommonUnit.Roles.Blogger)
+                : expected.Role;
+            if (!string.IsNullOrWhiteSpace(roleName) &&
+                Enum.TryParse(roleName, true, out CommonUnit.Roles role))
             {
                 currentRole = role;
             }
