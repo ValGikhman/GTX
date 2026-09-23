@@ -18,7 +18,7 @@
             var source = isGoogle ? "Google" : "Hibu";
             seen[review.id] = true;
             var card = $("<article>", { "class": "t-card" });
-            var header = $("<div>", { "class": "d-flex align-items-start gap-3 mb-3" }).appendTo(card);
+            var header = $("<div>", { "class": "review-header" }).appendTo(card);
             $("<div>", { "class": "hr-review-icon", "aria-hidden": "true" })
                 .append($("<img>", {
                     src: list.attr(isGoogle ? "data-google-icon" : "data-hibu-icon"),

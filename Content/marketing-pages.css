@@ -1261,6 +1261,29 @@ html.theme-silver .vin-schema-button-primary {
 }
 
 /* Testimonials */
+.google-reviews-page.testimonials-page .t-card {
+    min-width: 0;
+    padding: clamp(.95rem, 2vw, 1.35rem) !important;
+    border-color: var(--bs-border-color, #dee2e6);
+    border-radius: 1rem;
+    background: var(--bs-body-bg, #fff);
+    box-shadow: 0 .4rem 1.25rem rgba(11, 17, 24, .07);
+}
+
+.google-reviews-page .t-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: var(--mp-gradient);
+}
+
+.google-reviews-page .review-header {
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+}
+
 .google-reviews-page .review-details {
     flex: 1 1 auto;
     min-width: 0;
@@ -1270,13 +1293,15 @@ html.theme-silver .vin-schema-button-primary {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    gap: .75rem;
-    margin-bottom: .55rem;
+    gap: .5rem;
+    margin-bottom: .15rem;
 }
 
 .google-reviews-page .review-name-row .t-title {
     min-width: 0;
     margin: 0;
+    font-size: .95rem;
+    line-height: 1.4;
     overflow-wrap: anywhere;
 }
 
@@ -1289,13 +1314,60 @@ html.theme-silver .vin-schema-button-primary {
 
 .google-reviews-page .hr-review-icon {
     flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid rgba(11, 17, 24, .1);
+    border-radius: .7rem;
+    background: #fff;
 }
 
 .google-reviews-page .hr-review-icon > img {
     display: block;
-    width: 2.6rem;
-    height: 2.6rem;
+    width: 1.75rem;
+    height: 1.75rem;
     object-fit: contain;
+}
+
+.google-reviews-page .review-source {
+    color: var(--bs-secondary-color, #64707a);
+    font-size: .72rem;
+    font-weight: 600;
+}
+
+.google-reviews-page .google-review-rating {
+    margin-top: .3rem;
+    gap: .15rem;
+}
+
+.google-reviews-page .google-review-rating-label {
+    font-size: .7rem;
+    font-weight: 500;
+}
+
+.google-reviews-page.testimonials-page .t-card .google-review-comment:not(:empty) {
+    margin-top: .85rem;
+    padding-top: .85rem;
+    border-top: 1px solid var(--bs-border-color, #dee2e6);
+    color: var(--bs-body-color, #172433) !important;
+    font-size: .88rem;
+    line-height: 1.65;
+}
+
+@media (max-width: 399.98px) {
+    .google-reviews-page .review-header {
+        gap: .5rem;
+    }
+
+    .google-reviews-page .hr-review-icon {
+        width: 2rem;
+        height: 2rem;
+    }
+
+    .google-reviews-page .review-date {
+        font-size: .65rem;
+    }
 }
 
 .google-review-comment {
