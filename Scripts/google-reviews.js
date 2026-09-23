@@ -26,8 +26,9 @@
                     width: 42,
                     height: 42
                 })).appendTo(header);
-            var details = $("<div>").appendTo(header);
-            $("<h2>", { "class": "t-title" }).text(review.name || source).appendTo(details);
+            var details = $("<div>", { "class": "review-details" }).appendTo(header);
+            var nameRow = $("<div>", { "class": "review-name-row" }).appendTo(details);
+            $("<h2>", { "class": "t-title" }).text(review.name || source).appendTo(nameRow);
             $("<div>", { "class": "small mb-1 review-source" }).text(source).appendTo(details);
             var rating = Number(review.rating);
             if (rating >= 1 && rating <= 5) {
@@ -45,9 +46,9 @@
             var date = /^(\d{4})-(\d{2})-(\d{2})(?:T|$)/.exec(review.created_at || "");
             if (date) {
                 var published = new Date(Number(date[1]), Number(date[2]) - 1, Number(date[3]));
-                $("<div>", { "class": "review-date small text-body-secondary mt-1" }).append($("<time>", {
+                $("<div>", { "class": "review-date small text-body-secondary" }).append($("<time>", {
                     datetime: date[1] + "-" + date[2] + "-" + date[3]
-                }).text(list.attr("data-created-label").replace("{0}", published.toLocaleDateString(document.documentElement.lang || "en-US")))).appendTo(details);
+                }).text(list.attr("data-created-label").replace("{0}", published.toLocaleDateString(document.documentElement.lang || "en-US")))).appendTo(nameRow);
             }
             list.append(card);
         }

@@ -2464,7 +2464,7 @@ a, u {
             position: absolute;
             left: 0;
             top: 56px;
-            width: 125px;
+            width: 160px;
             background: var(--bs-body-color);
             background: #155A96;
             background: linear-gradient(83deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1) 94%);
@@ -3650,7 +3650,7 @@ body.home-index .home-hero .video-background-video {
     flex: 1 1 auto;
     min-width: 0;
     min-height: 0;
-    padding: .75rem;
+    padding: .6rem;
     overflow-y: auto;
     overflow-wrap: anywhere;
     overscroll-behavior-y: contain;
@@ -3675,10 +3675,76 @@ body.home-index .home-hero .video-background-video {
     color: var(--bs-secondary-color, #64707a);
 }
 
+/* Compact provider cards within the player-sized homepage panel. */
+.home-reviews-card #fdnReviewsWidget .review {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: .5rem;
+    min-width: 0;
+    margin-bottom: .55rem;
+    padding-bottom: .55rem;
+}
+
+.home-reviews-card #fdnReviewsWidget .review > * {
+    grid-column: 1 / -1;
+    min-width: 0;
+}
+
+.home-reviews-card #fdnReviewsWidget .review > .name {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.home-reviews-card #fdnReviewsWidget .review > .meta {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: start;
+    text-align: right;
+    white-space: nowrap;
+    font-size: .65rem;
+    line-height: 1.65;
+}
+
+.home-reviews-card #fdnReviewsWidget .review:nth-child(2) {
+    margin-left: .6rem;
+}
+
+.home-reviews-card #fdnReviewsWidget .hr-review-icon > img {
+    width: 2rem;
+    height: 2rem;
+    object-fit: contain;
+}
+
+.home-reviews-card #fdnReviewsWidget .name {
+    margin-bottom: .1rem;
+    font-size: .85rem;
+    line-height: 1.25;
+}
+
+.home-reviews-card #fdnReviewsWidget .fdn-rating {
+    font-size: 16px;
+}
+
+.home-reviews-card #fdnReviewsWidget .comment {
+    margin: .15rem 0 .3rem;
+}
+
+.home-reviews-card #fdnReviewsWidget .review > div:has(> div > span + p) {
+    margin: .5rem 0 0;
+    padding: .5rem .6rem;
+}
+
+.home-reviews-card #fdnReviewsWidget .review > div:has(> div > span + p) p {
+    margin: .25rem 0 0;
+    padding: 0;
+    line-height: 1.4;
+}
+
 .home-reviews-card #homeReviewsError a {
     color: var(--home-reviews-link, #074b83);
 }
 .home-reviews-card .home-reviews-filter-note {
+    margin-bottom: .5rem;
     color: var(--bs-body-color, #172433);
     font-size: .75rem;
     line-height: 1.5;
@@ -3717,7 +3783,7 @@ body.home-index .home-hero .video-background-video {
 .home-reviews-card #fdnReviewsWidget .comment,
 .home-reviews-card #fdnReviewsWidget .comment p {
     color: var(--bs-body-color, #172433);
-    line-height: 1.6;
+    line-height: 1.4;
 }
 
 .home-reviews-card #fdnReviewsWidget .comment a {
