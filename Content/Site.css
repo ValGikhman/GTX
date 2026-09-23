@@ -3367,12 +3367,12 @@ body.home-index .home-hero .video-background-video {
     max-width: 51rem;
     align-self: center;
     color: #fff;
-    transform: translateY(10rem);
+    transform: translateY(7.5rem);
 }
 
 .home-hero-brand {
     position: absolute;
-    top: 22%;
+    top: calc(22% - 2.5rem);
     left: 8rem;
     z-index: 0;
     width: clamp(30rem, 5vw, 35rem);
@@ -3610,6 +3610,11 @@ body.home-index .home-hero .video-background-video {
     display: grid;
     gap: .8rem;
     align-self: center;
+}
+
+.home-hero-side > .home-memberships {
+    margin-top: 0;
+    justify-self: center;
 }
 
 /* The player sets the row height; reviews scroll inside an equally sized card. */
