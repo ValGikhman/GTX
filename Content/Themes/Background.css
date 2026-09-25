@@ -475,7 +475,13 @@ html[data-background-theme="dark"] .inventory-dashboard-history-panel {
     color: var(--bs-body-color);
 }
 
-html[data-background-theme="dark"] .inventory-dashboard-history-panel :is(.inventory-dashboard-history-table, .inventory-dashboard-change-table) {
+html[data-background-theme="dark"] .majordome-management-detail-panel {
+    border-color: var(--bs-border-color);
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme="dark"] .inventory-dashboard-history-panel :is(.inventory-dashboard-history-table, .inventory-dashboard-change-table),
+html[data-background-theme="dark"] .majordome-management-detail-panel .inventory-dashboard-change-table {
     --bs-table-bg: transparent;
     --bs-table-color: var(--bs-body-color);
     --bs-table-border-color: var(--bs-border-color);
@@ -483,17 +489,20 @@ html[data-background-theme="dark"] .inventory-dashboard-history-panel :is(.inven
     --bs-table-hover-color: var(--bs-body-color);
 }
 
-html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-change-detail-panel {
+html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-change-detail-panel,
+html[data-background-theme="dark"] .majordome-management-detail-panel {
     background: var(--bs-body-bg);
 }
 
-html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-change-table th {
+html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-change-table th,
+html[data-background-theme="dark"] .majordome-management-detail-panel .inventory-dashboard-change-table th {
     background: var(--bs-secondary-bg) !important;
     border-color: var(--bs-border-color);
     color: var(--bs-body-color);
 }
 
-html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-change-table td {
+html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-change-table td,
+html[data-background-theme="dark"] .majordome-management-detail-panel .inventory-dashboard-change-table td {
     background: var(--bs-body-bg) !important;
 }
 
@@ -640,6 +649,12 @@ html[data-background-theme="dark"] .majordome-status-pill {
 
 html[data-background-theme="dark"] .majordome-status-pill.majordome-status-counter {
     color: #212529;
+}
+
+html[data-background-theme="dark"] .majordome-status-pill.majordome-status-location:not(.is-gtx-x):not(.is-gtx-t):not(.is-gtx-g) {
+    background: var(--bs-secondary-bg);
+    border-color: var(--bs-secondary-color);
+    color: var(--bs-body-color);
 }
 
 html[data-background-theme="dark"] .text-dark {

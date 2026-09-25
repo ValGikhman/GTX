@@ -2333,15 +2333,9 @@ body.majordome-inventory-page .body-content {
         }
 
     .majordome-management-toggle {
-        width: 1.75rem;
-        height: 1.75rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        --dashboard-muted: var(--inventory-muted);
         margin-right: auto;
         margin-left: auto;
-        padding: 0;
-        border-radius: .5rem;
     }
 
     .majordome-management-row {
