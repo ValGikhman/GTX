@@ -378,6 +378,7 @@
                                 <li id="menuAnnouncements">@Html.ActionLink("Alerts", "Index", "Announcements")</li>
                                 }
                                 <li id="menuBlogs">@Html.ActionLink("Blogs", "Index", "Blogs")</li>
+                                <li id="menuSpecials">@Html.ActionLink("Specials", "Index", "Specials")</li>
                                 @if (!isBlogger)
                                 {
                                 <li id="menuEmployees">@Html.ActionLink("Employees", "Index", "Employees")</li>
@@ -400,6 +401,7 @@
                             </a>
                         </li>
                         <li class="mx-2">@Html.ActionLink(I18n.R("Title_Blog"), "List", "Blogs")</li>
+                        <li class="mx-2">@Html.ActionLink("Specials", "List", "Specials")</li>
                         <li class="mx-2">
                             <a href="#">@I18n.R("Nav_AboutUs")</a>
                             <ul class="dropdown rounded">

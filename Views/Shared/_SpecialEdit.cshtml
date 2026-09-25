@@ -1,0 +1,26 @@
+@model GTX.Models.SpecialModel
+@using (Html.BeginForm("Save", "Specials", FormMethod.Post, new { data_special_ajax = "true", data_upload_url = Url.Action("UploadImage", "Specials") }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.Id)
+    @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+    <div class="mb-3">
+        @Html.LabelFor(m => m.Title, new { @class = "form-label" })
+        @Html.TextBoxFor(m => m.Title, new { @class = "form-control", maxlength = 200 })
+    </div>
+    <div class="form-check form-switch mb-3">
+        @Html.CheckBoxFor(m => m.IsPublished, new { @class = "form-check-input" })
+        @Html.LabelFor(m => m.IsPublished, "Published", new { @class = "form-check-label" })
+    </div>
+    <div class="mb-3">
+        @Html.LabelFor(m => m.CardContent, "Card content", new { @class = "form-label" })
+        <p class="small text-muted">Format your text and insert images with the toolbar, or drop images into the editor.</p>
+        @Html.TextAreaFor(m => m.CardContent, new { @class = "form-control special-rich-text" })
+    </div>
+    <div class="special-upload-status small mb-3" role="status" aria-live="polite"></div>
+    <div class="d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-gradient">Save special</button>
+    </div>
+}
+<script>window.initializeSpecialEditor();</script>

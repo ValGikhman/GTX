@@ -1,0 +1,34 @@
+@model List<GTX.Models.SpecialModel>
+@{ ViewBag.Title = "Specials"; }
+<link href="~/Content/specials.css?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/specials.css")).Ticks)" rel="stylesheet" />
+@Html.Partial("_MarketingHero", null, new ViewDataDictionary {
+    { "Kicker", "GTX Auto Group" }, { "Title", "Explore our" }, { "Accent", "Specials" },
+    { "Description", "Discover the latest offers from GTX Auto Group." }, { "Word", "SPECIALS" }, { "Icon", "bi-tags" }
+})
+<main class="marketing-page blog-list-page specials-page">
+    <section class="marketing-content-shell">
+        @if (Model.Count == 0)
+        {
+            <div class="blog-empty"><i class="bi bi-tags" aria-hidden="true"></i><strong>No specials right now.</strong><p>Check back soon for new offers.</p></div>
+        }
+        else
+        {
+            <div class="blog-list-grid">
+                @foreach (var special in Model)
+                {
+                    <article class="blog-list-item special-list-item" aria-labelledby="special-title-@special.Id">
+                        <div class="blog-list-card special-card">
+                            <header class="special-card-header">
+                                <div id="special-title-@special.Id" class="special-card-title" role="heading" aria-level="2">@special.Title</div>
+                                <a class="special-card-link" href="@Url.Action("Special", "Specials", new { id = special.Id })" aria-label="View special: @special.Title">View special <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+                            </header>
+                            <div class="special-card-body">
+                                <div class="special-rich-content">@Html.Raw(SecuritySanitizer.SanitizeRichHtml(special.CardContent))</div>
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+</main>

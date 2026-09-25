@@ -281,7 +281,7 @@ function setMajordomeMenu(role) {
     switch (r) {
         case "blogger":
             $("#MajordomeLink .dropdown > li").hide();
-            $("#menuBlogs").show();
+            $("#menuBlogs, #menuSpecials").show();
             break;
         case "tech":
             $("#menuInventory").show();
@@ -289,7 +289,7 @@ function setMajordomeMenu(role) {
             $("#menuInventoryManagement").hide();
             $("#menuVinDecoder").show();
             $("#menuAnnouncements").hide();
-            $("#menuBlogs").hide();
+            $("#menuBlogs, #menuSpecials").hide();
             $("#menuEmployees").hide();
             $("#menuHealth").hide();
             $("#menuSitemap").show();
@@ -301,7 +301,7 @@ function setMajordomeMenu(role) {
             $("#menuInventoryManagement").show();
             $("#menuVinDecoder").show();
             $("#menuAnnouncements").show();
-            $("#menuBlogs").show();
+            $("#menuBlogs, #menuSpecials").show();
             $("#menuEmployees").show();
             $("#menuHealth").show();
             $("#menuSitemap").show();
@@ -314,7 +314,7 @@ function setMajordomeMenu(role) {
             $("#menuInventoryManagement").hide();
             $("#menuVinDecoder").hide();
             $("#menuAnnouncements").hide();
-            $("#menuBlogs").hide();
+            $("#menuBlogs, #menuSpecials").hide();
             $("#menuEmployees").hide();
             $("#menuHealth").hide();
             $("#menuSitemap").show();
@@ -326,7 +326,7 @@ function setMajordomeMenu(role) {
             $("#menuInventoryManagement").hide();
             $("#menuVinDecoder").show();
             $("#menuAnnouncements").show();
-            $("#menuBlogs").show();
+            $("#menuBlogs, #menuSpecials").show();
             $("#menuEmployees").show();
             $("#menuHealth").hide();
             $("#menuSitemap").show();
@@ -338,13 +338,13 @@ function setMajordomeMenu(role) {
             $("#menuInventoryManagement").hide();
             $("#menuVinDecoder").hide();
             $("#menuAnnouncements").hide();
-            $("#menuBlogs").show();
+            $("#menuBlogs, #menuSpecials").show();
             $("#menuEmployees").hide();
             $("#menuHealth").hide();
             $("#menuSitemap").show();
             break;
         default:
-            $("#menuVinDecoder, #menuInventory, #menuInventoryDashboard, #menuInventoryManagement, #menuAnnouncements, #menuBlogs, #menuEmployees, #menuHealth, #menuSitemap, #menuChatBotCommands").hide();
+            $("#menuVinDecoder, #menuInventory, #menuInventoryDashboard, #menuInventoryManagement, #menuAnnouncements, #menuBlogs, #menuSpecials, #menuEmployees, #menuHealth, #menuSitemap, #menuChatBotCommands").hide();
             break;
     }
     // text

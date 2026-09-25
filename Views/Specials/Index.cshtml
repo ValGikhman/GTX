@@ -1,0 +1,14 @@
+@model List<GTX.Models.SpecialModel>
+@{ ViewBag.Title = "Specials"; }
+<link href="~/Content/addTools/addEdit.css" rel="stylesheet" />
+<link href="~/Content/specials.css?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/specials.css")).Ticks)" rel="stylesheet" />
+<script src="~/Scripts/addTools/addEdit.js"></script>
+@Html.Partial("_MarketingHero", null, new ViewDataDictionary {
+    { "Kicker", "Majordome" }, { "Title", "Design your" }, { "Accent", "Specials" },
+    { "Description", "Design a card with formatted text and images, then publish when ready." },
+    { "Word", "SPECIALS" }, { "Icon", "bi-tags" }
+})
+<div id="specialsToken" class="d-none">@Html.AntiForgeryToken()</div>
+@Html.Partial("_SpecialModal")
+<div id="tab-special" class="p-3">@Html.Partial("_Special", Model)</div>
+<script src="~/Scripts/specials.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/specials.js")).Ticks)"></script>

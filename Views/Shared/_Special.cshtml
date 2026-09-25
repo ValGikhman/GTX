@@ -1,0 +1,200 @@
+@model List<GTX.Models.SpecialModel>
+<link href="~/Content/majordome.css?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/majordome.css")).Ticks)" rel="stylesheet" />
+
+<div class="shadow rounded-4 overflow-hidden">
+
+    <div class="card-header bg-white p-3 border-0 sticky-top" style="z-index: 1020;">
+        <div class="d-flex align-items-center justify-content-end">
+            <a id="newSpecial" class="btn btn-gradient"
+               data-special-modal="true"
+               data-title="New Special"
+               href="@Url.Action("Create", "Specials")">
+                <i class="bi bi-plus-lg me-1"></i> New
+            </a>
+        </div>
+    </div>
+
+    <div class="card-body p-0">
+        <div id="specialsAddGrid" class="gtx-admin-add-grid"></div>
+        <div class="d-none" aria-hidden="true">
+            <table id="specialTableSource">
+                <thead class="table-light">
+                    <tr>
+                        <th style="min-width:160px;">Title</th>
+                        <th style="width:120px;">Published</th>
+                        <th style="min-width:70px;">Created</th>
+                        <th class="text-end" style="width:160px;">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (Model == null || !Model.Any())
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center p-4 text-muted">
+                                No specials yet. Click <strong>New</strong> to create one.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var p in Model)
+                        {
+                            <tr data-grid-row="true" data-published="@(p.IsPublished ? "1" : "0")">
+                                <td>
+                                    <div class="fw-semibold">@p.Title</div>
+                                </td>
+
+
+                                <td>
+                                    @if (p.IsPublished)
+                                    {
+                                        <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle shadow">
+                                            Published
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary-subtle">
+                                            Draft
+                                        </span>
+                                    }
+                                </td>
+
+                                <td class="text-muted">
+                                    @p.CreatedAt.ToString("yyyy-MM-dd")
+                                </td>
+
+                                <td class="text-end">
+                                    <div class="btn-group">
+                                        <a class="btn btn-gradient-grey btn-sm btn-outline-primary"
+                                           data-special-modal="true"
+                                           data-title="Edit Special"
+                                           href="@Url.Action("Edit", "Specials", new { id = p.Id })">
+                                            <i class="bi bi-pencil-square me-1"></i>
+                                        </a>
+
+                                        <button id="btnDelete-@p.Id"
+                                                type="button"
+                                                class="btn btn-gradient-grey btn-sm btn-outline-danger"
+                                                onclick="deleteSpecial(@p.Id)"
+                                                data-id="@p.Id"
+                                                title="Delete">
+                                            <i class="bi bi-trash me-1"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script type="text/x-addgrid-template" id="special-grid-title-template">{{TitleHtml}}</script>
+<script type="text/x-addgrid-template" id="special-grid-published-template">{{PublishedHtml}}</script>
+<script type="text/x-addgrid-template" id="special-grid-created-template">{{CreatedHtml}}</script>
+<script type="text/x-addgrid-template" id="special-grid-actions-template">{{ActionsHtml}}</script>
+
+<script>
+    async function deleteSpecial(id) {
+        if (!id) return;
+
+        const confirmed = await window.gtxConfirm({
+            title: "Delete special",
+            message: "Delete this special? This cannot be undone.",
+            confirmText: "Delete",
+            variant: "danger"
+        });
+        if (!confirmed) return;
+
+        $.post(`${root}Specials/Delete`, { id: id, __RequestVerificationToken: $("#specialsToken input").val() })
+            .done(function (res) {
+                if (res && res.ok === true) {
+                    console.log("Deleted");
+                    refreshSpecialsList();
+                    return;
+                }
+                window.gtxAlert("Delete failed.");
+            })
+            .fail(function (xhr) {
+                window.gtxAlert("Delete failed. Status: " + xhr.status);
+            });
+    };
+
+    function refreshSpecialsList() {
+        const $grid = $("#specialsAddGrid");
+        window.gtxAdminGridState = window.gtxAdminGridState || {};
+        window.gtxAdminGridState.specialsSearch = $grid.data("add-grid")
+            ? $grid.addGrid("getSearch")
+            : (window.gtxAdminGridState.specialsSearch || "");
+        const listContainerSelector = "#tab-special";
+
+        $(listContainerSelector).load(`${root}Specials/ListPartial`);
+    }
+
+    $(function initializeSpecialsAddGrid() {
+        const $source = $("#specialTableSource");
+        const rows = $source.find("tbody tr[data-grid-row='true']").map(function () {
+            const $cells = $(this).children("td");
+            const title = $.trim($cells.eq(0).text());
+            const published = $.trim($cells.eq(1).text());
+            const created = $.trim($cells.eq(2).text());
+
+            return {
+                Title: title,
+                Published: published,
+                Created: created,
+                SearchText: [title, published, created].join(" "),
+                TitleHtml: $cells.eq(0).html(),
+                PublishedHtml: $cells.eq(1).html(),
+                CreatedHtml: $cells.eq(2).html(),
+                ActionsHtml: $cells.eq(3).html()
+            };
+        }).get();
+
+        $source.parent().remove();
+        window.gtxAdminGridState = window.gtxAdminGridState || {};
+
+        const $grid = $("#specialsAddGrid");
+        $grid.addGrid({
+            data: rows,
+            columns: [
+                { field: "Title", title: "Title", width: 230, filterable: false, searchable: true, searchField: "SearchText", template: "#special-grid-title-template" },
+                { field: "Published", title: "Published", width: 130, searchable: false, headerClass: "text-center", cellClass: "text-center", template: "#special-grid-published-template" },
+                { field: "Created", title: "Created", width: 130, filterable: false, searchable: false, headerClass: "text-center", cellClass: "text-center text-muted", template: "#special-grid-created-template" },
+                { field: "Actions", title: "Actions", width: 140, filterable: false, searchable: false, headerClass: "text-center", cellClass: "text-center", template: "#special-grid-actions-template" }
+            ],
+            tableClass: "table align-middle m-0",
+            height: null,
+            pageable: false,
+            showRecordCount: true,
+            recordType: { singular: "special", plural: "specials", icon: "bi bi-newspaper" },
+            sortable: false,
+            filterable: true,
+            resizable: false,
+            reorderable: false,
+            searchable: true,
+            showSearch: true,
+            searchTerm: window.gtxAdminGridState.specialsSearch || "",
+            searchPlaceholder: "Search title or status…",
+            showFilterChips: true,
+            exportToExcel: false,
+            exportToPdf: false,
+            groupable: false,
+            alternateRows: true,
+            emptyText: "No specials match the current filters.",
+            emptyHint: "Adjust the search or column filters to see more specials.",
+            onSearchChange: function (detail) {
+                window.gtxAdminGridState.specialsSearch = detail.term || "";
+            }
+        });
+
+        const $newButton = $("#newSpecial").detach().addClass("btn-sm");
+        $grid.find(".pg-search-input-group").after($newButton);
+        $grid.closest(".shadow").children(".card-header").remove();
+    });
+</script>

@@ -1,0 +1,96 @@
+.special-rich-content { overflow-wrap: anywhere; line-height: 1.7; }
+.special-rich-content img { max-width: 100%; height: auto; }
+.special-rich-content table { max-width: 100%; }
+.blog-list-item .blog-list-card.special-card { grid-template-columns: minmax(0, 1fr); }
+.specials-page .blog-list-grid {
+    --specials-grid-gap: clamp(1rem, 2.5vw, 2rem);
+    gap: var(--specials-grid-gap);
+    grid-auto-rows: 1fr;
+}
+.specials-page .blog-list-item:first-child { grid-column: auto; }
+.specials-page .blog-list-item { min-width: 0; }
+@media (min-width: 768px) {
+    .specials-page .blog-list-item:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+        width: calc((100% - var(--specials-grid-gap)) / 2);
+        justify-self: center;
+    }
+}
+.specials-page .special-list-item .special-card {
+    display: flex;
+    flex-direction: column;
+    border-radius: 1rem;
+    border-top: 3px solid var(--mp-accent);
+    box-shadow: 0 .35rem 1.25rem rgba(0, 0, 0, .08);
+    transition: box-shadow .2s ease, border-color .2s ease;
+}
+.specials-page .special-list-item .special-card:hover {
+    transform: none;
+    box-shadow: 0 .65rem 1.75rem rgba(0, 0, 0, .14);
+}
+.special-card-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: var(--bs-tertiary-bg, #f8f9fa);
+    border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+}
+.special-card-title {
+    margin: 0;
+    font-size: clamp(1.1rem, 2vw, 1.4rem);
+    font-weight: 750;
+    line-height: 1.35;
+    letter-spacing: -.02em;
+    overflow-wrap: anywhere;
+}
+.specials-page .special-card-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .45rem .65rem;
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-radius: .6rem;
+    background: var(--bs-body-bg, #fff);
+    color: var(--bs-body-color, #212529);
+    font-size: .75rem;
+    font-weight: 650;
+    line-height: 1.4;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.specials-page .special-card-link:hover { border-color: currentColor; }
+.specials-page .special-card-link:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.special-card-body { flex: 1; min-width: 0; padding: 1.5rem; }
+.special-card-body .special-rich-content > :first-child { margin-top: 0; }
+.special-card-body .special-rich-content > :last-child { margin-bottom: 0; }
+@media (max-width: 575.98px) {
+    .special-card-header { gap: .65rem; padding: 1rem; }
+    .special-card-body { padding: 1rem; }
+}
+.special-rich-content blockquote { border-left: 4px solid #ddd; padding-left: 1rem; }
+.blog-list-body .special-rich-content p { display: block; overflow: visible; -webkit-line-clamp: unset; }
+
+/* Share the site's background palette instead of Blogs' fixed white cards. */
+.specials-page .special-card,
+.specials-page .blog-empty {
+    background: var(--bs-body-bg, #fff);
+    color: var(--bs-body-color, #212529);
+    border-color: var(--bs-border-color, #dee2e6);
+}
+.specials-page {
+    --mp-ink: var(--bs-body-color, #212529);
+    --mp-muted: var(--bs-secondary-color, #6c757d);
+    --mp-line: var(--bs-border-color, #dee2e6);
+}
+.specials-page .special-rich-content { color: inherit; }
+.specials-page .special-rich-content blockquote { border-color: var(--bs-border-color, #dee2e6); }
+html[data-background-theme="dark"] .specials-page a { color: #8ab4f8; }
+
+/* Pasted formatting must remain readable on a dark card or editor surface. */
+html[data-background-theme="dark"] .special-rich-content :is([style], font[color], [bgcolor]),
+html[data-background-theme="dark"] #specialModal .pe-body :is([style], font[color], [bgcolor]) {
+    color: inherit !important;
+    background-color: transparent !important;
+}

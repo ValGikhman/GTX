@@ -43,6 +43,12 @@ namespace GTX {
             );
 
             routes.MapRoute(
+                name: "MajordomeSpecials",
+                url: "Majordome/Specials",
+                defaults: new { controller = "Specials", action = "Index" }
+            );
+
+            routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }

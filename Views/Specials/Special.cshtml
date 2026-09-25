@@ -1,0 +1,20 @@
+@model GTX.Models.SpecialModel
+@{ ViewBag.Title = Model.Title; }
+<link href="~/Content/article-details.css?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/article-details.css")).Ticks)" rel="stylesheet" />
+@Html.Partial("_MarketingHero", null, new ViewDataDictionary {
+    { "Kicker", "GTX Auto Group" }, { "Title", "GTX" }, { "Accent", "Specials" },
+    { "Description", "Discover the latest offers from GTX Auto Group." },
+    { "Word", "SPECIALS" }, { "Icon", "bi-tags" }
+})
+<section class="container-fluid d-flex justify-content-center">
+    <div class="row col-12 col-lg-9 col-xl-8 my-5 px-3">
+        <article class="article-detail-card rounded-4 shadow-lg overflow-hidden p-0">
+            <div class="p-4 p-md-5">
+                <h2 class="mb-4">@Model.Title</h2>
+                <div class="blog-content">@Html.Raw(SecuritySanitizer.SanitizeRichHtml(Model.CardContent))</div>
+                <hr class="my-4" />
+                <a href="@Url.Action("List", "Specials")" class="btn btn-outline-secondary rounded-4"><i class="bi bi-arrow-left" aria-hidden="true"></i> All specials</a>
+            </div>
+        </article>
+    </div>
+</section>

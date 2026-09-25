@@ -926,6 +926,66 @@ body.majordome-inventory-page .body-content {
             color: inherit;
         }
 
+    /* Blog/Special grids: keep Bootstrap table cells and AddGrid on one palette. */
+    :is(#blogsAddGrid, #specialsAddGrid) {
+        --pg-color-text-dark: var(--bs-body-color, #172033);
+        --pg-color-bg-row-hover: var(--bs-secondary-bg, #e9ecef);
+    }
+
+    html[data-background-theme="grey"] :is(#blogsAddGrid, #specialsAddGrid) {
+        --pg-color-text: #111827;
+        --pg-color-text-muted: #374151;
+        --pg-color-text-subtle: #374151;
+        --pg-color-bg: #eef0f2;
+        --pg-color-bg-row-odd: #dce1e6;
+        --pg-color-bg-row-hover: #cbd3dc;
+        --gtx-admin-grid-header: #374151;
+        --gtx-admin-grid-header-text: #fff;
+    }
+
+    html[data-background-theme="dark"] :is(#blogsAddGrid, #specialsAddGrid) {
+        --pg-color-text: #e8eaed;
+        --pg-color-text-muted: #bdc1c6;
+        --pg-color-text-subtle: #bdc1c6;
+        --pg-color-bg: #292a2d;
+        --pg-color-bg-row-odd: #35363a;
+        --pg-color-bg-row-hover: #45474c;
+        --gtx-admin-grid-header: #202124;
+        --gtx-admin-grid-header-text: #e8eaed;
+    }
+
+    :is(#blogsAddGrid, #specialsAddGrid) .pg-grid-table {
+        --bs-table-color: var(--pg-color-text);
+        --bs-table-bg: transparent;
+        --bs-table-accent-bg: transparent;
+        --bs-table-striped-color: var(--pg-color-text);
+        --bs-table-hover-color: var(--pg-color-text);
+    }
+
+    :is(#blogsAddGrid, #specialsAddGrid) .pg-grid-table tbody td {
+        color: var(--pg-color-text);
+        background-color: var(--pg-color-bg);
+        box-shadow: none;
+    }
+
+    :is(#blogsAddGrid, #specialsAddGrid) .pg-grid-table tbody .pg-row-odd td {
+        background-color: var(--pg-color-bg-row-odd);
+    }
+
+    :is(#blogsAddGrid, #specialsAddGrid) .pg-grid-table tbody tr:hover td {
+        background-color: var(--pg-color-bg-row-hover);
+    }
+
+    :is(#blogsAddGrid, #specialsAddGrid) .pg-grid-table tbody .text-muted {
+        color: var(--pg-color-text-muted) !important;
+    }
+
+    :is(#blogsAddGrid, #specialsAddGrid) .pg-grid-table thead th {
+        background: var(--gtx-admin-grid-header);
+        color: var(--gtx-admin-grid-header-text);
+        box-shadow: none;
+    }
+
     html.theme-silver .gtx-admin-add-grid {
         --gtx-admin-grid-header-text: #111827;
     }
