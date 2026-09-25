@@ -87,10 +87,3 @@
 .specials-page .special-rich-content { color: inherit; }
 .specials-page .special-rich-content blockquote { border-color: var(--bs-border-color, #dee2e6); }
 html[data-background-theme="dark"] .specials-page a { color: #8ab4f8; }
-
-/* Pasted formatting must remain readable on a dark card or editor surface. */
-html[data-background-theme="dark"] .special-rich-content :is([style], font[color], [bgcolor]),
-html[data-background-theme="dark"] #specialModal .pe-body :is([style], font[color], [bgcolor]) {
-    color: inherit !important;
-    background-color: transparent !important;
-}
