@@ -1268,7 +1268,7 @@
 
         var $items = $container.find('.card').get();
         var $bottomPaging = $container.find('.inventory-bottom-paging');
-        var isTextField = (field === 'make');
+        var isTextField = (field === 'make' || field === 'color');
         var collator = new Intl.Collator(undefined, { sensitivity: 'base', numeric: true });
 
         $items.sort(function (a, b) {
