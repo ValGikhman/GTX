@@ -1,0 +1,88 @@
+<div class="modal fade" id="specialModal"  data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="specialModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header">
+                <span class="gtx-modal-title-icon" aria-hidden="true"><i class="bi bi-file-post-fill"></i></span>
+                <div class="modal-title" id="specialModalTitle">Special</div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body" id="specialModalBody">
+                <div class="text-muted">Loading...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(function () {
+    function syncSpecialEditors($form) {
+        $form.find('textarea').each(function () {
+            const editor = $(this).data('add-edit');
+            if (editor) $(this).val(editor.value());
+        });
+    }
+
+    function destroySpecialEditors() {
+        $('#specialModalBody textarea').each(function () {
+            const $field = $(this);
+            if ($field.data('add-edit')) $field.addEdit('destroy');
+        });
+    }
+
+    function openModal(url, title) {
+        destroySpecialEditors();
+        $("#specialModalTitle").text(title || "Special");
+        $("#specialModalBody").html('<div class="text-muted">Loading...</div>');
+
+        $("#specialModalBody").load(url, function (response, status, xhr) {
+            if (status === "error") {
+                $("#specialModalBody").html(
+                    '<div class="alert alert-danger mb-0">Could not load form. ' +
+                    'Status: ' + xhr.status + '</div>'
+                );
+                return;
+            }
+
+            bootstrap.Modal.getOrCreateInstance(document.getElementById("specialModal")).show();
+        });
+    }
+
+    // Click handler: any link with data-special-modal="true" opens modal
+    $(document).on("click", "a[data-special-modal='true']", function (e) {
+        e.preventDefault();
+        openModal($(this).attr("href"), $(this).data("title"));
+    });
+
+    $(document).on("submit", "form[data-special-ajax='true']", function (e) {
+        e.preventDefault();
+
+        const $form = $(this);
+        if ($form.data('saving')) return;
+        $form.data('saving', true).find('[type="submit"]').prop('disabled', true);
+        syncSpecialEditors($form);
+        const url = $form.attr("action");
+        const data = $form.serialize();
+
+        $.post(url, data)
+            .done(function (res) {
+                // success payload
+                if (res && res.ok === true) {
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById("specialModal")).hide();
+                    refreshSpecialsList();
+                    return;
+                }
+
+                // validation errors -> server returns partial html
+                destroySpecialEditors();
+                $("#specialModalBody").html(res);
+            })
+            .fail(function (xhr) {
+                window.gtxAlert("Save failed. Your changes are still in the editor. Please try again.");
+            })
+            .always(function () {
+                $form.data('saving', false).find('[type="submit"]').prop('disabled', false);
+            });
+    });
+});
+</script>

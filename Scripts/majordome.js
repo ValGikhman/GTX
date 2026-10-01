@@ -842,22 +842,6 @@ async function upload(formData, stock) {
     }
 }
 
-function restoreBackUpInventory() {
-    showSpinner($("#inventoryOverlay"));
-    fetch("/Majordome/RestoreBackUpInventory", { method: "POST" })
-    .then(response => {
-        if (response.ok) {
-            hideSpinner($("#inventoryOverlay"));
-            window.location.href = "/Home";
-        } else {
-            window.gtxAlert("Restore backup failed.");
-        }
-    })
-    .catch(error => {
-        window.gtxAlert(error);
-    });
-}
-
 function setQrCode(vehicle) {
     var qrUrl = "/Majordome/Qr?stock=" + encodeURIComponent(vehicle.Stock || "") + "&vin=" + encodeURIComponent(vehicle.VIN || "");
     $("#qrImg").attr("src", qrUrl);

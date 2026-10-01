@@ -1,0 +1,34 @@
+@Html.Partial("_MarketingHero", null, new ViewDataDictionary
+{
+    { "Kicker", I18n.R("Nav_CustomerReviews") },
+    { "Title", I18n.R("Hero_Testimonials_Title") },
+    { "Accent", I18n.R("Hero_Testimonials_Accent") },
+    { "Description", I18n.R("Reviews_Description") },
+    { "Word", I18n.R("Hero_Testimonials_Word") },
+    { "Icon", "bi-chat-heart" }
+})
+
+<main class="marketing-page testimonials-page google-reviews-page">
+    <section class="marketing-content-shell" aria-labelledby="googleReviewsTitle">
+        <div class="marketing-section-label">
+            <span id="googleReviewsTitle">@I18n.R("Nav_CustomerReviews")</span>
+            <small>@I18n.R("Section_Community")</small>
+        </div>
+        <p id="googleReviewsStatus" role="status"
+           data-loading="@I18n.R("Home_ReviewsLoading")"
+           data-error="@I18n.R("Home_ReviewsUnavailable")"
+           data-empty="@I18n.R("Reviews_Empty")">@I18n.R("Home_ReviewsLoading")</p>
+        <div id="googleReviewsList" class="testimonials-wrap" aria-busy="true"
+             data-google-icon="@Url.Content("~/Content/review-icons/google.svg")"
+             data-hibu-icon="@Url.Content("~/Content/review-icons/hibu.png")"
+             data-created-label="@I18n.R("Reviews_CreatedDate")"
+             data-rating-label="@I18n.R("Reviews_Rating")"></div>
+        <div class="d-flex flex-wrap align-items-center gap-3 mt-4">
+            <button id="googleReviewsMore" class="btn btn-gradient shadow rounded-4" type="button" hidden
+                    data-more="@I18n.R("Reviews_LoadMore")"
+                    data-retry="@I18n.R("Reviews_Retry")">@I18n.R("Reviews_LoadMore")</button>
+            <a href="https://hibu.us/merchants/77018-gtx-auto-group" target="_blank" rel="noopener">@I18n.R("Home_ReviewsReadOnHibu")</a>
+        </div>
+    </section>
+</main>
+<script defer src="@Url.Content("~/Scripts/google-reviews.js")?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/google-reviews.js")).Ticks)"></script>

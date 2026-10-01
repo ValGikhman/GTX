@@ -282,6 +282,7 @@
                             <li class="mb-1 shadow-sm"><a class="btn btn-outline-dark w-100 text-start rounded-3" data-bs-dismiss="offcanvas" href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })">@I18n.R("Nav_ContactUs")</a></li>
                             <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_OurStaff"), "Staff", "Home", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
                             <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_Testimonials"), "Testimonials", "Home", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1 shadow-sm"><a href="@Url.Action("Reviews", "Home")" class="btn btn-outline-dark w-100 text-start rounded-3">@I18n.R("Nav_CustomerReviews")</a></li>
                         </ul>
                     </li>
 
@@ -344,6 +345,10 @@
             Convert.ToString(ViewBag.CurrentRole ?? string.Empty),
             CommonUnit.Roles.Owner.ToString(),
             StringComparison.OrdinalIgnoreCase);
+        var isBlogger = string.Equals(
+            Convert.ToString(ViewBag.CurrentRole ?? string.Empty),
+            CommonUnit.Roles.Blogger.ToString(),
+            StringComparison.OrdinalIgnoreCase);
     }
 
     <!-- Header Section Begin -->
@@ -366,13 +371,20 @@
                                     <li id="menuInventoryDashboard">@Html.ActionLink("Dashboard", "Dashboard", "InventoryManagement")</li>
                                     <li id="menuInventoryManagement">@Html.ActionLink("Management", "Index", "InventoryManagement")</li>
                                 }
+                                @if (!isBlogger)
+                                {
                                 <li id="menuInventory">@Html.ActionLink("Majordome", "Inventory", "Majordome")</li>
                                 <li id="menuVinDecoder">@Html.ActionLink("Vindecoder", "Index", "Vindecoder")</li>
                                 <li id="menuAnnouncements">@Html.ActionLink("Alerts", "Index", "Announcements")</li>
+                                }
                                 <li id="menuBlogs">@Html.ActionLink("Blogs", "Index", "Blogs")</li>
+                                <li id="menuSpecials">@Html.ActionLink("Specials", "Index", "Specials")</li>
+                                @if (!isBlogger)
+                                {
                                 <li id="menuEmployees">@Html.ActionLink("Employees", "Index", "Employees")</li>
                                 <li id="menuHealth">@Html.ActionLink("Health", "Index", "Health")</li>
                                 <li id="menuSitemap">@Html.ActionLink("Sitemap", "Index", "Sitemap")</li>
+                                }
                                 @if (isOwner)
                                 {
                                     <li id="menuChatBotCommands" class="d-none d-lg-block">@Html.ActionLink("Chat Bot", "Index", "ChatBotCommands")</li>
@@ -389,6 +401,7 @@
                             </a>
                         </li>
                         <li class="mx-2">@Html.ActionLink(I18n.R("Title_Blog"), "List", "Blogs")</li>
+                        <li class="mx-2">@Html.ActionLink("Specials", "List", "Specials")</li>
                         <li class="mx-2">
                             <a href="#">@I18n.R("Nav_AboutUs")</a>
                             <ul class="dropdown rounded">
@@ -396,6 +409,7 @@
                                 <li><a href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })">@I18n.R("Nav_ContactUs")</a></li>
                                 <li>@Html.ActionLink(I18n.R("Nav_OurStaff"), "Staff", "Home")</li>
                                 <li>@Html.ActionLink(I18n.R("Nav_Testimonials"), "Testimonials", "Home")</li>
+                                <li><a href="@Url.Action("Reviews", "Home")">@I18n.R("Nav_CustomerReviews")</a></li>
                             </ul>
                         </li>
                         <li class="mx-2 d-none d-lg-inline-block">

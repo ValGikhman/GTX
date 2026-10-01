@@ -287,6 +287,9 @@
     <Compile Include="Controllers\AnnouncementsController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\BlogsController.cs" />
+    <Compile Include="Controllers\SpecialsController.cs" />
+    <Compile Include="Models\SpecialModel.cs" />
+    <Compile Include="Utility\SpecialsService.cs" />
     <Compile Include="Controllers\ChatController.cs" />
     <Compile Include="Controllers\ChatBotCommandsController.cs" />
     <Compile Include="Controllers\EmployeesController.cs" />
@@ -333,7 +336,6 @@
   <ItemGroup>
     <Content Include="App_Data\ADF.xml" />
     <Content Include="App_Data\GTX-Configuration.xml" />
-    <Content Include="App_Data\Inventory\Current\GTX-Inventory.xml" />
     <Content Include="AGENTS.md" />
     <Content Include="Content\api-showmehow.html" />
     <Content Include="Content\mobile-download.css" />
@@ -663,6 +665,10 @@
     <Content Include="Views\Inventory\DetailsCard.cshtml" />
     <Content Include="Views\Shared\_OverlayModal.cshtml" />
     <Content Include="Views\Home\Testimonials.cshtml" />
+    <Content Include="Views\Home\Reviews.cshtml" />
+    <Content Include="Scripts\google-reviews.js" />
+    <Content Include="Content\review-icons\google.svg" />
+    <Content Include="Content\review-icons\hibu.png" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Employees\Employees.cshtml" />
     <Content Include="Views\Shared\_Details.cshtml" />
@@ -685,6 +691,16 @@
     <Content Include="Views\Shared\_AnnouncementPreviewAlert.cshtml" />
     <Content Include="Views\Announcements\Index.cshtml" />
     <Content Include="Views\Blogs\Index.cshtml" />
+    <Content Include="Views\Specials\Index.cshtml" />
+    <Content Include="Views\Specials\List.cshtml" />
+    <Content Include="Views\Specials\Special.cshtml" />
+    <Content Include="Views\Shared\_Special.cshtml" />
+    <Content Include="Views\Shared\_SpecialEdit.cshtml" />
+    <Content Include="Views\Shared\_SpecialModal.cshtml" />
+    <Content Include="Scripts\specials.js" />
+    <Content Include="Content\specials.css" />
+    <Content Include="Content\article-details.css" />
+    <None Include="Scripts\Sql\CreateSpecials.sql" />
     <Content Include="Views\Shared\_AdCard.cshtml" />
     <Content Include="Views\Sitemap\Index.cshtml" />
     <Content Include="Views\Shared\_Employee.cshtml" />

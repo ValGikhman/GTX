@@ -432,11 +432,12 @@ namespace GTX.Controllers
                 var savedVehicle = DecideImages(new[] { vehicle }).FirstOrDefault();
 
                 InvalidateInventoryCaches();
+                var sitemapWarning = RefreshInventorySitemap();
 
                 return new JsonResult {
                     Data = new {
                         success = true,
-                        message = GetInventorySaveMessage(result.Status),
+                        message = sitemapWarning ?? GetInventorySaveMessage(result.Status),
                         status = (int)result.Status,
                         statusText = GetInventorySaveStatusText(result.Status),
                         vehicle = savedVehicle
@@ -1827,18 +1828,6 @@ namespace GTX.Controllers
             image.ColorFuzz = new Percentage(0);
             image.Trim();
             image.ResetPage();
-        }
-
-        [HttpPost]
-        public ActionResult RestoreBackUpInventory()
-        {
-            var result = Utility.XMLHelpers.XmlRepository.GetInventory();
-            var vehicles = result.Vehicles.Where(m => m.SetToUpload == "Y").OrderBy(m => m.Make).ThenBy(m => m.Model).ToArray();
-
-            InventoryService.AddInventory(Models.GTX.ToDTOs(vehicles));
-
-            TerminateSession();
-            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]
