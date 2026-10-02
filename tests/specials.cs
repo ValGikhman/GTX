@@ -57,10 +57,12 @@ internal static class SpecialsTests
             Check(!service.GetAll().Any(s => s.Id == special.Id), "Draft leaked in public list");
             var controller = new SpecialsController(null, null, null, null, null, service);
             Check(controller.Special(special.Id) is HttpNotFoundResult, "Draft page must return 404");
+            Check(!HasLink(controller, special.Id), "Draft leaked in rotating links");
             var created = special.CreatedAt;
             special.IsPublished = true;
             Check(service.Save(special), "Publish failed");
             Check(service.GetAll().Any(s => s.Id == special.Id), "Published card missing");
+            Check(HasLink(controller, special.Id), "Published offer missing in rotating links");
             var page = controller.Special(special.Id) as ViewResult;
             Check(page != null && ((SpecialModel)page.Model).CardContent == special.CardContent, "Page must use the card content");
             special.CreatedAt = DateTime.MinValue;
@@ -70,6 +72,7 @@ internal static class SpecialsTests
             Check(service.Save(special), "Unpublish failed");
             Check(!service.GetAll().Any(s => s.Id == special.Id), "Unpublished card is still public");
             Check(controller.Special(special.Id) is HttpNotFoundResult, "Unpublished page is still public");
+            Check(!HasLink(controller, special.Id), "Unpublished offer leaked in rotating links");
             Check(service.Delete(special.Id) && service.GetById(special.Id) == null, "Delete failed");
             Check(!service.Delete(special.Id), "Missing delete should report failure");
         }
@@ -77,4 +80,10 @@ internal static class SpecialsTests
     }
 
     static void Check(bool condition, string message) { if (!condition) throw new Exception(message); }
+
+    static bool HasLink(SpecialsController controller, int id)
+    {
+        var result = (JsonResult)controller.Links();
+        return Newtonsoft.Json.Linq.JArray.FromObject(result.Data).Any(item => (int)item["id"] == id);
+    }
 }
