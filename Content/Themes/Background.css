@@ -116,6 +116,11 @@ html:is([data-background-theme="grey"], [data-background-theme="dark"]) :is(#fil
     opacity: 1 !important;
 }
 
+/* Quick-search matches keep dark ink on their yellow highlight in dark mode. */
+html[data-background-theme="dark"] .pg-search-match {
+    color: #212529;
+}
+
 /* Bootstrap button states and the grid's label/border overrides share the palette. */
 html[data-background-theme]:not([data-background-theme="light"]) .pg-search-clear {
     --pg-color-border: var(--bs-border-color);
