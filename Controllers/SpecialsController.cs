@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using GTX.Common;
@@ -30,6 +31,10 @@ namespace GTX
 
         [HttpGet]
         public ActionResult List() => View(specials.GetAll());
+
+        [HttpGet]
+        public ActionResult Links() => Json(specials.GetAll()
+            .Select(s => new { id = s.Id, title = s.Title }).ToArray(), JsonRequestBehavior.AllowGet);
 
         [HttpGet]
         public ActionResult Special(int id)

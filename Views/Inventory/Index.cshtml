@@ -1,5 +1,7 @@
 ﻿@model GTX.Models.BaseModel
 <head>
+    <script src="~/Scripts/specials-player.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/specials-player.js")).Ticks)"></script>
+    <link href="~/Content/specials-player.css?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/specials-player.css")).Ticks)" rel="stylesheet" />
     @{ var hasChatbotStockFilter = ViewBag.HasChatbotStockFilter == true;
                     var inventoryClearLabel = hasChatbotStockFilter ? "Reset" : "Clear";
                     var inventoryClearTitle = hasChatbotStockFilter ? "Reset chatbot results — show all inventory" : "Clear filters";
@@ -53,13 +55,6 @@
             color: #0b7a2f;
             text-decoration-color: #0b7a2f;
         }
-
-    .inventory-contact-map-btn {
-        white-space: nowrap;
-        padding: .25rem .55rem;
-        font-size: .85rem;
-        line-height: 1.1;
-    }
 
     .gtx-compare-toggle {
         position: absolute;
@@ -855,16 +850,13 @@
         @if (Model.Inventory?.Vehicles.Count() > 0)
         {
             <div class="inventory-mobile-filter-bar d-lg-none">
-                <div id="inventoryMobileFilterToggle"
-                     class="btn inventory-mobile-filter-btn"
-                     role="button"
-                     tabindex="0"
-                     aria-controls="inventorySidebarPane"
-                     aria-label="@I18n.R("Filter_OpenFilters")">
-                    <span class="inventory-mobile-filter-title">
+                <div class="btn inventory-mobile-filter-btn inventory-player-mobile-bar">
+                    <button id="inventoryMobileFilterToggle" type="button" class="inventory-mobile-filter-title"
+                            aria-controls="inventorySidebarPane" aria-label="@I18n.R("Filter_OpenFilters")">
                         <i class="bi bi-sliders2"></i>
                         <span>@I18n.R("Filter_Filters")</span>
-                    </span>
+                    </button>
+                    <span class="specials-mobile-title-slot">@Html.Partial("_SpecialsPlayerLink")</span>
                     <span class="inventory-mobile-filter-meta">
                         <span id="inventoryMobileMatchCount">0</span> @I18n.R("All_Vehicles")
                         <span id="inventoryMobileActiveBadge" class="inventory-mobile-active-badge">0</span>
