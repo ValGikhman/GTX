@@ -1,7 +1,7 @@
 @{
     var controllerName = (ViewContext.RouteData.Values["controller"] ?? string.Empty).ToString();
     var actionName = (ViewContext.RouteData.Values["action"] ?? string.Empty).ToString();
-    var majordomeIndexControllers = new[] { "InventoryManagement", "VinDecoder", "Announcements", "Blogs", "Employees", "Health", "Sitemap", "ChatBotCommands" };
+    var majordomeIndexControllers = new[] { "InventoryManagement", "VinDecoder", "Announcements", "Blogs", "Specials", "Employees", "Health", "Sitemap", "ChatBotCommands" };
     var isMajordomeMenuPage = (controllerName.Equals("Majordome", StringComparison.OrdinalIgnoreCase)
             && actionName.Equals("Inventory", StringComparison.OrdinalIgnoreCase))
         || (controllerName.Equals("InventoryManagement", StringComparison.OrdinalIgnoreCase)
@@ -27,7 +27,7 @@
 
 @if (!isMajordomeMenuPage)
 {
-<section class="container-fluid page-title @(isInventoryDetailsTitle ? string.Empty : "page-title-mobile-call-enabled") position-relative d-flex align-items-center justify-content-center shadow">
+<section class="container-fluid page-title @(showInventoryDesktopAddress ? "inventory-player-title" : string.Empty) @(isInventoryDetailsTitle ? string.Empty : "page-title-mobile-call-enabled") position-relative d-flex align-items-center justify-content-center shadow">
 
     <!-- Prev button (far left) -->
     <span class=" position-absolute start-0 top-50 translate-middle-y ms-3">
@@ -64,9 +64,9 @@
             <div id="status" class="vdp-record-status" role="status" aria-live="polite">
                 <span class="vdp-record-status-icon" aria-hidden="true"><i class="bi bi-stars"></i></span>
                 <span class="vdp-record-status-text">
-                    <strong id="vdpStatusCurrent" class="vdp-record-status-number">—</strong>
+                    <strong id="vdpStatusCurrent" class="vdp-record-status-number">-</strong>
                     <span>@I18n.R("All_From")</span>
-                    <strong id="vdpStatusTotal" class="vdp-record-status-total">—</strong>
+                    <strong id="vdpStatusTotal" class="vdp-record-status-total">-</strong>
                     <span>@I18n.R("All_Vehicles")</span>
                 </span>
             </div>
@@ -82,10 +82,15 @@
 
     </a>
 
+    @if (showInventoryDesktopAddress)
+    {
+        <span class="specials-title-slot d-none d-lg-flex">@Html.Partial("_SpecialsPlayerLink")</span>
+    }
+
     <div id="shorts" class="d-none d-md-flex align-items-center gap-1 position-absolute end-0 top-50 translate-middle-y ps-2 me-1">
-        <a id="loanApplication" href="/Home/Application" class="btn gradient rounded-4 border-0 shadow" type="button"><i class="bi bi-currency-dollar me-1"></i>@I18n.R("Nav_GetPrequalified")</a>
-        <a id="contactUs" href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })" class="btn gradient rounded-4 border-0 shadow" type="button"><i class="bi bi-person-vcard me-1"></i>@I18n.R("Nav_ContactUs")</a>
-        <a id="testDrive" href="@Url.RouteUrl("TestDriveContact")" class="btn gradient rounded-4 border-0 shadow" type="button"><i class="bi bi-calendar3 me-1"></i>@I18n.R("Nav_ScheduleTestDrive")</a>
+        <a id="loanApplication" href="/Home/Application" class="btn btn-sm btn-gradient-grey border-dark rounded-3 shadow-sm inventory-contact-map-btn" type="button"><i class="bi bi-currency-dollar me-1"></i><strong>@I18n.R("Nav_GetPrequalified")</strong></a>
+        <a id="contactUs" href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })" class="btn btn-sm btn-gradient-grey border-dark rounded-3 shadow-sm inventory-contact-map-btn" type="button"><i class="bi bi-person-vcard me-1"></i><strong>@I18n.R("Nav_ContactUs")</strong></a>
+        <a id="testDrive" href="@Url.RouteUrl("TestDriveContact")" class="btn btn-sm btn-gradient-grey border-dark rounded-3 shadow-sm inventory-contact-map-btn" type="button"><i class="bi bi-calendar3 me-1"></i><strong>@I18n.R("Nav_ScheduleTestDrive")</strong></a>
     </div>
 
 

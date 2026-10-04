@@ -1,0 +1,23 @@
+﻿@Html.Partial("_MarketingHero", null, new ViewDataDictionary
+{
+    { "Kicker", I18n.R("Hero_CapitalOne_Kicker") },
+    { "Title", I18n.R("Hero_CapitalOne_Title") },
+    { "Accent", I18n.R("Hero_CapitalOne_Accent") },
+    { "Description", I18n.R("Hero_CapitalOne_Description") },
+    { "Word", I18n.R("Hero_CapitalOne_Word") },
+    { "Icon", "bi-key" }
+})
+
+<main class="marketing-page">
+    <section class="marketing-content-shell" aria-label="Capital One pre-qualification">
+        <div class="marketing-section-label">
+            <span>@I18n.R("Section_CapitalOne")</span>
+            <small>@I18n.R("Section_DealershipLocation")</small>
+        </div>
+
+        <!-- PROVIDED BY CAPITAL ONE -->
+        <div class="capital-one-prequal-standalone-embedded" data-client-token="b9ecdc44-e99b-4f80-b521-088a74105eb1"></div>
+        <!-- PROVIDED BY CAPITAL ONE -->
+    </section>
+</main>
+<script defer src="https://digital-retail.autodriven.com/loader.js" charset="utf-8" data-page-type="VDP" data-inventory-type="USED"></script>

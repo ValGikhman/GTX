@@ -363,41 +363,30 @@ html.theme-silver .majordome-admin-grid {
         overflow-y: auto;
     }
 
-    #story .ql-editor {
-        min-height: 480px;
-        max-height: 480px;
-        overflow-y: auto;
-    }
+.pe-body.majordome-story-editor {
+    height: 100%;
+    min-height: 480px;
+    max-height: 100%;
+    overflow-y: auto;
+}
 
-        #story .ql-editor p {
-            margin-top: 10px;
-            margin-bottom: 10px;
-            padding: 0;
-            font-size: clamp(0.9rem, 2vw, 1rem);
-            text-align: justify;
-        }
+.majordome-story-editor-source {
+    min-height: 480px;
+    max-height: 100%;
+    overflow-y: auto;
+}
 
-        /*So I need to override them for Quill*/
-        #story .ql-editor strong {
-            margin-top: 10px;
-            margin-bottom: 10px;
-            padding: 0;
-            font-size: clamp(0.9rem, 2vw, 1rem);
-            text-align: justify;
-        }
+.majordome-story-editor .p-story {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 0;
+    font-size: clamp(0.9rem, 2vw, 1rem);
+    text-align: justify;
+}
 
-    /*Quill strips away p-story and strong-story classes*/
-    .p-story {
-        margin-top: 10px;
-        margin-bottom: 10px;
-        padding: 0;
-        font-size: clamp(0.9rem, 2vw, 1rem);
-        text-align: justify;
-    }
-
-    .strong-story {
-        color: black;
-    }
+.majordome-story-editor .strong-story {
+    color: darkslategrey;
+}
 
 
 /* Majordome extracted inline widths */
@@ -813,6 +802,18 @@ body.majordome-inventory-page .body-content {
     overflow-y: hidden !important;
 }
 
+.majordome-workspace #tab-details {
+    height: var(--majordome-inventory-workspace-height);
+    max-height: var(--majordome-inventory-workspace-height);
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(71, 85, 105, .45) transparent;
+}
+
 .majordome-workspace #tab-gallery > .d-flex {
     height: var(--majordome-inventory-workspace-height);
     min-height: 0;
@@ -924,6 +925,66 @@ body.majordome-inventory-page .body-content {
         .gtx-admin-add-grid .pg-filter-btn.pg-filter-active i {
             color: inherit;
         }
+
+    /* Blog/Special grids: keep Bootstrap table cells and AddGrid on one palette. */
+    :is(#blogsAddGrid, #specialsAddGrid) {
+        --pg-color-text-dark: var(--bs-body-color, #172033);
+        --pg-color-bg-row-hover: var(--bs-secondary-bg, #e9ecef);
+    }
+
+    html[data-background-theme="grey"] :is(#blogsAddGrid, #specialsAddGrid) {
+        --pg-color-text: #111827;
+        --pg-color-text-muted: #374151;
+        --pg-color-text-subtle: #374151;
+        --pg-color-bg: #eef0f2;
+        --pg-color-bg-row-odd: #dce1e6;
+        --pg-color-bg-row-hover: #cbd3dc;
+        --gtx-admin-grid-header: #374151;
+        --gtx-admin-grid-header-text: #fff;
+    }
+
+    html[data-background-theme="dark"] :is(#blogsAddGrid, #specialsAddGrid) {
+        --pg-color-text: #e8eaed;
+        --pg-color-text-muted: #bdc1c6;
+        --pg-color-text-subtle: #bdc1c6;
+        --pg-color-bg: #292a2d;
+        --pg-color-bg-row-odd: #35363a;
+        --pg-color-bg-row-hover: #45474c;
+        --gtx-admin-grid-header: #202124;
+        --gtx-admin-grid-header-text: #e8eaed;
+    }
+
+    :is(#blogsAddGrid, #specialsAddGrid) .pg-grid-table {
+        --bs-table-color: var(--pg-color-text);
+        --bs-table-bg: transparent;
+        --bs-table-accent-bg: transparent;
+        --bs-table-striped-color: var(--pg-color-text);
+        --bs-table-hover-color: var(--pg-color-text);
+    }
+
+    :is(#blogsAddGrid, #specialsAddGrid) .pg-grid-table tbody td {
+        color: var(--pg-color-text);
+        background-color: var(--pg-color-bg);
+        box-shadow: none;
+    }
+
+    :is(#blogsAddGrid, #specialsAddGrid) .pg-grid-table tbody .pg-row-odd td {
+        background-color: var(--pg-color-bg-row-odd);
+    }
+
+    :is(#blogsAddGrid, #specialsAddGrid) .pg-grid-table tbody tr:hover td {
+        background-color: var(--pg-color-bg-row-hover);
+    }
+
+    :is(#blogsAddGrid, #specialsAddGrid) .pg-grid-table tbody .text-muted {
+        color: var(--pg-color-text-muted) !important;
+    }
+
+    :is(#blogsAddGrid, #specialsAddGrid) .pg-grid-table thead th {
+        background: var(--gtx-admin-grid-header);
+        color: var(--gtx-admin-grid-header-text);
+        box-shadow: none;
+    }
 
     html.theme-silver .gtx-admin-add-grid {
         --gtx-admin-grid-header-text: #111827;
@@ -2004,24 +2065,6 @@ body.majordome-inventory-page .body-content {
                 box-shadow: 0 0 0 .22rem rgba(37, 99, 235, .12);
             }
 
-    .majordome-management-log-tree {
-        flex: 1 1 auto;
-        min-height: 0;
-        overflow-y: auto;
-        padding-right: .15rem;
-        scrollbar-color: rgba(71, 85, 105, .45) transparent;
-        scrollbar-width: thin;
-    }
-
-        .majordome-management-log-tree::-webkit-scrollbar {
-            width: .55rem;
-        }
-
-        .majordome-management-log-tree::-webkit-scrollbar-thumb {
-            background: rgba(71, 85, 105, .35);
-            border-radius: 999px;
-        }
-
     .majordome-management-log-date {
         border: 1px solid var(--inventory-border);
         border-radius: .65rem;
@@ -2032,26 +2075,6 @@ body.majordome-inventory-page .body-content {
 
         .majordome-management-log-date + .majordome-management-log-date {
             margin-top: .3rem;
-        }
-
-    .majordome-management-log-date-toggle {
-        width: 100%;
-        min-height: 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: .55rem;
-        padding: .40rem .65rem;
-        border: 0;
-        background: linear-gradient(180deg, #fff 0%, var(--inventory-surface-alt) 100%);
-        color: var(--inventory-ink);
-        text-align: left;
-    }
-
-        .majordome-management-log-date-toggle:hover,
-        .majordome-management-log-date-toggle:focus {
-            background: #eef2f7;
-            outline: none;
         }
 
         .majordome-management-log-date-toggle.is-selected,
@@ -2070,9 +2093,7 @@ body.majordome-inventory-page .body-content {
             }
 
             .majordome-management-log-date-toggle.is-selected .majordome-management-log-option-date,
-            .majordome-management-log-date-toggle.is-selected .majordome-management-log-date-chevron,
             .majordome-management-log-date-toggle.is-active .majordome-management-log-option-date,
-            .majordome-management-log-date-toggle.is-active .majordome-management-log-date-chevron,
             .majordome-management-log-option-date.is-selected,
             .majordome-management-log-option-date.is-active {
                 color: var(--inventory-header-color);
@@ -2092,9 +2113,7 @@ body.majordome-inventory-page .body-content {
         color: #111827;
     }
 
-    html.theme-silver .majordome-management-log-date-toggle.is-selected .majordome-management-log-date-chevron,
     html.theme-silver .majordome-management-log-date-toggle.is-selected .majordome-management-log-option-date,
-    html.theme-silver .majordome-management-log-date-toggle.is-active .majordome-management-log-date-chevron,
     html.theme-silver .majordome-management-log-date-toggle.is-active .majordome-management-log-option-date,
     html.theme-silver .majordome-management-log-option-date.is-selected,
     html.theme-silver .majordome-management-log-option-date.is-active {
@@ -2118,23 +2137,13 @@ body.majordome-inventory-page .body-content {
 
     .majordome-management-log-date-main {
         min-width: 0;
+        flex: 1 1 auto;
         display: flex;
         align-items: center;
-        gap: .45rem;
-    }
-
-    .majordome-management-log-date-chevron {
-        flex: 0 0 auto;
-        color: var(--inventory-muted);
-        font-size: .9rem;
-        transition: transform .15s ease;
-    }
-
-    .majordome-management-log-date-toggle[aria-expanded="true"] .majordome-management-log-date-chevron {
-        transform: rotate(90deg);
     }
 
     .majordome-management-log-date-count {
+        margin-left: auto;
         flex: 0 0 auto;
     }
 
@@ -2195,7 +2204,6 @@ body.majordome-inventory-page .body-content {
             flex: 0 0 auto;
         }
 
-        .majordome-management-log-date-toggle:focus,
         .majordome-management-log-status:focus {
             border-color: rgba(37, 99, 235, .5);
             box-shadow: 0 0 0 .22rem rgba(37, 99, 235, .12);
@@ -2203,9 +2211,11 @@ body.majordome-inventory-page .body-content {
 
     .majordome-management-log-option-date {
         min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        font-family: inherit;
+        font-size: .75rem;
+        font-weight: 600;
+        line-height: 1.35;
+        white-space: normal;
     }
 
     .majordome-management-table-wrap {
@@ -2383,15 +2393,9 @@ body.majordome-inventory-page .body-content {
         }
 
     .majordome-management-toggle {
-        width: 1.75rem;
-        height: 1.75rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        --dashboard-muted: var(--inventory-muted);
         margin-right: auto;
         margin-left: auto;
-        padding: 0;
-        border-radius: .5rem;
     }
 
     .majordome-management-row {

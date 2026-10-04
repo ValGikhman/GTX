@@ -5,11 +5,11 @@
 
 @Html.Partial("_MarketingHero", null, new ViewDataDictionary
 {
-    { "Kicker", "Clear expectations. Confident use." },
-    { "Title", "Terms made" },
-    { "Accent", "transparent." },
-    { "Description", "The rules and responsibilities that guide use of our website, services, and communications." },
-    { "Word", "TERMS" },
+    { "Kicker", I18n.R("Hero_Terms_Kicker") },
+    { "Title", I18n.R("Hero_Terms_Title") },
+    { "Accent", I18n.R("Hero_Terms_Accent") },
+    { "Description", I18n.R("Hero_Terms_Description") },
+    { "Word", I18n.R("Hero_Terms_Word") },
     { "Icon", "bi-file-earmark-check" }
 })
 

@@ -12,7 +12,7 @@
     --vdp-accent-bright: #75bff4;
     --vdp-accent-bright: color-mix(in oklab, var(--vdp-accent) 72%, white);
     position: relative;
-    width: min(1440px, calc(100% - 2rem));
+    width: min(1800px, calc(100% - 2rem));
     margin: 0 auto;
     padding: .5rem 0 3rem;
 }
@@ -371,8 +371,8 @@ html.theme-silver .vdp-record-status-icon {
 
 .vehicle-detail-page .details-container.inventory-details-layout {
     display: grid !important;
-    grid-template-columns: minmax(0, 1fr) minmax(18rem, 22rem);
-    gap: clamp(1rem, 2.5vw, 2rem) !important;
+    grid-template-columns: minmax(15rem, 20%) minmax(0, 1fr) minmax(15rem, 20%);
+    gap: clamp(1rem, 2.5vw, 2.5rem) !important;
     align-items: start;
     width: 100%;
     margin-top: 0 !important;
@@ -562,11 +562,6 @@ html.theme-silver .vdp-record-status-icon {
     box-shadow: 0 .45rem 1.2rem rgba(20, 29, 38, .08) !important;
 }
 
-.vehicle-detail-page .well {
-    border-color: var(--vdp-line);
-}
-
-.vehicle-detail-page #nav-details > .well:not(.vdp-gallery-card),
 .vehicle-detail-page #nav-call,
 .vehicle-detail-page #nav-payment,
 .vehicle-detail-page #nav-pictures,
@@ -1139,6 +1134,25 @@ html.theme-silver .gtx-overview-toggle-copy small {
         var(--overview-surface);
 }
 
+.gtx-story-body {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+}
+
+.gtx-story-watermark {
+    float: right;
+    width: clamp(10rem, 45%, 27rem);
+    max-width: 46%;
+    height: auto;
+    max-height: 22rem;
+    margin: .1rem 0 .75rem 1.25rem;
+    opacity: .9;
+    object-fit: contain;
+    object-position: right center;
+    pointer-events: none;
+}
+
 .gtx-dataone-card #dataOneContainer {
     padding: clamp(.75rem, 2.4vw, 1.25rem);
 }
@@ -1149,11 +1163,20 @@ html.theme-silver .gtx-overview-toggle-copy small {
 }
 
 .gtx-story-content {
+    position: relative;
+    z-index: 1;
+    display: flow-root;
     padding: clamp(1rem, 3vw, 1.75rem);
     color: var(--bs-body-color, #111820);
     font-size: .9rem;
     line-height: 1.75;
     text-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gtx-story-watermark {
+        display: none;
+    }
 }
 
 .gtx-story-content > :first-child {
@@ -1514,7 +1537,7 @@ html.theme-silver .gtx-overview-toggle-copy small {
     opacity: .72;
 }
 
-.vdp-has-concierge-reveal .vdp-concierge-heading {
+.vdp-has-concierge-reveal #modalShortcuts .vdp-concierge-heading {
     max-height: 0;
     margin-bottom: 0;
     padding-top: 0;
@@ -1535,7 +1558,7 @@ html.theme-silver .gtx-overview-toggle-copy small {
         visibility 0s linear .35s;
 }
 
-.vdp-has-concierge-reveal .vdp-concierge-heading.is-visible {
+.vdp-has-concierge-reveal #modalShortcuts .vdp-concierge-heading.is-visible {
     max-height: 14rem;
     margin-bottom: 1rem;
     padding-top: .75rem;
@@ -1584,7 +1607,8 @@ html.theme-silver .gtx-overview-toggle-copy small {
     line-height: 1.55;
 }
 
-.vehicle-detail-page .vdp-action-stack > .btn,
+/* Capital One widgets use the shared compact button styles. */
+.vehicle-detail-page .vdp-action-stack > .btn:not(capital-one-button-widget),
 .vehicle-detail-page .vdp-action-stack > a.btn {
     min-height: 3.45rem;
     margin-bottom: .65rem !important;
@@ -1594,7 +1618,7 @@ html.theme-silver .gtx-overview-toggle-copy small {
     transition: transform .18s ease, box-shadow .18s ease;
 }
 
-.vehicle-detail-page .vdp-action-stack > .btn:hover,
+.vehicle-detail-page .vdp-action-stack > .btn:not(capital-one-button-widget):hover,
 .vehicle-detail-page .vdp-action-stack > a.btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 .65rem 1.4rem rgba(20, 29, 38, .12) !important;
@@ -1662,6 +1686,10 @@ html.theme-silver .gtx-overview-toggle-copy small {
 
     .vehicle-detail-page .details-container.inventory-details-layout {
         grid-template-columns: minmax(0, 1fr);
+    }
+
+    .vehicle-detail-page .inventory-details-main {
+        order: -1;
     }
 
     .vehicle-detail-page .vdp-action-stack {

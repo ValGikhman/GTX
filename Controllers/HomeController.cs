@@ -128,6 +128,20 @@ namespace GTX.Controllers
             return View();
         }
 
+        public ActionResult CapitalOnePQTS()
+        {
+            ViewBag.Message = "Application";
+            ViewBag.Title = I18n.R("Nav_CapitalOnePrequalified");
+
+            return View();
+        }
+
+        public ActionResult Reviews() {
+            ViewBag.Message = "Reviews";
+            ViewBag.Title = I18n.R("Nav_CustomerReviews");
+            return View();
+        }
+
         public ActionResult Testimonials() {
             ViewBag.Message = "Testimonials";
             ViewBag.Title = I18n.R("Nav_Testimonials");

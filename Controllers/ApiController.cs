@@ -5,6 +5,7 @@ using Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -119,7 +120,7 @@ namespace GTX.Controllers {
                 var inventory = _inventoryService.GetInventory();
                 var filtered = ApplyQuery(inventory.vehicles ?? Array.Empty<GTXDTO>(), query);
                 var totalCount = filtered.Count();
-                var pageVehicles = filtered
+                var pageVehicles = query.All ? filtered.ToArray() : filtered
                     .Skip((query.Page - 1) * query.PageSize)
                     .Take(query.PageSize)
                     .ToArray();
@@ -127,10 +128,10 @@ namespace GTX.Controllers {
 
                 return Ok(new MobileInventoryListResponse {
                     Published = inventory.InventoryDate,
-                    Page = query.Page,
-                    PageSize = query.PageSize,
+                    Page = query.All ? 1 : query.Page,
+                    PageSize = query.All ? totalCount : query.PageSize,
                     TotalCount = totalCount,
-                    TotalPages = totalCount == 0 ? 0 : (int)Math.Ceiling(totalCount / (double)query.PageSize),
+                    TotalPages = totalCount == 0 ? 0 : query.All ? 1 : (int)Math.Ceiling(totalCount / (double)query.PageSize),
                     DocumentaryFee = Constants.DOCUMENTARY_FEE,
                     Vehicles = pageVehicles
                         .Select(vehicle => ToMobileVehicle(vehicle, includeDetails: false, counters: counters))
@@ -209,7 +210,16 @@ namespace GTX.Controllers {
                     "vin",
                     "transmission",
                     "body_style",
-                    "drivetrain"
+                    "drivetrain",
+                    "exterior_color",
+                    "interior_color",
+                    "trim",
+                    "availability",
+                    "address",
+                    "latitude",
+                    "longitude",
+                    "dealer_name",
+                    "dealer_phone"
                 });
                 csv.AppendLine(string.Join(",", headers));
 
@@ -245,12 +255,28 @@ namespace GTX.Controllers {
                         values.Add(imageIndex < imageUrls.Length ? imageUrls[imageIndex] : string.Empty);
                     }
 
-                    values.Add(vehicle.InternetPrice.ToString("0.00") + " USD");
+                    values.Add(vehicle.InternetPrice.ToString("0.00", CultureInfo.InvariantCulture) + " USD");
                     values.Add("USED");
                     values.Add(vin);
-                    values.Add(BuildTransmission(vehicle));
-                    values.Add(vehicle.Body);
-                    values.Add(vehicle.DriveTrain);
+                    values.Add(MetaTransmission(vehicle.Transmission));
+                    values.Add(MetaBodyStyle(vehicle.VehicleType));
+                    values.Add(MetaDrivetrain(vehicle.DriveTrain));
+                    values.Add(vehicle.Color);
+                    values.Add(vehicle.Color2);
+                    values.Add(vehicle.VehicleStyle);
+                    values.Add("AVAILABLE");
+                    values.Add(Newtonsoft.Json.JsonConvert.SerializeObject(new {
+                        addr1 = "9516 Princeton Glendale Rd",
+                        city = "West Chester",
+                        region = "OH",
+                        postal_code = "45011",
+                        country = "US"
+                    }));
+                    // US Census address geocoder match for the dealership, verified 2026-09-06.
+                    values.Add(39.320130426346m);
+                    values.Add(-84.464008498772m);
+                    values.Add("GTX Auto Group");
+                    values.Add("+15134892886");
                     csv.AppendLine(string.Join(",", values.Select(Csv)));
                 }
 
@@ -339,6 +365,7 @@ namespace GTX.Controllers {
                 Fuel = vehicle.FuelType,
                 LocationCode = vehicle.LocationCode,
                 PrimaryImageUrl = imageUrls.FirstOrDefault(),
+                Images = imageUrls,
                 ImageUrls = includeDetails ? imageUrls : imageUrls.Take(1).ToArray(),
                 Features = SplitFeatures(vehicle.Features),
                 HasStory = vehicle.Story != null && !string.IsNullOrWhiteSpace(vehicle.Story.HtmlContent),
@@ -355,23 +382,29 @@ namespace GTX.Controllers {
             try {
                 var images = _inventoryService.GetImages(stock) ?? Array.Empty<Image>();
                 var urls = images
-                    .Select(image => BuildPictureUrl(stock, image.Source))
+                    .Select(image => BuildApiImageUrl(stock, image.Source))
                     .Where(url => !string.IsNullOrWhiteSpace(url))
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .ToArray();
 
-                return urls.Length > 0 ? urls : new[] { BuildUrl("Pictures/no-image-1.jpg") };
+                return urls.Length > 0 ? urls : new[] { BuildApiImageUrl(stock, "no-image-1.jpg") };
             }
             catch (Exception ex) {
                 Trace.TraceError("Unable to load mobile inventory images for {0}: {1}", stock, ex);
-                return new[] { BuildUrl("Pictures/no-image-1.jpg") };
+                return new[] { BuildApiImageUrl(stock, "no-image-1.jpg") };
             }
+        }
+
+        private string BuildApiImageUrl(string stock, string source) {
+            return BuildUrl(InventoryImageUrl.Build(source, stock, InventoryImageVariant.Detail));
         }
 
         private string[] GetMetaImageUrls(string stock) {
             try {
                 return (_inventoryService.GetImages(stock) ?? Array.Empty<Image>())
-                    .Select(image => BuildPictureUrl(stock, image.Source))
+                    .Where(image => image != null && !string.IsNullOrWhiteSpace(image.Source) &&
+                        image.Source.IndexOf("no-image", StringComparison.OrdinalIgnoreCase) < 0)
+                    .Select(image => BuildApiImageUrl(stock, image.Source))
                     .Where(url => !string.IsNullOrWhiteSpace(url))
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .Take(MaximumMetaImages)
@@ -381,39 +414,6 @@ namespace GTX.Controllers {
                 Trace.TraceError("Unable to load Meta inventory images for {0}: {1}", stock, ex);
                 return Array.Empty<string>();
             }
-        }
-
-        private string BuildPictureUrl(string stock, string source) {
-            var value = (source ?? string.Empty).Trim().Replace('\\', '/');
-            Uri absolute;
-            if (Uri.TryCreate(value, UriKind.Absolute, out absolute)) {
-                return absolute.ToString();
-            }
-
-            value = value.TrimStart('/');
-            foreach (var prefix in new[] { "Pictures/", "SiteImages/Inventory/", "Images/" }) {
-                if (value.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) {
-                    value = value.Substring(prefix.Length);
-                    break;
-                }
-            }
-
-            var normalizedStock = (stock ?? string.Empty).Trim();
-            if (!string.IsNullOrWhiteSpace(normalizedStock) &&
-                !value.StartsWith(normalizedStock + "/", StringComparison.OrdinalIgnoreCase)) {
-                value = normalizedStock + "/" + value;
-            }
-
-            var encodedPath = string.Join("/", value
-                .Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(Uri.EscapeDataString));
-            if (string.IsNullOrWhiteSpace(encodedPath)) {
-                return null;
-            }
-
-            return InventoryImageSettings.CloudflareEnabled
-                ? InventoryImageSettings.BaseUrl + "/" + encodedPath
-                : BuildUrl("Pictures/" + encodedPath);
         }
 
         private string BuildUrl(string relativePath) {
@@ -449,8 +449,8 @@ namespace GTX.Controllers {
         }
 
         private static string ValidateQuery(MobileInventoryQuery query) {
-            if (query.Page < 1) return "Page must be at least 1.";
-            if (query.PageSize < 1 || query.PageSize > MaximumPageSize) {
+            if (!query.All && query.Page < 1) return "Page must be at least 1.";
+            if (!query.All && (query.PageSize < 1 || query.PageSize > MaximumPageSize)) {
                 return "Page size must be between 1 and 100.";
             }
             if (query.MinYear.HasValue && query.MaxYear.HasValue && query.MinYear > query.MaxYear) {
@@ -504,8 +504,45 @@ namespace GTX.Controllers {
                 .ToArray();
         }
 
+        private static string MetaTransmission(string value) {
+            switch ((value ?? string.Empty).Trim().ToUpperInvariant()) {
+                case "A": case "AUTOMATIC": case "C": case "CVT": case "CONTINUOUSLY VARIABLE":
+                    return "AUTOMATIC";
+                case "M": case "MANUAL":
+                    return "MANUAL";
+                default:
+                    return "OTHER";
+            }
+        }
+
+        private static string MetaBodyStyle(string value) {
+            var normalized = (value ?? string.Empty).Trim().ToUpperInvariant();
+            switch (normalized) {
+                case "CONVERTIBLE": case "COUPE": case "CROSSOVER": case "HATCHBACK":
+                case "MINIVAN": case "TRUCK": case "SUV": case "SEDAN": case "VAN": case "WAGON":
+                    return normalized;
+                case "PICKUP": case "PICKUP TRUCK":
+                    return "TRUCK";
+                case "SPORT UTILITY": case "SPORT UTILITY VEHICLE":
+                    return "SUV";
+                default:
+                    return "OTHER";
+            }
+        }
+
+        private static string MetaDrivetrain(string value) {
+            switch ((value ?? string.Empty).Trim().ToUpperInvariant()) {
+                case "AWD": case "ALL WHEEL DRIVE": case "ALL-WHEEL DRIVE": return "AWD";
+                case "FWD": case "FRONT WHEEL DRIVE": case "FRONT-WHEEL DRIVE": return "FWD";
+                case "RWD": case "REAR WHEEL DRIVE": case "REAR-WHEEL DRIVE": return "RWD";
+                case "4WD": case "4X4": case "FOUR_WD": return "4X4";
+                case "2WD": case "4X2": case "TWO_WD": return "4X2";
+                default: return "OTHER";
+            }
+        }
+
         private static string Csv(object value) {
-            var text = Convert.ToString(value) ?? string.Empty;
+            var text = Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty;
             text = text
                 .Replace("\"", "\"\"")
                 .Replace("\r", " ")

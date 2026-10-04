@@ -11,11 +11,9 @@
                 <div class="dropdown majordome-management-log-picker">
                     <div class="majordome-management-log-period" aria-label="Filter inventory dates">
                         <div>
-                            <label for="majordomeManagementLogYear" class="form-label">Year</label>
                             <select id="majordomeManagementLogYear" class="form-select form-select-sm" aria-label="Filter inventory dates by year"></select>
                         </div>
                         <div>
-                            <label for="majordomeManagementLogMonth" class="form-label">Month</label>
                             <select id="majordomeManagementLogMonth" class="form-select form-select-sm" aria-label="Filter inventory dates by month"></select>
                         </div>
                     </div>
@@ -36,7 +34,7 @@
                     <div id="majordomeManagementGrid" class="majordome-management-add-grid"></div>
                 </div>
                 <div id="majordomeManagementEmpty" class="p-4 text-center text-muted d-none">
-                    No added, updated, sold, or stalled vehicles were found for this inventory date.
+                    No added, updated, sold, or current vehicles were found for this inventory date.
                 </div>
             </div>
         </div>
@@ -109,9 +107,9 @@
         let majordomeManagementLogs = Array.isArray(initialMajordomeManagementLogs) ? initialMajordomeManagementLogs : [];
         let majordomeManagementRows = [];
         let majordomeManagementSelectedStock = "";
-        let majordomeManagementSelectedStatus = "all";
         let majordomeManagementSelectedYear = "";
         let majordomeManagementSelectedMonth = "";
+        let majordomeManagementSelectedStatus = "all";
         let inventoryManagementRollbackRunning = false;
         let inventoryManagementRollbackLatestLog = null;
         const majordomeManagementMonthNames = [
@@ -122,7 +120,7 @@
             { key: "added", label: "Added", countKey: "AddedCount", badgeClass: "bg-success", iconClass: "bi-plus-circle" },
             { key: "updated", label: "Updated", countKey: "UpdatedCount", badgeClass: "bg-primary", iconClass: "bi-pencil-square" },
             { key: "removed", label: "Sold", countKey: "RemovedCount", badgeClass: "bg-danger", iconClass: "bi-trash3" },
-            { key: "skipped", label: "Stalled", countKey: "SkippedCount", badgeClass: "bg-secondary", iconClass: "bi-pause-circle" }
+            { key: "skipped", label: "Current", countKey: "SkippedCount", badgeClass: "bg-secondary", iconClass: "bi-pause-circle" }
         ];
 
         function managementRoot() {
@@ -248,7 +246,7 @@
                 return "removed";
             }
 
-            if (status === "skip" || status === "skipped" || status === "stall" || status === "stalled" || status === "existing") {
+            if (status === "skip" || status === "skipped" || status === "stall" || status === "stalled" || status === "existing" || status === "current") {
                 return "skipped";
             }
 
@@ -257,7 +255,7 @@
 
         function managementDisplayStatusText(value) {
             if (managementStatusKey(value) === "skipped") {
-                return "Stalled";
+                return "Current";
             }
 
             return managementText(value).trim();
@@ -460,7 +458,7 @@
             const hasFilteredRows = filteredCount > 0;
             const message = totalCount > 0
                 ? "No vehicles match the current filters."
-                : "No added, updated, sold, or stalled vehicles were found for this inventory date.";
+                : "No added, updated, sold, or current vehicles were found for this inventory date.";
 
             $("#majordomeManagementEmpty")
                 .toggleClass("d-none", hasFilteredRows)
@@ -567,7 +565,7 @@
             const numeric = Number(text.replace(/[$,\s]/g, ""));
             if (!Number.isFinite(numeric)) return text;
 
-            return new Intl.NumberFormat(undefined, {
+            return new Intl.NumberFormat("en-US", {
                 style: "currency",
                 currency: "USD",
                 maximumFractionDigits: 0
@@ -808,8 +806,7 @@
                             aria-expanded="${expanded}"
                             aria-controls="${managementEscapeHtml(collapseId)}">
                         <span class="majordome-management-log-date-main">
-                            <i class="bi bi-chevron-right majordome-management-log-date-chevron" aria-hidden="true"></i>
-                            <span class="majordome-management-log-option-date">${managementEscapeHtml(managementFormatDate(dateCreated))}</span>
+                            <span class="majordome-management-log-option-date text-shadow-small">${managementEscapeHtml(managementFormatDate(dateCreated))}</span>
                         </span>
                         <span class="badge rounded-pill bg-dark majordome-management-log-date-count">${managementEscapeHtml(managementFormatInteger(total))}</span>
                     </button>
@@ -1012,7 +1009,7 @@
             };
 
             const toggle = isUpdated
-                ? `<button type="button" class="btn btn-outline-secondary majordome-management-toggle" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="false" aria-controls="${collapseId}" title="Show changed values"><i class="bi bi-chevron-right" aria-hidden="true"></i></button>`
+                ? `<button type="button" class="inventory-dashboard-expand-button majordome-management-toggle" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="false" aria-controls="${collapseId}" title="Show changed values"><i class="bi bi-chevron-right" aria-hidden="true"></i></button>`
                 : "";
             const imageRenderer = window.majordomeVehicleCells && window.majordomeVehicleCells.renderImageContent;
             const detailsRenderer = window.majordomeVehicleCells && window.majordomeVehicleCells.renderDetailsContent;

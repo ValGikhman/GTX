@@ -1,4 +1,6 @@
+using Common;
 using GTX.Helpers;
+using GTX.Common;
 using GTX.Models;
 using Services;
 using System;
@@ -148,6 +150,18 @@ namespace GTX.Controllers
 
         #region Public
 
+        protected string RefreshInventorySitemap() {
+            try {
+                SitemapWriter.Write(InventoryService);
+                return null;
+            }
+            catch (Exception ex) {
+                // The inventory transaction already committed; report a separate warning.
+                System.Diagnostics.Trace.TraceError("Inventory saved, but sitemap refresh failed: {0}", ex);
+                return "Inventory was saved, but the sitemap could not be refreshed. Check server logs and sitemap file permissions.";
+            }
+        }
+
         public void Log(Exception ex) {
             LogService.Log(SessionData.LogHeader, ex);
         }
@@ -183,8 +197,12 @@ namespace GTX.Controllers
             var expected = Model.Passwords.FirstOrDefault(m => m.Password == password);
             if (expected == null) return false;
 
-            if (!string.IsNullOrWhiteSpace(expected.Role) &&
-                Enum.TryParse(expected.Role, true, out CommonUnit.Roles role))
+            // Preserve the existing sitePassword:Blog setting as a Blogger login.
+            var roleName = string.Equals(expected.Role, "Blog", StringComparison.OrdinalIgnoreCase)
+                ? nameof(CommonUnit.Roles.Blogger)
+                : expected.Role;
+            if (!string.IsNullOrWhiteSpace(roleName) &&
+                Enum.TryParse(roleName, true, out CommonUnit.Roles role))
             {
                 currentRole = role;
             }
@@ -243,17 +261,32 @@ namespace GTX.Controllers
 
         private Inventory LoadInventory(bool includeHiddenInventory, bool includeDataOneContent)
         {
-            var dto = InventoryService.GetInventory(includeHiddenInventory, includeDataOneContent);
-            var vehicles = Models.GTX.ToGTX(dto.vehicles);
+            var dto = includeDataOneContent && !includeHiddenInventory
+                ? PublicInventoryDataOneCache.Get(InventoryService, DataOneInventoryCacheMinutes())
+                : null;
+            var sourceVehicles = dto == null
+                ? InventoryService.GetInventory(includeHiddenInventory, includeDataOneContent)
+                : default((GTXDTO[] vehicles, DateTime InventoryDate));
+            var inventoryVehicles = dto?.Vehicles ?? sourceVehicles.vehicles;
+            var inventoryDate = dto?.Published ?? sourceVehicles.InventoryDate;
+            var vehicles = Models.GTX.ToGTX(inventoryVehicles);
             ApplyDetailsCounters(vehicles);
             var inventory = new Inventory
             {
-                Published = dto.InventoryDate,
+                Published = inventoryDate,
                 All = DecideImages(vehicles)
             };
 
             inventory.Vehicles = inventory.All;
             return inventory;
+        }
+
+        private static int DataOneInventoryCacheMinutes()
+        {
+            int minutes;
+            return int.TryParse(ConfigurationManager.AppSettings["OpenAI:ChatInventoryCacheMinutes"], out minutes)
+                ? Math.Max(1, Math.Min(60, minutes))
+                : 1;
         }
 
         private void ApplyDetailsCounters(Models.GTX[] vehicles)

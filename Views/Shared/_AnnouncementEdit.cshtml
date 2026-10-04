@@ -88,8 +88,7 @@
             <!-- Row 5: MessageHtml editor -->
             <div class="col-12">
                 <label class="form-label text-shadow-small"><strong>Message</strong></label>
-                @Html.HiddenFor(m => m.MessageHtml, new { id = "MessageHtml" })
-                <div id="messageEditor" class="form-control shadow" style="height:260px"></div>
+                @Html.TextAreaFor(m => m.MessageHtml, new { id = "MessageHtml", @class = "form-control shadow" })
                 @Html.ValidationMessageFor(m => m.MessageHtml, "", new { @class = "text-danger" })
             </div>
 
@@ -109,27 +108,12 @@
         var $form = $('form[data-announcement-ajax="true"]');
         if (!$form.length) $form = $('form').first();
 
-        // -----------------------------
-        // Quill (MessageHtml)
-        // -----------------------------
-        var Font = Quill.import('formats/font');
-        Font.whitelist = ['sans-serif', 'serif', 'monospace', 'roboto', 'arial', 'times'];
-        Quill.register(Font, true);
-        var quill = new Quill('#messageEditor', {
-            theme: 'snow',
-            modules: {
-                toolbar: [
-                    [{ font: [] }, { size: ['small', false, 'large', 'huge'] }],
-                    [{ header: [1, 2, 3, false] }],
-                    ['bold', 'italic', 'underline', 'strike'],
-                    [{ color: [] }, { background: [] }],
-                    [{ align: [] }],                // left/center/right/justify
-                    [{ list: 'ordered' }, { list: 'bullet' }],
-                    ['link', 'image'],
-                    ['clean']
-                ]
-            }
+        var $messageField = $('#MessageHtml', $form);
+        $messageField.addEdit({
+            height: 260,
+            placeholder: 'Write the announcement message...'
         });
+        var messageEditor = $messageField.data('add-edit');
 
         function normalizeEmpty(html) {
             var h = $.trim(html || '');
@@ -137,18 +121,12 @@
         }
 
         function syncMessage() {
-            var html = normalizeEmpty(quill.root.innerHTML);
-            $('#MessageHtml', $form).val(html);
+            var html = normalizeEmpty(messageEditor ? messageEditor.value() : $messageField.val());
+            $messageField.val(html);
         }
 
-        // Load existing message (Edit mode)
-        var initialHtml = $('#MessageHtml', $form).val();
-        if (initialHtml) quill.clipboard.dangerouslyPasteHTML(initialHtml);
-
         // Sync on submit (delegated; works when loaded in modal)
-        $(document).on('submit', 'form[data-announcement-ajax="true"]', function () {
-            syncMessage();
-        });
+        $form.on('submit.addEditAnnouncement', syncMessage);
 
         // Extra safety: sync on click
         $form.on('click', 'button[type=submit], input[type=submit]', function () {

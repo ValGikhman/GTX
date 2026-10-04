@@ -10,11 +10,11 @@
 
 @Html.Partial("_MarketingHero", null, new ViewDataDictionary
 {
-    { "Kicker", "Inventory intelligence at a glance" },
-    { "Title", "See the movement." },
-    { "Accent", "Lead the inventory." },
-    { "Description", "Track status, location, aging, and recent activity from one focused operational view." },
-    { "Word", "PULSE" },
+    { "Kicker", I18n.R("Hero_Dashboard_Kicker") },
+    { "Title", I18n.R("Hero_Dashboard_Title") },
+    { "Accent", I18n.R("Hero_Dashboard_Accent") },
+    { "Description", I18n.R("Hero_Dashboard_Description") },
+    { "Word", I18n.R("Hero_Dashboard_Word") },
     { "Icon", "bi-speedometer2" }
 })
 
@@ -199,7 +199,6 @@
                 "Current": "#6c757d",
                 "Existing": "#6c757d",
                 "Skipped": "#6c757d",
-                "Stalled": "#6c757d",
                 "Sold": "#dc3545",
                 "Removed": "#dc3545",
                 "Updated": "#0d6efd"
@@ -235,8 +234,8 @@
             function statusLabel(value) {
                 const label = (value || "Status").toString().trim();
                 const normalized = label.toLowerCase();
-                if (normalized === "skip" || normalized === "skipped" || normalized === "stall" || normalized === "stalled" || normalized === "existing") {
-                    return "Stalled";
+                if (normalized === "skip" || normalized === "skipped" || normalized === "stall" || normalized === "stalled" || normalized === "existing" || normalized === "current") {
+                    return "Current";
                 }
                 if (normalized === "remove" || normalized === "removed") {
                     return "Sold";
@@ -477,7 +476,7 @@
                 const numeric = Number(text.replace(/[$,\s]/g, ""));
                 if (!Number.isFinite(numeric)) return text;
 
-                return new Intl.NumberFormat(undefined, {
+                return new Intl.NumberFormat("en-US", {
                     style: "currency",
                     currency: "USD",
                     maximumFractionDigits: 0
@@ -665,7 +664,7 @@
 
             function dashboardStatusLabelFromCode(statusCode, data) {
                 const normalized = normalizeStatusCode(statusCode);
-                if (normalized === stalledTrendStatusCode) return "Stalled";
+                if (normalized === stalledTrendStatusCode) return "Current";
 
                 const status = getDashboardStatuses(data)
                     .concat(getDashboardStatusTrend(data))
@@ -678,7 +677,7 @@
                 if (normalized === addedStatusCode) return "Added";
                 if (normalized === updatedStatusCode) return "Updated";
                 if (normalized === removedStatusCode) return "Sold";
-                return "Stalled";
+                return "Current";
             }
 
             function dashboardStatusTrendSort(statusCode) {

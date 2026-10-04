@@ -278,6 +278,8 @@
     <Compile Include="Common\CloudflareCachePurger.cs" />
     <Compile Include="Common\CloudflareR2Storage.cs" />
     <Compile Include="Common\Constants.cs" />
+    <Compile Include="Common\OpenAiRateLimitHealth.cs" />
+    <Compile Include="Common\PublicInventoryDataOneCache.cs" />
     <Compile Include="Common\SecuritySanitizer.cs" />
     <Compile Include="Common\SessionRequestToken.cs" />
     <Compile Include="Common\Properties\AssemblyInfo.cs" />
@@ -285,6 +287,9 @@
     <Compile Include="Controllers\AnnouncementsController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\BlogsController.cs" />
+    <Compile Include="Controllers\SpecialsController.cs" />
+    <Compile Include="Models\SpecialModel.cs" />
+    <Compile Include="Utility\SpecialsService.cs" />
     <Compile Include="Controllers\ChatController.cs" />
     <Compile Include="Controllers\ChatBotCommandsController.cs" />
     <Compile Include="Controllers\EmployeesController.cs" />
@@ -293,6 +298,9 @@
     <Compile Include="Controllers\LocalizationController.cs" />
     <Compile Include="Controllers\MajordomeController.cs" />
     <Compile Include="Controllers\ApiController.cs" />
+    <Compile Include="Controllers\MobileManagementController.cs" />
+    <Compile Include="Utility\MobileSessionStore.cs" />
+    <Compile Include="Controllers\MobileController.cs" />
     <Compile Include="Controllers\InventoryImagesController.cs" />
     <Compile Include="Controllers\InventoryController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -315,6 +323,7 @@
     <Compile Include="Models\HealthModel.cs" />
     <Compile Include="Models\MobileApiModels.cs" />
     <Compile Include="Models\SitemapModel.cs" />
+    <Compile Include="Models\VehicleComparisonModels.cs" />
     <Compile Include="Session\HttpContextProvider.cs" />
     <Compile Include="Session\IHttpContextProvider.cs" />
     <Compile Include="Session\ISessionData.cs" />
@@ -327,12 +336,15 @@
   <ItemGroup>
     <Content Include="App_Data\ADF.xml" />
     <Content Include="App_Data\GTX-Configuration.xml" />
-    <Content Include="App_Data\Inventory\Current\GTX-Inventory.xml" />
     <Content Include="AGENTS.md" />
     <Content Include="Content\api-showmehow.html" />
+    <Content Include="Content\mobile-download.css" />
+    <Content Include="Views\Mobile\Index.cshtml" />
+    <Content Include="App_Data\Mobile\GTX-Majordome-1.0.0.apk" />
     <Content Include="Content\chat-bot.css" />
     <Content Include="Content\chat-bot-commands.css" />
     <Content Include="Content\Themes\Blue.css" />
+    <Content Include="Content\Themes\Background.css" />
     <Content Include="Content\bootstrap\bootstrap-datepicker.css" />
     <Content Include="Content\bootstrap\bootstrap-datepicker.min.css" />
     <Content Include="Content\bootstrap\bootstrap-datepicker.standalone.css" />
@@ -353,7 +365,7 @@
     <Content Include="Content\Themes\Metallica.css" />
     <Content Include="Content\elegant-icons.css" />
     <Content Include="Content\font-awesome.min.css" />
-    <Content Include="Content\pepTools\pepEdit.css" />
+    <Content Include="Content\addTools\addEdit.css" />
     <Content Include="Content\addTools\addGrid.css" />
     <Content Include="Content\Themes\DeepPurple.css" />
     <Content Include="Content\Themes\Green.css" />
@@ -371,6 +383,7 @@
     <Content Include="Content\majordome.css" />
     <Content Include="Content\inventory-card.css" />
     <Content Include="Content\dataone-details.css" />
+    <Content Include="Content\capital-one-buttons.css" />
     <Content Include="Content\inventory-dashboard.css" />
     <Content Include="Content\inventory-history.css" />
     <Content Include="Content\open-hours.css" />
@@ -387,7 +400,6 @@
     <Content Include="fonts\fontawesome-webfont.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
-    <Content Include="Inventory\editor_v2\app\img\clickable_pixel_image.png" />
     <Content Include="Scripts\Remove-Stock-Prefix-From-Image-Source.sql" />
     <Content Include="img\demo\hero-adventure.png" />
     <Content Include="img\demo\hero-electric.png" />
@@ -416,6 +428,7 @@
     <Content Include="Common\App.config" />
     <Content Include="Scripts\AlloyFinger\alloy_finger.js" />
     <Content Include="Scripts\chat-bot.js" />
+    <Content Include="Scripts\capital-one-buttons.js" />
     <Content Include="Scripts\chat-bot-commands.js" />
     <Content Include="Scripts\Sql\CreateInventoryDetailsCounter.sql" />
     <Content Include="Scripts\Sql\CreateChatBotTeachingTables.sql" />
@@ -534,7 +547,7 @@
     <Content Include="Scripts\inventory.js" />
     <Content Include="Scripts\inventory-dashboard-grid.js" />
     <Content Include="Scripts\majordome-inventory-grid.js" />
-    <Content Include="Scripts\pepTools\pepEdit.js" />
+    <Content Include="Scripts\addTools\addEdit.js" />
     <Content Include="Scripts\addTools\addGrid.js" />
     <Content Include="Scripts\jquery.gtx-range-filter.js" />
     <Content Include="Scripts\nouislider.min.js" />
@@ -615,6 +628,7 @@
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Inventory\Index.cshtml" />
+    <Content Include="Views\Inventory\_VehicleComparison.cshtml" />
     <Content Include="Views\Home\Staff.cshtml" />
     <Content Include="Views\Home\Application.cshtml" />
     <Content Include="Views\Shared\_ContactForm.cshtml" />
@@ -651,6 +665,10 @@
     <Content Include="Views\Inventory\DetailsCard.cshtml" />
     <Content Include="Views\Shared\_OverlayModal.cshtml" />
     <Content Include="Views\Home\Testimonials.cshtml" />
+    <Content Include="Views\Home\Reviews.cshtml" />
+    <Content Include="Scripts\google-reviews.js" />
+    <Content Include="Content\review-icons\google.svg" />
+    <Content Include="Content\review-icons\hibu.png" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Employees\Employees.cshtml" />
     <Content Include="Views\Shared\_Details.cshtml" />
@@ -673,6 +691,19 @@
     <Content Include="Views\Shared\_AnnouncementPreviewAlert.cshtml" />
     <Content Include="Views\Announcements\Index.cshtml" />
     <Content Include="Views\Blogs\Index.cshtml" />
+    <Content Include="Views\Specials\Index.cshtml" />
+    <Content Include="Views\Specials\List.cshtml" />
+    <Content Include="Views\Specials\Special.cshtml" />
+    <Content Include="Views\Shared\_Special.cshtml" />
+    <Content Include="Views\Shared\_SpecialsPlayerLink.cshtml" />
+    <Content Include="Content\specials-player.css" />
+    <Content Include="Scripts\specials-player.js" />
+    <Content Include="Views\Shared\_SpecialEdit.cshtml" />
+    <Content Include="Views\Shared\_SpecialModal.cshtml" />
+    <Content Include="Scripts\specials.js" />
+    <Content Include="Content\specials.css" />
+    <Content Include="Content\article-details.css" />
+    <None Include="Scripts\Sql\CreateSpecials.sql" />
     <Content Include="Views\Shared\_AdCard.cshtml" />
     <Content Include="Views\Sitemap\Index.cshtml" />
     <Content Include="Views\Shared\_Employee.cshtml" />
@@ -681,9 +712,9 @@
     <Content Include="Views\Shared\_EmployeeModal.cshtml" />
     <Content Include="Views\VinDecoder\Index.cshtml" />
     <Content Include="Views\Home\NeedLogin.cshtml" />
-    <Content Include="Views\Shared\_Button.cshtml" />
     <Content Include="Views\Inventory\VehicleNotFound.cshtml" />
     <Content Include="Views\Home\Demo\Index.cshtml" />
+    <Content Include="Views\Home\CapitalOnePQTS.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

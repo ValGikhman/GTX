@@ -147,30 +147,76 @@
 }
 
 .marketing-section-label {
+    --section-accent: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 60%, var(--bs-body-color));
     display: grid;
-    grid-template-columns: auto minmax(2rem, 1fr) auto;
+    grid-template-columns: minmax(0, auto) minmax(2rem, 1fr) minmax(0, auto);
     gap: 1rem;
     align-items: center;
     margin-bottom: clamp(1.4rem, 3vw, 2.5rem);
-    color: #3b4650;
-    font-size: .64rem;
+    padding: clamp(1rem, 2vw, 1.5rem);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 1rem;
+    background: var(--bs-body-bg);
+    background: linear-gradient(110deg, color-mix(in srgb, var(--section-accent) 9%, var(--bs-body-bg)), var(--bs-body-bg) 75%);
+    box-shadow: 0 .5rem 1.5rem rgba(0, 0, 0, .05);
+    color: var(--bs-body-color);
+    font-size: clamp(1.15rem, 2vw, 1.65rem);
     font-weight: 850;
-    letter-spacing: .15em;
-    text-transform: uppercase;
+    line-height: 1.25;
+    letter-spacing: -.025em;
+    overflow-wrap: anywhere;
+}
+
+.marketing-section-label > span {
+    display: flex;
+    align-items: center;
+    gap: .9rem;
+    min-width: 0;
+}
+
+.marketing-section-label > span::before {
+    content: "";
+    width: .4rem;
+    height: 1.8rem;
+    flex: 0 0 auto;
+    border-radius: .15rem;
+    background: var(--section-accent);
+    box-shadow: .25rem 0 0 color-mix(in srgb, var(--section-accent) 20%, transparent);
+    transform: skewX(-14deg);
 }
 
 .marketing-section-label::after {
     content: "";
     grid-column: 2;
     grid-row: 1;
-    height: 1px;
-    background: var(--mp-line);
+    height: 2px;
+    background: linear-gradient(90deg, var(--section-accent), var(--bs-border-color), transparent);
 }
 
 .marketing-section-label small {
+    --label-badge-surface: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 6%, var(--bs-tertiary-bg));
     grid-column: 3;
-    color: #7a848d;
+    min-width: 0;
+    padding: .6rem .85rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: .8rem;
+    color: var(--bs-secondary-color);
+    background: var(--bs-tertiary-bg);
+    background: linear-gradient(180deg,
+        color-mix(in srgb, var(--label-badge-surface) 90%, white),
+        var(--label-badge-surface) 48%,
+        color-mix(in srgb, var(--label-badge-surface) 94%, black));
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .4),
+        inset 0 -1px 0 rgba(0, 0, 0, .12),
+        0 3px 0 color-mix(in srgb, var(--label-badge-surface) 80%, black),
+        0 7px 12px rgba(0, 0, 0, .16);
     font: inherit;
+    font-size: clamp(.82rem, 1.1vw, .92rem);
+    font-weight: 600;
+    line-height: 1.5;
+    letter-spacing: .01em;
+    text-transform: none;
 }
 
 /* About */
@@ -356,6 +402,11 @@
     padding: 1.1rem;
 }
 
+.contact-page #contactForm .just-validate-error-label {
+    text-align: right;
+    padding-right: 2.75rem;
+}
+
 .contact-address {
     display: flex;
     gap: .75rem;
@@ -435,19 +486,20 @@
     font-size: 1.15rem;
 }
 
-.contact-form-panel .input-group-text {
+/* Dark mode uses the shared form styles, just like the contact popup. */
+:where(html:not([data-background-theme="dark"])) .contact-form-panel .input-group-text {
     color: var(--mp-accent);
     border-color: var(--mp-line);
     background: #f1f3f5;
     box-shadow: none !important;
 }
 
-.contact-form-panel .form-control {
+:where(html:not([data-background-theme="dark"])) .contact-form-panel .form-control {
     border-color: var(--mp-line);
     box-shadow: none !important;
 }
 
-.contact-form-panel .form-control:focus {
+:where(html:not([data-background-theme="dark"])) .contact-form-panel .form-control:focus {
     border-color: var(--mp-accent);
     box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--mp-accent) 13%, transparent) !important;
 }
@@ -1209,6 +1261,139 @@ html.theme-silver .vin-schema-button-primary {
 }
 
 /* Testimonials */
+.google-reviews-page.testimonials-page .t-card {
+    min-width: 0;
+    padding: clamp(.95rem, 2vw, 1.35rem) !important;
+    border-color: var(--bs-border-color, #dee2e6);
+    border-radius: 1rem;
+    background: var(--bs-body-bg, #fff);
+    box-shadow: 0 .4rem 1.25rem rgba(11, 17, 24, .07);
+}
+
+.google-reviews-page .t-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: var(--mp-gradient);
+}
+
+.google-reviews-page .review-header {
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+}
+
+.google-reviews-page .review-details {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.google-reviews-page .review-name-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: .5rem;
+    margin-bottom: .15rem;
+}
+
+.google-reviews-page .review-name-row .t-title {
+    min-width: 0;
+    margin: 0;
+    font-size: .95rem;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.google-reviews-page .review-date {
+    flex: 0 0 auto;
+    text-align: right;
+    white-space: nowrap;
+    font-size: .72rem;
+}
+
+.google-reviews-page .hr-review-icon {
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid rgba(11, 17, 24, .1);
+    border-radius: .7rem;
+    background: #fff;
+}
+
+.google-reviews-page .hr-review-icon > img {
+    display: block;
+    width: 1.75rem;
+    height: 1.75rem;
+    object-fit: contain;
+}
+
+.google-reviews-page .review-source {
+    color: var(--bs-secondary-color, #64707a);
+    font-size: .72rem;
+    font-weight: 600;
+}
+
+.google-reviews-page .google-review-rating {
+    margin-top: .3rem;
+    gap: .15rem;
+}
+
+.google-reviews-page .google-review-rating-label {
+    font-size: .7rem;
+    font-weight: 500;
+}
+
+.google-reviews-page.testimonials-page .t-card .google-review-comment:not(:empty) {
+    margin-top: .85rem;
+    padding-top: .85rem;
+    border-top: 1px solid var(--bs-border-color, #dee2e6);
+    color: var(--bs-body-color, #172433) !important;
+    font-size: .88rem;
+    line-height: 1.65;
+}
+
+@media (max-width: 399.98px) {
+    .google-reviews-page .review-header {
+        gap: .5rem;
+    }
+
+    .google-reviews-page .hr-review-icon {
+        width: 2rem;
+        height: 2rem;
+    }
+
+    .google-reviews-page .review-date {
+        font-size: .65rem;
+    }
+}
+
+.google-review-comment {
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
+.google-review-rating {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .2rem;
+    color: #fdd663;
+    font-size: .85rem;
+    font-weight: 700;
+}
+
+.google-review-stars {
+    display: inline-flex;
+    gap: .15rem;
+}
+
+.google-review-rating-label {
+    color: var(--bs-body-color, #172433);
+}
+
 .testimonials-wrap {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1281,6 +1466,30 @@ html.theme-silver .vin-schema-button-primary {
     height: 1px;
     margin: .9rem 0;
     background: rgba(255, 255, 255, .15);
+}
+
+/* A warm paper surface keeps the featured story inviting in the light palette. */
+html:not([data-background-theme="dark"]):not([data-background-theme="grey"]) .testimonials-page .testimonial-featured {
+    color: #26323d;
+    border-color: #ddd8ce;
+    border-inline-start: .3rem solid var(--mp-accent);
+    background: linear-gradient(135deg, #fffdf8, #f4f1eb);
+    background:
+        radial-gradient(ellipse at top right, color-mix(in srgb, var(--mp-accent) 12%, transparent), transparent 65%),
+        linear-gradient(135deg, #fffdf8, #f4f1eb);
+    box-shadow: 0 1rem 2.5rem rgba(67, 57, 39, .08);
+}
+
+html:not([data-background-theme="dark"]):not([data-background-theme="grey"]) .testimonials-page .testimonial-featured .t-title {
+    color: #26323d;
+}
+
+html:not([data-background-theme="dark"]):not([data-background-theme="grey"]) .testimonials-page .testimonial-featured :is(.text-secondary, p) {
+    color: #52606b !important;
+}
+
+html:not([data-background-theme="dark"]):not([data-background-theme="grey"]) .testimonials-page .testimonial-featured .soft-divider {
+    background: linear-gradient(90deg, var(--mp-accent), #ddd8ce, transparent);
 }
 
 html.theme-silver .marketing-hero h1,
@@ -1366,7 +1575,7 @@ html.theme-silver .blog-read-link {
 
     .marketing-section-label {
         grid-template-columns: 1fr;
-        gap: .35rem;
+        gap: .65rem;
     }
 
     .marketing-section-label::after {
@@ -1375,6 +1584,7 @@ html.theme-silver .blog-read-link {
 
     .marketing-section-label small {
         grid-column: 1;
+        justify-self: start;
     }
 
     .about-values,

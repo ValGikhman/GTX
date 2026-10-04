@@ -22,30 +22,6 @@
     padding: clamp(3rem, 7vw, 7rem) clamp(1rem, 3.5vw, 3rem) clamp(4rem, 8vw, 8rem);
 }
 
-.staff-section-heading {
-    display: grid;
-    grid-template-columns: auto minmax(3rem, 1fr) auto;
-    gap: 1rem;
-    align-items: center;
-    margin-bottom: clamp(1.8rem, 4vw, 3.2rem);
-    color: #313b46;
-    font-size: .68rem;
-    font-weight: 850;
-    letter-spacing: .14em;
-    text-transform: uppercase;
-}
-
-.staff-section-heading div {
-    height: 1px;
-    background: var(--staff-line);
-}
-
-.staff-section-heading small {
-    color: #78818a;
-    font-size: inherit;
-    font-weight: inherit;
-}
-
 .staff-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 17.5rem), 1fr));
@@ -412,15 +388,6 @@ html.theme-silver .staff-contact-modal .staff-contact-heading small {
 }
 
 @media (max-width: 575.98px) {
-    .staff-section-heading {
-        grid-template-columns: 1fr;
-        gap: .45rem;
-    }
-
-    .staff-section-heading div {
-        display: none;
-    }
-
     .staff-card-photo,
     .staff-card-photo img {
         min-height: 27rem;

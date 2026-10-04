@@ -22,7 +22,6 @@ namespace GTX.Controllers
 {
     public sealed class ChatController : Controller
     {
-        private const string ResponsesUrl = "https://api.openai.com/v1/responses";
         private const string RequestTokenSessionKey = "GTX:ChatRequestToken";
         private const string PromptCacheKey = "gtx-dealership-chat-v1";
         private const string DefaultChatModel = "gpt-4.1-mini";
@@ -484,13 +483,20 @@ namespace GTX.Controllers
 
         private async Task<JObject> PostOpenAiAsync(string apiKey, JObject payload)
         {
-            using (var request = new HttpRequestMessage(HttpMethod.Post, ResponsesUrl))
+            var responsesUrl = ConfigurationManager.AppSettings["OpenAI:ResponsesUrl"];
+            if (string.IsNullOrWhiteSpace(responsesUrl))
+            {
+                throw new ConfigurationErrorsException("OpenAI:ResponsesUrl is not configured.");
+            }
+
+            using (var request = new HttpRequestMessage(HttpMethod.Post, responsesUrl.Trim()))
             {
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
                 request.Content = new StringContent(payload.ToString(Formatting.None), Encoding.UTF8, "application/json");
 
                 using (var response = await OpenAiClient.SendAsync(request))
                 {
+                    OpenAiRateLimitHealth.Capture(response.Headers, (string)payload["model"]);
                     var body = await response.Content.ReadAsStringAsync();
                     if (!response.IsSuccessStatusCode)
                     {
@@ -793,9 +799,12 @@ namespace GTX.Controllers
 
         private ChatInventorySnapshot BuildChatInventorySnapshot(bool includeDataOne)
         {
-            var vehicles = _inventoryService.GetInventory(
-                includeHiddenInventory: false,
-                includeDataOneContent: includeDataOne).vehicles ?? Array.Empty<GTXDTO>();
+            var cacheMinutes = BoundedAppSetting("OpenAI:ChatInventoryCacheMinutes", 1, 1, 60);
+            var vehicles = includeDataOne
+                ? PublicInventoryDataOneCache.Get(_inventoryService, cacheMinutes).Vehicles
+                : _inventoryService.GetInventory(
+                    includeHiddenInventory: false,
+                    includeDataOneContent: false).vehicles ?? Array.Empty<GTXDTO>();
             var dataOneByStock = new Dictionary<string, ChatDataOneSearch>(StringComparer.OrdinalIgnoreCase);
 
             if (includeDataOne)
@@ -809,8 +818,8 @@ namespace GTX.Controllers
                         dataOneByStock[vehicle.Stock.Trim()] = search;
                     }
 
-                    // Retain only the flattened, approved search fields in the chatbot cache.
-                    vehicle.DataOne = null;
+                    // Only the flattened fields below are included in chatbot tool payloads.
+                    // Full DataOne content remains server-side in the shared snapshot cache.
                 }
             }
 

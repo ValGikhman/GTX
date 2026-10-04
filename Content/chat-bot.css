@@ -595,6 +595,9 @@
 }
 
 .gtx-chat-compose textarea {
+    color-scheme: light;
+    color: #172033;
+    background: #fff;
     width: 100%;
     max-height: 7rem;
     resize: none;
@@ -606,6 +609,7 @@
     font-size: .86rem;
 }
 
+.gtx-chat-compose textarea::placeholder { color: #6b7280; opacity: 1; }
 .gtx-chat-compose textarea:focus { border-color: var(--gtx-chat-accent); box-shadow: 0 0 0 .18rem rgba(15, 23, 42, .12); }
 .gtx-chat-compose button { width: 2.55rem; height: 2.55rem; flex: 0 0 2.55rem; border: 0; border-radius: .7rem; color: var(--gtx-chat-on-theme); background: var(--gtx-chat-theme); }
 .gtx-chat-compose button:disabled { opacity: .55; }

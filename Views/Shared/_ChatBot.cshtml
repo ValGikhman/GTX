@@ -27,11 +27,11 @@
      data-terms-url="@Url.Action("TermsAndConditions", "Home")">
     <button type="button"
             class="gtx-chat-launcher"
-            aria-label="Open GTX Auto Assistant"
+            aria-label="@I18n.R("Chat_OpenAssistant")"
             aria-expanded="false"
             aria-controls="gtxChatPanel">
         <i class="bi bi-chat-dots-fill" aria-hidden="true"></i>
-        <span>Ask GTX</span>
+        <span>@I18n.R("Chat_AskGtx")</span>
     </button>
 
     <section id="gtxChatPanel" class="gtx-chat-panel" aria-label="GTX Auto Assistant" hidden>

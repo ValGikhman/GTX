@@ -4,19 +4,19 @@
 
 @Html.Partial("_MarketingHero", null, new ViewDataDictionary
 {
-    { "Kicker", "Real stories from real customers" },
-    { "Title", "Good cars." },
-    { "Accent", "Great experiences." },
-    { "Description", "The best measure of our work is what customers remember after they drive away." },
-    { "Word", "LOVE" },
+    { "Kicker", I18n.R("Hero_Testimonials_Kicker") },
+    { "Title", I18n.R("Hero_Testimonials_Title") },
+    { "Accent", I18n.R("Hero_Testimonials_Accent") },
+    { "Description", I18n.R("Hero_Testimonials_Description") },
+    { "Word", I18n.R("Hero_Testimonials_Word") },
     { "Icon", "bi-chat-heart" }
 })
 
 <main class="marketing-page testimonials-page">
 <section class="marketing-content-shell">
     <div class="marketing-section-label">
-        <span>Customer stories</span>
-        <small>Shared by the GTX community</small>
+        <span>@I18n.R("Section_CustomerStories")</span>
+        <small>@I18n.R("Section_Community")</small>
     </div>
     <div class="testimonials-wrap">
 

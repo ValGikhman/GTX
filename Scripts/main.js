@@ -4,6 +4,13 @@
     const currentRole = window.gtx?.currentRole || "";
     setMajordomeMenu(currentRole);
 
+    $(document).on("change", ".js-dataone-style", function () {
+        const selectedIndex = this.value;
+        $(this).closest(".gtx-dataone-card").find(".gtx-dataone-style-panel").each(function () {
+            $(this).toggleClass("d-none", $(this).attr("data-style-index") !== selectedIndex);
+        });
+    });
+
     $(document).on("click", ".card.V, #btnPrev, #btnNext", function (e) {
         showSpinner("#loadingOverlay");
     });
@@ -267,17 +274,22 @@ function setMajordomeMenu(role) {
         "tech": "bi-tools",                  // tech
         "manager": "bi-clipboard-check",     // manager
         "sales": "bi-currency-dollar",       // sales
-        "support": "bi-wrench"               // support
+        "support": "bi-wrench",              // support
+        "blogger": "bi-pencil-square"
     };
 
     switch (r) {
+        case "blogger":
+            $("#MajordomeLink .dropdown > li").hide();
+            $("#menuBlogs, #menuSpecials").show();
+            break;
         case "tech":
             $("#menuInventory").show();
             $("#menuInventoryDashboard").hide();
             $("#menuInventoryManagement").hide();
             $("#menuVinDecoder").show();
             $("#menuAnnouncements").hide();
-            $("#menuBlogs").hide();
+            $("#menuBlogs, #menuSpecials").hide();
             $("#menuEmployees").hide();
             $("#menuHealth").hide();
             $("#menuSitemap").show();
@@ -289,7 +301,7 @@ function setMajordomeMenu(role) {
             $("#menuInventoryManagement").show();
             $("#menuVinDecoder").show();
             $("#menuAnnouncements").show();
-            $("#menuBlogs").show();
+            $("#menuBlogs, #menuSpecials").show();
             $("#menuEmployees").show();
             $("#menuHealth").show();
             $("#menuSitemap").show();
@@ -302,7 +314,7 @@ function setMajordomeMenu(role) {
             $("#menuInventoryManagement").hide();
             $("#menuVinDecoder").hide();
             $("#menuAnnouncements").hide();
-            $("#menuBlogs").hide();
+            $("#menuBlogs, #menuSpecials").hide();
             $("#menuEmployees").hide();
             $("#menuHealth").hide();
             $("#menuSitemap").show();
@@ -314,7 +326,7 @@ function setMajordomeMenu(role) {
             $("#menuInventoryManagement").hide();
             $("#menuVinDecoder").show();
             $("#menuAnnouncements").show();
-            $("#menuBlogs").show();
+            $("#menuBlogs, #menuSpecials").show();
             $("#menuEmployees").show();
             $("#menuHealth").hide();
             $("#menuSitemap").show();
@@ -326,13 +338,13 @@ function setMajordomeMenu(role) {
             $("#menuInventoryManagement").hide();
             $("#menuVinDecoder").hide();
             $("#menuAnnouncements").hide();
-            $("#menuBlogs").show();
+            $("#menuBlogs, #menuSpecials").show();
             $("#menuEmployees").hide();
             $("#menuHealth").hide();
             $("#menuSitemap").show();
             break;
         default:
-            $("#menuVinDecoder, #menuInventory, #menuInventoryDashboard, #menuInventoryManagement, #menuAnnouncements, #menuBlogs, #menuEmployees, #menuHealth, #menuSitemap, #menuChatBotCommands").hide();
+            $("#menuVinDecoder, #menuInventory, #menuInventoryDashboard, #menuInventoryManagement, #menuAnnouncements, #menuBlogs, #menuSpecials, #menuEmployees, #menuHealth, #menuSitemap, #menuChatBotCommands").hide();
             break;
     }
     // text

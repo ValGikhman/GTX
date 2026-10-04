@@ -110,6 +110,17 @@
                 </span>
             </div>
 
+            <button type="button"
+                    class="gtx-compare-toggle"
+                    data-stock="@Model.Stock"
+                    data-add-title="@I18n.R("Compare_Add")"
+                    data-remove-title="@I18n.R("Compare_Remove")"
+                    aria-pressed="false"
+                    title="@I18n.F("Compare_VehicleSpecifications", carTitle)">
+                <i class="bi bi-columns-gap" aria-hidden="true"></i>
+                <span>@I18n.R("Compare_Button")</span>
+            </button>
+
             @if (isPriorityCardImage)
             {
                 <img class="gtx-img vehicle-image" src="@cardImageUrl" alt="@carTitle" width="@cardImageRenderWidth" height="@cardImageRenderHeight" loading="eager" fetchpriority="high" decoding="async" />
@@ -140,7 +151,7 @@
                     <span><i class="bi bi-tag me-1"></i>@I18n.R("All_RetailPrice")</span>
                     <span class="gtx-price-amount">@Model.RetailPrice.ToString("C0", usCulture)</span>
                 </div>
- 
+
                 <div class="gtx-price-line gtx-price-muted">
                     <span><i class="bi bi-car-front me-1"></i>@I18n.R("All_InternetPrice")</span>
                     <span class="gtx-price-amount">@Model.InternetPrice.ToString("C0", usCulture)</span>
@@ -165,7 +176,7 @@
                 </span>
             </div>
 
-            <div class="gtx-card-actions">
+            <div class="gtx-card-actions mb-2">
                 <a class="gtx-card-action d-inline-flex align-items-center justify-content-center gap-1 px-2 shadow"
                    href="@creditApplicationUrl"
                    onclick="event.stopPropagation();"
@@ -181,6 +192,10 @@
                    title="Open Carfax">
                     <img src="https://static.carfax.com/global-header/imgs/logo.svg" alt="Carfax Vehicle History Report">
                 </a>
+            </div>
+            <div class="capital-one-stacked-button"
+                 data-client-token="b9ecdc44-e99b-4f80-b521-088a74105eb1"
+                 data-vin="@Model.VIN">
             </div>
         </div>
     </div>

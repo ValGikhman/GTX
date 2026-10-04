@@ -1,12 +1,12 @@
 ﻿@model GTX.Models.ContactModel
 @{
     var isTestDrive = Model != null && Model.IsTestDrive;
-    var heroKicker = isTestDrive ? "Your next drive starts here" : "Real people. Straight answers.";
-    var heroTitle = isTestDrive ? "Take the wheel." : "Let’s start";
-    var heroAccent = isTestDrive ? "Feel the difference." : "a conversation.";
+    var heroKicker = isTestDrive ? I18n.R("Hero_TestDrive_Kicker") : I18n.R("Hero_Contact_Kicker");
+    var heroTitle = isTestDrive ? I18n.R("Hero_TestDrive_Title") : I18n.R("Hero_Contact_Title");
+    var heroAccent = isTestDrive ? I18n.R("Hero_TestDrive_Accent") : I18n.R("Hero_Contact_Accent");
     var heroDescription = isTestDrive
-        ? "Choose a date and time that works for you. We’ll have everything ready when you arrive."
-        : "Ask a question, plan a visit, or tell us what you’re looking for. Our team is ready to help.";
+        ? I18n.R("Hero_TestDrive_Description")
+        : I18n.R("Hero_Contact_Description");
 }
 
 <!-- Google tag (gtag.js) -->
@@ -24,15 +24,15 @@
     { "Title", heroTitle },
     { "Accent", heroAccent },
     { "Description", heroDescription },
-    { "Word", isTestDrive ? "DRIVE" : "HELLO" },
+    { "Word", isTestDrive ? I18n.R("Hero_TestDrive_Word") : I18n.R("Hero_Contact_Word") },
     { "Icon", isTestDrive ? "bi-speedometer2" : "bi-chat-dots" }
 })
 
 <main class="marketing-page contact-page @(isTestDrive ? "test-drive-page" : string.Empty)">
     <section class="marketing-content-shell">
         <div class="marketing-section-label">
-            <span>@(isTestDrive ? "Reserve your drive" : "Visit or message us")</span>
-            <small>9516 Princeton Glendale Rd · West Chester, Ohio</small>
+            <span>@(isTestDrive ? I18n.R("Section_ReserveDrive") : I18n.R("Section_VisitMessage"))</span>
+            <small>@I18n.R("Section_ContactAddress")</small>
         </div>
 
         <div class="contact-layout">

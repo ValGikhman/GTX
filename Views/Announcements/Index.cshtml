@@ -5,18 +5,16 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<!-- Include stylesheet -->
-<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
-<!-- Include the Quill library -->
-<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<link href="~/Content/addTools/addEdit.css?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/addTools/addEdit.css")).Ticks)" rel="stylesheet" />
+<script src="~/Scripts/addTools/addEdit.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/addTools/addEdit.js")).Ticks)"></script>
 
 @Html.Partial("_MarketingHero", null, new ViewDataDictionary
 {
-    { "Kicker", "Timely messages. Clear visibility." },
-    { "Title", "Create the alert." },
-    { "Accent", "Control the moment." },
-    { "Description", "Manage announcement content, targeting, display behavior, and publishing windows from one workspace." },
-    { "Word", "ALERTS" },
+    { "Kicker", I18n.R("Hero_Announcements_Kicker") },
+    { "Title", I18n.R("Hero_Announcements_Title") },
+    { "Accent", I18n.R("Hero_Announcements_Accent") },
+    { "Description", I18n.R("Hero_Announcements_Description") },
+    { "Word", I18n.R("Hero_Announcements_Word") },
     { "Icon", "bi-megaphone" }
 })
 

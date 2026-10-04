@@ -5,11 +5,11 @@
 
 @Html.Partial("_MarketingHero", null, new ViewDataDictionary
 {
-    { "Kicker", "Your information. Your choices." },
-    { "Title", "Privacy with" },
-    { "Accent", "clarity." },
-    { "Description", "A straightforward explanation of what we collect, why we use it, and the choices available to you." },
-    { "Word", "TRUST" },
+    { "Kicker", I18n.R("Hero_Privacy_Kicker") },
+    { "Title", I18n.R("Hero_Privacy_Title") },
+    { "Accent", I18n.R("Hero_Privacy_Accent") },
+    { "Description", I18n.R("Hero_Privacy_Description") },
+    { "Word", I18n.R("Hero_Privacy_Word") },
     { "Icon", "bi-shield-lock" }
 })
 

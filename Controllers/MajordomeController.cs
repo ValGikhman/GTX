@@ -15,6 +15,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -37,6 +38,7 @@ namespace GTX.Controllers
         private const string RemoveBgEndpoint = "https://api.remove.bg/v1.0/removebg";
         private const string RemoveBgAccountEndpoint = "https://api.remove.bg/v1.0/account";
         private const int QrTextMaxLength = 2048;
+        private static readonly HttpClient OpenAiStoryClient = CreateOpenAiStoryClient();
 
         private static readonly HashSet<string> UploadImageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {
             ".jpg",
@@ -430,11 +432,12 @@ namespace GTX.Controllers
                 var savedVehicle = DecideImages(new[] { vehicle }).FirstOrDefault();
 
                 InvalidateInventoryCaches();
+                var sitemapWarning = RefreshInventorySitemap();
 
                 return new JsonResult {
                     Data = new {
                         success = true,
-                        message = GetInventorySaveMessage(result.Status),
+                        message = sitemapWarning ?? GetInventorySaveMessage(result.Status),
                         status = (int)result.Status,
                         statusText = GetInventorySaveStatusText(result.Status),
                         vehicle = savedVehicle
@@ -451,7 +454,7 @@ namespace GTX.Controllers
 
         private static void InvalidateInventoryCaches() {
             AppCache.Remove(Constants.INVENTORY_CACHE);
-            AppCache.Remove(Constants.CHAT_INVENTORY_CACHE);
+            AppCache.RemoveByPrefix(Constants.CHAT_INVENTORY_CACHE);
             AppCache.Remove(Constants.MAJORDOME_INVENTORY_CACHE);
             AppCache.Remove(Constants.MAJORDOME_DASHBOARD_CACHE);
             AppCache.RemoveByPrefix(Constants.INVENTORY_MANAGEMENT_LOGS_CACHE_PREFIX);
@@ -1828,18 +1831,6 @@ namespace GTX.Controllers
         }
 
         [HttpPost]
-        public ActionResult RestoreBackUpInventory()
-        {
-            var result = Utility.XMLHelpers.XmlRepository.GetInventory();
-            var vehicles = result.Vehicles.Where(m => m.SetToUpload == "Y").OrderBy(m => m.Make).ThenBy(m => m.Model).ToArray();
-
-            InventoryService.AddInventory(Models.GTX.ToDTOs(vehicles));
-
-            TerminateSession();
-            return RedirectToAction("Index", "Home");
-        }
-
-        [HttpPost]
         public async Task<ActionResult> DeleteImages(string stock) {
             var normalizedStock = (stock ?? string.Empty).Trim();
             if (string.IsNullOrWhiteSpace(normalizedStock)) {
@@ -2107,36 +2098,72 @@ namespace GTX.Controllers
         }
 
         private async Task<string> GetChatGptResponse(string prompt) {
-            var apiUrl = "https://api.openai.com/v1/chat/completions";
+            var apiUrl = RequiredOpenAiSetting("OpenAI:ResponsesUrl");
+            var model = RequiredOpenAiSetting("OpenAI:ChatModel");
+            if (string.IsNullOrWhiteSpace(openAiApiKey)) {
+                throw new ConfigurationErrorsException("OpenAI:ApiKey is not configured.");
+            }
 
-            using (var httpClient = new HttpClient()) {
-                httpClient.DefaultRequestHeaders.Clear();
-                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {openAiApiKey}");
+            var requestBody = new JObject {
+                ["model"] = model,
+                ["input"] = prompt,
+                ["max_output_tokens"] = 700,
+                ["temperature"] = 0.9,
+                ["store"] = false
+            };
 
-                var requestBody = new {
-                    model = "gpt-4o",
-                    messages = new[]
-                    {
-                        new { role = "user", content = prompt }
-                    },
-                    max_tokens = 700,
-                    temperature = 0.9
-                };
+            using (var request = new HttpRequestMessage(HttpMethod.Post, apiUrl)) {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", openAiApiKey);
+                request.Content = new StringContent(requestBody.ToString(Formatting.None), Encoding.UTF8, "application/json");
 
-                var content = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
+                using (var response = await OpenAiStoryClient.SendAsync(request)) {
+                    OpenAiRateLimitHealth.Capture(response.Headers, model);
+                    var responseBody = await response.Content.ReadAsStringAsync();
+                    if (!response.IsSuccessStatusCode) {
+                        throw new HttpRequestException(
+                            $"OpenAI story request failed with status {(int)response.StatusCode} ({response.StatusCode}).");
+                    }
 
-                var response = await httpClient.PostAsync(apiUrl, content);
+                    var story = ExtractOpenAiResponseText(JObject.Parse(responseBody));
+                    if (string.IsNullOrWhiteSpace(story)) {
+                        throw new InvalidOperationException("OpenAI returned an empty story response.");
+                    }
 
-                if (response.IsSuccessStatusCode) {
-                    var jsonResponse = await response.Content.ReadAsStringAsync();
-                    dynamic result = JsonConvert.DeserializeObject(jsonResponse);
-
-                    return result.choices[0].message.content.ToString();
-                }
-                else {
-                    return $"Error: {response.StatusCode}";
+                    return story.Trim();
                 }
             }
+        }
+
+        private static string RequiredOpenAiSetting(string key) {
+            var value = ConfigurationManager.AppSettings[key];
+            if (string.IsNullOrWhiteSpace(value)) {
+                throw new ConfigurationErrorsException(key + " is not configured.");
+            }
+
+            return value.Trim();
+        }
+
+        private static string ExtractOpenAiResponseText(JObject response) {
+            var text = response["output"]
+                ?.Children<JObject>()
+                .Where(item => string.Equals((string)item["type"], "message", StringComparison.OrdinalIgnoreCase))
+                .SelectMany(item => item["content"]?.Children<JObject>() ?? Enumerable.Empty<JObject>())
+                .Where(item => string.Equals((string)item["type"], "output_text", StringComparison.OrdinalIgnoreCase))
+                .Select(item => (string)item["text"])
+                .Where(item => !string.IsNullOrWhiteSpace(item));
+
+            return string.Join(Environment.NewLine, text ?? Enumerable.Empty<string>());
+        }
+
+        private static HttpClient CreateOpenAiStoryClient() {
+            int timeoutSeconds;
+            if (!int.TryParse(ConfigurationManager.AppSettings["OpenAI:ChatTimeoutSeconds"], out timeoutSeconds)
+                || timeoutSeconds < 5
+                || timeoutSeconds > 120) {
+                timeoutSeconds = 30;
+            }
+
+            return new HttpClient { Timeout = TimeSpan.FromSeconds(timeoutSeconds) };
         }
 
         private string GetPrompt(Models.GTX vehicle) {
@@ -2148,23 +2175,27 @@ namespace GTX.Controllers
             string car = $"{vehicle.Year} {vehicle.Make} {vehicle.Model} {vehicle.VehicleStyle}";
             var features = $"{vehicle.Features}";
             string prompt = $@"
-    You are an expert used cars automotive sales person with a high level of technical skill. Write a short captivating, imaginative, vivid, and engaging story in HTML format for the following car:
-    Car: {car}  
-    Features: {features}
-    General: {car} is being sold by the GTX Autogroup here in Cincinnati Ohio area.
-    Our sales crew: {reps} will help you will help you buy a perfect car you need.
+You are an expert used-car salesperson with strong automotive technical knowledge.
+Write a short, vivid, captivating, accentual-rhyming sales poem for this vehicle.
 
-    Your response must:
-    1. Start with a catchy **title inside <title> tags** (for example: <title>The Electric Dream</title>).
-    2. Write a minimum of **5 sentences**, each inside a separate <p class='p-story'> tag.
-    3. Write in very technical tone with a touch sales person can be to make story vivid, rich, and atmospheric.
-    4. Mention at least **5 car features** from the provided list and wrap each feature in <strong class='strong-story'> tags as well as the car.
-    5. Do **not use double quotes** anywhere in the story.
-    6. End the story with a sense of joy, adventure, opportunity.
+Vehicle: {car}
+Available features: {features}
+Dealership: GTX Auto Group in the Cincinnati, Ohio area
+Sales representatives: {reps}
 
-    The output should be **only the HTML story** without any extra text before or after.
-    Please do not place any other characters like **``` and **```html text in front of the output.
-    Do not place any **<html>**, **<body>** and **<head>** tags
+Return only HTML in this exact shape, with no literal line breaks between poetic lines:
+<title>Catchy title</title><p class='p-story'>Line 1<br>Line 2<br>Line 3<br>Line 4</p><p class='p-story'>Line 1<br>Line 2<br>Line 3<br>Line 4</p><p class='p-story'>Line 1<br>Line 2<br>Line 3<br>Line 4</p>
+
+Rules:
+1. Use a catchy title and exactly three four-line verses; use the shown tags and single-quoted attributes exactly.
+2. Do not begin with a location-based introduction such as In Cincinnati or Where dreams.
+3. Mention at least three distinct Available features. Do not invent features or technical specifications.
+4. Wrap every vehicle or feature mention and each mentioned representative's full name in <strong class='strong-story'>...</strong>. Keep normal spaces between these tags and surrounding words.
+5. Mention GTX Auto Group and all supplied sales representatives naturally, but not in the opening line.
+6. Keep the tone technically informed, imaginative, atmospheric, and rhyming.
+7. Include one brief, warm, respectful touch of Jewish humor, without stereotypes or offensive language.
+8. End with joy, adventure, and the opportunity to own the vehicle.
+9. Do not output Markdown, code fences, explanations, extra headings, or wrapper elements.
     ";
             return prompt;
         }

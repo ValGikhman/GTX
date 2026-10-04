@@ -850,6 +850,7 @@ url,make,model,year,...</pre></div>
                         <tr><td>sort</td><td>string</td><td>Controls result ordering.</td><td>featured, price-low, price-high, mileage, year, make</td></tr>
                         <tr><td>page</td><td>integer</td><td>One-based page number.</td><td>Default: 1</td></tr>
                         <tr><td>pageSize</td><td>integer</td><td>Records returned per page.</td><td>Default: 20; maximum: 100</td></tr>
+                        <tr><td>all</td><td>boolean</td><td>Return every matching vehicle in one response. Ignores page and pageSize; filters and sorting still apply.</td><td>Default: false. Full export: /api/v1/inventory?all=true. Returns page 1, pageSize equal to totalCount, and totalPages 1 (0 when empty).</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -860,6 +861,17 @@ url,make,model,year,...</pre></div>
                 <div><div class="kicker">03 / Meta catalog</div><h2>Your lot. One live feed.</h2><p>Give the Meta vehicle catalog the public feed URL and configure a scheduled refresh. Adding, updating, or removing inventory through AutoDealer.dev changes the next feed automatically.</p><div class="actions"><button class="button" type="button" data-copy="/api/v1/meta-vehicles">Copy Meta feed URL</button><a class="button" data-api-link="/api/v1/meta-vehicles" target="_blank" rel="noopener">Inspect feed ↗</a></div></div>
                 <div class="flow" aria-label="Meta feed flow"><div>AUTODEALER.DEV INVENTORY</div><span>↓</span><div>/api/v1/meta-vehicles</div><span>↓</span><div>META VEHICLE CATALOG</div></div>
             </div>
+            <p>In Commerce Manager, create an Auto / Vehicles catalog, add a scheduled data feed using the URL above, and choose USD. This CSV includes every eligible vehicle without pagination. Review the first import for rejected items and confirm removed vehicles disappear after refresh.</p>
+            <div class="table-wrap"><table><thead><tr><th>Meta CSV field</th><th>GTX source / mapping</th></tr></thead><tbody>
+                <tr><td>vehicle_id, vin</td><td>Stock number (stable catalog ID) and VIN. Pixel vehicle IDs must match the stock number.</td></tr>
+                <tr><td>title, description, make, model, year, trim</td><td>Year, make, model and trim; title is also used as the description.</td></tr>
+                <tr><td>url</td><td>Vehicle details page on the website.</td></tr>
+                <tr><td>price, mileage.value, mileage.unit</td><td>Internet price formatted as 12995.00 USD; odometer reading in MI.</td></tr>
+                <tr><td>image[0].url through image[19].url</td><td>Up to 20 distinct vehicle photos using the same 800 by 600 scale-down CDN transform as the views. Missing photos and placeholders are excluded.</td></tr>
+                <tr><td>body_style, transmission, drivetrain</td><td>Vehicle type (not door count); Automatic / Manual / Other; AWD / FWD / RWD / 4X4 / 4X2 / Other.</td></tr>
+                <tr><td>exterior_color, interior_color, state_of_vehicle, availability</td><td>Inventory colors; USED and AVAILABLE for eligible public inventory.</td></tr>
+                <tr><td>address, latitude, longitude, dealer_name, dealer_phone</td><td>GTX Auto Group at 9516 Princeton Glendale Rd, West Chester, OH 45011, US; dealership coordinates and phone.</td></tr>
+            </tbody></table></div>
         </section>
 
         <section class="section shell" id="rules">

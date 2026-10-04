@@ -13,6 +13,7 @@ namespace GTX.Models {
         public int? MinPrice { get; set; }
         public int? MaxPrice { get; set; }
         public string Sort { get; set; }
+        public bool All { get; set; }
         public int Page { get; set; } = 1;
         public int PageSize { get; set; } = 20;
     }
@@ -50,6 +51,7 @@ namespace GTX.Models {
         public string Fuel { get; set; }
         public string LocationCode { get; set; }
         public string PrimaryImageUrl { get; set; }
+        public string[] Images { get; set; }
         public string[] ImageUrls { get; set; }
         public string[] Features { get; set; }
         public bool HasStory { get; set; }

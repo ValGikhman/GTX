@@ -74,9 +74,14 @@
             break;
     }
 
+    var backgroundTheme = (Request.Cookies["gtx-background-theme"]?.Value ?? "light").ToLowerInvariant();
+    if (backgroundTheme != "grey" && backgroundTheme != "dark")
+    {
+        backgroundTheme = "light";
+    }
     var themeClass = "theme-" + t;
 }
-<html class="@themeClass">
+<html class="@themeClass" data-background-theme="@backgroundTheme" data-bs-theme="@(backgroundTheme == "dark" ? "dark" : "light")">
 <head class="flex-shrink-0">
     <meta charset="utf-8" />
     @RenderSection("Meta", required: false)
@@ -100,23 +105,28 @@
 
             var KEY = "gtx-theme";
             const THEMES = ["blue", "grey", "navy", "green", "red", "deep-purple", "metallica", "black", "silver"];
-            var t = localStorage.getItem(KEY) || "blue"; // default
+            function readPreference(key, fallback) {
+                try { return localStorage.getItem(key) || fallback; }
+                catch (e) { return fallback; }
+            }
+            var t = readPreference(KEY, "@t");
             var root = document.documentElement;
+            var background = readPreference("gtx-background-theme", root.dataset.backgroundTheme);
+            if (["light", "grey", "dark"].indexOf(background) < 0) background = "light";
+            root.dataset.backgroundTheme = background;
+            root.dataset.bsTheme = background === "dark" ? "dark" : "light";
 
             if (t === "pink") {
                 t = "navy";
-                localStorage.setItem(KEY, t);
             } else if (t === "dark-green") {
                 t = "green";
-                localStorage.setItem(KEY, t);
             } else if (t === "dark-red") {
                 t = "red";
-                localStorage.setItem(KEY, t);
             } else if (t === "dark") {
                 t = "black";
-                localStorage.setItem(KEY, t);
             }
 
+            if (THEMES.indexOf(t) < 0) t = "blue";
             // remove any theme classes first
             root.classList.remove(...THEMES.map(t => "theme-" + t));
             root.classList.remove("theme-pink", "theme-dark-green", "theme-dark-red", "theme-dark");
@@ -128,7 +138,10 @@
 
 
     <link href="@siteCssBundleUrl" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/capital-one-buttons.css")?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/capital-one-buttons.css")).Ticks)" rel="stylesheet" />
+    <script defer src="@Url.Content("~/Scripts/capital-one-buttons.js")?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/capital-one-buttons.js")).Ticks)"></script>
     <link href="@Url.Content("~/Content/majordome.css")?v=@majordomeCssVersion" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/Themes/Background.css")?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/Themes/Background.css")).Ticks)" rel="stylesheet" />
     @if (chatBotEnabled)
     {
         <link href="~/Content/chat-bot.css?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/chat-bot.css")).Ticks)" rel="stylesheet" />
@@ -207,7 +220,7 @@
         })(window);
     </script>
     <script src="~/Scripts/inventory-search.js"></script>
-    <script src="~/Scripts/inventory.js"></script>
+    <script src="~/Scripts/inventory.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/inventory.js")).Ticks)"></script>
 </head>
 
 @Html.Action("LoginModal", "Home")
@@ -269,6 +282,7 @@
                             <li class="mb-1 shadow-sm"><a class="btn btn-outline-dark w-100 text-start rounded-3" data-bs-dismiss="offcanvas" href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })">@I18n.R("Nav_ContactUs")</a></li>
                             <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_OurStaff"), "Staff", "Home", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
                             <li class="mb-1 shadow-sm">@Html.ActionLink(I18n.R("Nav_Testimonials"), "Testimonials", "Home", null, new { @class = "btn btn-outline-dark w-100 text-start rounded-3" })</li>
+                            <li class="mb-1 shadow-sm"><a href="@Url.Action("Reviews", "Home")" class="btn btn-outline-dark w-100 text-start rounded-3">@I18n.R("Nav_CustomerReviews")</a></li>
                         </ul>
                     </li>
 
@@ -302,18 +316,23 @@
 
                     <!-- Prequalified (success-ish outline) -->
                     <li class="mb-2 shadow-sm">
-                        <a href="@Url.Action("Application", "Home")" class="btn btn-outline-success w-100 rounded-3 fw-semibold">
+                        <a href="@Url.Action("Application", "Home")" class="btn btn-success w-100 rounded-3 fw-semibold">
                             <i class="bi bi-currency-dollar me-1"></i>@I18n.R("Nav_GetPrequalified")
                         </a>
                     </li>
-
+                    <!-- Capital One -->
+                    <li class="mb-2 shadow-sm">
+                        <a href="@Url.Action("CapitalOnePQTS", "Home")" class="btn btn-primary w-100 rounded-3 fw-semibold">
+                            @I18n.R("Nav_CapitalOnePrequalified")
+                        </a>
+                    </li>
                 </ul>
             </div>
 
         </div>
     </div>
     <!-- Offcanvas Menu End -->
-  
+
     @{
         //Html.RenderPartial("_SearchForm");
         var _class = "d-none";
@@ -326,131 +345,149 @@
             Convert.ToString(ViewBag.CurrentRole ?? string.Empty),
             CommonUnit.Roles.Owner.ToString(),
             StringComparison.OrdinalIgnoreCase);
+        var isBlogger = string.Equals(
+            Convert.ToString(ViewBag.CurrentRole ?? string.Empty),
+            CommonUnit.Roles.Blogger.ToString(),
+            StringComparison.OrdinalIgnoreCase);
     }
 
     <!-- Header Section Begin -->
-<header class="header fixed-top">
-    <div class="canvas__open">
-        <button class="btn btn-gradient-grey" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenuOffcanvas"><i class="bi bi-list"></i></button>
-    </div>
-    <div class="menu-strip container-fluid">
-        <div class="d-flex justify-content-between align-items-center">
-            <nav class="header__top header__menu w-100">
-                <ul class="main-menu">
-                    <li id="GTX-image" class="d-none d-md-inline-block mx-1"><a href="~/Home/Index"><img src="@SiteImageUrl.Build("brand-light.png")" width="60" /></a></li>
-                    <li id="MajordomeLink" class="@_class mx-1">
-                        <a href="#" class="btn gradient shadow border-dark rounded-4 d-inline-flex align-items-center text-black">
-                            <i class="bi bi-gear px-2"></i>
-                        </a>
-                        <ul class="dropdown rounded">
-                            @if (isOwner)
-                            {
-                                <li id="menuInventoryDashboard">@Html.ActionLink("Dashboard", "Dashboard", "InventoryManagement")</li>
-                                <li id="menuInventoryManagement">@Html.ActionLink("Management", "Index", "InventoryManagement")</li>
-                            }
-                            <li id="menuInventory">@Html.ActionLink("Majordome", "Inventory", "Majordome")</li>
-                            <li id="menuVinDecoder">@Html.ActionLink("Vindecoder", "Index", "Vindecoder")</li>
-                            <li id="menuAnnouncements">@Html.ActionLink("Alerts", "Index", "Announcements")</li>
-                            <li id="menuBlogs">@Html.ActionLink("Blogs", "Index", "Blogs")</li>
-                            <li id="menuEmployees">@Html.ActionLink("Employees", "Index", "Employees")</li>
-                            <li id="menuHealth">@Html.ActionLink("Health", "Index", "Health")</li>
-                            <li id="menuSitemap">@Html.ActionLink("Sitemap", "Index", "Sitemap")</li>
-                            @if (isOwner)
-                            {
-                                <li id="menuChatBotCommands" class="d-none d-lg-block">@Html.ActionLink("Chat Bot", "Index", "ChatBotCommands")</li>
-                            }
-                        </ul>
-                    </li>
-                    <li class=" mx-2">
-                        <a href="~/Inventory/Index">@I18n.R("Nav_Inventory")</a>
-                    </li>
-
-                    <li class="mx-2 d-none">
-                        <a href="@Url.Action("Application", "Home")">
-                            <i class="bi bi-currency-dollar me-1"></i>@I18n.R("Nav_GetPrequalified")
-                        </a>
-                    </li>
-                    <li class="mx-2">@Html.ActionLink(I18n.R("Title_Blog"), "List", "Blogs")</li>
-                    <li class="mx-2">
-                        <a href="#">@I18n.R("Nav_AboutUs")</a>
-                        <ul class="dropdown rounded">
-                            <li>@Html.ActionLink(I18n.R("Nav_AboutUs"), "About", "Home")</li>
-                            <li><a href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })">@I18n.R("Nav_ContactUs")</a></li>
-                            <li>@Html.ActionLink(I18n.R("Nav_OurStaff"), "Staff", "Home")</li>
-                            <li>@Html.ActionLink(I18n.R("Nav_Testimonials"), "Testimonials", "Home")</li>
-                        </ul>
-                    </li>
-                    <li id="fakeSearch" class="fake-input hand-pointer d-none" data-bs-toggle="modal" data-bs-target="#filtersModal">
-                        @Html.Partial("_SearchByTerm")
-                    </li>
-                </ul>
-            </nav>
-            <nav class="header__top d-none d-lg-flex">
-                <ul class="main-menu start-100 list-unstyled no-wrap-group">
-                    <li class="mx-sm-1">
-                        <a class="btn btn-gradient-grey border-dark rounded-4" id="btnOpenHoursDesktop" data-bs-toggle="offcanvas" data-bs-target="#openHours" aria-controls="openHours">
-                            <i class="bi bi-stopwatch"></i>
-                            <span id="schedule" class="schedule d-none d-xxl-inline m-sm-1"></span>
-                        </a>
-                    </li>
-                    <li class="mx-sm-1">
-                        <a class="btn btn-gradient-grey border-dark rounded-4" href="tel:(513) 489-2886">
-                            <i class="bi bi-telephone"></i>
-                            <span id="telephone" class="d-none d-xxl-inline m-sm-1">(513) 489-2886</span>
-                        </a>
-                    </li>
-                    <li class="mx-sm-1">
-                        <a class="btn gradient shadow border-dark rounded-4" href="https://www.facebook.com/GTXAutoGroup" target="_blank" title="GTX Facebook page">
-                            <i class="fa fa-facebook px-2"></i>
-                        </a>
-                    </li>
-                    <li class="mx-sm-1">
-                        <a class="btn gradient shadow border-dark rounded-4" href="#" title="Log in" data-bs-toggle="modal" data-login-modal="true">
-                            <i class="bi bi-person-circle px-1 role-icon"></i>
-                            <span class="role-text text-shadow-small fw-bold"></span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-            @if (isHomeIndexPage)
-            {
-                <div id="homeMobileMenuStripActions" class="d-md-none d-flex align-items-center gap-2 ms-auto py-1">
-                    <button type="button"
-                            id="homeMobileMenuOpenBtn"
-                            class="btn btn-gradient-grey border-dark rounded-4 d-inline-flex align-items-center gap-2"
-                            aria-label="Open menu">
-                        <i class="bi bi-list"></i>
-                        <span class="fw-semibold">Menu</span>
-                    </button>
-                    <a id="btnOpenHours"
-                       class="btn btn-gradient-grey border-dark rounded-4 d-inline-flex align-items-center gap-2"
-                       data-bs-toggle="offcanvas"
-                       data-bs-target="#openHours"
-                       aria-controls="openHours"
-                       aria-label="Open hours">
-                        <i class="bi bi-stopwatch"></i>
-                        <span class="schedule fw-semibold m-sm-1"></span>
-                    </a>
-                    <a class="btn btn-gradient-grey border-dark rounded-4 d-inline-flex align-items-center gap-2"
-                       href="tel:+15134892886"
-                       aria-label="Call (513) 489-2886">
-                        <i class="bi bi-telephone"></i>
-                        <span class="fw-semibold">(513) 489-2886</span>
-                    </a>
-                </div>
-            }
+    <header class="header fixed-top">
+        <div class="canvas__open">
+            <button class="btn btn-gradient-grey" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenuOffcanvas"><i class="bi bi-list"></i></button>
         </div>
-    </div>
+        <div class="menu-strip container-fluid">
+            <div class="d-flex justify-content-between align-items-center">
+                <nav class="header__top header__menu w-100">
+                    <ul class="main-menu">
+                        <li id="GTX-image" class="d-none d-md-inline-block mx-1"><a href="~/Home/Index"><img src="@SiteImageUrl.Build("brand-light.png")" width="60" /></a></li>
+                        <li id="MajordomeLink" class="@_class mx-1">
+                            <a href="#" class="btn gradient shadow border-dark rounded-4 d-inline-flex align-items-center text-black">
+                                <i class="bi bi-gear px-2"></i>
+                            </a>
+                            <ul class="dropdown rounded">
+                                @if (isOwner)
+                                {
+                                    <li id="menuInventoryDashboard">@Html.ActionLink("Dashboard", "Dashboard", "InventoryManagement")</li>
+                                    <li id="menuInventoryManagement">@Html.ActionLink("Management", "Index", "InventoryManagement")</li>
+                                }
+                                @if (!isBlogger)
+                                {
+                                <li id="menuInventory">@Html.ActionLink("Majordome", "Inventory", "Majordome")</li>
+                                <li id="menuVinDecoder">@Html.ActionLink("Vindecoder", "Index", "Vindecoder")</li>
+                                <li id="menuAnnouncements">@Html.ActionLink("Alerts", "Index", "Announcements")</li>
+                                }
+                                <li id="menuBlogs">@Html.ActionLink("Blogs", "Index", "Blogs")</li>
+                                <li id="menuSpecials">@Html.ActionLink("Specials", "Index", "Specials")</li>
+                                @if (!isBlogger)
+                                {
+                                <li id="menuEmployees">@Html.ActionLink("Employees", "Index", "Employees")</li>
+                                <li id="menuHealth">@Html.ActionLink("Health", "Index", "Health")</li>
+                                <li id="menuSitemap">@Html.ActionLink("Sitemap", "Index", "Sitemap")</li>
+                                }
+                                @if (isOwner)
+                                {
+                                    <li id="menuChatBotCommands" class="d-none d-lg-block">@Html.ActionLink("Chat Bot", "Index", "ChatBotCommands")</li>
+                                }
+                            </ul>
+                        </li>
+                        <li class=" mx-2">
+                            <a href="~/Inventory/Index">@I18n.R("Nav_Inventory")</a>
+                        </li>
 
-    @{
-        if (ViewBag.Message != "Home")
-        {
-            // @Html.Partial("_CategoryFilter")
-            @Html.Partial("_PageTitle")
+                        <li class="mx-2 d-none">
+                            <a href="@Url.Action("Application", "Home")">
+                                <i class="bi bi-currency-dollar me-1"></i>@I18n.R("Nav_GetPrequalified")
+                            </a>
+                        </li>
+                        <li class="mx-2">@Html.ActionLink(I18n.R("Title_Blog"), "List", "Blogs")</li>
+                        <li class="mx-2">@Html.ActionLink("Specials", "List", "Specials")</li>
+                        <li class="mx-2">
+                            <a href="#">@I18n.R("Nav_AboutUs")</a>
+                            <ul class="dropdown rounded">
+                                <li>@Html.ActionLink(I18n.R("Nav_AboutUs"), "About", "Home")</li>
+                                <li><a href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })">@I18n.R("Nav_ContactUs")</a></li>
+                                <li>@Html.ActionLink(I18n.R("Nav_OurStaff"), "Staff", "Home")</li>
+                                <li>@Html.ActionLink(I18n.R("Nav_Testimonials"), "Testimonials", "Home")</li>
+                                <li><a href="@Url.Action("Reviews", "Home")">@I18n.R("Nav_CustomerReviews")</a></li>
+                            </ul>
+                        </li>
+                        <li class="mx-2 d-none d-lg-inline-block">
+                            <a href="@Url.Action("CapitalOnePQTS", "Home")">
+                                @I18n.R("Nav_CapitalOnePrequalified")
+                            </a>
+                        </li>
+                        <li id="fakeSearch" class="fake-input hand-pointer d-none" data-bs-toggle="modal" data-bs-target="#filtersModal">
+                            @Html.Partial("_SearchByTerm")
+                        </li>
+                    </ul>
+                </nav>
+                <nav class="header__top d-none d-lg-flex">
+                    <ul class="main-menu start-100 list-unstyled no-wrap-group">
+                        <li class="mx-sm-1">
+                            <a class="btn btn-gradient-grey border border-dark rounded-4" id="btnOpenHoursDesktop" data-bs-toggle="offcanvas" data-bs-target="#openHours" aria-controls="openHours">
+                                <i class="bi bi-stopwatch"></i>
+                                <span id="schedule" class="schedule d-none d-xxl-inline m-sm-1"></span>
+                            </a>
+                        </li>
+                        <li class="mx-sm-1">
+                            <a class="btn btn-gradient-grey border border-dark rounded-4" href="tel:(513) 489-2886">
+                                <i class="bi bi-telephone"></i>
+                                <span id="telephone" class="d-none d-xxl-inline m-sm-1">(513) 489-2886</span>
+                            </a>
+                        </li>
+                        <li class="mx-sm-1">
+                            <a class="btn gradient shadow border-dark rounded-4" href="https://www.facebook.com/GTXAutoGroup" target="_blank" title="GTX Facebook page">
+                                <i class="fa fa-facebook px-2"></i>
+                            </a>
+                        </li>
+                        <li class="mx-sm-1">
+                            <a class="btn gradient shadow border-dark rounded-4" href="#" title="Log in" data-bs-toggle="modal" data-login-modal="true">
+                                <i class="bi bi-person-circle px-1 role-icon"></i>
+                                <span class="role-text text-shadow-small fw-bold"></span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                @if (isHomeIndexPage)
+                {
+                    <div id="homeMobileMenuStripActions" class="d-md-none d-flex align-items-center gap-2 ms-auto py-1">
+                        <button type="button"
+                                id="homeMobileMenuOpenBtn"
+                                class="btn btn-gradient-grey border-dark rounded-4 d-inline-flex align-items-center gap-2"
+                                aria-label="Open menu">
+                            <i class="bi bi-list"></i>
+                            <span class="fw-semibold">Menu</span>
+                        </button>
+                        <a id="btnOpenHours"
+                           class="btn btn-gradient-grey border-dark rounded-4 d-inline-flex align-items-center gap-2"
+                           data-bs-toggle="offcanvas"
+                           data-bs-target="#openHours"
+                           aria-controls="openHours"
+                           aria-label="Open hours">
+                            <i class="bi bi-stopwatch"></i>
+                            <span class="schedule fw-semibold m-sm-1"></span>
+                        </a>
+                        <a class="btn btn-gradient-grey border-dark rounded-4 d-inline-flex align-items-center gap-2"
+                           href="tel:+15134892886"
+                           aria-label="Call (513) 489-2886">
+                            <i class="bi bi-telephone"></i>
+                            <span class="fw-semibold">(513) 489-2886</span>
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @{
+            if (ViewBag.Message != "Home")
+            {
+                // @Html.Partial("_CategoryFilter")
+                @Html.Partial("_PageTitle")
+            }
         }
-    }
 
-</header>
+    </header>
     <!-- Header Section End -->
 
     <script>
@@ -507,7 +544,7 @@
 
                         <!-- Brand/env (desktop only) -->
                         <span class="text-muted text-shadow d-none d-lg-inline-flex align-items-center gap-2">
-                            <span>Copyright &copy; @DateTime.Now.Year</span>
+                            <span class="footer-copyright">Copyright &copy; @DateTime.Now.Year</span>
                             <a href="https://autodealer.dev/" target="_blank" rel="noopener" aria-label="AutoDealer.dev" style="margin-top: 5px">
                                 <img src="https://autodealer.dev/Content/images/autodealer-logo-light.png" alt="AutoDealer.dev" style="height: 26px; width: auto;" />
                             </a>
@@ -522,13 +559,14 @@
                         </span>
 
                         <!-- Privacy (desktop only) -->
-                        <a href="@Url.Action("PrivacyPolicy", "Home")"  class="link-primary text-decoration-underline text-nowrap" target="_blank" rel="noopener">
+                        <a href="@Url.Action("PrivacyPolicy", "Home")" class="link-primary text-decoration-underline text-nowrap" target="_blank" rel="noopener">
                             @I18n.R("Title_PrivacyPolicy")
                         </a>
 
                         <!-- Terms sentence (desktop only) -->
-                        <span class="text-muted text-shadow d-none d-lg-inline text-nowrap"> By placing calls to this dealership you agree to the
-                            <a href="@Url.Action("TermsAndConditions", "Home")" class="link-primary text-decoration-underline"  target="_blank" rel="noopener">
+                        <span class="footer-call-terms text-muted text-shadow d-none d-lg-inline text-nowrap">
+                            By placing calls to this dealership you agree to the
+                            <a href="@Url.Action("TermsAndConditions", "Home")" class="link-primary text-decoration-underline" target="_blank" rel="noopener">
                                 @I18n.R("Title_Terms")
                             </a>
                         </span>
@@ -542,11 +580,12 @@
                     <!-- Theme dropdown -->
                     <div class="dropdown">
                         <button class="btn btn-sm btn-gradient dropdown-toggle text-nowrap"
-                                type="button" id="themeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            Theme: <span id="themeLabel">Blue</span>
+                                type="button" id="themeDropdown" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                            <i id="backgroundThemeIcon" class="bi @(backgroundTheme == "dark" ? "bi-moon" : backgroundTheme == "grey" ? "bi-circle-half" : "bi-sun")" aria-hidden="true"></i> <span id="themeLabel">Blue</span><span class="visually-hidden">, <span id="backgroundThemeLabel">Light</span> background</span>
                         </button>
 
                         <ul class="dropdown-menu dropdown-menu-end theme-dropdown-menu" aria-labelledby="themeDropdown">
+                            <li class="theme-section-title"><span class="dropdown-header">Color theme</span></li>
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="blue"><span class="theme-swatch swatch-blue"></span> Blue</a></li>
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="grey"><span class="theme-swatch swatch-grey"></span> Grey</a></li>
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="navy"><span class="theme-swatch swatch-navy"></span> Navy</a></li>
@@ -556,6 +595,10 @@
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="metallica"><span class="theme-swatch swatch-metallica"></span> Metallica</a></li>
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="silver"><span class="theme-swatch swatch-silver"></span> Silver</a></li>
                             <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="black"><span class="theme-swatch swatch-black"></span> Black</a></li>
+                            <li class="theme-section-title"><hr class="dropdown-divider" /><span class="dropdown-header">Background theme</span></li>
+                            <li><button type="button" class="dropdown-item background-theme-item" data-background="light"><i class="bi bi-sun" aria-hidden="true"></i> Light</button></li>
+                            <li><button type="button" class="dropdown-item background-theme-item" data-background="grey"><i class="bi bi-circle-half" aria-hidden="true"></i> Grey</button></li>
+                            <li><button type="button" class="dropdown-item background-theme-item" data-background="dark"><i class="bi bi-moon" aria-hidden="true"></i> Dark</button></li>
                         </ul>
                     </div>
 
@@ -632,7 +675,6 @@
         </div>
     </footer>
     <!-- Footer Section End -->
-
     @if (chatBotEnabled)
     {
         @Html.Partial("_ChatBot")
@@ -941,23 +983,18 @@
                 themes.forEach(t => root.classList.remove("theme-" + t));
                 root.classList.add("theme-" + theme);
 
-                localStorage.setItem(KEY, theme);
+                try { localStorage.setItem(KEY, theme); } catch (e) { /* Cookies remain available. */ }
                 setCookie(KEY, theme);
 
                 if (label) label.textContent = pretty(theme);
+                items.forEach(item => {
+                    item.classList.toggle("active", item.dataset.theme === theme);
+                    item.setAttribute("aria-current", item.dataset.theme === theme ? "true" : "false");
+                });
             }
 
-            const storedTheme = localStorage.getItem(KEY) || "blue";
-            const saved = storedTheme === "pink"
-                ? "navy"
-                : storedTheme === "dark-green"
-                    ? "green"
-                    : storedTheme === "dark-red"
-                        ? "red"
-                        : storedTheme === "dark"
-                            ? "black"
-                            : storedTheme;
-            if (themes.includes(saved)) applyTheme(saved);
+            const saved = themes.find(theme => root.classList.contains("theme-" + theme)) || "blue";
+            applyTheme(saved);
 
             items.forEach(a => {
                 a.addEventListener("click", (e) => {
@@ -965,6 +1002,28 @@
                     applyTheme(a.dataset.theme);
                 });
             });
+
+            const backgroundItems = Array.from(document.querySelectorAll(".background-theme-item"));
+            function applyBackground(background) {
+                if (!["light", "grey", "dark"].includes(background)) background = "light";
+                root.dataset.backgroundTheme = background;
+                root.dataset.bsTheme = background === "dark" ? "dark" : "light";
+                try { localStorage.setItem("gtx-background-theme", background); } catch (e) { /* Cookie fallback. */ }
+                setCookie("gtx-background-theme", background);
+                document.getElementById("backgroundThemeLabel").textContent = pretty(background);
+                document.getElementById("backgroundThemeIcon").className = "bi " + {
+                    light: "bi-sun",
+                    grey: "bi-circle-half",
+                    dark: "bi-moon"
+                }[background];
+                backgroundItems.forEach(item => {
+                    const selected = item.dataset.background === background;
+                    item.classList.toggle("active", selected);
+                    item.setAttribute("aria-pressed", selected ? "true" : "false");
+                });
+            }
+            applyBackground(root.dataset.backgroundTheme);
+            backgroundItems.forEach(item => item.addEventListener("click", () => applyBackground(item.dataset.background)));
 
             const headerDropdownToggles = [
                 document.getElementById("themeDropdown"),
@@ -1019,7 +1078,12 @@
                         body: new FormData(langForm),
                         credentials: "same-origin"
                     })
-                        .then(() => window.location.reload())
+                        .then(response => {
+                            if (!response.ok) throw new Error("Language selection failed.");
+                            const url = new URL(window.location.href);
+                            url.searchParams.delete("lang");
+                            window.location.replace(url.toString());
+                        })
                         .catch(() => {
                             const url = new URL(window.location.href);
                             url.searchParams.set("lang", lang);

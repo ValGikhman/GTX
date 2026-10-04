@@ -23,11 +23,11 @@
      data-delete-url="@Url.Action("Delete", "ChatBotCommands")">
     @Html.Partial("_MarketingHero", null, new ViewDataDictionary
     {
-        { "Kicker", "Owner command center" },
-        { "Title", "Manage CB commands." },
-        { "Accent", "Keep every route precise." },
-        { "Description", "Review recognized phrases, inspect their application dependencies, and maintain the commands available to your assistant." },
-        { "Word", "COMMANDS" },
+        { "Kicker", I18n.R("Hero_ChatBotCommands_Kicker") },
+        { "Title", I18n.R("Hero_ChatBotCommands_Title") },
+        { "Accent", I18n.R("Hero_ChatBotCommands_Accent") },
+        { "Description", I18n.R("Hero_ChatBotCommands_Description") },
+        { "Word", I18n.R("Hero_ChatBotCommands_Word") },
         { "Icon", "bi-command" }
     })
 
