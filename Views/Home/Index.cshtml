@@ -16,16 +16,14 @@
 }
 
 <section class="hero home-hero" aria-labelledby="homeHeroTitle">
-    <video class="video-background-video" autoplay muted loop playsinline webkit-playsinline preload="metadata" aria-hidden="true" tabindex="-1">
-        <source src="@SiteImageUrl.Build("video/GTX.mp4")" type="video/mp4" />
-    </video>
+    <img class="home-hero-background" src="@Url.Content("~/img/hero-electric.png")" alt="" aria-hidden="true" fetchpriority="high" />
 
     <div class="home-hero-shade" aria-hidden="true"></div>
     <div class="home-hero-grid" aria-hidden="true"></div>
     <span class="home-hero-orbit home-hero-orbit-one" aria-hidden="true"></span>
     <span class="home-hero-orbit home-hero-orbit-two" aria-hidden="true"></span>
     <span class="home-hero-brand" aria-hidden="true">
-        <img src="@SiteImageUrl.Build("brand-index.png")" alt="" />
+        <img src="@Url.Content("~/img/demo/autodealer-logo-light.png")" alt="" />
     </span>
 
     <div class="home-hero-shell">
@@ -204,12 +202,6 @@
 <script>
     $(function () {
         $("#fakeSearch").css("visibility", "hidden");
-        $("#GTX-image").removeClass("d-md-inline-block");
-
-        var heroVideo = document.querySelector(".home-hero .video-background-video");
-        if (heroVideo && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-            heroVideo.pause();
-        }
 
         var inventoryPlayer = document.getElementById("homeInventoryPlayer");
         if (inventoryPlayer && window.bootstrap && bootstrap.Carousel) {

@@ -2532,6 +2532,21 @@ a, u {
                 transition: all, 0.5s;
             }
 
+#GTX-image {
+    vertical-align: middle;
+}
+
+#GTX-image > a {
+    padding: 6px 12px;
+    border-radius: 8px;
+    background-color: #d1d5db;
+}
+
+#GTX-image > a > img {
+    display: block;
+    height: auto;
+}
+
 .offcanvas-menu-wrapper {
     display: none;
 }
@@ -3298,7 +3313,7 @@ body.home-index .home-hero {
     background: #080d12;
 }
 
-body.home-index .home-hero .video-background-video {
+body.home-index .home-hero .home-hero-background {
     position: absolute;
     inset: 0;
     z-index: -4;
@@ -3389,7 +3404,11 @@ body.home-index .home-hero .video-background-video {
     z-index: 0;
     width: clamp(30rem, 5vw, 35rem);
     display: block;
-    opacity: .2;
+    padding: clamp(1rem, 2vw, 1.75rem) clamp(1.25rem, 2.5vw, 2rem);
+    border: 1px solid rgba(255, 255, 255, .45);
+    border-radius: 1.25rem;
+    background-color: #d1d5db;
+    box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, .25), inset 0 1px 0 rgba(255, 255, 255, .5);
     transform: translateY(-51%);
     pointer-events: none;
     user-select: none;
@@ -3401,7 +3420,6 @@ body.home-index .home-hero .video-background-video {
     width: 100%;
     max-width: none;
     height: auto;
-    filter: saturate(.82) contrast(1.1) drop-shadow(0 1rem 2rem rgba(0, 0, 0, .32));
 }
 
 .home-hero-slogan {
@@ -4263,7 +4281,7 @@ html.theme-silver .home-quick-icon {
         min-height: 100%;
     }
 
-    body.home-index .home-hero .video-background-video {
+    body.home-index .home-hero .home-hero-background {
         object-position: 58% center;
         transform: scale(1.1);
     }
@@ -4313,6 +4331,8 @@ html.theme-silver .home-quick-icon {
         left: 50%;
         width: 78vw;
         opacity: .16;
+        padding: 1rem 1.25rem;
+        border-radius: 1rem;
         transform: translate(-50%, -50%);
     }
 
@@ -4516,7 +4536,7 @@ html.theme-silver .home-quick-icon {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    body.home-index .home-hero .video-background-video,
+    body.home-index .home-hero .home-hero-background,
     .home-hero-button,
     .home-hero-quick-actions > a,
     .home-memberships-logos a {
