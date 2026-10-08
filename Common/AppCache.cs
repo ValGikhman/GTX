@@ -12,7 +12,8 @@ public static class AppCache
         if (existing != null) return existing;
 
         // lock per key so multiple requests don't rebuild at once
-        var lockObj = Cache.AddOrGetExisting(key + ":lock", new object(), new CacheItemPolicy { AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(minutes) }) as object ?? new object();
+        var newLock = new object();
+        var lockObj = Cache.AddOrGetExisting(key + ":lock", newLock, new CacheItemPolicy { AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(minutes) }) ?? newLock;
 
         lock (lockObj)
         {

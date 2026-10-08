@@ -7,6 +7,35 @@
     --oh-ink: #16202a;
     --oh-muted: #69747f;
     --oh-line: rgba(22, 32, 42, .12);
+    --oh-surface: #f8f9fa;
+    --oh-card: #fff;
+    --oh-control: #f1f3f5;
+    --oh-stripe: rgba(22, 32, 42, .035);
+    --oh-marker: #c0c6cc;
+    --oh-accent-ink: #155a96;
+    --oh-accent-ink: color-mix(in srgb, var(--oh-accent) 75%, #16202a);
+    color: var(--oh-ink);
+    background-color: var(--bs-body-bg, #fff);
+    border-color: var(--oh-line);
+}
+
+/* Follow the background preference independently of the accent theme. */
+html:is([data-background-theme="grey"], [data-background-theme="dark"]) #openHours {
+    --oh-ink: var(--bs-body-color);
+    --oh-muted: var(--bs-secondary-color);
+    --oh-line: var(--bs-border-color);
+    --oh-surface: var(--bs-tertiary-bg);
+    --oh-card: var(--bs-body-bg);
+    --oh-control: var(--bs-secondary-bg);
+    --oh-stripe: rgba(var(--bs-body-color-rgb), .045);
+    --oh-marker: var(--bs-secondary-color);
+}
+
+html[data-background-theme="dark"] #openHours {
+    --oh-accent-ink: #a9d3f5;
+    --oh-accent-ink: color-mix(in srgb, var(--oh-accent) 35%, #fff);
+    --oh-accent-soft: rgba(169, 211, 245, .12);
+    --oh-accent-soft: color-mix(in srgb, var(--oh-accent-ink) 12%, transparent);
 }
 
 #openHours .open-hours-panel {
@@ -159,25 +188,6 @@
     filter: saturate(.82) contrast(1.04);
 }
 
-#openHours .open-hours-map-link {
-    position: absolute;
-    right: .75rem;
-    bottom: .75rem;
-    display: inline-flex;
-    gap: .45rem;
-    align-items: center;
-    padding: .55rem .7rem;
-    color: #fff;
-    border: 1px solid rgba(255, 255, 255, .18);
-    border-radius: .65rem;
-    background: rgba(7, 12, 17, .78);
-    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .18);
-    font-size: .68rem;
-    font-weight: 750;
-    text-decoration: none;
-    backdrop-filter: blur(10px);
-}
-
 #openHours .open-hours-content {
     min-width: 0;
     min-height: 0;
@@ -187,7 +197,7 @@
     border-radius: .85rem;
     background:
         radial-gradient(circle at 100% 0, var(--oh-accent-soft), transparent 22rem),
-        #f8f9fa;
+        var(--oh-surface);
 }
 
 #openHours .open-hours-content-heading {
@@ -234,7 +244,7 @@
 
 #openHours .open-hours-today-summary strong {
     margin-top: .2rem;
-    color: var(--oh-accent);
+    color: var(--oh-accent-ink);
     font-size: .82rem;
 }
 
@@ -258,24 +268,24 @@
 }
 
 #openHours .open-hours-day-row:nth-child(even) {
-    background: rgba(22, 32, 42, .035);
+    background: var(--oh-stripe);
 }
 
 #openHours .open-hours-day-row.is-today {
-    border-color: color-mix(in srgb, var(--oh-accent) 22%, transparent);
+    border-color: color-mix(in srgb, var(--oh-accent-ink) 35%, transparent);
     background: var(--oh-accent-soft);
-    box-shadow: inset .2rem 0 var(--oh-accent);
+    box-shadow: inset .2rem 0 var(--oh-accent-ink);
 }
 
 #openHours .open-hours-day-marker {
     width: .38rem;
     height: .38rem;
     border-radius: 50%;
-    background: #c0c6cc;
+    background: var(--oh-marker);
 }
 
 #openHours .open-hours-day-row.is-today .open-hours-day-marker {
-    background: var(--oh-accent);
+    background: var(--oh-accent-ink);
     box-shadow: 0 0 0 .23rem var(--oh-accent-soft);
 }
 
@@ -290,9 +300,9 @@
 
 #openHours .open-hours-day-name small {
     padding: .2rem .4rem;
-    color: var(--oh-accent);
+    color: var(--oh-accent-ink);
     border-radius: 999px;
-    background: #fff;
+    background: var(--oh-card);
     font-size: .52rem;
     font-weight: 850;
     letter-spacing: .08em;
@@ -317,7 +327,7 @@
     padding: .65rem;
     border: 1px solid var(--oh-line);
     border-radius: .85rem;
-    background: #fff;
+    background: var(--oh-card);
     box-shadow: 0 .65rem 1.5rem rgba(22, 32, 42, .07);
 }
 
@@ -358,7 +368,7 @@
     color: var(--oh-ink);
     border: 1px solid var(--oh-line);
     border-radius: .65rem;
-    background: #f1f3f5;
+    background: var(--oh-control);
     font-size: .68rem;
     font-weight: 750;
 }
@@ -366,8 +376,8 @@
 #openHours .open-hours-copy-address:hover,
 #openHours .open-hours-copy-address:focus,
 #openHours .open-hours-copy-address.active {
-    color: var(--oh-accent);
-    border-color: color-mix(in srgb, var(--oh-accent) 28%, transparent);
+    color: var(--oh-accent-ink);
+    border-color: color-mix(in srgb, var(--oh-accent-ink) 45%, transparent);
     background: var(--oh-accent-soft);
 }
 
@@ -426,7 +436,7 @@
 
 #openHours .open-hours-action-directions {
     color: var(--oh-ink);
-    background: #fff;
+    background: var(--oh-card);
 }
 
 #openHours .open-hours-footnote {
