@@ -27,6 +27,7 @@
      data-terms-url="@Url.Action("TermsAndConditions", "Home")">
     <button type="button"
             class="gtx-chat-launcher"
+            title="Drag to a corner. Alt + arrow keys to move."
             aria-label="@I18n.R("Chat_OpenAssistant")"
             aria-expanded="false"
             aria-controls="gtxChatPanel">
@@ -35,7 +36,7 @@
     </button>
 
     <section id="gtxChatPanel" class="gtx-chat-panel" aria-label="GTX Auto Assistant" hidden>
-        <header class="gtx-chat-header">
+        <header class="gtx-chat-header" tabindex="0" aria-label="Move chat: drag to a corner or use Alt + arrow keys" title="Drag to a corner. Alt + arrow keys to move.">
             <div class="gtx-chat-avatar" aria-hidden="true"><i class="bi bi-stars"></i></div>
             <div class="flex-grow-1">
                 <div class="gtx-chat-title">GTX Auto Assistant <span>AI</span></div>
