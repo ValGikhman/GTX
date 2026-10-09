@@ -1,4 +1,5 @@
 .gtx-chat {
+    --gtx-chat-gap: 1rem;
     --gtx-chat-theme: var(--gtx-grad, linear-gradient(135deg, #0b5ed7, #163a72));
     --gtx-chat-accent: var(--gtx-accent-solid, #0b5ed7);
     --gtx-chat-on-theme: #fff;
@@ -8,11 +9,20 @@
     --gtx-chat-card-shadow-hover: 0 .5rem 1.1rem rgba(22, 58, 114, .13);
     --gtx-chat-card-surface: rgba(255, 255, 255, .96);
     position: fixed;
-    right: 1rem;
-    bottom: calc(var(--gtx-footer-height, 0px) + 1rem);
+    right: var(--gtx-chat-gap);
+    bottom: calc(var(--gtx-footer-height, 0px) + var(--gtx-chat-gap));
     z-index: 1075;
     font-family: "Lato", sans-serif;
 }
+
+.gtx-chat[data-chat-corner$="left"] { left: var(--gtx-chat-gap); right: auto; }
+.gtx-chat[data-chat-corner^="top"] { top: calc(var(--gtx-header-height, 0px) + var(--gtx-chat-gap)); bottom: auto; }
+.gtx-chat-launcher,
+.gtx-chat-header { touch-action: none; cursor: grab; user-select: none; }
+.gtx-chat.is-dragging .gtx-chat-launcher,
+.gtx-chat.is-dragging .gtx-chat-header { cursor: grabbing; }
+.gtx-chat.is-dragging .gtx-chat-launcher { transform: none; transition: none; }
+.gtx-chat-header:focus-visible { outline: 2px solid var(--gtx-chat-accent); outline-offset: -3px; }
 
 .gtx-chat-launcher {
     display: inline-flex;
@@ -42,14 +52,12 @@
 .gtx-chat-launcher i { font-size: 1.15rem; }
 
 .gtx-chat-panel {
-    position: absolute;
-    right: 0;
-    bottom: 0;
+    position: relative;
     display: flex;
     flex-direction: column;
     width: min(390px, calc(100vw - 2rem));
     height: min(620px, calc(100vh - var(--gtx-header-height, 0px) - var(--gtx-footer-height, 0px) - 2rem));
-    min-height: 420px;
+    min-height: 0;
     overflow: hidden;
     border: 1px solid rgba(148, 163, 184, .35);
     border-radius: 1rem;
@@ -624,8 +632,8 @@
 html.theme-silver .gtx-chat { --gtx-chat-on-theme: #172033; }
 
 @media (max-width: 575.98px) {
-    .gtx-chat { right: .65rem; bottom: calc(var(--gtx-footer-height, 0px) + .65rem); }
-    .gtx-chat-panel { position: fixed; inset: var(--gtx-header-height, 0px) 0 var(--gtx-footer-height, 0px); width: 100%; height: auto; min-height: 0; border: 0; border-radius: 0; }
+    .gtx-chat { --gtx-chat-gap: .65rem; }
+    .gtx-chat-panel { width: calc(100vw - 1.3rem); height: min(620px, calc(100dvh - var(--gtx-header-height, 0px) - var(--gtx-footer-height, 0px) - 1.3rem)); }
     .gtx-chat-launcher span { display: none; }
     .gtx-chat-launcher { width: 3.25rem; height: 3.25rem; justify-content: center; padding: 0; }
 }
