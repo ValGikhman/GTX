@@ -1,6 +1,7 @@
 @using System.Linq
 @{
-    var openHours = Utility.XMLHelpers.XmlRepository.GetOpenHours() ?? new GTX.Models.OpenHours[0];
+    var openHours = AppCache.GetOrCreate(Constants.OPENHOURS_CACHE,
+        () => Utility.XMLHelpers.XmlRepository.GetOpenHours(), minutes: 60) ?? new GTX.Models.OpenHours[0];
     var now = DateTime.Now;
     var todayName = now.DayOfWeek.ToString();
     var todayHours = openHours.FirstOrDefault(open => string.Equals(open.Day, todayName, StringComparison.OrdinalIgnoreCase));
@@ -10,7 +11,7 @@
 <div class="open-hours-panel">
     <section class="open-hours-visual" aria-label="GTX Auto Group showroom">
         <div class="open-hours-photo-wrap">
-            <img class="open-hours-photo" src="@SiteImageUrl.Build("gtx.jpg")" alt="GTX Auto Group showroom">
+            <img class="open-hours-photo" src="@SiteImageUrl.Build("gtx.jpg")" alt="GTX Auto Group showroom" loading="lazy" decoding="async">
             <div class="open-hours-photo-shade" aria-hidden="true"></div>
             <div class="open-hours-photo-copy">
                 <span class="open-hours-kicker">West Chester, Ohio</span>
@@ -34,13 +35,6 @@
                     class="open-hours-map"
                     title="Map to GTX Auto Group">
             </iframe>
-            <a class="open-hours-map-link"
-               href="https://www.google.com/maps/search/?api=1&query=9516+Princeton+Glendale+Rd%2C+West+Chester%2C+OH+45011"
-               target="_blank"
-               rel="noopener noreferrer">
-                <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
-                Open full map
-            </a>
         </div>
     </section>
 

@@ -9,10 +9,12 @@ using System.Text;
 using System.Web;
 using System.Web.Hosting;
 using System.Web.Mvc;
+using System.Web.SessionState;
 
 namespace GTX.Controllers
 {
     [AllowAnonymous]
+    [SessionState(SessionStateBehavior.Disabled)]
     public class InventoryImagesController : Controller
     {
         private static readonly TimeSpan ImageCacheDuration = TimeSpan.FromDays(30);

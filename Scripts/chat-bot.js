@@ -34,6 +34,103 @@
         var requestHistoryDraft = "";
         var applyingRequestHistory = false;
 
+        (function initializePosition() {
+            var positionKey = "gtx-chat-corner-v1";
+            var corner = "bottom-right";
+            var drag = null;
+            var suppressClick = false;
+            var $handles = $launcher.add($widget.find(".gtx-chat-header"));
+
+            function anchor(nextCorner, persist) {
+                corner = nextCorner;
+                $widget.attr("data-chat-corner", corner).removeClass("is-dragging")
+                    .css({ left: "", top: "", right: "", bottom: "" });
+                if (persist) {
+                    try {
+                        window.localStorage.setItem(positionKey, corner);
+                    } catch (_) {
+                        // Keep movement available when browser storage is blocked.
+                    }
+                }
+            }
+
+            try {
+                var savedCorner = window.localStorage.getItem(positionKey);
+                if (/^(top|bottom)-(left|right)$/.test(savedCorner || "")) corner = savedCorner;
+            } catch (_) { /* Use the default corner when storage is unavailable. */ }
+            anchor(corner, false);
+
+            $handles.on("pointerdown", function (event) {
+                var pointer = event.originalEvent;
+                if (drag || pointer.isPrimary === false || pointer.button !== 0) return;
+                if ($(event.target).closest("button, a, input, select, textarea").not($launcher).length) return;
+                var rect = $widget[0].getBoundingClientRect();
+                suppressClick = false;
+                drag = {
+                    id: pointer.pointerId, handle: this,
+                    x: pointer.clientX, y: pointer.clientY,
+                    left: rect.left, top: rect.top, moved: false
+                };
+                this.setPointerCapture(pointer.pointerId);
+            });
+
+            $handles.on("pointermove", function (event) {
+                var pointer = event.originalEvent;
+                if (!drag || pointer.pointerId !== drag.id) return;
+                var dx = pointer.clientX - drag.x;
+                var dy = pointer.clientY - drag.y;
+                if (!drag.moved && dx * dx + dy * dy < 36) return;
+                drag.moved = true;
+                event.preventDefault();
+                var rect = $widget[0].getBoundingClientRect();
+                $widget.addClass("is-dragging").css({
+                    left: Math.max(0, Math.min(window.innerWidth - rect.width, drag.left + dx)),
+                    top: Math.max(0, Math.min(window.innerHeight - rect.height, drag.top + dy)),
+                    right: "auto", bottom: "auto"
+                });
+            });
+
+            function finishDrag(event) {
+                var pointer = event && event.originalEvent;
+                if (!drag || (pointer && pointer.pointerId !== drag.id)) return;
+                var finished = drag;
+                drag = null;
+                if (finished.moved) {
+                    suppressClick = true;
+                    var rect = $widget[0].getBoundingClientRect();
+                    var nextCorner = event && event.type === "pointerup"
+                        ? (rect.top + rect.height / 2 < window.innerHeight / 2 ? "top" : "bottom")
+                            + "-" + (rect.left + rect.width / 2 < window.innerWidth / 2 ? "left" : "right")
+                        : corner;
+                    anchor(nextCorner, true);
+                    window.setTimeout(function () { suppressClick = false; }, 0);
+                }
+                if (finished.handle.hasPointerCapture(finished.id)) finished.handle.releasePointerCapture(finished.id);
+            }
+
+            $handles.on("pointerup pointercancel lostpointercapture", finishDrag);
+            $(window).on("blur.gtxChatPosition resize.gtxChatPosition", function () { finishDrag(); });
+            // Capture the synthetic click after dragging before the launcher opens the chat.
+            $widget[0].addEventListener("click", function (event) {
+                if (!suppressClick) return;
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                suppressClick = false;
+            }, true);
+
+            $handles.on("keydown", function (event) {
+                if (event.target !== this || !event.altKey || drag) return;
+                var parts = corner.split("-");
+                if (event.key === "ArrowLeft") parts[1] = "left";
+                else if (event.key === "ArrowRight") parts[1] = "right";
+                else if (event.key === "ArrowUp") parts[0] = "top";
+                else if (event.key === "ArrowDown") parts[0] = "bottom";
+                else return;
+                event.preventDefault();
+                anchor(parts.join("-"), true);
+            });
+        })();
+
         function loadRequestHistory() {
             try {
                 var stored = JSON.parse(window.sessionStorage.getItem(requestHistoryStorageKey) || "[]");

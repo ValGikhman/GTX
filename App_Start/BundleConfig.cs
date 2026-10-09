@@ -10,11 +10,13 @@ namespace GTX {
                         "~/Scripts/jquery/jquery.magnific-popup.min.js",
                         "~/Scripts/jquery/jquery.slicknav.js",
                         "~/Scripts/bootstrap/bootstrap-datepicker.min.js",
-                        "~/Scripts/addTools/addGrid.js",
                         "~/Scripts/main.js",
                         "~/Scripts/chosen/chosen.jquery.js"
                 )
             );
+
+            bundles.Add(new ScriptBundle("~/Scripts/admin-grid").Include(
+                "~/Scripts/addTools/addGrid.js"));
 
             // Use the development version of Modernizr to develop with and learn from. Then, when you're
             // ready for production, use the build tool at https://modernizr.com to pick only the tests you need.
