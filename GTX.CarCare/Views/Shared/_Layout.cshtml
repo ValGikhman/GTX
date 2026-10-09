@@ -1,0 +1,61 @@
+@{
+    var theme = (Request.Cookies["gtx-theme"] == null ? "blue" : Request.Cookies["gtx-theme"].Value).ToLowerInvariant();
+    var themes = new[] { "blue", "grey", "navy", "green", "red", "deep-purple", "metallica", "silver", "black" };
+    switch (theme) { case "pink": theme = "navy"; break; case "dark-green": theme = "green"; break; case "dark-red": theme = "red"; break; case "dark": theme = "black"; break; }
+    if (Array.IndexOf(themes, theme) < 0) { theme = "blue"; }
+    var background = (Request.Cookies["gtx-background-theme"] == null ? "light" : Request.Cookies["gtx-background-theme"].Value).ToLowerInvariant();
+    if (background != "grey" && background != "dark") { background = "light"; }
+    var isServices = string.Equals(ViewContext.RouteData.Values["action"].ToString(), "Services", StringComparison.OrdinalIgnoreCase);
+}
+<!DOCTYPE html>
+<html lang="en" class="theme-@theme" data-background-theme="@background" data-bs-theme="@(background == "dark" ? "dark" : "light")">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewBag.Title | @CarCareContent.BusinessName</title>
+    <meta name="description" content="@ViewBag.Description" />
+    <meta name="theme-color" content="#155a96" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&amp;display=swap" rel="stylesheet" />
+    <script src="@Url.Content("~/Scripts/carcare-theme.js")"></script>
+    <link rel="stylesheet" href="@Url.Content("~/Content/shared/bootstrap.min.css")" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/shared/Blue.css")" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/shared/Grey.css")" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/shared/Navy.css")" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/shared/Green.css")" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/shared/Red.css")" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/shared/DeepPurple.css")" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/shared/Metallica.css")" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/shared/Silver.css")" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/shared/Black.css")" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/shared/Background.css")" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/shared/marketing-pages.css")" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/theme-selector.css")" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/carcare.css")" />
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="care-header">
+        <div class="care-shell care-header-inner">
+            <a class="care-brand" href="@Url.RouteUrl("Home")" aria-label="GTX Car Care Center home"><span class="care-wordmark">GTX<span class="brand-dot">.</span></span><span class="care-brand-name">CAR CARE<br />CENTER</span></a>
+            <nav class="care-nav" aria-label="Main navigation">
+                <a href="@Url.RouteUrl("Home")" aria-current="@(!isServices ? "page" : null)">Home</a>
+                <a href="@Url.RouteUrl("Services")" aria-current="@(isServices ? "page" : null)">Services</a>
+            </nav>
+            <div class="care-header-tools">
+            @Html.Partial("_ThemeSelector")
+            <a class="care-header-phone" href="@CarCareContent.PhoneLink"><span class="phone-label">CALL GTX CAR CARE</span><strong>@CarCareContent.Phone</strong></a>
+            </div>
+        </div>
+    </header>
+    <main id="main" tabindex="-1">@RenderBody()</main>
+    <footer class="care-footer">
+        <div class="care-shell care-footer-inner">
+            <div><strong>@CarCareContent.BusinessName</strong><p>Good care for the road ahead.</p></div>
+            <nav aria-label="Footer navigation"><a href="@Url.RouteUrl("Home")">Home</a><a href="@Url.RouteUrl("Services")">Services</a><a href="@CarCareContent.PhoneLink">@CarCareContent.Phone</a></nav>
+        </div>
+    </footer>
+    <script src="@Url.Content("~/Scripts/shared/bootstrap.bundle.min.js")"></script>
+</body>
+</html>

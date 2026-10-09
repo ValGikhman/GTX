@@ -1,0 +1,51 @@
+@model System.Collections.Generic.IReadOnlyList<GTX.CarCare.Models.CarCareService>
+@{
+    ViewBag.Title = "Our services";
+    ViewBag.Description = "Explore tire changes, oil changes, wheel alignments, detailing, and car washes at GTX Car Care Center. Call (513) 489-2886 to plan your visit.";
+}
+<section class="care-hero care-services-hero" aria-labelledby="services-title">
+    <div class="care-hero-lines" aria-hidden="true"></div>
+    <div class="care-shell care-services-hero-inner">
+        <div>
+            <nav class="care-breadcrumb" aria-label="Breadcrumb"><a href="@Url.RouteUrl("Home")">Home</a><span aria-hidden="true">/</span><span aria-current="page">Our services</span></nav>
+            <p class="care-eyebrow">THE GTX APPROACH TO EVERYDAY CARE</p>
+            <h1 id="services-title">Car care<br />services.</h1>
+            <p class="care-services-intro">Keep it running. Keep it looking good.<br />Give your car the attention it deserves.</p>
+        </div>
+        <div class="care-service-intro-note"><span class="care-eyebrow">NOT SURE WHERE TO START?</span><p>Tell us about your car.<br />We'll talk through the options.</p><a class="care-button care-button-light" href="@CarCareContent.PhoneLink">Call @CarCareContent.Phone</a></div>
+    </div>
+</section>
+<div class="marketing-page">
+    <div class="care-shell care-section">
+        <nav class="care-service-nav" aria-label="Jump to a service">
+            @foreach (var service in Model)
+            {
+                <a href="#@service.Id">@Html.Partial("_ServiceIcon", service.Id)<span>@service.Name</span></a>
+            }
+        </nav>
+        <p class="care-pricing-note">Service pricing and timing depend on your vehicle. Call for current options and availability.</p>
+        <div class="care-service-details">
+            @foreach (var service in Model)
+            {
+                <section class="care-service-detail" id="@service.Id" aria-labelledby="@(service.Id + "-title")">
+                    <div class="care-detail-mark"><span class="care-icon-tile">@Html.Partial("_ServiceIcon", service.Id)</span></div>
+                    <div class="care-detail-copy">
+                        <p class="care-eyebrow">@service.Tagline</p>
+                        <h2 id="@(service.Id + "-title")">@service.Name</h2>
+                        <p class="care-detail-description">@service.Description</p>
+                        <a class="care-button btn-gradient" href="@CarCareContent.PhoneLink">Ask about @service.Name.ToLowerInvariant()</a>
+                    </div>
+                    <aside class="care-preparation"><span class="care-eyebrow">MAKE THE MOST OF YOUR CALL</span><h3>A few helpful details.</h3><p>@service.Preparation</p></aside>
+                </section>
+            }
+        </div>
+        <section class="care-faq" aria-labelledby="faq-title">
+            <div><p class="care-eyebrow">GOOD TO KNOW</p><h2 id="faq-title">Before your visit.</h2><p>A few answers to make your next step easier.</p></div>
+            <div class="care-faq-items">
+                <details><summary>How do I arrange service?</summary><p>Call <a href="@CarCareContent.PhoneLink">@CarCareContent.Phone</a>. Our team can discuss your needs, confirm availability, and help you arrange a visit.</p></details>
+                <details><summary>How much will my service cost?</summary><p>Pricing depends on your vehicle and the work requested. Call with your year, make, model, and service needs to discuss pricing.</p></details>
+                <details><summary>Can I ask about more than one service?</summary><p>Absolutely. Tell us everything you have in mind when you call, and we can discuss the options and timing together.</p></details>
+            </div>
+        </section>
+    </div>
+</div>

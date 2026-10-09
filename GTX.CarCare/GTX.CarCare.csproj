@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" />
+  <PropertyGroup>
+    <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
+    <Platform Condition="'$(Platform)' == ''">AnyCPU</Platform>
+    <ProjectGuid>{803CC8ED-E641-48D4-8834-A66812259D2A}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <RootNamespace>GTX.CarCare</RootNamespace>
+    <AssemblyName>GTX.CarCare</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <OutputPath>bin\</OutputPath>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressAnonymousAuthentication>enabled</IISExpressAnonymousAuthentication>
+    <IISExpressWindowsAuthentication>disabled</IISExpressWindowsAuthentication>
+    <IISExpressUseClassicPipelineMode>false</IISExpressUseClassicPipelineMode>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">17.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Web.Mvc">
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.3.0\lib\net45\System.Web.Mvc.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Razor">
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.3.0\lib\net45\System.Web.Razor.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.3.0\lib\net45\System.Web.WebPages.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.3.0\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.3.0\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Helpers">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.3.0\lib\net45\System.Web.Helpers.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Web.Infrastructure">
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.2.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Models\CarCareContent.cs" />
+    <Compile Include="Global.asax.cs"><DependentUpon>Global.asax</DependentUpon></Compile>
+    <Content Include="Global.asax" />
+    <Content Include="Web.config" />
+    <Content Include="Views\Web.config" />
+    <Content Include="Views\_ViewStart.cshtml" />
+    <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\Shared\_ServiceIcon.cshtml" />
+    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Home\Services.cshtml" />
+    <Content Include="Content\carcare.css" />
+    <SharedStyle Include="..\Content\Themes\Grey.css"><Destination>Content\shared\Grey.css</Destination></SharedStyle>
+    <Content Include="Content\shared\Grey.css" />
+    <SharedStyle Include="..\Content\Themes\Navy.css"><Destination>Content\shared\Navy.css</Destination></SharedStyle>
+    <Content Include="Content\shared\Navy.css" />
+    <SharedStyle Include="..\Content\Themes\Green.css"><Destination>Content\shared\Green.css</Destination></SharedStyle>
+    <Content Include="Content\shared\Green.css" />
+    <SharedStyle Include="..\Content\Themes\Red.css"><Destination>Content\shared\Red.css</Destination></SharedStyle>
+    <Content Include="Content\shared\Red.css" />
+    <SharedStyle Include="..\Content\Themes\DeepPurple.css"><Destination>Content\shared\DeepPurple.css</Destination></SharedStyle>
+    <Content Include="Content\shared\DeepPurple.css" />
+    <SharedStyle Include="..\Content\Themes\Metallica.css"><Destination>Content\shared\Metallica.css</Destination></SharedStyle>
+    <Content Include="Content\shared\Metallica.css" />
+    <SharedStyle Include="..\Content\Themes\Silver.css"><Destination>Content\shared\Silver.css</Destination></SharedStyle>
+    <Content Include="Content\shared\Silver.css" />
+    <SharedStyle Include="..\Content\Themes\Black.css"><Destination>Content\shared\Black.css</Destination></SharedStyle>
+    <Content Include="Content\shared\Black.css" />
+    <SharedStyle Include="..\Content\Themes\Background.css"><Destination>Content\shared\Background.css</Destination></SharedStyle>
+    <Content Include="Content\shared\Background.css" />
+    <SharedStyle Include="..\Scripts\bootstrap\bootstrap.bundle.min.js"><Destination>Scripts\shared\bootstrap.bundle.min.js</Destination></SharedStyle>
+    <Content Include="Scripts\shared\bootstrap.bundle.min.js" />
+    <Content Include="Scripts\carcare-theme.js" />
+    <Content Include="Content\theme-selector.css" />
+    <Content Include="Views\Shared\_ThemeSelector.cshtml" />
+    <None Include="packages.config" />
+    <None Include="README.md" />
+    <!-- One source of truth in GTX; materialize locally for IIS Express and folder publishing. -->
+    <SharedStyle Include="..\Content\bootstrap\bootstrap.min.css"><Destination>Content\shared\bootstrap.min.css</Destination></SharedStyle>
+    <SharedStyle Include="..\Content\Themes\Blue.css"><Destination>Content\shared\Blue.css</Destination></SharedStyle>
+    <SharedStyle Include="..\Content\marketing-pages.css"><Destination>Content\shared\marketing-pages.css</Destination></SharedStyle>
+    <Content Include="Content\shared\bootstrap.min.css" />
+    <Content Include="Content\shared\Blue.css" />
+    <Content Include="Content\shared\marketing-pages.css" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" />
+  <Target Name="CopySharedStyles" BeforeTargets="PrepareForBuild">
+    <Copy SourceFiles="@(SharedStyle)" DestinationFiles="@(SharedStyle->'$(MSBuildProjectDirectory)\%(Destination)')" SkipUnchangedFiles="true" />
+  </Target>
+  <Target Name="MvcBuildViews" AfterTargets="Build" Condition="'$(MvcBuildViews)' == 'true'">
+    <AspNetCompiler VirtualPath="/" PhysicalPath="$(MSBuildProjectDirectory)" />
+  </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <StartAction>URL</StartAction>
+          <StartExternalURL>http://localhost:51483/</StartExternalURL>
+          <AspNetDebugging>True</AspNetDebugging>
+          <AlwaysStartWebServerOnDebug>True</AlwaysStartWebServerOnDebug>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>False</AutoAssignPort>
+          <DevelopmentServerPort>51483</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:51483/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

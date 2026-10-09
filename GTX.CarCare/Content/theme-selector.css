@@ -1,0 +1,98 @@
+/* Same theme menu and swatches as GTX Content/Site.css. */
+.dropdown-menu {
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,.12);
+    box-shadow: 0 10px 35px rgba(0,0,0,.22);
+    backdrop-filter: blur(10px);
+}
+
+.dropdown-item {
+    border-radius: 10px;
+    padding: .55rem .75rem;
+}
+
+.theme-dropdown-menu {
+    width: min(23rem, calc(100vw - 1rem));
+    padding: .4rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .15rem;
+}
+
+.theme-dropdown-menu.show {
+    display: grid;
+}
+
+.theme-dropdown-menu .theme-item,
+.theme-dropdown-menu .background-theme-item {
+    min-height: 2rem;
+    padding: .3rem .4rem;
+    font-size: .8rem;
+    white-space: normal;
+}
+
+.theme-section-title { grid-column: 1 / -1; }
+.theme-section-title .dropdown-header { padding: .25rem .4rem; font-size: .7rem; }
+.theme-section-title .dropdown-divider { margin: .2rem 0; }
+.background-theme-item { display: flex; align-items: center; gap: .4rem; }
+.theme-dropdown-menu .theme-swatch { width: 18px; height: 12px; flex-shrink: 0; }
+.theme-dropdown-menu .active { box-shadow: inset 0 0 0 1px currentColor; }
+.swatch-background-light { background: #fff; }
+.swatch-background-grey { background: linear-gradient(#ccd1d5, #9fa6ac); }
+.swatch-background-dark { background: linear-gradient(#35363a, #202124); }
+
+    .dropdown-item:hover {
+        filter: brightness(1.02);
+    }
+
+    .dropdown-item.active,
+    .dropdown-item:active {
+        background: rgba(13,110,253,.12);
+        color: inherit;
+    }
+
+/* Small gradient preview pill */
+.theme-swatch {
+    width: 26px;
+    height: 14px;
+    border-radius: 999px;
+    display: inline-block;
+    border: 1px solid rgba(0,0,0,.25);
+    box-shadow: inset 0 1px 2px rgba(255,255,255,.25);
+}
+
+/* Hardcoded gradients to preview */
+.swatch-blue {
+    background: linear-gradient(180deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1) 94%);
+}
+
+.swatch-grey {
+    background: linear-gradient(180deg, #757575, #141414);
+}
+
+.swatch-navy {
+    background: linear-gradient(180deg, #244f7a 0%, #0f2d4d 52%, #06172b 100%);
+}
+
+.swatch-green {
+    background: linear-gradient(180deg, #1f6a4a 0%, #0b3b2b 52%, #031c15 100%);
+}
+
+.swatch-red {
+    background: linear-gradient(180deg, #a12a3a 0%, #641522 52%, #29070d 100%);
+}
+
+.swatch-deep-purple {
+    background: linear-gradient(180deg, #7426b9 0%, #4b0f78 52%, #160021 100%);
+}
+
+.swatch-black {
+    background: linear-gradient(180deg, #191d22 0%, #2b3138 22%, #1f242c 45%, #0d1117 70%, #000000 100% );
+}
+
+.swatch-metallica {
+    background: linear-gradient( 180deg, #f1f2f4 0%, #cfd3d8 22%, #9aa0a8 45%, #5c626b 70%, #2a2f36 100% );
+}
+
+.swatch-silver {
+    background: linear-gradient(180deg, rgb(255 255 255), #AAAAB3);
+}
