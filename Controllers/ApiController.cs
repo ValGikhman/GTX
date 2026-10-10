@@ -183,6 +183,33 @@ namespace GTX.Controllers {
         }
 
         [HttpGet]
+        [Route("price-reductions")]
+        public IHttpActionResult PriceReductions() {
+            try {
+                var now = DateTime.UtcNow;
+                var since = now.AddDays(-7);
+                var inventory = _inventoryService.GetInventory();
+                var available = (inventory.vehicles ?? Array.Empty<GTXDTO>())
+                    .Where(v => !string.IsNullOrWhiteSpace(v.Stock))
+                    .GroupBy(v => v.Stock.Trim(), StringComparer.OrdinalIgnoreCase)
+                    .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+                var reductions = AppCache.GetOrCreate("public-price-reductions",
+                    () => _inventoryService.GetRecentPriceReductions(since, now), minutes: 1);
+                var vehicles = reductions.Where(r => r.ChangedAtUtc >= since && r.ChangedAtUtc <= now && available.ContainsKey(r.Stock) &&
+                        available[r.Stock].InternetPrice == r.CurrentPrice &&
+                        string.Equals(available[r.Stock].VIN?.Trim(), r.Vin?.Trim(), StringComparison.OrdinalIgnoreCase))
+                    .Select(r => new {
+                        vehicle = ToMobileVehicle(available[r.Stock], includeDetails: false, counters: new Dictionary<string, long>()),
+                        previousPrice = r.PreviousPrice,
+                        savings = r.PreviousPrice - r.CurrentPrice,
+                        changedAtUtc = r.ChangedAtUtc
+                    }).ToArray();
+                return Ok(new { sinceUtc = since, asOfUtc = now, totalCount = vehicles.Length, vehicles });
+            }
+            catch (Exception ex) { return InventoryError(ex); }
+        }
+
+        [HttpGet]
         [Route("meta-vehicles")]
         public IHttpActionResult MetaVehicles() {
             try {
