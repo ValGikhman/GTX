@@ -626,10 +626,88 @@ html body .btn.btn-gradient-grey.text-shadow-small.active {
     color: #fff !important;
 }
 
-/* Inventory card lettering stays dark on its silver headers and controls. */
+/* Public inventory cards: neutral charcoal surfaces and silver pricing. */
 html[data-background-theme="dark"] .gtx-card,
 html[data-background-theme="dark"] .gtx-card :is(a, button, div, span, strong, small) {
-    color: #212529 !important;
+    color: #ededed !important;
+}
+
+html[data-background-theme="dark"] .gtx-card {
+    background: #2b2b2b;
+    box-shadow: 0 12px 26px rgba(0, 0, 0, .3);
+}
+
+html[class][data-background-theme="dark"] body .gtx-card :is(.gtx-header, .gtx-footer).gradient {
+    background: linear-gradient(145deg, #383838, #2b2b2b) !important;
+    color: #ededed !important;
+    text-shadow: none !important;
+}
+
+html[class][data-background-theme="dark"] body .gtx-card .gtx-header.gradient {
+    background: linear-gradient(135deg, #686868 0%, #555 48%, #424242 100%) !important;
+}
+
+html[data-background-theme="dark"] .gtx-card .text-shadow {
+    text-shadow: none !important;
+}
+
+html[data-background-theme="dark"] .gtx-card .gtx-make-logo-wrap {
+    background: linear-gradient(145deg, #f3f3f3, #c9c9c9);
+    border-radius: .35rem;
+    padding: .15rem .3rem;
+}
+
+html[data-background-theme="dark"] .gtx-card :is(.gtx-trimline, .gtx-card-copy, .gtx-price-muted, .gtx-price-muted span) {
+    color: #c2c2c2 !important;
+    opacity: 1;
+}
+
+html[data-background-theme="dark"] .gtx-card .gtx-price-panel {
+    background: #212121;
+    border-color: #505050;
+    box-shadow: none;
+}
+
+html[data-background-theme="dark"] .gtx-card .gtx-price-panel:is(:hover, :focus-visible) {
+    background: #333333;
+    border-color: #e0e0e0;
+}
+
+html[data-background-theme="dark"] .gtx-card .gtx-transparent-line {
+    border-top-color: #505050;
+}
+
+html[data-background-theme="dark"] .gtx-card .gtx-transparent-line .gtx-price-amount {
+    color: #e0e0e0 !important;
+}
+
+html[data-background-theme="dark"] .gtx-card .gtx-no-hidden-fees {
+    background: #24483c;
+    color: #a7f3d0 !important;
+}
+
+html[data-background-theme="dark"] .gtx-card :is(.gtx-open, .gtx-open i, .gtx-card-action, .gtx-card-action span) {
+    color: #262626 !important;
+}
+
+html[data-background-theme="dark"] .gtx-card .gtx-card-action {
+    background: #e5e5e5;
+    border-color: #c2c2c2;
+}
+
+html[data-background-theme="dark"] .gtx-card .gtx-card-action:is(:hover, :focus-visible) {
+    background: #f3f3f3;
+    border-color: #e0e0e0;
+}
+
+html[data-background-theme="dark"] .gtx-card .gtx-chip {
+    background: rgba(28, 28, 28, .88);
+    border-color: #737373;
+}
+
+html[data-background-theme="dark"] .gtx-card :is(.gtx-open, .gtx-card-action):focus-visible {
+    outline: 2px solid #e0e0e0;
+    outline-offset: 3px;
 }
 
 html[data-background-theme="dark"] .gtx-card .gtx-compare-toggle,
@@ -642,10 +720,6 @@ html[data-background-theme="dark"] .gtx-card .gtx-compare-toggle.is-selected,
 html[data-background-theme="dark"] .gtx-card .gtx-compare-toggle.is-selected span,
 html[data-background-theme="dark"] .gtx-card .gtx-compare-toggle.is-selected i {
     color: #212529 !important;
-}
-
-html[data-background-theme="dark"] .gtx-card .gtx-no-hidden-fees {
-    color: #fff !important;
 }
 
 html[data-background-theme="dark"] .majordome-status-pill {
