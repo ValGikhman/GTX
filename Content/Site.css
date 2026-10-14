@@ -3361,13 +3361,13 @@ body.home-index .home-hero .video-background-video {
 .home-hero-shell {
     position: relative;
     z-index: 2;
-    width: min(100%, 96rem);
+    width: min(100%, 110rem);
     height: 100%;
     min-height: 0;
     margin: 0 auto;
-    padding: clamp(1.5rem, 4vw, 4rem);
+    padding: clamp(1.25rem, 2.5vw, 2.5rem);
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.45fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
     gap: clamp(1.25rem, 2vw, 2rem);
     align-items: center;
     transform: translateY(-2.5%);
@@ -3629,13 +3629,99 @@ body.home-index .home-hero .video-background-video {
     justify-self: center;
 }
 
-/* The player sets the row height; reviews scroll inside an equally sized card. */
+/* Inventory sets the row height; reviews and services fit beside it. */
 .home-featured-panels {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     align-items: stretch;
-    gap: .8rem;
+    gap: .6rem;
     min-width: 0;
+}
+
+.home-services {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 1rem;
+    background: var(--bs-body-bg, #fff);
+    color: var(--bs-body-color, #172433);
+    box-shadow: 0 1.4rem 3.5rem rgba(0, 0, 0, .3);
+}
+
+.home-services-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .35rem;
+}
+
+.home-services > .carousel-inner {
+    flex: 1;
+    min-height: 16rem;
+}
+
+.home-services .carousel-item {
+    height: 100%;
+}
+
+.home-service-ad {
+    position: relative;
+    display: flex;
+    align-items: end;
+    height: 100%;
+    color: #fff;
+    text-decoration: none;
+}
+
+.home-service-ad:hover,
+.home-service-ad:focus-visible {
+    color: #fff;
+}
+
+.home-service-ad:focus-visible {
+    outline: 2px solid var(--gtx-accent-solid, #1e73be);
+    outline-offset: -3px;
+}
+
+.home-service-ad img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.home-service-copy {
+    position: relative;
+    width: 100%;
+    padding: 3rem .75rem 1rem;
+    background: linear-gradient(transparent, rgba(0, 0, 0, .92));
+    background: linear-gradient(transparent, color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 40%, #000) 100%);
+}
+
+.home-service-copy small {
+    font-size: .65rem;
+}
+
+.home-service-copy h3 {
+    color: #fff;
+    font-size: clamp(1.05rem, 1.5vw, 1.5rem);
+    margin: .35rem 0 .65rem;
+}
+
+.home-service-copy span {
+    font-size: .72rem;
+}
+
+/* Preserve usable panels when inventory is empty. */
+.home-featured-panels:not(:has(.home-inventory-player)) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.home-featured-panels:not(:has(.home-inventory-player)) > .home-reviews {
+    contain: none;
+    height: 22rem;
 }
 
 .home-reviews {
@@ -3673,7 +3759,7 @@ body.home-index .home-hero .video-background-video {
     overscroll-behavior-y: contain;
     scrollbar-width: thin;
     color: var(--bs-body-color, #172433);
-    font-size: .8rem;
+    font-size: .72rem;
 }
 
 .home-reviews-card:focus-visible {
@@ -3718,7 +3804,7 @@ body.home-index .home-hero .video-background-video {
     align-self: start;
     text-align: right;
     white-space: nowrap;
-    font-size: .65rem;
+    font-size: .6rem;
     line-height: 1.65;
 }
 
@@ -3734,12 +3820,12 @@ body.home-index .home-hero .video-background-video {
 
 .home-reviews-card #fdnReviewsWidget .name {
     margin-bottom: .1rem;
-    font-size: .85rem;
+    font-size: .75rem;
     line-height: 1.25;
 }
 
 .home-reviews-card #fdnReviewsWidget .fdn-rating {
-    font-size: 16px;
+    font-size: 14px;
 }
 
 .home-reviews-card #fdnReviewsWidget .comment {
@@ -3754,6 +3840,7 @@ body.home-index .home-hero .video-background-video {
 .home-reviews-card #fdnReviewsWidget .review > div:has(> div > span + p) p {
     margin: .25rem 0 0;
     padding: 0;
+    font-size: .72rem;
     line-height: 1.4;
 }
 
@@ -3763,7 +3850,7 @@ body.home-index .home-hero .video-background-video {
 .home-reviews-card .home-reviews-filter-note {
     margin-bottom: .5rem;
     color: var(--bs-body-color, #172433);
-    font-size: .75rem;
+    font-size: .68rem;
     line-height: 1.5;
 }
 
@@ -3791,7 +3878,7 @@ body.home-index .home-hero .video-background-video {
     border: 1px solid rgba(0, 0, 0, .2);
     background: var(--gtx-grad, linear-gradient(180deg, #155a96, #1e73be));
     color: #fff;
-    font-size: .8rem;
+    font-size: .72rem;
     font-weight: 700;
     line-height: 1.35;
     white-space: normal;
@@ -3800,6 +3887,7 @@ body.home-index .home-hero .video-background-video {
 .home-reviews-card #fdnReviewsWidget .comment,
 .home-reviews-card #fdnReviewsWidget .comment p {
     color: var(--bs-body-color, #172433);
+    font-size: .72rem;
     line-height: 1.4;
 }
 
@@ -4299,8 +4387,13 @@ html.theme-silver .home-quick-icon {
         display: none;
     }
 
-    .home-featured-panels {
+    .home-featured-panels,
+    .home-featured-panels:not(:has(.home-inventory-player)) {
         grid-template-columns: minmax(0, 1fr);
+    }
+
+    .home-services {
+        height: 20rem;
     }
 
     .home-reviews {
