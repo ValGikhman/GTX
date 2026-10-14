@@ -1,0 +1,61 @@
+@{
+    var services = new[] {
+        new { Id = "tire-change", Key = "Home_TireChange" },
+        new { Id = "oil-change", Key = "Home_OilChange" },
+        new { Id = "alignment", Key = "Home_Alignment" },
+        new { Id = "detailing", Key = "Home_Detailing" },
+        new { Id = "car-wash", Key = "Home_CarWash" }
+    };
+    const string servicesUrl = "https://carcare.usedcarscincinnati.com/services";
+}
+<section id="homeServicesPlayer" class="carousel slide home-services" data-bs-ride="carousel" data-bs-interval="5500" data-bs-pause="hover" aria-labelledby="homeServicesTitle" aria-roledescription="carousel">
+    <div class="home-services-heading home-panel-heading">
+        <h2 id="homeServicesTitle" class="home-panel-title"><i class="bi bi-tools" aria-hidden="true"></i>@I18n.R("Home_Services")</h2>
+        <button type="button" class="home-inventory-player-button" data-services-toggle
+                data-play-label="@I18n.R("Home_PlayServices")" data-pause-label="@I18n.R("Home_PauseServices")"
+                aria-label="@I18n.R("Home_PlayServices")">
+            <i class="bi bi-play-fill" aria-hidden="true"></i>
+        </button>
+    </div>
+    <div class="carousel-inner">
+        @for (var index = 0; index < services.Length; index++)
+        {
+            var service = services[index];
+            <article class="carousel-item @(index == 0 ? "active" : string.Empty)">
+                <a class="home-service-ad" href="@(servicesUrl + "#" + service.Id)" target="_blank" rel="noopener">
+                    <img src="@Url.Content("~/Content/images/carcare/care-" + service.Id + "-480.jpg")" alt="" width="480" height="320" loading="@(index == 0 ? "eager" : "lazy")" decoding="async" />
+                    <div class="home-service-copy">
+                        <small>GTX Car Care Center</small>
+                        <h3>@I18n.R(service.Key)</h3>
+                    </div>
+                </a>
+            </article>
+        }
+    </div>
+    <button type="button" class="carousel-control-prev home-inventory-control" data-bs-target="#homeServicesPlayer" data-bs-slide="prev" aria-label="@I18n.R("Home_PreviousService")"><i class="bi bi-chevron-left" aria-hidden="true"></i></button>
+    <button type="button" class="carousel-control-next home-inventory-control" data-bs-target="#homeServicesPlayer" data-bs-slide="next" aria-label="@I18n.R("Home_NextService")"><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+</section>
+<script>
+    $(function () {
+        var panel = document.getElementById("homeServicesPlayer");
+        if (!panel || !window.bootstrap || !bootstrap.Carousel) return;
+        var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+        var player = bootstrap.Carousel.getOrCreateInstance(panel, {
+            interval: 5500,
+            ride: "carousel",
+            pause: "hover",
+            touch: true,
+            wrap: true
+        });
+        var toggle = panel.querySelector("[data-services-toggle]");
+        var playing = !reducedMotion.matches;
+        function update() {
+            if (playing) player.cycle(); else player.pause();
+            toggle.setAttribute("aria-label", toggle.getAttribute(playing ? "data-pause-label" : "data-play-label"));
+            toggle.querySelector("i").className = playing ? "bi bi-pause-fill" : "bi bi-play-fill";
+        }
+        $(toggle).on("click", function () { playing = !playing; update(); });
+        reducedMotion.addEventListener("change", function () { playing = !reducedMotion.matches; update(); });
+        update();
+    });
+</script>
