@@ -768,6 +768,69 @@ html[data-background-theme="dark"] #menuAboutMobile .btn-outline-dark {
     }
 }
 
+/* Inventory add/edit shares the page's dark palette, including readonly fields. */
+html[data-background-theme="dark"] .majordome-editor-body {
+    background: linear-gradient(180deg, var(--gtx-page-bg), var(--bs-body-bg));
+    color: var(--bs-body-color);
+    scrollbar-color: var(--bs-secondary-color) transparent;
+}
+
+html[data-background-theme="dark"] .majordome-editor-body::-webkit-scrollbar-thumb {
+    background: var(--bs-secondary-color);
+}
+
+html[data-background-theme="dark"] .majordome-editor-body::-webkit-scrollbar-thumb:hover {
+    background: var(--bs-body-color);
+}
+
+html[data-background-theme="dark"] .majordome-editor-section {
+    --majordome-editor-section-color: #5eead4;
+    background: var(--bs-body-bg);
+    border-color: var(--bs-border-color);
+    border-left-color: var(--majordome-editor-section-color);
+}
+
+html[data-background-theme="dark"] .majordome-editor-section-pricing {
+    --majordome-editor-section-color: #facc15;
+}
+
+html[data-background-theme="dark"] .majordome-editor-section-mechanical {
+    --majordome-editor-section-color: #cbd5e1;
+}
+
+html[data-background-theme="dark"] .majordome-editor-section-dates {
+    --majordome-editor-section-color: #a5b4fc;
+}
+
+html[data-background-theme="dark"] .majordome-editor-section-title {
+    border-bottom-color: var(--bs-border-color);
+}
+
+html[data-background-theme="dark"] .majordome-editor-modal .form-label,
+html[data-background-theme="dark"] .majordome-editor-label-icon {
+    color: var(--bs-secondary-color);
+}
+
+html[data-background-theme="dark"] .majordome-editor-modal :is(.form-control, .form-select) {
+    background-color: var(--bs-tertiary-bg);
+    color: var(--bs-body-color);
+    border-color: var(--bs-border-color);
+}
+
+html[data-background-theme="dark"] .majordome-editor-modal :is(.form-control, .form-select):is(:hover, :focus) {
+    border-color: var(--bs-secondary-color);
+}
+
+html[data-background-theme="dark"] .majordome-editor-modal :is(.majordome-editor-stock-locked, .form-control:disabled, .form-select:disabled) {
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-secondary-color);
+}
+
+html[data-background-theme="dark"] .majordome-editor-footer {
+    background: var(--bs-body-bg);
+    border-top-color: var(--bs-border-color);
+}
+
 /* Vehicle utility buttons use dark surfaces instead of silver gradients. */
 html[class][data-background-theme="dark"] body .vdp-utility-actions .btn.btn-gradient-grey {
     color: #fff !important;
