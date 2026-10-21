@@ -79,6 +79,43 @@ html.theme-metallica .inventory-dashboard {
     box-shadow: 0 .55rem 1.4rem rgba(15, 23, 42, .07);
 }
 
+.inventory-dashboard-filter-chip {
+    border-color: var(--dashboard-chip-color);
+    background: color-mix(in srgb, var(--dashboard-chip-color) 15%, var(--dashboard-surface));
+    color: var(--dashboard-ink);
+}
+
+.inventory-dashboard-filter-chip:hover,
+.inventory-dashboard-filter-chip:focus-visible {
+    border-color: var(--dashboard-chip-color);
+    background: color-mix(in srgb, var(--dashboard-chip-color) 28%, var(--dashboard-surface));
+    color: var(--dashboard-ink);
+}
+
+.inventory-dashboard-filter-chip::before {
+    content: "";
+    display: inline-block;
+    width: .5rem;
+    height: .5rem;
+    margin-right: .4rem;
+    border-radius: 50%;
+    background: var(--dashboard-chip-color);
+    vertical-align: middle;
+}
+
+.inventory-dashboard-filter-controls {
+    min-width: 0;
+    max-width: 100%;
+    margin-left: auto;
+    padding-block: .2rem;
+}
+
+#inventoryDashboardFilterChips {
+    min-width: 0;
+    overflow-x: auto;
+    padding-block: .2rem;
+}
+
 .inventory-dashboard-period-control {
     grid-column: 1 / -1;
     display: flex;
@@ -856,10 +893,6 @@ html.theme-metallica .inventory-dashboard {
     .inventory-dashboard-grid-header {
         align-items: stretch;
         flex-direction: column;
-    }
-
-    #inventoryDashboardClearStatus {
-        width: 100%;
     }
 
     .inventory-dashboard .majordome-thumb {

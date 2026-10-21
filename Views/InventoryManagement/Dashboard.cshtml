@@ -31,10 +31,13 @@
                             <option value="60">Last 60 days</option>
                         </select>
                     </div>
-                    <button type="button" id="inventoryDashboardClearStatus" class="btn btn-outline-secondary btn-sm shadow-sm rounded-pill d-none align-self-end">
-                        <i class="bi bi-x-circle me-1" aria-hidden="true"></i>
-                        Clear filters
-                    </button>
+                    <div class="inventory-dashboard-filter-controls d-flex align-items-center gap-2">
+                        <div id="inventoryDashboardFilterChips" class="d-flex flex-nowrap gap-2" role="group" aria-label="Applied filters"></div>
+                        <button type="button" id="inventoryDashboardClearStatus" class="btn btn-outline-secondary btn-sm shadow-sm rounded-pill align-self-center flex-shrink-0 text-nowrap">
+                            <i class="bi bi-x-circle me-1" aria-hidden="true"></i>
+                            Clear filters
+                        </button>
+                    </div>
                 </div>
                 <article class="inventory-dashboard-card inventory-dashboard-graph-card" aria-labelledby="inventoryDashboardStatusTitle">
                     <div class="inventory-dashboard-card-header">
@@ -1114,8 +1117,8 @@
 
             function renderStatusBreakdown(data) {
                 const statuses = getDashboardStatuses(data);
-                const currentStatuses = getDashboardCurrentStatuses(data);
-                const currentTotal = currentStatuses.reduce(function (sum, status) {
+                // Current status counts already exclude sold vehicles.
+                const currentTotal = getDashboardCurrentStatuses(data).reduce(function (sum, status) {
                     return sum + asNumber(valueOf(status, "VehicleCount", 0));
                 }, 0);
                 const graphTotal = statuses.reduce(function (sum, status) {
@@ -1843,7 +1846,6 @@
                     return buildDashboardGridRow(vehicle, index);
                 });
 
-                $("#inventoryDashboardClearStatus").toggleClass("d-none", activeStatusCode === null && activeLocationCode === null && activeTimeTermKey === null && activeTrendDateKey === null && !searchFilterText);
                 $("#inventoryDashboardStatusEmpty").text(searchFilterText
                     ? "No vehicles match the selected filters or search."
                     : (activeTrendDateKey !== null
@@ -1857,10 +1859,10 @@
                     },
                     onSearchChange: function (detail) {
                         activeDashboardSearchText = dashboardText(detail && detail.term);
+                        renderDashboardFilterChips(dashboardFor(currentDashboardDays));
                         if (window.gtxInventorySearch) {
                             window.gtxInventorySearch.writeStoredTerm(activeDashboardSearchText);
                         }
-                        $("#inventoryDashboardClearStatus").toggleClass("d-none", activeStatusCode === null && activeLocationCode === null && activeTimeTermKey === null && activeTrendDateKey === null && !activeDashboardSearchText);
                     }
                 })) {
                     console.error("Inventory Dashboard addGrid could not be initialized.");
@@ -2094,6 +2096,41 @@
                 return null;
             }
 
+            function renderDashboardFilterChips(data) {
+                const $chips = $("#inventoryDashboardFilterChips").empty();
+                function addChip(key, label, color) {
+                    $("<button>", {
+                        type: "button",
+                        class: "btn btn-outline-secondary btn-sm rounded-pill inventory-dashboard-filter-chip flex-shrink-0 text-nowrap",
+                        "data-filter-key": key,
+                        "aria-label": "Remove " + label
+                    }).css("--dashboard-chip-color", color || "#6c757d").text(label + " ").append($("<i>", {
+                        class: "bi bi-x-lg ms-1",
+                        "aria-hidden": "true"
+                    })).appendTo($chips);
+                }
+                if (activeStatusCode !== null) {
+                    const statuses = getDashboardStatuses(data);
+                    const index = statuses.findIndex(function (status) { return getStatusCode(status) === activeStatusCode; });
+                    const color = index >= 0
+                        ? statusColor(statuses[index], index)
+                        : dashboardStatusTrendColor(activeStatusCode, data, 0);
+                    addChip("status", dashboardStatusLabelFromCode(activeStatusCode, data), color);
+                }
+                if (activeLocationCode !== null) {
+                    const locations = valueOf(data, "LocationCounts", []) || [];
+                    const index = locations.findIndex(function (location) {
+                        return normalizeLocationFilterCode(valueOf(location, "LocationCode", "N/A")) === activeLocationCode;
+                    });
+                    addChip("location", activeLocationCode, locationBadgeInfo(activeLocationCode, Math.max(index, 0)).color);
+                }
+                const term = timeTerms.find(function (item) { return item.key === activeTimeTermKey; });
+                if (term) addChip("time", term.label, term.color);
+                if (activeTrendDateKey !== null) addChip("date", formatDashboardShortDate(activeTrendDateKey));
+                if (activeDashboardSearchText.trim()) addChip("search", activeDashboardSearchText.trim());
+                $chips.toggleClass("d-none", !$chips.children().length);
+            }
+
             function renderDashboard(days) {
                 currentDashboardDays = (days || "7").toString();
                 const data = dashboardFor(days);
@@ -2108,6 +2145,7 @@
                 renderLocations(data);
                 renderTimeTerms(data);
                 renderStatusGrid(data);
+                renderDashboardFilterChips(data);
             }
 
             function loadDashboard(days, forceRefresh) {
@@ -2213,9 +2251,9 @@
                     if (!statuses.length) return;
 
                     event.preventDefault();
-                    const firstStatusCode = activeStatusCode === null
-                        ? getStatusCode(statuses[0])
-                        : activeStatusCode;
+                    const firstStatusCode = statusExists(statuses, activeStatusCode)
+                        ? activeStatusCode
+                        : getStatusCode(statuses[0]);
                     setActiveStatus(firstStatusCode);
                 });
                 $("#inventoryDashboardLocationDonut").on("click", function (event) {
@@ -2239,6 +2277,24 @@
                     if (event.key !== "Enter" && event.key !== " ") return;
                     event.preventDefault();
                     setActiveTimeTerm(activeTimeTermKey === null ? timeTerms[0].key : activeTimeTermKey);
+                });
+                $("#inventoryDashboardFilterChips").on("click", "[data-filter-key]", function () {
+                    const key = $(this).attr("data-filter-key");
+                    if (key === "status") {
+                        activeStatusCode = null;
+                        activeTrendDateKey = null;
+                    } else if (key === "location") {
+                        activeLocationCode = null;
+                    } else if (key === "time") {
+                        activeTimeTermKey = null;
+                    } else if (key === "date") {
+                        activeTrendDateKey = null;
+                    } else if (key === "search") {
+                        activeDashboardSearchText = "";
+                        if (window.gtxInventorySearch) window.gtxInventorySearch.writeStoredTerm("");
+                        if (window.inventoryDashboardAddGrid) window.inventoryDashboardAddGrid.setSearch("");
+                    }
+                    renderDashboard(currentDashboardDays);
                 });
                 $("#inventoryDashboardClearStatus").on("click", function () {
                     activeStatusCode = null;
