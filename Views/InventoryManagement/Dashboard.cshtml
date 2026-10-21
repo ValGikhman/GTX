@@ -1311,13 +1311,18 @@
             }
 
             function renderTimeTerms(data) {
-                const vehicles = getDashboardVehicles(data).filter(isDashboardVehicleCurrent);
+                const counts = {};
+                getDashboardVehicles(data).forEach(function (vehicle) {
+                    if (!isDashboardVehicleCurrent(vehicle)) return;
+                    const key = vehicleTimeTermKey(vehicle);
+                    if (key !== null) counts[key] = (counts[key] || 0) + 1;
+                });
                 const terms = timeTerms.map(function (term) {
                     return {
                         key: term.key,
                         label: term.label,
                         color: term.color,
-                        count: vehicles.filter(function (vehicle) { return vehicleTimeTermKey(vehicle) === term.key; }).length
+                        count: counts[term.key] || 0
                     };
                 });
                 const total = terms.reduce(function (sum, term) { return sum + term.count; }, 0);
@@ -2251,7 +2256,7 @@
                     if (!statuses.length) return;
 
                     event.preventDefault();
-                    const firstStatusCode = statusExists(statuses, activeStatusCode)
+                    const firstStatusCode = activeStatusCode !== null && statusExists(statuses, activeStatusCode)
                         ? activeStatusCode
                         : getStatusCode(statuses[0]);
                     setActiveStatus(firstStatusCode);
