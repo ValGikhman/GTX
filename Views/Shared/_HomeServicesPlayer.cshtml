@@ -1,9 +1,21 @@
 @{
     var services = new[] {
-        new { Id = "tire-change", Key = "Home_TireChange" },
-        new { Id = "oil-change", Key = "Home_OilChange" },
-        new { Id = "detailing", Key = "Home_Detailing" },
-        new { Id = "car-wash", Key = "Home_CarWash" }
+        new { Id = "ac-service", ImageId = "ac-service", Key = "Home_Service_ac_service" },
+        new { Id = "body-shop", ImageId = "body-shop", Key = "Home_Service_body_shop" },
+        new { Id = "brake-service", ImageId = "brake-service", Key = "Home_Service_brake_service" },
+        new { Id = "computer-diagnostic", ImageId = "computer-diagnostic", Key = "Home_Service_computer_diagnostic" },
+        new { Id = "electrical-repair", ImageId = "electrical-repair", Key = "Home_Service_electrical_repair" },
+        new { Id = "engine-repair", ImageId = "engine-repair", Key = "Home_Service_engine_repair" },
+        new { Id = "exhaust-system", ImageId = "exhaust-system", Key = "Home_Service_exhaust_system" },
+        new { Id = "heating-system", ImageId = "heating-system", Key = "Home_Service_heating_system" },
+        new { Id = "hybrid-repair", ImageId = "hybrid-repair", Key = "Home_Service_hybrid_repair" },
+        new { Id = "oil-change", ImageId = "oil-change", Key = "Home_Service_oil_change" },
+        new { Id = "cooling-system", ImageId = "cooling-system", Key = "Home_Service_cooling_system" },
+        new { Id = "suspension-service", ImageId = "suspension-service", Key = "Home_Service_suspension_service" },
+        new { Id = "tire-change", ImageId = "tire-change", Key = "Home_Service_tire_change" },
+        new { Id = "transmission-service", ImageId = "transmission-service", Key = "Home_Service_transmission_service" },
+        new { Id = "vehicle-inspections", ImageId = "vehicle-inspections", Key = "Home_Service_vehicle_inspections" },
+        new { Id = "detailing", ImageId = "car-wash", Key = "Home_Service_detailing" }
     };
     const string servicesUrl = "https://carcare.usedcarscincinnati.com/services";
 }
@@ -20,9 +32,9 @@
         @for (var index = 0; index < services.Length; index++)
         {
             var service = services[index];
-            <article class="carousel-item @(index == 0 ? "active" : string.Empty)">
-                <a class="home-service-ad" href="@(servicesUrl + "#" + service.Id)" target="_blank" rel="noopener">
-                    <img src="@Url.Content("~/Content/images/carcare/care-" + service.Id + "-480.jpg")" alt="" width="480" height="320" loading="@(index == 0 ? "eager" : "lazy")" decoding="async" />
+            <article class="carousel-item @(index == 0 ? "active" : string.Empty)" aria-roledescription="slide" aria-label="@(index + 1) / @services.Length">
+                <a class="home-service-ad" href="@(servicesUrl + "/" + service.Id)" target="_blank" rel="noopener">
+                    <img src="@Url.Content("~/Content/images/carcare/care-" + service.ImageId + "-480.jpg?v=20261031")" alt="" width="480" height="320" loading="@(index == 0 ? "eager" : "lazy")" decoding="async" />
                     <div class="home-service-copy">
                         <small>GTX Car Care Center</small>
                         <h3>@I18n.R(service.Key)</h3>
