@@ -1,0 +1,72 @@
+@{
+    var services = new[] {
+        new { Id = "ac-service", ImageId = "ac-service", Key = "Home_Service_ac_service" },
+        new { Id = "body-shop", ImageId = "body-shop", Key = "Home_Service_body_shop" },
+        new { Id = "brake-service", ImageId = "brake-service", Key = "Home_Service_brake_service" },
+        new { Id = "computer-diagnostic", ImageId = "computer-diagnostic", Key = "Home_Service_computer_diagnostic" },
+        new { Id = "electrical-repair", ImageId = "electrical-repair", Key = "Home_Service_electrical_repair" },
+        new { Id = "engine-repair", ImageId = "engine-repair", Key = "Home_Service_engine_repair" },
+        new { Id = "exhaust-system", ImageId = "exhaust-system", Key = "Home_Service_exhaust_system" },
+        new { Id = "heating-system", ImageId = "heating-system", Key = "Home_Service_heating_system" },
+        new { Id = "hybrid-repair", ImageId = "hybrid-repair", Key = "Home_Service_hybrid_repair" },
+        new { Id = "oil-change", ImageId = "oil-change", Key = "Home_Service_oil_change" },
+        new { Id = "cooling-system", ImageId = "cooling-system", Key = "Home_Service_cooling_system" },
+        new { Id = "suspension-service", ImageId = "suspension-service", Key = "Home_Service_suspension_service" },
+        new { Id = "tire-change", ImageId = "tire-change", Key = "Home_Service_tire_change" },
+        new { Id = "transmission-service", ImageId = "transmission-service", Key = "Home_Service_transmission_service" },
+        new { Id = "vehicle-inspections", ImageId = "vehicle-inspections", Key = "Home_Service_vehicle_inspections" },
+        new { Id = "detailing", ImageId = "car-wash", Key = "Home_Service_detailing" }
+    };
+    const string servicesUrl = "https://carcare.usedcarscincinnati.com/services";
+}
+<section id="homeServicesPlayer" class="carousel slide home-services" data-bs-ride="carousel" data-bs-interval="5500" data-bs-pause="hover" aria-labelledby="homeServicesTitle" aria-roledescription="carousel">
+    <div class="home-services-heading home-panel-heading">
+        <h2 id="homeServicesTitle" class="home-panel-title"><i class="bi bi-tools" aria-hidden="true"></i>@I18n.R("Home_Services")</h2>
+        <button type="button" class="home-inventory-player-button" data-services-toggle
+                data-play-label="@I18n.R("Home_PlayServices")" data-pause-label="@I18n.R("Home_PauseServices")"
+                aria-label="@I18n.R("Home_PlayServices")">
+            <i class="bi bi-play-fill" aria-hidden="true"></i>
+        </button>
+    </div>
+    <div class="carousel-inner">
+        @for (var index = 0; index < services.Length; index++)
+        {
+            var service = services[index];
+            <article class="carousel-item @(index == 0 ? "active" : string.Empty)" aria-roledescription="slide" aria-label="@(index + 1) / @services.Length">
+                <a class="home-service-ad" href="@(servicesUrl + "/" + service.Id)" target="_blank" rel="noopener">
+                    <img src="@Url.Content("~/Content/images/carcare/care-" + service.ImageId + "-480.jpg?v=20261031")" alt="" width="480" height="320" loading="@(index == 0 ? "eager" : "lazy")" decoding="async" />
+                    <div class="home-service-copy">
+                        <small>GTX Car Care Center</small>
+                        <h3>@I18n.R(service.Key)</h3>
+                    </div>
+                </a>
+            </article>
+        }
+    </div>
+    <button type="button" class="carousel-control-prev home-inventory-control" data-bs-target="#homeServicesPlayer" data-bs-slide="prev" aria-label="@I18n.R("Home_PreviousService")"><i class="bi bi-chevron-left" aria-hidden="true"></i></button>
+    <button type="button" class="carousel-control-next home-inventory-control" data-bs-target="#homeServicesPlayer" data-bs-slide="next" aria-label="@I18n.R("Home_NextService")"><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+</section>
+<script>
+    $(function () {
+        var panel = document.getElementById("homeServicesPlayer");
+        if (!panel || !window.bootstrap || !bootstrap.Carousel) return;
+        var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+        var player = bootstrap.Carousel.getOrCreateInstance(panel, {
+            interval: 5500,
+            ride: "carousel",
+            pause: "hover",
+            touch: true,
+            wrap: true
+        });
+        var toggle = panel.querySelector("[data-services-toggle]");
+        var playing = !reducedMotion.matches;
+        function update() {
+            if (playing) player.cycle(); else player.pause();
+            toggle.setAttribute("aria-label", toggle.getAttribute(playing ? "data-pause-label" : "data-play-label"));
+            toggle.querySelector("i").className = playing ? "bi bi-pause-fill" : "bi bi-play-fill";
+        }
+        $(toggle).on("click", function () { playing = !playing; update(); });
+        reducedMotion.addEventListener("change", function () { playing = !reducedMotion.matches; update(); });
+        update();
+    });
+</script>

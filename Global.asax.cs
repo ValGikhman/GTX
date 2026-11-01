@@ -183,7 +183,7 @@ namespace GTX
 
     public static class CultureHelper
     {
-        private static readonly string[] Supported = { "en", "es", "ua" }; // add more later
+        private static readonly string[] Supported = { "en", "es", "ua", "fr" };
         private const string DefaultCulture = "en";
 
         public static string GetCultureFromRequest(HttpRequest request)

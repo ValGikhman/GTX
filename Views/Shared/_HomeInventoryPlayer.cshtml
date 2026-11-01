@@ -105,19 +105,19 @@
                             <dl class="home-inventory-specs">
                                 <div>
                                     <dt><i class="bi bi-speedometer2" aria-hidden="true"></i> @I18n.R("Home_Miles")</dt>
-                                    <dd>@vehicle.Mileage.ToString("N0", usCulture)</dd>
+                                    <dd class="text-center">@vehicle.Mileage.ToString("N0", usCulture)</dd>
                                 </div>
                                 <div>
                                     <dt><i class="bi bi-gear-wide-connected" aria-hidden="true"></i> @I18n.R("Home_Cylinders")</dt>
-                                    <dd>@(vehicle.Cylinders > 0 ? vehicle.Cylinders.ToString() : I18n.R("Home_NotAvailable"))</dd>
+                                    <dd class="text-center">@(vehicle.Cylinders > 0 ? vehicle.Cylinders.ToString() : I18n.R("Home_NotAvailable"))</dd>
                                 </div>
                                 <div>
                                     <dt><i class="bi bi-lightning-charge" aria-hidden="true"></i> @I18n.R("Home_Engine")</dt>
-                                    <dd title="@engine">@engine</dd>
+                                    <dd class="text-center" title="@engine">@engine</dd>
                                 </div>
                                 <div>
                                     <dt><i class="bi bi-shuffle" aria-hidden="true"></i> @I18n.R("Home_Transmission")</dt>
-                                    <dd title="@transmission">@(string.IsNullOrWhiteSpace(transmission) ? I18n.R("Home_NotAvailable") : transmission)</dd>
+                                    <dd class="text-center" title="@transmission">@(string.IsNullOrWhiteSpace(transmission) ? I18n.R("Home_NotAvailable") : transmission)</dd>
                                 </div>
                             </dl>
                         </div>

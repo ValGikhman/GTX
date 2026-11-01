@@ -607,7 +607,7 @@ namespace GTX.Controllers
                 .ToArray();
             if (stocks.Length == 0) return null;
 
-            return Url.Action("All", "Inventory", new { stocks = string.Join(",", stocks) });
+            return Url.Action("All", "Inventory", new { results = ChatInventoryResults.Store(stocks) });
         }
 
         private static void CaptureVehicleResults(

@@ -131,7 +131,15 @@
             exportToPdf: false,
             groupable: false,
             alternateRows: true,
-            onRender: function (detail) { invoke('onRender', detail); },
+            onRender: function (detail) {
+                const $header = $grid.closest('.inventory-dashboard-grid-card').find('.inventory-dashboard-grid-header');
+                const $searchBar = $grid.find('.pg-search-bar');
+                if ($header.length && $searchBar.length) {
+                    $header.find('.inventory-dashboard-grid-title-wrap').prependTo($searchBar);
+                    $header.remove();
+                }
+                invoke('onRender', detail);
+            },
             onSearchChange: function (detail) { invoke('onSearchChange', detail); },
             onFilterChange: function (detail) { invoke('onFilterChange', detail); },
             onSortChange: function (detail) { invoke('onSortChange', detail); },

@@ -10,7 +10,7 @@ namespace GTX.Controllers
         public ActionResult SetLanguage(string lang)
         {
             var normalizedLang = (lang ?? string.Empty).Trim().ToLowerInvariant();
-            if (normalizedLang != "en" && normalizedLang != "es" && normalizedLang != "ua")
+            if (normalizedLang != "en" && normalizedLang != "es" && normalizedLang != "ua" && normalizedLang != "fr")
             {
                 normalizedLang = "en";
             }

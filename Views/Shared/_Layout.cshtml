@@ -621,6 +621,10 @@
                                     flagSrc = SiteImageUrl.Build("flags/es.svg");
                                     break;
 
+                                case "fr":
+                                    flagSrc = Url.Content("~/Content/images/flags/fr.svg");
+                                    break;
+
                                 case "ua":
                                     flagSrc = SiteImageUrl.Build("flags/ua.svg");
                                     break;
@@ -667,6 +671,16 @@
                                     &#x423;&#x43A;&#x440;&#x430;&#x457;&#x43D;&#x441;&#x44C;&#x43A;&#x430;
                                 </span>
                                 @if (current == "ua")
+                                {<i class="bi bi-check2 text-success"></i>}
+                            </button>
+                            <button type="button"
+                                    class="dropdown-item d-flex align-items-center justify-content-between rounded-3 @(current=="fr" ? "active" : "")"
+                                    onclick="setLang('fr')">
+                                <span class="d-flex align-items-center gap-2">
+                                    <img src="@Url.Content("~/Content/images/flags/fr.svg")" width="22" height="22" class="rounded-1 shadow-sm" alt="Fran&#231;ais" />
+                                    Fran&#231;ais
+                                </span>
+                                @if (current == "fr")
                                 {<i class="bi bi-check2 text-success"></i>}
                             </button>
                         </div>
