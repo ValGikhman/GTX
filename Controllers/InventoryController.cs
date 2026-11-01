@@ -260,11 +260,23 @@ namespace GTX.Controllers
         }
 
         [HttpGet]
-        public ActionResult All(string make, int? maximumYear, string color, string stocks) {
+        public ActionResult All(string make, int? maximumYear, string color, string stocks, string results = null) {
             var vehicles = Model?.Inventory?.All ?? Array.Empty<Models.GTX>();
-            ViewBag.HasChatbotStockFilter = !string.IsNullOrWhiteSpace(stocks);
+            ViewBag.HasChatbotStockFilter = !string.IsNullOrWhiteSpace(stocks) || results != null;
 
-            if (!string.IsNullOrWhiteSpace(stocks)) {
+            if (results != null) {
+                var snapshot = ChatInventoryResults.Find(results);
+                if (snapshot == null) {
+                    Response.StatusCode = (int)HttpStatusCode.Gone;
+                    Response.TrySkipIisCustomErrors = true;
+                    return Content("These search results have expired. Please return to the chatbot and repeat your vehicle search.", "text/plain");
+                }
+                var requestedStocks = new HashSet<string>(snapshot, StringComparer.OrdinalIgnoreCase);
+                vehicles = vehicles
+                    .Where(vehicle => vehicle != null && requestedStocks.Contains(vehicle.Stock ?? string.Empty))
+                    .ToArray();
+            }
+            else if (!string.IsNullOrWhiteSpace(stocks)) {
                 var requestedStocks = new HashSet<string>(
                     stocks.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                         .Select(stock => stock.Trim())
