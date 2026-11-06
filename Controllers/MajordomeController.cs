@@ -26,7 +26,7 @@ using System.Web.Mvc;
 namespace GTX.Controllers
 {
     [RequireAdminRole]
-    public class MajordomeController : BaseController {
+    public partial class MajordomeController : BaseController {
 
         private const int UploadImageMaxWidth = 800;
         private const int UploadImageMaxHeight = 600;

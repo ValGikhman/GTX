@@ -1,0 +1,46 @@
+@model string
+@{
+    var headingId = Model + "-vehicle-title";
+}
+<section class="pr-market-overview" aria-labelledby="@headingId" data-appraisal-market-overview>
+    <header class="pr-market-heading">
+        <div class="pr-vehicle-identity">
+            <span class="pr-section-icon" aria-hidden="true"><i class="bi bi-car-front"></i></span>
+            <div>
+                <span class="pr-eyebrow">Market overview</span>
+                <h2 id="@headingId" data-appraisal-vehicle-title>Vehicle price research</h2>
+                <p id="@(Model + "-request-summary")" data-appraisal-request-summary></p>
+            </div>
+        </div>
+        <div class="pr-market-estimate">
+            <span>MarketCheck estimate
+                <button type="button" class="btn appraisal-metric-help" data-appraisal-help aria-label="About the MarketCheck estimate"
+                        data-bs-title="MarketCheck estimate" data-bs-content="Suggested retail value for this VIN using the entered mileage, ZIP, and independent-dealer setting. It is a model estimate rather than a dealer asking price."><i class="bi bi-question-circle" aria-hidden="true"></i></button>
+            </span>
+            <strong id="@(Model + "-prediction")" data-appraisal-prediction>—</strong>
+        </div>
+    </header>
+    <div class="research-metrics" aria-label="Price research summary">
+        <div class="research-metric">
+            <span>Current asking-price mean
+                <button type="button" class="btn appraisal-metric-help" data-appraisal-help aria-label="About the current asking-price mean"
+                        data-bs-title="Current asking-price mean" data-bs-content="Average advertised price of priced Current comparables within the selected radius. It excludes the appraised VIN and makes no adjustments for mileage or condition. Asking prices can differ from final sale prices."><i class="bi bi-question-circle" aria-hidden="true"></i></button>
+            </span>
+            <strong id="@(Model + "-local-mean")" data-appraisal-local-mean>—</strong>
+        </div>
+        <div class="research-metric">
+            <span>Current within radius
+                <button type="button" class="btn appraisal-metric-help" data-appraisal-help aria-label="About current comparables within radius"
+                        data-bs-title="Current within radius" data-bs-content="Number of active comparable listings returned for this appraisal within the selected radius. The count excludes the appraised VIN and listings with unknown distances. Use Current in the comparables grid to see the listings."><i class="bi bi-question-circle" aria-hidden="true"></i></button>
+            </span>
+            <strong id="@(Model + "-current-count")" data-appraisal-current-count>0</strong>
+        </div>
+        <div class="research-metric">
+            <span>Recent within radius
+                <button type="button" class="btn appraisal-metric-help" data-appraisal-help aria-label="About recent comparables within radius"
+                        data-bs-title="Recent within radius" data-bs-content="Number of recent comparable listings returned for this appraisal within the selected radius. The count excludes the appraised VIN and listings with unknown distances. Use Recent in the comparables grid to see earlier advertised prices. A listing in this group does not confirm a sale."><i class="bi bi-question-circle" aria-hidden="true"></i></button>
+            </span>
+            <strong id="@(Model + "-recent-count")" data-appraisal-recent-count>0</strong>
+        </div>
+    </div>
+</section>

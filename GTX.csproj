@@ -274,6 +274,7 @@
     <Compile Include="Common\AppCache.cs" />
     <Compile Include="Common\Attributes.cs" />
     <Compile Include="Common\ChatBotSettings.cs" />
+    <Compile Include="Common\ChatAuctionAppraisal.cs" />
     <Compile Include="Common\ChatInventoryResults.cs" />
     <Compile Include="Common\ChatBotNavigationCatalog.cs" />
     <Compile Include="Common\CloudflareCachePurger.cs" />
@@ -292,12 +293,14 @@
     <Compile Include="Models\SpecialModel.cs" />
     <Compile Include="Utility\SpecialsService.cs" />
     <Compile Include="Controllers\ChatController.cs" />
+    <Compile Include="Controllers\ChatProgressController.cs" />
     <Compile Include="Controllers\ChatBotCommandsController.cs" />
     <Compile Include="Controllers\EmployeesController.cs" />
     <Compile Include="Controllers\HealthController.cs" />
     <Compile Include="Controllers\InventoryManagementController.cs" />
     <Compile Include="Controllers\LocalizationController.cs" />
     <Compile Include="Controllers\MajordomeController.cs" />
+    <Compile Include="Controllers\MajordomeController.Appraisal.cs" />
     <Compile Include="Controllers\ApiController.cs" />
     <Compile Include="Controllers\MobileManagementController.cs" />
     <Compile Include="Utility\MobileSessionStore.cs" />
@@ -382,6 +385,7 @@
     <Content Include="Content\Lightbox\minimal.css" />
     <Content Include="Content\magnific-popup.css" />
     <Content Include="Content\majordome.css" />
+    <Content Include="Content\majordome-appraisal.css" />
     <Content Include="Content\inventory-card.css" />
     <Content Include="Content\dataone-details.css" />
     <Content Include="Content\capital-one-buttons.css" />
@@ -548,6 +552,7 @@
     <Content Include="Scripts\inventory.js" />
     <Content Include="Scripts\inventory-dashboard-grid.js" />
     <Content Include="Scripts\majordome-inventory-grid.js" />
+    <Content Include="Scripts\majordome-inventory-appraisal.js" />
     <Content Include="Scripts\addTools\addEdit.js" />
     <Content Include="Scripts\addTools\addGrid.js" />
     <Content Include="Scripts\jquery.gtx-range-filter.js" />
@@ -610,6 +615,10 @@
     <Content Include="Scripts\Lightbox\lc_lightbox.lite.min.js" />
     <Content Include="Scripts\main.js" />
     <Content Include="Scripts\majordome.js" />
+    <Content Include="Scripts\majordome-appraisal.js" />
+    <Content Include="Scripts\majordome-appraisal-comparables.js" />
+    <Content Include="Scripts\majordome-appraisal-research.js" />
+    <Content Include="Scripts\majordome-appraisal-bid.js" />
     <Content Include="Scripts\mixitup.min.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
     <Content Include="Web.config" />
@@ -662,6 +671,12 @@
     <Content Include="Views\Shared\_MarketingHero.cshtml" />
     <Content Include="Views\Shared\_Carousel.cshtml" />
     <Content Include="Views\Majordome\Inventory.cshtml" />
+    <Content Include="Views\Majordome\Appraisal.cshtml" />
+    <Content Include="Views\Majordome\_AppraisalComparables.cshtml" />
+    <Content Include="Views\Majordome\_AppraisalResearchForm.cshtml" />
+    <Content Include="Views\Majordome\_AppraisalMarketOverview.cshtml" />
+    <Content Include="Views\Majordome\_AppraisalMarketDemand.cshtml" />
+    <Content Include="Views\Majordome\_InventoryAppraisalModal.cshtml" />
     <Content Include="Views\Majordome\_Majordome-Details.cshtml" />
     <Content Include="Views\Majordome\_Majordome-Gallery.cshtml" />
     <Content Include="Views\Majordome\_Majordome-Inventory.cshtml" />

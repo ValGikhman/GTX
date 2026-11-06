@@ -144,6 +144,7 @@ namespace GTX.Controllers
             var previousResponseId = NormalizeResponseId(request.PreviousResponseId);
             var message = request.Message.Trim();
             var currentRole = RoleCookie.GetCurrentRole(Request, Session);
+            Guid? progressId = Guid.TryParseExact(request.ProgressId, "N", out var requestId) ? requestId : (Guid?)null;
 
             try
             {
@@ -160,6 +161,22 @@ namespace GTX.Controllers
                     });
                 }
 
+                var appraisal = ChatAuctionAppraisal.ForRole(currentRole);
+                if (appraisal != null && ChatAuctionAppraisal.TryParseCommand(message, out var arguments, out var auction))
+                {
+                    Response.Cache.SetNoStore();
+                    ChatProgressController.StartMarket(progressId);
+                    var marketReply = await GetMarketReplyAsync(appraisal, arguments,
+                        auction ? ChatAuctionAppraisal.ToolName : ChatAuctionAppraisal.MarketPriceToolName);
+                    return Json(new ChatBotResponse
+                    {
+                        Success = true,
+                        PrivateReply = true,
+                        Reply = marketReply.ToPlainText(),
+                        MarketReply = marketReply
+                    });
+                }
+
                 var apiKey = ConfigurationManager.AppSettings["OpenAI:ApiKey"];
                 if (string.IsNullOrWhiteSpace(apiKey))
                 {
@@ -167,12 +184,15 @@ namespace GTX.Controllers
                     return Json(new ChatBotResponse { Success = false, Reply = "The assistant is temporarily unavailable. Please call (513) 489-2886." });
                 }
 
-                var result = await GetAssistantReplyAsync(apiKey, message, previousResponseId);
+                var result = await GetAssistantReplyAsync(apiKey, message, previousResponseId, appraisal, progressId);
+                if (result.PrivateReply) Response.Cache.SetNoStore();
                 return Json(new ChatBotResponse
                 {
                     Success = true,
                     Reply = result.Reply,
+                    MarketReply = result.MarketReply,
                     ResponseId = result.ResponseId,
+                    PrivateReply = result.PrivateReply,
                     TotalVehicleMatches = result.TotalVehicleMatches,
                     InventoryUrl = result.InventoryUrl,
                     Vehicles = result.Vehicles.ToArray()
@@ -187,6 +207,10 @@ namespace GTX.Controllers
             {
                 Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 return Json(new ChatBotResponse { Success = false, Reply = "Something went wrong. Please try again or contact our sales team." });
+            }
+            finally
+            {
+                ChatProgressController.Clear(progressId);
             }
         }
 
@@ -354,7 +378,16 @@ namespace GTX.Controllers
             return value.Length <= 300 ? value : value.Substring(0, 300).Trim();
         }
 
-        private async Task<AssistantResult> GetAssistantReplyAsync(string apiKey, string message, string previousResponseId)
+        private async Task<ChatMarketReply> GetMarketReplyAsync(ChatAuctionAppraisal appraisal, string arguments, string toolName)
+        {
+            var reply = await appraisal.ReplyAsync(arguments, toolName);
+            if (reply.AppraisalParameters != null)
+                reply.ViewUrl = Url.Action("Appraisal", "Majordome", reply.AppraisalParameters);
+            return reply;
+        }
+
+        private async Task<AssistantResult> GetAssistantReplyAsync(string apiKey, string message, string previousResponseId,
+            ChatAuctionAppraisal appraisal, Guid? progressId)
         {
             JArray input = new JArray(new JObject
             {
@@ -369,7 +402,7 @@ namespace GTX.Controllers
             string inventoryUrl = null;
             for (var round = 0; round < MaxToolRounds; round++)
             {
-                var payload = BuildOpenAiPayload(input, responseId, safetyIdentifier, includeTools: round == 0);
+                var payload = BuildOpenAiPayload(input, responseId, safetyIdentifier, includeTools: round == 0, appraisal: appraisal != null);
                 var response = await PostOpenAiAsync(apiKey, payload);
                 responseId = (string)response["id"];
 
@@ -393,6 +426,26 @@ namespace GTX.Controllers
                         TotalVehicleMatches = totalVehicleMatches,
                         InventoryUrl = inventoryUrl,
                         Vehicles = vehicleResults
+                    };
+                }
+
+                var appraisalCall = appraisal == null ? null : functionCalls.FirstOrDefault(call =>
+                    (string)call["name"] == ChatAuctionAppraisal.ToolName || (string)call["name"] == ChatAuctionAppraisal.MarketPriceToolName
+                    || (string)call["name"] == ChatAuctionAppraisal.MarketInventoryToolName
+                    || (string)call["name"] == ChatAuctionAppraisal.MarketListingsToolName);
+                if (appraisalCall != null)
+                {
+                    var toolName = (string)appraisalCall["name"];
+                    var arguments = (string)appraisalCall["arguments"];
+                    if (toolName == ChatAuctionAppraisal.MarketListingsToolName)
+                        arguments = ChatAuctionAppraisal.ApplyMarketMileage(arguments, message);
+                    ChatProgressController.StartMarket(progressId);
+                    var marketReply = await GetMarketReplyAsync(appraisal, arguments, toolName);
+                    return new AssistantResult
+                    {
+                        Reply = marketReply.ToPlainText(),
+                        MarketReply = marketReply,
+                        PrivateReply = true
                     };
                 }
 
@@ -450,7 +503,8 @@ namespace GTX.Controllers
             JArray input,
             string previousResponseId,
             string safetyIdentifier,
-            bool includeTools)
+            bool includeTools,
+            bool appraisal)
         {
             var model = ConfigurationManager.AppSettings["OpenAI:ChatModel"];
             if (string.IsNullOrWhiteSpace(model)) model = DefaultChatModel;
@@ -459,7 +513,9 @@ namespace GTX.Controllers
             var payload = new JObject
             {
                 ["model"] = model,
-                ["instructions"] = AssistantInstructions,
+                ["instructions"] = AssistantInstructions + (appraisal
+                    ? "\nFor signed-in dealership staff, use list_market_dealers when they say 'check market', 'list market', 'look at market', 'see in market', ask to list dealers carrying a particular vehicle, or ask for current or recent MarketCheck dealer listings. These phrases refer to MarketCheck, not GTX inventory. Accept a VIN or extract the year, make, model, and trim from a vehicle name. For 'List dealers with a 2017 Acura MDX Advance Package around 100,000 miles', pass year=2017, make=Acura, model=MDX, trim=Advance Package, miles=100000. Ask for the vehicle if missing. Use count_market_inventory for an explicit count of similar vehicles by VIN. Pass odometer miles and radius separately. Use get_market_price for a suggested price or plain 'Appraise VIN' and appraise_vehicle for explicit auction or bid analysis. Call exactly one MarketCheck tool. Leave ZIP, radius, and mileage out when omitted so the server uses its configured defaults."
+                    : ""),
                 ["input"] = input,
                 ["max_output_tokens"] = BoundedAppSetting("OpenAI:ChatMaxOutputTokens", 250, 100, 1000),
                 ["store"] = true,
@@ -470,6 +526,14 @@ namespace GTX.Controllers
             if (includeTools)
             {
                 payload["tools"] = AssistantTools.DeepClone();
+                if (appraisal)
+                {
+                    var tools = (JArray)payload["tools"];
+                    tools.Add(ChatAuctionAppraisal.Tool(ChatAuctionAppraisal.MarketPriceToolName));
+                    tools.Add(ChatAuctionAppraisal.Tool(ChatAuctionAppraisal.ToolName));
+                    tools.Add(ChatAuctionAppraisal.Tool(ChatAuctionAppraisal.MarketInventoryToolName));
+                    tools.Add(ChatAuctionAppraisal.Tool(ChatAuctionAppraisal.MarketListingsToolName));
+                }
                 payload["parallel_tool_calls"] = true;
             }
 
@@ -1588,7 +1652,9 @@ The variation seed is private and must never appear in the greeting.";
         private sealed class AssistantResult
         {
             public string Reply { get; set; }
+            public ChatMarketReply MarketReply { get; set; }
             public string ResponseId { get; set; }
+            public bool PrivateReply { get; set; }
             public int? TotalVehicleMatches { get; set; }
             public string InventoryUrl { get; set; }
             public List<ChatVehicleResult> Vehicles { get; set; } = new List<ChatVehicleResult>();

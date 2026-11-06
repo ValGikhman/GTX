@@ -356,6 +356,8 @@
             Convert.ToString(ViewBag.CurrentRole ?? string.Empty),
             CommonUnit.Roles.Blogger.ToString(),
             StringComparison.OrdinalIgnoreCase);
+        var canAppraise = isOwner || string.Equals(Convert.ToString(ViewBag.CurrentRole), CommonUnit.Roles.Manager.ToString(),
+            StringComparison.OrdinalIgnoreCase);
     }
 
     <!-- Header Section Begin -->
@@ -382,6 +384,10 @@
                                 {
                                 <li id="menuInventory">@Html.ActionLink("Majordome", "Inventory", "Majordome")</li>
                                 <li id="menuVinDecoder">@Html.ActionLink("Vindecoder", "Index", "Vindecoder")</li>
+                                if (canAppraise)
+                                {
+                                    <li id="menuAppraisal">@Html.ActionLink("Appraisal", "Appraisal", "Majordome")</li>
+                                }
                                 <li id="menuAnnouncements">@Html.ActionLink("Alerts", "Index", "Announcements")</li>
                                 }
                                 <li id="menuBlogs">@Html.ActionLink("Blogs", "Index", "Blogs")</li>
@@ -487,7 +493,7 @@
         </div>
 
         @{
-            if (ViewBag.Message != "Home")
+            if (ViewBag.Message != "Home" && !Equals(ViewData["SuppressPageTitle"], true))
             {
                 // @Html.Partial("_CategoryFilter")
                 @Html.Partial("_PageTitle")

@@ -1,10 +1,13 @@
 @{
     var chatRequestToken = GTX.Controllers.ChatController.GetOrCreateRequestToken(ViewContext.HttpContext.Session);
+    var chatRole = RoleCookie.GetCurrentRole(ViewContext.HttpContext.Request, ViewContext.HttpContext.Session);
+    var canAppraise = chatRole == CommonUnit.Roles.Owner || chatRole == CommonUnit.Roles.Manager;
 }
 <div id="gtxChatWidget"
      class="gtx-chat"
      data-greeting-url="@Url.Action("Greeting", "Chat")"
      data-message-url="@Url.Action("Message", "Chat")"
+     data-market-progress-url="@(canAppraise ? Url.Action("Market", "ChatProgress") : null)"
      data-lead-url="@Url.Action("SubmitLead", "Chat")"
      data-salespeople-url="@Url.Action("Salespeople", "Chat")"
      data-home-url="@Url.Action("Index", "Home")"
@@ -53,7 +56,7 @@
             </button>
         </header>
 
-        @Html.Partial("_ChatCommandGuide")
+        @Html.Partial("_ChatCommandGuide", canAppraise)
 
         <div class="gtx-chat-messages" data-chat-messages aria-live="polite" aria-relevant="additions"></div>
 
