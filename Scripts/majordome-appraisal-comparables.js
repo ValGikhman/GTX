@@ -31,10 +31,10 @@
             const distance = reportedDistance !== null && reportedDistance >= 0 ? reportedDistance : null;
             const subject = String(row.vin || '').toUpperCase() === request.Vin;
             const outsideRadius = distance !== null && distance > request.Radius;
-            const outsideMileage = miles !== null && Math.abs(miles - request.Miles) > 10000;
+            const outsideMileage = miles !== null && Math.abs(miles - request.Miles) > 20000;
             const original = !subject && distance !== null && !outsideRadius && miles !== null && !outsideMileage;
-            const scopeLabel = subject ? 'Appraised VIN' : outsideRadius && outsideMileage ? 'Wider radius + mileage'
-                : outsideRadius ? 'Wider radius' : outsideMileage ? 'Wider mileage'
+            const scopeLabel = subject ? 'Appraised VIN' : outsideRadius && outsideMileage ? 'Outside scope'
+                : outsideRadius ? 'Radius outside scope' : outsideMileage ? 'Mileage outside scope'
                     : original ? 'Within scope' : 'Scope unverified';
             return {
                 Vehicle: row.vehicle || [row.year, row.make, row.model, row.trim].filter(value => value != null && value !== '').join(' '),
@@ -95,7 +95,7 @@
             description.textContent = recent.checked
                 ? 'MarketCheck listing history. Earlier advertisements do not confirm a sale.'
                 : 'MarketCheck vehicles advertised for sale now. Asking prices are not confirmed sale prices.';
-            note.textContent = (recent.checked ? rows.recentNote : rows.currentNote) + ' Wider-radius and wider-mileage rows are buyer references.';
+            note.textContent = (recent.checked ? rows.recentNote : rows.currentNote) + ' Listings outside scope are buyer references.';
         }
 
         [current, recent].forEach(option => option.addEventListener('change', function () {

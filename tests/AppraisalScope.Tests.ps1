@@ -20,7 +20,7 @@ function Select-References($rows, $maximumRadius = 5000) {
 $rows = @(1..5 | ForEach-Object { @{ vin = "VIN$_"; miles = 60000; dist = 125; price = 20000 - $_ * 1000 } })
 $result = Select-References $rows
 if ([int]$result['strictCount'] -ne 0 -or $result['listings'].Count -ne 5 -or
-    [int]$result['effectiveRadius'] -ne 150 -or [int]$result['mileageWindow'] -ne 10000) {
+    [int]$result['effectiveRadius'] -ne 150 -or [int]$result['mileageWindow'] -ne 20000) {
     throw 'Radius must expand by 50 before increasing mileage.'
 }
 if ([decimal]$result['listings'][0]['price'] -ne 15000 -or ![bool]$result['listings'][0]['outsideRadius']) {
@@ -29,7 +29,7 @@ if ([decimal]$result['listings'][0]['price'] -ne 15000 -or ![bool]$result['listi
 
 $rows = @(1..5 | ForEach-Object { @{ vin = "VIN$_"; miles = 90000; dist = 100; price = 10000 + $_ } })
 $result = Select-References $rows
-if ([int]$result['mileageWindow'] -ne 35000 -or ![bool]$result['listings'][0]['outsideMileage']) {
+if ([int]$result['mileageWindow'] -ne 45000 -or ![bool]$result['listings'][0]['outsideMileage']) {
     throw 'Mileage must expand by 25,000 and be marked as outside the original scope.'
 }
 $result = Select-References $rows 100

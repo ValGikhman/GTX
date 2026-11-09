@@ -7,6 +7,8 @@ namespace GTX.Common
 {
     internal static class AppraisalComparableScope
     {
+        private const int OriginalMileageWindow = 20000;
+
         private static string ListingIdentity(JObject row) =>
             string.IsNullOrWhiteSpace((string)row["vin"]) ? (string)row["listing_id"] : (string)row["vin"];
 
@@ -19,7 +21,7 @@ namespace GTX.Common
             var subjectVin = (string)scope["vin"];
             var initialRadius = Math.Min(radius, maximumRadius);
             var effectiveRadius = initialRadius;
-            var mileageWindow = 10000;
+            var mileageWindow = OriginalMileageWindow;
             var rows = (candidates ?? new JArray()).OfType<JObject>()
                 .Where(row => !string.IsNullOrWhiteSpace(ListingIdentity(row))
                     && !string.Equals((string)row["vin"], subjectVin, StringComparison.OrdinalIgnoreCase)
@@ -30,7 +32,7 @@ namespace GTX.Common
                 .GroupBy(ListingIdentity, StringComparer.OrdinalIgnoreCase)
                 .Select(group => (JObject)group.First().DeepClone()).ToArray();
             var strict = rows.Where(row => Number(row["dist"]) <= radius
-                && Math.Abs(Number(row["miles"]).Value - targetMiles) <= 10000).ToArray();
+                && Math.Abs(Number(row["miles"]).Value - targetMiles) <= OriginalMileageWindow).ToArray();
             var eligible = rows.Where(row => Number(row["dist"]) <= effectiveRadius
                 && Math.Abs(Number(row["miles"]).Value - targetMiles) <= mileageWindow).ToArray();
 
@@ -51,13 +53,13 @@ namespace GTX.Common
             foreach (var row in selected)
             {
                 row["outsideRadius"] = Number(row["dist"]) > radius;
-                row["outsideMileage"] = Math.Abs(Number(row["miles"]).Value - targetMiles) > 10000;
+                row["outsideMileage"] = Math.Abs(Number(row["miles"]).Value - targetMiles) > OriginalMileageWindow;
                 row["referenceOnly"] = (bool)row["outsideRadius"] || (bool)row["outsideMileage"];
             }
 
             var note = string.Format(CultureInfo.GetCultureInfo("en-US"),
                 "{0}: {1} match your original {2:N0}-mile radius and {3:N0}–{4:N0} odometer range. Showing {5} returned vehicles, ordered by asking price.",
-                source, strict.Length, radius, Math.Max(0, targetMiles - 10000), Math.Min(2000000, targetMiles + 10000), selected.Length);
+                source, strict.Length, radius, Math.Max(0, targetMiles - OriginalMileageWindow), Math.Min(2000000, targetMiles + OriginalMileageWindow), selected.Length);
             if (selected.Any(row => (bool)row["referenceOnly"]))
                 note += string.Format(CultureInfo.GetCultureInfo("en-US"),
                     " Expanded in 50-mile radius and 25,000-mile odometer steps to {0:N0} miles and {1:N0}–{2:N0} odometer miles. Expanded rows are buyer references.",
