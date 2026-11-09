@@ -455,10 +455,53 @@
             var $card = $("<article>", { "class": "bot-market-reply" }).appendTo($container);
             var $header = $("<header>", { "class": "bot-market-header" }).appendTo($card);
             var $kicker = $("<div>", { "class": "bot-market-kicker" }).appendTo($header);
-            appendMarketSource($kicker, "MC");
-            $("<span>", { text: reply.Kicker }).appendTo($kicker);
+            if (reply.Source === "CG") {
+                $("<span>", { "class": "bot-market-source is-cg px-2 shadow", text: reply.Kicker }).appendTo($kicker);
+            } else {
+                appendMarketSource($kicker, "MC");
+                $("<span>", { text: reply.Kicker }).appendTo($kicker);
+            }
             $("<h3>", { "class": "bot-market-title", text: reply.Title }).appendTo($header);
             if (reply.Context) $("<p>", { "class": "bot-market-context", text: reply.Context }).appendTo($header);
+
+            if (reply.Listings && reply.Listings.length) {
+                var $table = $("<table>", { "class": "bot-market-listings", "aria-label": "CarGurus listings" })
+                    .appendTo($("<div>", { "class": "bot-market-listings-wrap" }).appendTo($card));
+                var $head = $("<tr>").appendTo($("<thead>").appendTo($table));
+                ["Vehicle", "Ask", "Miles", "Distance"].forEach(function (label) {
+                    $("<th>", { scope: "col", text: label }).appendTo($head);
+                });
+                var $body = $("<tbody>").appendTo($table);
+                reply.Listings.forEach(function (listing) {
+                    var $row = $("<tr>").appendTo($body);
+                    var $vehicle = $("<th>", { scope: "row" }).appendTo($row);
+                    var title = (listing.Vehicle || "").match(/^(.+?)\s+((?:SH-AWD|AWD|FWD|RWD|4WD|xDrive\w*|sDrive\w*|4MATIC)\b.*)$/i);
+                    var name = title ? title[1] : listing.Vehicle;
+                    if (/^https:\/\/www\.cargurus\.com\/details\/[0-9]+$/.test(listing.Url || "")) {
+                        $("<a>", { href: listing.Url, text: name, target: "_blank", rel: "noopener" }).appendTo($vehicle);
+                    } else {
+                        $("<span>", { text: name }).appendTo($vehicle);
+                    }
+                    if (title) $("<small>", { text: title[2] }).appendTo($vehicle);
+                    $("<small>", { text: listing.Location }).appendTo($vehicle);
+                    var statuses = listing.Scope ? listing.Scope.split(" · ") : [];
+                    if (listing.IsSearchedVin) statuses.unshift("Searched VIN");
+                    $("<td>", { text: listing.Ask || "—" }).appendTo($row);
+                    $("<td>", { text: listing.Odometer || "—" }).appendTo($row);
+                    $("<td>", { text: listing.Distance ? listing.Distance + " mi" : "—" }).appendTo($row);
+                    if (statuses.length) {
+                        $row.addClass("has-listing-status");
+                        var $statusRow = $("<tr>", { "class": "bot-market-listing-status-row" }).appendTo($body);
+                        var $statuses = $("<div>", { "class": "bot-market-listing-statuses" })
+                            .appendTo($("<td>", { colspan: 4 }).appendTo($statusRow));
+                        statuses.forEach(function (status) {
+                            var outsideScope = /^(Outside radius|Over mileage|Other package)$/.test(status);
+                            var color = outsideScope ? "danger" : (status === "Searched VIN" ? "warning" : "success");
+                            $("<span>", { "class": "badge rounded-pill text-bg-" + color, text: status }).appendTo($statuses);
+                        });
+                    }
+                });
+            }
 
             if (reply.Metrics.length) {
                 var $metrics = $("<dl>", { "class": "bot-market-metrics" }).appendTo($card);
@@ -787,15 +830,21 @@
                     data: { id: progressId },
                     dataType: "json",
                     timeout: 3000
-                }).done(function (checkingMarket) {
+                }).done(function (progress) {
                     if (finished) return;
-                    if (checkingMarket === true) {
+                    if (progress === true || progress === "cargurus" || progress === "dataone") {
+                        var label = progress === true ? "market" : (progress === "dataone" ? "DataOne" : "cargurus");
                         var $copy = $thinking.find(".gtx-chat-copy");
-                        $copy.contents().filter(function () { return this.nodeType === 3; }).remove();
-                        $copy.prepend(document.createTextNode("Checking the "),
-                            $("<span>", { "class": "gtx-chat-market-word", text: "market" }),
-                            document.createTextNode(" for you…"));
-                        return;
+                        var $label = $copy.find(".gtx-chat-market-word");
+                        if ($label.length) {
+                            if ($label.text() !== label) $label.text(label);
+                        } else {
+                            $copy.contents().filter(function () { return this.nodeType === 3; }).remove();
+                            $copy.prepend(document.createTextNode("Checking the "),
+                                $("<span>", { "class": "gtx-chat-market-word", text: label }),
+                                document.createTextNode(" for you…"));
+                        }
+                        if (progress !== "dataone") return;
                     }
                     progressTimer = window.setTimeout(checkMarketProgress, 650);
                 });

@@ -43,11 +43,13 @@ namespace GTX.Models
 
     public sealed class ChatMarketReply
     {
+        public string Source { get; set; }
         public string Kicker { get; set; }
         public string Title { get; set; }
         public string Context { get; set; }
         public ChatMarketMetric[] Metrics { get; set; } = Array.Empty<ChatMarketMetric>();
         public ChatMarketSection[] Sections { get; set; } = Array.Empty<ChatMarketSection>();
+        public ChatMarketListing[] Listings { get; set; } = Array.Empty<ChatMarketListing>();
         public string Note { get; set; }
         public string ViewUrl { get; set; }
         internal object AppraisalParameters { get; set; }
@@ -58,9 +60,23 @@ namespace GTX.Models
                 .Concat(Metrics.Select(metric => metric.Label + ": " + metric.Value))
                 .Concat(Sections.SelectMany(section => new[] { (section.Source == "CG" ? "CG · " : "MC · ") + section.Title, section.Context }
                     .Concat(section.Items.Select(item => "• " + item)).Concat(new[] { section.Note })))
+                .Concat(Listings.Select(listing => string.Join(" · ", listing.Vehicle, listing.Ask, listing.Location, listing.Odometer, listing.Distance)))
                 .Concat(new[] { Note });
             return string.Join("\n", lines.Where(line => !string.IsNullOrWhiteSpace(line)));
         }
+    }
+
+    public sealed class ChatMarketListing
+    {
+        internal string Vin { get; set; }
+        public bool IsSearchedVin { get; set; }
+        public string Scope { get; set; }
+        public string Vehicle { get; set; }
+        public string Ask { get; set; }
+        public string Location { get; set; }
+        public string Odometer { get; set; }
+        public string Distance { get; set; }
+        public string Url { get; set; }
     }
 
     public sealed class ChatMarketMetric

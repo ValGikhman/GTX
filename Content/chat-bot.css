@@ -552,6 +552,7 @@
 
 .bot-market-source.is-mc { background: #23578b; }
 .bot-market-source.is-cg { background: #a12d43; }
+.bot-market-kicker .bot-market-source.is-cg { text-shadow: 0 1px 2px rgba(0, 0, 0, .55); }
 .bot-market-note.is-multiline { white-space: pre-line; }
 
 .bot-market-list {
@@ -562,6 +563,34 @@
 }
 .bot-market-list li + li { margin-top: .25rem; }
 .bot-market-list li::marker { color: var(--bot-market-accent); }
+
+.bot-market-listings-wrap { min-width: 0; }
+
+.bot-market-listings {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    font-size: .78rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.bot-market-listings th,
+.bot-market-listings td {
+    padding: .22rem .2rem;
+    border-bottom: 1px solid color-mix(in srgb, currentColor 16%, transparent);
+    text-align: right;
+    white-space: nowrap;
+}
+
+.bot-market-listings th:first-child { text-align: left; white-space: normal; overflow-wrap: anywhere; }
+.bot-market-listings thead th:not(:first-child) { width: 4.7em; font-size: .66rem; }
+.bot-market-listings td { font-size: .68rem; }
+.bot-market-listings a { color: inherit; text-decoration: underline; }
+.bot-market-listings small { display: block; font-size: .68rem; font-weight: 400; line-height: 1.2; }
+.bot-market-listings .has-listing-status > * { padding-bottom: 0; border-bottom: 0; }
+.bot-market-listings .bot-market-listing-status-row > td { padding-top: .12rem; text-align: left; }
+.bot-market-listing-statuses { display: flex; gap: .15rem; white-space: nowrap; }
+.bot-market-listing-statuses .badge { padding-inline: .35em; font-size: .58rem; }
 
 .gtx-chat-message.is-assistant .bot-market-view {
     display: inline-flex;
