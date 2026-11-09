@@ -17,6 +17,9 @@ namespace GTX.Controllers
 {
     public partial class MajordomeController
     {
+        public const string AppraisalDefaultZip = "45040";
+        public const string AppraisalDefaultRadius = "100";
+
         private static readonly HttpClient AppraisalClient = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false })
         {
             Timeout = TimeSpan.FromSeconds(70)

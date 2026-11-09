@@ -31,12 +31,12 @@
         </div>
         <div class="col-6 col-sm-4">
             <label class="form-label" for="@zipId">ZIP code</label>
-            <input id="@zipId" name="zip" class="form-control" value="@(isEmbedded ? "" : "45040")" pattern="[0-9]{5}"
+            <input id="@zipId" name="zip" class="form-control" value="@(isEmbedded ? "" : GTX.Controllers.MajordomeController.AppraisalDefaultZip)" pattern="[0-9]{5}"
                    maxlength="5" inputmode="numeric" required="@(!isEmbedded)" placeholder="@(isEmbedded ? "Configured ZIP" : null)" />
         </div>
         <div class="col-6 col-sm-4">
             <label class="form-label" for="@radiusId">Radius (mi)</label>
-            <input id="@radiusId" name="radius" class="form-control" type="number" value="@(isEmbedded ? "" : "100")"
+            <input id="@radiusId" name="radius" class="form-control" type="number" value="@(isEmbedded ? "" : GTX.Controllers.MajordomeController.AppraisalDefaultRadius)"
                    min="1" max="500" step="1" inputmode="numeric" required="@(!isEmbedded)" placeholder="@(isEmbedded ? "Configured radius" : null)" />
         </div>
     </div>

@@ -6,6 +6,7 @@ namespace GTX.Common
     internal static class CarGurusAuctionResearch
     {
         internal const string SearchTool = "vehicle-listing-search";
+        internal const string DetailTool = "vehicle-listing-detail";
         internal static bool Enabled =>
             bool.TryParse(ConfigurationManager.AppSettings["CarGurus:Enabled"], out var enabled) && enabled;
 

@@ -2,6 +2,7 @@ using GTX;
 using GTX.Common;
 using GTX.Controllers;
 using GTX.Helpers;
+using Newtonsoft.Json;
 using Services;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,8 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Management;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Web.Mvc;
@@ -16,6 +19,10 @@ using System.Web.Mvc;
 [RequireAdminRole]
 public class HealthController : BaseController
 {
+    private static readonly HttpClient MarketCheckHealthClient = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false })
+    {
+        Timeout = TimeSpan.FromSeconds(8)
+    };
     private static readonly object _cpuLock = new object();
     private static readonly Dictionary<int, (DateTime utc, TimeSpan cpu)> _lastCpu = new Dictionary<int, (DateTime, TimeSpan)>();
     private static readonly object _totalCpuCacheLock = new object();
@@ -173,6 +180,50 @@ public class HealthController : BaseController
     public ActionResult Index()
     {
         return View(); // Views/Health/Index.cshtml
+    }
+
+    [HttpGet]
+    public async Task<ActionResult> MarketCheckQuota()
+    {
+        Response.Cache.SetNoStore();
+        var key = ConfigurationManager.AppSettings["AutoDealer:ApiKey"]?.Trim();
+        var url = ConfigurationManager.AppSettings["AutoDealer:AppraisalBaseUrl"];
+        if (string.IsNullOrEmpty(key) || !Uri.TryCreate(url, UriKind.Absolute, out var origin)
+            || origin.Scheme != Uri.UriSchemeHttps || !string.IsNullOrEmpty(origin.UserInfo)
+            || !string.IsNullOrEmpty(origin.Query) || !string.IsNullOrEmpty(origin.Fragment))
+            return Json(new { Status = "unconfigured" }, JsonRequestBehavior.AllowGet);
+
+        try
+        {
+            using (var request = new HttpRequestMessage(HttpMethod.Get, new Uri(origin, "/api/service/price-research/marketcheck-quota")))
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", key);
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                using (var response = await MarketCheckHealthClient.SendAsync(request))
+                {
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var quota = JsonConvert.DeserializeObject<MarketCheckQuotaSnapshot>(await response.Content.ReadAsStringAsync());
+                        if (quota != null)
+                            return Json(new { Status = "ok", Quota = quota }, JsonRequestBehavior.AllowGet);
+                    }
+                }
+            }
+        }
+        catch (Exception ex) when (ex is HttpRequestException || ex is TaskCanceledException || ex is JsonException)
+        {
+            // The system health metrics remain available when AutoDealer.dev cannot respond.
+        }
+
+        return Json(new { Status = "unavailable" }, JsonRequestBehavior.AllowGet);
+    }
+
+    private sealed class MarketCheckQuotaSnapshot
+    {
+        public long? Remaining { get; set; }
+        public long? Limit { get; set; }
+        public DateTime? ResetAt { get; set; }
+        public DateTime? ObservedAt { get; set; }
     }
 
     // ---- JSON endpoint (NO PerformanceCounter) ----

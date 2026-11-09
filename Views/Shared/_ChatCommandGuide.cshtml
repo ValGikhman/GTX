@@ -106,6 +106,54 @@
             </div>
         }
 
+        @if (Model && string.Equals(System.Configuration.ConfigurationManager.AppSettings["CarGurus:Enabled"]?.Trim(), "true", StringComparison.OrdinalIgnoreCase))
+        {
+            var carGurusExamples = new[]
+            {
+                new {
+                    Prompt = "Check CarGurus for a 2022 BMW X4 xDrive30i AWD",
+                    Detail = "Searches by year, make, model, and trim using the Appraisal ZIP and radius defaults.",
+                    Icon = "bi-search"
+                },
+                new {
+                    Prompt = "Check CarGurus for a 2022 BMW X4 xDrive30i AWD within 50 miles of ZIP 45040",
+                    Detail = "Requests nearby listings using the ZIP and radius you enter.",
+                    Icon = "bi-geo-alt"
+                },
+                new {
+                    Prompt = "Check CarGurus for VIN 5J8TB1H25BA008242",
+                    Detail = "Decodes the VIN and searches for comparable vehicles.",
+                    Icon = "bi-upc-scan"
+                },
+                new {
+                    Prompt = "Check CarGurus for VIN 5J8TB1H25BA008242 with less than 120,000 odometer miles within 100 miles of ZIP 45040",
+                    Detail = "Combines a VIN search with an odometer limit, ZIP, and radius.",
+                    Icon = "bi-speedometer2"
+                }
+            };
+
+            <h3 class="gtx-chat-command-guide-group">
+                <button type="button" data-chat-guide-toggle aria-expanded="false" aria-controls="gtxChatCarGurusExamples">
+                    <i class="bi bi-car-front" aria-hidden="true"></i>
+                    <span>CarGurus</span>
+                    <i class="bi bi-chevron-down gtx-chat-guide-chevron" aria-hidden="true"></i>
+                </button>
+            </h3>
+            <div id="gtxChatCarGurusExamples" hidden>
+                <div class="gtx-chat-command-guide-note">
+                    <i class="bi bi-info-circle" aria-hidden="true"></i>
+                    <div>Results show asking prices, odometer miles, and dealer distances when available. CarGurus can return listings outside the requested radius.</div>
+                </div>
+                @foreach (var example in carGurusExamples)
+                {
+                    <div class="gtx-chat-command-guide-item">
+                        <button type="button" data-chat-prompt="@example.Prompt">&quot;@example.Prompt&quot;</button>
+                        <span><i class="bi @example.Icon" aria-hidden="true"></i> @example.Detail</span>
+                    </div>
+                }
+            </div>
+        }
+
         <h3 class="gtx-chat-command-guide-group">
             <button type="button" data-chat-guide-toggle aria-expanded="true">
                 <i class="bi bi-search" aria-hidden="true"></i>
