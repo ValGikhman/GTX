@@ -39,7 +39,7 @@ namespace GTX.Controllers
             return RedirectToAction(nameof(Appraisal));
         }
 
-        [HttpPost, ValidateAntiForgeryToken, AsyncTimeout(150000)]
+        [HttpPost, AsyncTimeout(150000)]
         public Task<ActionResult> AppraisalResearch(string vin, int? miles, string zip, int? radius)
         {
             var payload = new JObject { ["vin"] = vin, ["miles"] = miles };
@@ -48,7 +48,7 @@ namespace GTX.Controllers
             return SendAppraisalAsync("", payload);
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
+        [HttpPost]
         public Task<ActionResult> AppraisalBid(decimal? expectedSellingPriceUsd, decimal? currentHammerBidUsd)
         {
             return SendAppraisalAsync("/auction-budget", new { expectedSellingPriceUsd, currentHammerBidUsd });
@@ -62,6 +62,14 @@ namespace GTX.Controllers
         private async Task<ActionResult> SendAppraisalAsync(string routeSuffix, object payload)
         {
             if (!CanUseAppraisal()) return AppraisalJson(403, new { message = "Sign in with a role that has Appraisal access." });
+            try
+            {
+                System.Web.Helpers.AntiForgery.Validate();
+            }
+            catch (HttpAntiForgeryException)
+            {
+                return AppraisalJson(403, new { message = "The appraisal form could not be verified. Refresh the page and try again." });
+            }
             if (!ModelState.IsValid) return AppraisalJson(400, new { message = "Check the values and try again." });
 
             var key = ConfigurationManager.AppSettings["AutoDealer:ApiKey"]?.Trim();
@@ -92,6 +100,8 @@ namespace GTX.Controllers
                                     return AppraisalJson(502, new { message = "AutoDealer.dev rejected the configured API key or subscription." });
                                 case (HttpStatusCode)429:
                                     return AppraisalJson(429, new { message = "The AutoDealer.dev request limit has been reached." });
+                                case HttpStatusCode.ServiceUnavailable:
+                                    return AppraisalJson(503, new { message = "AutoDealer.dev reports that appraisal is unavailable. Check the MarketCheck configuration on AutoDealer.dev." });
                                 case HttpStatusCode.GatewayTimeout:
                                     return AppraisalJson(504, new { message = "The appraisal request timed out. Please try again." });
                                 default:
