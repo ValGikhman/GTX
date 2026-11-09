@@ -74,7 +74,9 @@
                     return;
                 }
                 const message = xhr.responseJSON && xhr.responseJSON.message;
-                handlers.error(message || 'Unable to get research results. Please try again.');
+                handlers.error(message || (xhr.status
+                    ? 'GTX could not load the appraisal results (HTTP ' + xhr.status + '). Please try again.'
+                    : 'The appraisal connection did not return a response. Please try again.'));
             }).always(function () {
                 if (request !== active) return;
                 request = null;
