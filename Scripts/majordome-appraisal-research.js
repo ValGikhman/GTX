@@ -69,11 +69,11 @@
             }).fail(function (xhr, status) {
                 if (request !== active) return;
                 if (status === 'timeout') { handlers.error('The appraisal request timed out. Please try again.'); return; }
+                const message = xhr.responseJSON && xhr.responseJSON.message;
                 if (xhr.status === 401 || xhr.status === 403 || status === 'parsererror') {
-                    handlers.error('Sign in to Majordome again before researching a price.');
+                    handlers.error(message || 'Sign in to Majordome again before researching a price.');
                     return;
                 }
-                const message = xhr.responseJSON && xhr.responseJSON.message;
                 handlers.error(message || (xhr.status
                     ? 'GTX could not load the appraisal results (HTTP ' + xhr.status + '). Please try again.'
                     : 'The appraisal connection did not return a response. Please try again.'));
