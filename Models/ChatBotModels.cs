@@ -56,7 +56,7 @@ namespace GTX.Models
         {
             var lines = new[] { Kicker, Title, Context }
                 .Concat(Metrics.Select(metric => metric.Label + ": " + metric.Value))
-                .Concat(Sections.SelectMany(section => new[] { section.Title, section.Context }
+                .Concat(Sections.SelectMany(section => new[] { (section.Source == "CG" ? "CG · " : "MC · ") + section.Title, section.Context }
                     .Concat(section.Items.Select(item => "• " + item)).Concat(new[] { section.Note })))
                 .Concat(new[] { Note });
             return string.Join("\n", lines.Where(line => !string.IsNullOrWhiteSpace(line)));
@@ -72,6 +72,7 @@ namespace GTX.Models
 
     public sealed class ChatMarketSection
     {
+        public string Source { get; set; }
         public string Title { get; set; }
         public string Context { get; set; }
         public string[] Items { get; set; } = Array.Empty<string>();

@@ -817,23 +817,6 @@
             toggleMajordomeHistoryChange($(this));
         });
 
-        $("#majordomeInventoryGrid").on("dblclick", ".majordome-row-details", function (e) {
-            if ($(e.target).closest(".copyable").length) return;
-            e.preventDefault();
-            e.stopPropagation();
-            const stock = $(this).closest(".majordome-vehicle-row").attr("data-stock");
-            selectMajordomeVehicle(stock);
-            $("#details-tab").tab("show");
-        });
-
-        $("#majordomeInventoryGrid").on("dblclick", ".majordome-row-image", function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            const stock = $(this).closest(".majordome-vehicle-row").attr("data-stock");
-            selectMajordomeVehicle(stock);
-            $("#gallery-tab").tab("show");
-        });
-
         $("#majordomeInventoryGrid").on("click", ".js-amm-upload-trigger", function (e) {
             e.preventDefault();
             e.stopPropagation();
@@ -3868,6 +3851,22 @@
         const grid = window.majordomeInventoryAddGrid;
 
         if (!grid || !grid.initialize(gridRows, {
+            dblClick: function (detail) {
+                const $target = $(detail.event.target);
+                if ($target.closest("a, button, input, select, textarea").length) return;
+                const $row = $(detail.rowElement);
+                if ($target.closest(".majordome-row-details, .majordome-row-image").length) {
+                    detail.event.preventDefault();
+                    selectMajordomeVehicle($row.attr("data-stock"));
+                    $($target.closest(".majordome-row-image").length ? "#gallery-tab" : "#details-tab").tab("show");
+                    return;
+                }
+                const $edit = $row.find(".js-amm-edit-inventory:not(:disabled)").first();
+                if ($edit.length) {
+                    detail.event.preventDefault();
+                    $edit.trigger("click");
+                }
+            },
             onRender: function () {
                 markSelectedRow(selectedVehicleStock);
                 syncMajordomeEmptyState();

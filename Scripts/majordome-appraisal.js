@@ -52,7 +52,10 @@
             const estimate = market.show(data, scope, demand);
             const auctionAssumptions = linkedBid && linkedBid.vin === scope.Vin ? linkedBid : null;
             linkedBid = null;
-            notify('result', { expectedSellingPriceUsd: estimate, auctionAssumptions: auctionAssumptions });
+            notify('result', {
+                expectedSellingPriceUsd: estimate,
+                auctionAssumptions: auctionAssumptions
+            });
         }
     });
 

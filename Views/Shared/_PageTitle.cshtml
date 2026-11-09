@@ -1,13 +1,26 @@
 @{
     var controllerName = (ViewContext.RouteData.Values["controller"] ?? string.Empty).ToString();
     var actionName = (ViewContext.RouteData.Values["action"] ?? string.Empty).ToString();
-    var majordomeIndexControllers = new[] { "InventoryManagement", "VinDecoder", "Announcements", "Blogs", "Specials", "Employees", "Health", "Sitemap", "ChatBotCommands" };
-    var isMajordomeMenuPage = (controllerName.Equals("Majordome", StringComparison.OrdinalIgnoreCase)
+    var majordomeIndexControllers = new[] {
+                GTX.Common.Enums.Controllers.InventoryManagement.ToString(),
+                GTX.Common.Enums.Controllers.VinDecoder.ToString(),
+                GTX.Common.Enums.Controllers.Announcements.ToString(),
+                GTX.Common.Enums.Controllers.Blogs.ToString(),
+                GTX.Common.Enums.Controllers.Specials.ToString(),
+                GTX.Common.Enums.Controllers.Employees.ToString(),
+                GTX.Common.Enums.Controllers.Roles.ToString(),
+                GTX.Common.Enums.Controllers.Health.ToString(),
+                GTX.Common.Enums.Controllers.Sitemap.ToString(),
+                GTX.Common.Enums.Controllers.ChatBotCommands.ToString()
+            };
+    var isMajordomeMenuPage = (controllerName.Equals(GTX.Common.Enums.Controllers.Majordome.ToString(), StringComparison.OrdinalIgnoreCase)
             && actionName.Equals("Inventory", StringComparison.OrdinalIgnoreCase))
-        || (controllerName.Equals("InventoryManagement", StringComparison.OrdinalIgnoreCase)
+        || (controllerName.Equals(GTX.Common.Enums.Controllers.InventoryManagement.ToString(), StringComparison.OrdinalIgnoreCase)
             && actionName.Equals("Dashboard", StringComparison.OrdinalIgnoreCase))
         || (actionName.Equals("Index", StringComparison.OrdinalIgnoreCase)
             && majordomeIndexControllers.Any(c => c.Equals(controllerName, StringComparison.OrdinalIgnoreCase)));
+    var isReviewsPage = controllerName.Equals("Home", StringComparison.OrdinalIgnoreCase)
+        && actionName.Equals("Reviews", StringComparison.OrdinalIgnoreCase);
     var inventoryListActions = new[] { "Index", "All", "Suvs", "Sedans", "Wagons", "Trucks", "Vans", "Convertibles", "Hatchbacks", "Coupes" };
     var hideInventoryListTitle = controllerName.Equals("Inventory", StringComparison.OrdinalIgnoreCase)
         && inventoryListActions.Any(a => a.Equals(actionName, StringComparison.OrdinalIgnoreCase));
@@ -25,7 +38,7 @@
     var titleHref = isInventoryDetailsTitle ? "/Inventory/Index" : "/Home";
 }
 
-@if (!isMajordomeMenuPage)
+@if (!isMajordomeMenuPage && !isReviewsPage)
 {
 <section class="container-fluid page-title @(showInventoryDesktopAddress ? "inventory-player-title" : string.Empty) @(isInventoryDetailsTitle ? string.Empty : "page-title-mobile-call-enabled") position-relative d-flex align-items-center justify-content-center shadow">
 

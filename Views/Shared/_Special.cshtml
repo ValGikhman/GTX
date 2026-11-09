@@ -161,6 +161,14 @@
 
         const $grid = $("#specialsAddGrid");
         $grid.addGrid({
+            dblClick: function (detail) {
+                if ($(detail.event.target).closest("a, button, input, select, textarea").length) return;
+                const $edit = $(detail.rowElement).find("a[data-special-modal='true']").first();
+                if ($edit.length) {
+                    detail.event.preventDefault();
+                    $edit.trigger("click");
+                }
+            },
             data: rows,
             columns: [
                 { field: "Title", title: "Title", width: 230, filterable: false, searchable: true, searchField: "SearchText", template: "#special-grid-title-template" },

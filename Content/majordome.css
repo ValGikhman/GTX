@@ -125,6 +125,27 @@ html.theme-metallica .majordome-inventory-appraisal { --inventory-appraisal-head
     color: color-mix(in srgb, var(--bs-secondary-color) 85%, var(--inventory-surface, var(--bs-body-bg)));
 }
 
+
+
+.appraisal-comparables-grid .appraisal-scope-badge {
+    display: inline-block;
+    padding: .3rem .5rem;
+    border: 1px solid color-mix(in srgb, var(--appraisal-grid-accent) 28%, transparent);
+    border-radius: .55rem;
+    background: color-mix(in srgb, var(--appraisal-grid-accent) 9%, var(--inventory-surface, var(--bs-body-bg)));
+    color: var(--bs-body-color);
+    font-size: .72rem;
+    font-weight: 650;
+    line-height: 1.35;
+    box-shadow: 0 2px 5px #0000000a;
+}
+
+.appraisal-comparables-grid .appraisal-scope-badge.is-expanded {
+    border-style: dashed;
+    border-color: color-mix(in srgb, #bd7b13 55%, var(--bs-body-color));
+    background: color-mix(in srgb, #bd7b13 12%, var(--inventory-surface, var(--bs-body-bg)));
+}
+
 .appraisal-comparables-grid .appraisal-listing-button {
     --bs-btn-color: #212529;
     --bs-btn-hover-color: var(--bs-btn-color);
@@ -1333,7 +1354,8 @@ body.majordome-inventory-page .body-content {
     }
 
     .majordome-inventory-shell,
-    .majordome-inventory-grid-style {
+    .majordome-inventory-grid-style,
+    :is(#MajordomeLink, #AboutMenuLink) {
         --inventory-border: var(--bs-border-color-translucent, rgba(30, 41, 59, .12));
         --inventory-line: var(--bs-border-color-translucent, rgba(148, 163, 184, .22));
         --inventory-muted: var(--bs-secondary-color, #64748b);
@@ -1381,17 +1403,17 @@ body.majordome-inventory-page .body-content {
         pointer-events: auto;
     }
 
-    #inventoryGridShell .majordome-batch-actions-dropdown {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink) .majordome-batch-actions-dropdown {
         position: relative;
     }
 
-    #inventoryGridShell .majordome-batch-actions-menu {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink) .majordome-batch-actions-menu {
         width: min(18rem, calc(100vw - 1rem));
         border: 1px solid var(--inventory-border);
         background: var(--inventory-surface);
     }
 
-    #inventoryGridShell .majordome-batch-action {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink) .majordome-batch-action {
         display: grid;
         grid-template-columns: 2.15rem minmax(0, 1fr);
         gap: .7rem;
@@ -1403,13 +1425,13 @@ body.majordome-inventory-page .body-content {
         white-space: normal;
     }
 
-    #inventoryGridShell .majordome-batch-action:hover,
-    #inventoryGridShell .majordome-batch-action:focus {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink) .majordome-batch-action:hover,
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink) .majordome-batch-action:focus {
         color: var(--inventory-ink);
         background: var(--inventory-surface-alt);
     }
 
-    #inventoryGridShell .majordome-batch-action-icon {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink) .majordome-batch-action-icon {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -1422,17 +1444,17 @@ body.majordome-inventory-page .body-content {
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35);
     }
 
-    #inventoryGridShell .majordome-batch-action strong,
-    #inventoryGridShell .majordome-batch-action small {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink) .majordome-batch-action strong,
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink) .majordome-batch-action small {
         display: block;
     }
 
-    #inventoryGridShell .majordome-batch-action strong {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink) .majordome-batch-action strong {
         font-size: .78rem;
         line-height: 1.2;
     }
 
-    #inventoryGridShell .majordome-batch-action small {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink) .majordome-batch-action small {
         margin-top: .15rem;
         color: var(--inventory-muted);
         font-size: .66rem;
@@ -2195,12 +2217,12 @@ body.majordome-inventory-page .body-content {
             margin-left: 0;
         }
 
-            #inventoryGridShell .majordome-batch-actions-dropdown,
+            :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink) .majordome-batch-actions-dropdown,
             #inventoryGridShell #majordomeBatchActionsDropdown {
                 width: 100%;
             }
 
-            #inventoryGridShell .majordome-batch-actions-menu {
+            :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink) .majordome-batch-actions-menu {
                 width: 100%;
             }
 
@@ -3363,3 +3385,111 @@ body.majordome-inventory-page .body-content {
             max-height: none;
         }
     }
+
+/* Role editor: scoped cards keep the shared modal and other editors unchanged. */
+#roleModalBody {
+    --role-editor-accent: var(--gtx-accent-solid, #175cd3);
+    --role-editor-surface: var(--bs-body-bg, #fff);
+    --role-editor-line: color-mix(in srgb, var(--role-editor-accent) 16%, var(--role-editor-surface));
+    background: linear-gradient(145deg, color-mix(in srgb, var(--role-editor-accent) 5%, var(--role-editor-surface)), var(--role-editor-surface) 65%);
+    padding: 1.25rem;
+}
+#roleModalBody .role-editor-card {
+    border: 1px solid var(--role-editor-line);
+    border-radius: 1rem;
+    background: var(--role-editor-surface);
+    box-shadow: 0 .4rem 1.3rem rgba(15, 23, 42, .06), 0 1px 2px rgba(15, 23, 42, .04);
+}
+#roleModalBody .role-editor-card-header {
+    padding: 1.15rem;
+    border-bottom: 1px solid var(--role-editor-line) !important;
+    background: linear-gradient(120deg, color-mix(in srgb, var(--role-editor-accent) 9%, var(--role-editor-surface)), var(--role-editor-surface));
+}
+#roleModalBody .role-editor-heading { display: flex; align-items: center; gap: .75rem; }
+#roleModalBody .role-editor-heading-icon {
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 2.65rem;
+    height: 2.65rem;
+    border: 1px solid color-mix(in srgb, var(--role-editor-accent) 20%, transparent);
+    border-radius: .8rem;
+    color: var(--role-editor-accent);
+    background: color-mix(in srgb, var(--role-editor-accent) 10%, var(--role-editor-surface));
+    font-size: 1.2rem;
+}
+#roleModalBody .role-editor-subtitle { margin-top: .2rem; font-size: .78rem; color: var(--bs-secondary-color, #64748b); line-height: 1.4; }
+#roleModalBody .role-editor-card > .card-body { padding: 1.15rem !important; }
+#roleModalBody .role-editor-permission {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    min-height: 2.6rem;
+    margin: 0;
+    padding: .55rem .7rem;
+    border: 1px solid transparent;
+    border-radius: .65rem;
+    transition: background-color .15s ease, border-color .15s ease;
+}
+#roleModalBody .role-editor-permission + .role-editor-permission { margin-top: .15rem; }
+#roleModalBody .role-editor-permission:has(:checked) {
+    border-color: color-mix(in srgb, var(--role-editor-accent) 12%, transparent);
+    background: color-mix(in srgb, var(--role-editor-accent) 5%, var(--role-editor-surface));
+}
+#roleModalBody .role-editor-permission .form-check-input { flex: 0 0 2.15rem; width: 2.15rem; height: 1.15rem; margin: 0; cursor: pointer; }
+#roleModalBody .role-editor-permission .form-check-input:checked { background-color: var(--role-editor-accent); border-color: var(--role-editor-accent); }
+#roleModalBody .role-editor-permission .form-check-input:disabled { cursor: default; }
+#roleModalBody .role-editor-permission .form-check-label { flex: 1; font-size: .85rem; font-weight: 500; cursor: pointer; }
+#roleModalBody .role-editor-permission:focus-within { border-color: var(--role-editor-accent); }
+#roleModalBody .role-editor-note { display: flex; gap: .6rem; margin-top: 1rem; padding: .8rem; border-radius: .75rem; background: color-mix(in srgb, var(--role-editor-accent) 7%, var(--role-editor-surface)); color: var(--bs-secondary-color, #64748b); font-size: .75rem; line-height: 1.55; }
+#roleModalBody .role-editor-note > i { color: var(--role-editor-accent); font-size: 1rem; }
+#roleModalBody .form-control { min-height: 2.6rem; border-radius: .65rem; }
+#roleModalBody .form-control:focus { border-color: var(--role-editor-accent); box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--role-editor-accent) 12%, transparent) !important; }
+#roleModalBody .input-group-text { border-radius: .65rem 0 0 .65rem; color: var(--role-editor-accent); }
+#roleModalBody .input-group > .form-control { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+#roleModalBody .role-editor-footer { margin-top: 1rem; padding-bottom: 0 !important; background: transparent; }
+html[data-background-theme="dark"] #roleModalBody { --role-editor-surface: #192330; color: #e2e8f0; --bs-secondary-color: #aab9cc; }
+@media (prefers-reduced-motion: reduce) {
+    #roleModalBody .role-editor-permission { transition: none; }
+}
+
+/* Majordome navigation uses the inventory Actions menu's icon-and-description rows. */
+html body :is(#MajordomeLink, #AboutMenuLink) > .dropdown.majordome-batch-actions-menu {
+    width: min(18rem, calc(100vw - 1rem));
+    max-height: calc(100dvh - 8rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border: 1px solid var(--inventory-border);
+    background: var(--inventory-surface) !important;
+}
+:is(#MajordomeLink, #AboutMenuLink) > .dropdown > li { margin: 0; }
+html body :is(#MajordomeLink, #AboutMenuLink) > .dropdown > li > .majordome-batch-action {
+    display: grid;
+    grid-template-columns: 2.15rem minmax(0, 1fr);
+    gap: .7rem;
+    padding: .45rem .6rem;
+    color: var(--inventory-ink) !important;
+    text-transform: none;
+    text-decoration: none;
+    white-space: normal;
+}
+html body :is(#MajordomeLink, #AboutMenuLink) > .dropdown > li > .majordome-batch-action:hover,
+html body :is(#MajordomeLink, #AboutMenuLink) > .dropdown > li > .majordome-batch-action:focus-visible {
+    color: var(--inventory-ink);
+    background: var(--inventory-surface-alt);
+}
+
+
+:is(#MajordomeLink, #AboutMenuLink) .majordome-batch-action small {
+    color: var(--inventory-muted);
+}
+
+@media (min-width: 768px) {
+    html body #MajordomeLink > .dropdown.majordome-menu-columns {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: .35rem;
+        width: min(37rem, calc(100vw - 1rem));
+    }
+    #MajordomeLink > .dropdown.majordome-menu-columns > li { min-width: 0; }
+    #MajordomeLink > .dropdown.majordome-menu-columns > li > a { height: 100%; }
+}

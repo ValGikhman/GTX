@@ -17,7 +17,7 @@
             if (!/^https?:\/\//i.test(String(value || ''))) return 'No listing URL';
             const url = new URL(value);
             if (url.username || url.password || !/^https?:$/.test(url.protocol)) return 'No listing URL';
-            return $('<a>', { class: 'btn btn-gradient-grey border-0 shadow w-100 appraisal-listing-button', href: url.href, target: '_blank', rel: 'noopener noreferrer', text: 'View' })[0].outerHTML;
+            return $('<a>', { class: 'btn btn-gradient-grey border-0 shadow appraisal-listing-button', href: url.href, target: '_blank', rel: 'noopener noreferrer', text: 'View' })[0].outerHTML;
         } catch (_) {
             return 'No listing URL';
         }
@@ -30,27 +30,35 @@
             const reportedDistance = typeof row.dist === 'number' || typeof row.dist === 'string' ? numeric(row.dist) : null;
             const distance = reportedDistance !== null && reportedDistance >= 0 ? reportedDistance : null;
             const subject = String(row.vin || '').toUpperCase() === request.Vin;
+            const outsideRadius = distance !== null && distance > request.Radius;
+            const outsideMileage = miles !== null && Math.abs(miles - request.Miles) > 10000;
+            const original = !subject && distance !== null && !outsideRadius && miles !== null && !outsideMileage;
+            const scopeLabel = subject ? 'Appraised VIN' : outsideRadius && outsideMileage ? 'Wider radius + mileage'
+                : outsideRadius ? 'Wider radius' : outsideMileage ? 'Wider mileage'
+                    : original ? 'Within scope' : 'Scope unverified';
             return {
-                Vehicle: [row.year, row.make, row.model, row.trim].filter(value => value != null && value !== '').join(' '),
-                Vin: String(row.vin || ''), Dealer: [row.dealer_name, subject ? 'Appraised VIN' : ''].filter(Boolean).join(' · '),
+                Vehicle: row.vehicle || [row.year, row.make, row.model, row.trim].filter(value => value != null && value !== '').join(' '),
+                Vin: String(row.vin || '—'), Dealer: String(row.dealer_name || ''),
                 Price: price, PriceDisplay: price === null ? '—' : money.format(price),
                 Mileage: miles, MileageDisplay: displayNumber(miles),
                 Distance: distance, DistanceDisplay: distance === null ? 'Unknown' : integer.format(distance) + ' mi',
-                Days: days, DaysDisplay: displayNumber(days), Source: listingLink(row.vdp_url),
-                IsSubject: subject, IsLocal: !subject && distance !== null && distance <= request.Radius
+                Days: days, DaysDisplay: displayNumber(days), Listing: listingLink(row.vdp_url),
+                Scope: $('<span>', { class: 'appraisal-scope-badge' + (outsideRadius || outsideMileage ? ' is-expanded' : ''), text: scopeLabel })[0].outerHTML,
+                IsSubject: subject, IsLocal: original
             };
         });
     }
 
     function columns() {
         return [
-            { field: 'Vin', title: 'VIN', width: '19%', searchable: false, filterable: false },
-            { field: 'Dealer', title: 'Dealer', width: '24%', searchable: false, filterable: false },
-            { field: 'Price', title: 'Asking price', width: '14%', filterable: false, headerClass: 'text-end', cellClass: 'text-end', template: row => row.PriceDisplay, searchable: false },
-            { field: 'Mileage', title: 'Mileage', width: '12%', filterable: false, headerClass: 'text-end', cellClass: 'text-end', template: row => row.MileageDisplay, searchable: false },
-            { field: 'Distance', title: 'Distance', width: '12%', filterable: false, headerClass: 'text-end', cellClass: 'text-end', template: row => row.DistanceDisplay, searchable: false },
-            { field: 'Days', title: 'Days', width: '11%', filterable: false, headerClass: 'text-end', cellClass: 'text-end', template: row => row.DaysDisplay, searchable: false },
-            { field: 'Source', title: 'Source', width: '8%', encoded: false, sortable: false, filterable: false, searchable: false, cellClass: 'text-center' }
+            { field: 'Vin', title: 'VIN', width: '17%', searchable: false, filterable: false },
+            { field: 'Dealer', title: 'Dealer', width: '19%', searchable: false, filterable: false },
+            { field: 'Price', title: 'Ask', width: '9.75%', filterable: false, headerClass: 'text-end', cellClass: 'text-end', template: row => row.PriceDisplay, searchable: false },
+            { field: 'Mileage', title: 'Mileage', width: '10%', filterable: false, headerClass: 'text-end', cellClass: 'text-end', template: row => row.MileageDisplay, searchable: false },
+            { field: 'Distance', title: 'Distance', width: '10%', filterable: false, headerClass: 'text-end', cellClass: 'text-end', template: row => row.DistanceDisplay, searchable: false },
+            { field: 'Days', title: 'Days', width: '10.25%', filterable: false, headerClass: 'text-end', cellClass: 'text-end', template: row => row.DaysDisplay, searchable: false },
+            { field: 'Scope', title: 'Match', width: '14%', encoded: false, sortable: false, filterable: false, searchable: false, cellClass: 'text-center' },
+            { field: 'Listing', title: 'Listing', width: '10%', headerClass: 'text-center', encoded: false, sortable: false, filterable: false, searchable: false, cellClass: 'text-center' }
         ];
     }
 
@@ -62,7 +70,6 @@
         const note = section.querySelector('[data-appraisal-note]');
         const current = section.querySelector('[data-appraisal-period][value="current"]');
         const recent = section.querySelector('[data-appraisal-period][value="recent"]');
-        let scope = null;
         let rows = null;
 
         function destroyGrid() {
@@ -80,17 +87,15 @@
                 rowClass: row => row.IsSubject ? 'appraisal-subject-row' : '',
                 pageable: false, height: height || '510px', showSearch: false, resizable: false,
                 autozoomable: false, exportToExcel: false, exportToPdf: false,
-                defaultSort: [{ field: 'Distance', dir: 'asc' }]
+                defaultSort: [{ field: 'Price', dir: 'asc' }]
             });
             $grid.find('.pg-grid-scroll').attr({ tabindex: '0', role: 'region', 'aria-labelledby': section.getAttribute('aria-labelledby') });
             grid.setAttribute('aria-label', label + ' comparable vehicle listings');
-            caption.textContent = label + ' · ' + integer.format(competitors.length)
-                + (competitors.length === 1 ? ' competitor within ' : ' competitors within ') + scope.Radius + ' miles'
-                + (listings.some(row => row.IsSubject) ? ' · Includes appraised VIN for reference' : '');
-            const explanation = recent.checked
-                ? 'Recent shows listing history for similar cars and can include earlier advertisements; it does not confirm a sale. Current shows cars advertised for sale now.'
-                : 'Current shows similar cars advertised for sale now, so you can compare your price with today’s asking prices. Recent shows listing history that can include earlier advertisements.';
-            description.textContent = explanation + ' For example, imagine the same car advertised at $18,000 earlier and $20,000 now. Those are two asking prices for one car; they do not prove it sold for $18,000.';
+            caption.textContent = 'MarketCheck · ' + label + ' · ' + competitors.length + ' within original scope · ' + listings.length + ' rows shown';
+            description.textContent = recent.checked
+                ? 'MarketCheck listing history. Earlier advertisements do not confirm a sale.'
+                : 'MarketCheck vehicles advertised for sale now. Asking prices are not confirmed sale prices.';
+            note.textContent = (recent.checked ? rows.recentNote : rows.currentNote) + ' Wider-radius and wider-mileage rows are buyer references.';
         }
 
         [current, recent].forEach(option => option.addEventListener('change', function () {
@@ -101,25 +106,28 @@
             show: function (data, request) {
                 const returnedCurrent = makeRows(data.comparables && data.comparables.listings, request);
                 const returnedRecent = makeRows(data.recent_comparables && data.recent_comparables.listings, request);
-                scope = request;
+                const references = data.marketCheckReferences || {};
+                const currentReferences = references.current;
+                const recentReferences = references.recent;
+                const currentGrid = currentReferences ? makeRows(currentReferences.listings, request) : returnedCurrent.filter(row => row.IsLocal);
+                const recentGrid = recentReferences ? makeRows(recentReferences.listings, request) : returnedRecent.filter(row => row.IsLocal);
                 rows = {
                     subject: returnedCurrent.concat(returnedRecent).find(row => row.IsSubject),
-                    current: returnedCurrent.filter(row => row.IsLocal),
-                    recent: returnedRecent.filter(row => row.IsLocal),
-                    currentGrid: returnedCurrent.filter(row => row.IsLocal || row.IsSubject),
-                    recentGrid: returnedRecent.filter(row => row.IsLocal || row.IsSubject)
+                    current: currentGrid.filter(row => row.IsLocal),
+                    recent: recentGrid.filter(row => row.IsLocal),
+                    currentGrid: currentGrid.concat(returnedCurrent.filter(row => row.IsSubject)),
+                    recentGrid: recentGrid.concat(returnedRecent.filter(row => row.IsSubject)),
+                    currentNote: currentReferences && currentReferences.note || '',
+                    recentNote: recentReferences && recentReferences.note || ''
                 };
                 current.checked = true;
                 recent.checked = false;
-                note.textContent = 'Showing competitors within ' + scope.Radius + ' miles of ZIP ' + scope.Zip
-                    + '. Competitor listings with unknown distances or outside the radius are excluded. The appraised VIN appears for reference when returned and is excluded from competitor counts and the asking-price mean.';
                 section.hidden = false;
                 render();
                 return rows;
             },
             clear: function () {
                 rows = null;
-                scope = null;
                 section.hidden = true;
                 destroyGrid();
             }

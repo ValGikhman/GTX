@@ -47,7 +47,7 @@
 
             handlers.start();
             setBusy(true);
-            const active = $.ajax({ url: form.action, method: 'POST', data: body.toString(), dataType: 'json', timeout: 75000 });
+            const active = $.ajax({ url: form.action, method: 'POST', data: body.toString(), dataType: 'json', timeout: 150000 });
             request = active;
 
             active.done(function (report) {
@@ -56,7 +56,7 @@
                 const scope = report && (report.request || submitted);
                 if (!data || typeof data !== 'object' || !scope || !Number.isInteger(scope.miles)
                     || !Number.isInteger(scope.radius) || scope.radius < 1 || !/^[0-9]{5}$/.test(scope.zip)) {
-                    handlers.error('MarketCheck did not return price research for this vehicle.');
+                    handlers.error('The selected sources did not return price research for this vehicle.');
                     return;
                 }
 
@@ -64,7 +64,7 @@
                 try {
                     handlers.result(data, effective, report.demand);
                 } catch (_) {
-                    handlers.error('The MarketCheck results could not be displayed. Please try again.');
+                    handlers.error('The research results could not be displayed. Please try again.');
                 }
             }).fail(function (xhr, status) {
                 if (request !== active) return;
@@ -74,7 +74,7 @@
                     return;
                 }
                 const message = xhr.responseJSON && xhr.responseJSON.message;
-                handlers.error(message || 'Unable to get MarketCheck results. Please try again.');
+                handlers.error(message || 'Unable to get research results. Please try again.');
             }).always(function () {
                 if (request !== active) return;
                 request = null;
@@ -119,7 +119,7 @@
                 const rows = comparables.show(data, scope);
                 const priced = rows.current.filter(row => row.Price > 0);
                 const estimate = grid.numeric(data.marketcheck_price);
-                text(overview, 'vehicle-title', (rows.subject && rows.subject.Vehicle) || fallbackTitle || 'Vehicle price research');
+                text(overview, 'vehicle-title', (rows.subject && rows.subject.Vehicle) || fallbackTitle || (data.marketCheckReferences && data.marketCheckReferences.vehicle) || 'Vehicle price research');
                 text(overview, 'request-summary', scope.Vin + ' · ' + integer.format(scope.Miles) + ' miles · ZIP ' + scope.Zip + ' · ' + scope.Radius + '-mile radius · Independent dealer');
                 text(overview, 'prediction', estimate > 0 ? money.format(estimate) : 'Unavailable');
                 text(overview, 'local-mean', priced.length ? money.format(priced.reduce((sum, row) => sum + row.Price, 0) / priced.length) : '—');

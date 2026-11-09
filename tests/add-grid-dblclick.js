@@ -1,0 +1,38 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const path = require('node:path');
+const source = fs.readFileSync(path.join(__dirname, '../Scripts/addTools/addGrid.js'), 'utf8');
+const $ = { fn: {} };
+const context = { jQuery: $, window: {} };
+vm.createContext(context);
+vm.runInContext(source.replace('}(jQuery));', 'globalThis.GridForTest = AddGrid; }(jQuery));'), context);
+function grid(options) {
+    const events = [];
+    const grid = Object.create(context.GridForTest.prototype);
+    grid._el = {}; grid._opts = options || {};
+    grid.$el = { trigger: (name, args) => events.push({ name, detail: args[0] }) };
+    return { grid, events };
+}
+const detail = { dataItem: { Id: 123 }, cellElement: {}, rowElement: {}, field: 'Name', event: { target: {} } };
+let calls = 0;
+let test = grid({ dblClick: function (payload) { calls++; assert.equal(payload, detail); assert.equal(this, test.grid._el); } });
+test.grid._handleDblClick(detail);
+assert.equal(calls, 1);
+assert.equal(test.events[0].name, 'addgrid:dblclick');
+assert.equal(test.events.length, 1);
+test = grid({ onRowDblClick: payload => { assert.equal(payload.dataItem.Id, 123); calls++; } });
+test.grid._handleDblClick(detail);
+assert.equal(calls, 2, 'Legacy row handler receives cell double-clicks');
+let cellCalls = 0;
+test = grid({ onCellDblClick: () => cellCalls++, onRowDblClick: () => { throw Error('Duplicate legacy callback'); } });
+test.grid._handleDblClick(detail);
+assert.equal(cellCalls, 1);
+let copied = 0;
+context.window.gtxCopyElement = () => copied++;
+test = grid({ dblClick: () => { throw Error('Copyable text must retain copy behavior'); } });
+test.grid._handleDblClick({ event: { target: { closest: () => ({ getAttribute: () => 'VIN123', textContent: '' }) }, preventDefault() {}, stopPropagation() {} } });
+assert.equal(copied, 1);
+assert.equal(test.events.length, 0);
+assert.equal((source.match(/self\._handleDblClick\(/g) || []).length, 4, 'Grouped and ordinary rows and cells use the same dispatcher');
+console.log('PASS: unified callback once, payload/context, legacy callbacks, copy behavior, grouped and ordinary dispatch wiring.');

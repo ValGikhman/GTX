@@ -22,10 +22,10 @@ namespace GTX.Common
         public const string MarketListingsToolName = "list_market_dealers";
         private static readonly CultureInfo Dollars = CultureInfo.GetCultureInfo("en-US");
         private static readonly Regex AppraiseCommand = new Regex(
-            @"\A(?:appraise|apprice)\s+(?:vin\s+)?`?(?<vin>[A-HJ-NPR-Z0-9]{17})`?(?:\s+with\s+(?<miles>[0-9]+|[0-9]{1,3}(?:,[0-9]{3})+)\s+miles)?(?<auction>\s+for\s+auction)?[.!?]?\z",
+            @"\A(?:appraise|apprice)\s+(?:vin\s+)?`?(?<vin>[A-HJ-NPR-Z0-9]{17})`?(?:\s+with\s+(?<miles>[0-9]{1,3}(?:[, \u00a0\u202f][0-9]{3})+|[0-9]+)\s+miles)?(?<auction>\s+for\s+auction)?[.!?]?\z",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
         private static readonly Regex ExplicitMarketMileage = new Regex(
-            @"\b(?:with|around|about|at|roughly|approximately)\s+(?<miles>[0-9]{1,3}(?:,[0-9]{3})+|[0-9]+(?:\.[0-9]+)?)\s*(?<thousands>k)?\s*(?:odometer\s+)?(?:miles?|mi)\b(?!\s*(?:radius|away|from|of)\b)",
+            @"\b(?:with|around|about|at|roughly|approximately)\s+(?<miles>[0-9]{1,3}(?:[, \u00a0\u202f][0-9]{3})+|[0-9]+(?:\.[0-9]+)?)\s*(?<thousands>k)?\s*(?:odometer\s+)?(?:miles?|mi)\b(?!\s*(?:radius|away|from|of)\b)",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
         private static readonly HttpClient Http = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false })
         {
@@ -110,7 +110,7 @@ namespace GTX.Common
             var input = new JObject { ["vin"] = match.Groups["vin"].Value };
             if (match.Groups["miles"].Success)
             {
-                if (!int.TryParse(match.Groups["miles"].Value, NumberStyles.AllowThousands, Dollars, out var miles)) return false;
+                if (!int.TryParse(Regex.Replace(match.Groups["miles"].Value, @"\s", ""), NumberStyles.AllowThousands, Dollars, out var miles)) return false;
                 input["miles"] = miles;
             }
             arguments = input.ToString(Formatting.None);
@@ -123,7 +123,7 @@ namespace GTX.Common
             if (matches.Count != 1) return arguments;
 
             var match = matches[0];
-            if (!decimal.TryParse(match.Groups["miles"].Value, NumberStyles.AllowThousands | NumberStyles.AllowDecimalPoint,
+            if (!decimal.TryParse(Regex.Replace(match.Groups["miles"].Value, @"\s", ""), NumberStyles.AllowThousands | NumberStyles.AllowDecimalPoint,
                 CultureInfo.InvariantCulture, out var mileage) || mileage > 2000000m) return arguments;
             if (match.Groups["thousands"].Success) mileage *= 1000m;
             if (mileage > 2000000m || mileage != decimal.Truncate(mileage)) return arguments;
@@ -154,12 +154,19 @@ namespace GTX.Common
                                 : inventory ? "Enter a 17-character VIN, target mileage, and a valid ZIP and radius."
                                 : "Send the 17-character VIN and actual mileage, and we can get the appraisal under way." };
                         if ((int)response.StatusCode == 429)
-                            return new ChatMarketReply { Note = "The appraisal quota has been reached. Try again when more requests are available." };
+                        {
+                            var body = await response.Content.ReadAsStringAsync();
+                            var providerLimit = body.IndexOf("MarketCheck", StringComparison.OrdinalIgnoreCase) >= 0;
+                            return new ChatMarketReply { Note = providerLimit
+                                ? "MarketCheck has reached its API request limit. Check your MarketCheck account's monthly quota and rate limits, then retry when requests are available."
+                                : "The appraisal quota has been reached. Try again when more requests are available." };
+                        }
                         if (!response.IsSuccessStatusCode)
                             return UnavailableReply();
                         var result = JObject.Parse(await response.Content.ReadAsStringAsync());
                         if (marketList) return FormatMarketListingsReply(result);
                         if (inventory) return FormatInventoryReply(result);
+                        var resale = (decimal?)input["resaleUsd"];
                         var reply = auction ? FormatReply(result) : FormatPriceReply(result);
                         reply.AppraisalParameters = new
                         {
@@ -167,7 +174,7 @@ namespace GTX.Common
                             miles = (int?)result["miles"] ?? (int?)input["miles"],
                             zip = (string)result["zip"] ?? (string)input["zip"],
                             radius = (int?)result["radius"] ?? (int?)input["radius"],
-                            resaleUsd = ((decimal?)input["resaleUsd"])?.ToString("0.##", CultureInfo.InvariantCulture),
+                            resaleUsd = resale?.ToString("0.##", CultureInfo.InvariantCulture),
                             hammerBidUsd = ((decimal?)input["hammerBidUsd"])?.ToString("0.##", CultureInfo.InvariantCulture)
                         };
                         return reply;

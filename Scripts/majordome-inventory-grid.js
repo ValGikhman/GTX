@@ -161,6 +161,7 @@
             exportToPdf: false,
             groupable: false,
             alternateRows: true,
+            dblClick: function (detail) { invoke('dblClick', detail); },
             onRender: function (detail) { invoke('onRender', detail); },
             onSearchChange: function (detail) { invoke('onSearchChange', detail); },
             onFilterChange: function (detail) { invoke('onFilterChange', detail); },

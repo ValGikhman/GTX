@@ -210,6 +210,8 @@
                 if (res && res.ok) {
                     $("#MajordomeLink").removeClass("d-none");
                     const role = (res.role || res.Role || "user");
+                    window.gtx = window.gtx || {};
+                    window.gtx.menuPermissions = res.permissions || [];
                     setMajordomeMenu(role);
                     window.gtx = window.gtx || {};
                     window.gtx.currentRole = role;

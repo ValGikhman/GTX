@@ -22,6 +22,7 @@ namespace GTX.Controllers
         {
         }
 
+        [GTX.Common.RequireAdminRole]
         public ActionResult Index()
         {
             var cached = Cache.Get(CacheKey) as SitemapViewer;

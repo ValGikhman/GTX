@@ -1,11 +1,14 @@
+using GTX.Common;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Configuration;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -33,7 +36,7 @@ namespace GTX.Controllers
             return RedirectToAction(nameof(Appraisal));
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken, AsyncTimeout(150000)]
         public Task<ActionResult> AppraisalResearch(string vin, int? miles, string zip, int? radius)
         {
             var payload = new JObject { ["vin"] = vin, ["miles"] = miles };
@@ -50,13 +53,12 @@ namespace GTX.Controllers
 
         private bool CanUseAppraisal()
         {
-            var role = RoleCookie.GetCurrentRole(Request, Session);
-            return role == CommonUnit.Roles.Owner || role == CommonUnit.Roles.Manager;
+            return SiteAccess.Can(SiteAccess.Current(Request), MajordomeItem.Appraisal);
         }
 
         private async Task<ActionResult> SendAppraisalAsync(string routeSuffix, object payload)
         {
-            if (!CanUseAppraisal()) return AppraisalJson(403, new { message = "Sign in as an Owner or Manager to use appraisal." });
+            if (!CanUseAppraisal()) return AppraisalJson(403, new { message = "Sign in with a role that has Appraisal access." });
             if (!ModelState.IsValid) return AppraisalJson(400, new { message = "Check the values and try again." });
 
             var key = ConfigurationManager.AppSettings["AutoDealer:ApiKey"]?.Trim();
@@ -96,7 +98,14 @@ namespace GTX.Controllers
 
                         var result = JObject.Parse(await response.Content.ReadAsStringAsync());
                         if (routeSuffix.Length == 0)
-                            return AppraisalJson(200, new { data = result["data"], demand = result["demand"], request = result["request"] });
+                        {
+                            var data = result["data"] as JObject;
+                            var scope = result["request"] as JObject;
+                            if (data != null && scope != null) {
+                                data["marketCheckReferences"] = await GetAppraisalReferencesAsync(origin, key, data, scope);
+                            }
+                            return AppraisalJson(200, new { data, demand = result["demand"], request = scope });
+                        }
                         return AppraisalJson(200, result);
                     }
                 }
@@ -109,6 +118,48 @@ namespace GTX.Controllers
             {
                 return AppraisalJson(502, new { message = "The AutoDealer.dev appraisal service could not be reached." });
             }
+        }
+
+        private static async Task<JObject> GetAppraisalReferencesAsync(Uri origin, string key, JObject data, JObject scope)
+        {
+            var current = data["comparables"]?["listings"] as JArray ?? new JArray();
+            var recent = data["recent_comparables"]?["listings"] as JArray ?? new JArray();
+            var selectedCurrent = AppraisalComparableScope.Select(current, scope, "MarketCheck Current");
+            var selectedRecent = AppraisalComparableScope.Select(recent, scope, "MarketCheck Recent", 100);
+            JObject expanded = null;
+            if ((int)selectedCurrent["strictCount"] < 5 || (int)selectedRecent["strictCount"] < 5)
+            {
+                try
+                {
+                    using (var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
+                    using (var request = new HttpRequestMessage(HttpMethod.Post, new Uri(origin, "/api/service/price-research/auction-comparables")))
+                    {
+                        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", key);
+                        request.Content = new StringContent(scope.ToString(Formatting.None), Encoding.UTF8, "application/json");
+                        using (var response = await AppraisalClient.SendAsync(request, timeout.Token))
+                            if (response.IsSuccessStatusCode)
+                                expanded = JObject.Parse(await response.Content.ReadAsStringAsync());
+                    }
+                }
+                catch (Exception ex) when (ex is HttpRequestException || ex is OperationCanceledException || ex is JsonException)
+                {
+                    // Original results remain usable when a wider search cannot complete.
+                }
+            }
+            if (expanded != null)
+            {
+                selectedCurrent = AppraisalComparableScope.Select(new JArray(current.Concat(expanded["current"] as JArray ?? new JArray())), scope, "MarketCheck Current", (int?)expanded["currentRadiusLimit"] ?? 5000);
+                selectedRecent = AppraisalComparableScope.Select(new JArray(recent.Concat(expanded["recent"] as JArray ?? new JArray())), scope, "MarketCheck Recent", 100);
+            }
+            else if ((int)selectedCurrent["strictCount"] < 5 || (int)selectedRecent["strictCount"] < 5)
+            {
+                selectedCurrent["note"] = (string)selectedCurrent["note"] + " The additional MarketCheck lookup was unavailable; showing the original provider results.";
+                selectedRecent["note"] = (string)selectedRecent["note"] + " The additional MarketCheck lookup was unavailable; showing the original provider results.";
+            }
+            return new JObject
+            {
+                ["vehicle"] = expanded?["vehicle"], ["current"] = selectedCurrent, ["recent"] = selectedRecent
+            };
         }
 
         private ActionResult AppraisalJson(int status, object value)

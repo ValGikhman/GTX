@@ -6,13 +6,20 @@
     var actionName = (ViewContext.RouteData.Values["action"] ?? string.Empty).ToString();
     var isHomeIndexPage = controllerName.Equals("Home", StringComparison.OrdinalIgnoreCase)
         && actionName.Equals("Index", StringComparison.OrdinalIgnoreCase);
-    var isMajordomeInventoryPage = controllerName.Equals("Majordome", StringComparison.OrdinalIgnoreCase)
+    var isMajordomeInventoryPage = controllerName.Equals(GTX.Common.Enums.Controllers.Majordome.ToString(), StringComparison.OrdinalIgnoreCase)
         && actionName.Equals("Inventory", StringComparison.OrdinalIgnoreCase);
     var chatBotEnabled = ChatBotSettings.Enabled;
-    var needsAdminGrid = controllerName.Equals("Majordome", StringComparison.OrdinalIgnoreCase)
-        || controllerName.Equals("InventoryManagement", StringComparison.OrdinalIgnoreCase)
+    var needsAdminGrid = controllerName.Equals(GTX.Common.Enums.Controllers.Majordome.ToString(), StringComparison.OrdinalIgnoreCase)
+        || controllerName.Equals(GTX.Common.Enums.Controllers.InventoryManagement.ToString(), StringComparison.OrdinalIgnoreCase)
         || (actionName.Equals("Index", StringComparison.OrdinalIgnoreCase)
-            && new[] { "Announcements", "Employees", "Blogs", "Specials", "ChatBotCommands" }
+            && new[] {
+                GTX.Common.Enums.Controllers.Announcements.ToString(),
+                GTX.Common.Enums.Controllers.Employees.ToString(),
+                GTX.Common.Enums.Controllers.Roles.ToString(),
+                GTX.Common.Enums.Controllers.Blogs.ToString(),
+                GTX.Common.Enums.Controllers.Specials.ToString(),
+                GTX.Common.Enums.Controllers.ChatBotCommands.ToString()
+            }
                 .Any(name => name.Equals(controllerName, StringComparison.OrdinalIgnoreCase)));
     var siteCssBundleUrl = BundleTable.Bundles.ResolveBundleUrl("~/Content/css", true);
     var majordomeCssVersion = System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/majordome.css")).Ticks;
@@ -348,16 +355,7 @@
             _class = string.Empty;
         }
 
-        var isOwner = string.Equals(
-            Convert.ToString(ViewBag.CurrentRole ?? string.Empty),
-            CommonUnit.Roles.Owner.ToString(),
-            StringComparison.OrdinalIgnoreCase);
-        var isBlogger = string.Equals(
-            Convert.ToString(ViewBag.CurrentRole ?? string.Empty),
-            CommonUnit.Roles.Blogger.ToString(),
-            StringComparison.OrdinalIgnoreCase);
-        var canAppraise = isOwner || string.Equals(Convert.ToString(ViewBag.CurrentRole), CommonUnit.Roles.Manager.ToString(),
-            StringComparison.OrdinalIgnoreCase);
+
     }
 
     <!-- Header Section Begin -->
@@ -374,33 +372,15 @@
                             <a href="#" class="btn gradient shadow border-dark rounded-4 d-inline-flex align-items-center text-black">
                                 <i class="bi bi-gear px-2"></i>
                             </a>
-                            <ul class="dropdown rounded">
-                                @if (isOwner)
+                            <ul class="dropdown rounded majordome-batch-actions-menu p-1 shadow">
+                                @foreach (var item in GTX.Common.MajordomeMenu.Items)
                                 {
-                                    <li id="menuInventoryDashboard">@Html.ActionLink("Dashboard", "Dashboard", "InventoryManagement")</li>
-                                    <li id="menuInventoryManagement">@Html.ActionLink("Management", "Index", "InventoryManagement")</li>
-                                }
-                                @if (!isBlogger)
-                                {
-                                <li id="menuInventory">@Html.ActionLink("Majordome", "Inventory", "Majordome")</li>
-                                <li id="menuVinDecoder">@Html.ActionLink("Vindecoder", "Index", "Vindecoder")</li>
-                                if (canAppraise)
-                                {
-                                    <li id="menuAppraisal">@Html.ActionLink("Appraisal", "Appraisal", "Majordome")</li>
-                                }
-                                <li id="menuAnnouncements">@Html.ActionLink("Alerts", "Index", "Announcements")</li>
-                                }
-                                <li id="menuBlogs">@Html.ActionLink("Blogs", "Index", "Blogs")</li>
-                                <li id="menuSpecials">@Html.ActionLink("Specials", "Index", "Specials")</li>
-                                @if (!isBlogger)
-                                {
-                                <li id="menuEmployees">@Html.ActionLink("Employees", "Index", "Employees")</li>
-                                <li id="menuHealth">@Html.ActionLink("Health", "Index", "Health")</li>
-                                <li id="menuSitemap">@Html.ActionLink("Sitemap", "Index", "Sitemap")</li>
-                                }
-                                @if (isOwner)
-                                {
-                                    <li id="menuChatBotCommands" class="d-none d-lg-block">@Html.ActionLink("Chat Bot", "Index", "ChatBotCommands")</li>
+                                    <li id="menu@item.Item" data-menu-permission="@item.Item">
+                                        <a href="@Url.Action(item.Action, item.Controller)" class="dropdown-item majordome-batch-action rounded-3">
+                                            <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi @item.Icon"></i></span>
+                                            <span><strong>@item.Title</strong><small>@item.Description</small></span>
+                                        </a>
+                                    </li>
                                 }
                             </ul>
                         </li>
@@ -413,16 +393,31 @@
                                 <i class="bi bi-currency-dollar me-1"></i>@I18n.R("Nav_GetPrequalified")
                             </a>
                         </li>
-                        <li class="mx-2">@Html.ActionLink(I18n.R("Title_Blog"), "List", "Blogs")</li>
-                        <li class="mx-2">@Html.ActionLink("Specials", "List", "Specials")</li>
-                        <li class="mx-2">
+                        <li class="mx-2">@Html.ActionLink(I18n.R("Title_Blog"), "List", GTX.Common.Enums.Controllers.Blogs.ToString())</li>
+                        <li class="mx-2">@Html.ActionLink("Specials", "List", GTX.Common.Enums.Controllers.Specials.ToString())</li>
+                        <li id="AboutMenuLink" class="mx-2">
                             <a href="#">@I18n.R("Nav_AboutUs")</a>
-                            <ul class="dropdown rounded">
-                                <li>@Html.ActionLink(I18n.R("Nav_AboutUs"), "About", "Home")</li>
-                                <li><a href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })">@I18n.R("Nav_ContactUs")</a></li>
-                                <li>@Html.ActionLink(I18n.R("Nav_OurStaff"), "Staff", "Home")</li>
-                                <li>@Html.ActionLink(I18n.R("Nav_Testimonials"), "Testimonials", "Home")</li>
-                                <li><a href="@Url.Action("Reviews", "Home")">@I18n.R("Nav_CustomerReviews")</a></li>
+                            <ul class="dropdown rounded majordome-batch-actions-menu p-1 shadow">
+                                <li><a href="@Url.Action("About", "Home")" class="dropdown-item majordome-batch-action rounded-3">
+                                    <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-building"></i></span>
+                                    <span><strong>@I18n.R("Nav_AboutUs")</strong><small>Get to know GTX Auto Group</small></span>
+                                </a></li>
+                                <li><a href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })" class="dropdown-item majordome-batch-action rounded-3">
+                                    <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-envelope"></i></span>
+                                    <span><strong>@I18n.R("Nav_ContactUs")</strong><small>Find us or get in touch</small></span>
+                                </a></li>
+                                <li><a href="@Url.Action("Staff", "Home")" class="dropdown-item majordome-batch-action rounded-3">
+                                    <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-people"></i></span>
+                                    <span><strong>@I18n.R("Nav_OurStaff")</strong><small>Meet the people behind GTX</small></span>
+                                </a></li>
+                                <li><a href="@Url.Action("Testimonials", "Home")" class="dropdown-item majordome-batch-action rounded-3">
+                                    <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-chat-quote"></i></span>
+                                    <span><strong>@I18n.R("Nav_Testimonials")</strong><small>Read what our customers say</small></span>
+                                </a></li>
+                                <li><a href="@Url.Action("Reviews", "Home")" class="dropdown-item majordome-batch-action rounded-3">
+                                    <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-star"></i></span>
+                                    <span><strong>@I18n.R("Nav_CustomerReviews")</strong><small>Explore customer ratings and reviews</small></span>
+                                </a></li>
                             </ul>
                         </li>
                         <li class="mx-2 d-none d-lg-inline-block">
@@ -1134,6 +1129,7 @@
 
 <script>
     window.gtx = window.gtx || {};
+    window.gtx.menuPermissions = @Html.Raw(System.Web.Helpers.Json.Encode(ViewBag.MenuPermissions ?? new string[0]));
     window.gtx.currentRole = '@(ViewBag.CurrentRole ?? "")';
     setMajordomeMenu(window.gtx.currentRole);
 

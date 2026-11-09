@@ -1,0 +1,26 @@
+<div class="pr-research-workspace">
+    <div class="nav nav-pills gap-2 mb-3" role="tablist" aria-label="Appraisal mode">
+        <button type="button" class="nav-link active" id="pr-individual-tab" role="tab" aria-selected="true" aria-controls="pr-individual-inputs" data-appraisal-mode="individual"><i class="bi bi-car-front me-2" aria-hidden="true"></i>Individual</button>
+        <button type="button" class="nav-link" id="pr-multiple-tab" role="tab" aria-selected="false" aria-controls="pr-batch-inputs" data-appraisal-mode="multiple"><i class="bi bi-collection me-2" aria-hidden="true"></i>Multiple</button>
+    </div>
+    <div id="pr-individual-inputs" role="tabpanel" aria-labelledby="pr-individual-tab">
+        @Html.Partial("_AppraisalResearchForm", "pr")
+    </div>
+    <form id="pr-batch-inputs" role="tabpanel" aria-labelledby="pr-multiple-tab" hidden
+          data-parse-url="@Url.Action("AppraisalParseFile", "Majordome")" data-appraise-url="@Url.Action("AppraiseBatchVehicle", "Majordome")">
+        @Html.AntiForgeryToken()
+        <label id="pr-pdf-drop" class="pr-pdf-drop" for="pr-pdf-file">
+            <i class="bi bi-file-earmark-arrow-up" aria-hidden="true"></i>
+            <strong>Drop your auction PDF or CSV here</strong><span>or click to select a file</span>
+            <small>PDF or CSV · up to 10 MB · 100 vehicles</small>
+            <input id="pr-pdf-file" type="file" accept=".pdf,.csv,application/pdf,text/csv" class="visually-hidden" />
+        </label>
+        <div class="row g-3 mt-1">
+            <div class="col-6"><label class="form-label" for="pr-batch-zip">ZIP code</label><input id="pr-batch-zip" class="form-control" value="45040" required pattern="[0-9]{5}" maxlength="5" inputmode="numeric" /></div>
+            <div class="col-6"><label class="form-label" for="pr-batch-radius">Radius (mi)</label><input id="pr-batch-radius" class="form-control" type="number" value="100" min="1" max="500" step="1" required /></div>
+        </div>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+            <button type="submit" id="pr-batch-run" class="btn btn-gradient ms-auto" disabled><i class="bi bi-play-fill me-1" aria-hidden="true"></i>Appraise all</button>
+        </div>
+    </form>
+</div>

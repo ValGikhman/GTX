@@ -34,10 +34,10 @@
                     <h2 id="appraisal-title">Research a vehicle</h2>
                 </div>
             </div>
-            @Html.Partial("_AppraisalResearchForm", "pr")
+            @Html.Partial("_BatchAppraisalControls")
         </section>
 
-        <section class="vin-decoder-results pr-results-panel" aria-label="Appraisal results" aria-busy="false">
+        <section id="pr-individual-results" class="vin-decoder-results pr-results-panel" aria-label="Appraisal results" aria-busy="false">
             <div id="pr-progress" class="pr-progress" role="status" hidden>
                 <span class="spinner-border spinner-border-sm" aria-hidden="true"></span> Researching the market…
             </div>
@@ -161,10 +161,42 @@
                 @Html.Partial("_AppraisalComparables", "pr")
             </div>
         </section>
+        <section id="pr-batch-results" class="vin-decoder-results" hidden aria-label="Multiple vehicle appraisal results">
+            <header class="pr-batch-heading">
+                <div class="pr-batch-heading-title">
+                    <span class="pr-batch-heading-icon" aria-hidden="true"><i class="bi bi-collection-fill"></i></span>
+                    <div><span class="pr-batch-eyebrow">Batch appraisal</span><h2>Auction shortlist</h2></div>
+                </div>
+                <span id="pr-batch-status" role="status" aria-live="polite"></span>
+            </header>
+            <div id="pr-batch-error" class="alert alert-danger" role="alert" hidden></div>
+            <div id="pr-batch-grid" class="gtx-admin-add-grid"></div>
+        </section>
     </section>
 </main>
 
+<div class="modal" id="pr-batch-progress-modal" tabindex="-1" aria-labelledby="pr-batch-progress-title" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="gtx-modal-title-icon" aria-hidden="true"><i class="bi bi-collection-fill"></i></span>
+                <h2 class="modal-title" id="pr-batch-progress-title">Appraising vehicles</h2>
+            </div>
+            <div class="modal-body">
+                <p id="pr-batch-progress-message" class="mb-2" role="status"></p>
+                <div id="pr-batch-progress" class="progress" role="progressbar" aria-label="Vehicles processed" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                    <div id="pr-batch-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="pr-batch-stop" class="btn btn-outline-secondary">Stop after current</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section scripts {
+    <script src="@Url.Content("~/Scripts/majordome-appraisal-batch.js")?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome-appraisal-batch.js")).Ticks)"></script>
     <script src="@Url.Content("~/Scripts/majordome-appraisal-bid.js")?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome-appraisal-bid.js")).Ticks)"></script>
     <script src="@Url.Content("~/Scripts/majordome-appraisal-comparables.js")?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome-appraisal-comparables.js")).Ticks)"></script>
     <script src="@Url.Content("~/Scripts/majordome-appraisal-research.js")?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome-appraisal-research.js")).Ticks)"></script>

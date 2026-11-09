@@ -101,7 +101,7 @@ namespace GTX.Controllers
                 Model.Employers = AppCache.GetOrCreate(Constants.EMPLOYERS_CACHE, () => GetEmployers(), minutes: 60);
                 Model.OpenHours = AppCache.GetOrCreate(Constants.OPENHOURS_CACHE, () => Utility.XMLHelpers.XmlRepository.GetOpenHours(), minutes: 60);
                 Model.Categories = AppCache.GetOrCreate(Constants.CATEGORIES_CACHE, () => GetCategories(), minutes: 60);
-                Model.Passwords = AppCache.GetOrCreate(Constants.PASSWORDS_CACHE, () => GetPasswords(), minutes: 60);
+                // Credentials are read only by SiteRoleStore.
                 var published = Model.Inventory?.Published ?? DateTime.Now;
                 if (published == default(DateTime))
                 {
@@ -109,10 +109,11 @@ namespace GTX.Controllers
                 }
 
                 ViewBag.Published = Model.Environment == CommonUnit.Environment.Dev ? published : published.AddHours(-5);
-                var role = RoleCookie.GetCurrentRole(Request, Session);
+                var access = SiteAccess.Current(Request);
 
-                ViewBag.CurrentRole = role.ToString();
-                Model.IsMajordome = (role != CommonUnit.Roles.User);
+                ViewBag.CurrentRole = access?.Name ?? "User";
+                ViewBag.MenuPermissions = access?.Permissions ?? new string[0];
+                Model.IsMajordome = access != null;
                 ViewBag.IsMajordome = Model.IsMajordome;
 
                 Model.Filters = AppCache.GetOrCreate(Constants.FILTERS_CACHE, () => BuildFilters(Model.Inventory), minutes: 60);
@@ -194,37 +195,10 @@ namespace GTX.Controllers
             currentRole = CommonUnit.Roles.User;
             password = (password ?? "").Trim();
 
-            var expected = Model.Passwords.FirstOrDefault(m => m.Password == password);
+            var expected = new SiteRoleStore().Authenticate(password);
             if (expected == null) return false;
-
-            // Preserve the existing sitePassword:Blog setting as a Blogger login.
-            var roleName = string.Equals(expected.Role, "Blog", StringComparison.OrdinalIgnoreCase)
-                ? nameof(CommonUnit.Roles.Blogger)
-                : expected.Role;
-            if (!string.IsNullOrWhiteSpace(roleName) &&
-                Enum.TryParse(roleName, true, out CommonUnit.Roles role))
-            {
-                currentRole = role;
-            }
-
-            // session
-            session["CurrentRole"] = currentRole;
-
-            // encrypted cookie
-            var bytes = Encoding.UTF8.GetBytes(currentRole.ToString());
-            var encoded = MachineKey.Encode(bytes, MachineKeyProtection.All);
-
-            var cookie = new HttpCookie(RoleCookie.CookieName, encoded)
-            {
-                HttpOnly = true,
-                Secure = request.IsSecureConnection,   // ✅ MVC5 correct
-                Path = "/"
-            };
-
-            if (rememberOnThisComputer)
-                cookie.Expires = DateTime.UtcNow.AddDays(30);
-
-            response.Cookies.Add(cookie);
+            if (!Enum.TryParse(expected.Name, true, out currentRole)) currentRole = (CommonUnit.Roles)expected.Id;
+            SiteAccess.SignIn(expected, request, response, session, rememberOnThisComputer);
 
             return true;
         }
@@ -612,15 +586,5 @@ namespace GTX.Controllers
 
         #endregion
 
-        #region Passwords
-        private List<SitePassword> GetPasswords()
-        {
-            return ConfigurationManager.AppSettings.AllKeys.Where(k => k.StartsWith("sitePassword:", StringComparison.OrdinalIgnoreCase))
-                .Select(k => new SitePassword {
-                    Role = k.Substring("sitePassword:".Length),
-                    Password = ConfigurationManager.AppSettings[k]
-                }).ToList();
-        }
-        #endregion
     }
 }

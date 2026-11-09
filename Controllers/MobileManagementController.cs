@@ -23,9 +23,7 @@ namespace GTX.Controllers
         public sealed class LoginRequest { public string Password { get; set; } }
         public MobileManagementController() : this(new InventoryService()) { }
         public MobileManagementController(IInventoryService service) { inventory = service; }
-        private static string OwnerPassword => ConfigurationManager.AppSettings.AllKeys
-            .Where(k => string.Equals(k, "sitePassword:Owner", StringComparison.OrdinalIgnoreCase))
-            .Select(k => ConfigurationManager.AppSettings[k]).FirstOrDefault();
+        private static string OwnerPassword => new SiteRoleStore().All().FirstOrDefault(r => r.Name == "Owner")?.PasswordHash;
         private static string Hash(string value) {
             using (var sha = SHA256.Create()) return Convert.ToBase64String(sha.ComputeHash(Encoding.UTF8.GetBytes(value ?? "")));
         }
@@ -70,7 +68,7 @@ namespace GTX.Controllers
             }
             var expected = OwnerPassword;
             var supplied = request?.Password?.Trim();
-            if (string.IsNullOrWhiteSpace(expected) || supplied == null || supplied.Length > 512 || Hash(expected) != Hash(supplied))
+            if (string.IsNullOrWhiteSpace(expected) || supplied == null || supplied.Length > 512 || !System.Web.Helpers.Crypto.VerifyHashedPassword(expected, supplied))
                 return Payload(new { message = "Invalid Owner password." }, 401);
             var token = Sessions.Create(expected);
             HttpRuntime.Cache.Remove(key);

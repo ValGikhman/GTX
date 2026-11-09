@@ -153,7 +153,9 @@
         var expectedResale = linkedResale === null ? number(details.expectedSellingPriceUsd) : linkedResale;
         resale.value = expectedResale !== null && expectedResale > 0 ? String(expectedResale) : '';
         current.value = linkedBid === null ? '' : String(linkedBid);
-        assumption.textContent = linkedResale === null ? defaultAssumption : 'Resale starts from the price carried over from Rabinovich. You can edit it here.';
+        assumption.textContent = linkedResale !== null
+            ? 'Resale starts from the price carried over from Rabinovich. You can edit it here.'
+            : defaultAssumption;
         update(true);
     });
     reset();

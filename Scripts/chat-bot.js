@@ -440,10 +440,23 @@
             $container.addClass("has-vehicle-results");
         }
 
+        function appendMarketSource($parent, source) {
+            var isCarGurus = source === "CG";
+            var name = isCarGurus ? "CarGurus" : "MarketCheck";
+            $("<span>", {
+                "class": "bot-market-source " + (isCarGurus ? "is-cg" : "is-mc"),
+                text: isCarGurus ? "CG" : "MC",
+                title: name,
+                "aria-label": name
+            }).appendTo($parent);
+        }
+
         function appendMarketReply($container, reply) {
             var $card = $("<article>", { "class": "bot-market-reply" }).appendTo($container);
             var $header = $("<header>", { "class": "bot-market-header" }).appendTo($card);
-            $("<div>", { "class": "bot-market-kicker", text: reply.Kicker }).appendTo($header);
+            var $kicker = $("<div>", { "class": "bot-market-kicker" }).appendTo($header);
+            appendMarketSource($kicker, "MC");
+            $("<span>", { text: reply.Kicker }).appendTo($kicker);
             $("<h3>", { "class": "bot-market-title", text: reply.Title }).appendTo($header);
             if (reply.Context) $("<p>", { "class": "bot-market-context", text: reply.Context }).appendTo($header);
 
@@ -458,13 +471,16 @@
 
             reply.Sections.forEach(function (section) {
                 var $section = $("<section>", { "class": "bot-market-section" }).appendTo($card);
-                $("<h4>", { "class": "bot-market-section-title", text: section.Title }).appendTo($section);
+                var $title = $("<h4>", { "class": "bot-market-section-title" }).appendTo($section);
+                appendMarketSource($title, section.Source);
+                $("<span>", { text: section.Title }).appendTo($title);
                 if (section.Context) $("<p>", { "class": "bot-market-context", text: section.Context }).appendTo($section);
                 if (section.Items.length) {
                     var $list = $("<ul>", { "class": "bot-market-list" }).appendTo($section);
                     section.Items.forEach(function (item) { $("<li>", { text: item }).appendTo($list); });
                 }
-                if (section.Note) $("<p>", { "class": "bot-market-note", text: section.Note }).appendTo($section);
+                if (section.Note) $("<p>", { "class": "bot-market-note", text: section.Note })
+                    .toggleClass("is-multiline", section.Source === "CG").appendTo($section);
             });
 
             if (reply.Note) $("<p>", { "class": "bot-market-note", text: reply.Note }).appendTo($card);
