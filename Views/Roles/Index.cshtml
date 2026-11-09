@@ -1,0 +1,55 @@
+@model List<GTX.Models.SiteRoleModel>
+@{
+    ViewBag.Title = "Roles";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var roleIcons = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) {
+        { "Owner", "bi-shield-lock" },
+        { "Manager", "bi-clipboard-check" },
+        { "Sales", "bi-currency-dollar" },
+        { "Tech", "bi-tools" },
+        { "Support", "bi-wrench" },
+        { "Blogger", "bi-pencil-square" }
+    };
+}
+@Html.Partial("_MarketingHero", null, new ViewDataDictionary { { "Kicker", "Majordome" }, { "Title", "Manage" }, { "Accent", "Roles" }, { "Description", "Manage role passwords and Majordome menu access." }, { "Word", "ACCESS" }, { "Icon", "bi-people" } })
+<div class="p-3" id="rolesPage" data-edit-url="@Url.Action("Edit")" data-delete-url="@Url.Action("Delete")" data-login-as-url="@Url.Action("LoginAs")">
+    @Html.AntiForgeryToken()
+    <div class="shadow rounded-4 overflow-hidden">
+        <button type="button" class="btn btn-gradient" id="newRole"><i class="bi bi-plus-lg me-1"></i>New</button>
+        <div id="rolesGrid" class="gtx-admin-add-grid"></div>
+        <div class="d-none"><table id="rolesSource"><tbody>
+            @foreach (var role in Model) {
+                var roleIcon = roleIcons.ContainsKey(role.Name) ? roleIcons[role.Name] : "bi-person-circle";
+                <tr><td><div class="d-flex align-items-center gap-2 py-2"><i class="bi @roleIcon fs-4 text-primary" aria-hidden="true"></i><span class="fw-semibold">@role.Name</span></div></td><td>@string.Join(", ", GTX.Common.MajordomeMenu.Items.Where(i => role.Permissions.Contains(i.Item.ToString())).Select(i => i.Title))</td><td>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-gradient-grey btn-sm btn-outline-primary login-as-role text-nowrap"
+                                data-id="@role.Id" title="Log in as @role.Name" aria-label="Log in as @role.Name">
+                            <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>
+                        </button>
+                        <a class="btn btn-gradient-grey btn-sm btn-outline-primary edit-role"
+                           href="@Url.Action("Edit", GTX.Common.Enums.Controllers.Roles.ToString(), new { id = role.Id })"
+                           data-id="@role.Id" title="Edit role">
+                            <i class="bi bi-pencil-square me-1"></i>
+                        </a>
+                        @if (role.Name != "Owner") {
+                            <button type="button" class="btn btn-gradient-grey btn-sm btn-outline-danger delete-role"
+                                    data-id="@role.Id" data-name="@role.Name" title="Delete role">
+                                <i class="bi bi-trash me-1"></i>
+                            </button>
+                        }
+                    </div>
+                </td></tr>
+            }
+        </tbody></table></div>
+    </div>
+</div>
+<div class="modal fade" id="roleModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="roleModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable"><div class="modal-content border-0 shadow">
+        <div class="modal-header"><span class="gtx-modal-title-icon" aria-hidden="true"><i class="bi bi-person-badge-fill"></i></span><div class="modal-title" id="roleModalTitle">Edit role</div><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+        <div class="modal-body" id="roleModalBody"></div>
+    </div></div>
+</div>
+<script type="text/x-addgrid-template" id="role-name-template">{{NameHtml}}</script>
+<script type="text/x-addgrid-template" id="role-access-template">{{AccessHtml}}</script>
+<script type="text/x-addgrid-template" id="role-actions-template">{{ActionsHtml}}</script>
+<script src="@Url.Content("~/Scripts/roles.js")?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/roles.js")).Ticks)"></script>

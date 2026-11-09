@@ -1,0 +1,39 @@
+@model string
+@{
+    var prefix = Model + "-demand";
+    var headingId = prefix + "-heading";
+}
+<section id="@prefix" class="pr-demand" aria-labelledby="@headingId" data-appraisal-market-demand>
+    <header>
+        <div class="pr-heading-group">
+            <span class="pr-section-icon" aria-hidden="true"><i class="bi bi-graph-up"></i></span>
+            <h2 id="@headingId">Local market demand</h2>
+        </div>
+        <small id="@(prefix + "-time")" data-appraisal-demand-time></small>
+    </header>
+    <div class="pr-bid-metrics">
+        <div>
+            <span>Market days supply
+                <button type="button" class="btn appraisal-metric-help" data-appraisal-help aria-label="About market days supply"
+                        data-bs-title="Market days supply" data-bs-content="An estimate of how many days the area's supply of matching used vehicles would last at the recent sales pace. MarketCheck divides active listings by the average daily sales activity over the past 45 days. It does not predict how long your individual car will take to sell."><i class="bi bi-question-circle" aria-hidden="true"></i></button>
+            </span>
+            <strong id="@(prefix + "-days")" data-appraisal-demand-days>—</strong>
+        </div>
+        <div>
+            <span>Similar vehicles available
+                <button type="button" class="btn appraisal-metric-help" data-appraisal-help aria-label="About similar vehicles available"
+                        data-bs-title="Similar vehicles available" data-bs-content="Count of active used listings matching the VIN’s year, make, model, trim, version, and build code in your selected area. This count does not filter by mileage. Use View in the Current grid to open individual pricing comparables, which may differ from this count."><i class="bi bi-question-circle" aria-hidden="true"></i></button>
+            </span>
+            <strong id="@(prefix + "-active")" data-appraisal-demand-active>—</strong>
+        </div>
+        <div>
+            <span>Sales activity · past 45 days
+                <button type="button" class="btn appraisal-metric-help" data-appraisal-help aria-label="About sales activity in the past 45 days"
+                        data-bs-title="Sales activity · past 45 days" data-bs-content="Number of matching used vehicles MarketCheck estimates left the local market in the past 45 days. MarketCheck infers sales when dealer listings disappear, so these are not confirmed transactions."><i class="bi bi-question-circle" aria-hidden="true"></i></button>
+            </span>
+            <strong id="@(prefix + "-sales")" data-appraisal-demand-sales>—</strong>
+        </div>
+    </div>
+    <p id="@(prefix + "-message")" data-appraisal-demand-message role="status"></p>
+    <p class="pr-demand-note">Exact-build matches in your selected ZIP and radius. Sales activity is inferred from listings leaving the market. Market days supply describes the area's inventory, not how many days your particular car will take to sell.</p>
+</section>

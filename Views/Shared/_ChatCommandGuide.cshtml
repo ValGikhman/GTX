@@ -1,3 +1,5 @@
+@model bool
+
 <section id="gtxChatCommandGuide"
          class="gtx-chat-command-guide"
          aria-label="Chat command guide"
@@ -18,6 +20,91 @@
             <i class="bi bi-lightbulb" aria-hidden="true"></i>
             <div><strong>Ask</strong> what is available to see cards here. Use <strong>Open</strong> or <strong>Take me to</strong> when you want to visit a page.</div>
         </div>
+
+        @if (Model)
+        {
+            var marketExamples = new[]
+            {
+                new {
+                    Prompt = "Appraise VIN 4T1BE46K19U342407 with 73,929 miles for auction",
+                    Detail = "MC shows the MarketCheck retail estimate and supplies the default resale assumption for the bid ceiling. You can enter your own resale price.",
+                    Icon = "bi-calculator"
+                },
+                new {
+                    Prompt = "Appraise VIN 4T1BE46K19U342407 with 73,929 miles",
+                    Detail = "Gets the MarketCheck suggested retail price. Use View on the result to open Appraisal with the details filled in.",
+                    Icon = "bi-currency-dollar"
+                },
+                new {
+                    Prompt = "What is the MarketCheck suggested retail price for VIN 4T1BE46K19U342407 with 85,000 miles in ZIP 45202?",
+                    Detail = "Gets a retail estimate for a specific odometer reading and ZIP code.",
+                    Icon = "bi-geo-alt"
+                },
+                new {
+                    Prompt = "Appraise VIN WAUFFAFL3BN022447 for auction",
+                    Detail = "Shows the maximum hammer bid, profit estimate, and nearby comparable asking prices. The result identifies assumed mileage when you omit it.",
+                    Icon = "bi-calculator"
+                },
+                new {
+                    Prompt = "Appraise VIN 4T1BE46K19U342407 with 73,929 miles for auction within 75 miles of ZIP 45040",
+                    Detail = "Sets the search area for the auction appraisal's comparable listings.",
+                    Icon = "bi-pin-map"
+                },
+                new {
+                    Prompt = "Appraise VIN 4T1BE46K19U342407 with 73,929 miles for auction. Assume a $9,500 resale price and a $6,000 current hammer bid.",
+                    Detail = "Shows your bid ceiling and estimated profit at the bid you entered.",
+                    Icon = "bi-cash-coin"
+                },
+                new {
+                    Prompt = "How many active used listings match VIN 4T1BE46K19U342407 around 100,000 odometer miles within 100 miles of ZIP 45040?",
+                    Detail = "Decodes the VIN, counts active matches, and shows dealers and their asking prices when available.",
+                    Icon = "bi-list-ol"
+                },
+                new {
+                    Prompt = "List dealers with a 2017 Acura MDX Advance Package around 100,000 miles",
+                    Detail = "Shows current and recent dealers, asking prices, and mileage for the specified trim.",
+                    Icon = "bi-building"
+                },
+                new {
+                    Prompt = "Check market for VIN 4T1BE46K19U342407 around 75,000 miles within 50 miles of ZIP 45202",
+                    Detail = "Finds current and recent matches by VIN with a custom mileage target, ZIP, and radius.",
+                    Icon = "bi-search"
+                },
+                new {
+                    Prompt = "Look at market for a 2017 Acura MDX around 100,000 miles within 150 miles of ZIP 45040",
+                    Detail = "Searches across trims. Current listings use the requested radius and recent listings use up to 100 miles.",
+                    Icon = "bi-compass"
+                },
+                new {
+                    Prompt = "List market for 2017 Acura MDX Advance Package",
+                    Detail = "Uses the configured ZIP, radius, and mileage defaults. You can also start with “see in market.”",
+                    Icon = "bi-sliders"
+                }
+            };
+
+            <h3 class="gtx-chat-command-guide-group">
+                <button type="button" data-chat-guide-toggle aria-expanded="false" aria-controls="gtxChatMarketCheckExamples">
+                    <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>
+                    <span>MarketCheck</span>
+                    <i class="bi bi-chevron-down gtx-chat-guide-chevron" aria-hidden="true"></i>
+                </button>
+            </h3>
+
+            <div id="gtxChatMarketCheckExamples" hidden>
+                <div class="gtx-chat-command-guide-note">
+                    <i class="bi bi-info-circle" aria-hidden="true"></i>
+                    <div><strong>Current</strong> shows active listings. <strong>Recent</strong> shows listings seen in the past 90 days. Prices are asking prices. Dealer searches and listing counts use a window of 10,000 miles on either side of your odometer target.</div>
+                </div>
+
+                @foreach (var example in marketExamples)
+                {
+                    <div class="gtx-chat-command-guide-item">
+                        <button type="button" data-chat-prompt="@example.Prompt">&quot;@example.Prompt&quot;</button>
+                        <span><i class="bi @example.Icon" aria-hidden="true"></i> @example.Detail</span>
+                    </div>
+                }
+            </div>
+        }
 
         <h3 class="gtx-chat-command-guide-group">
             <button type="button" data-chat-guide-toggle aria-expanded="true">

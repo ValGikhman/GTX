@@ -278,75 +278,14 @@ function setMajordomeMenu(role) {
         "blogger": "bi-pencil-square"
     };
 
-    switch (r) {
-        case "blogger":
-            $("#MajordomeLink .dropdown > li").hide();
-            $("#menuBlogs, #menuSpecials").show();
-            break;
-        case "tech":
-            $("#menuInventory").show();
-            $("#menuInventoryDashboard").hide();
-            $("#menuInventoryManagement").hide();
-            $("#menuVinDecoder").show();
-            $("#menuAnnouncements").hide();
-            $("#menuBlogs, #menuSpecials").hide();
-            $("#menuEmployees").hide();
-            $("#menuHealth").hide();
-            $("#menuSitemap").show();
-            break;
-
-        case "owner":
-            $("#menuInventory").show();
-            $("#menuInventoryDashboard").show();
-            $("#menuInventoryManagement").show();
-            $("#menuVinDecoder").show();
-            $("#menuAnnouncements").show();
-            $("#menuBlogs, #menuSpecials").show();
-            $("#menuEmployees").show();
-            $("#menuHealth").show();
-            $("#menuSitemap").show();
-            $("#menuChatBotCommands").show();
-            break;
-
-        case "sales":
-            $("#menuInventory").hide();
-            $("#menuInventoryDashboard").hide();
-            $("#menuInventoryManagement").hide();
-            $("#menuVinDecoder").hide();
-            $("#menuAnnouncements").hide();
-            $("#menuBlogs, #menuSpecials").hide();
-            $("#menuEmployees").hide();
-            $("#menuHealth").hide();
-            $("#menuSitemap").show();
-            break;
-
-        case "manager":
-            $("#menuInventory").hide();
-            $("#menuInventoryDashboard").hide();
-            $("#menuInventoryManagement").hide();
-            $("#menuVinDecoder").show();
-            $("#menuAnnouncements").show();
-            $("#menuBlogs, #menuSpecials").show();
-            $("#menuEmployees").show();
-            $("#menuHealth").hide();
-            $("#menuSitemap").show();
-            break;
-
-        case "support":
-            $("#menuInventory").hide();
-            $("#menuInventoryDashboard").hide();
-            $("#menuInventoryManagement").hide();
-            $("#menuVinDecoder").hide();
-            $("#menuAnnouncements").hide();
-            $("#menuBlogs, #menuSpecials").show();
-            $("#menuEmployees").hide();
-            $("#menuHealth").hide();
-            $("#menuSitemap").show();
-            break;
-        default:
-            $("#menuVinDecoder, #menuInventory, #menuInventoryDashboard, #menuInventoryManagement, #menuAnnouncements, #menuBlogs, #menuSpecials, #menuEmployees, #menuHealth, #menuSitemap, #menuChatBotCommands").hide();
-            break;
-    }
+    const permissions = window.gtx && window.gtx.menuPermissions || [];
+    let visibleMenuItems = 0;
+    $("#MajordomeLink [data-menu-permission]").each(function () {
+        const allowed = r !== "user" && permissions.indexOf($(this).attr("data-menu-permission")) >= 0;
+        $(this).toggle(allowed);
+        if (allowed) visibleMenuItems++;
+    });
+    $("#MajordomeLink > .dropdown").toggleClass("majordome-menu-columns", visibleMenuItems >= 5);
     // text
     $('.role-text').text(role || "");
 

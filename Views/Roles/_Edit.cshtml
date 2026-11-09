@@ -1,0 +1,67 @@
+@model GTX.Models.SiteRoleModel
+@using GTX.Common
+@{ var isEdit = Model != null && Model.Id > 0; }
+@using (Html.BeginForm("Save", Enums.Controllers.Roles.ToString(), FormMethod.Post, new { id = "roleForm" })) {
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.Id)
+    <div class="row g-3">
+        <div class="col-12 col-lg-6">
+            <div class="role-editor-card role-editor-access h-100 overflow-hidden">
+                <div class="card-header role-editor-card-header border-0">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="role-editor-heading"><span class="role-editor-heading-icon"><i class="bi bi-grid-1x2" aria-hidden="true"></i></span><div><div class="fw-semibold">Menu access</div><div class="role-editor-subtitle">Choose where this role can work.</div></div></div>
+                    </div>
+                </div>
+                <div class="card-body pt-0">
+                    @foreach (var item in MajordomeMenu.Items) {
+                        var key = item.Item.ToString();
+                        var locked = Model.Name == "Owner" || item.Item == MajordomeItem.Roles;
+                        <div class="form-check form-switch role-editor-permission">
+                            <input class="form-check-input" type="checkbox" name="Permissions" value="@key" id="permission-@key" checked="@(Model.Name == "Owner" || (Model.Permissions ?? new string[0]).Contains(key))" disabled="@locked" />
+                            <label class="form-check-label" for="permission-@key">@item.Title</label>
+                        </div>
+                    }
+                    <div class="role-editor-note"><i class="bi bi-shield-check" aria-hidden="true"></i><span>Owner always retains full access. Role management is reserved for Owner.</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6">
+            <div class="role-editor-card h-100 overflow-hidden">
+                <div class="card-header role-editor-card-header border-0">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="role-editor-heading"><span class="role-editor-heading-icon"><i class="bi bi-shield-lock" aria-hidden="true"></i></span><div><div class="fw-semibold">@(isEdit ? "Role details" : "New role")</div><div class="role-editor-subtitle">A clear identity. The right access.</div></div></div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label for="Name" class="form-label fw-semibold text-shadow-small"><i class="bi bi-person me-1"></i>Role Name</label>
+                            @if (Model.Name == "Owner") {
+                                @Html.TextBoxFor(m => m.Name, new { @class = "form-control shadow-sm", @readonly = "readonly" })
+                            } else {
+                                @Html.TextBoxFor(m => m.Name, new { @class = "form-control shadow-sm", maxlength = "40", required = "required", placeholder = "Role name..." })
+                            }
+                            @Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger small" })
+                        </div>
+                        <div class="col-12">
+                            <label for="Password" class="form-label fw-semibold text-shadow-small"><i class="bi bi-shield-lock me-1"></i>@(isEdit ? "New Password" : "Password")</label>
+                            <div class="input-group shadow-sm">
+                                <span class="input-group-text bg-white"><i class="bi bi-key"></i></span>
+                                <input type="password" id="Password" name="Password" class="form-control" autocomplete="new-password" minlength="6" maxlength="128" placeholder="@(isEdit ? "Leave blank to keep current..." : "Password...")" />
+                            </div>
+                            @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger small" })
+                            <div class="form-text">@(isEdit ? "Leave blank to keep the current password. Changing it signs out this role on other sessions." : "Enter a password for this role.")</div>
+                        </div>
+                        <div class="col-12">
+                            @Html.ValidationSummary(false, "", new { @class = "text-danger mt-2" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer role-editor-footer border-0 d-flex justify-content-end gap-2 py-3">
+        <button type="button" class="btn btn-outline-secondary shadow" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1"></i>Cancel</button>
+        <button type="submit" class="btn @(isEdit ? "btn-gradient" : "btn-success") shadow"><i class="bi @(isEdit ? "bi-save" : "bi-plus-circle") me-1"></i>@(isEdit ? "Save" : "Create")</button>
+    </div>
+}

@@ -196,6 +196,12 @@
         /** Fires when a row is double-clicked. ({ dataItem, rowElement, event }) */
         onRowDblClick: null,
 
+        /** Double-click anywhere in a data row, grouped or ungrouped.
+         * ({ dataItem, field, value, cellElement, rowElement, columnIndex, event })
+         * Copyable text keeps its copy behavior. Prefer this over legacy callbacks.
+         */
+        dblClick: null,
+
         /** Fires on right-click of a row. ({ dataItem, rowElement, event }) */
         onRowContextMenu: null,
 
@@ -398,7 +404,7 @@
          * @param {object} detail  Payload passed to handlers
          */
         _trigger: function (name, detail) {
-            const cbKey = 'on' + name.charAt(0).toUpperCase() + name.slice(1);
+            const cbKey = name === 'dblClick' ? 'dblClick' : 'on' + name.charAt(0).toUpperCase() + name.slice(1);
             const data  = detail || {};
 
             this.$el.trigger('addgrid:' + name.toLowerCase(), [data]);
@@ -406,6 +412,17 @@
             if (typeof this._opts[cbKey] === 'function') {
                 this._opts[cbKey].call(this._el, data);
             }
+        },
+
+        // Cells stop bubbling so each native double-click reaches this dispatcher once.
+        _handleDblClick: function (detail) {
+            if (this._handleCopyableDblClick(detail.event)) return;
+            this._trigger('dblClick', detail);
+            if (typeof this._opts.dblClick === 'function') return;
+            // Preserve existing integrations while allowing row callbacks from cells.
+            if (detail.cellElement) this._trigger('cellDblClick', detail);
+            if (!detail.cellElement || typeof this._opts.onCellDblClick !== 'function')
+                this._trigger('rowDblClick', detail);
         },
 
         // ── Public API ────────────────────────────────────────────────────────
@@ -1542,8 +1559,7 @@
                             self._handleRowClick(tr, item, e);
                         });
                         tr.addEventListener('dblclick', function (e) {
-                            if (self._handleCopyableDblClick(e)) return;
-                            self._trigger('rowDblClick', { dataItem: item, rowElement: tr, event: e });
+                            self._handleDblClick({ dataItem: item, rowElement: tr, event: e });
                         });
                         tr.addEventListener('contextmenu', function (e) {
                             self._trigger('rowContextMenu', { dataItem: item, rowElement: tr, event: e });
@@ -1585,9 +1601,8 @@
                                 });
                             });
                             td.addEventListener('dblclick', function (e) {
-                                if (self._handleCopyableDblClick(e)) return;
-                                e.stopPropagation(); // prevent rowDblClick from also firing
-                                self._trigger('cellDblClick', {
+                                e.stopPropagation();
+                                self._handleDblClick({
                                     dataItem: item, field: col.field, value: val,
                                     cellElement: td, rowElement: tr, columnIndex: colIdx, event: e
                                 });
@@ -1970,8 +1985,7 @@
 
                         tr.addEventListener('click',       function (e) { self._handleRowClick(tr, item, e); });
                         tr.addEventListener('dblclick',    function (e) {
-                            if (self._handleCopyableDblClick(e)) return;
-                            self._trigger('rowDblClick', { dataItem: item, rowElement: tr, event: e });
+                            self._handleDblClick({ dataItem: item, rowElement: tr, event: e });
                         });
                         tr.addEventListener('contextmenu', function (e) { self._trigger('rowContextMenu', { dataItem: item, rowElement: tr, event: e }); });
 
@@ -2009,9 +2023,8 @@
                                 });
                             });
                             td.addEventListener('dblclick', function (e) {
-                                if (self._handleCopyableDblClick(e)) return;
                                 e.stopPropagation();
-                                self._trigger('cellDblClick', {
+                                self._handleDblClick({
                                     dataItem: item, field: col.field, value: val,
                                     cellElement: td, rowElement: tr, columnIndex: colIdx, event: e
                                 });

@@ -176,6 +176,14 @@
 
         const $grid = $("#blogsAddGrid");
         $grid.addGrid({
+            dblClick: function (detail) {
+                if ($(detail.event.target).closest("a, button, input, select, textarea").length) return;
+                const $edit = $(detail.rowElement).find("a[data-blog-modal='true']").first();
+                if ($edit.length) {
+                    detail.event.preventDefault();
+                    $edit.trigger("click");
+                }
+            },
             data: rows,
             columns: [
                 { field: "ImageState", title: "Image", width: 110, filterable: false, searchable: false, template: "#blog-grid-image-template" },

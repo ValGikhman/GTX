@@ -193,6 +193,14 @@
 
         const $grid = $("#employeesAddGrid");
         $grid.addGrid({
+            dblClick: function (detail) {
+                if ($(detail.event.target).closest("a, button, input, select, textarea").length) return;
+                const $edit = $(detail.rowElement).find("a[data-employee-modal='true']").first();
+                if ($edit.length) {
+                    detail.event.preventDefault();
+                    $edit.trigger("click");
+                }
+            },
             data: rows,
             columns: [
                 { field: "PhotoState", title: "Photo", width: 110, filterable: false, searchable: false, template: "#employee-grid-photo-template" },

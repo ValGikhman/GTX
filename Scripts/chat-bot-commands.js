@@ -50,10 +50,10 @@
                 data: rows,
                 columns: [
                     { field: "Phrase", title: "Command phrase", width: 240, filterable: false, searchField: "SearchText", template: "#chat-command-phrase-template" },
-                    { field: "ActionLabel", title: "Action dependency", width: 220, searchable: false, template: "#chat-command-action-template" },
+                    { field: "ActionLabel", headerClass: "text-center", cellClass: "text-center", title: "Action dependency", width: 220, searchable: false, template: "#chat-command-action-template" },
                     { field: "Description", title: "Description", width: 300, searchable: false, template: "#chat-command-description-template" },
-                    { field: "CreatedBy", title: "Created by", width: 130, searchable: false, template: "#chat-command-role-template" },
-                    { field: "Updated", title: "Updated", width: 130, sortField: "UpdatedSort", searchable: false, template: "#chat-command-updated-template" },
+                    { field: "CreatedBy", headerClass: "text-center", cellClass: "text-center", title: "Created by", width: 130, searchable: false, template: "#chat-command-role-template" },
+                    { field: "Updated", headerClass: "text-center", cellClass: "text-center", title: "Updated", width: 130, sortField: "UpdatedSort", searchable: false, template: "#chat-command-updated-template" },
                     { field: "Actions", title: "Actions", width: 120, sortable: false, filterable: false, searchable: false, resizable: false, reorderable: false, headerClass: "text-center", cellClass: "text-center", template: "#chat-command-actions-template" }
                 ],
                 tableClass: "table align-middle m-0 chat-command-grid",
@@ -80,7 +80,7 @@
                 alternateRows: true,
                 emptyText: "No commands match the current filters.",
                 emptyHint: "Adjust the search, grouping, or column filters.",
-                onRowDblClick: function (detail) {
+                dblClick: function (detail) {
                     if ($(detail.event.target).closest("button, a, input, select").length) return;
                     openWizard({
                         id: detail.dataItem.Id,
@@ -166,7 +166,8 @@
             openWizard(null);
         });
 
-        $page.on("click", "[data-command-edit]", function () {
+        $page.on("click", "[data-command-edit]", function (event) {
+            event.preventDefault();
             var $button = $(this);
             openWizard({
                 id: Number($button.attr("data-command-id")),

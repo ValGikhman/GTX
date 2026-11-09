@@ -440,9 +440,68 @@
             $container.addClass("has-vehicle-results");
         }
 
-        function addMessage(role, text, extraClass, vehicles, totalMatches, persist, inventoryUrl) {
+        function appendMarketSource($parent, source) {
+            var isCarGurus = source === "CG";
+            var name = isCarGurus ? "CarGurus" : "MarketCheck";
+            $("<span>", {
+                "class": "bot-market-source " + (isCarGurus ? "is-cg" : "is-mc"),
+                text: isCarGurus ? "CG" : "MC",
+                title: name,
+                "aria-label": name
+            }).appendTo($parent);
+        }
+
+        function appendMarketReply($container, reply) {
+            var $card = $("<article>", { "class": "bot-market-reply" }).appendTo($container);
+            var $header = $("<header>", { "class": "bot-market-header" }).appendTo($card);
+            var $kicker = $("<div>", { "class": "bot-market-kicker" }).appendTo($header);
+            appendMarketSource($kicker, "MC");
+            $("<span>", { text: reply.Kicker }).appendTo($kicker);
+            $("<h3>", { "class": "bot-market-title", text: reply.Title }).appendTo($header);
+            if (reply.Context) $("<p>", { "class": "bot-market-context", text: reply.Context }).appendTo($header);
+
+            if (reply.Metrics.length) {
+                var $metrics = $("<dl>", { "class": "bot-market-metrics" }).appendTo($card);
+                reply.Metrics.forEach(function (metric) {
+                    var $metric = $("<div>", { "class": "bot-market-metric" }).toggleClass("is-primary", metric.IsPrimary).appendTo($metrics);
+                    $("<dt>", { "class": "bot-market-label", text: metric.Label }).appendTo($metric);
+                    $("<dd>", { "class": "bot-market-value", text: metric.Value }).appendTo($metric);
+                });
+            }
+
+            reply.Sections.forEach(function (section) {
+                var $section = $("<section>", { "class": "bot-market-section" }).appendTo($card);
+                var $title = $("<h4>", { "class": "bot-market-section-title" }).appendTo($section);
+                appendMarketSource($title, section.Source);
+                $("<span>", { text: section.Title }).appendTo($title);
+                if (section.Context) $("<p>", { "class": "bot-market-context", text: section.Context }).appendTo($section);
+                if (section.Items.length) {
+                    var $list = $("<ul>", { "class": "bot-market-list" }).appendTo($section);
+                    section.Items.forEach(function (item) { $("<li>", { text: item }).appendTo($list); });
+                }
+                if (section.Note) $("<p>", { "class": "bot-market-note", text: section.Note })
+                    .toggleClass("is-multiline", section.Source === "CG").appendTo($section);
+            });
+
+            if (reply.Note) $("<p>", { "class": "bot-market-note", text: reply.Note }).appendTo($card);
+            if (/^\/(?![\\/])/.test(reply.ViewUrl || "")) {
+                var $view = $("<a>", {
+                    "class": "bot-market-view",
+                    href: reply.ViewUrl,
+                    target: "_blank",
+                    rel: "noopener",
+                    "aria-label": "View in Appraisal (opens in a new tab)"
+                }).appendTo($card);
+                $("<span>", { text: "View" }).appendTo($view);
+                $("<i>", { "class": "bi bi-arrow-right", "aria-hidden": "true" }).appendTo($view);
+            }
+        }
+
+        function addMessage(role, text, extraClass, vehicles, totalMatches, persist, inventoryUrl, marketReply) {
             var $item = $("<div>", { "class": "gtx-chat-message is-" + role + (extraClass ? " " + extraClass : "") });
-            if (role === "assistant" && vehicles && vehicles.length) {
+            if (role === "assistant" && marketReply && marketReply.Title) {
+                appendMarketReply($item, marketReply);
+            } else if (role === "assistant" && vehicles && vehicles.length) {
                 appendStructuredVehicles($item, text, vehicles, totalMatches, inventoryUrl);
             } else if (role === "assistant") {
                 appendAssistantText($item, text);
@@ -709,6 +768,38 @@
             setSending(true);
             var $thinking = addMessage("assistant", "Checking that for you...", "is-thinking", null, null, false);
             var token = $chatForm.find("input[name='ChatRequestToken']").val();
+            var progressUrl = $widget.data("market-progress-url");
+            var progressId = "";
+            var progressTimer;
+            var progressRequest;
+            var finished = false;
+            if (progressUrl && window.crypto && window.crypto.getRandomValues) {
+                var bytes = window.crypto.getRandomValues(new Uint8Array(16));
+                for (var i = 0; i < bytes.length; i++) {
+                    progressId += ("0" + bytes[i].toString(16)).slice(-2);
+                }
+                progressTimer = window.setTimeout(checkMarketProgress, 250);
+            }
+
+            function checkMarketProgress() {
+                progressRequest = $.ajax({
+                    url: progressUrl,
+                    data: { id: progressId },
+                    dataType: "json",
+                    timeout: 3000
+                }).done(function (checkingMarket) {
+                    if (finished) return;
+                    if (checkingMarket === true) {
+                        var $copy = $thinking.find(".gtx-chat-copy");
+                        $copy.contents().filter(function () { return this.nodeType === 3; }).remove();
+                        $copy.prepend(document.createTextNode("Checking the "),
+                            $("<span>", { "class": "gtx-chat-market-word", text: "market" }),
+                            document.createTextNode(" for you…"));
+                        return;
+                    }
+                    progressTimer = window.setTimeout(checkMarketProgress, 650);
+                });
+            }
 
             $.ajax({
                 url: $widget.data("message-url"),
@@ -716,7 +807,8 @@
                 data: {
                     ChatRequestToken: token,
                     Message: text,
-                    PreviousResponseId: responseId || ""
+                    PreviousResponseId: responseId || "",
+                    ProgressId: progressId
                 }
             }).done(function (data) {
                 $thinking.remove();
@@ -731,12 +823,17 @@
                     return;
                 }
 
-                addMessage("assistant", reply || "I could not prepare an answer. Please try again.", "", vehicles, totalMatches, undefined, inventoryUrl);
+                var privateReply = data && (data.PrivateReply || data.privateReply);
+                var marketReply = data && data.MarketReply;
+                addMessage("assistant", reply || "I could not prepare an answer. Please try again.", "", vehicles, totalMatches, !privateReply, inventoryUrl, marketReply);
             }).fail(function (xhr) {
                 $thinking.remove();
                 if (responseId && xhr && xhr.status === 502) responseId = null;
                 addMessage("assistant", errorMessage(xhr, "I could not reach the assistant. Please try again."), "is-error");
             }).always(function () {
+                finished = true;
+                window.clearTimeout(progressTimer);
+                if (progressRequest) progressRequest.abort();
                 setSending(false);
                 $message.trigger("focus");
             });

@@ -61,7 +61,7 @@ namespace GTX.Controllers
                     request.Phrase.Trim(),
                     normalizedPhrase,
                     request.ActionKey.Trim(),
-                    CommonUnit.Roles.Owner.ToString());
+                    SiteAccess.Current(Request).Name);
                 return Json(new { success = true, id = lesson.Id, message = "Chatbot command created." });
             }
             catch (Exception ex)
@@ -87,7 +87,7 @@ namespace GTX.Controllers
                     request.Phrase.Trim(),
                     NormalizePhrase(request.Phrase),
                     request.ActionKey.Trim(),
-                    CommonUnit.Roles.Owner.ToString());
+                    SiteAccess.Current(Request).Name);
                 return Json(new { success = true, id = lesson.Id, message = "Chatbot command updated." });
             }
             catch (KeyNotFoundException ex)
@@ -113,7 +113,7 @@ namespace GTX.Controllers
 
             try
             {
-                if (!_teachingService.DeactivateLesson(id, CommonUnit.Roles.Owner.ToString()))
+                if (!_teachingService.DeactivateLesson(id, SiteAccess.Current(Request).Name))
                 {
                     return Error("The chatbot command was not found.", 404);
                 }

@@ -5,6 +5,8 @@
         ?? Array.Empty<Services.InventoryDashboardVehicle>();
     var majordomeInventoryVehicles = ViewBag.MajordomeInventoryVehicles as object[]
         ?? Array.Empty<object>();
+    var inventoryRole = RoleCookie.GetCurrentRole(ViewContext.HttpContext.Request, ViewContext.HttpContext.Session);
+    var canAppraise = inventoryRole == CommonUnit.Roles.Owner || inventoryRole == CommonUnit.Roles.Manager;
 }
 <head>
     <script>
@@ -14,6 +16,12 @@
     </script>
     <script src="~/Scripts/majordome.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome.js")).Ticks)"></script>
     <script src="~/Scripts/majordome-inventory-grid.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome-inventory-grid.js")).Ticks)"></script>
+    @if (canAppraise)
+    {
+        <script src="~/Scripts/majordome-appraisal-comparables.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome-appraisal-comparables.js")).Ticks)"></script>
+        <script src="~/Scripts/majordome-appraisal-research.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome-appraisal-research.js")).Ticks)"></script>
+        <script src="~/Scripts/majordome-inventory-appraisal.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome-inventory-appraisal.js")).Ticks)"></script>
+    }
     <script src="~/Scripts/inventory-history.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/inventory-history.js")).Ticks)"></script>
 
     <!-- Lightbox2 JS -->
@@ -41,6 +49,11 @@
         <span class="visually-hidden">Working...</span>
     </div>
 </div>
+
+@if (canAppraise)
+{
+    @Html.Partial("_InventoryAppraisalModal")
+}
 
 <!-- Modal -->
 <div class="modal fade" id="overlayModal" data-bs-keyboard="true" tabindex="-1" aria-labelledby="overlayTitle" aria-hidden="true">
@@ -804,23 +817,6 @@
             toggleMajordomeHistoryChange($(this));
         });
 
-        $("#majordomeInventoryGrid").on("dblclick", ".majordome-row-details", function (e) {
-            if ($(e.target).closest(".copyable").length) return;
-            e.preventDefault();
-            e.stopPropagation();
-            const stock = $(this).closest(".majordome-vehicle-row").attr("data-stock");
-            selectMajordomeVehicle(stock);
-            $("#details-tab").tab("show");
-        });
-
-        $("#majordomeInventoryGrid").on("dblclick", ".majordome-row-image", function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            const stock = $(this).closest(".majordome-vehicle-row").attr("data-stock");
-            selectMajordomeVehicle(stock);
-            $("#gallery-tab").tab("show");
-        });
-
         $("#majordomeInventoryGrid").on("click", ".js-amm-upload-trigger", function (e) {
             e.preventDefault();
             e.stopPropagation();
@@ -833,6 +829,17 @@
             const stock = $(this).attr("data-stock");
             selectMajordomeVehicle(stock);
             openMajordomeInventoryEditor(findMajordomeInventoryVehicle(stock), "edit");
+        });
+
+        $("#majordomeInventoryGrid").on("click", ".js-amm-appraise", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const vehicle = findMajordomeInventoryVehicle($(this).attr("data-stock"));
+            if (vehicle && window.majordomeInventoryAppraisal) {
+                window.majordomeInventoryAppraisal.open(vehicle, this, function (vin) {
+                    return inventoryVehiclesSource.find(row => safeText(row.VIN).trim().toUpperCase() === vin);
+                });
+            }
         });
 
         $("#majordomeInventoryGrid").on("change", ".js-amm-upload-input", function (e) {
@@ -3543,12 +3550,13 @@
         const vin = escapeHtml(vehicle.VIN);
         const imagesCount = vehicle.Images ? vehicle.Images.length : 0;
         const canDeleteImages = imagesCount > 0;
+        const hasAppraisal = !!document.getElementById("majordomeInventoryAppraisalModal");
         const deleteImagesTitle = canDeleteImages
             ? `Delete all ${imagesCount} pictures for Stock# ${stock}`
             : `No images to delete for Stock# ${stock}`;
 
         return `
-            <div class="majordome-actions">
+            <div class="majordome-actions${hasAppraisal ? " has-appraisal" : ""}">
                 <div class="majordome-action-group">
                     <div class="majordome-action-title">Edit</div>
                     <div class="majordome-action-buttons">
@@ -3557,6 +3565,15 @@
                         </button>
                     </div>
                 </div>
+                ${hasAppraisal ? `
+                    <div class="majordome-action-group">
+                        <div class="majordome-action-title">Appraisal</div>
+                        <div class="majordome-action-buttons align-self-stretch">
+                            <button type="button" class="btn btn-gradient-grey border-dark shadow-sm w-100 js-amm-appraise" data-stock="${stock}" aria-label="Appraise Stock# ${stock}" aria-haspopup="dialog" aria-controls="majordomeInventoryAppraisalModal" title="Appraise Stock# ${stock}">
+                                <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>` : ""}
                 <div class="majordome-action-group">
                     <div class="majordome-action-title">Images</div>
                     <div class="majordome-action-buttons">
@@ -3601,7 +3618,6 @@
         const stock = safeText(row.Stock);
         const search = buildVehicleSearch(searchObject);
         const tokenSearch = buildVehicleTokenSearch(searchObject);
-        const purchaseDate = formatPurchaseDate(row.PurchaseDate);
         const upload = safeText(row.SetToUpload).toUpperCase() === "Y";
         const story = hasStory(row);
         const dataOne = hasDataOne(row);
@@ -3625,8 +3641,6 @@
         const statusLabels = (Array.isArray(row.HistoryStatuses) ? row.HistoryStatuses : [])
             .map(function (code) { return getMajordomeStatusDotInfo(code).label; })
             .filter(Boolean);
-        const purchaseTimestamp = row.PurchaseDate ? new Date(row.PurchaseDate).getTime() : Number.NEGATIVE_INFINITY;
-        const safePurchaseTimestamp = Number.isFinite(purchaseTimestamp) ? purchaseTimestamp : Number.NEGATIVE_INFINITY;
         const numericDays = Number(daysValue);
         const imageRenderer = window.majordomeVehicleCells && window.majordomeVehicleCells.renderImageContent;
         const detailsRenderer = window.majordomeVehicleCells && window.majordomeVehicleCells.renderDetailsContent;
@@ -3639,8 +3653,6 @@
                 : 0,
             VehicleLabel: `${safeText(row.Year)} ${safeText(row.Make)} ${safeText(row.Model)} ${safeText(row.VehicleStyle)}`.trim(),
             VehicleSort: `${safeText(row.Make)} ${safeText(row.Year)} ${safeText(row.Model)} ${safeText(row.VehicleStyle)}`.trim(),
-            PurchasedDisplay: purchaseDate,
-            PurchasedSort: safePurchaseTimestamp,
             Stock: stock,
             Gtx: gtxValue,
             Status: statusLabels.join(", ") || "None",
@@ -3663,7 +3675,6 @@
                 </button>`,
             ImageHtml: imageRenderer ? imageRenderer(row) : "",
             VehicleHtml: detailsRenderer ? detailsRenderer(row) : escapeHtml(`${row.Year || ""} ${row.Make || ""} ${row.Model || ""}`),
-            PurchasedHtml: escapeHtml(purchaseDate),
             StockHtml: `<span class="shadow majordome-status-pill majordome-status-location ${escapeHtml(gtxBadge.toneClass)} px-2">${escapeHtml(stock)}</span>`,
             GtxHtml: `<span class="majordome-status-pill majordome-status-location ${escapeHtml(gtxBadge.toneClass)} shadow">${escapeHtml(gtxBadge.label)}</span>`,
             StatusHtml: renderMajordomeStatusDots(row.HistoryStatuses),
@@ -3840,6 +3851,22 @@
         const grid = window.majordomeInventoryAddGrid;
 
         if (!grid || !grid.initialize(gridRows, {
+            dblClick: function (detail) {
+                const $target = $(detail.event.target);
+                if ($target.closest("a, button, input, select, textarea").length) return;
+                const $row = $(detail.rowElement);
+                if ($target.closest(".majordome-row-details, .majordome-row-image").length) {
+                    detail.event.preventDefault();
+                    selectMajordomeVehicle($row.attr("data-stock"));
+                    $($target.closest(".majordome-row-image").length ? "#gallery-tab" : "#details-tab").tab("show");
+                    return;
+                }
+                const $edit = $row.find(".js-amm-edit-inventory:not(:disabled)").first();
+                if ($edit.length) {
+                    detail.event.preventDefault();
+                    $edit.trigger("click");
+                }
+            },
             onRender: function () {
                 markSelectedRow(selectedVehicleStock);
                 syncMajordomeEmptyState();
