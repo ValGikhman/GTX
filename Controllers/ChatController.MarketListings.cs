@@ -16,6 +16,11 @@ namespace GTX.Controllers
     public sealed partial class ChatController
     {
         private static readonly Regex RetailMarketMention = new Regex(@"\b(?:car\s*max|carvana|cars\.com|(?:search|check)\s+market\s*check\s+for|compare\s+market\s*check)\b", RegexOptions.IgnoreCase);
+        private const string ComparisonSource = @"(?:car\s*gurus|car\s*max|carvana|cars\.com|market\s*check)";
+        private static readonly Regex ComparisonSourceList = new Regex(
+            @"\b(?:(?:compare|on|from|across|between)\s+)?" + ComparisonSource
+            + @"(?:\s*(?:,\s*(?:and\s+)?|\band\s+|&\s*)?" + ComparisonSource + @")+\b(?:\s+for\b)?",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
         private static readonly Regex AuctionListingRequest = new Regex(@"\b(?:auction|hammer bid)\b", RegexOptions.IgnoreCase);
 
         private async Task<ChatMarketReply> GetRetailMarketReplyAsync(string message, Guid? progressId, ChatAuctionAppraisal retailClient)
@@ -29,7 +34,7 @@ namespace GTX.Controllers
             ChatProgressController.StartMarket(progressId);
             var marketTask = SearchRetailMarketAsync(message, sources, retailClient);
             var gurusTask = carGurus && CarGurusAuctionResearch.Enabled
-                ? GetCarGurusReplyAsync(message, progressId)
+                ? GetCarGurusReplyAsync(ComparisonSourceList.Replace(message, " ").Trim(), progressId)
                 : Task.FromResult(new ChatMarketReply { Note = carGurus ? "CarGurus search is disabled." : null });
             await Task.WhenAll(marketTask, gurusTask);
 
