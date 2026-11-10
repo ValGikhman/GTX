@@ -8,39 +8,42 @@
     var zipId = prefix + "-zip";
     var radiusId = prefix + "-radius";
     var submitId = prefix + "-submit";
-    var vinGroupClass = isEmbedded ? "input-group input-group-lg flex-nowrap" : "input-group input-group-lg vin-decoder-input-group flex-nowrap";
+    var vinGroupClass = isEmbedded ? "input-group input-group-lg flex-nowrap" : "input-group vin-decoder-input-group flex-nowrap";
     var submitClass = isEmbedded
         ? "btn btn-gradient fw-semibold d-flex align-items-center gap-2 ms-auto mt-3"
-        : "btn vin-schema-button vin-schema-button-primary mt-3";
+        : "btn vin-schema-button vin-schema-button-primary";
 }
 
 <form id="@formId" class="vin-decoder-controls" method="post" action="@Url.Action("AppraisalResearch", "Majordome")"
       autocomplete="off" data-appraisal-research-form>
     @Html.AntiForgeryToken()
-    <label class="form-label" for="@vinId">VIN</label>
-    <div class="@vinGroupClass">
-        <span class="input-group-text"><i class="bi bi-car-front-fill" aria-hidden="true"></i></span>
-        <input id="@vinId" name="vin" class="form-control text-uppercase" required maxlength="17"
-               pattern="[A-HJ-NPR-Za-hj-npr-z0-9]{17}" spellcheck="false" autocapitalize="characters"
-               title="Enter a 17-character VIN without I, O, or Q." placeholder="Enter a 17-character VIN" />
-    </div>
-    <div class="row g-3 my-1">
-        <div class="col-12 col-sm-4">
-            <label class="form-label" for="@milesId">Odometer miles</label>
-            <input id="@milesId" name="miles" class="form-control" type="number" min="0" max="2000000" step="1" inputmode="numeric" required />
-        </div>
-        <div class="col-6 col-sm-4">
-            <label class="form-label" for="@zipId">ZIP code</label>
-            <input id="@zipId" name="zip" class="form-control" value="@(isEmbedded ? "" : GTX.Controllers.MajordomeController.AppraisalDefaultZip)" pattern="[0-9]{5}"
-                   maxlength="5" inputmode="numeric" required="@(!isEmbedded)" placeholder="@(isEmbedded ? "Configured ZIP" : null)" />
-        </div>
-        <div class="col-6 col-sm-4">
-            <label class="form-label" for="@radiusId">Radius (mi)</label>
-            <input id="@radiusId" name="radius" class="form-control" type="number" value="@(isEmbedded ? "" : GTX.Controllers.MajordomeController.AppraisalDefaultRadius)"
-                   min="1" max="500" step="1" inputmode="numeric" required="@(!isEmbedded)" placeholder="@(isEmbedded ? "Configured radius" : null)" />
+    <div class="pr-appraisal-vin">
+        <label class="form-label" for="@vinId">VIN <span class="text-danger fs-5 fw-bold lh-1" aria-hidden="true">*</span></label>
+        <div class="@vinGroupClass">
+            <span class="input-group-text"><i class="bi bi-car-front-fill" aria-hidden="true"></i></span>
+            <input id="@vinId" name="vin" class="form-control text-uppercase" required maxlength="17"
+                   pattern="[A-HJ-NPR-Za-hj-npr-z0-9]{17}" spellcheck="false" autocapitalize="characters"
+                   title="Enter a 17-character VIN without I, O, or Q." placeholder="Enter a 17-character VIN" />
         </div>
     </div>
-    <button type="submit" id="@submitId" class="@submitClass" data-appraisal-submit>
+    @if (isEmbedded)
+    {
+        <div class="row g-3 my-1">
+            <div class="col-12 col-sm-4">
+                <label class="form-label" for="@milesId">Odometer miles <span class="text-danger fs-5 fw-bold lh-1" aria-hidden="true">*</span></label>
+                <input id="@milesId" name="miles" class="form-control" type="number" min="0" max="2000000" step="1" inputmode="numeric" required />
+            </div>
+            <div class="col-6 col-sm-4">
+                <label class="form-label" for="@zipId">ZIP code</label>
+                <input id="@zipId" name="zip" class="form-control" pattern="[0-9]{5}" maxlength="5" inputmode="numeric" placeholder="Configured ZIP" />
+            </div>
+            <div class="col-6 col-sm-4">
+                <label class="form-label" for="@radiusId">Radius (mi)</label>
+                <input id="@radiusId" name="radius" class="form-control" type="number" min="1" max="500" step="1" inputmode="numeric" placeholder="Configured radius" />
+            </div>
+        </div>
+    }
+    <button type="submit" id="@submitId" class="@submitClass" disabled="@(!isEmbedded)" data-appraisal-submit>
         <i class="bi bi-search" aria-hidden="true"></i><span>Research price</span>
     </button>
 </form>

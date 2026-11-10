@@ -24,6 +24,7 @@
     }
 
     const form = research.bindForm(root.querySelector('[data-appraisal-research-form]'), {
+        requireValidInputs: true,
         busy: function (busy) {
             resultsPanel.setAttribute('aria-busy', String(busy));
             progress.hidden = !busy;
@@ -87,4 +88,5 @@
     }
 
     let linkedBid = prefillFromLink();
+    form.refreshSubmit();
 }(window, document));

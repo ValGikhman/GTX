@@ -25,6 +25,7 @@ namespace GTX.Common {
                 if (vinColumns.Length != 1 || mileColumns.Length != 1) throw new InvalidOperationException("CSV must have one VIN column and one Miles, Mileage or Odometer column in miles. Kilometers are not converted.");
                 var vinIndex = vinColumns[0].index; var milesIndex = mileColumns[0].index;
                 Func<string[],string,string> field = (fields,name) => { var index = Array.IndexOf(headers,name); return index >= 0 && index < fields.Length ? fields[index].Trim() : ""; };
+                var runHeaders = new[] { "run", "runno", "runnumber", "line", "lineno", "linenumber" };
                 while (!parser.EndOfData) {
                     var line = parser.LineNumber;
                     if (line > 10000) throw new InvalidOperationException("CSV has too many rows. Upload a smaller watch list.");
@@ -40,10 +41,14 @@ namespace GTX.Common {
                     int? miles = Regex.IsMatch(mileage, @"^(\d{1,3}(,\d{3})+|\d+)$") && int.TryParse(mileage.Replace(",", ""), NumberStyles.None, CultureInfo.InvariantCulture, out parsed) && parsed >= 0 && parsed <= 2000000 ? (int?)parsed : null;
                     var vehicle = field(fields,"vehicle");
                     if (vehicle.Length == 0) vehicle = string.Join(" ", new[] {field(fields,"year"),field(fields,"make"),field(fields,"model"),field(fields,"trim")}.Where(v => v.Length > 0));
-                    var item = new AppraisalImportVehicle { Vin=vin, Vehicle=vehicle.Length > 0 ? vehicle : "Vehicle", Miles=miles, Warning=miles.HasValue ? null : "Mileage missing or invalid in CSV; skipped." };
+                    var run = runHeaders.Select(name => field(fields, name)).FirstOrDefault(value => value.Length > 0);
+                    var item = new AppraisalImportVehicle { Vin=vin, Run=run, Vehicle=vehicle.Length > 0 ? vehicle : "Vehicle", Miles=miles, Warning=miles.HasValue ? null : "Mileage missing or invalid in CSV; skipped." };
                     var existing = result.FirstOrDefault(row => row.Vin == vin);
                     if (existing == null) result.Add(item);
-                    else if (existing.Miles != miles) {existing.Miles=null;existing.Warning="Conflicting mileages for this VIN in CSV; skipped.";}
+                    else {
+                        if (existing.Run == null) existing.Run = item.Run;
+                        if (existing.Miles != miles) {existing.Miles=null;existing.Warning="Conflicting mileages for this VIN in CSV; skipped.";}
+                    }
                     if (result.Count > 100) throw new InvalidOperationException("Upload no more than 100 vehicles at a time.");
                 }
             }

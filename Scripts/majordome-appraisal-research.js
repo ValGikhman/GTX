@@ -8,10 +8,15 @@
         const idleLabel = label.textContent;
         let request = null;
 
+        function updateSubmit(busy) {
+            submit.disabled = busy || (handlers.requireValidInputs === true
+                && Object.values(fields).some(field => !field.validity.valid));
+        }
+
         function setBusy(busy) {
-            submit.disabled = busy;
             label.textContent = busy ? 'Researching…' : idleLabel;
             if (handlers.lockInputs) Object.values(fields).forEach(field => { field.disabled = busy; });
+            updateSubmit(busy);
             handlers.busy(busy);
         }
 
@@ -23,12 +28,13 @@
             setBusy(false);
         }
 
+        fields.vin.addEventListener('input', function () { this.value = this.value.toUpperCase().replace(/\s/g, '').slice(0, 17); });
         Object.values(fields).forEach(field => field.addEventListener('input', function () {
             const hadRequest = request !== null;
             cancel();
             handlers.input(hadRequest);
+            updateSubmit(false);
         }));
-        fields.vin.addEventListener('input', function () { this.value = this.value.toUpperCase().replace(/\s/g, '').slice(0, 17); });
 
         form.addEventListener('submit', function (event) {
             event.preventDefault();
@@ -84,7 +90,8 @@
             });
         });
 
-        return { fields: fields, cancel: cancel };
+        updateSubmit(false);
+        return { fields: fields, cancel: cancel, refreshSubmit: function () { updateSubmit(request !== null); } };
     }
 
     function createMarket(root, gridHeight) {

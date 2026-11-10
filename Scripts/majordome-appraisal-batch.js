@@ -29,15 +29,16 @@
     function render() {
         if ($grid.data('add-grid')) { $grid.addGrid('setData', rows, {preserveState:true}); return; }
         $grid.addGrid({data:rows, columns:[
-            {field:'Vehicle',title:'Vehicle',width:'24%',filterable:false},
+            {field:'Run',title:'LINE',width:'8%',filterable:false},
+            {field:'Vehicle',title:'Vehicle',width:'20%',filterable:false},
             {field:'Vin',title:'VIN',exportValue:row=>row.Vin,width:'16%',filterable:false},
             {field:'Miles',exportAlign:'right',title:'Miles',exportValue:(row,format)=>format==='pdf'&&number(row.Miles)?odometer.format(row.Miles):row.Miles,width:'8%',filterable:false,searchable:false,headerClass:'text-end',cellClass:'text-end',template:row => '<span class="pr-batch-odometer">'+(number(row.Miles)?new Intl.NumberFormat('en-US',{maximumFractionDigits:0}).format(row.Miles):'—')+'</span>'},
             {field:'Estimate',exportAlign:'right',title:'Estimate',exportValue:(row,format)=>format==='pdf'&&number(row.Estimate)?printMoney.format(row.Estimate):row.Estimate,width:'10%',filterable:false,searchable:false,headerClass:'text-end',cellClass:'text-end',template:row => number(row.Estimate)?money.format(row.Estimate):'—'},
             {field:'Maximum',exportAlign:'right',title:'Max bid',exportValue:(row,format)=>number(row.Maximum)?(format==='pdf'?printMoney.format(row.Maximum):row.Maximum):row.Done?'No feasible bid':null,width:'10%',filterable:false,searchable:false,headerClass:'text-end',cellClass:'text-end',template:row => number(row.Maximum)?money.format(row.Maximum):row.Done?'No feasible bid':'—'},
-            {field:'Status',title:'Status',exportValue:row=>row.Status,width:'22%',filterable:false,headerClass:'text-center',cellClass:'text-center',template:row =>
+            {field:'Status',title:'Status',exportValue:row=>row.Status,width:'18%',filterable:false,headerClass:'text-center',cellClass:'text-center',template:row =>
                 `<span class="badge text-bg-${row.StatusTone} mw-100 text-wrap text-break text-center px-3 py-2">${escape(row.Status)}</span>`},
             {field:'Actions',title:'Actions',width:'10%',headerClass:'text-center',cellClass:'text-center',sortable:false,filterable:false,searchable:false,template:row => '<button type="button" class="btn btn-sm pr-batch-retry" data-vin="'+escape(row.Vin)+'" '+(running||parsing?'disabled':'')+'><span class="pr-batch-retry-icon"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i></span><span>Retry</span></button>'}
-        ],tableClass:'table align-middle m-0',height:null,pageable:false,resizable:false,reorderable:false,sortable:true,searchable:true,showSearch:true,searchPlaceholder:'Search vehicle, VIN, or status…',showRecordCount:true,recordType:{singular:'vehicle',plural:'vehicles',icon:'bi bi-car-front'},exportToExcel:false,exportToPdf:false,showPrint:true,exportFileName:'Auction shortlist',exportPdfWrap:true,groupable:false,alternateRows:true});
+        ],tableClass:'table align-middle m-0',height:null,pageable:false,resizable:false,reorderable:false,sortable:true,searchable:true,showSearch:true,searchPlaceholder:'Search run, vehicle, VIN, or status…',showRecordCount:true,recordType:{singular:'vehicle',plural:'vehicles',icon:'bi bi-car-front'},exportToExcel:false,exportToPdf:false,showPrint:true,exportFileName:'Auction shortlist',exportPdfWrap:true,groupable:false,alternateRows:true});
     }
     async function appraise(row) {
         if (!number(row.Miles) || !Number.isInteger(row.Miles) || row.Miles < 0 || row.Miles > 2000000) {
@@ -103,7 +104,7 @@
             const data=new FormData();data.append('file',selected);data.append('__RequestVerificationToken',token());
             const parsed=await $.ajax({url:form.dataset.parseUrl,type:'POST',data,processData:false,contentType:false,dataType:'json',timeout:45000});
             if (!Array.isArray(parsed.vehicles) || !parsed.vehicles.length) throw new Error('No vehicles were found in this file.');
-            rows=parsed.vehicles.map(row=>({Vin:row.Vin,Vehicle:row.Vehicle||'Vehicle · PDF page '+row.Page,Miles:row.Miles,Estimate:null,Maximum:null,Done:false,Status:row.Warning||'Ready',StatusTone:row.Warning?'danger':'info'}));
+            rows=parsed.vehicles.map(row=>({Run:row.Run,Vin:row.Vin,Vehicle:row.Vehicle||'Vehicle · PDF page '+row.Page,Miles:row.Miles,Estimate:null,Maximum:null,Done:false,Status:row.Warning||'Ready',StatusTone:row.Warning?'danger':'info'}));
             render(); status.textContent='';
         } catch (failure) { showError(failure.responseJSON && failure.responseJSON.message || failure.message || 'Could not read this file.'); }
         finally { parsing=false;file.value='';busy(); }
@@ -120,6 +121,7 @@
     document.querySelectorAll('[data-appraisal-mode]').forEach(button=>button.addEventListener('click',()=>{
         const multiple=button.dataset.appraisalMode==='multiple';
         document.getElementById('pr-individual-inputs').hidden=multiple;form.hidden=!multiple;
+        document.querySelectorAll('[data-appraisal-scope]').forEach(scope=>{scope.hidden=scope.dataset.appraisalScope!==button.dataset.appraisalMode;});
         document.getElementById('pr-individual-results').hidden=multiple;document.getElementById('pr-batch-results').hidden=!multiple;
         document.querySelectorAll('[data-appraisal-mode]').forEach(tab=>{const selected=tab===button;tab.classList.toggle('active',selected);tab.setAttribute('aria-selected',String(selected));});
         if(multiple&&rows.length)render();

@@ -15,6 +15,8 @@ class AppraisalCsvRegression {
         rows=Parse("VIN,Miles\n58ABZ1B11KU026567,116589\n58ABZ1B11KU026567,116589\n");if(rows.Count!=1)throw new Exception("Duplicate VIN not deduplicated.");
         rows=Parse("VIN,Miles\n58ABZ1B11KU026567,116589\n58ABZ1B11KU026567,120000\n");if(rows.Count!=1 || rows[0].Miles!=null || rows[0].Warning==null)throw new Exception("Conflicting odometer readings guessed.");
         rows=Parse("VIN,Miles\n58ABZ1B11KU026567,\"107,00\"\n");if(rows[0].Miles!=null)throw new Exception("Malformed mileage guessed.");
+        rows=Parse("VIN,Miles,RUN #,LINE\n58ABZ1B11KU026567,116589,A-0029,001\n1FTBR3X81MKA59855,89675,,0058\n");
+        if(rows[0].Run!="A-0029" || rows[1].Run!="0058")throw new Exception("RUN / LINE mapping or leading zeros lost.");
         Reject("VIN,Price\n58ABZ1B11KU026567,10000");Reject("VIN,Odometer (km)\n58ABZ1B11KU026567,100000");Reject("VIN,Miles\nINVALID,10000");Reject("VIN,Miles\n58ABZ1B11KU026567,10000,extra");
         var many="VIN,Miles\n";for(var i=0;i<101;i++)many+="1FTBR3X8"+i.ToString("D9")+",100000\n";Reject(many);
         Console.WriteLine("PASS: CSV header aliases, BOM, quoted commas, semicolon/tab delimiters, multiline fields, exact mileage pairing, duplicates, conflicts and invalid-file limits.");return 0;
