@@ -14,18 +14,18 @@
                 @if (!multiple)
                 {
                     <div>
-                        <label class="form-label" for="pr-miles"><i class="bi bi-speedometer2" aria-hidden="true"></i>Odometer miles <span class="text-danger-emphasis" aria-hidden="true">*</span></label>
+                        <label class="form-label" for="pr-miles"><i class="bi bi-speedometer2" aria-hidden="true"></i>Odometer miles <span class="text-danger fs-5 fw-bold lh-1" aria-hidden="true">*</span></label>
                         <input id="pr-miles" name="miles" form="@formId" class="form-control" type="number"
                                min="0" max="2000000" step="1" inputmode="numeric" required />
                     </div>
                 }
                 <div>
-                    <label class="form-label" for="@zipId"><i class="bi bi-geo-alt-fill" aria-hidden="true"></i>ZIP code <span class="text-danger-emphasis" aria-hidden="true">*</span></label>
+                    <label class="form-label" for="@zipId"><i class="bi bi-geo-alt-fill" aria-hidden="true"></i>ZIP code <span class="text-danger fs-5 fw-bold lh-1" aria-hidden="true">*</span></label>
                     <input id="@zipId" name="zip" form="@formId" class="form-control" value="@GTX.Controllers.MajordomeController.AppraisalDefaultZip"
                            required pattern="[0-9]{5}" maxlength="5" inputmode="numeric" />
                 </div>
                 <div>
-                    <label class="form-label" for="@radiusId"><i class="bi bi-bullseye" aria-hidden="true"></i>Radius (mi) <span class="text-danger-emphasis" aria-hidden="true">*</span></label>
+                    <label class="form-label" for="@radiusId"><i class="bi bi-bullseye" aria-hidden="true"></i>Radius (mi) <span class="text-danger fs-5 fw-bold lh-1" aria-hidden="true">*</span></label>
                     <input id="@radiusId" name="radius" form="@formId" class="form-control" type="number" value="@GTX.Controllers.MajordomeController.AppraisalDefaultRadius"
                            min="1" max="500" step="1" inputmode="numeric" required />
                 </div>

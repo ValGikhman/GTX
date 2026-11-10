@@ -688,6 +688,39 @@
     backdrop-filter: blur(16px);
 }
 
+.vin-decoder-console-centered {
+    grid-template-columns: minmax(0, max-content) minmax(0, 26rem);
+    justify-content: center;
+    align-items: center;
+    gap: clamp(.75rem, 2vw, 1.5rem);
+}
+
+.vin-decoder-console-centered .vin-decoder-console-copy {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.vin-decoder-entry-row {
+    --vin-entry-size: 3.75rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--vin-entry-size);
+    align-items: center;
+    gap: .5rem;
+}
+
+.vin-decoder-entry-row > .vin-decoder-input-group,
+.vin-decoder-entry-row > .vin-schema-button { block-size: var(--vin-entry-size); }
+
+.vin-decoder-entry-row > .vin-schema-button {
+    inline-size: var(--vin-entry-size);
+    padding: 0 !important;
+}
+
+@media (max-width: 575.98px) {
+    .vin-decoder-console-centered { grid-template-columns: minmax(0, 26rem); }
+}
+
 .vin-decoder-console::before {
     position: absolute;
     top: 0;
@@ -1507,7 +1540,7 @@ html.theme-silver .blog-read-link {
         grid-template-columns: 1fr;
     }
 
-    .vin-decoder-console {
+    .vin-decoder-console:not(.vin-decoder-console-centered) {
         grid-template-columns: 1fr;
     }
 

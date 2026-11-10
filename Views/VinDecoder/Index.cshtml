@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewBag.Title = "VIN Decoder";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -28,7 +28,7 @@
             <small>@I18n.R("Section_VinIntelligence")</small>
         </div>
 
-        <section class="vin-decoder-console" aria-labelledby="vinDecoderConsoleTitle">
+        <section class="vin-decoder-console vin-decoder-console-centered" aria-labelledby="vinDecoderConsoleTitle">
             <div class="vin-decoder-console-copy">
                 <span class="vin-decoder-console-icon" aria-hidden="true"><i class="bi bi-upc-scan"></i></span>
                 <span>
@@ -39,21 +39,20 @@
 
             <div class="vin-decoder-controls">
                 @Html.AntiForgeryToken()
-                <div class="input-group input-group-lg vin-decoder-input-group flex-nowrap">
-                    <span class="input-group-text">
-                        <i class="bi bi-car-front-fill" aria-hidden="true"></i>
-                    </span>
+                <div class="vin-decoder-entry-row">
+                    <div class="input-group input-group-lg vin-decoder-input-group flex-nowrap">
+                        <span class="input-group-text">
+                            <i class="bi bi-car-front-fill" aria-hidden="true"></i>
+                        </span>
 
-                    <input id="vin" class="form-control" placeholder="e.g., 1HGCM82633A004352" aria-label="VIN" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="latin" maxlength="17" />
+                        <input id="vin" class="form-control" placeholder="e.g., 1HGCM82633A004352" aria-label="VIN" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="latin" maxlength="17" />
 
-                    <button id="decode" type="button" class="btn vin-schema-button vin-schema-button-primary vin-decode-icon-button" aria-label="Decode VIN" title="Decode VIN">
-                        <i class="bi bi-upc-scan" aria-hidden="true"></i>
-                    </button>
-                </div>
-
-                <div class="vin-decoder-assist">
-                    <button id="clear" type="button" class="btn vin-schema-button vin-schema-button-secondary">
-                        <i class="bi bi-x-circle" aria-hidden="true"></i>Clear
+                        <button id="decode" type="button" disabled class="btn vin-schema-button vin-schema-button-primary vin-decode-icon-button" aria-label="Decode VIN" title="Decode VIN">
+                            <i class="bi bi-upc-scan" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <button id="clear" type="button" class="btn vin-schema-button vin-schema-button-secondary" aria-label="Clear VIN" title="Clear VIN">
+                        <i class="bi bi-x-circle" aria-hidden="true"></i>
                     </button>
                 </div>
 
@@ -109,10 +108,18 @@
             return null;
         }
 
+        function readVin() {
+            return ($vin.val() || "").trim().toUpperCase();
+        }
+
+        function updateDecodeButton() {
+            $btn.prop("disabled", decoding || validateVin(readVin()) !== null);
+        }
+
         async function submit() {
             if (decoding) return;
 
-            const vin = ($vin.val() || "").trim().toUpperCase();
+            const vin = readVin();
             $vin.val(vin);
             const error = validateVin(vin);
             if (error) {
@@ -167,6 +174,7 @@
                 hideSpinner($overlay);
                 decoding = false;
                 $controls.prop("disabled", false);
+                updateDecodeButton();
             }
         }
 
@@ -177,13 +185,16 @@
                 e.preventDefault();
                 submit();
             }
-        }).on("input", clearError).trigger("focus");
+        }).on("input", function () {
+            clearError();
+            updateDecodeButton();
+        }).trigger("focus");
+        updateDecodeButton();
 
         $clear.on("click", function () {
-            $vin.val("").trigger("focus");
+            $vin.val("").trigger("input").trigger("focus");
             $result.empty();
             $empty.show();
-            clearError();
         });
     });
 </script>

@@ -18,7 +18,7 @@
       autocomplete="off" data-appraisal-research-form>
     @Html.AntiForgeryToken()
     <div class="pr-appraisal-vin">
-        <label class="form-label" for="@vinId">VIN <span class="text-danger-emphasis" aria-hidden="true">*</span></label>
+        <label class="form-label" for="@vinId">VIN <span class="text-danger fs-5 fw-bold lh-1" aria-hidden="true">*</span></label>
         <div class="@vinGroupClass">
             <span class="input-group-text"><i class="bi bi-car-front-fill" aria-hidden="true"></i></span>
             <input id="@vinId" name="vin" class="form-control text-uppercase" required maxlength="17"
@@ -30,7 +30,7 @@
     {
         <div class="row g-3 my-1">
             <div class="col-12 col-sm-4">
-                <label class="form-label" for="@milesId">Odometer miles <span class="text-danger-emphasis" aria-hidden="true">*</span></label>
+                <label class="form-label" for="@milesId">Odometer miles <span class="text-danger fs-5 fw-bold lh-1" aria-hidden="true">*</span></label>
                 <input id="@milesId" name="miles" class="form-control" type="number" min="0" max="2000000" step="1" inputmode="numeric" required />
             </div>
             <div class="col-6 col-sm-4">
