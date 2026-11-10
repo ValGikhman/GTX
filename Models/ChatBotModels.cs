@@ -50,6 +50,7 @@ namespace GTX.Models
         public ChatMarketMetric[] Metrics { get; set; } = Array.Empty<ChatMarketMetric>();
         public ChatMarketSection[] Sections { get; set; } = Array.Empty<ChatMarketSection>();
         public ChatMarketListing[] Listings { get; set; } = Array.Empty<ChatMarketListing>();
+        public ChatMarketListingGroup[] ListingGroups { get; set; } = Array.Empty<ChatMarketListingGroup>();
         public string Note { get; set; }
         public string ViewUrl { get; set; }
         internal object AppraisalParameters { get; set; }
@@ -60,10 +61,24 @@ namespace GTX.Models
                 .Concat(Metrics.Select(metric => metric.Label + ": " + metric.Value))
                 .Concat(Sections.SelectMany(section => new[] { (section.Source == "CG" ? "CG · " : "MC · ") + section.Title, section.Context }
                     .Concat(section.Items.Select(item => "• " + item)).Concat(new[] { section.Note })))
-                .Concat(Listings.Select(listing => string.Join(" · ", listing.Vehicle, listing.Ask, listing.Location, listing.Odometer, listing.Distance)))
+                .Concat(Listings.Select(FormatListing))
+                .Concat(ListingGroups.SelectMany(group => new[] { group.Name, group.Context }
+                    .Concat(group.Listings.Select(FormatListing)).Concat(new[] { group.Note })))
                 .Concat(new[] { Note });
             return string.Join("\n", lines.Where(line => !string.IsNullOrWhiteSpace(line)));
         }
+
+        private static string FormatListing(ChatMarketListing listing) =>
+            string.Join(" · ", listing.Vehicle, listing.Ask, listing.Location, listing.Odometer, listing.Distance);
+    }
+
+    public sealed class ChatMarketListingGroup
+    {
+        public string Name { get; set; }
+        public string Context { get; set; }
+        public ChatMarketListing[] Listings { get; set; }
+        public string Note { get; set; }
+        public string ViewUrl { get; set; }
     }
 
     public sealed class ChatMarketListing

@@ -1,4 +1,7 @@
 @model bool
+@{
+    var carGurusEnabled = Model && string.Equals(System.Configuration.ConfigurationManager.AppSettings["CarGurus:Enabled"]?.Trim(), "true", StringComparison.OrdinalIgnoreCase);
+}
 
 <section id="gtxChatCommandGuide"
          class="gtx-chat-command-guide"
@@ -106,7 +109,7 @@
             </div>
         }
 
-        @if (Model && string.Equals(System.Configuration.ConfigurationManager.AppSettings["CarGurus:Enabled"]?.Trim(), "true", StringComparison.OrdinalIgnoreCase))
+        @if (carGurusEnabled)
         {
             var carGurusExamples = new[]
             {
@@ -149,6 +152,48 @@
                     <div class="gtx-chat-command-guide-item">
                         <button type="button" data-chat-prompt="@example.Prompt">&quot;@example.Prompt&quot;</button>
                         <span><i class="bi @example.Icon" aria-hidden="true"></i> @example.Detail</span>
+                    </div>
+                }
+            </div>
+        }
+
+        @if (Model)
+        {
+            var retailExamples = new[]
+            {
+                new { Prompt = "Search MarketCheck for a 2022 Honda CR-V EX within 50 miles of ZIP 45040", Detail = "Searches dealer inventory by vehicle, ZIP, and radius." },
+                new { Prompt = "Find a 2022 Toyota RAV4 XLE on CarMax under 60,000 miles", Detail = "Shows CarMax listings with an odometer limit." },
+                new { Prompt = "Find a 2021 Honda Accord Sport on Carvana under $25,000", Detail = "Shows Carvana listings with an asking-price limit." },
+                new { Prompt = "Find a used Toyota RAV4 on Cars.com under $25,000", Detail = "Shows Cars.com listings with an asking-price limit." },
+                new {
+                    Prompt = carGurusEnabled
+                        ? "Compare CarGurus, CarMax, Carvana, and Cars.com for a Toyota RAV4 under 60,000 miles"
+                        : "Compare CarMax, Carvana, and Cars.com for a Toyota RAV4 under 60,000 miles",
+                    Detail = "Compares listings across several sources."
+                }
+            };
+
+            <h3 class="gtx-chat-command-guide-group">
+                <button type="button" data-chat-guide-toggle aria-expanded="false" aria-controls="gtxChatRetailExamples">
+                    <i class="bi bi-car-front" aria-hidden="true"></i>
+                    <span>Retail inventory comparisons</span>
+                    <i class="bi bi-chevron-down gtx-chat-guide-chevron" aria-hidden="true"></i>
+                </button>
+            </h3>
+            <div id="gtxChatRetailExamples" hidden>
+                <div class="gtx-chat-command-guide-note">
+                    <i class="bi bi-info-circle" aria-hidden="true"></i>
+                    <div class="gtx-chat-guide-retail-help">
+                        <p>Name one or more sources and enter a vehicle make and model or VIN. You can add a year, trim, maximum price, or maximum odometer mileage.</p>
+                        <p>Open a source tab to view its listings. Listings are ordered by asking price, lowest first.</p>
+                        <p><span class="gtx-chat-guide-source">CarMax</span>, <span class="gtx-chat-guide-source">Carvana</span>, and <span class="gtx-chat-guide-source">Cars.com</span> listings come from <span class="gtx-chat-guide-source">MarketCheck</span> and default to nationwide inventory. Add a ZIP or radius to search locally.</p>
+                    </div>
+                </div>
+                @foreach (var example in retailExamples)
+                {
+                    <div class="gtx-chat-command-guide-item">
+                        <button type="button" data-chat-prompt="@example.Prompt">&quot;@example.Prompt&quot;</button>
+                        <span><i class="bi bi-search" aria-hidden="true"></i> @example.Detail</span>
                     </div>
                 }
             </div>
