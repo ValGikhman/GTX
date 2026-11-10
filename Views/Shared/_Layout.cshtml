@@ -705,7 +705,14 @@
     @Scripts.Render("~/scripts/jquery")
     @if (needsAdminGrid)
     {
-        @Scripts.Render("~/Scripts/admin-grid")
+        if (System.Web.Optimization.BundleTable.EnableOptimizations)
+        {
+            @Scripts.Render("~/Scripts/admin-grid")
+        }
+        else
+        {
+            <script src="~/Scripts/addTools/addGrid.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/addTools/addGrid.js")).Ticks)"></script>
+        }
     }
     <script src="~/Scripts/jquery.gtx-range-filter.js"></script>
     @if (chatBotEnabled)
