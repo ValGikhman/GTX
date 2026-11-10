@@ -1,7 +1,36 @@
 <div class="pr-research-workspace">
-    <div class="nav nav-pills gap-2 mb-3" role="tablist" aria-label="Appraisal mode">
-        <button type="button" class="nav-link active" id="pr-individual-tab" role="tab" aria-selected="true" aria-controls="pr-individual-inputs" data-appraisal-mode="individual"><i class="bi bi-car-front me-2" aria-hidden="true"></i>Individual</button>
-        <button type="button" class="nav-link" id="pr-multiple-tab" role="tab" aria-selected="false" aria-controls="pr-batch-inputs" data-appraisal-mode="multiple"><i class="bi bi-collection me-2" aria-hidden="true"></i>Multiple</button>
+    <div class="pr-appraisal-toolbar">
+        <div class="nav nav-pills pr-appraisal-tabs" role="tablist" aria-label="Appraisal mode">
+            <button type="button" class="nav-link active" id="pr-individual-tab" role="tab" aria-selected="true" aria-controls="pr-individual-inputs" data-appraisal-mode="individual"><i class="bi bi-car-front" aria-hidden="true"></i>Individual</button>
+            <button type="button" class="nav-link" id="pr-multiple-tab" role="tab" aria-selected="false" aria-controls="pr-batch-inputs" data-appraisal-mode="multiple"><i class="bi bi-collection" aria-hidden="true"></i>Multiple</button>
+        </div>
+        @foreach (var mode in new[] { "individual", "multiple" })
+        {
+            var multiple = mode == "multiple";
+            var formId = multiple ? "pr-batch-inputs" : "price-research-form";
+            var zipId = multiple ? "pr-batch-zip" : "pr-zip";
+            var radiusId = multiple ? "pr-batch-radius" : "pr-radius";
+            <div class="pr-appraisal-scope" data-appraisal-scope="@mode" hidden="@multiple">
+                @if (!multiple)
+                {
+                    <div>
+                        <label class="form-label" for="pr-miles"><i class="bi bi-speedometer2" aria-hidden="true"></i>Odometer miles <span class="text-danger-emphasis" aria-hidden="true">*</span></label>
+                        <input id="pr-miles" name="miles" form="@formId" class="form-control" type="number"
+                               min="0" max="2000000" step="1" inputmode="numeric" required />
+                    </div>
+                }
+                <div>
+                    <label class="form-label" for="@zipId"><i class="bi bi-geo-alt-fill" aria-hidden="true"></i>ZIP code <span class="text-danger-emphasis" aria-hidden="true">*</span></label>
+                    <input id="@zipId" name="zip" form="@formId" class="form-control" value="@GTX.Controllers.MajordomeController.AppraisalDefaultZip"
+                           required pattern="[0-9]{5}" maxlength="5" inputmode="numeric" />
+                </div>
+                <div>
+                    <label class="form-label" for="@radiusId"><i class="bi bi-bullseye" aria-hidden="true"></i>Radius (mi) <span class="text-danger-emphasis" aria-hidden="true">*</span></label>
+                    <input id="@radiusId" name="radius" form="@formId" class="form-control" type="number" value="@GTX.Controllers.MajordomeController.AppraisalDefaultRadius"
+                           min="1" max="500" step="1" inputmode="numeric" required />
+                </div>
+            </div>
+        }
     </div>
     <div id="pr-individual-inputs" role="tabpanel" aria-labelledby="pr-individual-tab">
         @Html.Partial("_AppraisalResearchForm", "pr")
@@ -15,10 +44,6 @@
             <small>PDF or CSV · up to 10 MB · 100 vehicles</small>
             <input id="pr-pdf-file" type="file" accept=".pdf,.csv,application/pdf,text/csv" class="visually-hidden" />
         </label>
-        <div class="row g-3 mt-1">
-            <div class="col-6"><label class="form-label" for="pr-batch-zip">ZIP code</label><input id="pr-batch-zip" class="form-control" value="@GTX.Controllers.MajordomeController.AppraisalDefaultZip" required pattern="[0-9]{5}" maxlength="5" inputmode="numeric" /></div>
-            <div class="col-6"><label class="form-label" for="pr-batch-radius">Radius (mi)</label><input id="pr-batch-radius" class="form-control" type="number" value="@GTX.Controllers.MajordomeController.AppraisalDefaultRadius" min="1" max="500" step="1" required /></div>
-        </div>
         <div class="d-flex flex-wrap gap-2 mt-3">
             <button type="submit" id="pr-batch-run" class="btn btn-gradient ms-auto" disabled><i class="bi bi-play-fill me-1" aria-hidden="true"></i>Appraise all</button>
         </div>

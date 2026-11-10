@@ -529,7 +529,71 @@ html.theme-metallica #price-research {
 }
 
 /* Individual and PDF watch-list research share the existing appraisal console. */
-#price-research .pr-research-workspace { min-width: 0; }
+#price-research .vin-decoder-console { align-items: start; }
+#price-research .pr-research-workspace {
+    --pr-individual-controls-width: 21.3rem;
+    container-type: inline-size;
+    min-width: 0;
+}
+#price-research #price-research-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    width: min(100%, var(--pr-individual-controls-width));
+    margin-inline-start: auto;
+    align-items: center;
+    gap: .25rem .5rem;
+}
+#price-research .pr-appraisal-vin { display: contents; }
+#price-research .pr-appraisal-vin .form-label { grid-column: 1; grid-row: 1; margin: 0; }
+#price-research .pr-appraisal-vin .vin-decoder-input-group { grid-column: 1; grid-row: 2; padding: .15rem; }
+#price-research .pr-appraisal-vin .input-group-text { width: 1.8rem; }
+#price-research .pr-appraisal-vin .form-control { padding-inline: .25rem; }
+#price-research #pr-submit { grid-column: 2; grid-row: 2; white-space: nowrap; }
+@container (min-width: 33rem) {
+    #price-research #price-research-form {
+        width: 100%;
+        grid-template-columns: minmax(0, 1fr) var(--pr-individual-controls-width);
+        column-gap: 0;
+    }
+    #price-research #pr-submit { justify-self: end; }
+}
+#price-research .pr-appraisal-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: .65rem;
+    margin-bottom: 1rem;
+}
+#price-research .pr-appraisal-tabs { flex-wrap: nowrap; gap: .3rem; }
+#price-research .pr-appraisal-tabs .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .4rem .5rem;
+    white-space: nowrap;
+}
+#price-research .pr-appraisal-scope:not([hidden]) {
+    display: grid;
+    margin-inline-start: auto;
+    grid-template-columns: repeat(2, minmax(4.25rem, 6.25rem));
+    gap: .4rem;
+}
+#price-research .pr-appraisal-scope[data-appraisal-scope="individual"] {
+    width: min(100%, var(--pr-individual-controls-width));
+    grid-template-columns: minmax(0, 8fr) repeat(2, minmax(0, 6.25fr));
+}
+#price-research .pr-appraisal-scope .form-label {
+    display: flex;
+    align-items: center;
+    gap: .25rem;
+    margin-bottom: .25rem;
+    color: var(--pr-ink);
+    font-size: .75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+#price-research .pr-appraisal-scope .form-label i { color: var(--pr-accent); }
+#price-research .pr-appraisal-scope .form-control { min-width: 0; padding-inline: .4rem; }
 #price-research .pr-research-workspace .nav-link { border: 1px solid var(--pr-line); color: var(--pr-ink); background: var(--pr-inset); border-radius: .7rem; font-weight: 600; }
 #price-research .pr-research-workspace .nav-link.active { color: #fff; background: var(--gtx-grad); border-color: transparent; }
 #price-research .pr-pdf-drop { display: flex; flex-direction: column; align-items: center; gap: .4rem; position: relative; padding: 1.5rem 1rem; border: 2px dashed var(--pr-accent-line); border-radius: 1rem; background: var(--pr-tint); color: var(--pr-ink); text-align: center; cursor: pointer; }
