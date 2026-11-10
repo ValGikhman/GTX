@@ -18,7 +18,7 @@ namespace GTX.Controllers
         private static readonly Regex RetailMarketMention = new Regex(@"\b(?:car\s*max|carvana|cars\.com|(?:search|check)\s+market\s*check\s+for|compare\s+market\s*check)\b", RegexOptions.IgnoreCase);
         private static readonly Regex AuctionListingRequest = new Regex(@"\b(?:auction|hammer bid)\b", RegexOptions.IgnoreCase);
 
-        private async Task<ChatMarketReply> GetRetailMarketReplyAsync(string message, Guid? progressId)
+        private async Task<ChatMarketReply> GetRetailMarketReplyAsync(string message, Guid? progressId, ChatAuctionAppraisal retailClient)
         {
             var carMax = Regex.IsMatch(message, @"\bcar\s*max\b", RegexOptions.IgnoreCase);
             var carvana = Regex.IsMatch(message, @"\bcarvana\b", RegexOptions.IgnoreCase);
@@ -27,7 +27,7 @@ namespace GTX.Controllers
             var sources = new[] { carMax ? "CarMax" : null, carvana ? "Carvana" : null, carsCom ? "Cars.com" : null }
                 .Where(source => source != null).DefaultIfEmpty("MarketCheck").ToArray();
             ChatProgressController.StartMarket(progressId);
-            var marketTask = SearchRetailMarketAsync(message, sources);
+            var marketTask = SearchRetailMarketAsync(message, sources, retailClient);
             var gurusTask = carGurus && CarGurusAuctionResearch.Enabled
                 ? GetCarGurusReplyAsync(message, progressId)
                 : Task.FromResult(new ChatMarketReply { Note = carGurus ? "CarGurus search is disabled." : null });
@@ -57,11 +57,12 @@ namespace GTX.Controllers
                 ViewUrl = reply.ViewUrl
             };
 
-        private async Task<ChatMarketReply[]> SearchRetailMarketAsync(string message, string[] sources)
+        private async Task<ChatMarketReply[]> SearchRetailMarketAsync(string message, string[] sources, ChatAuctionAppraisal client)
         {
             try
             {
-                var client = new MarketCheckMcpClient();
+                if (client == null)
+                    return new[] { new ChatMarketReply { Note = "AutoDealer.dev retail search is not configured." } };
                 var vin = CarGurusVin.Matches(message).Cast<Match>().Select(match => match.Value.ToUpperInvariant()).Distinct().ToArray();
                 if (vin.Length > 1)
                     return new[] { new ChatMarketReply { Note = "Please send one VIN at a time for MarketCheck." } };
@@ -84,48 +85,31 @@ namespace GTX.Controllers
                 var explicitLocation = !string.IsNullOrEmpty(zip) || !string.IsNullOrEmpty(radius);
                 zip = string.IsNullOrEmpty(zip) ? MajordomeController.AppraisalDefaultZip : zip;
                 radius = string.IsNullOrEmpty(radius) ? MajordomeController.AppraisalDefaultRadius : radius;
-                args["car_type"] = "used";
-                args["rows"] = 10;
-                args["include_build_object"] = true;
-                args["include_dealer_object"] = true;
-
-                // Calls share an MCP session and run sequentially.
                 using (var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(25)))
                 {
-                    try
+                    var searches = sources.Select(source =>
                     {
-                        await client.InitializeAsync(timeout.Token);
-                        var replies = new ChatMarketReply[sources.Length];
-                        for (var i = 0; i < sources.Length; i++)
+                        var sourceArgs = (JObject)args.DeepClone();
+                        if (source != "MarketCheck")
+                            sourceArgs["source"] = source == "Cars.com" ? "cars.com" : source.ToLowerInvariant() + ".com";
+                        if (source == "MarketCheck" || explicitLocation)
                         {
-                            var source = sources[i];
-                            var sourceArgs = (JObject)args.DeepClone();
-                            if (source != "MarketCheck")
-                                sourceArgs["source"] = source == "Cars.com" ? "cars.com" : source.ToLowerInvariant() + ".com";
-                            if (source == "MarketCheck" || explicitLocation)
-                            {
-                                sourceArgs["zip"] = zip;
-                                sourceArgs["radius"] = CarGurusNumber(radius);
-                                sourceArgs["sort_by"] = "dist";
-                            }
-                            replies[i] = await SearchRetailSourceAsync(client, source, sourceArgs, vin.SingleOrDefault(), timeout.Token);
+                            sourceArgs["zip"] = zip;
+                            sourceArgs["radius"] = CarGurusNumber(radius);
                         }
-                        return replies;
-                    }
-                    finally
-                    {
-                        await client.CloseAsync();
-                    }
+                        return SearchRetailSourceAsync(client, source, sourceArgs, vin.SingleOrDefault(), timeout.Token);
+                    });
+                    return await Task.WhenAll(searches);
                 }
             }
             catch (ConfigurationErrorsException)
             {
-                return new[] { new ChatMarketReply { Note = "Check the MarketCheck MCP and OpenAI settings for retail search." } };
+                return new[] { new ChatMarketReply { Note = "Check the OpenAI settings for retail search." } };
             }
             catch (Exception ex) when (ex is HttpRequestException || ex is OperationCanceledException
                 || ex is JsonException || ex is OpenAiRequestException)
             {
-                return new[] { new ChatMarketReply { Note = "MarketCheck retail search is temporarily unavailable." } };
+                return new[] { new ChatMarketReply { Note = "Rabinovich could not read the retail search criteria. Try again with a make and model." } };
             }
         }
 
@@ -182,12 +166,12 @@ namespace GTX.Controllers
             value?.Type == JTokenType.Integer && int.TryParse(value.ToString(), out var number)
                 && number >= 0 && number <= maximum ? (int?)number : null;
 
-        private static async Task<ChatMarketReply> SearchRetailSourceAsync(MarketCheckMcpClient client, string source,
+        private static async Task<ChatMarketReply> SearchRetailSourceAsync(ChatAuctionAppraisal client, string source,
             JObject args, string searchedVin, CancellationToken token)
         {
             try
             {
-                var data = await client.CallAsync("search_active_cars", args, token);
+                var data = await client.SearchRetailListingsAsync(args, token);
                 if (!(data["listings"] is JArray listings))
                     throw new HttpRequestException("MarketCheck returned no listing array.");
 
