@@ -179,7 +179,7 @@ namespace GTX.Controllers
                     && (currentRole == CommonUnit.Roles.Owner || currentRole == CommonUnit.Roles.Manager))
                 {
                     Response.Cache.SetNoStore();
-                    var reply = await GetRetailMarketReplyAsync(message, progressId);
+                    var reply = await GetRetailMarketReplyAsync(message, progressId, ChatAuctionAppraisal.ForRole(currentRole));
                     return Json(new ChatBotResponse { Success = true, Reply = reply.ToPlainText(), MarketReply = reply, PrivateReply = true });
                 }
 

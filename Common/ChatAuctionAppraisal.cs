@@ -133,6 +133,23 @@ namespace GTX.Common
             return input.ToString(Formatting.None);
         }
 
+        public async Task<JObject> SearchRetailListingsAsync(JObject input, System.Threading.CancellationToken token)
+        {
+            using (var request = new HttpRequestMessage(HttpMethod.Post, new Uri(endpoint, "retail-listings")))
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", key);
+                request.Headers.Accept.ParseAdd("application/json");
+                request.Headers.UserAgent.ParseAdd("GTXAutoGroup/1.0");
+                request.Headers.ExpectContinue = false;
+                request.Content = new StringContent(input.ToString(Formatting.None), Encoding.UTF8, "application/json");
+                using (var response = await Http.SendAsync(request, token))
+                {
+                    response.EnsureSuccessStatusCode();
+                    return JObject.Parse(await response.Content.ReadAsStringAsync());
+                }
+            }
+        }
+
         public async Task<ChatMarketReply> ReplyAsync(string arguments, string toolName)
         {
             var auction = toolName == ToolName;
