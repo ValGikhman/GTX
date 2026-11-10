@@ -20,7 +20,7 @@ using System.Web.Mvc;
 
 namespace GTX.Controllers
 {
-    public sealed class ChatController : Controller
+    public sealed partial class ChatController : Controller
     {
         private const string RequestTokenSessionKey = "GTX:ChatRequestToken";
         private const string PromptCacheKey = "gtx-dealership-chat-v1";
@@ -172,6 +172,15 @@ namespace GTX.Controllers
                             : "Opening " + commandNavigation.Label + "...",
                         Navigation = commandNavigation
                     });
+                }
+
+                if (RetailMarketMention.IsMatch(message)
+                    && !AuctionListingRequest.IsMatch(message)
+                    && (currentRole == CommonUnit.Roles.Owner || currentRole == CommonUnit.Roles.Manager))
+                {
+                    Response.Cache.SetNoStore();
+                    var reply = await GetRetailMarketReplyAsync(message, progressId);
+                    return Json(new ChatBotResponse { Success = true, Reply = reply.ToPlainText(), MarketReply = reply, PrivateReply = true });
                 }
 
                 if (CarGurusMention.IsMatch(message)

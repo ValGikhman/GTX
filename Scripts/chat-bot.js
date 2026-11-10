@@ -21,6 +21,7 @@
         var chatStorageLifetime = 60 * 60 * 1000;
         var maximumStoredMessages = 40;
         var maximumStoredRequests = 20;
+        var marketTabSequence = 0;
         var responseId = null;
         var sending = false;
         var salespeopleLoaded = false;
@@ -451,11 +452,122 @@
             }).appendTo($parent);
         }
 
+        function appendMarketTabs($card, groups) {
+            var prefix = "gtx-market-" + (++marketTabSequence);
+            var $tabList = $("<div>", {
+                "class": "bot-market-tabs",
+                role: "tablist",
+                "aria-label": "Listing sources"
+            }).appendTo($card);
+            var tabs = [];
+
+            function activate(index, focus) {
+                tabs.forEach(function (entry, tabIndex) {
+                    var active = index === tabIndex;
+                    entry.tab.attr({ "aria-selected": String(active), tabindex: active ? 0 : -1 });
+                    entry.panel.prop("hidden", !active);
+                });
+                if (focus) tabs[index].tab.trigger("focus");
+            }
+
+            groups.forEach(function (group, index) {
+                var tabId = prefix + "-tab-" + index;
+                var panelId = prefix + "-panel-" + index;
+                var $tab = $("<button>", {
+                    type: "button",
+                    id: tabId,
+                    role: "tab",
+                    "aria-controls": panelId,
+                    text: group.Name
+                }).appendTo($tabList);
+                var $source = $("<div>", {
+                    id: panelId,
+                    role: "tabpanel",
+                    tabindex: 0,
+                    "aria-labelledby": tabId
+                }).appendTo($card);
+                tabs.push({ tab: $tab, panel: $source });
+                $tab.on("click", function () { activate(index, false); });
+                $tab.on("keydown", function (event) {
+                    var next = index;
+                    if (event.key === "ArrowRight") next = (index + 1) % groups.length;
+                    else if (event.key === "ArrowLeft") next = (index + groups.length - 1) % groups.length;
+                    else if (event.key === "Home") next = 0;
+                    else if (event.key === "End") next = groups.length - 1;
+                    else return;
+                    event.preventDefault();
+                    activate(next, true);
+                });
+
+                if (group.Context) $("<p>", { "class": "bot-market-context", text: group.Context }).appendTo($source);
+                if (group.Listings.length) appendMarketListings($source, group.Listings, group.Name + " listings");
+                if (group.Note) $("<p>", { "class": "bot-market-note", text: group.Note }).appendTo($source);
+                appendMarketView($source, group.ViewUrl);
+            });
+
+            var firstWithListings = groups.findIndex(function (group) { return group.Listings.length > 0; });
+            activate(Math.max(0, firstWithListings), false);
+        }
+
+        function marketSortValue(value) {
+            var numeric = (value || "").replace(/[$,]/g, "").trim();
+            return /^\d+(?:\.\d+)?$/.test(numeric) ? Number(numeric) : Infinity;
+        }
+
+        function appendMarketListings($parent, listings, title) {
+            var ordered = listings.map(function (listing, index) {
+                return { listing: listing, index: index, price: marketSortValue(listing.Ask) };
+            }).sort(function (a, b) {
+                return (a.price - b.price) || (a.index - b.index);
+            });
+            var $container = $("<div>", { "class": "bot-market-listings-wrap" }).appendTo($parent);
+            var $table = $("<table>", { "class": "bot-market-listings", "aria-label": title })
+                .appendTo($container);
+            var $head = $("<tr>").appendTo($("<thead>").appendTo($table));
+            ["Vehicle", "Ask", "Miles", "Distance"].forEach(function (label) {
+                var $column = $("<th>", { scope: "col", text: label }).appendTo($head);
+                if (label === "Ask") $column.attr("aria-sort", "ascending");
+            });
+            var $body = $("<tbody>").appendTo($table);
+            ordered.forEach(function (item) {
+                var listing = item.listing;
+                var $row = $("<tr>").appendTo($body);
+                var $vehicle = $("<th>", { scope: "row" }).appendTo($row);
+                var title = (listing.Vehicle || "").match(/^(.+?)\s+((?:SH-AWD|AWD|FWD|RWD|4WD|xDrive\w*|sDrive\w*|4MATIC)\b.*)$/i);
+                var name = title ? title[1] : listing.Vehicle;
+                if (/^https:\/\/[^\s]+$/i.test(listing.Url || "")) {
+                    $("<a>", { href: listing.Url, text: name, target: "_blank", rel: "noopener" }).appendTo($vehicle);
+                } else {
+                    $("<span>", { text: name }).appendTo($vehicle);
+                }
+                if (title) $("<small>", { text: title[2] }).appendTo($vehicle);
+                $("<small>", { text: listing.Location }).appendTo($vehicle);
+                var statuses = listing.Scope ? listing.Scope.split(" · ") : [];
+                if (listing.IsSearchedVin) statuses.unshift("Searched VIN");
+                $("<td>", { text: listing.Ask || "—" }).appendTo($row);
+                $("<td>", { text: listing.Odometer || "—" }).appendTo($row);
+                $("<td>", { text: listing.Distance ? listing.Distance + " mi" : "—" }).appendTo($row);
+                if (statuses.length) {
+                    $row.addClass("has-listing-status");
+                    var $statusRow = $("<tr>", { "class": "bot-market-listing-status-row" }).appendTo($body);
+                    var $statuses = $("<div>", { "class": "bot-market-listing-statuses" })
+                        .appendTo($("<td>", { colspan: 4 }).appendTo($statusRow));
+                    statuses.forEach(function (status) {
+                        var outsideScope = /^(Outside radius|Over mileage|Other package)$/.test(status);
+                        var color = outsideScope ? "danger" : (status === "Searched VIN" ? "warning" : "success");
+                        $("<span>", { "class": "badge rounded-pill text-bg-" + color, text: status }).appendTo($statuses);
+                    });
+                }
+            });
+        }
+
         function appendMarketReply($container, reply) {
             var $card = $("<article>", { "class": "bot-market-reply" }).appendTo($container);
             var $header = $("<header>", { "class": "bot-market-header" }).appendTo($card);
             var $kicker = $("<div>", { "class": "bot-market-kicker" }).appendTo($header);
-            if (reply.Source === "CG") {
+            if (reply.ListingGroups && reply.ListingGroups.length) {
+                $("<span>", { text: reply.Kicker }).appendTo($kicker);
+            } else if (reply.Source === "CG") {
                 $("<span>", { "class": "bot-market-source is-cg px-2 shadow", text: reply.Kicker }).appendTo($kicker);
             } else {
                 appendMarketSource($kicker, "MC");
@@ -464,43 +576,10 @@
             $("<h3>", { "class": "bot-market-title", text: reply.Title }).appendTo($header);
             if (reply.Context) $("<p>", { "class": "bot-market-context", text: reply.Context }).appendTo($header);
 
-            if (reply.Listings && reply.Listings.length) {
-                var $table = $("<table>", { "class": "bot-market-listings", "aria-label": "CarGurus listings" })
-                    .appendTo($("<div>", { "class": "bot-market-listings-wrap" }).appendTo($card));
-                var $head = $("<tr>").appendTo($("<thead>").appendTo($table));
-                ["Vehicle", "Ask", "Miles", "Distance"].forEach(function (label) {
-                    $("<th>", { scope: "col", text: label }).appendTo($head);
-                });
-                var $body = $("<tbody>").appendTo($table);
-                reply.Listings.forEach(function (listing) {
-                    var $row = $("<tr>").appendTo($body);
-                    var $vehicle = $("<th>", { scope: "row" }).appendTo($row);
-                    var title = (listing.Vehicle || "").match(/^(.+?)\s+((?:SH-AWD|AWD|FWD|RWD|4WD|xDrive\w*|sDrive\w*|4MATIC)\b.*)$/i);
-                    var name = title ? title[1] : listing.Vehicle;
-                    if (/^https:\/\/www\.cargurus\.com\/details\/[0-9]+$/.test(listing.Url || "")) {
-                        $("<a>", { href: listing.Url, text: name, target: "_blank", rel: "noopener" }).appendTo($vehicle);
-                    } else {
-                        $("<span>", { text: name }).appendTo($vehicle);
-                    }
-                    if (title) $("<small>", { text: title[2] }).appendTo($vehicle);
-                    $("<small>", { text: listing.Location }).appendTo($vehicle);
-                    var statuses = listing.Scope ? listing.Scope.split(" · ") : [];
-                    if (listing.IsSearchedVin) statuses.unshift("Searched VIN");
-                    $("<td>", { text: listing.Ask || "—" }).appendTo($row);
-                    $("<td>", { text: listing.Odometer || "—" }).appendTo($row);
-                    $("<td>", { text: listing.Distance ? listing.Distance + " mi" : "—" }).appendTo($row);
-                    if (statuses.length) {
-                        $row.addClass("has-listing-status");
-                        var $statusRow = $("<tr>", { "class": "bot-market-listing-status-row" }).appendTo($body);
-                        var $statuses = $("<div>", { "class": "bot-market-listing-statuses" })
-                            .appendTo($("<td>", { colspan: 4 }).appendTo($statusRow));
-                        statuses.forEach(function (status) {
-                            var outsideScope = /^(Outside radius|Over mileage|Other package)$/.test(status);
-                            var color = outsideScope ? "danger" : (status === "Searched VIN" ? "warning" : "success");
-                            $("<span>", { "class": "badge rounded-pill text-bg-" + color, text: status }).appendTo($statuses);
-                        });
-                    }
-                });
+            if (reply.ListingGroups && reply.ListingGroups.length) {
+                appendMarketTabs($card, reply.ListingGroups);
+            } else if (reply.Listings && reply.Listings.length) {
+                appendMarketListings($card, reply.Listings, reply.Title || "Retail listings");
             }
 
             if (reply.Metrics.length) {
@@ -527,12 +606,16 @@
             });
 
             if (reply.Note) $("<p>", { "class": "bot-market-note", text: reply.Note }).appendTo($card);
-            var carGurusView = reply.Source === "CG" && /^https:\/\/www\.cargurus\.com\/search\?/.test(reply.ViewUrl || "");
-            if (carGurusView || /^\/(?![\\/])/.test(reply.ViewUrl || "")) {
+            appendMarketView($card, reply.ViewUrl);
+        }
+
+        function appendMarketView($card, url) {
+            var carGurusView = /^https:\/\/www\.cargurus\.com\/search\?/.test(url || "");
+            if (carGurusView || /^\/(?![\\/])/.test(url || "")) {
                 var viewLabel = carGurusView ? "View on CarGurus" : "View in Appraisal";
                 var $view = $("<a>", {
                     "class": "bot-market-view",
-                    href: reply.ViewUrl,
+                    href: url,
                     target: "_blank",
                     rel: "noopener",
                     "aria-label": viewLabel + " (opens in a new tab)"
@@ -1019,6 +1102,9 @@
             var $toggle = $(this);
             var expanded = $toggle.attr("aria-expanded") === "true";
             $toggle.attr("aria-expanded", expanded ? "false" : "true");
+            $toggle.find(".gtx-chat-guide-chevron")
+                .toggleClass("bi-chevron-down", expanded)
+                .toggleClass("bi-chevron-up", !expanded);
             $toggle.closest(".gtx-chat-command-guide-group")
                 .nextUntil(".gtx-chat-command-guide-group")
                 .prop("hidden", expanded);
