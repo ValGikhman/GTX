@@ -294,6 +294,9 @@
          */
         exportToPdfClass: '',
 
+        /** Show a Print button for the current filtered/searched/sorted rows. */
+        showPrint: false,
+
         /**
          * Enable grouping by dragging column headers into the group bar.
          * When true, a group bar is rendered above the toolbar; drag any column
@@ -1435,7 +1438,7 @@
             scroll.appendChild(table);
 
             // ── Toolbar: search bar + export buttons ───────────────────────
-            if ((self._opts.searchable !== false && self._opts.showSearch !== false) || self._opts.exportToExcel !== false || self._opts.exportToPdf !== false) {
+            if ((self._opts.searchable !== false && self._opts.showSearch !== false) || self._opts.exportToExcel !== false || self._opts.exportToPdf !== false || self._opts.showPrint === true) {
                 const searchBar = self._buildSearchBar();
                 // ── Inline group bar (between export buttons and search input) ──
                 if (self._opts.groupable) {
@@ -1654,7 +1657,9 @@
             const hasExcel = self._opts.exportToExcel !== false;
             const hasPdf   = self._opts.exportToPdf   !== false;
 
-            if (hasExcel || hasPdf) {
+            const hasPrint = self._opts.showPrint === true;
+
+            if (hasExcel || hasPdf || hasPrint) {
                 const exportGroup       = document.createElement('div');
                 exportGroup.className = 'pg-export-group';
 
@@ -1678,6 +1683,15 @@
                     pdfBtn.innerHTML = '<i class="bi bi-file-earmark-pdf me-1"></i>PDF';
                     pdfBtn.addEventListener('click', function () { self._exportToPdf(); });
                     exportGroup.appendChild(pdfBtn);
+                }
+
+                if (hasPrint) {
+                    const printBtn = document.createElement('button');
+                    printBtn.type = 'button';
+                    printBtn.className = 'btn btn-sm btn-outline-secondary pg-print-btn';
+                    printBtn.innerHTML = '<i class="bi bi-printer me-1" aria-hidden="true"></i>Print';
+                    printBtn.addEventListener('click', function () { self._printGrid('print'); });
+                    exportGroup.appendChild(printBtn);
                 }
 
                 bar.appendChild(exportGroup);
@@ -2289,16 +2303,16 @@
             });
         },
 
-        // ── Export to Excel (CSV) ─────────────────────────────────────────────
+        // ── Export to Excel (SpreadsheetML) ─────────────────────────────────────────────
         /**
-         * Export all currently filtered/searched/sorted rows to a UTF-8 CSV file
-         * that Excel opens natively. Template and encoded:false columns export as
+         * Export all currently filtered/searched/sorted rows to a SpreadsheetML file
+         * that Excel opens natively. Template columns can opt in with exportValue(row, format). Encoded:false columns export as
          * plain text (HTML stripped). Fires 'addgrid:exporttoexcel' on completion.
          */
         _exportToExcel: function () {
             const self = this;
             const cols = self._opts.columns.filter(function (c) {
-                return !c.hidden && !c.template && c.field !== 'Selection';
+                return !c.hidden && (!c.template || typeof c.exportValue === 'function') && c.field !== 'Selection';
             });
 
             // All data matching current filters/search/sort — not just the visible page
@@ -2330,7 +2344,9 @@
                 const rowStyle = idx % 2 === 0 ? 'e' : 'o';
                 xml += '<Row>';
                 cols.forEach(function (col) {
-                    let val = item[col.field];
+                    const hasExportValue = typeof col.exportValue === 'function';
+                    let val = hasExportValue ? col.exportValue(item, 'excel') : item[col.field];
+                    const exportNumber = typeof val === 'number' && Number.isFinite(val);
                     if (val == null) val = '';
                     if (col.encoded === false && String(val).indexOf('<') !== -1) {
                         const d = document.createElement('div');
@@ -2338,7 +2354,7 @@
                         val = d.textContent || d.innerText || '';
                     }
                     val = String(val).trim();
-                    const isNum = val !== '' && !isNaN(Number(val));
+                    const isNum = hasExportValue ? exportNumber : val !== '' && !isNaN(Number(val));
                     xml += '<Cell ss:StyleID="' + rowStyle + '"><Data ss:Type="' + (isNum ? 'Number' : 'String') + '">'
                         + (isNum ? val : self._xmlEscape(val))
                         + '</Data></Cell>';
@@ -2368,64 +2384,104 @@
          * Render all currently filtered/searched/sorted rows into a styled HTML page
          * inside a hidden <iframe> and invoke the browser print dialog.
          * The user can choose "Save as PDF" (or any installed PDF printer).
-         * Template and encoded:false columns export as plain text.
+         * Template columns can opt in with exportValue(row, format). Encoded:false columns export as plain text.
          * Fires 'addgrid:exporttopdf' after the dialog opens.
          */
         _exportToPdf: function () {
+            this._printGrid('exportToPdf');
+        },
+
+        _printGrid: function (eventName) {
             const self = this;
             const cols = self._opts.columns.filter(function (c) {
-                return !c.hidden && !c.template && c.field !== 'Selection';
+                return !c.hidden && (!c.template || typeof c.exportValue === 'function') && c.field !== 'Selection';
             });
 
             const data     = self._applySort(self._applySearch(self._applyFilter(self._raw)));
             const title    = self._opts.exportFileName || 'export';
             const colWidth = cols.length ? Math.floor(100 / cols.length) + '%' : 'auto';
 
-            let html = '<!DOCTYPE html><html><head><meta charset="UTF-8">'
-                     + '<title>' + self._xmlEscape(title) + '</title>'
-                     + '<style>'
-                     + 'body{font-family:Arial,sans-serif;font-size:11px;margin:24px;color:#1e293b}'
-                     + 'h2{font-size:13px;margin:0 0 10px;color:#334155}'
-                     + 'table{border-collapse:collapse;width:100%;table-layout:fixed}'
-                     + 'th{background:#D9E1F2;font-weight:700;border:1px solid #b0bec5;'
-                     + '   padding:5px 8px;text-align:left;font-size:9px;text-transform:uppercase;'
-                     + '   letter-spacing:.04em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
-                     + 'td{border:1px solid #dee2e6;padding:4px 8px;overflow:hidden;'
-                     + '   text-overflow:ellipsis;white-space:nowrap}'
-                     + 'tr.pg-odd td{background:#F2F4F8}'
-                     + 'tr.pg-even td{background:#FFFFFF}'
-                     + 'col{width:' + colWidth + '}'
-                     + '@page{margin:1.5cm;size:landscape}'
-                     + '@media print{body{margin:0}}'
-                     + '</style></head><body>'
-                     + '<h2>' + self._xmlEscape(title) + '</h2>'
-                     + '<table><colgroup>';
+            const directPrint = eventName === 'print';
+            const scope = directPrint ? 'body > .pg-print-sheet ' : '';
+            const css = (directPrint
+                ? 'body > .pg-print-sheet{display:none}'
+                  + '@media print{body.pg-printing > :not(.pg-print-sheet){display:none!important}'
+                  + 'html,body.pg-printing{margin:0!important;padding:0!important;overflow:visible!important;background:#fff!important}'
+                  + 'body.pg-printing > .pg-print-sheet{display:block!important}}'
+                : '@media print{body{margin:0}}')
+                + (directPrint ? 'body > .pg-print-sheet' : 'body')
+                + '{font-family:Arial,sans-serif;font-size:11px;color:#1e293b}'
+                + scope + 'h2{font-size:13px;margin:0 0 10px;color:#334155}'
+                + scope + 'table{border-collapse:collapse;width:100%;table-layout:fixed}'
+                + scope + 'th{background:#D9E1F2;font-weight:700;border:1px solid #b0bec5;'
+                + 'padding:5px 8px;text-align:left;font-size:9px;text-transform:uppercase;'
+                + 'letter-spacing:.04em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
+                + scope + 'td{border:1px solid #dee2e6;padding:4px 8px;overflow:hidden;'
+                + 'text-overflow:ellipsis;white-space:nowrap}'
+                + (self._opts.exportPdfWrap ? scope + 'td{white-space:normal;overflow-wrap:anywhere}'
+                    + scope + 'tr{break-inside:avoid}' : '')
+                + scope + '.pg-print-number{text-align:right;font-variant-numeric:tabular-nums}'
+                + scope + 'tr.pg-odd td{background:#F2F4F8}'
+                + scope + 'tr.pg-even td{background:#FFFFFF}'
+                + scope + 'col{width:' + colWidth + '}'
+                + '@page{margin:1.5cm;size:landscape}';
+
+            let html = '<h2>' + self._xmlEscape(title) + '</h2><table><colgroup>';
 
             cols.forEach(function () { html += '<col>'; });
             html += '</colgroup><thead><tr>';
             cols.forEach(function (c) {
-                html += '<th>' + self._xmlEscape(c.title != null ? c.title : c.field) + '</th>';
+                const alignment = c.exportAlign === 'right' ? ' class="pg-print-number"' : '';
+                html += '<th' + alignment + '>' + self._xmlEscape(c.title != null ? c.title : c.field) + '</th>';
             });
             html += '</tr></thead><tbody>';
 
             data.forEach(function (item, idx) {
                 html += '<tr class="' + (idx % 2 === 0 ? 'pg-even' : 'pg-odd') + '">';
                 cols.forEach(function (col) {
-                    let val = item[col.field];
+                    let val = typeof col.exportValue === 'function' ? col.exportValue(item, 'pdf') : item[col.field];
                     if (val == null) val = '';
                     if (col.encoded === false && String(val).indexOf('<') !== -1) {
                         const d = document.createElement('div');
                         d.innerHTML = String(val);
                         val = d.textContent || d.innerText || '';
                     }
-                    html += '<td>' + self._xmlEscape(String(val).trim()) + '</td>';
+                    const alignment = col.exportAlign === 'right' ? ' class="pg-print-number"' : '';
+                    html += '<td' + alignment + '>' + self._xmlEscape(String(val).trim()) + '</td>';
                 });
                 html += '</tr>';
             });
 
-            html += '</tbody></table></body></html>';
+            html += '</tbody></table>';
 
-            const blob  = new Blob([html], { type: 'text/html;charset=utf-8' });
+            if (directPrint) {
+                const sheet = document.createElement('section');
+                sheet.className = 'pg-print-sheet';
+                sheet.innerHTML = '<style>' + css + '</style>' + html;
+                document.body.appendChild(sheet);
+                document.body.classList.add('pg-printing');
+
+                function cleanup() {
+                    sheet.remove();
+                    document.body.classList.remove('pg-printing');
+                }
+
+                window.addEventListener('afterprint', cleanup, { once: true });
+                try {
+                    window.print();
+                } catch (error) {
+                    window.removeEventListener('afterprint', cleanup);
+                    cleanup();
+                    throw error;
+                }
+                self._trigger(eventName, { rowCount: data.length });
+                return;
+            }
+
+            const page = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'
+                + self._xmlEscape(title) + '</title><style>body{margin:24px}' + css
+                + '</style></head><body>' + html + '</body></html>';
+            const blob = new Blob([page], { type: 'text/html;charset=utf-8' });
             const blobUrl = URL.createObjectURL(blob);
 
             const iframe = document.createElement('iframe');
@@ -2442,7 +2498,7 @@
             };
             iframe.src = blobUrl;
 
-            self._trigger('exportToPdf', { rowCount: data.length });
+            self._trigger(eventName, { rowCount: data.length });
         },
 
         _xmlEscape: function (str) {
