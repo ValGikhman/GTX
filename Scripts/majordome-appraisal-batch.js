@@ -10,7 +10,10 @@
     const progress = document.getElementById('pr-batch-progress');
     const progressBar = document.getElementById('pr-batch-progress-bar');
     const zip = document.getElementById('pr-batch-zip'), radius = document.getElementById('pr-batch-radius');
-    const $grid = $('#pr-batch-grid'), money = new Intl.NumberFormat('en-US', {style:'currency',currency:'USD',maximumFractionDigits:0});
+    const $grid = $('#pr-batch-grid');
+    const money = new Intl.NumberFormat('en-US', {style:'currency',currency:'USD',maximumFractionDigits:0});
+    const printMoney = new Intl.NumberFormat('en-US', {style:'currency',currency:'USD'});
+    const odometer = new Intl.NumberFormat('en-US', {minimumFractionDigits:2,maximumFractionDigits:2});
     let rows = [], running = false, parsing = false, stopping = false;
     const token = () => form.querySelector('[name="__RequestVerificationToken"]').value;
     const escape = value => $('<span>').text(value == null ? '' : String(value)).html();
@@ -27,14 +30,14 @@
         if ($grid.data('add-grid')) { $grid.addGrid('setData', rows, {preserveState:true}); return; }
         $grid.addGrid({data:rows, columns:[
             {field:'Vehicle',title:'Vehicle',width:'24%',filterable:false},
-            {field:'Vin',title:'VIN',width:'16%',filterable:false},
-            {field:'Miles',title:'Miles',width:'8%',filterable:false,searchable:false,headerClass:'text-end',cellClass:'text-end',template:row => '<span class="pr-batch-odometer">'+(number(row.Miles)?new Intl.NumberFormat('en-US',{maximumFractionDigits:0}).format(row.Miles):'—')+'</span>'},
-            {field:'Estimate',title:'Estimate',width:'10%',filterable:false,searchable:false,headerClass:'text-end',cellClass:'text-end',template:row => number(row.Estimate)?money.format(row.Estimate):'—'},
-            {field:'Maximum',title:'Max bid',width:'10%',filterable:false,searchable:false,headerClass:'text-end',cellClass:'text-end',template:row => number(row.Maximum)?money.format(row.Maximum):row.Done?'No feasible bid':'—'},
-            {field:'Status',title:'Status',width:'22%',filterable:false,headerClass:'text-center',cellClass:'text-center',template:row =>
+            {field:'Vin',title:'VIN',exportValue:row=>row.Vin,width:'16%',filterable:false},
+            {field:'Miles',exportAlign:'right',title:'Miles',exportValue:(row,format)=>format==='pdf'&&number(row.Miles)?odometer.format(row.Miles):row.Miles,width:'8%',filterable:false,searchable:false,headerClass:'text-end',cellClass:'text-end',template:row => '<span class="pr-batch-odometer">'+(number(row.Miles)?new Intl.NumberFormat('en-US',{maximumFractionDigits:0}).format(row.Miles):'—')+'</span>'},
+            {field:'Estimate',exportAlign:'right',title:'Estimate',exportValue:(row,format)=>format==='pdf'&&number(row.Estimate)?printMoney.format(row.Estimate):row.Estimate,width:'10%',filterable:false,searchable:false,headerClass:'text-end',cellClass:'text-end',template:row => number(row.Estimate)?money.format(row.Estimate):'—'},
+            {field:'Maximum',exportAlign:'right',title:'Max bid',exportValue:(row,format)=>number(row.Maximum)?(format==='pdf'?printMoney.format(row.Maximum):row.Maximum):row.Done?'No feasible bid':null,width:'10%',filterable:false,searchable:false,headerClass:'text-end',cellClass:'text-end',template:row => number(row.Maximum)?money.format(row.Maximum):row.Done?'No feasible bid':'—'},
+            {field:'Status',title:'Status',exportValue:row=>row.Status,width:'22%',filterable:false,headerClass:'text-center',cellClass:'text-center',template:row =>
                 `<span class="badge text-bg-${row.StatusTone} mw-100 text-wrap text-break text-center px-3 py-2">${escape(row.Status)}</span>`},
             {field:'Actions',title:'Actions',width:'10%',headerClass:'text-center',cellClass:'text-center',sortable:false,filterable:false,searchable:false,template:row => '<button type="button" class="btn btn-sm pr-batch-retry" data-vin="'+escape(row.Vin)+'" '+(running||parsing?'disabled':'')+'><span class="pr-batch-retry-icon"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i></span><span>Retry</span></button>'}
-        ],tableClass:'table align-middle m-0',height:null,pageable:false,resizable:false,reorderable:false,sortable:true,searchable:true,showSearch:true,searchPlaceholder:'Search vehicle, VIN, or status…',showRecordCount:true,recordType:{singular:'vehicle',plural:'vehicles',icon:'bi bi-car-front'},exportToExcel:false,exportToPdf:false,groupable:false,alternateRows:true});
+        ],tableClass:'table align-middle m-0',height:null,pageable:false,resizable:false,reorderable:false,sortable:true,searchable:true,showSearch:true,searchPlaceholder:'Search vehicle, VIN, or status…',showRecordCount:true,recordType:{singular:'vehicle',plural:'vehicles',icon:'bi bi-car-front'},exportToExcel:false,exportToPdf:false,showPrint:true,exportFileName:'Auction shortlist',exportPdfWrap:true,groupable:false,alternateRows:true});
     }
     async function appraise(row) {
         if (!number(row.Miles) || !Number.isInteger(row.Miles) || row.Miles < 0 || row.Miles > 2000000) {
