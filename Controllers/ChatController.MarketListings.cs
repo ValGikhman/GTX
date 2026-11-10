@@ -87,8 +87,11 @@ namespace GTX.Controllers
                 radius = string.IsNullOrEmpty(radius) ? MajordomeController.AppraisalDefaultRadius : radius;
                 using (var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(25)))
                 {
-                    var searches = sources.Select(source =>
+                    // AutoDealer.dev records usage for these requests under the same API key.
+                    var replies = new ChatMarketReply[sources.Length];
+                    for (var i = 0; i < sources.Length; i++)
                     {
+                        var source = sources[i];
                         var sourceArgs = (JObject)args.DeepClone();
                         if (source != "MarketCheck")
                             sourceArgs["source"] = source == "Cars.com" ? "cars.com" : source.ToLowerInvariant() + ".com";
@@ -97,9 +100,9 @@ namespace GTX.Controllers
                             sourceArgs["zip"] = zip;
                             sourceArgs["radius"] = CarGurusNumber(radius);
                         }
-                        return SearchRetailSourceAsync(client, source, sourceArgs, vin.SingleOrDefault(), timeout.Token);
-                    });
-                    return await Task.WhenAll(searches);
+                        replies[i] = await SearchRetailSourceAsync(client, source, sourceArgs, vin.SingleOrDefault(), timeout.Token);
+                    }
+                    return replies;
                 }
             }
             catch (ConfigurationErrorsException)
