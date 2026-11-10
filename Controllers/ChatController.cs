@@ -589,9 +589,9 @@ namespace GTX.Controllers
             var zip = zipMatch.Success ? zipMatch.Groups["zip"].Value : MajordomeController.AppraisalDefaultZip;
             var radiusMatch = CarGurusRadius.Match(message);
             var radius = radiusMatch.Success ? radiusMatch.Groups["radius"].Value : MajordomeController.AppraisalDefaultRadius;
-            var mileageMatch = Regex.Match(message, @"\b(?<operator>less than|under|up to|at most|no more than|max(?:imum)?)\s+(?<miles>[0-9][0-9,]*)\s+(?:odometer\s+)?(?:miles|mi)\b", RegexOptions.IgnoreCase);
-            var maxMiles = CarGurusNumber(mileageMatch.Groups["miles"].Value);
-            if (maxMiles.HasValue && Regex.IsMatch(mileageMatch.Groups["operator"].Value, @"^(?:less than|under)$", RegexOptions.IgnoreCase))
+            var mileage = CarGurusMileage(message);
+            var maxMiles = string.IsNullOrEmpty(mileage.LimitOperator) ? null : mileage.Miles;
+            if (Regex.IsMatch(mileage.LimitOperator ?? "", @"^(?:less than|under)$", RegexOptions.IgnoreCase))
                 maxMiles--;
             var criteria = CarGurusMention.Replace(vehicle == null ? message : CarGurusVin.Replace(message, vehicle), "");
             var toolArguments = new JObject
@@ -620,11 +620,12 @@ namespace GTX.Controllers
             try
             {
                 var searchTask = SearchCarGurusMcpAsync(apiKey, payload);
-                var publicTask = decoded == null ? Task.FromResult(Array.Empty<string>())
+                var publicTask = decoded == null ? Task.FromResult((Ids: Array.Empty<string>(), ModelPath: (string)null))
                     : FindCarGurusPublicListingIdsAsync(apiKey, payload, vins[0], decoded.Item1, zip, radius);
                 await Task.WhenAll(searchTask, publicTask);
                 var response = await searchTask;
-                var publicIds = await publicTask;
+                var publicSearch = await publicTask;
+                var publicIds = publicSearch.Ids;
                 var search = FindCarGurusToolCall(response, CarGurusAuctionResearch.SearchTool);
                 if (search == null && publicIds.Length == 0)
                     return new ChatMarketReply { Note = CarGurusUnavailable };
@@ -647,7 +648,11 @@ namespace GTX.Controllers
                     return new ChatMarketReply { Note = "CarGurus returned a response without readable listing details." };
 
                 var ids = listings.Select(match => match.Groups["id"].Value).ToArray();
-                var details = await GetCarGurusListingDetailsAsync(apiKey, payload, ids.Union(publicIds).ToArray(), zip);
+                var detailsTask = GetCarGurusListingDetailsAsync(apiKey, payload, ids.Union(publicIds).ToArray(), zip);
+                var viewTask = BuildCarGurusViewUrlAsync(decoded?.Item1 ?? message, publicSearch.ModelPath, zip, radius, mileage.Miles,
+                    CarGurusWheelSystem(decoded?.Item3 ?? vehicle ?? message));
+                await Task.WhenAll(detailsTask, viewTask);
+                var details = await detailsTask;
                 var radiusMiles = CarGurusNumber(radius);
                 var package = decoded?.Item1 == vehicle ? null : vehicle;
                 var rows = listings.Select(match =>
@@ -710,7 +715,7 @@ namespace GTX.Controllers
                     Title = vehicle == null ? "CarGurus listings" : vehicle + " listings",
                     Context = $"ZIP {zip} · {radius}-mile search radius",
                     Listings = displayed.OrderBy(row => CarGurusNumber(row.Distance) ?? int.MaxValue).ToArray(),
-                    Note = "CarGurus reports dealer distances. Listings outside your requested scope are labeled."
+                    ViewUrl = await viewTask
                 };
             }
             catch (Exception ex) when (ex is OpenAiRequestException || ex is HttpRequestException
@@ -741,6 +746,21 @@ namespace GTX.Controllers
         private static int? CarGurusNumber(string value) =>
             int.TryParse(value?.Replace(",", ""), out var number) ? (int?)number : null;
 
+        private static (int? Miles, string LimitOperator) CarGurusMileage(string message)
+        {
+            var mileageText = CarGurusRadius.Replace(message, " ");
+            var match = Regex.Match(mileageText,
+                @"\b(?:(?<operator>less than|under|up to|at most|no more than|max(?:imum)?)\s+)?(?<miles>[0-9][0-9,]*(?:\.[0-9]+)?)\s*(?<thousands>k)?\s*(?:odometer\s+)?(?:miles?|mi)\b(?!\s*(?:away|from|of|radius)\b)",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            if (!decimal.TryParse(match.Groups["miles"].Value.Replace(",", ""), System.Globalization.NumberStyles.AllowDecimalPoint,
+                System.Globalization.CultureInfo.InvariantCulture, out var miles)) return (null, null);
+
+            if (miles > int.MaxValue) return (null, null);
+            if (match.Groups["thousands"].Success) miles *= 1000;
+            if (miles > int.MaxValue || decimal.Truncate(miles) != miles) return (null, null);
+            return ((int)miles, match.Groups["operator"].Value);
+        }
+
         private static int CarGurusRank(ChatMarketListing row, string vehicle, int? radius, int? maxMiles)
         {
             var distance = CarGurusNumber(row.Distance);
@@ -758,7 +778,8 @@ namespace GTX.Controllers
             return ask.Success ? ask.Value : null;
         }
 
-        private async Task<string[]> FindCarGurusPublicListingIdsAsync(string apiKey, JObject searchPayload, string vin, string model, string zip, string radius)
+        private async Task<(string[] Ids, string ModelPath)> FindCarGurusPublicListingIdsAsync(
+            string apiKey, JObject searchPayload, string vin, string model, string zip, string radius)
         {
             var subjectTask = SearchCarGurusPublicSourcesAsync(apiKey, searchPayload,
                 $"Find the direct CarGurus vehicle listing URL for exact VIN {vin}, a {model}.");
@@ -779,7 +800,7 @@ namespace GTX.Controllers
                 .Where(match => match.Success).Select(match => match.Groups["id"].Value)
                 .Distinct().Take(5).ToArray();
             var scopedIds = await scopedTask;
-            if (scopedIds.Length >= 5) return directIds.Union(scopedIds).Take(10).ToArray();
+            if (scopedIds.Length >= 5) return (directIds.Union(scopedIds).Take(10).ToArray(), knownPath);
             var pages = inventory.Concat(sources)
                 .Where(url => Regex.IsMatch(url, @"^https://www\.cargurus\.com/Cars/(?:l-|s-|spt-)[a-z0-9_-]+(?:[?#]|$)", RegexOptions.IgnoreCase))
                 .Select(url => new Uri(url).GetLeftPart(UriPartial.Path)).Distinct().Take(8);
@@ -787,16 +808,96 @@ namespace GTX.Controllers
             var modelPath = inventoryPages.Select(page => page.ModelPath).FirstOrDefault(path => path != null);
             if (knownPath == null && modelPath != null)
                 scopedIds = await ReadCarGurusScopedIdsAsync(model, zip, radius, modelPath);
-            return directIds.Concat(scopedIds).Concat(inventoryPages.SelectMany(page => page.Ids)).Distinct().Take(10).ToArray();
+            return (directIds.Concat(scopedIds).Concat(inventoryPages.SelectMany(page => page.Ids)).Distinct().Take(10).ToArray(),
+                knownPath ?? modelPath);
         }
 
         private static async Task<string[]> ReadCarGurusScopedIdsAsync(string model, string zip, string radius, string modelPath)
         {
-            var year = model.Split(' ')[0];
-            var searchUrl = $"https://www.cargurus.com/search?zip={zip}&startYear={year}&endYear={year}&distance={radius}"
-                + "&sortDirection=ASC&sortType=PROXIMITY&hideNationwideShipping=true&isDeliveryEnabled=true&makeModelTrimPaths="
-                + Uri.EscapeDataString(modelPath);
+            var searchUrl = CarGurusSearchUrl(zip, radius, modelPath, model.Split(' ')[0]);
             return (await ReadCarGurusInventoryAsync(searchUrl, model)).Ids;
+        }
+
+        private static string CarGurusSearchUrl(string zip, string radius, string modelPath, string year,
+            int? maxMiles = null, string wheelSystem = null, string sortType = "PROXIMITY")
+        {
+            var url = $"https://www.cargurus.com/search?zip={zip}&distance={radius}"
+                + $"&sortDirection=ASC&sortType={sortType}&hideNationwideShipping=true&isDeliveryEnabled=true";
+            if (!string.IsNullOrEmpty(modelPath)) url += "&makeModelTrimPaths=" + Uri.EscapeDataString(modelPath);
+            if (!string.IsNullOrEmpty(year)) url += "&startYear=" + year + "&endYear=" + year;
+            if (wheelSystem != null) url += "&wheelSystems=" + wheelSystem;
+            if (maxMiles >= 0) url += "&maxMileage=" + maxMiles.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            return url;
+        }
+
+        private static async Task<string> BuildCarGurusViewUrlAsync(string vehicleSearch, string modelPath, string zip,
+            string radius, int? maxMiles, string wheelSystem)
+        {
+            var year = Regex.Match(vehicleSearch, @"\b(?:19|20)[0-9]{2}\s+(?=(?:used\s+)?[a-z])", RegexOptions.IgnoreCase).Value.Trim();
+            if (modelPath == null)
+            {
+                using (var deadline = new System.Threading.CancellationTokenSource(TimeSpan.FromSeconds(4)))
+                {
+                    var makes = await GetCarGurusCatalogAsync("listMakes.action?searchType=USED", "makes", deadline.Token);
+                    var make = FindCarGurusCatalogEntry(makes, vehicleSearch, "m");
+                    if (make != null)
+                    {
+                        var makeId = (string)make["id"];
+                        var models = await GetCarGurusCatalogAsync("listModels.action?searchType=USED&makeId=" + makeId, "models", deadline.Token);
+                        var makeName = (string)make["name"];
+                        var makePosition = vehicleSearch.IndexOf(makeName, StringComparison.OrdinalIgnoreCase);
+                        var model = FindCarGurusCatalogEntry(models, vehicleSearch.Substring(makePosition + makeName.Length), "d");
+                        modelPath = model == null ? makeId : makeId + "/" + (string)model["id"];
+                    }
+                }
+            }
+            return CarGurusSearchUrl(zip, radius, modelPath, year, maxMiles, wheelSystem, sortType: "PRICE");
+        }
+
+        private static JObject FindCarGurusCatalogEntry(JArray catalog, string text, string idPrefix)
+        {
+            return catalog.OfType<JObject>().Where(item =>
+            {
+                var name = (string)item["name"];
+                return !string.IsNullOrWhiteSpace(name)
+                    && Regex.IsMatch((string)item["id"] ?? "", @"\A" + idPrefix + @"[0-9]+\z")
+                    && Regex.IsMatch(text, @"(?<![a-z0-9])" + Regex.Escape(name) + @"(?![a-z0-9])", RegexOptions.IgnoreCase);
+            }).OrderByDescending(item => ((string)item["name"]).Length).FirstOrDefault();
+        }
+
+        private static async Task<JArray> GetCarGurusCatalogAsync(string path, string field, System.Threading.CancellationToken token)
+        {
+            var cacheKey = "GTX:CarGurusCatalog:" + path;
+            if (RateLimitCache.Get(cacheKey) is JArray cached) return cached;
+            try
+            {
+                using (var request = new HttpRequestMessage(HttpMethod.Get, "https://www.cargurus.com/Cars/api/1.0/carselector/" + path))
+                {
+                    request.Headers.Accept.ParseAdd("application/json");
+                    request.Headers.UserAgent.ParseAdd("GTXAutoGroup/1.0");
+                    using (var response = await VinLookupClient.SendAsync(request, token))
+                    {
+                        if (!response.IsSuccessStatusCode) return new JArray();
+                        var catalog = JObject.Parse(await response.Content.ReadAsStringAsync())[field] as JArray;
+                        if (catalog != null && catalog.Count > 0)
+                            RateLimitCache.Set(cacheKey, catalog, DateTimeOffset.UtcNow.AddHours(12));
+                        return catalog ?? new JArray();
+                    }
+                }
+            }
+            catch (Exception ex) when (ex is HttpRequestException || ex is TaskCanceledException || ex is JsonException)
+            {
+                return new JArray();
+            }
+        }
+
+        private static string CarGurusWheelSystem(string value)
+        {
+            if (Regex.IsMatch(value, @"\b(?:AWD|all[ -]wheel[ -]drive)\b", RegexOptions.IgnoreCase)) return "ALL_WHEEL_DRIVE";
+            if (Regex.IsMatch(value, @"\b(?:FWD|front[ -]wheel[ -]drive)\b", RegexOptions.IgnoreCase)) return "FRONT_WHEEL_DRIVE";
+            if (Regex.IsMatch(value, @"\b(?:RWD|rear[ -]wheel[ -]drive)\b", RegexOptions.IgnoreCase)) return "REAR_WHEEL_DRIVE";
+            if (Regex.IsMatch(value, @"\b(?:4WD|4x4|four[ -]wheel[ -]drive)\b", RegexOptions.IgnoreCase)) return "FOUR_WHEEL_DRIVE";
+            return null;
         }
 
         private async Task<string[]> SearchCarGurusPublicSourcesAsync(string apiKey, JObject searchPayload, string query)
@@ -909,7 +1010,7 @@ namespace GTX.Controllers
             return details;
         }
 
-        private static async Task<Tuple<string, string>> DecodeCarGurusVehicleAsync(string vin)
+        private static async Task<Tuple<string, string, string>> DecodeCarGurusVehicleAsync(string vin)
         {
             var key = ConfigurationManager.AppSettings["AutoDealer:ApiKey"]?.Trim();
             if (string.IsNullOrWhiteSpace(key)) key = "ad_live_demo.keysecret";
@@ -936,7 +1037,10 @@ namespace GTX.Controllers
 
                         var trims = styles.Select(style => ((string)style["trim"])?.Trim())
                             .Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
-                        return Tuple.Create(models[0], trims.Length == 1 ? Join(models[0], trims[0]) : models[0]);
+                        var driveTypes = styles.Select(style => ((string)style["drive_type"])?.Trim())
+                            .Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+                        return Tuple.Create(models[0], trims.Length == 1 ? Join(models[0], trims[0]) : models[0],
+                            driveTypes.Length == 1 ? driveTypes[0] : null);
                     }
                 }
             }

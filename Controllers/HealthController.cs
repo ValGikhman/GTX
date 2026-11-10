@@ -199,6 +199,7 @@ public class HealthController : BaseController
             {
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", key);
                 request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                request.Headers.UserAgent.ParseAdd("GTXAutoGroup/1.0");
                 using (var response = await MarketCheckHealthClient.SendAsync(request))
                 {
                     if (response.IsSuccessStatusCode)

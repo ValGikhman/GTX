@@ -146,6 +146,8 @@ namespace GTX.Common
                 using (var request = new HttpRequestMessage(HttpMethod.Post, url))
                 {
                     request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", key);
+                    request.Headers.UserAgent.ParseAdd("GTXAutoGroup/1.0");
+                    request.Headers.ExpectContinue = false;
                     request.Content = new StringContent(input.ToString(Formatting.None), Encoding.UTF8, "application/json");
                     using (var response = await Http.SendAsync(request))
                     {

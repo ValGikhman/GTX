@@ -729,7 +729,12 @@
                         <div class="health-token-unit">calls remaining</div>
                     </div>
                     <div id="marketCheckQuotaDetail" class="kpi-sub mt-2" aria-live="polite">Loading MarketCheck quota…</div>
-                    <div class="kpi-sub mt-auto pt-4">From the latest MarketCheck response with quota data.</div>
+                    <div class="kpi-sub mt-2">From the latest MarketCheck response with quota data.</div>
+                    <div class="health-refresh-actions health-refresh-actions-single pt-4 mt-auto">
+                        <button type="button" id="btnRefreshMarketCheckQuota" class="btn btn-sm btn-outline-success shadow-sm">
+                            <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>Refresh count
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1080,16 +1085,25 @@
         });
     }
 
-    $(function () {
+    function refreshMarketCheckQuota() {
+        const $button = $("#btnRefreshMarketCheckQuota");
+        if ($button.prop("disabled")) return;
+        const originalHtml = $button.html();
         const $marketCheckCount = $("#marketCheckQuotaCount");
         const $marketCheckDetail = $("#marketCheckQuotaDetail");
+        $button.prop("disabled", true)
+            .html('<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>Refreshing…');
+        $marketCheckDetail.text("Loading MarketCheck quota…");
+
         $.ajax({
             url: '@Url.Action("MarketCheckQuota", "Health")',
+            cache: false,
             dataType: "json",
             timeout: 10000
         }).done(function (data) {
-            if (data.Status !== "ok") {
-                $marketCheckDetail.text(data.Status === "unconfigured" ? "AutoDealer.dev appraisal is not configured." : "Could not read quota from AutoDealer.dev.");
+            if (!data || data.Status !== "ok" || !data.Quota) {
+                $marketCheckCount.text("—");
+                $marketCheckDetail.text(data && data.Status === "unconfigured" ? "AutoDealer.dev appraisal is not configured." : "Could not read quota from AutoDealer.dev.");
                 return;
             }
 
@@ -1097,10 +1111,12 @@
             const reset = parseNetDate(quota.ResetAt);
             const observed = parseNetDate(quota.ObservedAt);
             if (reset && reset <= new Date()) {
+                $marketCheckCount.text("—");
                 $marketCheckDetail.text("The previous quota window ended. Waiting for a new MarketCheck response.");
                 return;
             }
             if (quota.Remaining == null) {
+                $marketCheckCount.text("—");
                 $marketCheckDetail.text(observed ? "MarketCheck did not report a remaining call count." : "No MarketCheck quota headers have been captured yet.");
                 return;
             }
@@ -1111,9 +1127,14 @@
             if (observed) details.push("Updated " + observed.toLocaleString());
             $marketCheckDetail.text(details.join(" · "));
         }).fail(function () {
+            $marketCheckCount.text("—");
             $marketCheckDetail.text("Could not load the MarketCheck quota.");
+        }).always(function () {
+            $button.prop("disabled", false).html(originalHtml);
         });
+    }
 
+    $(function () {
         dom.statusBadge = $("#statusBadge");
         dom.statusText = $("#statusText");
         dom.updated = $("#updated");
@@ -1204,6 +1225,8 @@
         refreshRemoveBgTokenBalance();
         $("#btnRefreshCloudflareBucket").on("click", refreshCloudflareBucketStats);
         refreshCloudflareBucketStats();
+        $("#btnRefreshMarketCheckQuota").on("click", refreshMarketCheckQuota);
+        refreshMarketCheckQuota();
 
         $(document).on("visibilitychange.health", function () {
             if (document.visibilityState === "visible") {
