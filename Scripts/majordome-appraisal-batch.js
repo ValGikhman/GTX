@@ -54,7 +54,9 @@
         } catch (failure) {
             const body=failure.responseJSON;
             if (body && number(body.marketCheckRetailUsd)) row.Estimate=body.marketCheckRetailUsd;
-            row.Status=body && body.message || failure.message || 'Appraisal failed. Retry this vehicle.';
+            row.Status=body && body.message || failure.message ||
+                (failure.statusText === 'timeout' ? 'The appraisal request timed out. Retry this vehicle.' :
+                    (failure.status ? 'Appraisal failed (HTTP ' + failure.status + '). Retry this vehicle.' : 'The appraisal connection did not return a response.'));
             row.StatusTone = 'danger';
             if ([401,403,429].includes(failure.status)) { stopping=true; showError(row.Status); }
         }

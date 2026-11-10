@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -27,22 +28,26 @@ namespace GTX.Controllers {
             } catch (InvalidOperationException ex) { return AppraisalJson(400, new { message = ex.Message }); }
             catch (Exception) { return AppraisalJson(400, new { message = "This file could not be read. Use an unlocked text-based PDF or a CSV with VIN and odometer mileage columns." }); }
         }
-        [HttpPost, ValidateAntiForgeryToken, AsyncTimeout(90000)]
+        [HttpPost, AsyncTimeout(90000)]
         public async Task<ActionResult> AppraiseBatchVehicle(string vin, int? miles, string zip, int? radius) {
-            if (!CanUseAppraisal()) return new HttpStatusCodeResult(403);
+            if (!CanUseAppraisal()) return AppraisalJson(403, new { message = "Sign in with a role that has Appraisal access." });
             if (!System.Text.RegularExpressions.Regex.IsMatch(vin ?? "", "^[A-HJ-NPR-Z0-9]{17}$") || !miles.HasValue || miles < 0 || miles > 2000000
                 || !System.Text.RegularExpressions.Regex.IsMatch(zip ?? "", "^[0-9]{5}$") || !radius.HasValue || radius < 1 || radius > 500)
                 return AppraisalJson(400, new { message = "Verify the VIN, odometer miles, ZIP and radius." });
-            var priceResponse = await SendAppraisalAsync("/market-price", new { vin, miles, zip, radius });
+            var estimatePath = FormattableString.Invariant($"/{vin}/json?miles={miles.Value}&zip={zip}&radius={radius.Value}");
+            var priceResponse = await SendAppraisalAsync(estimatePath, null, HttpMethod.Get);
             if (Response.StatusCode != 200) return priceResponse;
             var priceContent = priceResponse as ContentResult;
             if (priceContent == null) return AppraisalJson(502, new { message = "MarketCheck returned an unreadable estimate." });
-            var price = (decimal?)JObject.Parse(priceContent.Content)["marketCheckRetailUsd"];
+            var price = (decimal?)JObject.Parse(priceContent.Content)["marketcheck_price"];
             if (!price.HasValue || price <= 0) return AppraisalJson(502, new { message = "MarketCheck returned no usable estimate." });
             var bidResponse = await SendAppraisalAsync("/auction-budget", new { expectedSellingPriceUsd = price.Value });
-            if (Response.StatusCode != 200) return AppraisalJson(Response.StatusCode, new { marketCheckRetailUsd = price, message = "Estimate available, but the auction budget could not be calculated. Retry this vehicle." });
             var bidContent = bidResponse as ContentResult;
             var bid = bidContent == null ? null : JObject.Parse(bidContent.Content);
+            if (Response.StatusCode != 200) return AppraisalJson(Response.StatusCode, new {
+                marketCheckRetailUsd = price,
+                message = "Estimate available. " + ((string)bid?["message"] ?? "The auction budget could not be calculated. Retry this vehicle.")
+            });
             if (bid == null || bid["maximumHammerBidUsd"] == null) return AppraisalJson(502, new { marketCheckRetailUsd = price, message = "The auction service returned no budget result. Retry this vehicle." });
             return AppraisalJson(200, new { marketCheckRetailUsd = price, maximumHammerBidUsd = (decimal?)bid?["maximumHammerBidUsd"], message = bid?["maximumHammerBidUsd"]?.Type == JTokenType.Null ? "No feasible bid at the configured profit target." : "Complete" });
         }

@@ -193,14 +193,14 @@
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="UglyToad.PdfPig.Core"><HintPath>packages/PdfPig.0.1.15/lib/net471/UglyToad.PdfPig.Core.dll</HintPath></Reference>
-    <Reference Include="UglyToad.PdfPig"><HintPath>packages/PdfPig.0.1.15/lib/net471/UglyToad.PdfPig.dll</HintPath></Reference>
-    <Reference Include="UglyToad.PdfPig.DocumentLayoutAnalysis"><HintPath>packages/PdfPig.0.1.15/lib/net471/UglyToad.PdfPig.DocumentLayoutAnalysis.dll</HintPath></Reference>
-    <Reference Include="UglyToad.PdfPig.Fonts"><HintPath>packages/PdfPig.0.1.15/lib/net471/UglyToad.PdfPig.Fonts.dll</HintPath></Reference>
-    <Reference Include="UglyToad.PdfPig.Package"><HintPath>packages/PdfPig.0.1.15/lib/net471/UglyToad.PdfPig.Package.dll</HintPath></Reference>
-    <Reference Include="UglyToad.PdfPig.Tokenization"><HintPath>packages/PdfPig.0.1.15/lib/net471/UglyToad.PdfPig.Tokenization.dll</HintPath></Reference>
-    <Reference Include="UglyToad.PdfPig.Tokens"><HintPath>packages/PdfPig.0.1.15/lib/net471/UglyToad.PdfPig.Tokens.dll</HintPath></Reference>
-    <Reference Include="Microsoft.Bcl.HashCode"><HintPath>packages/Microsoft.Bcl.HashCode.6.0.0/lib/net462/Microsoft.Bcl.HashCode.dll</HintPath></Reference>
+    <Reference Include="UglyToad.PdfPig.Core"><HintPath>packages\PdfPig.0.1.15\lib\net471\UglyToad.PdfPig.Core.dll</HintPath></Reference>
+    <Reference Include="UglyToad.PdfPig"><HintPath>packages\PdfPig.0.1.15\lib\net471\UglyToad.PdfPig.dll</HintPath></Reference>
+    <Reference Include="UglyToad.PdfPig.DocumentLayoutAnalysis"><HintPath>packages\PdfPig.0.1.15\lib\net471\UglyToad.PdfPig.DocumentLayoutAnalysis.dll</HintPath></Reference>
+    <Reference Include="UglyToad.PdfPig.Fonts"><HintPath>packages\PdfPig.0.1.15\lib\net471\UglyToad.PdfPig.Fonts.dll</HintPath></Reference>
+    <Reference Include="UglyToad.PdfPig.Package"><HintPath>packages\PdfPig.0.1.15\lib\net471\UglyToad.PdfPig.Package.dll</HintPath></Reference>
+    <Reference Include="UglyToad.PdfPig.Tokenization"><HintPath>packages\PdfPig.0.1.15\lib\net471\UglyToad.PdfPig.Tokenization.dll</HintPath></Reference>
+    <Reference Include="UglyToad.PdfPig.Tokens"><HintPath>packages\PdfPig.0.1.15\lib\net471\UglyToad.PdfPig.Tokens.dll</HintPath></Reference>
+    <Reference Include="Microsoft.Bcl.HashCode"><HintPath>packages\Microsoft.Bcl.HashCode.6.0.0\lib\net462\Microsoft.Bcl.HashCode.dll</HintPath></Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -282,9 +282,9 @@
     <Compile Include="Common\AppCache.cs" />
     <Compile Include="Common\Attributes.cs" />
     <Compile Include="Common\ChatBotSettings.cs" />
-    <Compile Include="Common/AppraisalCsvParser.cs" />
-    <Compile Include="Common/AppraisalPdfParser.cs" />
-    <Compile Include="Controllers/MajordomeController.BatchAppraisal.cs" />
+    <Compile Include="Common\AppraisalCsvParser.cs" />
+    <Compile Include="Common\AppraisalPdfParser.cs" />
+    <Compile Include="Controllers\MajordomeController.BatchAppraisal.cs" />
     <Compile Include="Common\AppraisalComparableScope.cs" />
     <Compile Include="Common\CarGurusAuctionResearch.cs" />
     <Compile Include="Common\ChatAuctionAppraisal.cs" />
@@ -634,7 +634,7 @@
     <Content Include="Scripts\Lightbox\lc_lightbox.lite.min.js" />
     <Content Include="Scripts\main.js" />
     <Content Include="Scripts\majordome.js" />
-    <Content Include="Scripts/majordome-appraisal-batch.js" />
+    <Content Include="Scripts\majordome-appraisal-batch.js" />
     <Content Include="Scripts\majordome-appraisal.js" />
     <Content Include="Scripts\majordome-appraisal-comparables.js" />
     <Content Include="Scripts\majordome-appraisal-research.js" />
@@ -691,7 +691,7 @@
     <Content Include="Views\Shared\_MarketingHero.cshtml" />
     <Content Include="Views\Shared\_Carousel.cshtml" />
     <Content Include="Views\Majordome\Inventory.cshtml" />
-    <Content Include="Views/Majordome/_BatchAppraisalControls.cshtml" />
+    <Content Include="Views\Majordome\_BatchAppraisalControls.cshtml" />
     <Content Include="Views\Majordome\Appraisal.cshtml" />
     <Content Include="Views\Majordome\_AppraisalComparables.cshtml" />
     <Content Include="Views\Majordome\_AppraisalResearchForm.cshtml" />

@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
@@ -59,7 +60,7 @@ namespace GTX.Controllers
             return SiteAccess.Can(SiteAccess.Current(Request), MajordomeItem.Appraisal);
         }
 
-        private async Task<ActionResult> SendAppraisalAsync(string routeSuffix, object payload)
+        private async Task<ActionResult> SendAppraisalAsync(string routeSuffix, object payload, HttpMethod method = null)
         {
             if (!CanUseAppraisal()) return AppraisalJson(403, new { message = "Sign in with a role that has Appraisal access." });
             try
@@ -82,22 +83,28 @@ namespace GTX.Controllers
             try
             {
                 var url = new Uri(origin, "/api/service/price-research" + routeSuffix);
-                using (var request = new HttpRequestMessage(HttpMethod.Post, url))
+                using (var request = new HttpRequestMessage(method ?? HttpMethod.Post, url))
                 {
                     request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", key);
                     request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    request.Content = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
+                    request.Headers.UserAgent.ParseAdd("GTXAutoGroup/1.0");
+                    if (payload != null)
+                    {
+                        request.Headers.ExpectContinue = false;
+                        request.Content = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
+                    }
                     using (var response = await AppraisalClient.SendAsync(request))
                     {
                         if (!response.IsSuccessStatusCode)
                         {
+                            Response.Headers["X-GTX-Appraisal-Error"] = "autodealer-http-" + (int)response.StatusCode;
                             switch (response.StatusCode)
                             {
                                 case HttpStatusCode.BadRequest:
                                     return AppraisalJson(400, new { message = "Check your appraisal inputs and try again." });
                                 case HttpStatusCode.Unauthorized:
                                 case HttpStatusCode.Forbidden:
-                                    return AppraisalJson(502, new { message = "AutoDealer.dev rejected the configured API key or subscription." });
+                                    return await AppraisalRejectionAsync(response);
                                 case (HttpStatusCode)429:
                                     return AppraisalJson(429, new { message = "The AutoDealer.dev request limit has been reached." });
                                 case HttpStatusCode.ServiceUnavailable:
@@ -125,18 +132,64 @@ namespace GTX.Controllers
             }
             catch (TaskCanceledException)
             {
+                Response.Headers["X-GTX-Appraisal-Error"] = "autodealer-timeout";
                 return AppraisalJson(504, new { message = "The appraisal request timed out. Please try again." });
             }
-            catch (Exception ex) when (ex is HttpRequestException || ex is JsonException)
+            catch (HttpRequestException ex)
             {
+                var cause = ex.InnerException as WebException ?? ex.GetBaseException() as WebException;
+                Response.Headers["X-GTX-Appraisal-Error"] = cause == null ? "autodealer-transport" : "autodealer-transport-" + cause.Status;
                 return AppraisalJson(502, new { message = "The AutoDealer.dev appraisal service could not be reached." });
             }
+            catch (JsonException)
+            {
+                Response.Headers["X-GTX-Appraisal-Error"] = "autodealer-invalid-json";
+                return AppraisalJson(502, new { message = "AutoDealer.dev returned an unreadable appraisal response." });
+            }
+        }
+
+        private async Task<ActionResult> AppraisalRejectionAsync(HttpResponseMessage response)
+        {
+            string ray = null;
+            if (response.Headers.TryGetValues("CF-Ray", out var rays))
+            {
+                ray = rays.FirstOrDefault(value => Regex.IsMatch(value, @"\A[0-9a-fA-F]{16}(?:-[A-Z]{3})?\z"));
+                if (ray != null)
+                    Response.Headers["X-GTX-Appraisal-Upstream-Ray"] = ray;
+            }
+
+            var mediaType = response.Content?.Headers.ContentType?.MediaType;
+            string code = null;
+            if (string.Equals(mediaType, "application/json", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(mediaType, "application/problem+json", StringComparison.OrdinalIgnoreCase))
+            {
+                try
+                {
+                    var body = JObject.Parse(await response.Content.ReadAsStringAsync());
+                    var token = (body["error"] as JObject)?["code"] ?? body["error_name"];
+                    if (token?.Type == JTokenType.String && Regex.IsMatch((string)token, @"\A[a-z0-9_]{1,64}\z"))
+                        code = (string)token;
+                }
+                catch (JsonException)
+                {
+                    // Keep the status visible even if the upstream error body is unreadable.
+                }
+            }
+
+            if (code != null) Response.Headers["X-GTX-Appraisal-Upstream-Code"] = code;
+            var responseType = string.Equals(mediaType, "text/html", StringComparison.OrdinalIgnoreCase) ? "HTML response"
+                : "no API error code";
+            var details = code ?? responseType;
+            if (ray != null) details += ", Ray ID " + ray;
+
+            // Cloudflare can replace a 502 response and hide our diagnostic message.
+            return AppraisalJson(424, new { message = $"AutoDealer.dev denied the appraisal request (HTTP {(int)response.StatusCode}, {details})." });
         }
 
         private static async Task<JObject> GetAppraisalReferencesAsync(Uri origin, string key, JObject data, JObject scope)
         {
-            var current = data["comparables"]?["listings"] as JArray ?? new JArray();
-            var recent = data["recent_comparables"]?["listings"] as JArray ?? new JArray();
+            var current = (data["comparables"] as JObject)?["listings"] as JArray ?? new JArray();
+            var recent = (data["recent_comparables"] as JObject)?["listings"] as JArray ?? new JArray();
             var selectedCurrent = AppraisalComparableScope.Select(current, scope, "MarketCheck Current");
             var selectedRecent = AppraisalComparableScope.Select(recent, scope, "MarketCheck Recent", 100);
             JObject expanded = null;
@@ -148,6 +201,8 @@ namespace GTX.Controllers
                     using (var request = new HttpRequestMessage(HttpMethod.Post, new Uri(origin, "/api/service/price-research/auction-comparables")))
                     {
                         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", key);
+                        request.Headers.UserAgent.ParseAdd("GTXAutoGroup/1.0");
+                        request.Headers.ExpectContinue = false;
                         request.Content = new StringContent(scope.ToString(Formatting.None), Encoding.UTF8, "application/json");
                         using (var response = await AppraisalClient.SendAsync(request, timeout.Token))
                             if (response.IsSuccessStatusCode)

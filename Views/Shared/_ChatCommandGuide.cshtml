@@ -155,220 +155,228 @@
         }
 
         <h3 class="gtx-chat-command-guide-group">
-            <button type="button" data-chat-guide-toggle aria-expanded="true">
+            <button type="button" data-chat-guide-toggle aria-expanded="false" aria-controls="gtxChatInventoryExamples">
                 <i class="bi bi-search" aria-hidden="true"></i>
                 <span>Search live inventory</span>
                 <i class="bi bi-chevron-down gtx-chat-guide-chevron" aria-hidden="true"></i>
             </button>
         </h3>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="What trucks are available?">
-                &quot;What trucks are available?&quot;
-            </button>
-            <span><i class="bi bi-truck" aria-hidden="true"></i> Shows available trucks as vehicle cards inside the chat.</span>
-        </div>
+        <div id="gtxChatInventoryExamples" hidden>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="What trucks are available?">
+                    &quot;What trucks are available?&quot;
+                </button>
+                <span><i class="bi bi-truck" aria-hidden="true"></i> Shows available trucks as vehicle cards inside the chat.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="What Honda vehicles are available under $20,000?">
-                &quot;What Honda vehicles are available under $20,000?&quot;
-            </button>
-            <span><i class="bi bi-currency-dollar" aria-hidden="true"></i> Combines make and maximum-price filters.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="What Honda vehicles are available under $20,000?">
+                    &quot;What Honda vehicles are available under $20,000?&quot;
+                </button>
+                <span><i class="bi bi-currency-dollar" aria-hidden="true"></i> Combines make and maximum-price filters.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Find vehicles with a manual transmission">
-                &quot;Find vehicles with a manual transmission&quot;
-            </button>
-            <span><i class="bi bi-gear-wide-connected" aria-hidden="true"></i> Searches manual, automatic, or CVT transmissions.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Find vehicles with a manual transmission">
+                    &quot;Find vehicles with a manual transmission&quot;
+                </button>
+                <span><i class="bi bi-gear-wide-connected" aria-hidden="true"></i> Searches manual, automatic, or CVT transmissions.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Show me red vehicles">
-                &quot;Show me red vehicles&quot;
-            </button>
-            <span><i class="bi bi-palette" aria-hidden="true"></i> Searches exterior and interior vehicle colors.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Show me red vehicles">
+                    &quot;Show me red vehicles&quot;
+                </button>
+                <span><i class="bi bi-palette" aria-hidden="true"></i> Searches exterior and interior vehicle colors.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Do you have any 6-cylinder SUVs?">
-                &quot;Do you have any 6-cylinder SUVs?&quot;
-            </button>
-            <span><i class="bi bi-sliders" aria-hidden="true"></i> Searches exact cylinder counts; requests such as V6 and V8 also work.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Do you have any 6-cylinder SUVs?">
+                    &quot;Do you have any 6-cylinder SUVs?&quot;
+                </button>
+                <span><i class="bi bi-sliders" aria-hidden="true"></i> Searches exact cylinder counts; requests such as V6 and V8 also work.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Show me red automatic vehicles with 6 cylinders under $25,000">
-                &quot;Show me red automatic vehicles with 6 cylinders under $25,000&quot;
-            </button>
-            <span><i class="bi bi-filter-circle" aria-hidden="true"></i> Combines color, transmission, cylinders, and maximum price in one search.</span>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Show me red automatic vehicles with 6 cylinders under $25,000">
+                    &quot;Show me red automatic vehicles with 6 cylinders under $25,000&quot;
+                </button>
+                <span><i class="bi bi-filter-circle" aria-hidden="true"></i> Combines color, transmission, cylinders, and maximum price in one search.</span>
+            </div>
         </div>
 
         <h3 class="gtx-chat-command-guide-group">
-            <button type="button" data-chat-guide-toggle aria-expanded="true">
+            <button type="button" data-chat-guide-toggle aria-expanded="false" aria-controls="gtxChatDataOneExamples">
                 <i class="bi bi-database-check" aria-hidden="true"></i>
                 <span>Search DataOne specifications</span>
                 <i class="bi bi-chevron-down gtx-chat-guide-chevron" aria-hidden="true"></i>
             </button>
         </h3>
 
-        <div class="gtx-chat-command-guide-note">
-            <i class="bi bi-info-circle" aria-hidden="true"></i>
-            <div>When DataOne details are available, you can search by <strong>doors, horsepower, city or highway MPG, seating capacity, and standard equipment</strong>.</div>
-        </div>
+        <div id="gtxChatDataOneExamples" hidden>
+            <div class="gtx-chat-command-guide-note">
+                <i class="bi bi-info-circle" aria-hidden="true"></i>
+                <div>When DataOne details are available, you can search by <strong>doors, horsepower, city or highway MPG, seating capacity, and standard equipment</strong>.</div>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Show me four-door vehicles with heated seats">
-                &quot;Show me four-door vehicles with heated seats&quot;
-            </button>
-            <span><i class="bi bi-car-front" aria-hidden="true"></i> Searches DataOne door and standard-equipment details when available.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Show me four-door vehicles with heated seats">
+                    &quot;Show me four-door vehicles with heated seats&quot;
+                </button>
+                <span><i class="bi bi-car-front" aria-hidden="true"></i> Searches DataOne door and standard-equipment details when available.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Find two-door vehicles">
-                &quot;Find two-door vehicles&quot;
-            </button>
-            <span><i class="bi bi-door-closed" aria-hidden="true"></i> Searches for an exact DataOne door count.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Find two-door vehicles">
+                    &quot;Find two-door vehicles&quot;
+                </button>
+                <span><i class="bi bi-door-closed" aria-hidden="true"></i> Searches for an exact DataOne door count.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Show me vehicles with at least 250 horsepower">
-                &quot;Show me vehicles with at least 250 horsepower&quot;
-            </button>
-            <span><i class="bi bi-lightning-charge" aria-hidden="true"></i> Finds vehicles meeting a minimum DataOne horsepower rating.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Show me vehicles with at least 250 horsepower">
+                    &quot;Show me vehicles with at least 250 horsepower&quot;
+                </button>
+                <span><i class="bi bi-lightning-charge" aria-hidden="true"></i> Finds vehicles meeting a minimum DataOne horsepower rating.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Find vehicles with at least 300 horsepower and 25 highway MPG">
-                &quot;Find vehicles with at least 300 horsepower and 25 highway MPG&quot;
-            </button>
-            <span><i class="bi bi-speedometer2" aria-hidden="true"></i> Searches DataOne horsepower and EPA mileage specifications.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Find vehicles with at least 300 horsepower and 25 highway MPG">
+                    &quot;Find vehicles with at least 300 horsepower and 25 highway MPG&quot;
+                </button>
+                <span><i class="bi bi-speedometer2" aria-hidden="true"></i> Searches DataOne horsepower and EPA mileage specifications.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Find vehicles with at least 25 city MPG">
-                &quot;Find vehicles with at least 25 city MPG&quot;
-            </button>
-            <span><i class="bi bi-buildings" aria-hidden="true"></i> Searches the minimum DataOne EPA city mileage rating.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Find vehicles with at least 25 city MPG">
+                    &quot;Find vehicles with at least 25 city MPG&quot;
+                </button>
+                <span><i class="bi bi-buildings" aria-hidden="true"></i> Searches the minimum DataOne EPA city mileage rating.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Show me vehicles with at least 30 highway MPG">
-                &quot;Show me vehicles with at least 30 highway MPG&quot;
-            </button>
-            <span><i class="bi bi-signpost-split" aria-hidden="true"></i> Searches the minimum DataOne EPA highway mileage rating.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Show me vehicles with at least 30 highway MPG">
+                    &quot;Show me vehicles with at least 30 highway MPG&quot;
+                </button>
+                <span><i class="bi bi-signpost-split" aria-hidden="true"></i> Searches the minimum DataOne EPA highway mileage rating.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Show me vehicles that seat at least 7 people">
-                &quot;Show me vehicles that seat at least 7 people&quot;
-            </button>
-            <span><i class="bi bi-people" aria-hidden="true"></i> Searches DataOne seating or passenger-capacity specifications.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Show me vehicles that seat at least 7 people">
+                    &quot;Show me vehicles that seat at least 7 people&quot;
+                </button>
+                <span><i class="bi bi-people" aria-hidden="true"></i> Searches DataOne seating or passenger-capacity specifications.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Do you have vehicles with blind spot monitoring?">
-                &quot;Do you have vehicles with blind spot monitoring?&quot;
-            </button>
-            <span><i class="bi bi-shield-check" aria-hidden="true"></i> Searches verified DataOne standard safety equipment.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Do you have vehicles with blind spot monitoring?">
+                    &quot;Do you have vehicles with blind spot monitoring?&quot;
+                </button>
+                <span><i class="bi bi-shield-check" aria-hidden="true"></i> Searches verified DataOne standard safety equipment.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Find vehicles with Apple CarPlay">
-                &quot;Find vehicles with Apple CarPlay&quot;
-            </button>
-            <span><i class="bi bi-phone" aria-hidden="true"></i> Searches verified DataOne standard technology equipment.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Find vehicles with Apple CarPlay">
+                    &quot;Find vehicles with Apple CarPlay&quot;
+                </button>
+                <span><i class="bi bi-phone" aria-hidden="true"></i> Searches verified DataOne standard technology equipment.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Show me vehicles with a sunroof and heated seats">
-                &quot;Show me vehicles with a sunroof and heated seats&quot;
-            </button>
-            <span><i class="bi bi-stars" aria-hidden="true"></i> Combines multiple DataOne standard-equipment features.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Show me vehicles with a sunroof and heated seats">
+                    &quot;Show me vehicles with a sunroof and heated seats&quot;
+                </button>
+                <span><i class="bi bi-stars" aria-hidden="true"></i> Combines multiple DataOne standard-equipment features.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Find four-door vehicles with at least 200 horsepower and 30 highway MPG">
-                &quot;Find four-door vehicles with at least 200 horsepower and 30 highway MPG&quot;
-            </button>
-            <span><i class="bi bi-sliders2" aria-hidden="true"></i> Combines DataOne doors, horsepower, and highway MPG.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Find four-door vehicles with at least 200 horsepower and 30 highway MPG">
+                    &quot;Find four-door vehicles with at least 200 horsepower and 30 highway MPG&quot;
+                </button>
+                <span><i class="bi bi-sliders2" aria-hidden="true"></i> Combines DataOne doors, horsepower, and highway MPG.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-note">
-            <i class="bi bi-info-circle" aria-hidden="true"></i>
-            <div>DataOne coverage varies by vehicle. Start with <strong>Show me</strong>, <strong>Find</strong>, or <strong>Do you have</strong> to display matching cards in chat.</div>
+            <div class="gtx-chat-command-guide-note">
+                <i class="bi bi-info-circle" aria-hidden="true"></i>
+                <div>DataOne coverage varies by vehicle. Start with <strong>Show me</strong>, <strong>Find</strong>, or <strong>Do you have</strong> to display matching cards in chat.</div>
+            </div>
         </div>
 
         <h3 class="gtx-chat-command-guide-group">
-            <button type="button" data-chat-guide-toggle aria-expanded="true">
+            <button type="button" data-chat-guide-toggle aria-expanded="false" aria-controls="gtxChatNavigationExamples">
                 <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>
                 <span>Open pages and filters</span>
                 <i class="bi bi-chevron-down gtx-chat-guide-chevron" aria-hidden="true"></i>
             </button>
         </h3>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Open SUV inventory under $20,000">
-                &quot;Open SUV inventory under $20,000&quot;
-            </button>
-            <span><i class="bi bi-funnel" aria-hidden="true"></i> Opens the SUV page with a maximum-price filter.</span>
-        </div>
+        <div id="gtxChatNavigationExamples" hidden>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Open SUV inventory under $20,000">
+                    &quot;Open SUV inventory under $20,000&quot;
+                </button>
+                <span><i class="bi bi-funnel" aria-hidden="true"></i> Opens the SUV page with a maximum-price filter.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Take me to the inventory for Honda under 2020">
-                &quot;Take me to the inventory for Honda under 2020&quot;
-            </button>
-            <span><i class="bi bi-calendar3" aria-hidden="true"></i> Opens Honda inventory from model year 2019 or earlier.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Take me to the inventory for Honda under 2020">
+                    &quot;Take me to the inventory for Honda under 2020&quot;
+                </button>
+                <span><i class="bi bi-calendar3" aria-hidden="true"></i> Opens Honda inventory from model year 2019 or earlier.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Clear inventory filters">
-                &quot;Clear inventory filters&quot;
-            </button>
-            <span><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Returns to the unfiltered All Inventory page.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Clear inventory filters">
+                    &quot;Clear inventory filters&quot;
+                </button>
+                <span><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Returns to the unfiltered All Inventory page.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Open this vehicle">
-                &quot;Open this vehicle&quot;
-            </button>
-            <span><i class="bi bi-arrow-right-circle" aria-hidden="true"></i> Opens the vehicle when the latest result contains one match.</span>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Open this vehicle">
+                    &quot;Open this vehicle&quot;
+                </button>
+                <span><i class="bi bi-arrow-right-circle" aria-hidden="true"></i> Opens the vehicle when the latest result contains one match.</span>
+            </div>
         </div>
 
         <h3 class="gtx-chat-command-guide-group">
-            <button type="button" data-chat-guide-toggle aria-expanded="true">
+            <button type="button" data-chat-guide-toggle aria-expanded="false" aria-controls="gtxChatDealershipExamples">
                 <i class="bi bi-building" aria-hidden="true"></i>
                 <span>Dealership help</span>
                 <i class="bi bi-chevron-down gtx-chat-guide-chevron" aria-hidden="true"></i>
             </button>
         </h3>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="What are your hours Saturday?">
-                &quot;What are your hours Saturday?&quot;
-            </button>
-            <span><i class="bi bi-clock" aria-hidden="true"></i> Checks the current dealership schedule.</span>
-        </div>
+        <div id="gtxChatDealershipExamples" hidden>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="What are your hours Saturday?">
+                    &quot;What are your hours Saturday?&quot;
+                </button>
+                <span><i class="bi bi-clock" aria-hidden="true"></i> Checks the current dealership schedule.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Take me to the financing application">
-                &quot;Take me to the financing application&quot;
-            </button>
-            <span><i class="bi bi-file-earmark-text" aria-hidden="true"></i> Opens the online financing application.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Take me to the financing application">
+                    &quot;Take me to the financing application&quot;
+                </button>
+                <span><i class="bi bi-file-earmark-text" aria-hidden="true"></i> Opens the online financing application.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Open the staff page">
-                &quot;Open the staff page&quot;
-            </button>
-            <span><i class="bi bi-people" aria-hidden="true"></i> Opens the GTX team page.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Open the staff page">
+                    &quot;Open the staff page&quot;
+                </button>
+                <span><i class="bi bi-people" aria-hidden="true"></i> Opens the GTX team page.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-contact>
-                &quot;Contact sales&quot;
-            </button>
-            <span><i class="bi bi-person-lines-fill" aria-hidden="true"></i> Opens the sales contact form.</span>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-contact>
+                    &quot;Contact sales&quot;
+                </button>
+                <span><i class="bi bi-person-lines-fill" aria-hidden="true"></i> Opens the sales contact form.</span>
+            </div>
         </div>
 
     </div>

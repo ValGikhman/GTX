@@ -527,15 +527,17 @@
             });
 
             if (reply.Note) $("<p>", { "class": "bot-market-note", text: reply.Note }).appendTo($card);
-            if (/^\/(?![\\/])/.test(reply.ViewUrl || "")) {
+            var carGurusView = reply.Source === "CG" && /^https:\/\/www\.cargurus\.com\/search\?/.test(reply.ViewUrl || "");
+            if (carGurusView || /^\/(?![\\/])/.test(reply.ViewUrl || "")) {
+                var viewLabel = carGurusView ? "View on CarGurus" : "View in Appraisal";
                 var $view = $("<a>", {
                     "class": "bot-market-view",
                     href: reply.ViewUrl,
                     target: "_blank",
                     rel: "noopener",
-                    "aria-label": "View in Appraisal (opens in a new tab)"
+                    "aria-label": viewLabel + " (opens in a new tab)"
                 }).appendTo($card);
-                $("<span>", { text: "View" }).appendTo($view);
+                $("<span>", { text: carGurusView ? viewLabel : "View" }).appendTo($view);
                 $("<i>", { "class": "bi bi-arrow-right", "aria-hidden": "true" }).appendTo($view);
             }
         }
@@ -833,7 +835,7 @@
                 }).done(function (progress) {
                     if (finished) return;
                     if (progress === true || progress === "cargurus" || progress === "dataone") {
-                        var label = progress === true ? "market" : (progress === "dataone" ? "DataOne" : "cargurus");
+                        var label = progress === true ? "Market" : (progress === "dataone" ? "DataOne" : "CarGurus");
                         var $copy = $thinking.find(".gtx-chat-copy");
                         var $label = $copy.find(".gtx-chat-market-word");
                         if ($label.length) {
