@@ -11,14 +11,15 @@
     function columns() {
         return [
             {
-                field: 'ExpandKey', title: '', width: 52,
+                field: 'ExpandKey', title: '', width: 36,
                 sortable: false, filterable: false, searchable: false,
                 resizable: false, reorderable: false,
                 headerClass: 'majordome-management-col-expand',
+                cellClass: 'majordome-management-expand-cell text-center',
                 template: '#management-add-grid-expand-template'
             },
             {
-                field: 'ImageCount', title: 'Image', width: 100,
+                field: 'ImageCount', title: 'Image', width: 50,
                 sortField: 'ImageSort',
                 filterable: false, searchable: false,
                 headerClass: 'majordome-management-col-image',
