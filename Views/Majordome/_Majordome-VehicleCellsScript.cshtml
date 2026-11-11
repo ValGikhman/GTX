@@ -50,8 +50,10 @@
             return `
                 <div class="majordome-vehicle-title">${cellEscapeHtml(yearMake)}</div>
                 <div class="majordome-vehicle-meta">${cellEscapeHtml(modelStyle)}</div>
-                <div class="copyable majordome-vehicle-meta majordome-vin-line" data-copy-value="${cellEscapeHtml(vin)}" title="Double-click to copy VIN">VIN: ${cellEscapeHtml(vin)}</div>
-                <div class="copyable majordome-vehicle-meta majordome-vin-line" data-copy-value="${cellEscapeHtml(stock)}" title="Double-click to copy Stock#">Stock: ${cellEscapeHtml(stock)}</div>
+                <div class="majordome-vehicle-identifiers">
+                    <div class="copyable majordome-vehicle-meta majordome-vin-line" data-copy-value="${cellEscapeHtml(vin)}" title="Double-click to copy VIN"><span class="majordome-vehicle-identifier-label">VIN: </span>${cellEscapeHtml(vin)}</div>
+                    <div class="copyable majordome-vehicle-meta majordome-vin-line" data-copy-value="${cellEscapeHtml(stock)}" title="Double-click to copy Stock#"><span class="majordome-vehicle-identifier-label">Stock: </span>${cellEscapeHtml(stock)}</div>
+                </div>
             `;
         }
 

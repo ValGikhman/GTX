@@ -19,7 +19,7 @@
                 template: '#majordome-add-grid-expand-template'
             },
             {
-                field: 'ImageCount', title: 'Image', width: 120,
+                field: 'ImageCount', title: 'Image', width: 80,
                 filterable: false, searchable: false,
                 headerClass: 'majordome-inventory-col-image',
                 template: '#majordome-add-grid-image-template'

@@ -787,18 +787,19 @@ html.theme-silver .majordome-admin-grid {
 }
 
 #majordomeInventoryTable .majordome-inventory-col-image {
-    width: 120px;
+    width: 80px;
 }
 
-#majordomeInventoryGrid .majordome-thumb {
-    width: 104px;
+:is(#majordomeInventoryGrid, #majordomeManagementGrid) .majordome-thumb {
+    width: 88px;
     max-width: 100%;
     height: auto;
     aspect-ratio: 4 / 3;
+    object-fit: contain;
 }
 
 @media (max-width: 767.98px) {
-    #majordomeInventoryGrid .majordome-thumb { width: 84px; }
+    :is(#majordomeInventoryGrid, #majordomeManagementGrid) .majordome-thumb { width: 76px; }
 }
 
 #majordomeInventoryTable .majordome-inventory-col-vehicle {
@@ -859,15 +860,29 @@ html.theme-silver .majordome-admin-grid {
 }
 
 #majordomeManagementTable .majordome-management-col-expand {
-    width: 56px;
+    width: 36px;
 }
 
 #majordomeManagementTable .majordome-management-col-image {
-    width: 100px;
+    width: 50px;
 }
 
 #majordomeManagementTable .majordome-management-col-vehicle {
     width: 170px;
+}
+
+:is(#majordomeManagementTable, #majordomeInventoryTable) .majordome-vehicle-identifiers {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+}
+
+:is(#majordomeManagementTable, #majordomeInventoryTable) .majordome-vehicle-identifiers > :last-child {
+    flex-shrink: 0;
+}
+
+:is(#majordomeManagementTable, #majordomeInventoryTable) .majordome-vehicle-identifier-label {
+    display: none;
 }
 
 #majordomeManagementTable .majordome-management-col-stock {
@@ -1491,6 +1506,10 @@ body.majordome-inventory-page .body-content {
             background: var(--inventory-surface);
             padding: .25rem .4rem;
             vertical-align: middle;
+        }
+
+        #majordomeInventoryTable > tbody > tr.majordome-vehicle-row > td {
+            padding-block: .15rem;
         }
 
         :is(#majordomeInventoryTable, .majordome-inventory-grid-style .pg-grid-table) > tbody > tr:is(:nth-child(even), .pg-row-odd) > td {
@@ -2731,6 +2750,10 @@ body.majordome-inventory-page .body-content {
             background: var(--inventory-surface);
             padding: .25rem .4rem;
             vertical-align: middle;
+        }
+
+        #majordomeManagementTable > tbody > tr > .majordome-management-expand-cell {
+            padding-inline: 0;
         }
 
         #majordomeManagementTable tbody tr.majordome-management-row.is-alt td,
