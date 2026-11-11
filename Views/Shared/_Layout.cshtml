@@ -2,6 +2,7 @@
 @using System.Threading
 @{
     var siteProfile = GTX.SiteProfileStore.Current;
+    var companyShortName = (siteProfile.CompanyName ?? string.Empty).Split((char[])null, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? string.Empty;
     var t = (Request.Cookies["gtx-theme"]?.Value ?? "blue").ToLowerInvariant();
     var controllerName = (ViewContext.RouteData.Values["controller"] ?? string.Empty).ToString();
     var actionName = (ViewContext.RouteData.Values["action"] ?? string.Empty).ToString();
@@ -412,7 +413,7 @@
                                 </a></li>
                                 <li><a href="@Url.Action("Staff", "Home")" class="dropdown-item majordome-batch-action rounded-3">
                                     <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-people"></i></span>
-                                    <span><strong>@I18n.R("Nav_OurStaff")</strong><small>Meet the people behind GTX</small></span>
+                                    <span><strong>@I18n.R("Nav_OurStaff")</strong><small>Meet the people behind @companyShortName</small></span>
                                 </a></li>
                                 <li><a href="@Url.Action("Testimonials", "Home")" class="dropdown-item majordome-batch-action rounded-3">
                                     <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-chat-quote"></i></span>
