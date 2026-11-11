@@ -19,15 +19,15 @@ namespace GTX.Controllers {
             if (role == null) return HttpNotFound();
             return PartialView("_Edit", role);
         }
-        [HttpPost, ValidateAntiForgeryToken] public ActionResult Save([Bind(Include = "Id,Name,Password,Permissions")] SiteRoleModel model) {
+        [HttpPost, ValidateAntiForgeryToken] public ActionResult Save([Bind(Include = "Id,Name,Password,ConfirmPassword,Permissions")] SiteRoleModel model) {
             // Bind only editable fields: hashes and revisions never come from the browser.
-            if (model.Password != null && model.Password != model.Password.Trim()) ModelState.AddModelError("Password", "Password cannot start or end with spaces.");
             if (ModelState.IsValid) {
                 try { store.Save(model); return Json(new { ok=true }); }
                 catch (InvalidOperationException ex) { ModelState.AddModelError("", ex.Message); }
                 catch (SqlException ex) when (ex.Number == 2601 || ex.Number == 2627) { ModelState.AddModelError("Name", "That role name already exists."); }
             }
             model.Password = null;
+            model.ConfirmPassword = null;
             return PartialView("_Edit", model);
         }
         [HttpPost, ValidateAntiForgeryToken]

@@ -1,4 +1,5 @@
 <!-- Google tag (gtag.js) -->
+@{ var siteProfile = GTX.SiteProfileStore.Current; }
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-L828PN8ET1"></script>
 <script>
     window.dataLayer = window.dataLayer || [];
@@ -31,7 +32,7 @@
                     Your browser does not support the video tag.
                 </video>
                 <figcaption class="about-video-caption">
-                    <span>Welcome to GTX Auto Group</span>
+                    <span>Welcome to @siteProfile.CompanyName</span>
                     <i class="bi bi-play-circle" aria-hidden="true"></i>
                 </figcaption>
             </figure>
@@ -41,9 +42,9 @@
                 <p>Everything you need to find the right car&mdash;simple, honest, and stress-free.</p>
 
                 <p>
-                    West Chester, where highways hum and dreams take flight,
-                    There stands a place of promise&mdash;GTX Auto Group, glowing bright.
-                    Beneath wide Ohio skies and sunlit dealership lots,
+                    @siteProfile.City, where highways hum and dreams take flight,
+                    There stands a place of promise&mdash;@siteProfile.CompanyName, glowing bright.
+                    Beneath wide @siteProfile.State skies and sunlit dealership lots,
                     They offer not just steel and wheels, but trust in every thought.
                 </p>
                 <p>
@@ -73,14 +74,14 @@
                 <p>
                     Stress dissolves like summer rain, replaced by calm and ease,
                     You leave not just with keys in hand, but a heart at peace.
-                    Because GTX doesn&rsquo;t simply sell&mdash;they serve with all their might,
+                    Because @siteProfile.CompanyName doesn&rsquo;t simply sell&mdash;they serve with all their might,
                     With integrity their cornerstone, and satisfaction their right.
                 </p>
                 <p>
                     So come where trust is built to last, where value holds its ground,
                     Where cars and kindness intertwine, and joy is always found.
-                    For journeys born in West Chester&rsquo;s light, and built on proven trust,
-                    GTX Auto Group is the name that rises up from dust.
+                    For journeys born in @siteProfile.City&rsquo;s light, and built on proven trust,
+                    @siteProfile.CompanyName is the name that rises up from dust.
                 </p>
 
                 <div class="about-values" aria-label="Our values">

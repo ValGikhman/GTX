@@ -1,4 +1,5 @@
 @{
+    var siteProfile = GTX.SiteProfileStore.Current;
     var chatRequestToken = GTX.Controllers.ChatController.GetOrCreateRequestToken(ViewContext.HttpContext.Session);
     var chatRole = RoleCookie.GetCurrentRole(ViewContext.HttpContext.Request, ViewContext.HttpContext.Session);
     var canAppraise = chatRole == CommonUnit.Roles.Owner || chatRole == CommonUnit.Roles.Manager;
@@ -38,11 +39,11 @@
         <span>@I18n.R("Chat_AskGtx")</span>
     </button>
 
-    <section id="gtxChatPanel" class="gtx-chat-panel" aria-label="GTX Auto Assistant" hidden>
+    <section id="gtxChatPanel" class="gtx-chat-panel" aria-label="@siteProfile.CompanyName Assistant" hidden>
         <header class="gtx-chat-header" tabindex="0" aria-label="Move chat: drag to a corner or use Alt + arrow keys" title="Drag to a corner. Alt + arrow keys to move.">
             <div class="gtx-chat-avatar" aria-hidden="true"><i class="bi bi-stars"></i></div>
             <div class="flex-grow-1">
-                <div class="gtx-chat-title">GTX Auto Assistant <span>AI</span></div>
+                <div class="gtx-chat-title">@siteProfile.CompanyName Assistant <span>AI</span></div>
                 <div class="gtx-chat-status"><i aria-hidden="true"></i> Ready to help</div>
             </div>
             <button type="button" class="gtx-chat-icon-button gtx-chat-guide-button" data-chat-help title="View command guide" aria-label="View command guide" aria-expanded="false" aria-controls="gtxChatCommandGuide">
@@ -91,7 +92,7 @@
                 </div>
                 <div class="form-check gtx-chat-consent">
                     <input class="form-check-input" type="checkbox" value="true" name="Consent" id="gtxChatConsent" required />
-                    <label class="form-check-label" for="gtxChatConsent">I agree GTX Auto Group may contact me about this request.</label>
+                    <label class="form-check-label" for="gtxChatConsent">I agree @siteProfile.CompanyName may contact me about this request.</label>
                 </div>
                 <div class="gtx-chat-lead-feedback" data-chat-lead-feedback role="status"></div>
                 <div class="gtx-chat-lead-actions">
@@ -109,7 +110,7 @@
 
         <form class="gtx-chat-compose" data-chat-form>
             <input type="hidden" name="ChatRequestToken" value="@chatRequestToken" />
-            <label class="visually-hidden" for="gtxChatMessage">Message GTX Auto Assistant</label>
+            <label class="visually-hidden" for="gtxChatMessage">Message @siteProfile.CompanyName Assistant</label>
             <textarea id="gtxChatMessage" name="Message" maxlength="800" rows="1" placeholder="Ask about our vehicles..." required></textarea>
             <button type="submit" aria-label="Send message"><i class="bi bi-send-fill" aria-hidden="true"></i></button>
         </form>

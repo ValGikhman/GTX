@@ -1,5 +1,6 @@
 @model GTX.Models.BaseModel
 @{
+    var siteProfile = GTX.SiteProfileStore.Current;
     var employers = Model?.Employers ?? new GTX.Models.EmployeeModel[0];
     var fallbackPhotoUrl = Url.Content("~/SiteImages/staff/empty.jpg");
 }
@@ -103,7 +104,7 @@
                 <i class="bi bi-people" aria-hidden="true"></i>
                 <h2>Our team is getting camera-ready.</h2>
                 <p>Please check back soon or contact the dealership directly.</p>
-                <a href="tel:+15134892886"><i class="bi bi-telephone-fill" aria-hidden="true"></i> (513) 489-2886</a>
+                <a href="@siteProfile.PhoneUri"><i class="bi bi-telephone-fill" aria-hidden="true"></i> @siteProfile.Phone</a>
             </div>
         }
     </section>
@@ -124,7 +125,8 @@
                 $("#messageBody").html(result);
             })
             .fail(function () {
-                $("#messageBody").html('<div class="staff-contact-error"><i class="bi bi-exclamation-circle" aria-hidden="true"></i><strong>We could not load the form.</strong><span>Please try again or call us at (513) 489-2886.</span></div>');
+                $("#messageBody").html('<div class="staff-contact-error"><i class="bi bi-exclamation-circle" aria-hidden="true"></i><strong>We could not load the form.</strong><span></span></div>')
+                    .find(".staff-contact-error span").text("Please try again or call us at " + @Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(siteProfile.Phone, true)) + ".");
             })
             .always(function () {
                 $button.removeClass("is-loading").prop("disabled", false);

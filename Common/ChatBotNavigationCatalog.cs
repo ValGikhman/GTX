@@ -29,7 +29,7 @@ namespace GTX.Common
             Public("hatchback_inventory", "Hatchback Inventory", "Open the public hatchback inventory page.", "Inventory", "Hatchbacks"),
             Public("convertible_inventory", "Convertible Inventory", "Open the public convertible inventory page.", "Inventory", "Convertibles"),
             Public("financing_application", "Financing Application", "Open the customer financing application.", "Home", "Application"),
-            Public("staff_page", "Staff Page", "Open the public GTX team page.", "Home", "Staff"),
+            Public("staff_page", "Staff Page", "Open the public dealership team page.", "Home", "Staff"),
             Public("about_page", "About Us Page", "Open the public About Us page.", "Home", "About"),
             Public("contact_page", "Contact Page", "Open the public contact page.", "Home", "Contact"),
             Public("test_drive_page", "Test-Drive Page", "Open the public test-drive request page.", "Home", "Contact"),

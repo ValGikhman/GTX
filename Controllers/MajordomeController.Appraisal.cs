@@ -18,8 +18,8 @@ namespace GTX.Controllers
 {
     public partial class MajordomeController
     {
-        public const string AppraisalDefaultZip = "45040";
-        public const string AppraisalDefaultRadius = "100";
+        public static string AppraisalDefaultZip => SiteProfileStore.Current.ZipCode;
+        public static string AppraisalDefaultRadius => SiteProfileStore.Current.ResearchRadiusMiles.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
         private static readonly HttpClient AppraisalClient = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false })
         {
@@ -44,8 +44,8 @@ namespace GTX.Controllers
         public Task<ActionResult> AppraisalResearch(string vin, int? miles, string zip, int? radius)
         {
             var payload = new JObject { ["vin"] = vin, ["miles"] = miles };
-            if (!string.IsNullOrWhiteSpace(zip)) payload["zip"] = zip.Trim();
-            if (radius.HasValue) payload["radius"] = radius.Value;
+            payload["zip"] = string.IsNullOrWhiteSpace(zip) ? AppraisalDefaultZip : zip.Trim();
+            payload["radius"] = radius ?? SiteProfileStore.Current.ResearchRadiusMiles;
             return SendAppraisalAsync("", payload);
         }
 

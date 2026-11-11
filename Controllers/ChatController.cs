@@ -214,7 +214,7 @@ namespace GTX.Controllers
                 if (string.IsNullOrWhiteSpace(apiKey))
                 {
                     Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-                    return Json(new ChatBotResponse { Success = false, Reply = "The assistant is temporarily unavailable. Please call (513) 489-2886." });
+                    return Json(new ChatBotResponse { Success = false, Reply = "The assistant is temporarily unavailable. Please call " + DealershipProfile.Phone + "." });
                 }
 
                 var result = await GetAssistantReplyAsync(apiKey, message, previousResponseId, appraisal, progressId);
@@ -234,7 +234,7 @@ namespace GTX.Controllers
             catch (OpenAiRequestException)
             {
                 Response.StatusCode = (int)HttpStatusCode.BadGateway;
-                return Json(new ChatBotResponse { Success = false, Reply = "I could not reach the assistant. Please try again or call (513) 489-2886." });
+                return Json(new ChatBotResponse { Success = false, Reply = "I could not reach the assistant. Please try again or call " + DealershipProfile.Phone + "." });
             }
             catch (Exception)
             {
@@ -320,7 +320,7 @@ namespace GTX.Controllers
                         success = false,
                         saved = true,
                         crmDelivered = false,
-                        message = "Your request was saved, but AutoRaptor delivery failed. Please call (513) 489-2886 so we can follow up promptly."
+                        message = "Your request was saved, but AutoRaptor delivery failed. Please call " + DealershipProfile.Phone + " so we can follow up promptly."
                     });
                 }
 
@@ -330,14 +330,14 @@ namespace GTX.Controllers
                     saved = true,
                     crmDelivered = true,
                     message = salesperson == null
-                        ? "Thanks! Your request was delivered to GTX Auto Group."
+                        ? "Thanks! Your request was delivered to " + DealershipProfile.CompanyName + "."
                         : "Thanks! Your request was delivered for the attention of " + Join(salesperson.FirstName, salesperson.LastName) + "."
                 });
             }
             catch (Exception)
             {
                 Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                return Json(new { success = false, message = "We could not submit your request. Please call (513) 489-2886." });
+                return Json(new { success = false, message = "We could not submit your request. Please call " + DealershipProfile.Phone + "." });
             }
         }
 
@@ -547,7 +547,7 @@ namespace GTX.Controllers
             {
                 ["model"] = model,
                 ["instructions"] = AssistantInstructions + (appraisal
-                    ? "\nFor signed-in dealership staff, use list_market_dealers when they say 'check market', 'list market', 'look at market', 'see in market', ask to list dealers carrying a particular vehicle, or ask for current or recent MarketCheck dealer listings. These phrases refer to MarketCheck, not GTX inventory. Accept a VIN or extract the year, make, model, and trim from a vehicle name. For 'List dealers with a 2017 Acura MDX Advance Package around 100,000 miles', pass year=2017, make=Acura, model=MDX, trim=Advance Package, miles=100000. Ask for the vehicle if missing. Use count_market_inventory for an explicit count of similar vehicles by VIN. Pass odometer miles and radius separately. Use get_market_price for a suggested price or plain 'Appraise VIN' and appraise_vehicle for explicit auction or bid analysis. Call exactly one MarketCheck tool. Leave ZIP, radius, and mileage out when omitted so the server uses its configured defaults."
+                    ? "\nFor signed-in dealership staff, use list_market_dealers when they say 'check market', 'list market', 'look at market', 'see in market', ask to list dealers carrying a particular vehicle, or ask for current or recent MarketCheck dealer listings. These phrases refer to MarketCheck, not the dealership inventory. Accept a VIN or extract the year, make, model, and trim from a vehicle name. For 'List dealers with a 2017 Acura MDX Advance Package around 100,000 miles', pass year=2017, make=Acura, model=MDX, trim=Advance Package, miles=100000. Ask for the vehicle if missing. Use count_market_inventory for an explicit count of similar vehicles by VIN. Pass odometer miles and radius separately. Use get_market_price for a suggested price or plain 'Appraise VIN' and appraise_vehicle for explicit auction or bid analysis. Call exactly one MarketCheck tool. Leave ZIP, radius, and mileage out when omitted so the server uses its configured defaults."
                     : ""),
                 ["input"] = input,
                 ["max_output_tokens"] = BoundedAppSetting("OpenAI:ChatMaxOutputTokens", 250, 100, 1000),
@@ -1293,10 +1293,7 @@ namespace GTX.Controllers
 
         private static string GetDealershipHours()
         {
-            var hours = AppCache.GetOrCreate(
-                Constants.OPENHOURS_CACHE,
-                () => Utility.XMLHelpers.XmlRepository.GetOpenHours() ?? Array.Empty<OpenHours>(),
-                minutes: 60) ?? Array.Empty<OpenHours>();
+            var hours = Utility.XMLHelpers.XmlRepository.GetOpenHours() ?? Array.Empty<OpenHours>();
             DateTime localNow;
             try
             {
@@ -1316,7 +1313,7 @@ namespace GTX.Controllers
                 item.Day,
                 localNow.DayOfWeek.ToString(),
                 StringComparison.OrdinalIgnoreCase));
-            var isOpen = today != null && localNow.Hour >= today.From && localNow.Hour < today.To;
+            var isOpen = today != null && today.IsOpenAt(localNow);
 
             return JsonConvert.SerializeObject(new
             {
@@ -1325,7 +1322,7 @@ namespace GTX.Controllers
                 currently_open = isOpen,
                 today = today == null ? "Closed" : today.Description,
                 schedule = hours.Select(item => new { day = item.Day, hours = item.Description }).ToArray(),
-                note = "Holiday hours may vary. Call (513) 489-2886 to confirm."
+                note = "Holiday hours may vary. Call " + DealershipProfile.Phone + " to confirm."
             });
         }
 
@@ -1448,7 +1445,7 @@ namespace GTX.Controllers
                 {
                     ["type"] = "function",
                     ["name"] = "search_inventory",
-                    ["description"] = "Search the live public GTX Auto Group inventory. Use this before claiming that a vehicle is available.",
+                    ["description"] = "Search the live public dealership inventory. Use this before claiming that a vehicle is available.",
                     ["strict"] = false,
                     ["parameters"] = JObject.Parse(@"{
                         'type':'object',
@@ -2136,7 +2133,9 @@ namespace GTX.Controllers
             return value.Substring(0, maximumLength);
         }
 
-        private const string AssistantInstructions = @"You are the GTX Auto Group website AI assistant for a used-car dealership in Cincinnati, Ohio.
+        private static SiteProfileModel DealershipProfile => global::GTX.SiteProfileStore.Current;
+
+        private static string AssistantInstructions => $@"You are the {DealershipProfile.CompanyName} website AI assistant for a used-car dealership in {DealershipProfile.City}, {DealershipProfile.State}.
 Be concise, friendly, factual, and respond in the language used by the shopper.
 Write every shopper-facing reply as one compact, natural rhyming verse, normally two short lines with no heading or blank lines. Preserve exact vehicle facts, prices, phone numbers, and other factual details.
 Use the inventory tools for every question about current availability, price, mileage, features, or vehicle details. Never invent inventory or claim a vehicle is available without a tool result.
@@ -2154,10 +2153,10 @@ For requested equipment or features, pass the shopper's concise feature phrase i
 DataOne specifications are included only when available for the current vehicle. Treat returned DataOne equipment as verified standard equipment only, never as optional equipment that is installed. If no vehicles match or DataOne is unavailable, say so without guessing.
 The website renders inventory tool results as standardized vehicle cards. When a vehicle tool returns one or more vehicles, reply with a fresh compact two-line rhyming introduction. State the exact total match count and, when only a subset is returned, the exact number of cards shown. Vary the wording and rhyme instead of reusing a stock couplet. Do not enumerate vehicles, repeat vehicle facts, include prices, or include vehicle links in your text. The cards display the advertised price + documentary fee = price with documentary fee using the exact tool values. Say that price and availability can change and should be confirmed with the dealership.
 You may explain general shopping, trade-in, and financing concepts, but never guarantee credit approval, quote binding loan terms, appraise a trade, negotiate a price, or request SSNs, bank details, driver's-license numbers, or credit-card information.
-Invite interested shoppers to use the Contact sales form in the chat window or call (513) 489-2886. Do not claim that you submitted a lead yourself.
+Invite interested shoppers to use the Contact sales form in the chat window or call {DealershipProfile.Phone}. Do not claim that you submitted a lead yourself.
 Do not output HTML. Keep normal answers under 120 words unless the shopper asks for more detail.";
 
-        private const string GreetingInstructions = @"Write an opening greeting for the GTX Auto Group used-car dealership chatbot.
+        private static string GreetingInstructions => $@"Write an opening greeting for the {DealershipProfile.CompanyName} used-car dealership chatbot.
 Return only one fresh, friendly, natural rhyming verse of exactly two short lines and no more than 30 words total.
 Invite the shopper to describe the vehicle or features they want.
 Vary the wording and imagery. Do not use a heading, bullets, quotation marks, markdown, HTML, prices, or unverified vehicle claims.

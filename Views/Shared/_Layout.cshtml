@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 @using System.Threading
 @{
+    var siteProfile = GTX.SiteProfileStore.Current;
     var t = (Request.Cookies["gtx-theme"]?.Value ?? "blue").ToLowerInvariant();
     var controllerName = (ViewContext.RouteData.Values["controller"] ?? string.Empty).ToString();
     var actionName = (ViewContext.RouteData.Values["action"] ?? string.Empty).ToString();
@@ -100,7 +101,7 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>GTX Autogroup</title>
+    <title>@siteProfile.CompanyName</title>
 
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -268,9 +269,9 @@
                             <img src="@SiteImageUrl.Build("brand-dark.png")" width="100" />
                         </a>
 
-                        <a class="btn btn-gradient-grey rounded-3 d-flex align-items-center gap-2" href="tel:+15134892886">
+                        <a class="btn btn-gradient-grey rounded-3 d-flex align-items-center gap-2" href="@siteProfile.PhoneUri">
                             <i class="bi bi-telephone"></i>
-                            <span class="fw-semibold">(513) 489-2886</span>
+                            <span class="fw-semibold">@siteProfile.Phone</span>
                         </a>
                     </li>
 
@@ -310,12 +311,15 @@
                         <div id="menuScheduleMobile" class="collapse mt-2" data-bs-parent="#mobileMenuOffcanvas">
                             <div class="mobile-menu-address-card">
                                 <div class="mobile-menu-address-text">
-                                    <div class="fw-bold text-dark">9516 Princeton Glendale Rd</div>
-                                    <div class="text-secondary small">West Chester, OH 45011</div>
+                                    <div class="fw-bold text-dark">@siteProfile.StreetAddress</div>
+                                    @if (!string.IsNullOrWhiteSpace(siteProfile.AddressLine2)) {
+                                        <div class="text-secondary small">@siteProfile.AddressLine2</div>
+                                    }
+                                    <div class="text-secondary small">@siteProfile.City, @siteProfile.State @siteProfile.ZipCode</div>
                                 </div>
                                 <button type="button"
                                         class="btn btn-gradient-grey border-dark rounded-3 shadow-sm mobile-menu-copy-address"
-                                        data-copy-address="9516 Princeton Glendale Rd, West Chester, OH 45011"
+                                        data-copy-address="@siteProfile.FullAddress"
                                         aria-label="Copy address">
                                     <i class="bi bi-copy"></i>
                                     <span>Copy address</span>
@@ -400,7 +404,7 @@
                             <ul class="dropdown rounded majordome-batch-actions-menu p-1 shadow">
                                 <li><a href="@Url.Action("About", "Home")" class="dropdown-item majordome-batch-action rounded-3">
                                     <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-building"></i></span>
-                                    <span><strong>@I18n.R("Nav_AboutUs")</strong><small>Get to know GTX Auto Group</small></span>
+                                    <span><strong>@I18n.R("Nav_AboutUs")</strong><small>Get to know @siteProfile.CompanyName</small></span>
                                 </a></li>
                                 <li><a href="@Url.RouteUrl("Default", new { controller = "Home", action = "Contact" })" class="dropdown-item majordome-batch-action rounded-3">
                                     <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-envelope"></i></span>
@@ -439,13 +443,13 @@
                             </a>
                         </li>
                         <li class="mx-sm-1">
-                            <a class="btn btn-gradient-grey border border-dark rounded-4" href="tel:(513) 489-2886">
+                            <a class="btn btn-gradient-grey border border-dark rounded-4" href="@siteProfile.PhoneUri">
                                 <i class="bi bi-telephone"></i>
-                                <span id="telephone" class="d-none d-xxl-inline m-sm-1">(513) 489-2886</span>
+                                <span id="telephone" class="d-none d-xxl-inline m-sm-1">@siteProfile.Phone</span>
                             </a>
                         </li>
                         <li class="mx-sm-1">
-                            <a class="btn gradient shadow border-dark rounded-4" href="https://www.facebook.com/GTXAutoGroup" target="_blank" title="GTX Facebook page">
+                            <a class="btn gradient shadow border-dark rounded-4" href="https://www.facebook.com/GTXAutoGroup" target="_blank" title="@siteProfile.CompanyName Facebook page">
                                 <i class="fa fa-facebook px-2"></i>
                             </a>
                         </li>
@@ -477,10 +481,10 @@
                             <span class="schedule fw-semibold m-sm-1"></span>
                         </a>
                         <a class="btn btn-gradient-grey border-dark rounded-4 d-inline-flex align-items-center gap-2"
-                           href="tel:+15134892886"
-                           aria-label="Call (513) 489-2886">
+                           href="@siteProfile.PhoneUri"
+                           aria-label="Call @siteProfile.Phone">
                             <i class="bi bi-telephone"></i>
-                            <span class="fw-semibold">(513) 489-2886</span>
+                            <span class="fw-semibold">@siteProfile.Phone</span>
                         </a>
                     </div>
                 }

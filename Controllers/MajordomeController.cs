@@ -2167,6 +2167,7 @@ namespace GTX.Controllers
         }
 
         private string GetPrompt(Models.GTX vehicle) {
+            var siteProfile = global::GTX.SiteProfileStore.Current;
             var reps = string.Empty;
             var representatives = Model.Employers.Where(m => m.Position.Contains("Sales")).Select(m => $"{m.FirstName} { m.LastName}").ToArray();
             if (representatives != null) {
@@ -2180,7 +2181,7 @@ Write a short, vivid, captivating, accentual-rhyming sales poem for this vehicle
 
 Vehicle: {car}
 Available features: {features}
-Dealership: GTX Auto Group in the Cincinnati, Ohio area
+Dealership: {siteProfile.CompanyName} in the {siteProfile.City}, {siteProfile.State} area
 Sales representatives: {reps}
 
 Return only HTML in this exact shape, with no literal line breaks between poetic lines:
@@ -2191,7 +2192,7 @@ Rules:
 2. Do not begin with a location-based introduction such as In Cincinnati or Where dreams.
 3. Mention at least three distinct Available features. Do not invent features or technical specifications.
 4. Wrap every vehicle or feature mention and each mentioned representative's full name in <strong class='strong-story'>...</strong>. Keep normal spaces between these tags and surrounding words.
-5. Mention GTX Auto Group and all supplied sales representatives naturally, but not in the opening line.
+5. Mention {siteProfile.CompanyName} and all supplied sales representatives naturally, but not in the opening line.
 6. Keep the tone technically informed, imaginative, atmospheric, and rhyming.
 7. Include one brief, warm, respectful touch of Jewish humor, without stereotypes or offensive language.
 8. End with joy, adventure, and the opportunity to own the vehicle.

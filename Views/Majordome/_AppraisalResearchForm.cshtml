@@ -35,11 +35,11 @@
             </div>
             <div class="col-6 col-sm-4">
                 <label class="form-label" for="@zipId">ZIP code</label>
-                <input id="@zipId" name="zip" class="form-control" pattern="[0-9]{5}" maxlength="5" inputmode="numeric" placeholder="Configured ZIP" />
+                <input id="@zipId" name="zip" class="form-control" value="@GTX.Controllers.MajordomeController.AppraisalDefaultZip" pattern="[0-9]{5}" maxlength="5" inputmode="numeric" placeholder="Profile ZIP" />
             </div>
             <div class="col-6 col-sm-4">
                 <label class="form-label" for="@radiusId">Radius (mi)</label>
-                <input id="@radiusId" name="radius" class="form-control" type="number" min="1" max="500" step="1" inputmode="numeric" placeholder="Configured radius" />
+                <input id="@radiusId" name="radius" class="form-control" value="@GTX.Controllers.MajordomeController.AppraisalDefaultRadius" type="number" min="1" max="500" step="1" inputmode="numeric" placeholder="Profile radius" />
             </div>
         </div>
     }

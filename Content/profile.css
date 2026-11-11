@@ -1,0 +1,55 @@
+/* Company profile uses the same accent, rounded cards and controls as Majordome editors. */
+#profilePage {
+    --profile-accent: var(--gtx-accent-solid, #175cd3);
+    --profile-surface: var(--bs-body-bg, #fff);
+    --profile-line: color-mix(in srgb, var(--profile-accent) 16%, var(--profile-surface));
+    --profile-input-height: 2.1rem;
+}
+#profilePage .profile-form { max-width: 1140px; margin: 0 auto; }
+#profilePage .profile-form .row { --bs-gutter-x: .75rem; --bs-gutter-y: .65rem; }
+#profilePage .profile-card {
+    overflow: hidden;
+    border: 1px solid var(--profile-line);
+    border-radius: 1rem;
+    background: var(--profile-surface);
+    box-shadow: 0 .4rem 1.3rem rgba(15, 23, 42, .06), 0 1px 2px rgba(15, 23, 42, .04);
+}
+#profilePage .profile-card-header {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .5rem .75rem;
+    border-bottom: 1px solid var(--profile-line);
+    background: linear-gradient(120deg, color-mix(in srgb, var(--profile-accent) 9%, var(--profile-surface)), var(--profile-surface));
+}
+#profilePage .profile-card-header h2 { margin: 0; font-size: .9rem; font-weight: 600; }
+#profilePage .profile-heading-icon {
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 1.65rem;
+    height: 1.65rem;
+    border: 1px solid color-mix(in srgb, var(--profile-accent) 20%, transparent);
+    border-radius: .6rem;
+    color: var(--profile-accent);
+    background: color-mix(in srgb, var(--profile-accent) 10%, var(--profile-surface));
+}
+#profilePage .profile-card-body { padding: .75rem; }
+#profilePage .form-label { margin-bottom: .2rem; font-size: .82rem; font-weight: 600; }
+#profilePage .form-control { height: var(--profile-input-height); min-height: var(--profile-input-height); box-sizing: border-box; padding: .3rem .6rem; font-size: .875rem; border-radius: .65rem; }
+#profilePage .form-control:focus { border-color: var(--profile-accent); box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--profile-accent) 12%, transparent) !important; }
+#profilePage .input-group-text { height: var(--profile-input-height); box-sizing: border-box; padding: .3rem .6rem; font-size: .875rem; color: var(--profile-accent); background: var(--profile-surface); border-radius: .65rem 0 0 .65rem; }
+#profilePage .input-group > .form-control { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+#profilePage .profile-help, #profilePage .profile-optional { color: var(--bs-secondary-color, #64748b); font-size: .78rem; font-weight: 400; line-height: 1.5; }
+#profilePage .profile-map { padding-top: .75rem; border-top: 1px solid var(--profile-line); }
+#profilePage .profile-map summary { color: var(--profile-accent); cursor: pointer; font-size: .85rem; font-weight: 600; }
+#profilePage .form-label > .bi, #profilePage .profile-coordinates dt > .bi, #profilePage .profile-hours thead th > .bi { color: var(--profile-accent); }
+#profilePage .profile-coordinates dt { margin-bottom: .2rem; font-size: .82rem; font-weight: 600; }
+#profilePage .profile-coordinates dd { margin: 0; font-size: .875rem; font-variant-numeric: tabular-nums; }
+#profilePage .validation-summary-errors ul { margin: .5rem 0 0; padding-left: 1.25rem; }
+#profilePage .profile-hours { --bs-table-bg: transparent; color: inherit; }
+#profilePage .profile-hours th, #profilePage .profile-hours td { padding: .25rem .5rem; }
+#profilePage .profile-hours thead th { font-size: .8rem; color: var(--bs-secondary-color, #64748b); }
+#profilePage .profile-hours tbody th { font-size: .85rem; font-weight: 600; }
+#profilePage .profile-hours input[type="time"] { width: 100%; min-width: 0; max-width: 8rem; padding-inline: .35rem; font-size: .8rem; }
+#profilePage .profile-hours .form-check-input { width: 1.15rem; height: 1.15rem; cursor: pointer; }
+html[data-background-theme="dark"] #profilePage { --profile-surface: #192330; color: #e2e8f0; --bs-secondary-color: #aab9cc; }

@@ -133,8 +133,15 @@ namespace GTX.Common
             return input.ToString(Formatting.None);
         }
 
+        internal static void ApplyProfileDefaults(JObject input, SiteProfileModel profile)
+        {
+            if (string.IsNullOrWhiteSpace((string)input["zip"])) input["zip"] = profile.ZipCode;
+            if (input["radius"] == null || input["radius"].Type == JTokenType.Null) input["radius"] = profile.ResearchRadiusMiles;
+        }
+
         public async Task<JObject> SearchRetailListingsAsync(JObject input, System.Threading.CancellationToken token)
         {
+            ApplyProfileDefaults(input, SiteProfileStore.Current);
             using (var request = new HttpRequestMessage(HttpMethod.Post, new Uri(endpoint, "retail-listings")))
             {
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", key);
@@ -158,6 +165,7 @@ namespace GTX.Common
             try
             {
                 var input = JObject.Parse(arguments ?? "{}");
+                ApplyProfileDefaults(input, SiteProfileStore.Current);
                 var path = marketList ? "market-listings" : inventory ? "market-inventory" : auction ? "auction-appraisal" : "market-price";
                 var url = new Uri(endpoint, path);
                 using (var request = new HttpRequestMessage(HttpMethod.Post, url))

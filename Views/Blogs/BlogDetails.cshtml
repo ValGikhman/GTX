@@ -1,6 +1,7 @@
 @model GTX.Models.BlogPostModel
 
 @{
+    var siteProfile = GTX.SiteProfileStore.Current;
     ViewBag.Title = string.IsNullOrWhiteSpace(Model?.Title) ? "Blog Post" : Model.Title;
 
     string safeMediaUrl = SecuritySanitizer.SanitizeHttpOrRelativeUrl(Model?.MediaURL);
@@ -17,8 +18,8 @@
 
 <link href="~/Content/article-details.css?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/article-details.css")).Ticks)" rel="stylesheet" />
 @Html.Partial("_MarketingHero", null, new ViewDataDictionary {
-    { "Kicker", "GTX Auto Group" }, { "Title", "GTX" }, { "Accent", "Blog" },
-    { "Description", "Stories, advice, and insights from GTX Auto Group." },
+    { "Kicker", siteProfile.CompanyName }, { "Title", siteProfile.CompanyName }, { "Accent", "Blog" },
+    { "Description", "Stories, advice, and insights from " + siteProfile.CompanyName + "." },
     { "Word", "BLOG" }, { "Icon", "bi-journal-richtext" }
 })
 <section class="container-fluid d-flex justify-content-center">

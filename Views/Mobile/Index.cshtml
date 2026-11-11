@@ -1,4 +1,5 @@
 ﻿@{
+    var siteProfile = GTX.SiteProfileStore.Current;
     Layout = null;
     bool available = ViewBag.ApkAvailable == true;
 }
@@ -8,15 +9,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>GTX Majordome for Android</title>
+    <title>@siteProfile.CompanyName Majordome for Android</title>
     <link rel="stylesheet" href="@Url.Content("~/Content/mobile-download.css")" />
 </head>
 <body>
     <main class="mobile-download">
-        <a href="@Url.Content("~/")" aria-label="GTX Auto Group home"><img class="brand" src="@SiteImageUrl.Build("brand-dark.png")" alt="GTX Auto Group" width="120" /></a>
+        <a href="@Url.Content("~/")" aria-label="@siteProfile.CompanyName home"><img class="brand" src="@SiteImageUrl.Build("brand-dark.png")" alt="@siteProfile.CompanyName" width="120" /></a>
         <section class="download-card" aria-labelledby="download-title">
             <header>
-                <span class="eyebrow">GTX MAJORDOME &middot; ANDROID</span>
+                <span class="eyebrow">@siteProfile.CompanyName MAJORDOME &middot; ANDROID</span>
                 <h1 id="download-title">Your inventory.<br />On your phone.</h1>
                 <p>Inventory, vehicle photos, DataOne details, and activity history in one app.</p>
             </header>
@@ -40,7 +41,7 @@
                 <ol class="install-steps">
                     <li><strong>Download</strong><span>Tap the green button above and wait for the download to finish.</span></li>
                     <li><strong>Open</strong><span>Tap <strong>Open</strong> on the completed-download message in Chrome, or tap the completed download notification.</span></li>
-                    <li><strong>Install</strong><span>Tap <strong>Install</strong>, then <strong>Open</strong>. Sign in with your GTX Owner password.</span></li>
+                    <li><strong>Install</strong><span>Tap <strong>Install</strong>, then <strong>Open</strong>. Sign in with your @siteProfile.CompanyName Owner password.</span></li>
                 </ol>
                 <details class="install-help">
                     <summary>Android asks for permission to install?</summary>
@@ -51,11 +52,11 @@
                     <p>Stay in Chrome. Tap the <strong>three-dot menu</strong> at the top right, choose <strong>Downloads</strong>, then tap <strong>GTX-Majordome-1.0.0.apk</strong>.</p>
                     <p>If you opened this page inside a messaging app, open the page in Chrome first.</p>
                 </details>
-                <div class="notice"><strong>Current test version</strong><p>This version connects through the GTX PC. The PC and its connection must stay running to load inventory. Expo Go is not required.</p></div>
+                <div class="notice"><strong>Current test version</strong><p>This version connects through the dealership PC. The PC and its connection must stay running to load inventory. Expo Go is not required.</p></div>
                 <p class="meta">Using an iPhone? This APK installs on Android only.</p>
             </div>
         </section>
-        <footer>GTX AUTO GROUP &middot; MAJORDOME</footer>
+        <footer>@siteProfile.CompanyName &middot; MAJORDOME</footer>
     </main>
     <script>
         (function () {

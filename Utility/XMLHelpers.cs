@@ -42,16 +42,7 @@ namespace Utility.XMLHelpers {
         }
 
         public static OpenHours[] GetOpenHours() {
-            string path = $"{xmlFilePath}GTX-Configuration.xml";
-
-            XDocument doc = XDocument.Load(path);
-            return
-                doc.Descendants("open").Select(x => new OpenHours {
-                    Day = x.Element("day").Value,
-                    From = int.TryParse(x.Element("from")?.Value, out int fromVal) ? fromVal : 0,
-                    To = int.TryParse(x.Element("to")?.Value, out int toVal) ? toVal : 0,
-                    Description = x.Element("description").Value
-                }).ToArray();
+            return global::GTX.SiteProfileStore.Current.GetOpenHours();
         }
 
         public async static Task<AdfLeadDeliveryResult> SendAdfLeadAsync(ContactModel model) {
@@ -61,6 +52,11 @@ namespace Utility.XMLHelpers {
                 // Load XML
                 XmlDocument xmlDoc = new XmlDocument();
                 xmlDoc.Load(filePath);
+                var companyProfile = global::GTX.SiteProfileStore.Current;
+                var vendorId = xmlDoc.SelectSingleNode("//vendor/id");
+                if (vendorId?.Attributes?["source"] != null) vendorId.Attributes["source"].Value = companyProfile.CompanyName;
+                var providerService = xmlDoc.SelectSingleNode("//provider/service");
+                if (providerService != null) providerService.InnerText = companyProfile.CompanyName;
 
                 // Update XML Nodes (Example)
                 xmlDoc.SelectSingleNode("//id")!.InnerText = $"Website lead {DateTime.Now.ToString("yyyy-MM-ddTHH:mm:sszzz")}";
@@ -118,7 +114,7 @@ namespace Utility.XMLHelpers {
 
                 System.Diagnostics.Trace.TraceError("AutoRaptor HTTP lead delivery failed. {0}", httpError);
 
-                var subject = $"GTX website lead - {model.FirstName} {model.LastName}";
+                var subject = $"{companyProfile.CompanyName} website lead - {model.FirstName} {model.LastName}";
                 var emailSent = await Utility.EmailHelper.SendEmailAsync(
                     AutoRaptorLeadEmail,
                     subject,
