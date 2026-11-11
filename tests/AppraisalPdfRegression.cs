@@ -13,6 +13,9 @@ public class AppraisalPdfRegression {
                 if (rows.Count != 10) throw new Exception("Expected ten unique vehicles.");
                 if (rows[0].Run != "A-0029" || rows[1].Run != "GL-0058" || rows[2].Run != "CC-0087")
                     throw new Exception("Run number was not mapped to the correct VIN.");
+                if (rows[0].Year != "2019" || rows[0].Make != "Lexus" || rows[0].Model != "ES 350"
+                    || rows[9].Make != "Alfa Romeo" || rows[9].Model != "Stelvio")
+                    throw new Exception("Year, make and model were not read from the PDF columns.");
                 for (var i=0;i<10;i++) {
                     if (rows[i].Vin != vins[i] || rows[i].Miles != miles[i] || !string.IsNullOrEmpty(rows[i].Warning) || string.IsNullOrWhiteSpace(rows[i].Vehicle))
                         throw new Exception("VIN, mileage, vehicle or warning mismatch at row " + (i+1));

@@ -11,6 +11,9 @@ namespace GTX.Common {
     public sealed class AppraisalImportVehicle {
         public string Vin { get; set; }
         public string Vehicle { get; set; }
+        public string Year { get; set; }
+        public string Make { get; set; }
+        public string Model { get; set; }
         public string Run { get; set; }
         public int? Miles { get; set; }
         public int Page { get; set; }
@@ -33,6 +36,9 @@ namespace GTX.Common {
                     foreach (var line in lines) line.Sort((a,b) => a.BoundingBox.Left.CompareTo(b.BoundingBox.Left));
                     var header = lines.FirstOrDefault(line => line.Any(w => w.Text.Equals("Odometer", StringComparison.OrdinalIgnoreCase)) && line.Any(w => w.Text == "Model"));
                     var runColumn = FindRunColumn(header);
+                    var makeColumn = header?.FirstOrDefault(w => w.Text.Equals("Make", StringComparison.OrdinalIgnoreCase));
+                    var modelColumn = header?.FirstOrDefault(w => w.Text == "Model");
+                    var trimColumn = header?.FirstOrDefault(w => w.Text.Equals("Trim", StringComparison.OrdinalIgnoreCase));
                     foreach (var vinLine in lines.Select((line,index) => new {line,index})) {
                         foreach (var vin in vinLine.line.Where(w => VinPattern.IsMatch(w.Text.ToUpperInvariant()))) {
                             var item = new AppraisalImportVehicle { Vin = vin.Text.ToUpperInvariant(), Page = pageNumber };
@@ -52,7 +58,19 @@ namespace GTX.Common {
                                     int miles;
                                     if (mileWords.Length == 1 && int.TryParse(mileWords[0].Text.Replace(",", ""), NumberStyles.None, CultureInfo.InvariantCulture, out miles) && miles >= 0 && miles <= 2000000) item.Miles = miles;
                                     var year = row.FirstOrDefault(w => Regex.IsMatch(w.Text, "^(19|20)[0-9]{2}$"));
-                                    if (year != null) item.Vehicle = string.Join(" ", row.Where(w => w.BoundingBox.Left >= year.BoundingBox.Left && w.BoundingBox.Left < odometer - 5).Select(w => w.Text));
+                                    if (year != null) {
+                                        item.Vehicle = ReadColumns(row, year.BoundingBox.Left, odometer - 5);
+                                        item.Year = year.Text;
+                                        if (makeColumn != null && modelColumn != null && makeColumn.BoundingBox.Left < modelColumn.BoundingBox.Left) {
+                                            // Header labels sit slightly to the right of their values.
+                                            const int columnInset = 10;
+                                            var modelLeft = modelColumn.BoundingBox.Left - columnInset;
+                                            var modelRight = trimColumn != null && trimColumn.BoundingBox.Left > modelColumn.BoundingBox.Left
+                                                ? trimColumn.BoundingBox.Left - columnInset : odometer - 5;
+                                            item.Make = ReadColumns(row, makeColumn.BoundingBox.Left - columnInset, modelLeft);
+                                            item.Model = ReadColumns(row, modelLeft, modelRight);
+                                        }
+                                    }
                                 }
                             }
                             if (!item.Miles.HasValue) item.Warning = "Mileage could not be verified. Enter the odometer reading before appraisal.";
@@ -69,6 +87,10 @@ namespace GTX.Common {
             }
             if (result.Count == 0) throw new InvalidOperationException("No readable VINs found. Use a text-based auction PDF; scanned images need OCR first.");
             return result;
+        }
+
+        private static string ReadColumns(IEnumerable<Word> row, double left, double right) {
+            return string.Join(" ", row.Where(w => w.BoundingBox.Left >= left && w.BoundingBox.Left < right).Select(w => w.Text));
         }
 
         private static (double Left, double Right)? FindRunColumn(List<Word> header) {

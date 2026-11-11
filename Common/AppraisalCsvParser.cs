@@ -39,10 +39,13 @@ namespace GTX.Common {
                     var mileage = Regex.Replace(fields[milesIndex].Trim(), @"\s*(mi|miles)$", "", RegexOptions.IgnoreCase);
                     int parsed;
                     int? miles = Regex.IsMatch(mileage, @"^(\d{1,3}(,\d{3})+|\d+)$") && int.TryParse(mileage.Replace(",", ""), NumberStyles.None, CultureInfo.InvariantCulture, out parsed) && parsed >= 0 && parsed <= 2000000 ? (int?)parsed : null;
+                    var year = field(fields,"year");
+                    var make = field(fields,"make");
+                    var model = field(fields,"model");
                     var vehicle = field(fields,"vehicle");
-                    if (vehicle.Length == 0) vehicle = string.Join(" ", new[] {field(fields,"year"),field(fields,"make"),field(fields,"model"),field(fields,"trim")}.Where(v => v.Length > 0));
+                    if (vehicle.Length == 0) vehicle = string.Join(" ", new[] {year,make,model,field(fields,"trim")}.Where(v => v.Length > 0));
                     var run = runHeaders.Select(name => field(fields, name)).FirstOrDefault(value => value.Length > 0);
-                    var item = new AppraisalImportVehicle { Vin=vin, Run=run, Vehicle=vehicle.Length > 0 ? vehicle : "Vehicle", Miles=miles, Warning=miles.HasValue ? null : "Mileage missing or invalid in CSV; skipped." };
+                    var item = new AppraisalImportVehicle { Vin=vin, Run=run, Vehicle=vehicle.Length > 0 ? vehicle : "Vehicle", Year=year, Make=make, Model=model, Miles=miles, Warning=miles.HasValue ? null : "Mileage missing or invalid in CSV; skipped." };
                     var existing = result.FirstOrDefault(row => row.Vin == vin);
                     if (existing == null) result.Add(item);
                     else {
