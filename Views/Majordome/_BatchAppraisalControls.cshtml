@@ -36,12 +36,17 @@
         @Html.Partial("_AppraisalResearchForm", "pr")
     </div>
     <form id="pr-batch-inputs" role="tabpanel" aria-labelledby="pr-multiple-tab" hidden
-          data-parse-url="@Url.Action("AppraisalParseFile", "Majordome")" data-appraise-url="@Url.Action("AppraiseBatchVehicle", "Majordome")">
+          data-parse-url="@Url.Action("AppraisalParseFile", "Majordome")" data-appraise-url="@Url.Action("AppraiseBatchVehicle", "Majordome")"
+          data-cargurus-logo="@Url.Content("~/Content/images/cargurus.svg")">
         @Html.AntiForgeryToken()
         <label id="pr-pdf-drop" class="pr-pdf-drop" for="pr-pdf-file">
-            <i class="bi bi-file-earmark-arrow-up" aria-hidden="true"></i>
-            <strong>Drop your auction PDF or CSV here</strong><span>or click to select a file</span>
-            <small>PDF or CSV · up to 10 MB · 100 vehicles</small>
+            <i id="pr-pdf-drop-icon" class="bi bi-file-earmark-arrow-up" aria-hidden="true"></i>
+            <span class="pr-pdf-drop-heading">
+                <strong id="pr-pdf-drop-title">Drop your auction PDF or CSV here</strong>
+                <span id="pr-pdf-drop-badge" class="badge rounded-pill text-bg-success" hidden><i class="bi bi-check-lg me-1" aria-hidden="true"></i>Success</span>
+            </span>
+            <span id="pr-pdf-drop-summary" aria-live="polite">or click to select a file</span>
+            <small id="pr-pdf-drop-hint">PDF or CSV · up to 10 MB · 100 vehicles</small>
             <input id="pr-pdf-file" type="file" accept=".pdf,.csv,application/pdf,text/csv" class="visually-hidden" />
         </label>
         <div class="d-flex flex-wrap gap-2 mt-3">

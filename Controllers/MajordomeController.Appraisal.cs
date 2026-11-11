@@ -97,7 +97,7 @@ namespace GTX.Controllers
                     {
                         if (!response.IsSuccessStatusCode)
                         {
-                            Response.Headers["X-GTX-Appraisal-Error"] = "autodealer-http-" + (int)response.StatusCode;
+                            Response.AppendHeader("X-GTX-Appraisal-Error", "autodealer-http-" + (int)response.StatusCode);
                             switch (response.StatusCode)
                             {
                                 case HttpStatusCode.BadRequest:
@@ -132,18 +132,18 @@ namespace GTX.Controllers
             }
             catch (TaskCanceledException)
             {
-                Response.Headers["X-GTX-Appraisal-Error"] = "autodealer-timeout";
+                Response.AppendHeader("X-GTX-Appraisal-Error", "autodealer-timeout");
                 return AppraisalJson(504, new { message = "The appraisal request timed out. Please try again." });
             }
             catch (HttpRequestException ex)
             {
                 var cause = ex.InnerException as WebException ?? ex.GetBaseException() as WebException;
-                Response.Headers["X-GTX-Appraisal-Error"] = cause == null ? "autodealer-transport" : "autodealer-transport-" + cause.Status;
+                Response.AppendHeader("X-GTX-Appraisal-Error", cause == null ? "autodealer-transport" : "autodealer-transport-" + cause.Status);
                 return AppraisalJson(502, new { message = "The AutoDealer.dev appraisal service could not be reached." });
             }
             catch (JsonException)
             {
-                Response.Headers["X-GTX-Appraisal-Error"] = "autodealer-invalid-json";
+                Response.AppendHeader("X-GTX-Appraisal-Error", "autodealer-invalid-json");
                 return AppraisalJson(502, new { message = "AutoDealer.dev returned an unreadable appraisal response." });
             }
         }
@@ -155,7 +155,7 @@ namespace GTX.Controllers
             {
                 ray = rays.FirstOrDefault(value => Regex.IsMatch(value, @"\A[0-9a-fA-F]{16}(?:-[A-Z]{3})?\z"));
                 if (ray != null)
-                    Response.Headers["X-GTX-Appraisal-Upstream-Ray"] = ray;
+                    Response.AppendHeader("X-GTX-Appraisal-Upstream-Ray", ray);
             }
 
             var mediaType = response.Content?.Headers.ContentType?.MediaType;
@@ -176,7 +176,7 @@ namespace GTX.Controllers
                 }
             }
 
-            if (code != null) Response.Headers["X-GTX-Appraisal-Upstream-Code"] = code;
+            if (code != null) Response.AppendHeader("X-GTX-Appraisal-Upstream-Code", code);
             var responseType = string.Equals(mediaType, "text/html", StringComparison.OrdinalIgnoreCase) ? "HTML response"
                 : "no API error code";
             var details = code ?? responseType;
