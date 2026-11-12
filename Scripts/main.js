@@ -270,7 +270,7 @@ function setMajordomeMenu(role) {
     // role -> bootstrap icon class
     const roleIcons = {
         "user": "bi-person-circle",          // default user
-        "owner": "bi-shield-lock",           // owner
+        "owner": "bi-person-badge",          // owner
         "tech": "bi-tools",                  // tech
         "manager": "bi-clipboard-check",     // manager
         "sales": "bi-currency-dollar",       // sales
@@ -290,7 +290,7 @@ function setMajordomeMenu(role) {
     $('.role-text').text(role || "");
 
     // icon swap (remove any bi-* then add the mapped icon)
-    const iconClass = roleIcons[r] || roleIcons["user"];
+    const iconClass = permissions.indexOf("Roles") >= 0 ? "bi-shield-lock" : roleIcons[r] || roleIcons["user"];
     const $icon = $(".role-icon");
 
     // remove all bi- classes so you don't accumulate old ones

@@ -2,7 +2,6 @@ using GTX.Common;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -23,7 +22,7 @@ namespace GTX.Controllers {
             if (!Regex.IsMatch(normalizedVin, "^[A-HJ-NPR-Z0-9]{17}$"))
                 return AppraisalJson(400, new { message = "Enter a valid 17-character VIN." });
 
-            var key = ConfigurationManager.AppSettings["AutoDealer:ApiKey"]?.Trim();
+            var key = ServiceConfiguration.Get("AutoDealer:ApiKey")?.Trim();
             if (string.IsNullOrWhiteSpace(key)) key = "ad_live_demo.keysecret";
             try {
                 using (var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(30)))

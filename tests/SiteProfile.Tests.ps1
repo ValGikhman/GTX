@@ -180,6 +180,27 @@ if (!$profile.FullAddress.Contains('Suite 4')) { throw 'FullAddress omitted Addr
 if ($profile.PhoneDigits -ne '15135550123') { throw 'PhoneDigits did not normalize phone punctuation.' }
 if ($profile.PhoneUri -ne 'tel:+15135550123') { throw 'PhoneUri did not produce a dialable telephone link.' }
 
+# Launcher branding uses the same live first-word projection as the shared profile.
+foreach ($case in @(
+    @{ Value = 'GTX Autogroup'; Expected = 'GTX' },
+    @{ Value = 'eXample'; Expected = 'eXample' },
+    @{ Value = '  ExAmPle   Auto Group  '; Expected = 'ExAmPle' },
+    @{ Value = ("`t`r`n" + [char]0x00A0 + [char]0x2003 + 'Mixed' + [char]0x202F + 'Company'); Expected = 'Mixed' },
+    @{ Value = "O'Reilly Motors"; Expected = "O'Reilly" },
+    @{ Value = '{Group} $1 $$ [[Phone]]'; Expected = '{Group}' },
+    @{ Value = ''; Expected = '' },
+    @{ Value = (" `t`r`n" + [char]0x00A0 + [char]0x2003 + [char]0x202F); Expected = '' },
+    @{ Value = $null; Expected = '' }
+)) {
+    $shortProfile = New-Object GTX.Models.SiteProfileModel
+    if ($null -ne $case.Value) { $shortProfile.CompanyName = $case.Value }
+    if ($shortProfile.GetShortCompanyName() -cne $case.Expected) { throw 'Short company name must preserve the first whitespace-delimited word, case and literal characters.' }
+}
+$shortProfile.CompanyName = 'Before Company'
+if ($shortProfile.GetShortCompanyName() -cne 'Before') { throw 'Initial short company name was incorrect.' }
+$shortProfile.CompanyName = 'After Company'
+if ($shortProfile.GetShortCompanyName() -cne 'After') { throw 'Editing the company name must recompute its short name without a stale cache.' }
+
 $controller = $assembly.GetType('GTX.Controllers.ProfileController', $true)
 if (!$controller.GetCustomAttributes([GTX.Common.RequireAdminRole], $true).Length) { throw 'Profile controller lacks Majordome role authorization.' }
 $methods = @($controller.GetMethods() | Where-Object { $_.Name -eq 'Index' -and $_.DeclaringType -eq $controller })
@@ -229,16 +250,32 @@ try {
     $context.Items['GTX.SiteProfile'] = $profile.PSObject.BaseObject
     $i18n = $assembly.GetType('GTX.Helpers.I18n', $true)
     $resolveTokens = $i18n.GetMethod('ResolveProfileTokens', [Reflection.BindingFlags]'NonPublic,Static')
-    $template = '[[CompanyName]] | [[FullAddress]] | [[StreetAddress]] | [[City]] | [[State]] | [[Phone]] | [[Email]]'
-    $expected = @($profile.CompanyName, $profile.FullAddress, $profile.StreetAddress, $profile.City, $profile.State, $profile.Phone, $profile.Email) -join ' | '
+    $template = '[[CompanyName]] | [[CompanyShortName]] | [[FullAddress]] | [[StreetAddress]] | [[City]] | [[State]] | [[Phone]] | [[Email]]'
+    $expected = @($profile.CompanyName, $profile.GetShortCompanyName(), $profile.FullAddress, $profile.StreetAddress, $profile.City, $profile.State, $profile.Phone, $profile.Email) -join ' | '
     $resolved = $resolveTokens.Invoke($null, @($template))
     if ($resolved -cne $expected) { throw 'Branding tokens must use one request profile snapshot and preserve literal braces, dollars and embedded token text.' }
     $literal = 'Literal {0} $1 [[UnknownToken]]'
     if ($resolveTokens.Invoke($null, @($literal)) -cne $literal) { throw 'Unrecognized branding token text must remain unchanged.' }
+    $profile.CompanyName = '[[Phone]] {Group} $1 $$'
+    $resolved = $resolveTokens.Invoke($null, @('[[CompanyShortName]] / [[CompanyName]]'))
+    if ($resolved -cne ('[[Phone]] / ' + $profile.CompanyName)) { throw 'Full and short company substitutions must not recursively expand embedded tokens or interpret braces and dollars.' }
+    $profile.CompanyName = 'Changed Company'
+    if ($resolveTokens.Invoke($null, @('[[CompanyShortName]] / [[CompanyName]]')) -cne 'Changed / Changed Company') { throw 'Branding must reflect a changed profile name in both full and short forms.' }
 }
 finally {
     [System.Web.HttpContext]::Current = $previousContext
     $responseWriter.Dispose()
 }
 
-Write-Output "PASS: $script:caseCount profile validation cases, business hours and fee validation, address/phone formatting, role authorization, protected saving, research defaults and literal-safe branding tokens."
+foreach ($resourceFile in @('Site.resx', 'Site.es.resx', 'Site.fr.resx', 'Site.ua.resx')) {
+    $resource = [xml]([IO.File]::ReadAllText((Join-Path $repoPath ('App_GlobalResources/' + $resourceFile))))
+    foreach ($key in @('Chat_AskGtx', 'Chat_OpenAssistant')) {
+        $entry = @($resource.root.data | Where-Object { $_.name -ceq $key })
+        if ($entry.Count -ne 1 -or !([string]$entry[0].value).Contains('[[CompanyShortName]]') -or
+            ([string]$entry[0].value).Contains('[[CompanyName]]')) {
+            throw "Launcher branding in $resourceFile / $key must use the shared short-company token."
+        }
+    }
+}
+
+Write-Output "PASS: $script:caseCount profile validation cases, business hours and fee validation, address/phone formatting, role authorization, protected saving, research defaults, live short-name projection and literal-safe full/short branding in four launcher languages."

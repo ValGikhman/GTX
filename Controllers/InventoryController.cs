@@ -6,7 +6,6 @@ using Newtonsoft.Json.Linq;
 using Services;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -25,7 +24,7 @@ namespace GTX.Controllers
 
         private const int MinimumComparisonVehicles = 2;
         private const int MaximumComparisonVehicles = 4;
-        private static readonly HttpClient ComparisonOpenAiClient = CreateComparisonOpenAiClient();
+        private static readonly HttpClient ComparisonOpenAiClient = new HttpClient { Timeout = System.Threading.Timeout.InfiniteTimeSpan };
         private static readonly MemoryCache ComparisonCache = MemoryCache.Default;
         private static readonly object ComparisonRateLock = new object();
 
@@ -81,15 +80,16 @@ namespace GTX.Controllers
 
             var comparison = BuildVehicleComparison(vehicles);
             var aiCacheKey = "GTX:VehicleComparisonAi:DataOneV5FirstStylePoem:"
+                + ServiceConfiguration.Read().Revision + ":"
                 + Model.Inventory.Published.Ticks.ToString(CultureInfo.InvariantCulture)
                 + ":"
                 + string.Join("-", requestedStocks.OrderBy(stock => stock, StringComparer.OrdinalIgnoreCase));
 
             comparison.Analysis = ComparisonCache.Get(aiCacheKey) as VehicleComparisonAiAnalysis;
             if (comparison.Analysis == null) {
-                var apiKey = ConfigurationManager.AppSettings["OpenAI:ApiKey"];
-                var model = ConfigurationManager.AppSettings["OpenAI:ChatModel"];
-                var responsesUrl = ConfigurationManager.AppSettings["OpenAI:ResponsesUrl"];
+                var apiKey = ServiceConfiguration.Get("OpenAI:ApiKey");
+                var model = ServiceConfiguration.Get("OpenAI:ChatModel");
+                var responsesUrl = ServiceConfiguration.Get("OpenAI:ResponsesUrl");
 
                 if (string.IsNullOrWhiteSpace(apiKey)
                     || string.IsNullOrWhiteSpace(model)
@@ -1083,7 +1083,8 @@ namespace GTX.Controllers
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
                 request.Content = new StringContent(payload.ToString(Formatting.None), Encoding.UTF8, "application/json");
 
-                using (var response = await ComparisonOpenAiClient.SendAsync(request)) {
+                using (var timeout = new System.Threading.CancellationTokenSource(ComparisonOpenAiTimeout()))
+                using (var response = await ComparisonOpenAiClient.SendAsync(request, timeout.Token)) {
                     OpenAiRateLimitHealth.Capture(response.Headers, model);
                     var body = await response.Content.ReadAsStringAsync();
                     if (!response.IsSuccessStatusCode) {
@@ -1155,14 +1156,14 @@ namespace GTX.Controllers
             }
         }
 
-        private static HttpClient CreateComparisonOpenAiClient() {
+        private static TimeSpan ComparisonOpenAiTimeout() {
             int timeoutSeconds;
-            if (!int.TryParse(ConfigurationManager.AppSettings["OpenAI:ChatTimeoutSeconds"], out timeoutSeconds)
+            if (!int.TryParse(ServiceConfiguration.Get("OpenAI:ChatTimeoutSeconds"), out timeoutSeconds)
                 || timeoutSeconds < 5
                 || timeoutSeconds > 120) {
                 timeoutSeconds = 30;
             }
-            return new HttpClient { Timeout = TimeSpan.FromSeconds(timeoutSeconds) };
+            return TimeSpan.FromSeconds(timeoutSeconds);
         }
 
         private sealed class ComparisonSource {

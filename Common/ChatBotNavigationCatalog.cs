@@ -12,7 +12,6 @@ namespace GTX.Common
         public string Controller { get; set; }
         public string Action { get; set; }
         public bool RequiresAuthentication { get; set; }
-        public bool OwnerOnly { get; set; }
     }
 
     public static class ChatBotNavigationCatalog
@@ -45,9 +44,9 @@ namespace GTX.Common
             Authenticated("specials_management", "Specials Management", "Open internal Specials management.", "Specials", "Index"),
             Authenticated("employee_management", "Employee Management", "Open employee management.", "Employees", "Index"),
             Authenticated("health", "System Health", "Open the internal system-health page.", "Health", "Index"),
-            Owner("inventory_dashboard", "Inventory Dashboard", "Open the owner inventory dashboard.", "InventoryManagement", "Dashboard"),
-            Owner("inventory_management", "Inventory Management", "Open the owner inventory upload and management page.", "InventoryManagement", "Index"),
-            Owner("chat_bot_commands", "CB Commands", "Open the owner chatbot command-management page.", "ChatBotCommands", "Index")
+            Authenticated("inventory_dashboard", "Inventory Dashboard", "Open the internal inventory dashboard.", "InventoryManagement", "Dashboard"),
+            Authenticated("inventory_management", "Inventory Management", "Open the internal inventory upload and management page.", "InventoryManagement", "Index"),
+            Authenticated("chat_bot_commands", "CB Commands", "Open internal chatbot command management.", "ChatBotCommands", "Index")
         };
 
         public static IReadOnlyList<ChatBotNavigationDefinition> All => Definitions;
@@ -67,7 +66,7 @@ namespace GTX.Common
             string controller,
             string action)
         {
-            return Create(key, label, description, controller, action, false, false);
+            return Create(key, label, description, controller, action, false);
         }
 
         private static ChatBotNavigationDefinition Authenticated(
@@ -77,17 +76,7 @@ namespace GTX.Common
             string controller,
             string action)
         {
-            return Create(key, label, description, controller, action, true, false);
-        }
-
-        private static ChatBotNavigationDefinition Owner(
-            string key,
-            string label,
-            string description,
-            string controller,
-            string action)
-        {
-            return Create(key, label, description, controller, action, true, true);
+            return Create(key, label, description, controller, action, true);
         }
 
         private static ChatBotNavigationDefinition Create(
@@ -96,8 +85,7 @@ namespace GTX.Common
             string description,
             string controller,
             string action,
-            bool requiresAuthentication,
-            bool ownerOnly)
+            bool requiresAuthentication)
         {
             return new ChatBotNavigationDefinition
             {
@@ -106,8 +94,7 @@ namespace GTX.Common
                 Description = description,
                 Controller = controller,
                 Action = action,
-                RequiresAuthentication = requiresAuthentication,
-                OwnerOnly = ownerOnly
+                RequiresAuthentication = requiresAuthentication
             };
         }
     }

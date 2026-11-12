@@ -79,5 +79,5 @@ FROM (VALUES
 WHERE NOT EXISTS (SELECT 1 FROM dbo.SiteProfileBusinessHours WITH (UPDLOCK, HOLDLOCK)
     WHERE ProfileId=1 AND DayOfWeek=seed.DayOfWeek);
 
--- Owner has implicit access to every menu item. Other roles can be granted Profile in Roles.
+-- Profile access is reserved for the built-in administrator by application authorization.
 COMMIT TRANSACTION;

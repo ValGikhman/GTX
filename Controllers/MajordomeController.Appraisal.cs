@@ -2,7 +2,6 @@ using GTX.Common;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -73,8 +72,8 @@ namespace GTX.Controllers
             }
             if (!ModelState.IsValid) return AppraisalJson(400, new { message = "Check the values and try again." });
 
-            var key = ConfigurationManager.AppSettings["AutoDealer:ApiKey"]?.Trim();
-            var configuredUrl = ConfigurationManager.AppSettings["AutoDealer:AppraisalBaseUrl"];
+            var key = ServiceConfiguration.Get("AutoDealer:ApiKey")?.Trim();
+            var configuredUrl = ServiceConfiguration.Get("AutoDealer:AppraisalBaseUrl");
             if (string.IsNullOrWhiteSpace(key) || !Uri.TryCreate(configuredUrl, UriKind.Absolute, out var origin)
                 || origin.Scheme != Uri.UriSchemeHttps || !string.IsNullOrEmpty(origin.UserInfo)
                 || !string.IsNullOrEmpty(origin.Query) || !string.IsNullOrEmpty(origin.Fragment))

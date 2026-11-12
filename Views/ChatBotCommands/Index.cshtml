@@ -124,16 +124,10 @@
                                     <option value="@action.ActionKey" data-label="@action.Label" data-description="@action.Description" data-access="Public">@action.Label (@action.ActionKey)</option>
                                 }
                             </optgroup>
-                            <optgroup label="Authenticated staff">
-                                @foreach (var action in actions.Where(item => item.RequiresAuthentication && !item.OwnerOnly))
+                            <optgroup label="Staff pages">
+                                @foreach (var action in actions.Where(item => item.RequiresAuthentication))
                                 {
-                                    <option value="@action.ActionKey" data-label="@action.Label" data-description="@action.Description" data-access="Authenticated staff">@action.Label (@action.ActionKey)</option>
-                                }
-                            </optgroup>
-                            <optgroup label="Owner only">
-                                @foreach (var action in actions.Where(item => item.OwnerOnly))
-                                {
-                                    <option value="@action.ActionKey" data-label="@action.Label" data-description="@action.Description" data-access="Owner only">@action.Label (@action.ActionKey)</option>
+                                    <option value="@action.ActionKey" data-label="@action.Label" data-description="@action.Description" data-access="Menu access required">@action.Label (@action.ActionKey)</option>
                                 }
                             </optgroup>
                         </select>

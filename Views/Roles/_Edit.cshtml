@@ -13,11 +13,10 @@
                     </div>
                 </div>
                 <div class="card-body role-editor-permissions">
-                    @foreach (var item in MajordomeMenu.Items) {
+                    @foreach (var item in MajordomeMenu.Items.Where(i => i.Item != MajordomeItem.Roles && i.Item != MajordomeItem.Profile && i.Item != MajordomeItem.Services)) {
                         var key = item.Item.ToString();
-                        var locked = Model.Name == "Owner" || item.Item == MajordomeItem.Roles;
                         <div class="form-check form-switch role-editor-permission">
-                            <input class="form-check-input" type="checkbox" name="Permissions" value="@key" id="permission-@key" checked="@(Model.Name == "Owner" || (Model.Permissions ?? new string[0]).Contains(key))" disabled="@locked" />
+                            <input class="form-check-input" type="checkbox" name="Permissions" value="@key" id="permission-@key" checked="@((Model.Permissions ?? new string[0]).Contains(key))" />
                             <label class="form-check-label" for="permission-@key">@item.Title</label>
                         </div>
                     }
@@ -35,12 +34,7 @@
                     <div class="row g-2">
                         <div class="col-12">
                             <label for="Name" class="form-label fw-semibold text-shadow-small"><i class="bi bi-person me-1"></i>Role Name</label>
-                            @if (Model.Name == "Owner") {
-                                @Html.TextBoxFor(m => m.Name, new { @class = "form-control shadow-sm", disabled = "disabled" })
-                                @Html.HiddenFor(m => m.Name, new { id = "ownerRoleName" })
-                            } else {
-                                @Html.TextBoxFor(m => m.Name, new { @class = "form-control shadow-sm", maxlength = "40", required = "required", placeholder = "Role name..." })
-                            }
+                            @Html.TextBoxFor(m => m.Name, new { @class = "form-control shadow-sm", maxlength = "40", required = "required", placeholder = "Role name..." })
                             @Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger small" })
                         </div>
                         <div class="col-12">
@@ -81,9 +75,6 @@
         </div>
     </div>
     <div class="card-footer role-editor-footer border-0 d-flex flex-wrap align-items-center justify-content-end gap-2 py-2">
-        @if (Model.Name == "Owner") {
-            <div class="role-editor-note mt-0 me-auto"><i class="bi bi-shield-check" aria-hidden="true"></i><span>Owner always retains full access. Role management is reserved for Owner.</span></div>
-        }
         <button type="button" class="btn btn-outline-secondary shadow" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1"></i>Cancel</button>
         <button type="submit" class="btn @(isEdit ? "btn-gradient" : "btn-success") shadow"><i class="bi @(isEdit ? "bi-save" : "bi-plus-circle") me-1"></i>@(isEdit ? "Save" : "Create")</button>
     </div>

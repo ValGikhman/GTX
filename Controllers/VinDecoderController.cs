@@ -1,7 +1,6 @@
 ﻿using GTX.Common;
 using Services;
 using System;
-using System.Configuration;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -49,7 +48,7 @@ namespace GTX.Controllers
                 return new HttpStatusCodeResult(400, "Enter a valid 17-character VIN.");
 
             // The demo credential is public; registered credentials belong in server configuration.
-            var apiKey = ConfigurationManager.AppSettings["AutoDealer:ApiKey"];
+            var apiKey = ServiceConfiguration.Get("AutoDealer:ApiKey");
             if (string.IsNullOrWhiteSpace(apiKey)) apiKey = "ad_live_demo.keysecret";
 
             try

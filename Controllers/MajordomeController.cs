@@ -35,10 +35,10 @@ namespace GTX.Controllers
         private const int UploadPngCompressionLevel = 9;
         private const string UploadJpegExtension = ".jpg";
         private const string UploadPngExtension = ".png";
-        private const string RemoveBgEndpoint = "https://api.remove.bg/v1.0/removebg";
-        private const string RemoveBgAccountEndpoint = "https://api.remove.bg/v1.0/account";
+        private static string RemoveBgEndpoint => ServiceConfiguration.Get("RemoveBg:Endpoint");
+        private static string RemoveBgAccountEndpoint => ServiceConfiguration.Get("RemoveBg:AccountEndpoint");
         private const int QrTextMaxLength = 2048;
-        private static readonly HttpClient OpenAiStoryClient = CreateOpenAiStoryClient();
+        private static readonly HttpClient OpenAiStoryClient = new HttpClient { Timeout = System.Threading.Timeout.InfiniteTimeSpan };
 
         private static readonly HashSet<string> UploadImageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {
             ".jpg",
@@ -302,6 +302,8 @@ namespace GTX.Controllers
 
         [HttpPost]
         public ActionResult DecodeAll() {
+            if (!ServiceConfiguration.Enabled("DataOne"))
+                return Json(new { success = false, message = "DataOne decoding is disabled." });
             try {
                 Model.Inventory.Vehicles = Model.Inventory.All;
 
@@ -321,6 +323,8 @@ namespace GTX.Controllers
 
         [HttpPost]
         public ActionResult DecodeDataOne(string vin) {
+            if (!ServiceConfiguration.Enabled("DataOne"))
+                return Json(new { success = false, message = "DataOne decoding is disabled." });
             try {
                 string stock = Model.Inventory.All.Where(m => m.VIN == vin).FirstOrDefault()?.Stock;
                 var details = VinDecoderService.DecodeVin(vin, dataOneApiKey, dataOneSecretApiKey);
@@ -337,6 +341,8 @@ namespace GTX.Controllers
         [HttpGet]
         public ActionResult DecodeDataOneByAnyVin(string vin)
         {
+            if (!ServiceConfiguration.Enabled("DataOne"))
+                return new HttpStatusCodeResult(503, "DataOne decoding is disabled.");
             try
             {
                 var details = VinDecoderService.DecodeVin(vin, dataOneApiKey, dataOneSecretApiKey);
@@ -354,6 +360,10 @@ namespace GTX.Controllers
 
         [HttpGet]
         public JsonResult DecodeInventoryVehicleByVin(string vin) {
+            if (!ServiceConfiguration.Enabled("DataOne")) {
+                Response.StatusCode = 503;
+                return Json(new { success = false, message = "DataOne decoding is disabled." }, JsonRequestBehavior.AllowGet);
+            }
             try {
                 var normalizedVin = NormalizeInventoryText(vin).ToUpperInvariant();
                 var validationMessage = GetVinValidationMessage(normalizedVin);
@@ -1339,7 +1349,7 @@ namespace GTX.Controllers
         }
 
         [HttpPost]
-        [RequireAdminRole(RequiredRole = CommonUnit.Roles.Owner)]
+        [RequireAdminRole(RequireMajordome = true)]
         public async Task<ActionResult> PurgeStockImageCache(string stock) {
             var normalizedStock = (stock ?? string.Empty).Trim();
             if (string.IsNullOrWhiteSpace(normalizedStock)) {
@@ -1394,7 +1404,9 @@ namespace GTX.Controllers
         [HttpGet]
         [OutputCache(NoStore = true, Duration = 0, VaryByParam = "none")]
         public async Task<ActionResult> GetRemoveBgAccount() {
-            var apiKey = ConfigurationManager.AppSettings["RemoveBg:ApiKey"];
+            if (!ServiceConfiguration.Enabled("RemoveBg:Enabled"))
+                return Json(new { success = false, message = "Background removal is disabled." }, JsonRequestBehavior.AllowGet);
+            var apiKey = ServiceConfiguration.Get("RemoveBg:ApiKey");
             if (string.IsNullOrWhiteSpace(apiKey)) {
                 return Json(new { success = false, message = "The remove.bg API key is not configured." }, JsonRequestBehavior.AllowGet);
             }
@@ -1448,7 +1460,9 @@ namespace GTX.Controllers
 
         [HttpPost]
         public async Task<ActionResult> RemoveImageBackground(string file, string stock) {
-            var apiKey = ConfigurationManager.AppSettings["RemoveBg:ApiKey"];
+            if (!ServiceConfiguration.Enabled("RemoveBg:Enabled"))
+                return Json(new { success = false, message = "Background removal is disabled." });
+            var apiKey = ServiceConfiguration.Get("RemoveBg:ApiKey");
             if (string.IsNullOrWhiteSpace(apiKey)) {
                 return Json(new { success = false, message = "The remove.bg API key is not configured." });
             }
@@ -1619,6 +1633,8 @@ namespace GTX.Controllers
 
         [HttpPost]
         public async Task<ActionResult> ConfirmRemoveImageBackground(string file, string stock, string previewToken) {
+            if (!ServiceConfiguration.Enabled("RemoveBg:Enabled"))
+                return Json(new { success = false, message = "Background removal is disabled." });
             var normalizedStock = (stock ?? string.Empty).Trim();
             var normalizedFile = (file ?? string.Empty).Replace("\\", "/").TrimStart('/');
             var useCloudflare = InventoryImageSettings.CloudflareEnabled;
@@ -2116,7 +2132,8 @@ namespace GTX.Controllers
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", openAiApiKey);
                 request.Content = new StringContent(requestBody.ToString(Formatting.None), Encoding.UTF8, "application/json");
 
-                using (var response = await OpenAiStoryClient.SendAsync(request)) {
+                using (var timeout = new System.Threading.CancellationTokenSource(GetOpenAiStoryTimeout()))
+                using (var response = await OpenAiStoryClient.SendAsync(request, timeout.Token)) {
                     OpenAiRateLimitHealth.Capture(response.Headers, model);
                     var responseBody = await response.Content.ReadAsStringAsync();
                     if (!response.IsSuccessStatusCode) {
@@ -2135,7 +2152,7 @@ namespace GTX.Controllers
         }
 
         private static string RequiredOpenAiSetting(string key) {
-            var value = ConfigurationManager.AppSettings[key];
+            var value = ServiceConfiguration.Get(key);
             if (string.IsNullOrWhiteSpace(value)) {
                 throw new ConfigurationErrorsException(key + " is not configured.");
             }
@@ -2155,15 +2172,15 @@ namespace GTX.Controllers
             return string.Join(Environment.NewLine, text ?? Enumerable.Empty<string>());
         }
 
-        private static HttpClient CreateOpenAiStoryClient() {
+        private static TimeSpan GetOpenAiStoryTimeout() {
             int timeoutSeconds;
-            if (!int.TryParse(ConfigurationManager.AppSettings["OpenAI:ChatTimeoutSeconds"], out timeoutSeconds)
+            if (!int.TryParse(ServiceConfiguration.Get("OpenAI:ChatTimeoutSeconds"), out timeoutSeconds)
                 || timeoutSeconds < 5
                 || timeoutSeconds > 120) {
                 timeoutSeconds = 30;
             }
 
-            return new HttpClient { Timeout = TimeSpan.FromSeconds(timeoutSeconds) };
+            return TimeSpan.FromSeconds(timeoutSeconds);
         }
 
         private string GetPrompt(Models.GTX vehicle) {

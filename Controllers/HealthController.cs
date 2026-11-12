@@ -6,7 +6,6 @@ using Newtonsoft.Json;
 using Services;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Management;
@@ -186,8 +185,10 @@ public class HealthController : BaseController
     public async Task<ActionResult> MarketCheckQuota()
     {
         Response.Cache.SetNoStore();
-        var key = ConfigurationManager.AppSettings["AutoDealer:ApiKey"]?.Trim();
-        var url = ConfigurationManager.AppSettings["AutoDealer:AppraisalBaseUrl"];
+        if (!ServiceConfiguration.Enabled("CarGurus:Enabled"))
+            return Json(new { Status = "disabled" }, JsonRequestBehavior.AllowGet);
+        var key = ServiceConfiguration.Get("AutoDealer:ApiKey")?.Trim();
+        var url = ServiceConfiguration.Get("AutoDealer:AppraisalBaseUrl");
         if (string.IsNullOrEmpty(key) || !Uri.TryCreate(url, UriKind.Absolute, out var origin)
             || origin.Scheme != Uri.UriSchemeHttps || !string.IsNullOrEmpty(origin.UserInfo)
             || !string.IsNullOrEmpty(origin.Query) || !string.IsNullOrEmpty(origin.Fragment))
@@ -257,7 +258,9 @@ public class HealthController : BaseController
         };
 
         var activeSessions = Convert.ToInt32(HttpContext.Application["TotalSessions"] ?? 0);
-        var openAiRateLimit = OpenAiRateLimitHealth.GetLatest();
+        var openAiEnabled = ServiceConfiguration.Enabled("OpenAI:ChatBot");
+        var dataOneEnabled = ServiceConfiguration.Enabled("DataOne");
+        var openAiRateLimit = openAiEnabled ? OpenAiRateLimitHealth.GetLatest() : null;
 
         return Json(new
         {
@@ -265,10 +268,17 @@ public class HealthController : BaseController
             Totals = totals,
             IIS = iisObj,
             ActiveSessions = activeSessions,
+            DataOne = new
+            {
+                Enabled = dataOneEnabled,
+                Configured = dataOneEnabled && !string.IsNullOrWhiteSpace(dataOneApiKey) && !string.IsNullOrWhiteSpace(dataOneSecretApiKey),
+                LatestResponse = dataOneEnabled ? Services.VinDecoderService.GetLatestResponse(dataOneApiKey) : null
+            },
             OpenAI = new
             {
-                Configured = !string.IsNullOrWhiteSpace(openAiApiKey),
-                Model = ConfigurationManager.AppSettings["OpenAI:ChatModel"],
+                Enabled = openAiEnabled,
+                Configured = openAiEnabled && !string.IsNullOrWhiteSpace(openAiApiKey),
+                Model = openAiEnabled ? ServiceConfiguration.Get("OpenAI:ChatModel") : null,
                 RateLimit = openAiRateLimit
             }
         }, JsonRequestBehavior.AllowGet);
@@ -319,7 +329,7 @@ public class HealthController : BaseController
     }
 
     [HttpPost]
-    [RequireAdminRole(RequiredRole = CommonUnit.Roles.Owner)]
+    [RequireAdminRole(RequireMajordome = true)]
     public async Task<ActionResult> RefreshInventoryCdn()
     {
         if (!InventoryImageSettings.CloudflareEnabled)
@@ -364,7 +374,7 @@ public class HealthController : BaseController
     }
 
     [HttpPost]
-    [RequireAdminRole(RequiredRole = CommonUnit.Roles.Owner)]
+    [RequireAdminRole(RequireMajordome = true)]
     public async Task<ActionResult> RefreshSiteImagesCdn()
     {
         if (!InventoryImageSettings.CloudflareEnabled)
