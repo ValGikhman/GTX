@@ -39,7 +39,7 @@ namespace GTX.Controllers
         {
             Timeout = TimeSpan.FromSeconds(15)
         };
-        private static readonly HttpClient OpenAiClient = CreateOpenAiClient();
+        private static readonly HttpClient OpenAiClient = new HttpClient { Timeout = System.Threading.Timeout.InfiniteTimeSpan };
         private static readonly Regex ResponseIdPattern = new Regex(@"^resp_[A-Za-z0-9_-]+$", RegexOptions.Compiled);
         private static readonly JArray AssistantTools = BuildTools();
         private static readonly MemoryCache RateLimitCache = MemoryCache.Default;
@@ -106,7 +106,7 @@ namespace GTX.Controllers
                 return Json(new ChatBotResponse { Success = false });
             }
 
-            var apiKey = ConfigurationManager.AppSettings["OpenAI:ApiKey"];
+            var apiKey = ServiceConfiguration.Get("OpenAI:ApiKey");
             if (string.IsNullOrWhiteSpace(apiKey))
             {
                 Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
@@ -156,11 +156,11 @@ namespace GTX.Controllers
 
             var previousResponseId = NormalizeResponseId(request.PreviousResponseId);
             var message = request.Message.Trim();
-            var currentRole = RoleCookie.GetCurrentRole(Request, Session);
             Guid? progressId = Guid.TryParseExact(request.ProgressId, "N", out var requestId) ? requestId : (Guid?)null;
 
             try
             {
+                var currentRole = SiteAccess.Current(Request);
                 if (TryParseVinDecodeCommand(message, out var decodeVin))
                     return await DecodeVinCommandAsync(decodeVin, progressId);
 
@@ -179,7 +179,7 @@ namespace GTX.Controllers
 
                 if (RetailMarketMention.IsMatch(message)
                     && !AuctionListingRequest.IsMatch(message)
-                    && (currentRole == CommonUnit.Roles.Owner || currentRole == CommonUnit.Roles.Manager))
+                    && SiteAccess.Can(currentRole, MajordomeItem.Appraisal))
                 {
                     Response.Cache.SetNoStore();
                     var reply = await GetRetailMarketReplyAsync(message, progressId, ChatAuctionAppraisal.ForRole(currentRole));
@@ -188,7 +188,7 @@ namespace GTX.Controllers
 
                 if (CarGurusMention.IsMatch(message)
                     && !Regex.IsMatch(message, @"\b(?:auction|hammer bid)\b", RegexOptions.IgnoreCase)
-                    && (currentRole == CommonUnit.Roles.Owner || currentRole == CommonUnit.Roles.Manager))
+                    && SiteAccess.Can(currentRole, MajordomeItem.Appraisal))
                 {
                     Response.Cache.SetNoStore();
                     var reply = CarGurusAuctionResearch.Enabled
@@ -213,7 +213,7 @@ namespace GTX.Controllers
                     });
                 }
 
-                var apiKey = ConfigurationManager.AppSettings["OpenAI:ApiKey"];
+                var apiKey = ServiceConfiguration.Get("OpenAI:ApiKey");
                 if (string.IsNullOrWhiteSpace(apiKey))
                 {
                     Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
@@ -344,7 +344,7 @@ namespace GTX.Controllers
             }
         }
 
-        private ChatNavigationResult ResolveCommandNavigation(string message, CommonUnit.Roles currentRole)
+        private ChatNavigationResult ResolveCommandNavigation(string message, SiteRoleModel currentRole)
         {
             var normalizedPhrase = NormalizeCommandPhrase(message);
             if (string.IsNullOrWhiteSpace(normalizedPhrase)) return null;
@@ -385,12 +385,10 @@ namespace GTX.Controllers
 
         private ChatNavigationResult BuildNavigationResult(
             ChatBotNavigationDefinition definition,
-            CommonUnit.Roles currentRole)
+            SiteRoleModel currentRole)
         {
             var hasAccess = !definition.RequiresAuthentication
-                || (definition.OwnerOnly
-                    ? currentRole == CommonUnit.Roles.Owner
-                    : currentRole != CommonUnit.Roles.User);
+                || SiteAccess.Can(currentRole, MajordomeMenu.ForRequest(definition.Controller, definition.Action));
             var url = string.Equals(definition.ActionKey, "test_drive_page", StringComparison.OrdinalIgnoreCase)
                 ? Url.RouteUrl("TestDriveContact")
                 : Url.Action(definition.Action, definition.Controller);
@@ -400,9 +398,9 @@ namespace GTX.Controllers
                 Url = url,
                 Label = definition.Label,
                 RequiresLogin = !hasAccess,
-                RequiredRole = definition.OwnerOnly
-                    ? "owner"
-                    : definition.RequiresAuthentication ? "admin" : null
+                RequiredRole = definition.RequiresAuthentication
+                    ? MajordomeMenu.ForRequest(definition.Controller, definition.Action).ToString()
+                    : null
             };
         }
 
@@ -510,7 +508,7 @@ namespace GTX.Controllers
 
         private async Task<string> GetGreetingAsync(string apiKey)
         {
-            var model = ConfigurationManager.AppSettings["OpenAI:ChatModel"];
+            var model = ServiceConfiguration.Get("OpenAI:ChatModel");
             if (string.IsNullOrWhiteSpace(model)) model = DefaultChatModel;
             else model = model.Trim();
 
@@ -542,7 +540,7 @@ namespace GTX.Controllers
             bool includeTools,
             bool appraisal)
         {
-            var model = ConfigurationManager.AppSettings["OpenAI:ChatModel"];
+            var model = ServiceConfiguration.Get("OpenAI:ChatModel");
             if (string.IsNullOrWhiteSpace(model)) model = DefaultChatModel;
             else model = model.Trim();
 
@@ -583,7 +581,7 @@ namespace GTX.Controllers
 
         private async Task<ChatMarketReply> GetCarGurusReplyAsync(string message, Guid? progressId)
         {
-            var apiKey = ConfigurationManager.AppSettings["OpenAI:ApiKey"];
+            var apiKey = ServiceConfiguration.Get("OpenAI:ApiKey");
             if (string.IsNullOrWhiteSpace(apiKey)) return new ChatMarketReply { Note = CarGurusUnavailable };
 
             var vins = CarGurusVin.Matches(message).Cast<Match>()
@@ -1024,7 +1022,7 @@ namespace GTX.Controllers
 
         private static async Task<Tuple<string, string, string>> DecodeCarGurusVehicleAsync(string vin)
         {
-            var key = ConfigurationManager.AppSettings["AutoDealer:ApiKey"]?.Trim();
+            var key = ServiceConfiguration.Get("AutoDealer:ApiKey")?.Trim();
             if (string.IsNullOrWhiteSpace(key)) key = "ad_live_demo.keysecret";
 
             try
@@ -1064,7 +1062,7 @@ namespace GTX.Controllers
 
         private async Task<JObject> PostOpenAiAsync(string apiKey, JObject payload)
         {
-            var responsesUrl = ConfigurationManager.AppSettings["OpenAI:ResponsesUrl"];
+            var responsesUrl = ServiceConfiguration.Get("OpenAI:ResponsesUrl");
             if (string.IsNullOrWhiteSpace(responsesUrl))
             {
                 throw new ConfigurationErrorsException("OpenAI:ResponsesUrl is not configured.");
@@ -1075,7 +1073,9 @@ namespace GTX.Controllers
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
                 request.Content = new StringContent(payload.ToString(Formatting.None), Encoding.UTF8, "application/json");
 
-                using (var response = await OpenAiClient.SendAsync(request))
+                using (var timeout = new System.Threading.CancellationTokenSource(TimeSpan.FromSeconds(
+                    BoundedAppSetting("OpenAI:ChatTimeoutSeconds", 30, 5, 120))))
+                using (var response = await OpenAiClient.SendAsync(request, timeout.Token))
                 {
                     OpenAiRateLimitHealth.Capture(response.Headers, (string)payload["model"]);
                     var body = await response.Content.ReadAsStringAsync();
@@ -1504,8 +1504,7 @@ namespace GTX.Controllers
 
         private static bool ChatDataOneEnabled()
         {
-            bool enabled;
-            return bool.TryParse(ConfigurationManager.AppSettings["DataOne"], out enabled) && enabled;
+            return ServiceConfiguration.Enabled("DataOne");
         }
 
         private static ChatDataOneSearch BuildDataOneSearch(GTXDTO vehicle, string content)
@@ -2109,20 +2108,11 @@ namespace GTX.Controllers
         private static int BoundedAppSetting(string key, int fallback, int minimum, int maximum)
         {
             int value;
-            return int.TryParse(ConfigurationManager.AppSettings[key], out value)
+            return int.TryParse(ServiceConfiguration.Get(key), out value)
                 && value >= minimum
                 && value <= maximum
                 ? value
                 : fallback;
-        }
-
-        private static HttpClient CreateOpenAiClient()
-        {
-            return new HttpClient
-            {
-                Timeout = TimeSpan.FromSeconds(
-                    BoundedAppSetting("OpenAI:ChatTimeoutSeconds", 30, 5, 120))
-            };
         }
 
         private static string Join(params string[] values)

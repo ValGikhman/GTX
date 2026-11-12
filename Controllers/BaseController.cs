@@ -25,9 +25,9 @@ namespace GTX.Controllers
             ? InventoryImageSettings.BaseUrl + "/"
             : "/InventoryImages/Get?path=";
         protected string DefaultInventoryImage => InventoryImageSettings.PlaceholderUrl;
-        public readonly string openAiApiKey = ConfigurationManager.AppSettings["OpenAI:ApiKey"];
-        public readonly string dataOneApiKey = ConfigurationManager.AppSettings["DataOne:AccessKey"];
-        public readonly string dataOneSecretApiKey = ConfigurationManager.AppSettings["DataOne:SecretAccessKey"];
+        public string openAiApiKey => ServiceConfiguration.Get("OpenAI:ApiKey");
+        public string dataOneApiKey => ServiceConfiguration.Get("DataOne:AccessKey");
+        public string dataOneSecretApiKey => ServiceConfiguration.Get("DataOne:SecretAccessKey");
 
         protected static string BuildStockImageSource(string stock, string source)
         {
@@ -84,12 +84,20 @@ namespace GTX.Controllers
         protected override void OnActionExecuting(ActionExecutingContext filterContext) {
             base.OnActionExecuting(filterContext);
 
+            try { ServiceConfiguration.Read(); }
+            catch (Exception ex) when (ex is ConfigurationErrorsException || ex is IOException || ex is UnauthorizedAccessException) {
+                System.Diagnostics.Trace.TraceError("Service settings are temporarily unavailable.");
+                filterContext.Result = new HttpStatusCodeResult(503, "Service settings are temporarily unavailable.");
+                return;
+            }
+
             try {
                 Model = new BaseModel();
 
                 Model.Responsibility = CommonUnit.GetConfiguredResponsibility();
                 Model.Environment = CommonUnit.GetConfiguredEnvironment();
-                Model.IsDataOne = ConfigurationManager.AppSettings["DataOne"] == "true";
+                Model.IsDataOne = ServiceConfiguration.Enabled("DataOne");
+                ViewBag.RemoveBgEnabled = ServiceConfiguration.Enabled("RemoveBg:Enabled");
 
                 SessionData.Responsibility = Model.Responsibility;
                 SessionData.Environment = Model.Environment;
@@ -112,7 +120,7 @@ namespace GTX.Controllers
                 var access = SiteAccess.Current(Request);
 
                 ViewBag.CurrentRole = access?.Name ?? "User";
-                ViewBag.MenuPermissions = access?.Name == "Owner" ? MajordomeMenu.Defaults("Owner") : access?.Permissions ?? new string[0];
+                ViewBag.MenuPermissions = MajordomeMenu.Items.Where(item => SiteAccess.Can(access, item.Item)).Select(item => item.Item.ToString()).ToArray();
                 Model.IsMajordome = access != null;
                 ViewBag.IsMajordome = Model.IsMajordome;
 
@@ -258,7 +266,7 @@ namespace GTX.Controllers
         private static int DataOneInventoryCacheMinutes()
         {
             int minutes;
-            return int.TryParse(ConfigurationManager.AppSettings["OpenAI:ChatInventoryCacheMinutes"], out minutes)
+            return int.TryParse(ServiceConfiguration.Get("OpenAI:ChatInventoryCacheMinutes"), out minutes)
                 ? Math.Max(1, Math.Min(60, minutes))
                 : 1;
         }

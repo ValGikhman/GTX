@@ -5,14 +5,17 @@
         ?? Array.Empty<Services.InventoryDashboardVehicle>();
     var majordomeInventoryVehicles = ViewBag.MajordomeInventoryVehicles as object[]
         ?? Array.Empty<object>();
-    var inventoryRole = RoleCookie.GetCurrentRole(ViewContext.HttpContext.Request, ViewContext.HttpContext.Session);
-    var canAppraise = inventoryRole == CommonUnit.Roles.Owner || inventoryRole == CommonUnit.Roles.Manager;
+    var inventoryRole = GTX.Common.SiteAccess.Current(ViewContext.HttpContext.Request);
+    var canAppraise = GTX.Common.SiteAccess.Can(inventoryRole, GTX.Common.MajordomeItem.Appraisal);
+    var removeBgEnabled = ViewBag.RemoveBgEnabled is bool && (bool)ViewBag.RemoveBgEnabled;
 }
 <head>
     <script>
         window.inventoryImagesBaseUrl = @Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(InventoryImageSettings.BaseUrl, true));
         window.inventoryImagesPlaceholderUrl = @Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(InventoryImageSettings.PlaceholderUrl, true));
         window.inventoryImagesCloudflareEnabled = @Html.Raw(InventoryImageSettings.CloudflareEnabled ? "true" : "false");
+        window.gtx = window.gtx || {};
+        window.gtx.removeBgEnabled = @Html.Raw(removeBgEnabled ? "true" : "false");
     </script>
     <script src="~/Scripts/majordome.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome.js")).Ticks)"></script>
     <script src="~/Scripts/majordome-inventory-grid.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome-inventory-grid.js")).Ticks)"></script>
@@ -341,10 +344,13 @@
                 <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-book-half"></i></span>
                 <span><strong>Re-story all</strong><small>Create missing vehicle stories</small></span>
             </button>
-            <button type="button" id="btnRemoveBackgrounds" class="dropdown-item majordome-batch-action rounded-3">
-                <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-eraser-fill"></i></span>
-                <span><strong>Remove backgrounds</strong><small>Process eligible first images</small></span>
-            </button>
+            @if (removeBgEnabled)
+            {
+                <button type="button" id="btnRemoveBackgrounds" class="dropdown-item majordome-batch-action rounded-3">
+                    <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-eraser-fill"></i></span>
+                    <span><strong>Remove backgrounds</strong><small>Process eligible first images</small></span>
+                </button>
+            }
         </div>
     </div>
 </template>
@@ -3070,6 +3076,7 @@
     }
 
     async function openMajordomeBulkProgressModal(actionKey, options) {
+        if (actionKey === "remove-backgrounds" && !(window.gtx && window.gtx.removeBgEnabled === true)) return;
         if (majordomeBulkJob && majordomeBulkJob.running) return;
 
         const config = getMajordomeBulkConfig(actionKey, options);

@@ -11,8 +11,7 @@ namespace GTX.Common
         public string RedirectController { get; set; } = "Home";
         public string RedirectAction { get; set; } = "NeedLogin";
 
-        // If you want to override role name later
-        public CommonUnit.Roles RequiredRole { get; set; } = CommonUnit.Roles.User;
+        public bool RequireMajordome { get; set; }
 
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
@@ -32,8 +31,7 @@ namespace GTX.Common
             var controller = filterContext.ActionDescriptor.ControllerDescriptor.ControllerName;
             var item = MajordomeMenu.ForRequest(controller, filterContext.ActionDescriptor.ActionName);
             var hasAccess = SiteAccess.Can(role, item);
-            if (RequiredRole == CommonUnit.Roles.Owner && !controller.Equals(Enums.Controllers.InventoryManagement.ToString(), StringComparison.OrdinalIgnoreCase) && !controller.Equals(Enums.Controllers.ChatBotCommands.ToString(), StringComparison.OrdinalIgnoreCase))
-                hasAccess = hasAccess && role.Name == "Owner";
+            if (RequireMajordome) hasAccess = hasAccess && SiteAccess.IsMajordome(role);
 
             if (!hasAccess)
             {

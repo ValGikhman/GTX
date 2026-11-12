@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace GTX.Common {
-    public enum MajordomeItem { InventoryDashboard, InventoryManagement, Inventory, VinDecoder, Appraisal, Announcements, Blogs, Specials, Employees, Health, Sitemap, ChatBotCommands, Roles, Profile }
+    public enum MajordomeItem { InventoryDashboard, InventoryManagement, Inventory, VinDecoder, Appraisal, Announcements, Blogs, Specials, Employees, Health, Sitemap, ChatBotCommands, Roles, Profile, Services }
     public sealed class MajordomeMenuEntry {
         public MajordomeItem Item { get; set; }
         public string Title { get; set; }
@@ -24,14 +24,15 @@ namespace GTX.Common {
             Entry(MajordomeItem.Employees, "Employees", Enums.Controllers.Employees, icon: "bi-person-badge", description: "Manage your team and staff profiles"), Entry(MajordomeItem.Health, "Health", Enums.Controllers.Health, icon: "bi-activity", description: "Check website health and diagnostics"),
             Entry(MajordomeItem.Sitemap, "Sitemap", Enums.Controllers.Sitemap, icon: "bi-diagram-3", description: "Review indexed pages and vehicle links"), Entry(MajordomeItem.ChatBotCommands, "Chat Bot", Enums.Controllers.ChatBotCommands, icon: "bi-chat-dots", description: "Manage chatbot navigation commands"),
             Entry(MajordomeItem.Roles, "Roles", Enums.Controllers.Roles, icon: "bi-shield-lock", description: "Manage passwords and menu permissions"),
-            Entry(MajordomeItem.Profile, "Profile", Enums.Controllers.Profile, icon: "bi-building-gear", description: "Manage company details and research defaults") });
+            Entry(MajordomeItem.Profile, "Profile", Enums.Controllers.Profile, icon: "bi-building-gear", description: "Manage company details and research defaults"),
+            Entry(MajordomeItem.Services, "Services", Enums.Controllers.Services, icon: "bi-plug", description: "Configure connected services and credentials") });
         private static MajordomeMenuEntry Entry(MajordomeItem item, string title, Enums.Controllers controller, string action = "Index", string icon = "bi-grid", string description = "") {
             return new MajordomeMenuEntry { Item = item, Title = title, Controller = controller.ToString(), Action = action, Icon = icon, Description = description };
         }
         public static string[] Defaults(string role) {
-            if (role == "Owner") return Items.Select(x => x.Item.ToString()).ToArray();
-            var keys = role == "Tech" ? "Inventory,VinDecoder,Sitemap" : role == "Manager" ? "VinDecoder,Appraisal,Announcements,Blogs,Specials,Employees,Sitemap" : role == "Support" ? "Blogs,Specials,Sitemap" : role == "Blogger" ? "Blogs,Specials" : "Sitemap";
-            return keys.Split(',');
+            return Items.Where(x => role == MajordomeAccount.Name
+                || (x.Item != MajordomeItem.Roles && x.Item != MajordomeItem.Profile && x.Item != MajordomeItem.Services))
+                .Select(x => x.Item.ToString()).ToArray();
         }
         public static MajordomeItem ForRequest(string controller, string action) {
             if (controller.Equals(Enums.Controllers.Majordome.ToString(), StringComparison.OrdinalIgnoreCase))

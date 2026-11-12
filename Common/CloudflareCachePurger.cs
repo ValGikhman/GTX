@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
+using GTX.Common;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -23,8 +23,9 @@ namespace GTX.Helpers
 
         public static async Task<bool> PurgeInventoryImagesAsync(string stock, IEnumerable<string> files)
         {
-            var zoneId = ConfigurationManager.AppSettings["Cloudflare:Cache:ZoneId"];
-            var apiToken = ConfigurationManager.AppSettings["Cloudflare:Cache:ApiToken"];
+            if (!InventoryImageSettings.CloudflareEnabled) return false;
+            var zoneId = ServiceConfiguration.Get("Cloudflare:Cache:ZoneId");
+            var apiToken = ServiceConfiguration.Get("Cloudflare:Cache:ApiToken");
             if (string.IsNullOrWhiteSpace(zoneId) || string.IsNullOrWhiteSpace(apiToken))
             {
                 return false;
@@ -77,8 +78,9 @@ namespace GTX.Helpers
 
         public static async Task<bool> PurgeInventoryHostAsync()
         {
-            var zoneId = ConfigurationManager.AppSettings["Cloudflare:Cache:ZoneId"];
-            var apiToken = ConfigurationManager.AppSettings["Cloudflare:Cache:ApiToken"];
+            if (!InventoryImageSettings.CloudflareEnabled) return false;
+            var zoneId = ServiceConfiguration.Get("Cloudflare:Cache:ZoneId");
+            var apiToken = ServiceConfiguration.Get("Cloudflare:Cache:ApiToken");
             Uri baseUri;
             if (string.IsNullOrWhiteSpace(zoneId) ||
                 string.IsNullOrWhiteSpace(apiToken) ||
@@ -123,6 +125,7 @@ namespace GTX.Helpers
 
         public static Task<bool> PurgeSiteImagesAsync()
         {
+            if (!InventoryImageSettings.CloudflareEnabled) return Task.FromResult(false);
             Uri baseUri;
             if (!Uri.TryCreate(InventoryImageSettings.BaseUrl, UriKind.Absolute, out baseUri))
             {
@@ -134,8 +137,9 @@ namespace GTX.Helpers
 
         private static async Task<bool> PurgePrefixAsync(string prefix)
         {
-            var zoneId = ConfigurationManager.AppSettings["Cloudflare:Cache:ZoneId"];
-            var apiToken = ConfigurationManager.AppSettings["Cloudflare:Cache:ApiToken"];
+            if (!InventoryImageSettings.CloudflareEnabled) return false;
+            var zoneId = ServiceConfiguration.Get("Cloudflare:Cache:ZoneId");
+            var apiToken = ServiceConfiguration.Get("Cloudflare:Cache:ApiToken");
             if (string.IsNullOrWhiteSpace(zoneId) ||
                 string.IsNullOrWhiteSpace(apiToken) ||
                 string.IsNullOrWhiteSpace(prefix))

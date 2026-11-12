@@ -1,6 +1,6 @@
 @model bool
 @{
-    var carGurusEnabled = Model && string.Equals(System.Configuration.ConfigurationManager.AppSettings["CarGurus:Enabled"]?.Trim(), "true", StringComparison.OrdinalIgnoreCase);
+    var carGurusEnabled = Model && GTX.Common.ServiceConfiguration.Enabled("CarGurus:Enabled");
     var canDecodeVin = GTX.Common.SiteAccess.Can(GTX.Common.SiteAccess.Current(ViewContext.HttpContext.Request), GTX.Common.MajordomeItem.VinDecoder);
 }
 

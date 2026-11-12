@@ -9,7 +9,7 @@ using System.Web.Mvc;
 
 namespace GTX.Controllers
 {
-    [RequireAdminRole(RequiredRole = CommonUnit.Roles.Owner)]
+    [RequireAdminRole]
     public sealed class ChatBotCommandsController : BaseController
     {
         private readonly IChatBotTeachingService _teachingService;
@@ -29,8 +29,10 @@ namespace GTX.Controllers
         [HttpGet]
         public ActionResult Index()
         {
+            Response.Cache.SetNoStore();
+            var revealAdministrator = SiteAccess.IsMajordome(SiteAccess.Current(Request));
             var commands = _teachingService.GetActiveLessons()
-                .Select(BuildRow)
+                .Select(lesson => BuildRow(lesson, revealAdministrator))
                 .ToList();
 
             return View(new ChatBotCommandPageModel
@@ -127,7 +129,7 @@ namespace GTX.Controllers
             }
         }
 
-        private static ChatBotCommandRowModel BuildRow(ChatBotNavigationLesson lesson)
+        private static ChatBotCommandRowModel BuildRow(ChatBotNavigationLesson lesson, bool revealAdministrator)
         {
             var definition = ChatBotNavigationCatalog.Find(lesson.ActionKey);
 
@@ -139,7 +141,8 @@ namespace GTX.Controllers
                 ActionKey = lesson.ActionKey,
                 ActionLabel = definition == null ? "Missing Action" : definition.Label,
                 ActionDescription = definition == null ? "This action key is not present in the navigation catalog." : definition.Description,
-                CreatedByRole = lesson.CreatedByRole,
+                CreatedByRole = !revealAdministrator && MajordomeAccount.IsReservedName(lesson.CreatedByRole)
+                    ? "Administrator" : lesson.CreatedByRole,
                 UpdatedUtc = lesson.UpdatedUtc
             };
         }

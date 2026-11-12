@@ -1,6 +1,7 @@
 using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
+using GTX.Common;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -8,7 +9,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using System.Web.Hosting;
 
 namespace GTX.Helpers
 {
@@ -25,7 +25,6 @@ namespace GTX.Helpers
     internal static class CloudflareR2Storage
     {
         private const string DefaultBucketName = "gtx";
-        private static readonly Lazy<IAmazonS3> Client = new Lazy<IAmazonS3>(CreateClient);
         private static readonly HashSet<string> ImageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             ".avif", ".bmp", ".gif", ".heic", ".heif", ".jpeg", ".jpg", ".png", ".tif", ".tiff", ".webp"
@@ -37,11 +36,14 @@ namespace GTX.Helpers
         {
             try
             {
-                await Client.Value.GetObjectMetadataAsync(new GetObjectMetadataRequest
+                using (var client = CreateClient())
                 {
-                    BucketName = BucketName,
-                    Key = BuildKey(stock, file)
-                });
+                    await client.GetObjectMetadataAsync(new GetObjectMetadataRequest
+                    {
+                        BucketName = BucketName,
+                        Key = BuildKey(stock, file)
+                    });
+                }
                 return true;
             }
             catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.NotFound)
@@ -52,7 +54,8 @@ namespace GTX.Helpers
 
         public static async Task<byte[]> ReadAsync(string stock, string file)
         {
-            using (var response = await Client.Value.GetObjectAsync(new GetObjectRequest
+            using (var client = CreateClient())
+            using (var response = await client.GetObjectAsync(new GetObjectRequest
             {
                 BucketName = BucketName,
                 Key = BuildKey(stock, file)
@@ -71,6 +74,7 @@ namespace GTX.Helpers
                 throw new ArgumentException("Image content is required.", nameof(content));
             }
 
+            using (var client = CreateClient())
             using (var input = new MemoryStream(content, false))
             {
                 var request = new PutObjectRequest
@@ -84,7 +88,7 @@ namespace GTX.Helpers
                     UseChunkEncoding = false
                 };
                 request.Headers.CacheControl = "public, max-age=0, must-revalidate";
-                await Client.Value.PutObjectAsync(request);
+                await client.PutObjectAsync(request);
             }
         }
 
@@ -112,25 +116,28 @@ namespace GTX.Helpers
                 UseChunkEncoding = false
             };
             request.Headers.CacheControl = "public, max-age=31536000, immutable";
-            await Client.Value.PutObjectAsync(request);
+            using (var client = CreateClient())
+                await client.PutObjectAsync(request);
         }
 
-        public static Task DeleteKeyAsync(string key)
+        public static async Task DeleteKeyAsync(string key)
         {
-            return Client.Value.DeleteObjectAsync(new DeleteObjectRequest
-            {
-                BucketName = BucketName,
-                Key = NormalizeKey(key)
-            });
+            using (var client = CreateClient())
+                await client.DeleteObjectAsync(new DeleteObjectRequest
+                {
+                    BucketName = BucketName,
+                    Key = NormalizeKey(key)
+                });
         }
 
-        public static Task DeleteAsync(string stock, string file)
+        public static async Task DeleteAsync(string stock, string file)
         {
-            return Client.Value.DeleteObjectAsync(new DeleteObjectRequest
-            {
-                BucketName = BucketName,
-                Key = BuildKey(stock, file)
-            });
+            using (var client = CreateClient())
+                await client.DeleteObjectAsync(new DeleteObjectRequest
+                {
+                    BucketName = BucketName,
+                    Key = BuildKey(stock, file)
+                });
         }
 
         public static async Task<CloudflareR2BucketStats> GetBucketStatsAsync()
@@ -139,36 +146,39 @@ namespace GTX.Helpers
             var stockFolders = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             string continuationToken = null;
 
-            do
+            using (var client = CreateClient())
             {
-                var response = await Client.Value.ListObjectsV2Async(new ListObjectsV2Request
+                do
                 {
-                    BucketName = BucketName,
-                    ContinuationToken = continuationToken,
-                    MaxKeys = 1000
-                });
-
-                foreach (var item in response.S3Objects ?? new List<S3Object>())
-                {
-                    stats.TotalObjects++;
-                    stats.TotalBytes += item.Size;
-
-                    if (ImageExtensions.Contains(Path.GetExtension(item.Key ?? string.Empty)))
+                    var response = await client.ListObjectsV2Async(new ListObjectsV2Request
                     {
-                        stats.ImageObjects++;
-                        stats.ImageBytes += item.Size;
+                        BucketName = BucketName,
+                        ContinuationToken = continuationToken,
+                        MaxKeys = 1000
+                    });
+
+                    foreach (var item in response.S3Objects ?? new List<S3Object>())
+                    {
+                        stats.TotalObjects++;
+                        stats.TotalBytes += item.Size;
+
+                        if (ImageExtensions.Contains(Path.GetExtension(item.Key ?? string.Empty)))
+                        {
+                            stats.ImageObjects++;
+                            stats.ImageBytes += item.Size;
+                        }
+
+                        var slashIndex = (item.Key ?? string.Empty).IndexOf('/');
+                        if (slashIndex > 0)
+                        {
+                            stockFolders.Add(item.Key.Substring(0, slashIndex));
+                        }
                     }
 
-                    var slashIndex = (item.Key ?? string.Empty).IndexOf('/');
-                    if (slashIndex > 0)
-                    {
-                        stockFolders.Add(item.Key.Substring(0, slashIndex));
-                    }
+                    continuationToken = response.IsTruncated ? response.NextContinuationToken : null;
                 }
-
-                continuationToken = response.IsTruncated ? response.NextContinuationToken : null;
+                while (!string.IsNullOrWhiteSpace(continuationToken));
             }
-            while (!string.IsNullOrWhiteSpace(continuationToken));
 
             stats.OtherObjects = stats.TotalObjects - stats.ImageObjects;
             stats.StockFolders = stockFolders.Count;
@@ -184,29 +194,25 @@ namespace GTX.Helpers
                 .Select(group => group.First())
                 .ToList();
 
-            foreach (var batch in Batch(keys, 1000))
-            {
-                await Client.Value.DeleteObjectsAsync(new DeleteObjectsRequest
+            using (var client = CreateClient())
+                foreach (var batch in Batch(keys, 1000))
                 {
-                    BucketName = BucketName,
-                    Objects = batch,
-                    Quiet = true
-                });
-            }
+                    await client.DeleteObjectsAsync(new DeleteObjectsRequest
+                    {
+                        BucketName = BucketName,
+                        Objects = batch,
+                        Quiet = true
+                    });
+                }
         }
 
         private static IAmazonS3 CreateClient()
         {
-            var accessKey = ConfigurationManager.AppSettings["Cloudflare:R2:AccessKeyId"];
-            var secretKey = ConfigurationManager.AppSettings["Cloudflare:R2:SecretAccessKey"];
-            var endpoint = ConfigurationManager.AppSettings["Cloudflare:R2:Endpoint"];
-
-            if (string.IsNullOrWhiteSpace(accessKey) ||
-                string.IsNullOrWhiteSpace(secretKey) ||
-                string.IsNullOrWhiteSpace(endpoint))
-            {
-                LoadMigrationCredentials(ref accessKey, ref secretKey, ref endpoint);
-            }
+            if (!InventoryImageSettings.CloudflareEnabled)
+                throw new InvalidOperationException("Cloudflare storage is disabled.");
+            var accessKey = ServiceConfiguration.Get("Cloudflare:R2:AccessKeyId");
+            var secretKey = ServiceConfiguration.Get("Cloudflare:R2:SecretAccessKey");
+            var endpoint = ServiceConfiguration.Get("Cloudflare:R2:Endpoint");
 
             if (string.IsNullOrWhiteSpace(accessKey) ||
                 string.IsNullOrWhiteSpace(secretKey) ||
@@ -225,40 +231,6 @@ namespace GTX.Helpers
                     AuthenticationRegion = "auto",
                     ForcePathStyle = true
                 });
-        }
-
-        private static void LoadMigrationCredentials(ref string accessKey, ref string secretKey, ref string endpoint)
-        {
-            var appRoot = HostingEnvironment.MapPath("~") ?? AppDomain.CurrentDomain.BaseDirectory;
-            var candidates = new[]
-            {
-                Path.Combine(appRoot, "App_Data", "R2Credentials.txt"),
-                Path.Combine(appRoot, "Your API Token.txt"),
-                Path.Combine(Environment.CurrentDirectory, "Your API Token.txt")
-            };
-            var credentialFile = candidates.FirstOrDefault(File.Exists);
-            if (string.IsNullOrWhiteSpace(credentialFile))
-            {
-                return;
-            }
-
-            var lines = File.ReadAllLines(credentialFile);
-            accessKey = string.IsNullOrWhiteSpace(accessKey) ? GetValueAfterLabel(lines, "Access Key ID") : accessKey;
-            secretKey = string.IsNullOrWhiteSpace(secretKey) ? GetValueAfterLabel(lines, "Secret Access Key") : secretKey;
-            endpoint = string.IsNullOrWhiteSpace(endpoint) ? GetValueAfterLabel(lines, "S3 API endpoint") : endpoint;
-        }
-
-        private static string GetValueAfterLabel(string[] lines, string label)
-        {
-            for (var index = 0; index < lines.Length - 1; index++)
-            {
-                if (string.Equals((lines[index] ?? string.Empty).Trim(), label, StringComparison.OrdinalIgnoreCase))
-                {
-                    return (lines[index + 1] ?? string.Empty).Trim();
-                }
-            }
-
-            return null;
         }
 
         private static string BuildKey(string stock, string file)
@@ -288,7 +260,7 @@ namespace GTX.Helpers
 
         private static string GetSetting(string key, string fallback)
         {
-            var configured = ConfigurationManager.AppSettings[key];
+            var configured = ServiceConfiguration.Get(key);
             return string.IsNullOrWhiteSpace(configured) ? fallback : configured.Trim();
         }
 

@@ -2,7 +2,7 @@
 @using System.Threading
 @{
     var siteProfile = GTX.SiteProfileStore.Current;
-    var companyShortName = (siteProfile.CompanyName ?? string.Empty).Split((char[])null, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? string.Empty;
+    var companyShortName = siteProfile.GetShortCompanyName();
     var t = (Request.Cookies["gtx-theme"]?.Value ?? "blue").ToLowerInvariant();
     var controllerName = (ViewContext.RouteData.Values["controller"] ?? string.Empty).ToString();
     var actionName = (ViewContext.RouteData.Values["action"] ?? string.Empty).ToString();
@@ -11,6 +11,7 @@
     var isMajordomeInventoryPage = controllerName.Equals(GTX.Common.Enums.Controllers.Majordome.ToString(), StringComparison.OrdinalIgnoreCase)
         && actionName.Equals("Inventory", StringComparison.OrdinalIgnoreCase);
     var chatBotEnabled = ChatBotSettings.Enabled;
+    var menuPermissions = ViewBag.MenuPermissions as string[] ?? new string[0];
     var needsAdminGrid = controllerName.Equals(GTX.Common.Enums.Controllers.Majordome.ToString(), StringComparison.OrdinalIgnoreCase)
         || controllerName.Equals(GTX.Common.Enums.Controllers.InventoryManagement.ToString(), StringComparison.OrdinalIgnoreCase)
         || (actionName.Equals("Index", StringComparison.OrdinalIgnoreCase)
@@ -378,7 +379,7 @@
                                 <i class="bi bi-gear px-2"></i>
                             </a>
                             <ul class="dropdown rounded majordome-batch-actions-menu p-1 shadow">
-                                @foreach (var item in GTX.Common.MajordomeMenu.Items)
+                                @foreach (var item in GTX.Common.MajordomeMenu.Items.Where(item => menuPermissions.Contains(item.Item.ToString())))
                                 {
                                     <li id="menu@item.Item" data-menu-permission="@item.Item">
                                         <a href="@Url.Action(item.Action, item.Controller)" class="dropdown-item majordome-batch-action rounded-3">

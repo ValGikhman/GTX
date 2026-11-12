@@ -15,7 +15,7 @@ using Utility.XMLHelpers;
 
 namespace GTX.Controllers
 {
-    [RequireAdminRole(RequiredRole = CommonUnit.Roles.Owner)]
+    [RequireAdminRole]
     public class InventoryManagementController : BaseController
     {
         private const string HeaderFileVirtualPath = "~/App_Data/Inventory/header.csv";

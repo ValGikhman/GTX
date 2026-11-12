@@ -1,7 +1,8 @@
 # Company Profile
 
 Open **Majordome → Profile** (`/Profile`) to edit the shared company details.
-Owner always has access. Grant **Profile** in Roles to let another role edit the same company-wide settings.
+Only the built-in Majordome administrator can see or edit Profile. Owner and every other
+regular role are excluded, even if an old database permission still includes Profile.
 
 ## Initial fields
 
@@ -29,7 +30,7 @@ chat prompts is resolved from the same profile. Infrastructure URLs and credenti
 1. Back up the intended production database through the normal process.
 2. Run `Scripts/Sql/CreateSiteProfile.sql` against that database **before deploying this application version**.
 3. Deploy the application, then open Majordome → Profile and verify the contact details.
-4. Grant Profile to any additional roles that need to manage these settings.
+4. Sign in with the built-in administrator and verify Profile is hidden from regular roles.
 
 The script creates `dbo.SiteProfile`, with a single row (`Id=1`), and a seven-row
 `dbo.SiteProfileBusinessHours` table. It also upgrades an earlier Profile table with the fee column.

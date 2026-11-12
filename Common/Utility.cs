@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Configuration;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Web;
+using GTX.Common;
 
 namespace GTX.Helpers {
     public static class InventoryImageSettings
@@ -17,8 +17,7 @@ namespace GTX.Helpers {
         {
             get
             {
-                bool enabled;
-                return bool.TryParse(ConfigurationManager.AppSettings["Cloudflare"], out enabled) && enabled;
+                return ServiceConfiguration.Enabled("Cloudflare");
             }
         }
 
@@ -28,7 +27,7 @@ namespace GTX.Helpers {
             {
                 var key = CloudflareEnabled ? "Images:CloudflareBaseUrl" : "Images:NativeBaseUrl";
                 var fallback = CloudflareEnabled ? DefaultCloudflareBaseUrl : DefaultNativeBaseUrl;
-                var configured = ConfigurationManager.AppSettings[key];
+                var configured = ServiceConfiguration.Get(key);
                 return (string.IsNullOrWhiteSpace(configured) ? fallback : configured).TrimEnd('/');
             }
         }
@@ -37,7 +36,8 @@ namespace GTX.Helpers {
         {
             get
             {
-                var configured = ConfigurationManager.AppSettings["Images:CloudflareBaseUrl"];
+                if (!CloudflareEnabled) return BaseUrl + "/no-image-1.jpg";
+                var configured = ServiceConfiguration.Get("Images:CloudflareBaseUrl");
                 var baseUrl = string.IsNullOrWhiteSpace(configured) ? DefaultCloudflareBaseUrl : configured;
                 return baseUrl.TrimEnd('/') + "/no-image-1.jpg";
             }
@@ -272,7 +272,7 @@ namespace GTX.Helpers {
     public static class I18n
     {
         private static readonly System.Text.RegularExpressions.Regex ProfileTokens =
-            new System.Text.RegularExpressions.Regex(@"\[\[(CompanyName|FullAddress|StreetAddress|City|State|Phone|Email)\]\]",
+            new System.Text.RegularExpressions.Regex(@"\[\[(CompanyName|CompanyShortName|FullAddress|StreetAddress|City|State|Phone|Email)\]\]",
                 System.Text.RegularExpressions.RegexOptions.Compiled);
 
         // Returns a STRING (safe for ActionLink, attributes, etc.)
@@ -302,6 +302,7 @@ namespace GTX.Helpers {
             return ProfileTokens.Replace(value, match => {
                 switch (match.Groups[1].Value) {
                     case "CompanyName": return profile.CompanyName;
+                    case "CompanyShortName": return profile.GetShortCompanyName();
                     case "FullAddress": return profile.FullAddress;
                     case "StreetAddress": return profile.StreetAddress;
                     case "City": return profile.City;

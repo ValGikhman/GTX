@@ -868,7 +868,11 @@
         function hasNavigationAccess(requiredRole) {
             if (!requiredRole) return true;
             var role = $.trim(String(window.gtx && window.gtx.currentRole || "user")).toLowerCase();
-            return requiredRole === "owner" ? role === "owner" : role !== "" && role !== "user";
+            var required = String(requiredRole).toLowerCase();
+            var permissions = window.gtx && window.gtx.menuPermissions || [];
+            if (required === "administrator") return permissions.indexOf("Roles") >= 0;
+            if (required === "admin" || required === "staff" || required === "owner") return role !== "" && role !== "user";
+            return $.grep(permissions, function (permission) { return String(permission).toLowerCase() === required; }).length > 0;
         }
 
         function openNavigationDestination(destination) {

@@ -1,0 +1,54 @@
+#servicesPage .service-enabled-row {
+    margin-top: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+#servicesPage .service-settings-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+#servicesPage .service-settings-field {
+    min-width: 0;
+}
+
+#servicesPage .service-settings-field .form-label {
+    margin-bottom: .35rem;
+    color: #475569;
+    font-size: .82rem;
+    font-weight: 600;
+}
+
+#servicesPage .service-settings-field .form-control,
+#servicesPage .service-settings-field .form-select {
+    min-width: 0;
+    font-size: .85rem;
+}
+
+#servicesPage .service-model-picker {
+    min-width: 0;
+}
+
+#servicesPage .service-model-picker .form-text {
+    font-size: .75rem;
+    overflow-wrap: anywhere;
+}
+
+#servicesPage .service-credential {
+    min-height: calc(3em + .75rem + 2px);
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+    word-break: break-all;
+    resize: vertical;
+}
+
+#servicesPage .service-settings-message {
+    padding: .65rem .75rem;
+    font-size: .82rem;
+}
+
+#servicesPage .service-settings-message ul {
+    margin: 0;
+    padding-left: 1rem;
+}

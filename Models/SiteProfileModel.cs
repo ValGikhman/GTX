@@ -34,6 +34,10 @@ namespace GTX.Models {
         [Range(typeof(decimal), "-180", "180")]
         public decimal? Longitude { get; set; }
 
+        public string GetShortCompanyName() {
+            return (CompanyName ?? string.Empty).Split((char[])null, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? string.Empty;
+        }
+
         public string FullAddress => string.Join(", ", new[] {
             StreetAddress, AddressLine2, City, ((State ?? "") + " " + ZipCode).Trim()
         }.Where(part => !string.IsNullOrWhiteSpace(part)));

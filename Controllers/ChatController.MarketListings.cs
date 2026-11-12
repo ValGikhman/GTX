@@ -123,7 +123,7 @@ namespace GTX.Controllers
 
         private async Task<JObject> ReadRetailCriteriaAsync(string message)
         {
-            var key = ConfigurationManager.AppSettings["OpenAI:ApiKey"];
+            var key = ServiceConfiguration.Get("OpenAI:ApiKey");
             if (string.IsNullOrWhiteSpace(key)) throw new HttpRequestException("Retail search needs OpenAI.");
             var properties = new JObject();
             foreach (var name in new[] { "make", "model", "trim", "drivetrain" })

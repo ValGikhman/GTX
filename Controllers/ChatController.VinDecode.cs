@@ -71,7 +71,7 @@ namespace GTX.Controllers
                     reply = "Send a 17-character VIN, just right,\nLeave I, O, and Q out of sight.\nTry decode VIN, then the code in a row,\nNu, one VIN at a time and we're ready to go.";
                     break;
                 case 403:
-                    reply = "VIN Decoder access unlocks this view,\nSign in with a role that grants it to you.\nAsk Owner for access to make it so,\nNu, then send your VIN and we're ready to go.";
+                    reply = "VIN Decoder access unlocks this view,\nSign in with a role that grants it to you.\nAsk your admin for access to make it so,\nNu, then send your VIN and we're ready to go.";
                     break;
                 case 429:
                     reply = "The VIN decoding limit says no,\nWait a little before another go.\nKeep that VIN handy, let the service rest,\nNu, try again later; patience is best.";

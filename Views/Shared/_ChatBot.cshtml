@@ -1,8 +1,10 @@
 @{
     var siteProfile = GTX.SiteProfileStore.Current;
+    var companyShortName = siteProfile.GetShortCompanyName();
+    var assistantName = string.IsNullOrEmpty(companyShortName) ? "Assistant" : companyShortName + " Assistant";
     var chatRequestToken = GTX.Controllers.ChatController.GetOrCreateRequestToken(ViewContext.HttpContext.Session);
-    var chatRole = RoleCookie.GetCurrentRole(ViewContext.HttpContext.Request, ViewContext.HttpContext.Session);
-    var canAppraise = chatRole == CommonUnit.Roles.Owner || chatRole == CommonUnit.Roles.Manager;
+    var chatRole = GTX.Common.SiteAccess.Current(ViewContext.HttpContext.Request);
+    var canAppraise = GTX.Common.SiteAccess.Can(chatRole, GTX.Common.MajordomeItem.Appraisal);
 }
 <div id="gtxChatWidget"
      class="gtx-chat"
@@ -39,11 +41,11 @@
         <span>@I18n.R("Chat_AskGtx")</span>
     </button>
 
-    <section id="gtxChatPanel" class="gtx-chat-panel" aria-label="@siteProfile.CompanyName Assistant" hidden>
+    <section id="gtxChatPanel" class="gtx-chat-panel" aria-label="@assistantName" hidden>
         <header class="gtx-chat-header" tabindex="0" aria-label="Move chat: drag to a corner or use Alt + arrow keys" title="Drag to a corner. Alt + arrow keys to move.">
             <div class="gtx-chat-avatar" aria-hidden="true"><i class="bi bi-stars"></i></div>
             <div class="flex-grow-1">
-                <div class="gtx-chat-title">@siteProfile.CompanyName Assistant <span>AI</span></div>
+                <div class="gtx-chat-title">@assistantName <span>AI</span></div>
                 <div class="gtx-chat-status"><i aria-hidden="true"></i> Ready to help</div>
             </div>
             <button type="button" class="gtx-chat-icon-button gtx-chat-guide-button" data-chat-help title="View command guide" aria-label="View command guide" aria-expanded="false" aria-controls="gtxChatCommandGuide">
@@ -110,7 +112,7 @@
 
         <form class="gtx-chat-compose" data-chat-form>
             <input type="hidden" name="ChatRequestToken" value="@chatRequestToken" />
-            <label class="visually-hidden" for="gtxChatMessage">Message @siteProfile.CompanyName Assistant</label>
+            <label class="visually-hidden" for="gtxChatMessage">Message @assistantName</label>
             <textarea id="gtxChatMessage" name="Message" maxlength="800" rows="1" placeholder="Ask about our vehicles..." required></textarea>
             <button type="submit" aria-label="Send message"><i class="bi bi-send-fill" aria-hidden="true"></i></button>
         </form>

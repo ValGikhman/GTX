@@ -1,7 +1,6 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Configuration;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -40,12 +39,12 @@ namespace GTX.Common
             this.key = key;
         }
 
-        public static ChatAuctionAppraisal ForRole(CommonUnit.Roles role)
+        public static ChatAuctionAppraisal ForRole(SiteRoleModel role)
         {
-            if (role != CommonUnit.Roles.Owner && role != CommonUnit.Roles.Manager) return null;
+            if (!SiteAccess.Can(role, MajordomeItem.Appraisal)) return null;
 
-            var url = ConfigurationManager.AppSettings["AutoDealer:AppraisalBaseUrl"];
-            var key = ConfigurationManager.AppSettings["AutoDealer:ApiKey"]?.Trim();
+            var url = ServiceConfiguration.Get("AutoDealer:AppraisalBaseUrl");
+            var key = ServiceConfiguration.Get("AutoDealer:ApiKey")?.Trim();
             if (string.IsNullOrEmpty(key) || !Uri.TryCreate(url, UriKind.Absolute, out var baseUrl)
                 || baseUrl.Scheme != Uri.UriSchemeHttps || !string.IsNullOrEmpty(baseUrl.UserInfo)
                 || !string.IsNullOrEmpty(baseUrl.Query) || !string.IsNullOrEmpty(baseUrl.Fragment)) return null;

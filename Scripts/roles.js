@@ -6,8 +6,6 @@ $(function () {
     }).get();
     rows.sort(function (a, b) {
         var aName = a.Name.toLowerCase(), bName = b.Name.toLowerCase();
-        if (aName === "owner" && bName !== "owner") return -1;
-        if (bName === "owner" && aName !== "owner") return 1;
         return aName.localeCompare(bName);
     });
     $("#rolesSource").parent().remove();
@@ -45,7 +43,7 @@ $(function () {
             if (res && res.ok) window.location.assign(res.returnUrl);
             else window.gtxAlert("Could not switch role. Please sign in again.");
         }).fail(function () {
-            window.gtxAlert("Could not switch role. Owner access is required.");
+            window.gtxAlert("Could not switch role. Administrator access is required.");
         }).always(function () { $buttons.prop("disabled", false); });
     });
     $("#roleModalBody").on("click", ".toggle-role-password", function () {
