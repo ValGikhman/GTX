@@ -832,7 +832,8 @@ namespace GTX.Controllers
             int? maxMiles = null, string wheelSystem = null, string sortType = "PROXIMITY")
         {
             var url = $"https://www.cargurus.com/search?zip={zip}&distance={radius}"
-                + $"&sortDirection=ASC&sortType={sortType}&hideNationwideShipping=true&isDeliveryEnabled=true";
+                + $"&sortDirection=ASC&sortType={sortType}&hideNationwideShipping=true&isDeliveryEnabled=true"
+                + "&vehicleHistoryOptions=LEMON_FREE%2CNON_SALVAGE";
             if (!string.IsNullOrEmpty(modelPath)) url += "&makeModelTrimPaths=" + Uri.EscapeDataString(modelPath);
             if (!string.IsNullOrEmpty(year)) url += "&startYear=" + year + "&endYear=" + year;
             if (wheelSystem != null) url += "&wheelSystems=" + wheelSystem;

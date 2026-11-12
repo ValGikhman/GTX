@@ -102,9 +102,8 @@
         if (!validSearchYear(year) || !make || !model || !validSearchScope()) return null;
 
         const query = new URLSearchParams({
-            stock_type: 'used',
             year_min: year,
-            year_max: year,
+            clean_title: 'true',
             'makes[]': make,
             'models[]': make + '-' + model,
             zip: zip.value,
@@ -153,6 +152,12 @@
 
             let modelName = vehicle.model;
             if (vehicle.make === 'ford' && /^transit_?(150|250|350)$/.test(modelName)) modelName = 'transit_cargo';
+            if (vehicle.make === 'ford' && modelName === 'transit') {
+                // Some VINs decode as Transit; CarGurus splits it by body type.
+                const style = vehicleSlug([row.DecodedVehicle.Style, row.DecodedVehicle.BodyStyle].filter(Boolean).join(' '));
+                const bodies = ['cargo', 'passenger', 'chassis'].filter(body => new RegExp('(^|_)' + body + '(_|$)').test(style));
+                if (bodies.length === 1) modelName = 'transit_' + bodies[0];
+            }
             if (vehicle.make === 'lexus' && /^es_?300h(?:_|$)/.test(modelName)) modelName = 'es_hybrid';
             const es350 = vehicle.make === 'lexus' && /^es_?350(?:_|$)/.test(modelName);
             if (es350) modelName = 'es';
@@ -209,7 +214,8 @@
             distance: radius.value,
             nonShippableBaseline: '4',
             sortDirection: 'ASC',
-            sortType: 'PRICE'
+            sortType: 'PRICE',
+            vehicleHistoryOptions: 'LEMON_FREE,NON_SALVAGE'
         });
         if (validMileage(row.Miles)) query.set('maxMileage', row.Miles);
         return 'https://www.cargurus.com/search?' + query;
@@ -224,13 +230,13 @@
             ? `<button type="button" class="btn btn-sm pr-batch-retry" data-marketplace-vin="${escape(row.Vin)}" title="${escape(row.DecodeError)}" aria-label="Retry VIN decoding for marketplace searches"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i></button>`
             : '<span class="small text-muted align-self-center" role="status" title="Decoding VIN for marketplace links"><span class="spinner-border spinner-border-sm" aria-hidden="true"></span><span class="visually-hidden">Decoding VIN</span></span>';
         const retry = `<button type="button" class="btn btn-sm pr-batch-retry" aria-label="Retry MarketCheck appraisal" title="Retry MarketCheck appraisal" data-vin="${escape(row.Vin)}" ${running || parsing ? 'disabled' : ''}><img class="pr-batch-cars-logo pr-batch-marketcheck-logo" src="https://www.marketcheck.com/images/logo/mc-logo-og-light.svg" alt="MarketCheck" referrerpolicy="no-referrer"></button>`;
-        return `<div class="d-flex flex-wrap justify-content-center gap-1">${retry}${cars}${gurus}${decoding}</div>`;
+        return `<div class="d-flex flex-wrap justify-content-start gap-1">${retry}${cars}${gurus}${decoding}</div>`;
     }
 
     function render() {
         if ($grid.data('add-grid')) { $grid.addGrid('setData', rows, {preserveState:true}); return; }
         $grid.addGrid({data:rows, columns:[
-            {field:'Run',title:'LANE',width:'6%',filterable:false},
+            {field:'Run',title:'LANE',width:'8%',filterable:false},
             {field:'Vehicle',title:'Vehicle',width:'16%',filterable:false},
             {field:'Vin',title:'VIN',exportValue:row=>row.Vin,width:'13%',filterable:false},
             {field:'Miles',exportAlign:'right',title:'Miles',exportValue:(row,format)=>format==='pdf'&&number(row.Miles)?odometer.format(row.Miles):row.Miles,width:'9%',filterable:false,searchable:false,headerClass:'text-end',cellClass:'text-end',template:row => '<span class="pr-batch-odometer">'+(number(row.Miles)?new Intl.NumberFormat('en-US',{maximumFractionDigits:0}).format(row.Miles):'—')+'</span>'},
@@ -238,7 +244,7 @@
             {field:'Maximum',exportAlign:'right',title:'Max bid',exportValue:(row,format)=>number(row.Maximum)?(format==='pdf'?printMoney.format(row.Maximum):row.Maximum):row.Done?'No feasible bid':null,width:'9%',filterable:false,searchable:false,headerClass:'text-end',cellClass:'text-end',template:row => number(row.Maximum)?money.format(row.Maximum):row.Done?'No feasible bid':'—'},
             {field:'Status',title:'Status',exportValue:row=>row.Status,width:'12%',filterable:false,headerClass:'text-center',cellClass:'text-center',template:row =>
                 `<span class="badge text-bg-${row.StatusTone} mw-100 text-wrap text-break text-center px-3 py-2">${escape(row.Status)}</span>`},
-            {field:'Actions',title:'Actions',width:'24%',headerClass:'text-center',cellClass:'text-center',sortable:false,filterable:false,searchable:false,template:renderActions}
+            {field:'Actions',title:'Actions',width:'22%',headerClass:'text-center',cellClass:'text-center',sortable:false,filterable:false,searchable:false,template:renderActions}
         ],tableClass:'table align-middle m-0',height:null,pageable:false,resizable:false,reorderable:false,sortable:true,searchable:true,showSearch:true,searchPlaceholder:'Search run, vehicle, VIN, or status…',showRecordCount:true,recordType:{singular:'vehicle',plural:'vehicles',icon:'bi bi-car-front'},exportToExcel:false,exportToPdf:false,showPrint:true,exportFileName:'Auction shortlist',exportPdfWrap:true,groupable:false,alternateRows:true});
     }
     async function appraise(row) {
