@@ -24,12 +24,12 @@
                 <div class="profile-card h-100">
                     <div class="profile-card-header"><span class="profile-heading-icon" aria-hidden="true"><i class="bi bi-building"></i></span><h2 id="profileCompanyHeading">Company &amp; contact</h2></div>
                     <div class="profile-card-body">
-                        <div class="mb-2">
+                        <div class="mb-3">
                             <label class="form-label" for="CompanyName"><i class="bi bi-building me-1" aria-hidden="true"></i>Company name</label>
                             @Html.TextBoxFor(m => m.CompanyName, new { @class = "form-control shadow-sm", maxlength = "120", required = "required", autocomplete = "organization" })
                             @Html.ValidationMessageFor(m => m.CompanyName, "", new { @class = "text-danger small" })
                         </div>
-                        <div class="mb-2">
+                        <div class="mb-3">
                             <label class="form-label" for="Email"><i class="bi bi-envelope me-1" aria-hidden="true"></i>Email</label>
                             @Html.TextBoxFor(m => m.Email, new { @class = "form-control shadow-sm", type = "email", maxlength = "254", required = "required", autocomplete = "email" })
                             @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger small" })
@@ -39,7 +39,7 @@
                             @Html.TextBoxFor(m => m.Phone, new { @class = "form-control shadow-sm", type = "tel", maxlength = "30", required = "required", autocomplete = "tel" })
                             @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger small" })
                         </div>
-                        <div class="mt-2">
+                        <div class="mt-3">
                             <label class="form-label" for="DocumentaryFee"><i class="bi bi-receipt me-1" aria-hidden="true"></i>Documentary fee (USD)</label>
                             <div class="input-group shadow-sm"><span class="input-group-text" aria-hidden="true">$</span>@Html.TextBoxFor(m => m.DocumentaryFee, new { @class = "form-control", type = "number", min = "0", max = "10000", step = "1", inputmode = "numeric", required = "required" })</div>
                             @Html.ValidationMessageFor(m => m.DocumentaryFee, "", new { @class = "text-danger small" })
@@ -83,7 +83,7 @@
                                 @Html.ValidationMessageFor(m => m.ResearchRadiusMiles, "", new { @class = "text-danger small" })
                             </div>
                         </div>
-                        <details class="profile-map mt-2">
+                        <details class="profile-map mt-3">
                             <summary><i class="bi bi-pin-map me-1" aria-hidden="true"></i>Map coordinates</summary>
                             <dl class="row g-2 mt-2 mb-0 profile-coordinates">
                                 <div class="col-12 col-sm-6">
@@ -140,7 +140,7 @@
                 </div>
             </section>
         </div>
-        <div class="profile-actions d-flex align-items-center justify-content-end pt-2">
+        <div class="profile-actions d-flex align-items-center justify-content-end pt-3">
             <button type="submit" class="btn btn-gradient shadow"><i class="bi bi-save me-1" aria-hidden="true"></i>Save profile</button>
         </div>
     }
