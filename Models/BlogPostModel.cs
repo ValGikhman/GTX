@@ -17,6 +17,37 @@ namespace GTX.Models
 
         public string MediaURL { get; set; }
 
+        public string SafeMediaUrl
+        {
+            get
+            {
+                var value = MediaURL?.Trim();
+                var safeValue = SecuritySanitizer.SanitizeHttpOrRelativeUrl(value);
+                if (safeValue == null) return null;
+                // Keep escaped query values intact for signed media links.
+                return value.StartsWith("~/", StringComparison.Ordinal) ? safeValue : value;
+            }
+        }
+
+        public string VideoContentType
+        {
+            get
+            {
+                var safeUrl = SafeMediaUrl;
+                if (string.IsNullOrWhiteSpace(safeUrl)) return null;
+
+                var path = safeUrl.StartsWith("/", StringComparison.Ordinal)
+                    ? safeUrl.Split(new[] { '?', '#' }, 2)[0]
+                    : new Uri(safeUrl, UriKind.Absolute).AbsolutePath;
+
+                if (path.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase)
+                    || path.EndsWith(".m4v", StringComparison.OrdinalIgnoreCase)) return "video/mp4";
+                if (path.EndsWith(".webm", StringComparison.OrdinalIgnoreCase)) return "video/webm";
+                if (path.EndsWith(".ogv", StringComparison.OrdinalIgnoreCase)) return "video/ogg";
+                return null;
+            }
+        }
+
         [Required]
         [AllowHtml]
         public string Content { get; set; } = "";
@@ -36,7 +67,7 @@ namespace GTX.Models
                 Id = m.Id,
                 Title = m.Title?.Trim(),
                 ArticleURL = SecuritySanitizer.SanitizeHttpOrRelativeUrl(m.ArticleURL),
-                MediaURL = SecuritySanitizer.SanitizeHttpOrRelativeUrl(m.MediaURL),
+                MediaURL = m.SafeMediaUrl,
                 Content = SecuritySanitizer.SanitizeRichHtml(m.Content),
                 Author = string.IsNullOrWhiteSpace(m.Author) ? null : m.Author.Trim(),
                 IsPublished = m.IsPublished,

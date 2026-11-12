@@ -52,8 +52,8 @@
 
                     <!-- Media URL -->
                     <div class="col-12">
-                        <label class="form-label fw-semibold text-shadow-small">
-                            <i class="bi bi-image me-1 text-primary"></i> Image URL <span class="text-muted fw-normal">(optional)</span>
+                        <label class="form-label fw-semibold text-shadow-small" for="MediaUrl">
+                            <i class="bi bi-collection-play me-1 text-primary"></i> Image / video URL <span class="text-muted fw-normal">(optional)</span>
                         </label>
                         <div class="input-group shadow-sm">
                             <span class="input-group-text bg-white">
@@ -61,14 +61,14 @@
                             </span>
                             @Html.TextBoxFor(m => m.MediaURL, new { @class = "form-control", type = "url", id = "MediaUrl", placeholder = "https://example.com/photo.jpg" })
                         </div>
-                        <div class="form-text">Paste a direct image link (jpg/png/webp/gif).</div>
+                        <div class="form-text">Paste a direct image link or an MP4, M4V, WebM, or OGV video link.</div>
                     </div>
 
                     <!-- Preview -->
                     <div class="col-12">
                         <div class="d-flex align-items-center justify-content-between">
                             <label class="form-label fw-semibold mb-2 text-shadow-small">
-                                <i class="bi bi-eye me-1 text-primary"></i> Image Preview
+                                <i class="bi bi-eye me-1 text-primary"></i> Media preview
                             </label>
                             <span class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle">
                                 Live preview
@@ -76,20 +76,14 @@
                         </div>
 
                         <div class="border rounded-4 bg-light shadow-sm overflow-hidden position-relative" style="height:260px;">
-                            <!-- subtle top gradient overlay -->
-                            <div class="position-absolute top-0 start-0 end-0" style="height:72px; background: linear-gradient(to bottom, rgba(0,0,0,.25), rgba(0,0,0,0));"></div>
-
                             <img id="imagePreview"
                                  alt="Image preview"
                                  class="w-100 h-100"
-                                 style="object-fit:cover;"
-                                 src="/images/placeholder-car.jpg" />
-
-                            <div class="position-absolute bottom-0 start-0 end-0 p-2">
-                                <div class="small text-white-50">
-                                    <i class="bi bi-info-circle me-1"></i> Invalid/empty URL hides the image.
-                                </div>
-                            </div>
+                                 style="object-fit:cover;display:none;" />
+                            <video id="videoPreview" class="w-100 h-100" controls playsinline preload="metadata"
+                                   aria-label="Video preview" style="object-fit:contain;display:none;">
+                                <source data-blog-video-source />
+                            </video>
                         </div>
                     </div>
 
@@ -178,61 +172,91 @@
         });
 
         // -----------------------------
-        // Media URL -> Image Preview
+        // Media URL -> image or video preview
         // -----------------------------
-        const allowed = ["jpg", "jpeg", "png", "gif", "webp", "bmp", "svg"];
+        $form.triggerHandler('blog:dispose');
+        const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp", "bmp", "svg"];
+        const videoTypes = { mp4: "video/mp4", m4v: "video/mp4", webm: "video/webm", ogv: "video/ogg" };
+        const $mediaInput = $form.find('#MediaUrl');
+        const imagePreview = $form.find('#imagePreview').get(0);
+        const videoPreview = $form.find('#videoPreview').get(0);
+        const videoSource = $form.find('[data-blog-video-source]').get(0);
+        let previewUrl = '';
+        let previewKind = '';
+        let previewTimer = null;
 
-        function isValidUrl(s) {
-            try { new URL(s); return true; } catch (e) { return false; }
-        }
-
-        function getExt(url) {
+        function describePreview(value) {
+            const url = (value || '').trim();
+            if (!/^https?:\/\//i.test(url) && !/^\/(?![\/\\])/.test(url)) return null;
             try {
-                const u = new URL(url);
-                const path = (u.pathname || "").toLowerCase();
-                const m = path.match(/\.([a-z0-9]+)$/);
-                return m ? m[1] : "";
-            } catch (e) { return ""; }
+                const parsed = new URL(url, window.location.href);
+                if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null;
+                const match = parsed.pathname.toLowerCase().match(/\.([a-z0-9]+)$/);
+                const extension = match ? match[1] : '';
+                if (imageExtensions.includes(extension)) return { url: url, kind: 'image' };
+                if (Object.prototype.hasOwnProperty.call(videoTypes, extension))
+                    return { url: url, kind: 'video', contentType: videoTypes[extension] };
+            } catch (e) { /* Wait for a complete supported media URL. */ }
+            return null;
         }
 
-        function setPreview(url) {
-            const img = document.getElementById("imagePreview");
-            if (!img) return;
-
-            if (!url) {
-                img.removeAttribute("src");
-                img.style.display = "none"; // keep the box visible, hide only the img
-                return;
-            }
-
-            // Cache-bust so changes always refresh
-            const bust = (url.indexOf('?') >= 0 ? '&' : '?') + '_=' + Date.now();
-
-            img.style.display = "";
-            img.onerror = function () {
-                img.removeAttribute("src");
-                img.style.display = "none";
-            };
-            img.src = url + bust;
+        function clearMediaPreview(replacingVideo) {
+            imagePreview.onerror = null;
+            imagePreview.removeAttribute('src');
+            imagePreview.style.display = 'none';
+            videoPreview.onerror = null;
+            videoSource.onerror = null;
+            videoPreview.pause();
+            const hadSource = videoSource.hasAttribute('src');
+            videoSource.removeAttribute('src');
+            videoSource.removeAttribute('type');
+            videoPreview.style.display = 'none';
+            if (hadSource && replacingVideo !== true) videoPreview.load();
+            previewUrl = '';
+            previewKind = '';
         }
 
         function renderPreviewFromInputValue(value) {
-            const url = (value || "").trim();
-            if (!url || !isValidUrl(url)) return setPreview('');
+            const media = describePreview(value);
+            if (media && media.url === previewUrl && media.kind === previewKind) return;
+            clearMediaPreview(media && media.kind === 'video');
+            if (!media) return;
 
-            const ext = getExt(url);
-            if (!allowed.includes(ext)) return setPreview(''); // image-only
-
-            setPreview(url);
+            previewUrl = media.url;
+            previewKind = media.kind;
+            if (media.kind === 'image') {
+                imagePreview.onerror = clearMediaPreview;
+                imagePreview.src = media.url;
+                imagePreview.style.display = '';
+            } else {
+                videoPreview.onerror = clearMediaPreview;
+                videoSource.onerror = clearMediaPreview;
+                videoSource.src = media.url;
+                videoSource.type = media.contentType;
+                videoPreview.style.display = '';
+                videoPreview.load();
+            }
         }
 
-        // Use delegated events so it works even when partial is loaded into a modal later
-        $(document).on('input change paste', '#MediaUrl', function () {
-            renderPreviewFromInputValue(this.value);
+        function disposeMediaPreview() {
+            window.clearTimeout(previewTimer);
+            previewTimer = null;
+            $mediaInput.off('.blogMediaPreview');
+            $form.off('blog:dispose.blogMediaPreview');
+            clearMediaPreview();
+        }
+
+        $mediaInput.off('.blogMediaPreview').on('input.blogMediaPreview change.blogMediaPreview', function () {
+            window.clearTimeout(previewTimer);
+            previewTimer = window.setTimeout(function () {
+                previewTimer = null;
+                renderPreviewFromInputValue($mediaInput.val());
+            }, 250);
         });
+        $form.off('blog:dispose.blogMediaPreview').on('blog:dispose.blogMediaPreview', disposeMediaPreview);
 
         // Initial render (edit mode)
-        renderPreviewFromInputValue($('#MediaUrl').val());
+        renderPreviewFromInputValue($mediaInput.val());
         syncContent();
     });
 </script>

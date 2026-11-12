@@ -20,7 +20,7 @@
             <table id="bpTableSource">
                 <thead class="table-light">
                     <tr>
-                        <th style="min-width:90px;">Image</th>
+                        <th style="min-width:90px;">Media</th>
                         <th style="min-width:160px;">Title</th>
                         <th style="min-width:160px;">Author</th>
                         <th style="width:120px;">Published</th>
@@ -42,10 +42,24 @@
                     {
                         foreach (var p in Model)
                         {
+                            var safeMediaUrl = p.SafeMediaUrl;
+                            var mediaKind = string.IsNullOrWhiteSpace(safeMediaUrl) ? "None" : p.VideoContentType != null ? "Video" : "Image";
                             <tr data-grid-row="true" data-published="@(p.IsPublished ? "1" : "0")">
-                                <td>
-                                    <img width="90" height="60" class="rounded-2 border"
-                                         src="@($"{p.MediaURL}?h=60")" />
+                                <td data-media-kind="@mediaKind">
+                                    @if (mediaKind == "Video")
+                                    {
+                                        <span class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle">
+                                            <i class="bi bi-play-btn me-1" aria-hidden="true"></i>Video
+                                        </span>
+                                    }
+                                    else if (mediaKind == "Image")
+                                    {
+                                        <img width="90" height="60" class="rounded-2 border" src="@safeMediaUrl" alt="@p.Title" loading="lazy" />
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">No media</span>
+                                    }
                                 </td>
 
                                 <td>
@@ -102,7 +116,7 @@
 
 </div>
 
-<script type="text/x-addgrid-template" id="blog-grid-image-template">{{ImageHtml}}</script>
+<script type="text/x-addgrid-template" id="blog-grid-media-template">{{MediaHtml}}</script>
 <script type="text/x-addgrid-template" id="blog-grid-title-template">{{TitleHtml}}</script>
 <script type="text/x-addgrid-template" id="blog-grid-author-template">{{AuthorHtml}}</script>
 <script type="text/x-addgrid-template" id="blog-grid-published-template">{{PublishedHtml}}</script>
@@ -156,13 +170,13 @@
             const created = $.trim($cells.eq(4).text());
 
             return {
-                ImageState: $cells.eq(0).find("img").length ? "Has Image" : "No Image",
+                MediaState: $cells.eq(0).data("media-kind") || "None",
                 Title: title,
                 Author: author,
                 Published: published,
                 Created: created,
                 SearchText: [title, author, published, created].join(" "),
-                ImageHtml: $cells.eq(0).html(),
+                MediaHtml: $cells.eq(0).html(),
                 TitleHtml: $cells.eq(1).html(),
                 AuthorHtml: $cells.eq(2).html(),
                 PublishedHtml: $cells.eq(3).html(),
@@ -186,7 +200,7 @@
             },
             data: rows,
             columns: [
-                { field: "ImageState", title: "Image", width: 110, filterable: false, searchable: false, template: "#blog-grid-image-template" },
+                { field: "MediaState", title: "Media", width: 110, filterable: false, searchable: false, template: "#blog-grid-media-template" },
                 { field: "Title", title: "Title", width: 230, filterable: false, searchable: true, searchField: "SearchText", template: "#blog-grid-title-template" },
                 { field: "Author", title: "Author", width: 180, searchable: false, template: "#blog-grid-author-template" },
                 { field: "Published", title: "Published", width: 130, searchable: false, headerClass: "text-center", cellClass: "text-center", template: "#blog-grid-published-template" },

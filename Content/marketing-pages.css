@@ -557,6 +557,21 @@
     transition: transform .5s ease;
 }
 
+.blog-list-media-has-video {
+    display: flex;
+    align-items: center;
+}
+
+.blog-list-media-has-video video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+}
+
+.blog-list-media.blog-list-media-has-video::after { content: none; }
+
 .blog-list-card:hover .blog-list-media img {
     transform: scale(1.04);
 }
