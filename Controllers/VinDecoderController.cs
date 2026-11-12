@@ -33,8 +33,19 @@ namespace GTX.Controllers
         [OutputCache(NoStore = true, Duration = 0, VaryByParam = "*")]
         public async Task<ActionResult> DecodeDataOneByAnyVin(string vin)
         {
+            return await DecodeHtmlAsync(vin);
+        }
+
+        internal static string NormalizeVin(string vin)
+        {
             var normalizedVin = (vin ?? string.Empty).Trim().ToUpperInvariant();
-            if (!Regex.IsMatch(normalizedVin, @"^[A-HJ-NPR-Z0-9]{17}$"))
+            return Regex.IsMatch(normalizedVin, @"\A[A-HJ-NPR-Z0-9]{17}\z") ? normalizedVin : null;
+        }
+
+        internal static async Task<ActionResult> DecodeHtmlAsync(string vin)
+        {
+            var normalizedVin = NormalizeVin(vin);
+            if (normalizedVin == null)
                 return new HttpStatusCodeResult(400, "Enter a valid 17-character VIN.");
 
             // The demo credential is public; registered credentials belong in server configuration.

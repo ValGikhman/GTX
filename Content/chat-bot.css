@@ -432,6 +432,31 @@
 
 .gtx-chat-message.is-assistant:has(.bot-market-reply) { width: 100%; }
 
+.gtx-chat-message.is-assistant.has-vin-decode {
+    font-size: .8rem;
+}
+
+.gtx-chat-vin-open { margin-top: .65rem; }
+
+#gtxChatVinReportModal { z-index: 1090; }
+.modal-backdrop.gtx-chat-vin-backdrop { z-index: 1085; }
+
+#gtxChatVinReportModal .avd-dataone {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+#gtxChatVinReportModal .avd-style__toggle,
+#gtxChatVinReportModal .avd-panel__toggle,
+#gtxChatVinReportModal .avd-subheading { font-size: 12px; }
+
+#gtxChatVinReportModal .avd-table th,
+#gtxChatVinReportModal .avd-table td { font-size: 11px; }
+
+#gtxChatVinReportModal .avd-toggle-icons { font-size: 16px; }
+#gtxChatVinReportModal .avd-dataone footer { font-size: 10px; }
+
 .bot-market-reply {
     --bot-market-ink: #172033;
     --bot-market-muted: #526075;
