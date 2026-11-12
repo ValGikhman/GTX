@@ -24,11 +24,17 @@ $(function () {
     }
 
     function destroyBlogEditors() {
+        $('#blogModalBody form[data-blog-ajax="true"]').triggerHandler('blog:dispose');
         $('#blogModalBody textarea').each(function () {
             const $field = $(this);
             if ($field.data('add-edit')) $field.addEdit('destroy');
         });
     }
+
+    $('#blogModal').off('hide.bs.modal.blogMediaPreview').on('hide.bs.modal.blogMediaPreview', destroyBlogEditors);
+    $('#blogModal').off('hidden.bs.modal.blogMediaPreview').on('hidden.bs.modal.blogMediaPreview', function () {
+        $('#blogModalBody').empty();
+    });
 
     function openModal(url, title) {
         destroyBlogEditors();

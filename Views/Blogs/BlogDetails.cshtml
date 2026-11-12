@@ -4,9 +4,11 @@
     var siteProfile = GTX.SiteProfileStore.Current;
     ViewBag.Title = string.IsNullOrWhiteSpace(Model?.Title) ? "Blog Post" : Model.Title;
 
-    string safeMediaUrl = SecuritySanitizer.SanitizeHttpOrRelativeUrl(Model?.MediaURL);
+    string safeMediaUrl = Model?.SafeMediaUrl;
     string safeArticleUrl = SecuritySanitizer.SanitizeHttpOrRelativeUrl(Model?.ArticleURL);
-    bool hasImg = !string.IsNullOrWhiteSpace(safeMediaUrl);
+    string videoContentType = Model?.VideoContentType;
+    bool hasVideo = !string.IsNullOrWhiteSpace(safeMediaUrl) && videoContentType != null;
+    bool hasImg = !string.IsNullOrWhiteSpace(safeMediaUrl) && !hasVideo;
     string safeAuthor = string.IsNullOrWhiteSpace(Model?.Author) ? "Staff" : Model.Author;
     string safeTitle = string.IsNullOrWhiteSpace(Model?.Title) ? "Untitled" : Model.Title;
 
@@ -36,8 +38,15 @@
             <article class="article-detail-card rounded-4 shadow-lg overflow-hidden p-0">
 
                 <!-- Hero -->
-                <div class="hero blog-hero position-relative">
-                    @if (hasImg)
+                <div class="hero blog-hero position-relative @(hasVideo ? "blog-hero-has-video" : "")">
+                    @if (hasVideo)
+                    {
+                        <video class="blog-hero-video" controls playsinline preload="metadata" aria-label="@safeTitle">
+                            <source src="@safeMediaUrl" type="@videoContentType" />
+                            Your browser does not support this video. <a href="@safeMediaUrl">Open video</a>.
+                        </video>
+                    }
+                    else if (hasImg)
                     {
                         <img src="@safeMediaUrl"
                              alt="@safeTitle"
