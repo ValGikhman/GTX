@@ -32,7 +32,7 @@ async function scenario(failFirst, extension = 'pdf') {
     const removedVin = '1HGCM82633A004352';
     const identities = {
         [lexusVin]: { Vin: lexusVin, Year: '2019', Make: 'Lexus', Model: 'ES 350', Style: 'Sedan "Special"', Trim: 'Luxury', BodyStyle: 'Sedan', DriveType: 'FWD' },
-        [fordVin]: { Vin: fordVin, Year: '2021', Make: 'Ford', Model: 'Transit 250', Style: 'Cargo Van', Trim: 'Base', BodyStyle: 'Cargo Van', DriveType: 'RWD' }
+        [fordVin]: { Vin: fordVin, Year: '2021', Make: 'Ford', Model: 'Transit', Style: 'Extended Length Cargo Van', Trim: '250', BodyStyle: 'Full-Size', DriveType: 'RWD' }
     };
     let releaseFirstDecode;
     const firstDecode = new Promise(resolve => { releaseFirstDecode = resolve; });
@@ -130,18 +130,19 @@ async function scenario(failFirst, extension = 'pdf') {
 
     const cars = marketplace(rows[0], 'www.cars.com').searchParams;
     assert.equal(cars.get('year_min'), '2019');
-    assert.equal(cars.get('year_max'), '2019');
+    assert.equal(cars.has('year_max'), false, 'Cars.com searches start at the decoded year without an upper limit');
     assert.equal(cars.get('makes[]'), 'lexus');
     assert.equal(cars.get('models[]'), 'lexus-es_350');
     assert.equal(cars.get('trims[]'), 'lexus-es_350-luxury');
-    assert.equal(cars.get('stock_type'), 'used', 'Cars.com must search used vehicles only');
+    assert.equal(cars.has('stock_type'), false, 'Cars.com searches must not restrict stock type');
+    assert.equal(cars.get('clean_title'), 'true');
     assert.ok(actions(rows[0]).includes('Sedan &quot;Special&quot; Luxury'), 'Decoded text must be escaped safely inside link titles');
     assert.equal(cars.has('body_style_slugs[]'), false, 'Decoder body style must not restrict Cars.com searches');
     assert.equal(cars.get('zip'), '45040');
     assert.equal(cars.get('maximum_distance'), '100');
     assert.equal(cars.get('sort'), 'list_price');
     assert.equal(cars.get('mileage_max'), '116589', 'Decoded values never replace uploaded odometer mileage');
-    assert.equal(marketplace(rows[1], 'www.cars.com').searchParams.get('models[]'), 'ford-transit_250');
+    assert.equal(marketplace(rows[1], 'www.cars.com').searchParams.get('models[]'), 'ford-transit');
     assert.equal(marketplace(rows[2], 'www.cars.com'), undefined, 'Decoder failure must not create a guessed search');
     const lexus = marketplace(rows[0], 'www.cargurus.com').searchParams;
     assert.equal(lexus.get('startYear'), '2019');
@@ -151,8 +152,10 @@ async function scenario(failFirst, extension = 'pdf') {
     assert.equal(lexus.get('maxMileage'), '116589');
     assert.equal(lexus.get('sortDirection'), 'ASC');
     assert.equal(lexus.get('sortType'), 'PRICE');
+    assert.equal(lexus.get('vehicleHistoryOptions'), 'LEMON_FREE,NON_SALVAGE');
     assert.equal(lexus.get('makeModelTrimPaths'), 'm37/d2720/350 Luxury FWD', 'Only the decoded Luxury trim is requested');
     assert.equal(marketplace(rows[1], 'www.cargurus.com').searchParams.get('makeModelTrimPaths'), 'm2/d1067');
+    assert.ok(marketplace(rows[1], 'www.cargurus.com').search.includes('vehicleHistoryOptions=LEMON_FREE%2CNON_SALVAGE'));
     assert.equal(marketplace(rows[2], 'www.cargurus.com'), undefined);
 
     await form.handlers.submit({ preventDefault() {} });

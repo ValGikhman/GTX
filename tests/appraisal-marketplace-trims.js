@@ -43,16 +43,18 @@ function row(trim = 'Veloce', drive = 'AWD') {
         assert.equal(url.searchParams.get('maxMileage'), '26124');
         assert.equal(url.searchParams.get('sortType'), 'PRICE');
         assert.equal(url.searchParams.get('sortDirection'), 'ASC');
+        assert.equal(url.searchParams.get('vehicleHistoryOptions'), 'LEMON_FREE,NON_SALVAGE');
         const cars = new URL(context.carsSearchUrl(vehicle));
         assert.equal(cars.hostname, 'www.cars.com');
-        assert.equal(cars.searchParams.get('stock_type'), 'used');
+        assert.equal(cars.searchParams.has('stock_type'), false);
+        assert.equal(cars.searchParams.get('clean_title'), 'true');
         assert.equal(cars.searchParams.get('makes[]'), 'alfa_romeo');
         assert.equal(cars.searchParams.get('models[]'), 'alfa_romeo-stelvio');
         assert.equal(cars.searchParams.get('trims[]'), 'alfa_romeo-stelvio-veloce');
         assert.equal(cars.searchParams.has('body_style_slugs[]'), false, 'Do not send body style, including a decoded Wagon classification');
         assert.equal(cars.searchParams.get('drivetrain_slugs[]'), 'all_wheel_drive');
         assert.equal(cars.searchParams.get('year_min'), '2023');
-        assert.equal(cars.searchParams.get('year_max'), '2023');
+        assert.equal(cars.searchParams.has('year_max'), false);
         assert.equal(cars.searchParams.get('zip'), '45011');
         assert.equal(cars.searchParams.get('maximum_distance'), '100');
         assert.equal(cars.searchParams.get('mileage_max'), '26124');
@@ -65,5 +67,35 @@ function row(trim = 'Veloce', drive = 'AWD') {
     for (const [decoded, expected] of [['AWD', 'all_wheel_drive'], ['Front-wheel Drive', 'front_wheel_drive'], ['RWD', 'rear_wheel_drive'], ['4WD', 'four_wheel_drive'], ['4x2', null], ['', null]]) {
         assert.equal(context.carsDrivetrain(decoded), expected);
     }
-    console.log('PASS: Cars.com and CarGurus decoded Stelvio Veloce AWD filters, year/mileage/location scope and ambiguity handling.');
+    context.carGurusEntities = async makeId => makeId ? [
+        { id: 'd1067', name: 'Transit Cargo' }, { id: 'd2270', name: 'Transit Passenger' },
+        { id: 'd3091', name: 'Transit Chassis' }, { id: 'd2037', name: 'Transit Connect' },
+        { id: 'd3114', name: 'E-Transit' }
+    ] : [{ id: 'm2', name: 'Ford' }];
+    for (const [model, style, bodyStyle, path] of [
+        ['Transit', 'Extended Length Cargo Van', 'Full-Size', 'm2/d1067'],
+        ['Transit', 'Passenger Van', 'Full-Size', 'm2/d2270'],
+        ['Transit', 'Chassis Cab', 'Full-Size', 'm2/d3091'],
+        ['Transit', 'Extended Length Van', 'Cargo Van', 'm2/d1067'],
+        ['Transit', 'Cargo Van', 'Passenger Van', null],
+        ['Transit', '', 'Full-Size', null],
+        ['Transit 250', 'Cargo Van', 'Full-Size', 'm2/d1067'],
+        ['T250', 'Cargo Van', 'Full-Size', 'm2/d1067'],
+        ['Transit Connect', 'Passenger Van', 'Full-Size', 'm2/d2037'],
+        ['E-Transit', 'Cargo Van', 'Full-Size', 'm2/d3114']
+    ]) {
+        const vehicle = { Miles: 89675, DecodedVehicle: {
+            Year: '2021', Make: 'Ford', Model: model, Trim: '250', Style: style, BodyStyle: bodyStyle, DriveType: 'RWD'
+        } };
+        await context.findCarGurusPaths(vehicle);
+        assert.equal(vehicle.CarGurusPaths || null, path, `Ford ${model}: only an explicit, unambiguous body type selects a Transit subtype`);
+        const link = context.carGurusSearchUrl(vehicle);
+        if (path) {
+            assert.equal(new URL(link).searchParams.get('makeModelTrimPaths'), path);
+            assert.equal(new URL(link).searchParams.get('vehicleHistoryOptions'), 'LEMON_FREE,NON_SALVAGE');
+        } else {
+            assert.equal(link, null, 'Do not guess a CarGurus body type from the 250 trim');
+        }
+    }
+    console.log('PASS: Marketplace trim/history filters, Ford Transit body-type matching, year/mileage/location scope and ambiguity handling.');
 })().catch(error => { console.error(error); process.exitCode = 1; });
