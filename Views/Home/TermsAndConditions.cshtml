@@ -1,5 +1,6 @@
 ﻿
 @{
+    var siteProfile = GTX.SiteProfileStore.Current;
     ViewBag.Title = "Terms & Conditions";
 }
 
@@ -202,9 +203,9 @@
                             <div id="general" class="scroll-mt-5">
                                 <h2 class="h4 fw-bold">General</h2>
                                 <p class="text-secondary mb-2">
-                                    Thank you for visiting the website of GTX Auto Group,
+                                    Thank you for visiting the website of @siteProfile.CompanyName,
                                     <a href="https://usedcarscincinnati.com" target="_blank">usedcarscincinnati.com ®</a> and the dealer selling this vehicle (the “Website”).
-                                    The terms “we” “our” and “us” refer to GTX Auto Group, its subsidiaries and its affiliates,
+                                    The terms “we” “our” and “us” refer to @siteProfile.CompanyName, its subsidiaries and its affiliates,
                                     and the terms “you” or “your” refer to any individuals who access this Website.
                                     By accessing or using this Website, you agree and consent to be legally bound by these Terms
                                     and Conditions of Use (the “Terms”) without limitation or qualification.

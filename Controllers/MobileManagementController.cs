@@ -40,7 +40,7 @@ namespace GTX.Controllers
             Response.SuppressFormsAuthenticationRedirect = true;
             if (!string.Equals(context.ActionDescriptor.ActionName, "Login", StringComparison.OrdinalIgnoreCase)) {
                 if (!Sessions.IsValid(BearerToken, OwnerPassword)) {
-                    context.Result = Payload(new { message = "Sign in with your GTX Owner account." }, 401);
+                    context.Result = Payload(new { message = "Sign in with the Owner role." }, 401);
                 }
             }
             base.OnActionExecuting(context);

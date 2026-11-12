@@ -286,6 +286,7 @@
     <Compile Include="Common\AppraisalPdfParser.cs" />
     <Compile Include="Controllers\MajordomeController.BatchAppraisal.cs" />
     <Compile Include="Common\AppraisalComparableScope.cs" />
+    <Compile Include="Common\AppraisalVehicleIdentity.cs" />
     <Compile Include="Common\CarGurusAuctionResearch.cs" />
     <Compile Include="Controllers\ChatController.MarketListings.cs" />
     <Compile Include="Common\ChatAuctionAppraisal.cs" />
@@ -310,11 +311,15 @@
     <Compile Include="Controllers\ChatProgressController.cs" />
     <Compile Include="Controllers\ChatBotCommandsController.cs" />
     <Compile Include="Controllers\RolesController.cs" />
+    <Compile Include="Controllers\ProfileController.cs" />
     <Compile Include="Common\Enums.cs" />
     <Compile Include="Common\MajordomeMenu.cs" />
     <Compile Include="Common\SiteAccess.cs" />
     <Compile Include="Models\SiteRoleModel.cs" />
+    <Compile Include="Models\SiteProfileModel.cs" />
+    <Compile Include="Models\SiteBusinessHoursModel.cs" />
     <Compile Include="Utility\SiteRoleStore.cs" />
+    <Compile Include="Utility\SiteProfileStore.cs" />
     <Compile Include="Controllers\EmployeesController.cs" />
     <Compile Include="Controllers\HealthController.cs" />
     <Compile Include="Controllers\InventoryManagementController.cs" />
@@ -405,6 +410,7 @@
     <Content Include="Content\Lightbox\minimal.css" />
     <Content Include="Content\magnific-popup.css" />
     <Content Include="Content\majordome.css" />
+    <Content Include="Content\profile.css" />
     <Content Include="Content\majordome-appraisal.css" />
     <Content Include="Content\images\cargurus.svg" />
     <Content Include="Content\inventory-card.css" />
@@ -457,6 +463,7 @@
     <Content Include="Scripts\capital-one-buttons.js" />
     <Content Include="Scripts\chat-bot-commands.js" />
     <Content Include="Scripts\Sql\CreateInventoryDetailsCounter.sql" />
+    <Content Include="Scripts\Sql\CreateSiteProfile.sql" />
     <Content Include="Scripts\Sql\CreateChatBotTeachingTables.sql" />
     <Content Include="Scripts\AlloyFinger\alloy_finger.min.js" />
     <Content Include="Scripts\bootstrap\bootstrap-datepicker.js" />
@@ -766,6 +773,7 @@
     <Content Include="Views\Roles\Index.cshtml" />
     <Content Include="Views\Roles\_Edit.cshtml" />
     <Content Include="Scripts\roles.js" />
+    <Content Include="Views\Profile\Index.cshtml" />
     <Content Include="Views\Employees\Index.cshtml" />
     <Content Include="Views\Shared\_EmployeeEdit.cshtml" />
     <Content Include="Views\Shared\_EmployeeModal.cshtml" />

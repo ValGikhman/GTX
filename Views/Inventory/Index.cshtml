@@ -1,4 +1,8 @@
 ﻿@model GTX.Models.BaseModel
+@{
+    var siteProfile = GTX.SiteProfileStore.Current;
+    var profileDirectionsUrl = "https://www.google.com/maps/search/?api=1&query=" + Uri.EscapeDataString(siteProfile.FullAddress);
+}
 <head>
     <script src="~/Scripts/specials-player.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/specials-player.js")).Ticks)"></script>
     <link href="~/Content/specials-player.css?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/specials-player.css")).Ticks)" rel="stylesheet" />
@@ -801,11 +805,11 @@
           class="inventory-contact-address"
           role="button"
           tabindex="0"
-          data-address="9516 Princeton Glendale Rd, West Chester, OH 45011"
+          data-address="@siteProfile.FullAddress"
           title="Click to copy address">
-        <i class="bi bi-geo-alt-fill"></i>9516 Princeton Glendale Rd, West Chester, OH 45011
+        <i class="bi bi-geo-alt-fill"></i>@siteProfile.FullAddress
     </span>
-    <a href="https://www.google.com/maps/search/?api=1&query=9516+Princeton+Glendale+Rd%2C+West+Chester+Township%2C+OH+45011" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-gradient-grey border-dark rounded-3 shadow-sm inventory-contact-map-btn">
+    <a href="@profileDirectionsUrl" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-gradient-grey border-dark rounded-3 shadow-sm inventory-contact-map-btn">
         <i class="bi bi-map"></i> <strong> Map </strong>
     </a>
 </div>
@@ -963,7 +967,7 @@
             <div class="modal-header">
                 <span class="gtx-modal-title-icon" aria-hidden="true"><i class="bi bi-columns-gap"></i></span>
                 <div class="vehicle-comparison-modal-header-copy">
-                    <div class="vehicle-comparison-modal-kicker">GTX vehicle comparison</div>
+                    <div class="vehicle-comparison-modal-kicker">@siteProfile.CompanyName vehicle comparison</div>
                     <h4 class="modal-title" id="vehicleComparisonModalTitle">DataOne Specifications</h4>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

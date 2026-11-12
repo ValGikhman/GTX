@@ -271,20 +271,46 @@ namespace GTX.Helpers {
     }
     public static class I18n
     {
+        private static readonly System.Text.RegularExpressions.Regex ProfileTokens =
+            new System.Text.RegularExpressions.Regex(@"\[\[(CompanyName|FullAddress|StreetAddress|City|State|Phone|Email)\]\]",
+                System.Text.RegularExpressions.RegexOptions.Compiled);
+
         // Returns a STRING (safe for ActionLink, attributes, etc.)
         public static string R(string key)
         {
-            var v = HttpContext.GetGlobalResourceObject("Site", key);
-            return (v ?? key).ToString();
+            return ResolveProfileTokens(ResourceString(key));
         }
 
         // ✅ Format a resource string using current culture
         public static string F(string key, params object[] args)
         {
-            var template = R(key);
-
             // Ensure numbers/dates format correctly per current culture
-            return string.Format(CultureInfo.CurrentUICulture, template, args);
+            // Resolve profile data after formatting so braces in company names remain literal.
+            return ResolveProfileTokens(string.Format(CultureInfo.CurrentUICulture, ResourceString(key), args));
+        }
+
+        private static string ResourceString(string key)
+        {
+            var value = HttpContext.GetGlobalResourceObject("Site", key);
+            return (value ?? key).ToString();
+        }
+
+        private static string ResolveProfileTokens(string value)
+        {
+            if (!ProfileTokens.IsMatch(value)) return value;
+            var profile = global::GTX.SiteProfileStore.Current;
+            return ProfileTokens.Replace(value, match => {
+                switch (match.Groups[1].Value) {
+                    case "CompanyName": return profile.CompanyName;
+                    case "FullAddress": return profile.FullAddress;
+                    case "StreetAddress": return profile.StreetAddress;
+                    case "City": return profile.City;
+                    case "State": return profile.State;
+                    case "Phone": return profile.Phone;
+                    case "Email": return profile.Email;
+                    default: return match.Value;
+                }
+            });
         }
 
         // Optional: current language for quick branching

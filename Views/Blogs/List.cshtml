@@ -1,6 +1,7 @@
 @model IEnumerable<GTX.Models.BlogPostModel>
 
 @{
+    var siteProfile = GTX.SiteProfileStore.Current;
     ViewBag.Title = "Blog";
     var posts = Model == null
         ? new System.Collections.Generic.List<GTX.Models.BlogPostModel>()
@@ -51,7 +52,7 @@
                 @for (var index = 0; index < posts.Count; index++)
                 {
                     var post = posts[index];
-                    var safeAuthor = string.IsNullOrWhiteSpace(post.Author) ? "GTX Staff" : post.Author;
+                    var safeAuthor = string.IsNullOrWhiteSpace(post.Author) ? siteProfile.CompanyName + " Staff" : post.Author;
                     var safeTitle = string.IsNullOrWhiteSpace(post.Title) ? "Untitled story" : post.Title;
                     var preview = Truncate(StripHtml(post.Content), index == 0 ? 280 : 175);
                     var safeMediaUrl = SecuritySanitizer.SanitizeHttpOrRelativeUrl(post.MediaURL);

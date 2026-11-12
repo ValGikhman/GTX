@@ -21,6 +21,10 @@ namespace GTX.Models {
         public int To { get; set; }
 
         public string Description { get; set; }
+        public TimeSpan? OpenTime { get; set; }
+        public TimeSpan? CloseTime { get; set; }
+        public bool IsOpenAt(DateTime localNow) => OpenTime.HasValue && CloseTime.HasValue
+            && localNow.TimeOfDay >= OpenTime.Value && localNow.TimeOfDay < CloseTime.Value;
     }
 
     public class Inventory {

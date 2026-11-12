@@ -10,7 +10,7 @@ public static class Constants {
     public const string SESSION_RESPONSIBILITY = "SessionRESPONSIBILITY";
     public const string SESSION_MAJORDOME = "SessionMAJORDOME";
 
-    public const int DOCUMENTARY_FEE = 398;
+    public static int DOCUMENTARY_FEE => GTX.SiteProfileStore.Current.DocumentaryFee;
 
 
     // Cache keys - you can include tenant/store id etc. if needed

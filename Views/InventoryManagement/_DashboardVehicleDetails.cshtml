@@ -2,6 +2,7 @@
 @model GTX.Models.BaseModel
 
 @{
+    var siteProfile = GTX.SiteProfileStore.Current;
     var vehicle = Model != null && Model.CurrentVehicle != null ? Model.CurrentVehicle.VehicleDetails : null;
     var hasImages = vehicle != null && vehicle.Images != null && vehicle.Images.Any();
 }
@@ -45,7 +46,7 @@ else
                     {
                         <div class="d-flex justify-content-center text-uppercase p-5 text-center">
                             <h6>
-                                <img class="img-fluid d-block mx-auto" width="85" src="@SiteImageUrl.Build("brand-thumbnail.png")" alt="GTX Autogroup">
+                                <img class="img-fluid d-block mx-auto" width="85" src="@SiteImageUrl.Build("brand-thumbnail.png")" alt="@siteProfile.CompanyName">
                                 <br />
                                 is still working on images
                             </h6>

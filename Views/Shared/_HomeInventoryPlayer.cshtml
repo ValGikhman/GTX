@@ -4,6 +4,7 @@
 @using System.Linq
 
 @{
+    var siteProfile = GTX.SiteProfileStore.Current;
     Func<GTX.Models.GTX, DateTime> inventoryDate = vehicle =>
     {
         DateTime parsed;
@@ -97,7 +98,7 @@
                                     <h2>@vehicle.Year @vehicle.Make @vehicle.Model</h2>
                                     <p>@(string.IsNullOrWhiteSpace(vehicle.VehicleStyle) ? I18n.R("Home_AvailableNow") : vehicle.VehicleStyle)</p>
                                 </a>
-                                <a class="home-inventory-offer home-inventory-call" href="tel:+15134892886" aria-label="@I18n.F("Home_CallVehiclePrice", title)">
+                                <a class="home-inventory-offer home-inventory-call" href="@siteProfile.PhoneUri" aria-label="@I18n.F("Home_CallVehiclePrice", title)">
                                     <i class="bi bi-telephone-fill" aria-hidden="true"></i>
                                     <span><small>@I18n.R("Home_Pricing")</small><strong>@I18n.R("Home_CallForPrice")</strong></span>
                                 </a>

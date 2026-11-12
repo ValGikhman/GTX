@@ -1,15 +1,59 @@
 using GTX.Common;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
 namespace GTX.Controllers {
     public partial class MajordomeController {
+        [HttpPost, ValidateAntiForgeryToken, AsyncTimeout(45000)]
+        public async Task<ActionResult> AppraisalDecodeVehicle(string vin) {
+            Response.Cache.SetNoStore();
+            if (!CanUseAppraisal()) return AppraisalJson(403, new { message = "Sign in with a role that has Appraisal access." });
+            var normalizedVin = (vin ?? "").Trim().ToUpperInvariant();
+            if (!Regex.IsMatch(normalizedVin, "^[A-HJ-NPR-Z0-9]{17}$"))
+                return AppraisalJson(400, new { message = "Enter a valid 17-character VIN." });
+
+            var key = ConfigurationManager.AppSettings["AutoDealer:ApiKey"]?.Trim();
+            if (string.IsNullOrWhiteSpace(key)) key = "ad_live_demo.keysecret";
+            try {
+                using (var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
+                using (var request = new HttpRequestMessage(HttpMethod.Get,
+                    "https://autodealer.dev/api/service/vin/" + Uri.EscapeDataString(normalizedVin) + "/json")) {
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", key);
+                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    using (var response = await AppraisalClient.SendAsync(request, timeout.Token)) {
+                        if ((int)response.StatusCode == 429)
+                            return AppraisalJson(429, new { message = "The VIN decoding limit has been reached. Try again later." });
+                        if (!response.IsSuccessStatusCode)
+                            return AppraisalJson(502, new { message = "The VIN decoding service could not complete the request." });
+                        var decoded = JObject.Parse(await response.Content.ReadAsStringAsync());
+                        try {
+                            return AppraisalJson(200, new { vehicle = AppraisalVehicleIdentity.FromAutoDealerJson(normalizedVin, decoded) });
+                        }
+                        catch (InvalidOperationException) {
+                            return AppraisalJson(422, new { message = "The VIN decoder did not identify a single vehicle. Try again or check the VIN." });
+                        }
+                    }
+                }
+            }
+            catch (OperationCanceledException) {
+                return AppraisalJson(504, new { message = "VIN decoding timed out. Please try again." });
+            }
+            catch (Exception ex) when (ex is HttpRequestException || ex is JsonException) {
+                return AppraisalJson(502, new { message = "The VIN decoding service is temporarily unavailable." });
+            }
+        }
+
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult AppraisalParseFile(HttpPostedFileBase file) {
             if (!CanUseAppraisal()) return new HttpStatusCodeResult(403);

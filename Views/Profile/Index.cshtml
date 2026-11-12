@@ -1,0 +1,147 @@
+@model GTX.Models.SiteProfileModel
+@{
+    ViewBag.Title = "Profile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var savedProfile = global::GTX.SiteProfileStore.Current;
+}
+<link href="@Url.Content("~/Content/profile.css")?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/profile.css")).Ticks)" rel="stylesheet" />
+@Html.Partial("_MarketingHero", null, new ViewDataDictionary {
+    { "Kicker", "Majordome" }, { "Title", "Company" }, { "Accent", "Profile" },
+    { "Description", "Your business details and research defaults, in one place." },
+    { "Word", "PROFILE" }, { "Icon", "bi-building-gear" }
+})
+<main id="profilePage" class="container-fluid p-3">
+    @using (Html.BeginForm("Index", "Profile", FormMethod.Post, new { @class = "profile-form" })) {
+        @Html.AntiForgeryToken()
+        if (TempData["ProfileSaved"] as bool? == true) {
+            <div class="alert alert-success d-flex align-items-center gap-2" role="status"><i class="bi bi-check-circle-fill" aria-hidden="true"></i>Profile saved.</div>
+        }
+        if (!ViewData.ModelState.IsValid) {
+            @Html.ValidationSummary(false, "Please check the profile details.", new { @class = "alert alert-danger", role = "alert" })
+        }
+        <div class="row g-3">
+            <section class="col-12 col-lg-4" aria-labelledby="profileCompanyHeading">
+                <div class="profile-card h-100">
+                    <div class="profile-card-header"><span class="profile-heading-icon" aria-hidden="true"><i class="bi bi-building"></i></span><h2 id="profileCompanyHeading">Company &amp; contact</h2></div>
+                    <div class="profile-card-body">
+                        <div class="mb-2">
+                            <label class="form-label" for="CompanyName"><i class="bi bi-building me-1" aria-hidden="true"></i>Company name</label>
+                            @Html.TextBoxFor(m => m.CompanyName, new { @class = "form-control shadow-sm", maxlength = "120", required = "required", autocomplete = "organization" })
+                            @Html.ValidationMessageFor(m => m.CompanyName, "", new { @class = "text-danger small" })
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label" for="Email"><i class="bi bi-envelope me-1" aria-hidden="true"></i>Email</label>
+                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control shadow-sm", type = "email", maxlength = "254", required = "required", autocomplete = "email" })
+                            @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger small" })
+                        </div>
+                        <div>
+                            <label class="form-label" for="Phone"><i class="bi bi-telephone me-1" aria-hidden="true"></i>Phone</label>
+                            @Html.TextBoxFor(m => m.Phone, new { @class = "form-control shadow-sm", type = "tel", maxlength = "30", required = "required", autocomplete = "tel" })
+                            @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger small" })
+                        </div>
+                        <div class="mt-2">
+                            <label class="form-label" for="DocumentaryFee"><i class="bi bi-receipt me-1" aria-hidden="true"></i>Documentary fee (USD)</label>
+                            <div class="input-group shadow-sm"><span class="input-group-text" aria-hidden="true">$</span>@Html.TextBoxFor(m => m.DocumentaryFee, new { @class = "form-control", type = "number", min = "0", max = "10000", step = "1", inputmode = "numeric", required = "required" })</div>
+                            @Html.ValidationMessageFor(m => m.DocumentaryFee, "", new { @class = "text-danger small" })
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="col-12 col-lg-4" aria-labelledby="profileLocationHeading">
+                <div class="profile-card h-100">
+                    <div class="profile-card-header"><span class="profile-heading-icon" aria-hidden="true"><i class="bi bi-geo-alt"></i></span><h2 id="profileLocationHeading">Location &amp; research</h2></div>
+                    <div class="profile-card-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label" for="StreetAddress"><i class="bi bi-geo-alt-fill me-1" aria-hidden="true"></i>Street address</label>
+                                @Html.TextBoxFor(m => m.StreetAddress, new { @class = "form-control shadow-sm", maxlength = "160", required = "required", autocomplete = "address-line1" })
+                                @Html.ValidationMessageFor(m => m.StreetAddress, "", new { @class = "text-danger small" })
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label" for="AddressLine2"><i class="bi bi-door-open me-1" aria-hidden="true"></i>Suite / address line 2 <span class="profile-optional">(optional)</span></label>
+                                @Html.TextBoxFor(m => m.AddressLine2, new { @class = "form-control shadow-sm", maxlength = "120", autocomplete = "address-line2" })
+                                @Html.ValidationMessageFor(m => m.AddressLine2, "", new { @class = "text-danger small" })
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <label class="form-label" for="City"><i class="bi bi-buildings me-1" aria-hidden="true"></i>City</label>
+                                @Html.TextBoxFor(m => m.City, new { @class = "form-control shadow-sm", maxlength = "80", required = "required", autocomplete = "address-level2" })
+                                @Html.ValidationMessageFor(m => m.City, "", new { @class = "text-danger small" })
+                            </div>
+                            <div class="col-4 col-sm-2">
+                                <label class="form-label" for="State">State</label>
+                                @Html.TextBoxFor(m => m.State, new { @class = "form-control shadow-sm text-uppercase", minlength = "2", maxlength = "2", pattern = "[A-Za-z]{2}", required = "required", autocomplete = "address-level1" })
+                                @Html.ValidationMessageFor(m => m.State, "", new { @class = "text-danger small" })
+                            </div>
+                            <div class="col-8 col-sm-4">
+                                <label class="form-label" for="ZipCode">ZIP code</label>
+                                @Html.TextBoxFor(m => m.ZipCode, new { @class = "form-control shadow-sm", minlength = "5", maxlength = "5", pattern = "[0-9]{5}", inputmode = "numeric", required = "required", autocomplete = "postal-code" })
+                                @Html.ValidationMessageFor(m => m.ZipCode, "", new { @class = "text-danger small" })
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <label class="form-label" for="ResearchRadiusMiles"><i class="bi bi-bullseye me-1" aria-hidden="true"></i>Research radius (mi)</label>
+                                @Html.TextBoxFor(m => m.ResearchRadiusMiles, new { @class = "form-control shadow-sm", type = "number", min = "1", max = "500", step = "1", inputmode = "numeric", required = "required" })
+                                @Html.ValidationMessageFor(m => m.ResearchRadiusMiles, "", new { @class = "text-danger small" })
+                            </div>
+                        </div>
+                        <details class="profile-map mt-2">
+                            <summary><i class="bi bi-pin-map me-1" aria-hidden="true"></i>Map coordinates</summary>
+                            <dl class="row g-2 mt-2 mb-0 profile-coordinates">
+                                <div class="col-12 col-sm-6">
+                                    <dt><i class="bi bi-pin-map me-1" aria-hidden="true"></i>Latitude</dt>
+                                    <dd>@(savedProfile.Latitude.HasValue ? savedProfile.Latitude.Value.ToString("0.############", System.Globalization.CultureInfo.InvariantCulture) : "Not set")</dd>
+                                </div>
+                                <div class="col-12 col-sm-6">
+                                    <dt><i class="bi bi-compass me-1" aria-hidden="true"></i>Longitude</dt>
+                                    <dd>@(savedProfile.Longitude.HasValue ? savedProfile.Longitude.Value.ToString("0.############", System.Globalization.CultureInfo.InvariantCulture) : "Not set")</dd>
+                                </div>
+                            </dl>
+                        </details>
+                    </div>
+                </div>
+            </section>
+            <section class="col-12 col-lg-4" aria-labelledby="profileHoursHeading">
+                <div class="profile-card h-100">
+                    <div class="profile-card-header"><span class="profile-heading-icon" aria-hidden="true"><i class="bi bi-clock"></i></span><h2 id="profileHoursHeading">Business hours</h2></div>
+                    <div class="profile-card-body">
+                        @if (Model.BusinessHours != null && Model.BusinessHours.Count > 0) {
+                            <div class="table-responsive">
+                                <table class="table table-sm align-middle profile-hours mb-0">
+                                    <thead><tr><th scope="col"><i class="bi bi-calendar-week me-1" aria-hidden="true"></i>Day</th><th scope="col"><i class="bi bi-sunrise me-1" aria-hidden="true"></i>Opens</th><th scope="col"><i class="bi bi-sunset me-1" aria-hidden="true"></i>Closes</th><th scope="col" class="text-center"><i class="bi bi-lock me-1" aria-hidden="true"></i>Closed</th></tr></thead>
+                                    <tbody>
+                                        @for (var i = 0; i < Model.BusinessHours.Count; i++) {
+                                            var hours = Model.BusinessHours[i];
+                                            if (hours == null) { continue; }
+                                            var day = hours.DayOfWeek >= 0 && hours.DayOfWeek <= 6 ? ((System.DayOfWeek)hours.DayOfWeek).ToString() : "Day";
+                                            <tr>
+                                                <th scope="row">@Html.HiddenFor(m => m.BusinessHours[i].DayOfWeek)<abbr title="@day" class="text-decoration-none">@day.Substring(0, 3)</abbr></th>
+                                                <td>
+                                                    <label class="visually-hidden" for="@Html.IdFor(m => m.BusinessHours[i].OpenTime)">@day opening time</label>
+                                                    @Html.TextBoxFor(m => m.BusinessHours[i].OpenTime, new { @class = "form-control", type = "time", step = "60" })
+                                                    @Html.ValidationMessageFor(m => m.BusinessHours[i].OpenTime, "", new { @class = "text-danger small" })
+                                                </td>
+                                                <td>
+                                                    <label class="visually-hidden" for="@Html.IdFor(m => m.BusinessHours[i].CloseTime)">@day closing time</label>
+                                                    @Html.TextBoxFor(m => m.BusinessHours[i].CloseTime, new { @class = "form-control", type = "time", step = "60" })
+                                                    @Html.ValidationMessageFor(m => m.BusinessHours[i].CloseTime, "", new { @class = "text-danger small" })
+                                                </td>
+                                                <td class="text-center">
+                                                    @Html.CheckBoxFor(m => m.BusinessHours[i].IsClosed, new { @class = "form-check-input" })
+                                                    <label class="visually-hidden" for="@Html.IdFor(m => m.BusinessHours[i].IsClosed)">@day closed</label>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        } else {
+                            <p class="text-danger small mb-0">Business hours could not be loaded. Reload the page and try again.</p>
+                        }
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div class="profile-actions d-flex align-items-center justify-content-end pt-2">
+            <button type="submit" class="btn btn-gradient shadow"><i class="bi bi-save me-1" aria-hidden="true"></i>Save profile</button>
+        </div>
+    }
+</main>

@@ -25,7 +25,7 @@ namespace GTX.Common {
                 if (vinColumns.Length != 1 || mileColumns.Length != 1) throw new InvalidOperationException("CSV must have one VIN column and one Miles, Mileage or Odometer column in miles. Kilometers are not converted.");
                 var vinIndex = vinColumns[0].index; var milesIndex = mileColumns[0].index;
                 Func<string[],string,string> field = (fields,name) => { var index = Array.IndexOf(headers,name); return index >= 0 && index < fields.Length ? fields[index].Trim() : ""; };
-                var runHeaders = new[] { "run", "runno", "runnumber", "line", "lineno", "linenumber" };
+                var runHeaders = new[] { "lane", "laneno", "lanenumber", "lanerun", "lanerunno", "lanerunnumber", "run", "runno", "runnumber", "line", "lineno", "linenumber" };
                 while (!parser.EndOfData) {
                     var line = parser.LineNumber;
                     if (line > 10000) throw new InvalidOperationException("CSV has too many rows. Upload a smaller watch list.");

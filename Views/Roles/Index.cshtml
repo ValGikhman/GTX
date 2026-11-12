@@ -20,7 +20,7 @@
         <div class="d-none"><table id="rolesSource"><tbody>
             @foreach (var role in Model) {
                 var roleIcon = roleIcons.ContainsKey(role.Name) ? roleIcons[role.Name] : "bi-person-circle";
-                <tr><td><div class="d-flex align-items-center gap-2 py-2"><i class="bi @roleIcon fs-4 text-primary" aria-hidden="true"></i><span class="fw-semibold">@role.Name</span></div></td><td>@string.Join(", ", GTX.Common.MajordomeMenu.Items.Where(i => role.Permissions.Contains(i.Item.ToString())).Select(i => i.Title))</td><td>
+                <tr><td><div class="d-flex align-items-center gap-2 py-2"><i class="bi @roleIcon fs-4 text-primary" aria-hidden="true"></i><span class="fw-semibold">@role.Name</span></div></td><td>@string.Join(", ", GTX.Common.MajordomeMenu.Items.Where(i => role.Name == "Owner" || role.Permissions.Contains(i.Item.ToString())).Select(i => i.Title))</td><td>
                     <div class="btn-group">
                         <button type="button" class="btn btn-gradient-grey btn-sm btn-outline-primary login-as-role text-nowrap"
                                 data-id="@role.Id" title="Log in as @role.Name" aria-label="Log in as @role.Name">
@@ -31,7 +31,12 @@
                            data-id="@role.Id" title="Edit role">
                             <i class="bi bi-pencil-square me-1"></i>
                         </a>
-                        @if (role.Name != "Owner") {
+                        @if (role.Name == "Owner") {
+                            <button type="button" class="btn btn-gradient-grey btn-sm btn-outline-danger"
+                                    disabled aria-label="Owner cannot be deleted" title="Owner cannot be deleted">
+                                <i class="bi bi-trash me-1" aria-hidden="true"></i>
+                            </button>
+                        } else {
                             <button type="button" class="btn btn-gradient-grey btn-sm btn-outline-danger delete-role"
                                     data-id="@role.Id" data-name="@role.Name" title="Delete role">
                                 <i class="bi bi-trash me-1"></i>

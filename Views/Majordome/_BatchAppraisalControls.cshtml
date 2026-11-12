@@ -36,7 +36,7 @@
         @Html.Partial("_AppraisalResearchForm", "pr")
     </div>
     <form id="pr-batch-inputs" role="tabpanel" aria-labelledby="pr-multiple-tab" hidden
-          data-parse-url="@Url.Action("AppraisalParseFile", "Majordome")" data-appraise-url="@Url.Action("AppraiseBatchVehicle", "Majordome")"
+          data-parse-url="@Url.Action("AppraisalParseFile", "Majordome")" data-appraise-url="@Url.Action("AppraiseBatchVehicle", "Majordome")" data-decode-url="@Url.Action("AppraisalDecodeVehicle", "Majordome")"
           data-cargurus-logo="@Url.Content("~/Content/images/cargurus.svg")">
         @Html.AntiForgeryToken()
         <label id="pr-pdf-drop" class="pr-pdf-drop" for="pr-pdf-file">

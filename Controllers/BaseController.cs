@@ -99,7 +99,7 @@ namespace GTX.Controllers
 
                 Model.Inventory = AppCache.GetOrCreate(Constants.INVENTORY_CACHE, () => LoadInventory(includeHiddenInventory: false, includeDataOneContent: false),  minutes: 60);
                 Model.Employers = AppCache.GetOrCreate(Constants.EMPLOYERS_CACHE, () => GetEmployers(), minutes: 60);
-                Model.OpenHours = AppCache.GetOrCreate(Constants.OPENHOURS_CACHE, () => Utility.XMLHelpers.XmlRepository.GetOpenHours(), minutes: 60);
+                Model.OpenHours = Utility.XMLHelpers.XmlRepository.GetOpenHours();
                 Model.Categories = AppCache.GetOrCreate(Constants.CATEGORIES_CACHE, () => GetCategories(), minutes: 60);
                 // Credentials are read only by SiteRoleStore.
                 var published = Model.Inventory?.Published ?? DateTime.Now;
@@ -112,7 +112,7 @@ namespace GTX.Controllers
                 var access = SiteAccess.Current(Request);
 
                 ViewBag.CurrentRole = access?.Name ?? "User";
-                ViewBag.MenuPermissions = access?.Permissions ?? new string[0];
+                ViewBag.MenuPermissions = access?.Name == "Owner" ? MajordomeMenu.Defaults("Owner") : access?.Permissions ?? new string[0];
                 Model.IsMajordome = access != null;
                 ViewBag.IsMajordome = Model.IsMajordome;
 
@@ -311,7 +311,7 @@ namespace GTX.Controllers
                 var userNow = utcNow.AddMinutes(-offset);
                 var todayName = userNow.DayOfWeek.ToString();
                 var today = Model.OpenHours?.FirstOrDefault(m => m.Day == todayName);
-                bool isOpen = today != null && userNow.Hour >= today.From && userNow.Hour <= today.To;
+                bool isOpen = today != null && today.IsOpenAt(userNow);
                 var returnValue = isOpen ? I18n.R("All_NowOpen") : I18n.R("All_Closed");
 
                 return Json(new { Now = returnValue }, JsonRequestBehavior.AllowGet);

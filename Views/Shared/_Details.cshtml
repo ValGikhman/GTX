@@ -3,6 +3,7 @@
 @model GTX.Models.BaseModel
 
 @{
+    var siteProfile = GTX.SiteProfileStore.Current;
     var vehicle = Model != null && Model.CurrentVehicle != null
         ? Model.CurrentVehicle.VehicleDetails
         : null;
@@ -75,7 +76,7 @@ else
                 <div class="gtx-overview-specs" aria-label="Vehicle specifications">
                     <div class="gtx-overview-spec">
                         <span class="gtx-overview-spec-icon"><i class="bi bi-geo-alt" aria-hidden="true"></i></span>
-                        <span><small>Location</small><strong>@(string.IsNullOrWhiteSpace(vehicle.LocationCode) ? "GTX Auto Group" : vehicle.LocationCode)</strong></span>
+                        <span><small>Location</small><strong>@(string.IsNullOrWhiteSpace(vehicle.LocationCode) ? siteProfile.CompanyName : vehicle.LocationCode)</strong></span>
                     </div>
                     <div class="gtx-overview-spec">
                         <span class="gtx-overview-spec-icon"><i class="bi bi-speedometer2" aria-hidden="true"></i></span>
