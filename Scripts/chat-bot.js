@@ -16,6 +16,10 @@
         var $leadForm = $widget.find("[data-chat-lead-form]");
         var $leadFeedback = $widget.find("[data-chat-lead-feedback]");
         var $salesperson = $leadForm.find("[name='EmployerId']");
+        var $vinReportModal = $("#gtxChatVinReportModal");
+        var $vinReportBody = $vinReportModal.find("[data-chat-vin-body]");
+        var $vinReportTitle = $vinReportModal.find("[data-chat-vin-title]");
+        var vinReportReturnFocus = null;
         var chatStorageKey = "gtx-chat-session-v1";
         var requestHistoryStorageKey = "gtx-chat-request-history-v1";
         var chatStorageLifetime = 60 * 60 * 1000;
@@ -625,9 +629,48 @@
             }
         }
 
-        function addMessage(role, text, extraClass, vehicles, totalMatches, persist, inventoryUrl, marketReply) {
+        function openVinReport(report, trigger) {
+            var modalElement = $vinReportModal.get(0);
+            if (!modalElement || !window.bootstrap || !window.bootstrap.Modal
+                || !window.gtxSecurity || typeof window.gtxSecurity.setSafeHtml !== "function") return;
+
+            $vinReportTitle.text("VIN report · " + (resultValue(report, "Vin", "vin") || "vehicle details"));
+            window.gtxSecurity.setSafeHtml($vinReportBody, resultValue(report, "Html", "html"));
+            $vinReportBody.find("details.avd-style").prop("open", true);
+            vinReportReturnFocus = trigger;
+            var $previousBackdrops = $(".modal-backdrop");
+            window.bootstrap.Modal.getOrCreateInstance(modalElement).show(trigger);
+            $(".modal-backdrop").not($previousBackdrops).addClass("gtx-chat-vin-backdrop");
+        }
+
+        function clearVinReport() {
+            $vinReportBody.empty();
+            $vinReportTitle.text("VIN report");
+            var trigger = vinReportReturnFocus;
+            vinReportReturnFocus = null;
+            if (trigger && document.documentElement.contains(trigger)) trigger.focus();
+        }
+
+        function appendVinDecode($container, text, report) {
+            $container.addClass("has-vin-decode");
+            appendAssistantText($container, text);
+            $("<button>", {
+                type: "button",
+                "class": "btn btn-outline-primary btn-sm gtx-chat-vin-open",
+                text: "View VIN report",
+                "aria-haspopup": "dialog",
+                "aria-controls": "gtxChatVinReportModal"
+            }).on("click", function () {
+                openVinReport(report, this);
+            }).appendTo($container);
+        }
+
+        function addMessage(role, text, extraClass, vehicles, totalMatches, persist, inventoryUrl, marketReply, vinDecode) {
             var $item = $("<div>", { "class": "gtx-chat-message is-" + role + (extraClass ? " " + extraClass : "") });
-            if (role === "assistant" && marketReply && marketReply.Title) {
+            var reportHtml = resultValue(vinDecode, "Html", "html");
+            if (role === "assistant" && typeof reportHtml === "string" && $.trim(reportHtml)) {
+                appendVinDecode($item, text, vinDecode);
+            } else if (role === "assistant" && marketReply && marketReply.Title) {
                 appendMarketReply($item, marketReply);
             } else if (role === "assistant" && vehicles && vehicles.length) {
                 appendStructuredVehicles($item, text, vehicles, totalMatches, inventoryUrl);
@@ -644,7 +687,7 @@
             }
             $messages.append($item);
             scrollMessages();
-            if (persist !== false && extraClass !== "is-thinking") {
+            if (persist !== false && extraClass !== "is-thinking" && !vinDecode) {
                 conversation.push({
                     role: role,
                     text: String(text || ""),
@@ -959,7 +1002,8 @@
 
                 var privateReply = data && (data.PrivateReply || data.privateReply);
                 var marketReply = data && data.MarketReply;
-                addMessage("assistant", reply || "I could not prepare an answer. Please try again.", "", vehicles, totalMatches, !privateReply, inventoryUrl, marketReply);
+                var vinDecode = data && (data.VinDecode || data.vinDecode);
+                addMessage("assistant", reply || "I could not prepare an answer. Please try again.", "", vehicles, totalMatches, !privateReply, inventoryUrl, marketReply, vinDecode);
             }).fail(function (xhr) {
                 $thinking.remove();
                 if (responseId && xhr && xhr.status === 502) responseId = null;
@@ -974,6 +1018,11 @@
         }
 
         function resetChat() {
+            vinReportReturnFocus = null;
+            var reportModal = window.bootstrap && window.bootstrap.Modal
+                && window.bootstrap.Modal.getInstance($vinReportModal.get(0));
+            if (reportModal) reportModal.hide();
+            clearVinReport();
             closeCommandGuide(false);
             responseId = null;
             conversation = [];
@@ -1091,6 +1140,7 @@
             $leadForm.find("[name='FirstName']").trigger("focus");
         }
 
+        $vinReportModal.on("hidden.bs.modal", clearVinReport);
         $launcher.on("click", openChat);
         $widget.on("click", "[data-chat-close]", closeChat);
         $widget.on("click", "[data-chat-help]", function () {

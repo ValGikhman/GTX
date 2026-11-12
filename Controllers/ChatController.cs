@@ -161,6 +161,9 @@ namespace GTX.Controllers
 
             try
             {
+                if (TryParseVinDecodeCommand(message, out var decodeVin))
+                    return await DecodeVinCommandAsync(decodeVin, progressId);
+
                 var commandNavigation = ResolveCommandNavigation(message, currentRole);
                 if (commandNavigation != null)
                 {

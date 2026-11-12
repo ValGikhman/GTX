@@ -1,6 +1,7 @@
 @model bool
 @{
     var carGurusEnabled = Model && string.Equals(System.Configuration.ConfigurationManager.AppSettings["CarGurus:Enabled"]?.Trim(), "true", StringComparison.OrdinalIgnoreCase);
+    var canDecodeVin = GTX.Common.SiteAccess.Can(GTX.Common.SiteAccess.Current(ViewContext.HttpContext.Request), GTX.Common.MajordomeItem.VinDecoder);
 }
 
 <section id="gtxChatCommandGuide"
@@ -260,6 +261,16 @@
         </h3>
 
         <div id="gtxChatDataOneExamples" hidden>
+            @if (canDecodeVin)
+            {
+                <div class="gtx-chat-command-guide-item">
+                    <button type="button" data-chat-prompt="Decode VIN# ZASPAKBN9P7D56780">
+                        &quot;Decode VIN# ZASPAKBN9P7D56780&quot;
+                    </button>
+                    <span><i class="bi bi-upc-scan" aria-hidden="true"></i> Opens the AutoDealer VIN report in a popup. Replace the example with any 17-character VIN.</span>
+                </div>
+            }
+
             <div class="gtx-chat-command-guide-note">
                 <i class="bi bi-info-circle" aria-hidden="true"></i>
                 <div>When DataOne details are available, you can search by <strong>doors, horsepower, city or highway MPG, seating capacity, and standard equipment</strong>.</div>

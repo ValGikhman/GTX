@@ -35,10 +35,17 @@ namespace GTX.Models
         public string ResponseId { get; set; }
         public bool PrivateReply { get; set; }
         public ChatMarketReply MarketReply { get; set; }
+        public ChatVinDecodeResult VinDecode { get; set; }
         public int? TotalVehicleMatches { get; set; }
         public string InventoryUrl { get; set; }
         public ChatVehicleResult[] Vehicles { get; set; }
         public ChatNavigationResult Navigation { get; set; }
+    }
+
+    public sealed class ChatVinDecodeResult
+    {
+        public string Vin { get; set; }
+        public string Html { get; set; }
     }
 
     public sealed class ChatMarketReply
