@@ -1,3 +1,9 @@
+@model bool
+@{
+    var carGurusEnabled = Model && GTX.Common.ServiceConfiguration.Enabled("CarGurus:Enabled");
+    var canDecodeVin = GTX.Common.SiteAccess.Can(GTX.Common.SiteAccess.Current(ViewContext.HttpContext.Request), GTX.Common.MajordomeItem.VinDecoder);
+}
+
 <section id="gtxChatCommandGuide"
          class="gtx-chat-command-guide"
          aria-label="Chat command guide"
@@ -19,221 +25,414 @@
             <div><strong>Ask</strong> what is available to see cards here. Use <strong>Open</strong> or <strong>Take me to</strong> when you want to visit a page.</div>
         </div>
 
+        @if (Model)
+        {
+            var marketExamples = new[]
+            {
+                new {
+                    Prompt = "Appraise VIN 4T1BE46K19U342407 with 73,929 miles for auction",
+                    Detail = "MC shows the MarketCheck retail estimate and supplies the default resale assumption for the bid ceiling. You can enter your own resale price.",
+                    Icon = "bi-calculator"
+                },
+                new {
+                    Prompt = "Appraise VIN 4T1BE46K19U342407 with 73,929 miles",
+                    Detail = "Gets the MarketCheck suggested retail price. Use View on the result to open Appraisal with the details filled in.",
+                    Icon = "bi-currency-dollar"
+                },
+                new {
+                    Prompt = "What is the MarketCheck suggested retail price for VIN 4T1BE46K19U342407 with 85,000 miles in ZIP 45202?",
+                    Detail = "Gets a retail estimate for a specific odometer reading and ZIP code.",
+                    Icon = "bi-geo-alt"
+                },
+                new {
+                    Prompt = "Appraise VIN WAUFFAFL3BN022447 for auction",
+                    Detail = "Shows the maximum hammer bid, profit estimate, and nearby comparable asking prices. The result identifies assumed mileage when you omit it.",
+                    Icon = "bi-calculator"
+                },
+                new {
+                    Prompt = "Appraise VIN 4T1BE46K19U342407 with 73,929 miles for auction within 75 miles of ZIP 45040",
+                    Detail = "Sets the search area for the auction appraisal's comparable listings.",
+                    Icon = "bi-pin-map"
+                },
+                new {
+                    Prompt = "Appraise VIN 4T1BE46K19U342407 with 73,929 miles for auction. Assume a $9,500 resale price and a $6,000 current hammer bid.",
+                    Detail = "Shows your bid ceiling and estimated profit at the bid you entered.",
+                    Icon = "bi-cash-coin"
+                },
+                new {
+                    Prompt = "How many active used listings match VIN 4T1BE46K19U342407 around 100,000 odometer miles within 100 miles of ZIP 45040?",
+                    Detail = "Decodes the VIN, counts active matches, and shows dealers and their asking prices when available.",
+                    Icon = "bi-list-ol"
+                },
+                new {
+                    Prompt = "List dealers with a 2017 Acura MDX Advance Package around 100,000 miles",
+                    Detail = "Shows current and recent dealers, asking prices, and mileage for the specified trim.",
+                    Icon = "bi-building"
+                },
+                new {
+                    Prompt = "Check market for VIN 4T1BE46K19U342407 around 75,000 miles within 50 miles of ZIP 45202",
+                    Detail = "Finds current and recent matches by VIN with a custom mileage target, ZIP, and radius.",
+                    Icon = "bi-search"
+                },
+                new {
+                    Prompt = "Look at market for a 2017 Acura MDX around 100,000 miles within 150 miles of ZIP 45040",
+                    Detail = "Searches across trims. Current listings use the requested radius and recent listings use up to 100 miles.",
+                    Icon = "bi-compass"
+                },
+                new {
+                    Prompt = "List market for 2017 Acura MDX Advance Package",
+                    Detail = "Uses the configured ZIP, radius, and mileage defaults. You can also start with “see in market.”",
+                    Icon = "bi-sliders"
+                }
+            };
+
+            <h3 class="gtx-chat-command-guide-group">
+                <button type="button" data-chat-guide-toggle aria-expanded="false" aria-controls="gtxChatMarketCheckExamples">
+                    <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>
+                    <span>MarketCheck</span>
+                    <i class="bi bi-chevron-down gtx-chat-guide-chevron" aria-hidden="true"></i>
+                </button>
+            </h3>
+
+            <div id="gtxChatMarketCheckExamples" hidden>
+                <div class="gtx-chat-command-guide-note">
+                    <i class="bi bi-info-circle" aria-hidden="true"></i>
+                    <div><strong>Current</strong> shows active listings. <strong>Recent</strong> shows listings seen in the past 90 days. Prices are asking prices. Dealer searches and listing counts use a window of 10,000 miles on either side of your odometer target.</div>
+                </div>
+
+                @foreach (var example in marketExamples)
+                {
+                    <div class="gtx-chat-command-guide-item">
+                        <button type="button" data-chat-prompt="@example.Prompt">&quot;@example.Prompt&quot;</button>
+                        <span><i class="bi @example.Icon" aria-hidden="true"></i> @example.Detail</span>
+                    </div>
+                }
+            </div>
+        }
+
+        @if (carGurusEnabled)
+        {
+            var carGurusExamples = new[]
+            {
+                new {
+                    Prompt = "Check CarGurus for a 2022 BMW X4 xDrive30i AWD",
+                    Detail = "Searches by year, make, model, and trim using the Appraisal ZIP and radius defaults.",
+                    Icon = "bi-search"
+                },
+                new {
+                    Prompt = "Check CarGurus for a 2022 BMW X4 xDrive30i AWD within 50 miles of ZIP 45040",
+                    Detail = "Requests nearby listings using the ZIP and radius you enter.",
+                    Icon = "bi-geo-alt"
+                },
+                new {
+                    Prompt = "Check CarGurus for VIN 5J8TB1H25BA008242",
+                    Detail = "Decodes the VIN and searches for comparable vehicles.",
+                    Icon = "bi-upc-scan"
+                },
+                new {
+                    Prompt = "Check CarGurus for VIN 5J8TB1H25BA008242 with less than 120,000 odometer miles within 100 miles of ZIP 45040",
+                    Detail = "Combines a VIN search with an odometer limit, ZIP, and radius.",
+                    Icon = "bi-speedometer2"
+                }
+            };
+
+            <h3 class="gtx-chat-command-guide-group">
+                <button type="button" data-chat-guide-toggle aria-expanded="false" aria-controls="gtxChatCarGurusExamples">
+                    <i class="bi bi-car-front" aria-hidden="true"></i>
+                    <span>CarGurus</span>
+                    <i class="bi bi-chevron-down gtx-chat-guide-chevron" aria-hidden="true"></i>
+                </button>
+            </h3>
+            <div id="gtxChatCarGurusExamples" hidden>
+                <div class="gtx-chat-command-guide-note">
+                    <i class="bi bi-info-circle" aria-hidden="true"></i>
+                    <div>Results show asking prices, odometer miles, and dealer distances when available. CarGurus can return listings outside the requested radius.</div>
+                </div>
+                @foreach (var example in carGurusExamples)
+                {
+                    <div class="gtx-chat-command-guide-item">
+                        <button type="button" data-chat-prompt="@example.Prompt">&quot;@example.Prompt&quot;</button>
+                        <span><i class="bi @example.Icon" aria-hidden="true"></i> @example.Detail</span>
+                    </div>
+                }
+            </div>
+        }
+
+        @if (Model)
+        {
+            var retailExamples = new[]
+            {
+                new { Prompt = "Search MarketCheck for a 2022 Honda CR-V EX within 50 miles of ZIP 45040", Detail = "Searches dealer inventory by vehicle, ZIP, and radius." },
+                new { Prompt = "Find a 2022 Toyota RAV4 XLE on CarMax under 60,000 miles", Detail = "Shows CarMax listings with an odometer limit." },
+                new { Prompt = "Find a 2021 Honda Accord Sport on Carvana under $25,000", Detail = "Shows Carvana listings with an asking-price limit." },
+                new { Prompt = "Find a used Toyota RAV4 on Cars.com under $25,000", Detail = "Shows Cars.com listings with an asking-price limit." },
+                new {
+                    Prompt = carGurusEnabled
+                        ? "Compare CarGurus, CarMax, Carvana, and Cars.com for a Toyota RAV4 under 60,000 miles"
+                        : "Compare CarMax, Carvana, and Cars.com for a Toyota RAV4 under 60,000 miles",
+                    Detail = "Compares listings across several sources."
+                }
+            };
+
+            <h3 class="gtx-chat-command-guide-group">
+                <button type="button" data-chat-guide-toggle aria-expanded="false" aria-controls="gtxChatRetailExamples">
+                    <i class="bi bi-car-front" aria-hidden="true"></i>
+                    <span>Retail inventory comparisons</span>
+                    <i class="bi bi-chevron-down gtx-chat-guide-chevron" aria-hidden="true"></i>
+                </button>
+            </h3>
+            <div id="gtxChatRetailExamples" hidden>
+                <div class="gtx-chat-command-guide-note">
+                    <i class="bi bi-info-circle" aria-hidden="true"></i>
+                    <div class="gtx-chat-guide-retail-help">
+                        <p>Name one or more sources and enter a vehicle make and model or VIN. You can add a year, trim, maximum price, or maximum odometer mileage.</p>
+                        <p>Open a source tab to view its listings. Listings are ordered by asking price, lowest first.</p>
+                        <p><span class="gtx-chat-guide-source">CarMax</span>, <span class="gtx-chat-guide-source">Carvana</span>, and <span class="gtx-chat-guide-source">Cars.com</span> listings come from <span class="gtx-chat-guide-source">MarketCheck</span> and default to nationwide inventory. Add a ZIP or radius to search locally.</p>
+                    </div>
+                </div>
+                @foreach (var example in retailExamples)
+                {
+                    <div class="gtx-chat-command-guide-item">
+                        <button type="button" data-chat-prompt="@example.Prompt">&quot;@example.Prompt&quot;</button>
+                        <span><i class="bi bi-search" aria-hidden="true"></i> @example.Detail</span>
+                    </div>
+                }
+            </div>
+        }
+
         <h3 class="gtx-chat-command-guide-group">
-            <button type="button" data-chat-guide-toggle aria-expanded="true">
+            <button type="button" data-chat-guide-toggle aria-expanded="false" aria-controls="gtxChatInventoryExamples">
                 <i class="bi bi-search" aria-hidden="true"></i>
                 <span>Search live inventory</span>
                 <i class="bi bi-chevron-down gtx-chat-guide-chevron" aria-hidden="true"></i>
             </button>
         </h3>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="What trucks are available?">
-                &quot;What trucks are available?&quot;
-            </button>
-            <span><i class="bi bi-truck" aria-hidden="true"></i> Shows available trucks as vehicle cards inside the chat.</span>
-        </div>
+        <div id="gtxChatInventoryExamples" hidden>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="What trucks are available?">
+                    &quot;What trucks are available?&quot;
+                </button>
+                <span><i class="bi bi-truck" aria-hidden="true"></i> Shows available trucks as vehicle cards inside the chat.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="What Honda vehicles are available under $20,000?">
-                &quot;What Honda vehicles are available under $20,000?&quot;
-            </button>
-            <span><i class="bi bi-currency-dollar" aria-hidden="true"></i> Combines make and maximum-price filters.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="What Honda vehicles are available under $20,000?">
+                    &quot;What Honda vehicles are available under $20,000?&quot;
+                </button>
+                <span><i class="bi bi-currency-dollar" aria-hidden="true"></i> Combines make and maximum-price filters.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Find vehicles with a manual transmission">
-                &quot;Find vehicles with a manual transmission&quot;
-            </button>
-            <span><i class="bi bi-gear-wide-connected" aria-hidden="true"></i> Searches manual, automatic, or CVT transmissions.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Find vehicles with a manual transmission">
+                    &quot;Find vehicles with a manual transmission&quot;
+                </button>
+                <span><i class="bi bi-gear-wide-connected" aria-hidden="true"></i> Searches manual, automatic, or CVT transmissions.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Show me red vehicles">
-                &quot;Show me red vehicles&quot;
-            </button>
-            <span><i class="bi bi-palette" aria-hidden="true"></i> Searches exterior and interior vehicle colors.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Show me red vehicles">
+                    &quot;Show me red vehicles&quot;
+                </button>
+                <span><i class="bi bi-palette" aria-hidden="true"></i> Searches exterior and interior vehicle colors.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Do you have any 6-cylinder SUVs?">
-                &quot;Do you have any 6-cylinder SUVs?&quot;
-            </button>
-            <span><i class="bi bi-sliders" aria-hidden="true"></i> Searches exact cylinder counts; requests such as V6 and V8 also work.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Do you have any 6-cylinder SUVs?">
+                    &quot;Do you have any 6-cylinder SUVs?&quot;
+                </button>
+                <span><i class="bi bi-sliders" aria-hidden="true"></i> Searches exact cylinder counts; requests such as V6 and V8 also work.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Show me red automatic vehicles with 6 cylinders under $25,000">
-                &quot;Show me red automatic vehicles with 6 cylinders under $25,000&quot;
-            </button>
-            <span><i class="bi bi-filter-circle" aria-hidden="true"></i> Combines color, transmission, cylinders, and maximum price in one search.</span>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Show me red automatic vehicles with 6 cylinders under $25,000">
+                    &quot;Show me red automatic vehicles with 6 cylinders under $25,000&quot;
+                </button>
+                <span><i class="bi bi-filter-circle" aria-hidden="true"></i> Combines color, transmission, cylinders, and maximum price in one search.</span>
+            </div>
         </div>
 
         <h3 class="gtx-chat-command-guide-group">
-            <button type="button" data-chat-guide-toggle aria-expanded="true">
+            <button type="button" data-chat-guide-toggle aria-expanded="false" aria-controls="gtxChatDataOneExamples">
                 <i class="bi bi-database-check" aria-hidden="true"></i>
                 <span>Search DataOne specifications</span>
                 <i class="bi bi-chevron-down gtx-chat-guide-chevron" aria-hidden="true"></i>
             </button>
         </h3>
 
-        <div class="gtx-chat-command-guide-note">
-            <i class="bi bi-info-circle" aria-hidden="true"></i>
-            <div>When DataOne details are available, you can search by <strong>doors, horsepower, city or highway MPG, seating capacity, and standard equipment</strong>.</div>
-        </div>
+        <div id="gtxChatDataOneExamples" hidden>
+            @if (canDecodeVin)
+            {
+                <div class="gtx-chat-command-guide-item">
+                    <button type="button" data-chat-prompt="Decode VIN# ZASPAKBN9P7D56780">
+                        &quot;Decode VIN# ZASPAKBN9P7D56780&quot;
+                    </button>
+                    <span><i class="bi bi-upc-scan" aria-hidden="true"></i> Opens the AutoDealer VIN report in a popup. Replace the example with any 17-character VIN.</span>
+                </div>
+            }
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Show me four-door vehicles with heated seats">
-                &quot;Show me four-door vehicles with heated seats&quot;
-            </button>
-            <span><i class="bi bi-car-front" aria-hidden="true"></i> Searches DataOne door and standard-equipment details when available.</span>
-        </div>
+            <div class="gtx-chat-command-guide-note">
+                <i class="bi bi-info-circle" aria-hidden="true"></i>
+                <div>When DataOne details are available, you can search by <strong>doors, horsepower, city or highway MPG, seating capacity, and standard equipment</strong>.</div>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Find two-door vehicles">
-                &quot;Find two-door vehicles&quot;
-            </button>
-            <span><i class="bi bi-door-closed" aria-hidden="true"></i> Searches for an exact DataOne door count.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Show me four-door vehicles with heated seats">
+                    &quot;Show me four-door vehicles with heated seats&quot;
+                </button>
+                <span><i class="bi bi-car-front" aria-hidden="true"></i> Searches DataOne door and standard-equipment details when available.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Show me vehicles with at least 250 horsepower">
-                &quot;Show me vehicles with at least 250 horsepower&quot;
-            </button>
-            <span><i class="bi bi-lightning-charge" aria-hidden="true"></i> Finds vehicles meeting a minimum DataOne horsepower rating.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Find two-door vehicles">
+                    &quot;Find two-door vehicles&quot;
+                </button>
+                <span><i class="bi bi-door-closed" aria-hidden="true"></i> Searches for an exact DataOne door count.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Find vehicles with at least 300 horsepower and 25 highway MPG">
-                &quot;Find vehicles with at least 300 horsepower and 25 highway MPG&quot;
-            </button>
-            <span><i class="bi bi-speedometer2" aria-hidden="true"></i> Searches DataOne horsepower and EPA mileage specifications.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Show me vehicles with at least 250 horsepower">
+                    &quot;Show me vehicles with at least 250 horsepower&quot;
+                </button>
+                <span><i class="bi bi-lightning-charge" aria-hidden="true"></i> Finds vehicles meeting a minimum DataOne horsepower rating.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Find vehicles with at least 25 city MPG">
-                &quot;Find vehicles with at least 25 city MPG&quot;
-            </button>
-            <span><i class="bi bi-buildings" aria-hidden="true"></i> Searches the minimum DataOne EPA city mileage rating.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Find vehicles with at least 300 horsepower and 25 highway MPG">
+                    &quot;Find vehicles with at least 300 horsepower and 25 highway MPG&quot;
+                </button>
+                <span><i class="bi bi-speedometer2" aria-hidden="true"></i> Searches DataOne horsepower and EPA mileage specifications.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Show me vehicles with at least 30 highway MPG">
-                &quot;Show me vehicles with at least 30 highway MPG&quot;
-            </button>
-            <span><i class="bi bi-signpost-split" aria-hidden="true"></i> Searches the minimum DataOne EPA highway mileage rating.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Find vehicles with at least 25 city MPG">
+                    &quot;Find vehicles with at least 25 city MPG&quot;
+                </button>
+                <span><i class="bi bi-buildings" aria-hidden="true"></i> Searches the minimum DataOne EPA city mileage rating.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Show me vehicles that seat at least 7 people">
-                &quot;Show me vehicles that seat at least 7 people&quot;
-            </button>
-            <span><i class="bi bi-people" aria-hidden="true"></i> Searches DataOne seating or passenger-capacity specifications.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Show me vehicles with at least 30 highway MPG">
+                    &quot;Show me vehicles with at least 30 highway MPG&quot;
+                </button>
+                <span><i class="bi bi-signpost-split" aria-hidden="true"></i> Searches the minimum DataOne EPA highway mileage rating.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Do you have vehicles with blind spot monitoring?">
-                &quot;Do you have vehicles with blind spot monitoring?&quot;
-            </button>
-            <span><i class="bi bi-shield-check" aria-hidden="true"></i> Searches verified DataOne standard safety equipment.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Show me vehicles that seat at least 7 people">
+                    &quot;Show me vehicles that seat at least 7 people&quot;
+                </button>
+                <span><i class="bi bi-people" aria-hidden="true"></i> Searches DataOne seating or passenger-capacity specifications.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Find vehicles with Apple CarPlay">
-                &quot;Find vehicles with Apple CarPlay&quot;
-            </button>
-            <span><i class="bi bi-phone" aria-hidden="true"></i> Searches verified DataOne standard technology equipment.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Do you have vehicles with blind spot monitoring?">
+                    &quot;Do you have vehicles with blind spot monitoring?&quot;
+                </button>
+                <span><i class="bi bi-shield-check" aria-hidden="true"></i> Searches verified DataOne standard safety equipment.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Show me vehicles with a sunroof and heated seats">
-                &quot;Show me vehicles with a sunroof and heated seats&quot;
-            </button>
-            <span><i class="bi bi-stars" aria-hidden="true"></i> Combines multiple DataOne standard-equipment features.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Find vehicles with Apple CarPlay">
+                    &quot;Find vehicles with Apple CarPlay&quot;
+                </button>
+                <span><i class="bi bi-phone" aria-hidden="true"></i> Searches verified DataOne standard technology equipment.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Find four-door vehicles with at least 200 horsepower and 30 highway MPG">
-                &quot;Find four-door vehicles with at least 200 horsepower and 30 highway MPG&quot;
-            </button>
-            <span><i class="bi bi-sliders2" aria-hidden="true"></i> Combines DataOne doors, horsepower, and highway MPG.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Show me vehicles with a sunroof and heated seats">
+                    &quot;Show me vehicles with a sunroof and heated seats&quot;
+                </button>
+                <span><i class="bi bi-stars" aria-hidden="true"></i> Combines multiple DataOne standard-equipment features.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-note">
-            <i class="bi bi-info-circle" aria-hidden="true"></i>
-            <div>DataOne coverage varies by vehicle. Start with <strong>Show me</strong>, <strong>Find</strong>, or <strong>Do you have</strong> to display matching cards in chat.</div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Find four-door vehicles with at least 200 horsepower and 30 highway MPG">
+                    &quot;Find four-door vehicles with at least 200 horsepower and 30 highway MPG&quot;
+                </button>
+                <span><i class="bi bi-sliders2" aria-hidden="true"></i> Combines DataOne doors, horsepower, and highway MPG.</span>
+            </div>
+
+            <div class="gtx-chat-command-guide-note">
+                <i class="bi bi-info-circle" aria-hidden="true"></i>
+                <div>DataOne coverage varies by vehicle. Start with <strong>Show me</strong>, <strong>Find</strong>, or <strong>Do you have</strong> to display matching cards in chat.</div>
+            </div>
         </div>
 
         <h3 class="gtx-chat-command-guide-group">
-            <button type="button" data-chat-guide-toggle aria-expanded="true">
+            <button type="button" data-chat-guide-toggle aria-expanded="false" aria-controls="gtxChatNavigationExamples">
                 <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>
                 <span>Open pages and filters</span>
                 <i class="bi bi-chevron-down gtx-chat-guide-chevron" aria-hidden="true"></i>
             </button>
         </h3>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Open SUV inventory under $20,000">
-                &quot;Open SUV inventory under $20,000&quot;
-            </button>
-            <span><i class="bi bi-funnel" aria-hidden="true"></i> Opens the SUV page with a maximum-price filter.</span>
-        </div>
+        <div id="gtxChatNavigationExamples" hidden>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Open SUV inventory under $20,000">
+                    &quot;Open SUV inventory under $20,000&quot;
+                </button>
+                <span><i class="bi bi-funnel" aria-hidden="true"></i> Opens the SUV page with a maximum-price filter.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Take me to the inventory for Honda under 2020">
-                &quot;Take me to the inventory for Honda under 2020&quot;
-            </button>
-            <span><i class="bi bi-calendar3" aria-hidden="true"></i> Opens Honda inventory from model year 2019 or earlier.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Take me to the inventory for Honda under 2020">
+                    &quot;Take me to the inventory for Honda under 2020&quot;
+                </button>
+                <span><i class="bi bi-calendar3" aria-hidden="true"></i> Opens Honda inventory from model year 2019 or earlier.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Clear inventory filters">
-                &quot;Clear inventory filters&quot;
-            </button>
-            <span><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Returns to the unfiltered All Inventory page.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Clear inventory filters">
+                    &quot;Clear inventory filters&quot;
+                </button>
+                <span><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Returns to the unfiltered All Inventory page.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Open this vehicle">
-                &quot;Open this vehicle&quot;
-            </button>
-            <span><i class="bi bi-arrow-right-circle" aria-hidden="true"></i> Opens the vehicle when the latest result contains one match.</span>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Open this vehicle">
+                    &quot;Open this vehicle&quot;
+                </button>
+                <span><i class="bi bi-arrow-right-circle" aria-hidden="true"></i> Opens the vehicle when the latest result contains one match.</span>
+            </div>
         </div>
 
         <h3 class="gtx-chat-command-guide-group">
-            <button type="button" data-chat-guide-toggle aria-expanded="true">
+            <button type="button" data-chat-guide-toggle aria-expanded="false" aria-controls="gtxChatDealershipExamples">
                 <i class="bi bi-building" aria-hidden="true"></i>
                 <span>Dealership help</span>
                 <i class="bi bi-chevron-down gtx-chat-guide-chevron" aria-hidden="true"></i>
             </button>
         </h3>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="What are your hours Saturday?">
-                &quot;What are your hours Saturday?&quot;
-            </button>
-            <span><i class="bi bi-clock" aria-hidden="true"></i> Checks the current dealership schedule.</span>
-        </div>
+        <div id="gtxChatDealershipExamples" hidden>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="What are your hours Saturday?">
+                    &quot;What are your hours Saturday?&quot;
+                </button>
+                <span><i class="bi bi-clock" aria-hidden="true"></i> Checks the current dealership schedule.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Take me to the financing application">
-                &quot;Take me to the financing application&quot;
-            </button>
-            <span><i class="bi bi-file-earmark-text" aria-hidden="true"></i> Opens the online financing application.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Take me to the financing application">
+                    &quot;Take me to the financing application&quot;
+                </button>
+                <span><i class="bi bi-file-earmark-text" aria-hidden="true"></i> Opens the online financing application.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-prompt="Open the staff page">
-                &quot;Open the staff page&quot;
-            </button>
-            <span><i class="bi bi-people" aria-hidden="true"></i> Opens the GTX team page.</span>
-        </div>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-prompt="Open the staff page">
+                    &quot;Open the staff page&quot;
+                </button>
+                <span><i class="bi bi-people" aria-hidden="true"></i> Opens the dealership team page.</span>
+            </div>
 
-        <div class="gtx-chat-command-guide-item">
-            <button type="button" data-chat-contact>
-                &quot;Contact sales&quot;
-            </button>
-            <span><i class="bi bi-person-lines-fill" aria-hidden="true"></i> Opens the sales contact form.</span>
+            <div class="gtx-chat-command-guide-item">
+                <button type="button" data-chat-contact>
+                    &quot;Contact sales&quot;
+                </button>
+                <span><i class="bi bi-person-lines-fill" aria-hidden="true"></i> Opens the sales contact form.</span>
+            </div>
         </div>
 
     </div>

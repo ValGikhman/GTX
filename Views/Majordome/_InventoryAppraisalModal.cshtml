@@ -1,0 +1,41 @@
+<div class="modal fade majordome-inventory-appraisal" id="majordomeInventoryAppraisalModal" tabindex="-1"
+     aria-labelledby="majordomeInventoryAppraisalTitle" aria-describedby="majordomeInventoryAppraisalDescription" aria-hidden="true"
+     data-documentary-fee="@Constants.DOCUMENTARY_FEE">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="gtx-modal-title-icon" aria-hidden="true"><i class="bi bi-graph-up-arrow"></i></span>
+                <h2 class="modal-title" id="majordomeInventoryAppraisalTitle">MarketCheck Appraisal</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="inventory-appraisal-intro">
+                    <div>
+                        <strong class="inventory-appraisal-vehicle" data-inventory-appraisal-vehicle></strong>
+                        <p class="inventory-appraisal-description" id="majordomeInventoryAppraisalDescription">Get a suggested retail price and compare dealers listing similar vehicles nearby.</p>
+                    </div>
+                    <div class="inventory-appraisal-inventory-price" data-inventory-appraisal-inventory-price hidden>
+                        <strong data-inventory-appraisal-price-amount></strong>
+                        <small>Includes documentary fee</small>
+                    </div>
+                </div>
+
+                @Html.Partial("_AppraisalResearchForm", "inventory-appraisal")
+
+                <p class="inventory-appraisal-status" data-inventory-appraisal-status role="status"></p>
+                <p class="alert alert-danger mt-3 mb-0" data-inventory-appraisal-error role="alert" hidden></p>
+
+                <div data-inventory-appraisal-result hidden>
+                    @Html.Partial("_AppraisalMarketOverview", "inventory-appraisal")
+                    @Html.Partial("_AppraisalMarketDemand", "inventory-appraisal")
+                    @Html.Partial("_AppraisalComparables", "inventory-appraisal")
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -79,13 +79,14 @@ html.theme-silver #chatCommandGridShell {
 
 .chat-command-grid { min-width: 980px; table-layout: fixed; }
 .chat-command-main-row { cursor: pointer; transition: background-color .16s ease; }
-.chat-command-grid time { display: block; color: var(--inventory-muted); font-size: .65rem; }
-.chat-command-grid code { color: #9b2454; font-size: .66rem; overflow-wrap: anywhere; }
-.chat-command-description { display: block; color: var(--inventory-muted); font-size: .68rem; line-height: 1.35; }
+.chat-command-grid time { display: block; color: var(--inventory-muted); font-size: inherit; }
+.chat-command-grid code { color: #9b2454; font-size: inherit; font-family: inherit; overflow-wrap: anywhere; }
+.chat-command-description { display: block; color: var(--inventory-muted); font-size: inherit; line-height: inherit; }
 .chat-command-phrase { display: flex; align-items: center; gap: .5rem; min-width: 0; }
 .chat-command-phrase i { color: #175cd3; }
-.chat-command-phrase strong, .chat-command-action-name { color: var(--inventory-ink); font-size: .78rem; overflow-wrap: anywhere; }
-.chat-command-role { display: inline-flex; align-items: center; gap: .3rem; padding: .26rem .48rem; border-radius: 999px; font-size: .61rem; font-weight: 800; white-space: nowrap; }
+.chat-command-phrase strong { font-weight: 600; }
+.chat-command-phrase strong, .chat-command-action-name { color: var(--inventory-ink); font-size: inherit; overflow-wrap: anywhere; }
+.chat-command-role { display: inline-flex; align-items: center; gap: .3rem; padding: .26rem .48rem; border-radius: 999px; font-size: inherit; font-weight: 600; white-space: nowrap; }
 .chat-command-role { color: #315c4a; background: #e8f6ef; }
 .chat-command-row-actions.majordome-actions { display: flex; justify-content: flex-end; gap: .25rem; }
 

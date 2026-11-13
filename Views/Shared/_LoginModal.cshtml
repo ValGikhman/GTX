@@ -210,17 +210,27 @@
                 if (res && res.ok) {
                     $("#MajordomeLink").removeClass("d-none");
                     const role = (res.role || res.Role || "user");
+                    window.gtx = window.gtx || {};
+                    window.gtx.menuPermissions = res.permissions || [];
                     setMajordomeMenu(role);
                     window.gtx = window.gtx || {};
                     window.gtx.currentRole = role;
 
                     const normalizedRole = String(role).toLowerCase();
                     const requiredRole = String(window.gtxRequiredRole || "").toLowerCase();
+                    const isAdministrator = window.gtx.menuPermissions.indexOf("Roles") >= 0
+                        && window.gtx.menuPermissions.indexOf("Profile") >= 0;
+                    const hasMenuPermission = window.gtx.menuPermissions.some(function (permission) {
+                        return String(permission).toLowerCase() === requiredRole;
+                    });
                     const hasRequiredRole = !requiredRole
-                        || (requiredRole === "owner" ? normalizedRole === "owner" : normalizedRole !== "user");
+                        || (requiredRole === "administrator" ? isAdministrator
+                            : requiredRole === "staff" || requiredRole === "owner" ? normalizedRole !== "user"
+                            : hasMenuPermission);
                     if (!hasRequiredRole) {
-                        const accessName = requiredRole === "owner" ? "Owner" : "staff";
-                        $("#loginError").removeClass("d-none").text(accessName + " access is required for that page.");
+                        $("#loginError").removeClass("d-none").text(requiredRole === "administrator"
+                            ? "Administrator access is required for that page."
+                            : "Your role does not have access to that page.");
                         $("#loginPassword").val("").trigger("focus");
                         return;
                     }

@@ -1,6 +1,7 @@
 @model IEnumerable<GTX.Models.BlogPostModel>
 
 @{
+    var siteProfile = GTX.SiteProfileStore.Current;
     ViewBag.Title = "Blog";
     var posts = Model == null
         ? new System.Collections.Generic.List<GTX.Models.BlogPostModel>()
@@ -51,25 +52,39 @@
                 @for (var index = 0; index < posts.Count; index++)
                 {
                     var post = posts[index];
-                    var safeAuthor = string.IsNullOrWhiteSpace(post.Author) ? "GTX Staff" : post.Author;
+                    var safeAuthor = string.IsNullOrWhiteSpace(post.Author) ? siteProfile.CompanyName + " Staff" : post.Author;
                     var safeTitle = string.IsNullOrWhiteSpace(post.Title) ? "Untitled story" : post.Title;
                     var preview = Truncate(StripHtml(post.Content), index == 0 ? 280 : 175);
-                    var safeMediaUrl = SecuritySanitizer.SanitizeHttpOrRelativeUrl(post.MediaURL);
-                    var hasImage = !string.IsNullOrWhiteSpace(safeMediaUrl);
+                    var safeMediaUrl = post.SafeMediaUrl;
+                    var videoContentType = post.VideoContentType;
+                    var hasVideo = !string.IsNullOrWhiteSpace(safeMediaUrl) && videoContentType != null;
+                    var hasImage = !string.IsNullOrWhiteSpace(safeMediaUrl) && !hasVideo;
                     var postUrl = Url.Action("Blog", "Blogs", new { id = post.Id });
 
                     <article class="blog-list-item">
                         <div class="blog-list-card">
-                            <a class="blog-list-media" href="@postUrl" aria-label="Read @safeTitle">
-                                @if (hasImage)
-                                {
-                                    <img src="@safeMediaUrl" alt="@safeTitle" loading="lazy" />
-                                }
-                                else
-                                {
-                                    <span class="blog-media-fallback"><i class="bi bi-newspaper" aria-hidden="true"></i></span>
-                                }
-                            </a>
+                            @if (hasVideo)
+                            {
+                                <div class="blog-list-media blog-list-media-has-video">
+                                    <video controls playsinline preload="none" aria-label="@safeTitle">
+                                        <source src="@safeMediaUrl" type="@videoContentType" />
+                                        Your browser does not support this video. <a href="@safeMediaUrl">Open video</a>.
+                                    </video>
+                                </div>
+                            }
+                            else
+                            {
+                                <a class="blog-list-media" href="@postUrl" aria-label="Read @safeTitle">
+                                    @if (hasImage)
+                                    {
+                                        <img src="@safeMediaUrl" alt="@safeTitle" loading="lazy" />
+                                    }
+                                    else
+                                    {
+                                        <span class="blog-media-fallback"><i class="bi bi-newspaper" aria-hidden="true"></i></span>
+                                    }
+                                </a>
+                            }
 
                             <div class="blog-list-body">
                                 <div class="blog-list-meta">

@@ -9,7 +9,7 @@ using System.Web.Mvc;
 
 namespace GTX.Controllers
 {
-    [RequireAdminRole(RequiredRole = CommonUnit.Roles.Owner)]
+    [RequireAdminRole]
     public sealed class ChatBotCommandsController : BaseController
     {
         private readonly IChatBotTeachingService _teachingService;
@@ -29,8 +29,10 @@ namespace GTX.Controllers
         [HttpGet]
         public ActionResult Index()
         {
+            Response.Cache.SetNoStore();
+            var revealAdministrator = SiteAccess.IsMajordome(SiteAccess.Current(Request));
             var commands = _teachingService.GetActiveLessons()
-                .Select(BuildRow)
+                .Select(lesson => BuildRow(lesson, revealAdministrator))
                 .ToList();
 
             return View(new ChatBotCommandPageModel
@@ -61,7 +63,7 @@ namespace GTX.Controllers
                     request.Phrase.Trim(),
                     normalizedPhrase,
                     request.ActionKey.Trim(),
-                    CommonUnit.Roles.Owner.ToString());
+                    SiteAccess.Current(Request).Name);
                 return Json(new { success = true, id = lesson.Id, message = "Chatbot command created." });
             }
             catch (Exception ex)
@@ -87,7 +89,7 @@ namespace GTX.Controllers
                     request.Phrase.Trim(),
                     NormalizePhrase(request.Phrase),
                     request.ActionKey.Trim(),
-                    CommonUnit.Roles.Owner.ToString());
+                    SiteAccess.Current(Request).Name);
                 return Json(new { success = true, id = lesson.Id, message = "Chatbot command updated." });
             }
             catch (KeyNotFoundException ex)
@@ -113,7 +115,7 @@ namespace GTX.Controllers
 
             try
             {
-                if (!_teachingService.DeactivateLesson(id, CommonUnit.Roles.Owner.ToString()))
+                if (!_teachingService.DeactivateLesson(id, SiteAccess.Current(Request).Name))
                 {
                     return Error("The chatbot command was not found.", 404);
                 }
@@ -127,7 +129,7 @@ namespace GTX.Controllers
             }
         }
 
-        private static ChatBotCommandRowModel BuildRow(ChatBotNavigationLesson lesson)
+        private static ChatBotCommandRowModel BuildRow(ChatBotNavigationLesson lesson, bool revealAdministrator)
         {
             var definition = ChatBotNavigationCatalog.Find(lesson.ActionKey);
 
@@ -139,7 +141,8 @@ namespace GTX.Controllers
                 ActionKey = lesson.ActionKey,
                 ActionLabel = definition == null ? "Missing Action" : definition.Label,
                 ActionDescription = definition == null ? "This action key is not present in the navigation catalog." : definition.Description,
-                CreatedByRole = lesson.CreatedByRole,
+                CreatedByRole = !revealAdministrator && MajordomeAccount.IsReservedName(lesson.CreatedByRole)
+                    ? "Administrator" : lesson.CreatedByRole,
                 UpdatedUtc = lesson.UpdatedUtc
             };
         }

@@ -1,6 +1,8 @@
 /* DataOne details partial styles */
 .gtx-dataone-style-picker {
-    display: grid;
+    /* Temporarily hide the style picker; keep the default first style selected. */
+    /* display: grid; */
+    display: none;
     grid-template-columns: auto minmax(0, 1fr);
     align-items: center;
     column-gap: .75rem;

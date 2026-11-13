@@ -64,12 +64,12 @@
                                 <td><span class="chat-command-role"><i class="bi bi-person-check" aria-hidden="true"></i>@command.CreatedByRole</span></td>
                                 <td><time datetime="@command.UpdatedUtc.ToString("O")">@command.UpdatedUtc.ToString("MMM d, yyyy")</time></td>
                                 <td>
-                                    <div class="chat-command-row-actions majordome-actions">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary" data-command-edit data-command-id="@command.Id" data-command-phrase="@command.Phrase" data-command-action="@command.ActionKey" title="Edit @command.Phrase">
-                                            <i class="bi bi-pencil-square" aria-hidden="true"></i><span class="visually-hidden">Edit</span>
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-outline-danger is-delete" data-command-delete data-command-id="@command.Id" data-command-phrase="@command.Phrase" title="Delete @command.Phrase">
-                                            <i class="bi bi-trash3" aria-hidden="true"></i><span class="visually-hidden">Delete</span>
+                                    <div class="btn-group">
+                                        <a href="@Url.Action("Edit", "ChatBotCommands", new { id = command.Id })" class="btn btn-gradient-grey btn-sm btn-outline-primary" data-command-edit data-command-id="@command.Id" data-command-phrase="@command.Phrase" data-command-action="@command.ActionKey" title="Edit @command.Phrase" aria-label="Edit @command.Phrase">
+                                            <i class="bi bi-pencil-square me-1" aria-hidden="true"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-gradient-grey btn-sm btn-outline-danger is-delete" data-command-delete data-command-id="@command.Id" data-command-phrase="@command.Phrase" title="Delete @command.Phrase">
+                                            <i class="bi bi-trash me-1" aria-hidden="true"></i><span class="visually-hidden">Delete</span>
                                         </button>
                                     </div>
                                 </td>
@@ -124,16 +124,10 @@
                                     <option value="@action.ActionKey" data-label="@action.Label" data-description="@action.Description" data-access="Public">@action.Label (@action.ActionKey)</option>
                                 }
                             </optgroup>
-                            <optgroup label="Authenticated staff">
-                                @foreach (var action in actions.Where(item => item.RequiresAuthentication && !item.OwnerOnly))
+                            <optgroup label="Staff pages">
+                                @foreach (var action in actions.Where(item => item.RequiresAuthentication))
                                 {
-                                    <option value="@action.ActionKey" data-label="@action.Label" data-description="@action.Description" data-access="Authenticated staff">@action.Label (@action.ActionKey)</option>
-                                }
-                            </optgroup>
-                            <optgroup label="Owner only">
-                                @foreach (var action in actions.Where(item => item.OwnerOnly))
-                                {
-                                    <option value="@action.ActionKey" data-label="@action.Label" data-description="@action.Description" data-access="Owner only">@action.Label (@action.ActionKey)</option>
+                                    <option value="@action.ActionKey" data-label="@action.Label" data-description="@action.Description" data-access="Menu access required">@action.Label (@action.ActionKey)</option>
                                 }
                             </optgroup>
                         </select>

@@ -1,0 +1,28 @@
+@model string
+@{
+    var prefix = Model + "-comparables";
+    var headingId = prefix + "-heading";
+    var noteId = Model + "-radius-note";
+}
+<section class="pr-grid-section" aria-labelledby="@headingId" data-appraisal-comparables hidden>
+    <header>
+        <div class="pr-heading-group">
+            <span class="pr-section-icon" aria-hidden="true"><i class="bi bi-list-columns-reverse"></i></span>
+            <div>
+                <h2 id="@headingId">Comparable vehicles</h2>
+                <small id="@(prefix + "-caption")" data-appraisal-caption aria-live="polite"></small>
+            </div>
+        </div>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+        <fieldset id="@(prefix + "-switch")" class="pr-comparables-switch" aria-label="Comparable listing period">
+            <div class="pr-comparables-options">
+                <label><input id="@(prefix + "-current")" type="radio" name="@(prefix + "-period")" value="current" data-appraisal-period checked /><span>Current</span></label>
+                <label><input id="@(prefix + "-recent")" type="radio" name="@(prefix + "-period")" value="recent" data-appraisal-period /><span>Recent</span></label>
+            </div>
+        </fieldset>
+        </div>
+    </header>
+    <p id="@(prefix + "-description")" class="pr-comparables-description" data-appraisal-description aria-live="polite"></p>
+    <div id="@(prefix + "-grid")" class="majordome-inventory-grid-style appraisal-comparables-grid" data-appraisal-grid aria-label="Current comparable vehicle listings"></div>
+    <p id="@noteId" class="research-grid-note" data-appraisal-note></p>
+</section>

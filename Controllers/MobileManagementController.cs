@@ -14,7 +14,7 @@ using System.Web.Mvc;
 namespace GTX.Controllers
 {
     // Native client API, separate from the anonymous public inventory API.
-    // Uses the existing configured Owner password and persistent, revocable opaque sessions.
+    // Uses the configured Majordome password and persistent, revocable opaque sessions.
     public sealed class MobileManagementController : Controller {
         private static readonly object LoginLock = new object();
         private readonly IInventoryService inventory;
@@ -23,9 +23,7 @@ namespace GTX.Controllers
         public sealed class LoginRequest { public string Password { get; set; } }
         public MobileManagementController() : this(new InventoryService()) { }
         public MobileManagementController(IInventoryService service) { inventory = service; }
-        private static string OwnerPassword => ConfigurationManager.AppSettings.AllKeys
-            .Where(k => string.Equals(k, "sitePassword:Owner", StringComparison.OrdinalIgnoreCase))
-            .Select(k => ConfigurationManager.AppSettings[k]).FirstOrDefault();
+        private static string MajordomePassword => Common.MajordomeAccount.Current()?.PasswordHash;
         private static string Hash(string value) {
             using (var sha = SHA256.Create()) return Convert.ToBase64String(sha.ComputeHash(Encoding.UTF8.GetBytes(value ?? "")));
         }
@@ -41,8 +39,8 @@ namespace GTX.Controllers
             Response.Cache.SetNoStore();
             Response.SuppressFormsAuthenticationRedirect = true;
             if (!string.Equals(context.ActionDescriptor.ActionName, "Login", StringComparison.OrdinalIgnoreCase)) {
-                if (!Sessions.IsValid(BearerToken, OwnerPassword)) {
-                    context.Result = Payload(new { message = "Sign in with your GTX Owner account." }, 401);
+                if (!Sessions.IsValid(BearerToken, MajordomePassword)) {
+                    context.Result = Payload(new { message = "Sign in with an administrator account." }, 401);
                 }
             }
             base.OnActionExecuting(context);
@@ -68,10 +66,10 @@ namespace GTX.Controllers
                 if (attempts.Count >= 10) return Payload(new { message = "Too many attempts. Try again in five minutes." }, 429);
                 attempts.Count++;
             }
-            var expected = OwnerPassword;
+            var expected = MajordomePassword;
             var supplied = request?.Password?.Trim();
-            if (string.IsNullOrWhiteSpace(expected) || supplied == null || supplied.Length > 512 || Hash(expected) != Hash(supplied))
-                return Payload(new { message = "Invalid Owner password." }, 401);
+            if (string.IsNullOrWhiteSpace(expected) || supplied == null || supplied.Length > 512 || !System.Web.Helpers.Crypto.VerifyHashedPassword(expected, supplied))
+                return Payload(new { message = "Invalid password." }, 401);
             var token = Sessions.Create(expected);
             HttpRuntime.Cache.Remove(key);
             return Payload(new { token });

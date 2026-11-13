@@ -1,10 +1,16 @@
 @{
+    var siteProfile = GTX.SiteProfileStore.Current;
+    var companyShortName = siteProfile.GetShortCompanyName();
+    var assistantName = string.IsNullOrEmpty(companyShortName) ? "Assistant" : companyShortName + " Assistant";
     var chatRequestToken = GTX.Controllers.ChatController.GetOrCreateRequestToken(ViewContext.HttpContext.Session);
+    var chatRole = GTX.Common.SiteAccess.Current(ViewContext.HttpContext.Request);
+    var canAppraise = GTX.Common.SiteAccess.Can(chatRole, GTX.Common.MajordomeItem.Appraisal);
 }
 <div id="gtxChatWidget"
      class="gtx-chat"
      data-greeting-url="@Url.Action("Greeting", "Chat")"
      data-message-url="@Url.Action("Message", "Chat")"
+     data-market-progress-url="@(canAppraise ? Url.Action("Market", "ChatProgress") : null)"
      data-lead-url="@Url.Action("SubmitLead", "Chat")"
      data-salespeople-url="@Url.Action("Salespeople", "Chat")"
      data-home-url="@Url.Action("Index", "Home")"
@@ -35,11 +41,11 @@
         <span>@I18n.R("Chat_AskGtx")</span>
     </button>
 
-    <section id="gtxChatPanel" class="gtx-chat-panel" aria-label="GTX Auto Assistant" hidden>
+    <section id="gtxChatPanel" class="gtx-chat-panel" aria-label="@assistantName" hidden>
         <header class="gtx-chat-header" tabindex="0" aria-label="Move chat: drag to a corner or use Alt + arrow keys" title="Drag to a corner. Alt + arrow keys to move.">
             <div class="gtx-chat-avatar" aria-hidden="true"><i class="bi bi-stars"></i></div>
             <div class="flex-grow-1">
-                <div class="gtx-chat-title">GTX Auto Assistant <span>AI</span></div>
+                <div class="gtx-chat-title">@assistantName <span>AI</span></div>
                 <div class="gtx-chat-status"><i aria-hidden="true"></i> Ready to help</div>
             </div>
             <button type="button" class="gtx-chat-icon-button gtx-chat-guide-button" data-chat-help title="View command guide" aria-label="View command guide" aria-expanded="false" aria-controls="gtxChatCommandGuide">
@@ -53,7 +59,7 @@
             </button>
         </header>
 
-        @Html.Partial("_ChatCommandGuide")
+        @Html.Partial("_ChatCommandGuide", canAppraise)
 
         <div class="gtx-chat-messages" data-chat-messages aria-live="polite" aria-relevant="additions"></div>
 
@@ -88,7 +94,7 @@
                 </div>
                 <div class="form-check gtx-chat-consent">
                     <input class="form-check-input" type="checkbox" value="true" name="Consent" id="gtxChatConsent" required />
-                    <label class="form-check-label" for="gtxChatConsent">I agree GTX Auto Group may contact me about this request.</label>
+                    <label class="form-check-label" for="gtxChatConsent">I agree @siteProfile.CompanyName may contact me about this request.</label>
                 </div>
                 <div class="gtx-chat-lead-feedback" data-chat-lead-feedback role="status"></div>
                 <div class="gtx-chat-lead-actions">
@@ -106,10 +112,25 @@
 
         <form class="gtx-chat-compose" data-chat-form>
             <input type="hidden" name="ChatRequestToken" value="@chatRequestToken" />
-            <label class="visually-hidden" for="gtxChatMessage">Message GTX Auto Assistant</label>
+            <label class="visually-hidden" for="gtxChatMessage">Message @assistantName</label>
             <textarea id="gtxChatMessage" name="Message" maxlength="800" rows="1" placeholder="Ask about our vehicles..." required></textarea>
             <button type="submit" aria-label="Send message"><i class="bi bi-send-fill" aria-hidden="true"></i></button>
         </form>
         <div class="gtx-chat-disclaimer">AI responses may be inaccurate. Confirm price and availability with the dealership.</div>
     </section>
+</div>
+
+<div class="modal fade" id="gtxChatVinReportModal" tabindex="-1" aria-labelledby="gtxChatVinReportTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="gtxChatVinReportTitle" data-chat-vin-title>VIN report</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" data-chat-vin-body></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
 </div>

@@ -19,7 +19,7 @@
                 template: '#majordome-add-grid-expand-template'
             },
             {
-                field: 'ImageCount', title: 'Image', width: 100,
+                field: 'ImageCount', title: 'Image', width: 80,
                 filterable: false, searchable: false,
                 headerClass: 'majordome-inventory-col-image',
                 template: '#majordome-add-grid-image-template'
@@ -30,14 +30,6 @@
                 headerClass: 'majordome-inventory-col-vehicle',
                 cellClass: 'majordome-row-details',
                 template: '#majordome-add-grid-vehicle-template'
-            },
-            {
-                field: 'PurchasedDisplay', title: 'Purchased', width: 132,
-                sortField: 'PurchasedSort', filterField: 'PurchasedDisplay',
-                filterable: false,
-                headerClass: 'd-none d-lg-table-cell majordome-inventory-col-purchased',
-                cellClass: 'd-none d-lg-table-cell text-center majordome-date-cell',
-                template: '#majordome-add-grid-purchased-template'
             },
             {
                 field: 'Stock', title: 'Stock', width: 97,
@@ -169,6 +161,7 @@
             exportToPdf: false,
             groupable: false,
             alternateRows: true,
+            dblClick: function (detail) { invoke('dblClick', detail); },
             onRender: function (detail) { invoke('onRender', detail); },
             onSearchChange: function (detail) { invoke('onSearchChange', detail); },
             onFilterChange: function (detail) { invoke('onFilterChange', detail); },

@@ -59,15 +59,16 @@ namespace GTX.Controllers {
         [HttpGet]
         [Route("config")]
         public IHttpActionResult Config() {
+            var profile = global::GTX.SiteProfileStore.Current;
             var hours = Utility.XMLHelpers.XmlRepository.GetOpenHours() ?? Array.Empty<OpenHours>();
 
             return Ok(new MobileAppConfigResponse {
                 ApiVersion = "v1",
-                DealerName = "GTX Auto Group",
-                Phone = "+15134892886",
-                Address = "9516 Princeton Glendale Rd, West Chester, OH 45011",
+                DealerName = profile.CompanyName,
+                Phone = string.IsNullOrEmpty(profile.PhoneDigits) ? string.Empty : "+" + profile.PhoneDigits,
+                Address = profile.FullAddress,
                 WebsiteBaseUrl = GetBaseUrl(),
-                DirectionsUrl = "https://www.google.com/maps/search/?api=1&query=9516+Princeton+Glendale+Rd+West+Chester+OH+45011",
+                DirectionsUrl = "https://www.google.com/maps/search/?api=1&query=" + Uri.EscapeDataString(profile.FullAddress),
                 CreditApplicationUrl = BuildUrl("Home/Application"),
                 DocumentaryFee = Constants.DOCUMENTARY_FEE,
                 Hours = hours.Select(item => new MobileStoreHoursDto {
@@ -213,6 +214,7 @@ namespace GTX.Controllers {
         [Route("meta-vehicles")]
         public IHttpActionResult MetaVehicles() {
             try {
+                var profile = global::GTX.SiteProfileStore.Current;
                 var inventory = _inventoryService.GetInventory();
                 var csv = new StringBuilder();
                 var headers = new List<string> {
@@ -293,17 +295,17 @@ namespace GTX.Controllers {
                     values.Add(vehicle.VehicleStyle);
                     values.Add("AVAILABLE");
                     values.Add(Newtonsoft.Json.JsonConvert.SerializeObject(new {
-                        addr1 = "9516 Princeton Glendale Rd",
-                        city = "West Chester",
-                        region = "OH",
-                        postal_code = "45011",
+                        addr1 = profile.StreetAddress,
+                        addr2 = profile.AddressLine2,
+                        city = profile.City,
+                        region = profile.State,
+                        postal_code = profile.ZipCode,
                         country = "US"
                     }));
-                    // US Census address geocoder match for the dealership, verified 2026-09-06.
-                    values.Add(39.320130426346m);
-                    values.Add(-84.464008498772m);
-                    values.Add("GTX Auto Group");
-                    values.Add("+15134892886");
+                    values.Add(profile.Latitude);
+                    values.Add(profile.Longitude);
+                    values.Add(profile.CompanyName);
+                    values.Add(string.IsNullOrEmpty(profile.PhoneDigits) ? string.Empty : "+" + profile.PhoneDigits);
                     csv.AppendLine(string.Join(",", values.Select(Csv)));
                 }
 

@@ -2,6 +2,8 @@
 @using System.Text.RegularExpressions
 @model GTX.Models.BaseModel
 @{
+    var siteProfile = GTX.SiteProfileStore.Current;
+    var profileDirectionsUrl = "https://www.google.com/maps/search/?api=1&query=" + Uri.EscapeDataString(siteProfile.FullAddress);
     var vehicle = Model.CurrentVehicle?.VehicleDetails;
 
     string JoinClean(params string[] parts)
@@ -120,7 +122,7 @@
     </script>
 
     <!-- Title (unique + keywords) -->
-    <title>@title - VIN: @Model.CurrentVehicle.VehicleDetails.VIN for Sale in Cincinnati | Used Cars Cincinnati | GTX Auto group</title>
+    <title>@title - VIN: @Model.CurrentVehicle.VehicleDetails.VIN for Sale in Cincinnati | Used Cars Cincinnati | @siteProfile.CompanyName</title>
     <meta name="description" content="@title  @Model.CurrentVehicle.VehicleDetails.Mileage miles @Model.CurrentVehicle.VehicleDetails.Features. Clean, inspected, and ready to drive. Schedule a test drive today!" />
     <!-- Canonical URL -->
     <link rel="canonical" href="@canonicalURL" />
@@ -419,29 +421,32 @@
                     <section class="vdp-contact-intro">
                         <span class="vdp-contact-kicker">Visit the showroom</span>
                         <h2>Let&rsquo;s get you behind the wheel.</h2>
-                        <p>Call our team or stop by in West Chester. We&rsquo;ll have the vehicle ready when you arrive.</p>
+                        <p>Call our team or stop by in @siteProfile.City. We&rsquo;ll have the vehicle ready when you arrive.</p>
 
                         <div class="vdp-contact-location">
                             <span class="vdp-contact-icon" aria-hidden="true"><i class="bi bi-geo-alt-fill"></i></span>
                             <span>
-                                <small>GTX Auto Group</small>
-                                <strong>9516 Princeton Glendale Rd</strong>
-                                <span>West Chester, OH 45011</span>
+                                <small>@siteProfile.CompanyName</small>
+                                <strong>@siteProfile.StreetAddress</strong>
+                                @if (!string.IsNullOrWhiteSpace(siteProfile.AddressLine2)) {
+                                    <span>@siteProfile.AddressLine2</span>
+                                }
+                                <span>@siteProfile.City, @siteProfile.State @siteProfile.ZipCode</span>
                             </span>
                         </div>
 
                         <div class="vdp-contact-actions">
                             <a class="vdp-contact-action vdp-contact-action-primary"
-                               href="tel:+15134892886"
-                               aria-label="Call (513) 489-2886">
+                               href="@siteProfile.PhoneUri"
+                               aria-label="Call @siteProfile.Phone">
                                 <i class="bi bi-telephone-fill" aria-hidden="true"></i>
-                                <span><small>Call us now</small><strong>(513) 489-2886</strong></span>
+                                <span><small>Call us now</small><strong>@siteProfile.Phone</strong></span>
                             </a>
                             <a class="vdp-contact-action vdp-contact-action-secondary"
-                               href="https://www.google.com/maps/search/?api=1&query=9516+Princeton+Glendale+Rd%2C+West+Chester+Township%2C+OH+45011"
+                               href="@profileDirectionsUrl"
                                target="_blank"
                                rel="noopener noreferrer"
-                               aria-label="Open map to GTX Auto Group">
+                               aria-label="Open map to @siteProfile.CompanyName">
                                 <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
                                 <span><small>Plan your visit</small><strong>Open directions</strong></span>
                             </a>
@@ -639,7 +644,7 @@
 <script defer src="https://digital-retail.autodriven.com/loader.js" charset="utf-8" data-page-type="VDP" data-inventory-type="USED"></script>
 
 <div class="vdp-mobile-dock" aria-label="Vehicle actions">
-    <a href="tel:+15137712888"><i class="bi bi-telephone-fill" aria-hidden="true"></i><span>Call</span></a>
+    <a href="@siteProfile.PhoneUri"><i class="bi bi-telephone-fill" aria-hidden="true"></i><span>Call</span></a>
     <button type="button" data-vdp-trigger="#btnTestDriveForm"><i class="bi bi-calendar3" aria-hidden="true"></i><span>Test drive</span></button>
     <button type="button" data-vdp-trigger="#btnLoanApplication"><i class="bi bi-currency-dollar" aria-hidden="true"></i><span>Finance</span></button>
 </div>
@@ -686,7 +691,8 @@
     let scrollLeft = 0;
     const scrollContainer = document.getElementById('suggestionScroll');
     const detailsMobileOrderQuery = window.matchMedia('(max-width: 991.98px)');
-    const request = `Subject: Test Drive Request — ${vehicle}\n\nDear GTX Crew!\nI have an unbearable interest in test driving this ${vehicle} [${stock}].`;
+    const companyName = @Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(siteProfile.CompanyName, true));
+    const request = `Subject: Test Drive Request — ${vehicle}\n\nDear ${companyName} team!\nI have an unbearable interest in test driving this ${vehicle} [${stock}].`;
     const schedule = `I will be extremely happy to schedule the test drive for:`;
 
     $(function () {
@@ -772,9 +778,10 @@
         $("#Comment").val(request);
 
         $("#like-btn").on("click", function () {
-            var index = likedCars.indexOf(stock);
+            const likedStock = String(stock == null ? "" : stock).trim().toUpperCase();
+            var index = likedCars.indexOf(likedStock);
             if (index === -1) {
-                likedCars.push(stock);
+                likedCars.push(likedStock);
             } else {
                 likedCars.splice(index, 1);
             }

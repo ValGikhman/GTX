@@ -666,6 +666,10 @@ html.theme-metallica .inventory-dashboard {
         transition: background-color .15s;
     }
 
+    #inventoryDashboardStatusTable > tbody > tr.inventory-dashboard-main-row > td {
+        padding-block: .15rem;
+    }
+
         #inventoryDashboardStatusTable > tbody > tr.inventory-dashboard-main-row.is-expanded {
             box-shadow: inset .32rem 0 var(--dashboard-selected-accent);
         }
@@ -816,7 +820,7 @@ html.theme-metallica .inventory-dashboard {
 
 .inventory-dashboard .majordome-thumb {
     width: 64px;
-    height: 46px;
+    height: 38px;
     object-fit: cover;
     border-radius: .55rem;
     border: 1px solid rgba(15, 23, 42, .12);
@@ -867,6 +871,20 @@ html.theme-metallica .inventory-dashboard {
     letter-spacing: .01em;
 }
 
+#inventoryDashboardStatusTable .majordome-vehicle-identifiers {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+}
+
+#inventoryDashboardStatusTable .majordome-vehicle-identifiers > :last-child {
+    flex-shrink: 0;
+}
+
+#inventoryDashboardStatusTable .majordome-vehicle-identifier-label {
+    display: none;
+}
+
 @media (max-width: 767.98px) {
     .inventory-dashboard {
         padding-inline: .55rem;
@@ -897,7 +915,7 @@ html.theme-metallica .inventory-dashboard {
 
     .inventory-dashboard .majordome-thumb {
         width: 68px;
-        height: 50px;
+        height: 40px;
     }
 
     .inventory-dashboard .majordome-row-details {

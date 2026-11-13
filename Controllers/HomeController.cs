@@ -40,7 +40,7 @@ namespace GTX.Controllers
 
             SessionData.SetSession(Constants.SESSION_MAJORDOME, true);
 
-            return Json(new { ok = true, role = role.ToString(), returnUrl = Url.IsLocalUrl(returnUrl) ? returnUrl : Url.Action("Index", "Home") });
+            return Json(new { ok = true, role = Session["SiteRoleName"] as string ?? role.ToString(), permissions = Session["SiteRolePermissions"] as string[], returnUrl = Url.IsLocalUrl(returnUrl) ? returnUrl : Url.Action("Index", "Home") });
         }
 
 
@@ -59,6 +59,7 @@ namespace GTX.Controllers
 
             // 3) Clear the "computer-level" role cookie
             RoleCookie.Clear(Response);
+            GTX.Common.SiteAccess.Clear(Response);
 
             // 4) Optional: also expire your custom auth cookie if you have one
             // Response.Cookies.Add(new HttpCookie("YourAuthCookie", "") { Expires = DateTime.UtcNow.AddDays(-1), Path="/" });

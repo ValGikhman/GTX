@@ -1,7 +1,7 @@
 <div class="tab-pane fade" id="tab-gallery" role="tabpanel">
     <div class="d-flex flex-column align-items-center">
         <div class="d-flex flex-wrap justify-content-center gap-2 w-100 p-3">
-            @if (string.Equals(Convert.ToString(ViewBag.CurrentRole), CommonUnit.Roles.Owner.ToString(), StringComparison.OrdinalIgnoreCase))
+            @if (InventoryImageSettings.CloudflareEnabled && GTX.Common.SiteAccess.IsMajordome(GTX.Common.SiteAccess.Current(ViewContext.HttpContext.Request)))
             {
                 <button type="button" id="purgeStockImageCache" class="btn btn-outline-warning shadow d-inline-flex align-items-center gap-2" title="Refresh every CDN image URL for the selected stock">
                     <i class="bi bi-cloud-arrow-down" aria-hidden="true"></i><span>Refresh stock CDN</span>

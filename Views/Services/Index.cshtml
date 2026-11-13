@@ -1,0 +1,88 @@
+@model GTX.Models.ServiceSettingsPageModel
+@{
+    ViewBag.Title = "Services";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var savedServiceId = TempData["SavedServiceId"] as string;
+}
+<link href="@Url.Content("~/Content/health.css")?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/health.css")).Ticks)" rel="stylesheet" />
+<link href="@Url.Content("~/Content/services.css")?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/services.css")).Ticks)" rel="stylesheet" />
+@Html.Partial("_MarketingHero", null, new ViewDataDictionary {
+    { "Kicker", "Majordome" }, { "Title", "Manage" }, { "Accent", "Services" },
+    { "Description", "Manage service connections, keys and settings." },
+    { "Word", "SERVICES" }, { "Icon", "bi-plug" }
+})
+<main id="servicesPage" class="wrap mt-4">
+    <div class="health-cards-row">
+        @foreach (var service in Model.Services) {
+            <section class="health-card-col" aria-labelledby="service-title-@service.ServiceId">
+                @using (Html.BeginForm("Save", "Services", FormMethod.Post, new { @class = "h-100 p-4 health-card health-card-" + service.Style + " d-flex flex-column service-settings-card", autocomplete = "off" })) {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="ServiceId" value="@service.ServiceId" />
+                    <input type="hidden" name="Revision" value="@service.Revision" />
+                    <div class="health-card-head">
+                        <div class="health-card-title">
+                            <div class="health-icon health-icon-@service.Style"><i class="bi @service.Icon" aria-hidden="true"></i></div>
+                            <div>
+                                <div class="kpi-label fw-semibold text-shadow-small mb-0" id="service-title-@service.ServiceId">@service.Title</div>
+                                <div class="kpi-sub mt-1">@service.Description</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-check form-switch service-enabled-row">
+                        <input class="form-check-input" type="checkbox" name="Enabled" value="true" id="service-enabled-@service.ServiceId" role="switch" checked="@service.Enabled" />
+                        <label class="form-check-label fw-semibold text-shadow-small" for="service-enabled-@service.ServiceId">@(service.ServiceId == "cargurus" ? "CarGurus search" : "Enabled")</label>
+                        <input type="hidden" name="Enabled" value="false" />
+                    </div>
+                    if (savedServiceId == service.ServiceId) {
+                        <div class="alert alert-success service-settings-message" role="status"><i class="bi bi-check-circle-fill me-1" aria-hidden="true"></i>Saved.</div>
+                    }
+                    if (Model.InvalidServiceId == service.ServiceId && !ViewData.ModelState.IsValid) {
+                        @Html.ValidationSummary(false, "", new { @class = "alert alert-danger service-settings-message", role = "alert" })
+                    }
+                    <div class="service-settings-fields flex-grow-1">
+                        @for (var index = 0; index < service.Fields.Count; index++) {
+                            var field = service.Fields[index];
+                            var fieldId = "service-" + service.ServiceId + "-field-" + index;
+                            var isCredential = field.Type == "text" && (field.Key.IndexOf("Key", StringComparison.OrdinalIgnoreCase) >= 0
+                                || field.Key.EndsWith("Token", StringComparison.OrdinalIgnoreCase));
+                            <div class="service-settings-field">
+                                <label class="form-label text-shadow-small" for="@fieldId">@field.Label</label>
+                                <input type="hidden" name="Fields[@index].Key" value="@field.Key" />
+                                @if (field.Key == "OpenAI:ChatModel") {
+                                    <div class="service-model-picker" data-openai-model-picker="true" data-models-url="@Url.Action("OpenAiModels", "Services")">
+                                        <select class="form-select shadow-sm" name="Fields[@index].Value" id="@fieldId" data-setting-key="@field.Key" data-openai-model="true"
+                                                required="@(service.Enabled && field.RequiredWhenEnabled)" data-required-when-enabled="@(field.RequiredWhenEnabled ? "true" : "false")"
+                                                aria-describedby="@(fieldId)-help @(fieldId)-status">
+                                            <option value="@field.Value" selected="selected">@(string.IsNullOrEmpty(field.Value) ? "Select a model" : field.Value)</option>
+                                        </select>
+                                        <div class="service-model-actions mt-2">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" data-refresh-models="true"><i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>Refresh models</button>
+                                        </div>
+                                        <div class="form-text" id="@(fieldId)-help">Lists all available models; choose one that supports the chatbot.</div>
+                                        <div class="form-text" id="@(fieldId)-status" data-models-status="true" aria-live="polite" aria-atomic="true"></div>
+                                    </div>
+                                } else if (isCredential) {
+                                    <textarea class="form-control shadow-sm service-credential" name="Fields[@index].Value" id="@fieldId" rows="2" wrap="soft"
+                                              maxlength="@field.MaxLength" required="@(service.Enabled && field.RequiredWhenEnabled)"
+                                              data-setting-key="@field.Key"
+                                              data-required-when-enabled="@(field.RequiredWhenEnabled ? "true" : "false")"
+                                              autocomplete="off" spellcheck="false" autocapitalize="off">@field.Value</textarea>
+                                } else {
+                                <input class="form-control shadow-sm" type="@field.Type" name="Fields[@index].Value" value="@field.Value" id="@fieldId"
+                                       data-setting-key="@field.Key"
+                                       maxlength="@field.MaxLength" min="@field.Minimum" max="@field.Maximum" step="@(field.Type == "number" ? "1" : null)"
+                                       required="@(service.Enabled && field.RequiredWhenEnabled)" data-required-when-enabled="@(field.RequiredWhenEnabled ? "true" : "false")"
+                                       autocomplete="off" spellcheck="false" autocapitalize="off" />
+                                }
+                            </div>
+                        }
+                    </div>
+                    <div class="health-refresh-actions health-refresh-actions-single pt-4 mt-auto">
+                        <button type="submit" class="btn btn-sm btn-gradient shadow-sm"><i class="bi bi-save me-1" aria-hidden="true"></i>Save</button>
+                    </div>
+                }
+            </section>
+        }
+    </div>
+</main>
+<script src="@Url.Content("~/Scripts/services.js")?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/services.js")).Ticks)"></script>

@@ -1,6 +1,7 @@
 ﻿@using Services;
 @model GTX.Models.BaseModel
 
+@{ var siteProfile = GTX.SiteProfileStore.Current; }
 <style>
     #infoIcon {
         display: none;
@@ -69,7 +70,7 @@
                 {
                     <div class="d-flex justify-content-center text-uppercase p-5">
                         <h6>
-                            <img class="img-fluid d-block mx-auto" width="85" src="@SiteImageUrl.Build("brand-thumbnail.png")" alt="GTX Autogroup">
+                            <img class="img-fluid d-block mx-auto" width="85" src="@SiteImageUrl.Build("brand-thumbnail.png")" alt="@siteProfile.CompanyName">
                             <br />
                             is still working on images
                         </h6>

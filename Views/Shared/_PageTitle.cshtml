@@ -1,13 +1,30 @@
 @{
+    var siteProfile = GTX.SiteProfileStore.Current;
+    var profileDirectionsUrl = "https://www.google.com/maps/search/?api=1&query=" + Uri.EscapeDataString(siteProfile.FullAddress);
     var controllerName = (ViewContext.RouteData.Values["controller"] ?? string.Empty).ToString();
     var actionName = (ViewContext.RouteData.Values["action"] ?? string.Empty).ToString();
-    var majordomeIndexControllers = new[] { "InventoryManagement", "VinDecoder", "Announcements", "Blogs", "Specials", "Employees", "Health", "Sitemap", "ChatBotCommands" };
-    var isMajordomeMenuPage = (controllerName.Equals("Majordome", StringComparison.OrdinalIgnoreCase)
+    var majordomeIndexControllers = new[] {
+                GTX.Common.Enums.Controllers.InventoryManagement.ToString(),
+                GTX.Common.Enums.Controllers.VinDecoder.ToString(),
+                GTX.Common.Enums.Controllers.Announcements.ToString(),
+                GTX.Common.Enums.Controllers.Blogs.ToString(),
+                GTX.Common.Enums.Controllers.Specials.ToString(),
+                GTX.Common.Enums.Controllers.Employees.ToString(),
+                GTX.Common.Enums.Controllers.Roles.ToString(),
+                GTX.Common.Enums.Controllers.Profile.ToString(),
+                GTX.Common.Enums.Controllers.Services.ToString(),
+                GTX.Common.Enums.Controllers.Health.ToString(),
+                GTX.Common.Enums.Controllers.Sitemap.ToString(),
+                GTX.Common.Enums.Controllers.ChatBotCommands.ToString()
+            };
+    var isMajordomeMenuPage = (controllerName.Equals(GTX.Common.Enums.Controllers.Majordome.ToString(), StringComparison.OrdinalIgnoreCase)
             && actionName.Equals("Inventory", StringComparison.OrdinalIgnoreCase))
-        || (controllerName.Equals("InventoryManagement", StringComparison.OrdinalIgnoreCase)
+        || (controllerName.Equals(GTX.Common.Enums.Controllers.InventoryManagement.ToString(), StringComparison.OrdinalIgnoreCase)
             && actionName.Equals("Dashboard", StringComparison.OrdinalIgnoreCase))
         || (actionName.Equals("Index", StringComparison.OrdinalIgnoreCase)
             && majordomeIndexControllers.Any(c => c.Equals(controllerName, StringComparison.OrdinalIgnoreCase)));
+    var isReviewsPage = controllerName.Equals("Home", StringComparison.OrdinalIgnoreCase)
+        && actionName.Equals("Reviews", StringComparison.OrdinalIgnoreCase);
     var inventoryListActions = new[] { "Index", "All", "Suvs", "Sedans", "Wagons", "Trucks", "Vans", "Convertibles", "Hatchbacks", "Coupes" };
     var hideInventoryListTitle = controllerName.Equals("Inventory", StringComparison.OrdinalIgnoreCase)
         && inventoryListActions.Any(a => a.Equals(actionName, StringComparison.OrdinalIgnoreCase));
@@ -25,7 +42,7 @@
     var titleHref = isInventoryDetailsTitle ? "/Inventory/Index" : "/Home";
 }
 
-@if (!isMajordomeMenuPage)
+@if (!isMajordomeMenuPage && !isReviewsPage)
 {
 <section class="container-fluid page-title @(showInventoryDesktopAddress ? "inventory-player-title" : string.Empty) @(isInventoryDetailsTitle ? string.Empty : "page-title-mobile-call-enabled") position-relative d-flex align-items-center justify-content-center shadow">
 
@@ -43,11 +60,11 @@
         @if (showInventoryDesktopAddress)
         {
             <div class="page-title-inventory-contact d-none d-lg-inline-flex align-items-center">
-                <span id="pageTitleInventoryAddressCopy" class="page-title-inventory-address" role="button" tabindex="0"  data-address="9516 Princeton Glendale Rd, West Chester, OH 45011" title="Click to copy address">
+                <span id="pageTitleInventoryAddressCopy" class="page-title-inventory-address" role="button" tabindex="0"  data-address="@siteProfile.FullAddress" title="Click to copy address">
                     <i class="bi bi-geo-alt-fill me-1"></i>
-                    <span>9516 Princeton Glendale Rd, West Chester, OH 45011</span>
+                    <span>@siteProfile.FullAddress</span>
                 </span>
-                <a href="https://www.google.com/maps/search/?api=1&query=9516+Princeton+Glendale+Rd%2C+West+Chester+Township%2C+OH+45011"
+                <a href="@profileDirectionsUrl"
                    target="_blank"
                    rel="noopener noreferrer"
                    class="btn btn-sm btn-gradient-grey border-dark rounded-3 shadow-sm inventory-contact-map-btn page-title-inventory-map-btn">
@@ -97,11 +114,11 @@
     @if (!isInventoryDetailsTitle)
     {
         <a id="pageTitleMobileCallBtn"
-           href="tel:+15134892886"
+           href="@siteProfile.PhoneUri"
            class="page-title-mobile-call btn btn-gradient-grey border-dark rounded-4 shadow position-absolute end-0 top-50 translate-middle-y me-2 d-inline-flex d-md-none align-items-center gap-1"
-           aria-label="Call (513) 489-2886">
+           aria-label="Call @siteProfile.Phone">
             <i class="bi bi-telephone"></i>
-            <span class="fw-semibold">(513) 489-2886</span>
+            <span class="fw-semibold">@siteProfile.Phone</span>
         </a>
     }
     <!-- Next button (far right) -->

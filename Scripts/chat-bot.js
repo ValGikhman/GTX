@@ -16,11 +16,16 @@
         var $leadForm = $widget.find("[data-chat-lead-form]");
         var $leadFeedback = $widget.find("[data-chat-lead-feedback]");
         var $salesperson = $leadForm.find("[name='EmployerId']");
+        var $vinReportModal = $("#gtxChatVinReportModal");
+        var $vinReportBody = $vinReportModal.find("[data-chat-vin-body]");
+        var $vinReportTitle = $vinReportModal.find("[data-chat-vin-title]");
+        var vinReportReturnFocus = null;
         var chatStorageKey = "gtx-chat-session-v1";
         var requestHistoryStorageKey = "gtx-chat-request-history-v1";
         var chatStorageLifetime = 60 * 60 * 1000;
         var maximumStoredMessages = 40;
         var maximumStoredRequests = 20;
+        var marketTabSequence = 0;
         var responseId = null;
         var sending = false;
         var salespeopleLoaded = false;
@@ -440,9 +445,234 @@
             $container.addClass("has-vehicle-results");
         }
 
-        function addMessage(role, text, extraClass, vehicles, totalMatches, persist, inventoryUrl) {
+        function appendMarketSource($parent, source) {
+            var isCarGurus = source === "CG";
+            var name = isCarGurus ? "CarGurus" : "MarketCheck";
+            $("<span>", {
+                "class": "bot-market-source " + (isCarGurus ? "is-cg" : "is-mc"),
+                text: isCarGurus ? "CG" : "MC",
+                title: name,
+                "aria-label": name
+            }).appendTo($parent);
+        }
+
+        function appendMarketTabs($card, groups) {
+            var prefix = "gtx-market-" + (++marketTabSequence);
+            var $tabList = $("<div>", {
+                "class": "bot-market-tabs",
+                role: "tablist",
+                "aria-label": "Listing sources"
+            }).appendTo($card);
+            var tabs = [];
+
+            function activate(index, focus) {
+                tabs.forEach(function (entry, tabIndex) {
+                    var active = index === tabIndex;
+                    entry.tab.attr({ "aria-selected": String(active), tabindex: active ? 0 : -1 });
+                    entry.panel.prop("hidden", !active);
+                });
+                if (focus) tabs[index].tab.trigger("focus");
+            }
+
+            groups.forEach(function (group, index) {
+                var tabId = prefix + "-tab-" + index;
+                var panelId = prefix + "-panel-" + index;
+                var $tab = $("<button>", {
+                    type: "button",
+                    id: tabId,
+                    role: "tab",
+                    "aria-controls": panelId,
+                    text: group.Name
+                }).appendTo($tabList);
+                var $source = $("<div>", {
+                    id: panelId,
+                    role: "tabpanel",
+                    tabindex: 0,
+                    "aria-labelledby": tabId
+                }).appendTo($card);
+                tabs.push({ tab: $tab, panel: $source });
+                $tab.on("click", function () { activate(index, false); });
+                $tab.on("keydown", function (event) {
+                    var next = index;
+                    if (event.key === "ArrowRight") next = (index + 1) % groups.length;
+                    else if (event.key === "ArrowLeft") next = (index + groups.length - 1) % groups.length;
+                    else if (event.key === "Home") next = 0;
+                    else if (event.key === "End") next = groups.length - 1;
+                    else return;
+                    event.preventDefault();
+                    activate(next, true);
+                });
+
+                if (group.Context) $("<p>", { "class": "bot-market-context", text: group.Context }).appendTo($source);
+                if (group.Listings.length) appendMarketListings($source, group.Listings, group.Name + " listings");
+                if (group.Note) $("<p>", { "class": "bot-market-note", text: group.Note }).appendTo($source);
+                appendMarketView($source, group.ViewUrl);
+            });
+
+            var firstWithListings = groups.findIndex(function (group) { return group.Listings.length > 0; });
+            activate(Math.max(0, firstWithListings), false);
+        }
+
+        function marketSortValue(value) {
+            var numeric = (value || "").replace(/[$,]/g, "").trim();
+            return /^\d+(?:\.\d+)?$/.test(numeric) ? Number(numeric) : Infinity;
+        }
+
+        function appendMarketListings($parent, listings, title) {
+            var ordered = listings.map(function (listing, index) {
+                return { listing: listing, index: index, price: marketSortValue(listing.Ask) };
+            }).sort(function (a, b) {
+                return (a.price - b.price) || (a.index - b.index);
+            });
+            var $container = $("<div>", { "class": "bot-market-listings-wrap" }).appendTo($parent);
+            var $table = $("<table>", { "class": "bot-market-listings", "aria-label": title })
+                .appendTo($container);
+            var $head = $("<tr>").appendTo($("<thead>").appendTo($table));
+            ["Vehicle", "Ask", "Miles", "Distance"].forEach(function (label) {
+                var $column = $("<th>", { scope: "col", text: label }).appendTo($head);
+                if (label === "Ask") $column.attr("aria-sort", "ascending");
+            });
+            var $body = $("<tbody>").appendTo($table);
+            ordered.forEach(function (item) {
+                var listing = item.listing;
+                var $row = $("<tr>").appendTo($body);
+                var $vehicle = $("<th>", { scope: "row" }).appendTo($row);
+                var title = (listing.Vehicle || "").match(/^(.+?)\s+((?:SH-AWD|AWD|FWD|RWD|4WD|xDrive\w*|sDrive\w*|4MATIC)\b.*)$/i);
+                var name = title ? title[1] : listing.Vehicle;
+                if (/^https:\/\/[^\s]+$/i.test(listing.Url || "")) {
+                    $("<a>", { href: listing.Url, text: name, target: "_blank", rel: "noopener" }).appendTo($vehicle);
+                } else {
+                    $("<span>", { text: name }).appendTo($vehicle);
+                }
+                if (title) $("<small>", { text: title[2] }).appendTo($vehicle);
+                $("<small>", { text: listing.Location }).appendTo($vehicle);
+                var statuses = listing.Scope ? listing.Scope.split(" · ") : [];
+                if (listing.IsSearchedVin) statuses.unshift("Searched VIN");
+                $("<td>", { text: listing.Ask || "—" }).appendTo($row);
+                $("<td>", { text: listing.Odometer || "—" }).appendTo($row);
+                $("<td>", { text: listing.Distance ? listing.Distance + " mi" : "—" }).appendTo($row);
+                if (statuses.length) {
+                    $row.addClass("has-listing-status");
+                    var $statusRow = $("<tr>", { "class": "bot-market-listing-status-row" }).appendTo($body);
+                    var $statuses = $("<div>", { "class": "bot-market-listing-statuses" })
+                        .appendTo($("<td>", { colspan: 4 }).appendTo($statusRow));
+                    statuses.forEach(function (status) {
+                        var outsideScope = /^(Outside radius|Over mileage|Other package)$/.test(status);
+                        var color = outsideScope ? "danger" : (status === "Searched VIN" ? "warning" : "success");
+                        $("<span>", { "class": "badge rounded-pill text-bg-" + color, text: status }).appendTo($statuses);
+                    });
+                }
+            });
+        }
+
+        function appendMarketReply($container, reply) {
+            var $card = $("<article>", { "class": "bot-market-reply" }).appendTo($container);
+            var $header = $("<header>", { "class": "bot-market-header" }).appendTo($card);
+            var $kicker = $("<div>", { "class": "bot-market-kicker" }).appendTo($header);
+            if (reply.ListingGroups && reply.ListingGroups.length) {
+                $("<span>", { text: reply.Kicker }).appendTo($kicker);
+            } else if (reply.Source === "CG") {
+                $("<span>", { "class": "bot-market-source is-cg px-2 shadow", text: reply.Kicker }).appendTo($kicker);
+            } else {
+                appendMarketSource($kicker, "MC");
+                $("<span>", { text: reply.Kicker }).appendTo($kicker);
+            }
+            $("<h3>", { "class": "bot-market-title", text: reply.Title }).appendTo($header);
+            if (reply.Context) $("<p>", { "class": "bot-market-context", text: reply.Context }).appendTo($header);
+
+            if (reply.ListingGroups && reply.ListingGroups.length) {
+                appendMarketTabs($card, reply.ListingGroups);
+            } else if (reply.Listings && reply.Listings.length) {
+                appendMarketListings($card, reply.Listings, reply.Title || "Retail listings");
+            }
+
+            if (reply.Metrics.length) {
+                var $metrics = $("<dl>", { "class": "bot-market-metrics" }).appendTo($card);
+                reply.Metrics.forEach(function (metric) {
+                    var $metric = $("<div>", { "class": "bot-market-metric" }).toggleClass("is-primary", metric.IsPrimary).appendTo($metrics);
+                    $("<dt>", { "class": "bot-market-label", text: metric.Label }).appendTo($metric);
+                    $("<dd>", { "class": "bot-market-value", text: metric.Value }).appendTo($metric);
+                });
+            }
+
+            reply.Sections.forEach(function (section) {
+                var $section = $("<section>", { "class": "bot-market-section" }).appendTo($card);
+                var $title = $("<h4>", { "class": "bot-market-section-title" }).appendTo($section);
+                appendMarketSource($title, section.Source);
+                $("<span>", { text: section.Title }).appendTo($title);
+                if (section.Context) $("<p>", { "class": "bot-market-context", text: section.Context }).appendTo($section);
+                if (section.Items.length) {
+                    var $list = $("<ul>", { "class": "bot-market-list" }).appendTo($section);
+                    section.Items.forEach(function (item) { $("<li>", { text: item }).appendTo($list); });
+                }
+                if (section.Note) $("<p>", { "class": "bot-market-note", text: section.Note })
+                    .toggleClass("is-multiline", section.Source === "CG").appendTo($section);
+            });
+
+            if (reply.Note) $("<p>", { "class": "bot-market-note", text: reply.Note }).appendTo($card);
+            appendMarketView($card, reply.ViewUrl);
+        }
+
+        function appendMarketView($card, url) {
+            var carGurusView = /^https:\/\/www\.cargurus\.com\/search\?/.test(url || "");
+            if (carGurusView || /^\/(?![\\/])/.test(url || "")) {
+                var viewLabel = carGurusView ? "View on CarGurus" : "View in Appraisal";
+                var $view = $("<a>", {
+                    "class": "bot-market-view",
+                    href: url,
+                    target: "_blank",
+                    rel: "noopener",
+                    "aria-label": viewLabel + " (opens in a new tab)"
+                }).appendTo($card);
+                $("<span>", { text: carGurusView ? viewLabel : "View" }).appendTo($view);
+                $("<i>", { "class": "bi bi-arrow-right", "aria-hidden": "true" }).appendTo($view);
+            }
+        }
+
+        function openVinReport(report, trigger) {
+            var modalElement = $vinReportModal.get(0);
+            if (!modalElement || !window.bootstrap || !window.bootstrap.Modal
+                || !window.gtxSecurity || typeof window.gtxSecurity.setSafeHtml !== "function") return;
+
+            $vinReportTitle.text("VIN report · " + (resultValue(report, "Vin", "vin") || "vehicle details"));
+            window.gtxSecurity.setSafeHtml($vinReportBody, resultValue(report, "Html", "html"));
+            $vinReportBody.find("details.avd-style").prop("open", true);
+            vinReportReturnFocus = trigger;
+            var $previousBackdrops = $(".modal-backdrop");
+            window.bootstrap.Modal.getOrCreateInstance(modalElement).show(trigger);
+            $(".modal-backdrop").not($previousBackdrops).addClass("gtx-chat-vin-backdrop");
+        }
+
+        function clearVinReport() {
+            $vinReportBody.empty();
+            $vinReportTitle.text("VIN report");
+            var trigger = vinReportReturnFocus;
+            vinReportReturnFocus = null;
+            if (trigger && document.documentElement.contains(trigger)) trigger.focus();
+        }
+
+        function appendVinDecode($container, text, report) {
+            $container.addClass("has-vin-decode");
+            appendAssistantText($container, text);
+            $("<button>", {
+                type: "button",
+                "class": "btn btn-outline-primary btn-sm gtx-chat-vin-open",
+                text: "View VIN report",
+                "aria-haspopup": "dialog",
+                "aria-controls": "gtxChatVinReportModal"
+            }).on("click", function () {
+                openVinReport(report, this);
+            }).appendTo($container);
+        }
+
+        function addMessage(role, text, extraClass, vehicles, totalMatches, persist, inventoryUrl, marketReply, vinDecode) {
             var $item = $("<div>", { "class": "gtx-chat-message is-" + role + (extraClass ? " " + extraClass : "") });
-            if (role === "assistant" && vehicles && vehicles.length) {
+            var reportHtml = resultValue(vinDecode, "Html", "html");
+            if (role === "assistant" && typeof reportHtml === "string" && $.trim(reportHtml)) {
+                appendVinDecode($item, text, vinDecode);
+            } else if (role === "assistant" && marketReply && marketReply.Title) {
+                appendMarketReply($item, marketReply);
+            } else if (role === "assistant" && vehicles && vehicles.length) {
                 appendStructuredVehicles($item, text, vehicles, totalMatches, inventoryUrl);
             } else if (role === "assistant") {
                 appendAssistantText($item, text);
@@ -457,7 +687,7 @@
             }
             $messages.append($item);
             scrollMessages();
-            if (persist !== false && extraClass !== "is-thinking") {
+            if (persist !== false && extraClass !== "is-thinking" && !vinDecode) {
                 conversation.push({
                     role: role,
                     text: String(text || ""),
@@ -638,7 +868,11 @@
         function hasNavigationAccess(requiredRole) {
             if (!requiredRole) return true;
             var role = $.trim(String(window.gtx && window.gtx.currentRole || "user")).toLowerCase();
-            return requiredRole === "owner" ? role === "owner" : role !== "" && role !== "user";
+            var required = String(requiredRole).toLowerCase();
+            var permissions = window.gtx && window.gtx.menuPermissions || [];
+            if (required === "administrator") return permissions.indexOf("Roles") >= 0;
+            if (required === "admin" || required === "staff" || required === "owner") return role !== "" && role !== "user";
+            return $.grep(permissions, function (permission) { return String(permission).toLowerCase() === required; }).length > 0;
         }
 
         function openNavigationDestination(destination) {
@@ -709,6 +943,44 @@
             setSending(true);
             var $thinking = addMessage("assistant", "Checking that for you...", "is-thinking", null, null, false);
             var token = $chatForm.find("input[name='ChatRequestToken']").val();
+            var progressUrl = $widget.data("market-progress-url");
+            var progressId = "";
+            var progressTimer;
+            var progressRequest;
+            var finished = false;
+            if (progressUrl && window.crypto && window.crypto.getRandomValues) {
+                var bytes = window.crypto.getRandomValues(new Uint8Array(16));
+                for (var i = 0; i < bytes.length; i++) {
+                    progressId += ("0" + bytes[i].toString(16)).slice(-2);
+                }
+                progressTimer = window.setTimeout(checkMarketProgress, 250);
+            }
+
+            function checkMarketProgress() {
+                progressRequest = $.ajax({
+                    url: progressUrl,
+                    data: { id: progressId },
+                    dataType: "json",
+                    timeout: 3000
+                }).done(function (progress) {
+                    if (finished) return;
+                    if (progress === true || progress === "cargurus" || progress === "dataone") {
+                        var label = progress === true ? "Market" : (progress === "dataone" ? "DataOne" : "CarGurus");
+                        var $copy = $thinking.find(".gtx-chat-copy");
+                        var $label = $copy.find(".gtx-chat-market-word");
+                        if ($label.length) {
+                            if ($label.text() !== label) $label.text(label);
+                        } else {
+                            $copy.contents().filter(function () { return this.nodeType === 3; }).remove();
+                            $copy.prepend(document.createTextNode("Checking the "),
+                                $("<span>", { "class": "gtx-chat-market-word", text: label }),
+                                document.createTextNode(" for you…"));
+                        }
+                        if (progress !== "dataone") return;
+                    }
+                    progressTimer = window.setTimeout(checkMarketProgress, 650);
+                });
+            }
 
             $.ajax({
                 url: $widget.data("message-url"),
@@ -716,7 +988,8 @@
                 data: {
                     ChatRequestToken: token,
                     Message: text,
-                    PreviousResponseId: responseId || ""
+                    PreviousResponseId: responseId || "",
+                    ProgressId: progressId
                 }
             }).done(function (data) {
                 $thinking.remove();
@@ -731,18 +1004,29 @@
                     return;
                 }
 
-                addMessage("assistant", reply || "I could not prepare an answer. Please try again.", "", vehicles, totalMatches, undefined, inventoryUrl);
+                var privateReply = data && (data.PrivateReply || data.privateReply);
+                var marketReply = data && data.MarketReply;
+                var vinDecode = data && (data.VinDecode || data.vinDecode);
+                addMessage("assistant", reply || "I could not prepare an answer. Please try again.", "", vehicles, totalMatches, !privateReply, inventoryUrl, marketReply, vinDecode);
             }).fail(function (xhr) {
                 $thinking.remove();
                 if (responseId && xhr && xhr.status === 502) responseId = null;
                 addMessage("assistant", errorMessage(xhr, "I could not reach the assistant. Please try again."), "is-error");
             }).always(function () {
+                finished = true;
+                window.clearTimeout(progressTimer);
+                if (progressRequest) progressRequest.abort();
                 setSending(false);
                 $message.trigger("focus");
             });
         }
 
         function resetChat() {
+            vinReportReturnFocus = null;
+            var reportModal = window.bootstrap && window.bootstrap.Modal
+                && window.bootstrap.Modal.getInstance($vinReportModal.get(0));
+            if (reportModal) reportModal.hide();
+            clearVinReport();
             closeCommandGuide(false);
             responseId = null;
             conversation = [];
@@ -860,6 +1144,7 @@
             $leadForm.find("[name='FirstName']").trigger("focus");
         }
 
+        $vinReportModal.on("hidden.bs.modal", clearVinReport);
         $launcher.on("click", openChat);
         $widget.on("click", "[data-chat-close]", closeChat);
         $widget.on("click", "[data-chat-help]", function () {
@@ -871,6 +1156,9 @@
             var $toggle = $(this);
             var expanded = $toggle.attr("aria-expanded") === "true";
             $toggle.attr("aria-expanded", expanded ? "false" : "true");
+            $toggle.find(".gtx-chat-guide-chevron")
+                .toggleClass("bi-chevron-down", expanded)
+                .toggleClass("bi-chevron-up", !expanded);
             $toggle.closest(".gtx-chat-command-guide-group")
                 .nextUntil(".gtx-chat-command-guide-group")
                 .prop("hidden", expanded);

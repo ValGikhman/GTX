@@ -2,6 +2,362 @@
     z-index: 1090;
 }
 
+.majordome-inventory-appraisal {
+    --inventory-appraisal-ink: var(--bs-body-color, #172033);
+    --inventory-appraisal-surface: var(--bs-body-bg, #fff);
+    --inventory-appraisal-accent: var(--gtx-accent-solid, #1e73be);
+    --inventory-appraisal-tint: color-mix(in srgb, var(--inventory-appraisal-accent) 11%, var(--inventory-appraisal-surface));
+    --inventory-appraisal-header-ink: #fff;
+    --inventory-appraisal-header-shade: transparent;
+    --inventory-appraisal-header: linear-gradient(var(--inventory-appraisal-header-shade), var(--inventory-appraisal-header-shade)), var(--gtx-grad, var(--inventory-appraisal-accent));
+    --inventory-appraisal-pad: clamp(.75rem, 2vw, 1.25rem);
+}
+
+html.theme-silver .majordome-inventory-appraisal { --inventory-appraisal-header-ink: #111827; }
+html.theme-metallica .majordome-inventory-appraisal { --inventory-appraisal-header-shade: rgb(0 0 0 / 38%); }
+
+.majordome-inventory-appraisal [hidden] { display: none !important; }
+
+.appraisal-metric-help.btn {
+    --bs-btn-color: inherit;
+    --bs-btn-hover-color: inherit;
+    --bs-btn-active-color: inherit;
+    padding: .1rem .25rem;
+    border: 0;
+    font-size: .9rem;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+.appraisal-metric-help.btn:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 1px;
+}
+
+@media (min-width: 992px) {
+    .majordome-inventory-appraisal .modal-dialog { --bs-modal-width: 680px; }
+}
+
+@media (min-width: 1200px) {
+    .majordome-inventory-appraisal .modal-dialog { --bs-modal-width: 969px; }
+}
+
+.majordome-inventory-appraisal .modal-body { padding: clamp(1rem, 4vw, 1.5rem); }
+
+.inventory-appraisal-intro {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .85rem 1.5rem;
+    margin-bottom: 1rem;
+    padding: var(--inventory-appraisal-pad);
+    border: 1px solid var(--bs-border-color);
+    border-inline-start: .25rem solid var(--inventory-appraisal-accent);
+    border-radius: .85rem;
+    background: linear-gradient(120deg, var(--inventory-appraisal-tint), var(--inventory-appraisal-surface));
+    box-shadow: 0 .35rem .9rem rgb(15 23 42 / 10%);
+}
+
+.inventory-appraisal-intro > div:first-child { flex: 1 1 15rem; min-width: 0; }
+
+.majordome-inventory-appraisal .inventory-appraisal-vehicle {
+    display: block;
+    color: var(--inventory-appraisal-ink);
+    font-size: clamp(1.15rem, 2.5vw, 1.55rem);
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+.majordome-inventory-appraisal .inventory-appraisal-description {
+    color: var(--bs-secondary-color, #526075);
+    font-size: .88rem;
+    margin: .3rem 0 0;
+    line-height: 1.45;
+}
+
+.inventory-appraisal-inventory-price {
+    display: grid;
+    gap: .15rem;
+    padding: .55rem .85rem;
+    border-radius: .65rem;
+    background: var(--inventory-appraisal-header);
+    color: var(--inventory-appraisal-header-ink);
+    font-size: .78rem;
+}
+
+.inventory-appraisal-inventory-price strong {
+    font-size: 1.4rem;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+}
+
+.majordome-inventory-appraisal .form-label { margin-bottom: .35rem; font-size: .88rem; font-weight: 650; }
+.majordome-inventory-appraisal .form-control { box-shadow: 0 .18rem .45rem rgba(15, 23, 42, .10); }
+
+.majordome-inventory-appraisal .form-control:focus {
+    box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--inventory-appraisal-accent) 25%, transparent);
+}
+
+:is(#price-research, .majordome-inventory-appraisal) [data-appraisal-research-form] .form-control:is(:hover, :focus, :active) {
+    border-width: var(--bs-border-width, 1px);
+    border-color: var(--bs-border-color);
+}
+
+#price-research [data-appraisal-research-form] .vin-decoder-input-group .form-control:is(:hover, :focus, :active) {
+    border-width: 0;
+}
+
+.majordome-inventory-appraisal .inventory-appraisal-status { margin: 0; color: var(--bs-secondary-color, #526075); }
+.majordome-inventory-appraisal .inventory-appraisal-status:not(:empty) { margin-top: 1rem; font-size: .88rem; }
+
+.appraisal-comparables-grid {
+    --appraisal-grid-accent: var(--pr-accent, var(--inventory-appraisal-accent, var(--gtx-accent-solid, #1e73be)));
+}
+
+.appraisal-comparables-grid .pg-grid-wrapper { background: var(--inventory-surface); }
+.appraisal-comparables-grid .pg-grid-table { min-width: 44rem; }
+.appraisal-comparables-grid .pg-grid-scroll:focus-visible { outline: 2px solid var(--appraisal-grid-accent); outline-offset: -2px; }
+.appraisal-comparables-grid .pg-grid-table td { white-space: normal; overflow-wrap: anywhere; }
+.appraisal-comparables-grid .pg-grid-table :is(th, td).text-end { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.appraisal-comparables-grid .pg-grid-table th.text-end .pg-th-label { text-align: end; }
+:is(#pr-comparables-grid, .appraisal-comparables-grid) .pg-grid-table tbody tr.appraisal-subject-row > td {
+    color: color-mix(in srgb, var(--bs-secondary-color) 85%, var(--inventory-surface, var(--bs-body-bg)));
+}
+
+
+
+.appraisal-comparables-grid .appraisal-scope-badge {
+    display: inline-block;
+    padding: .3rem .5rem;
+    border: 1px solid color-mix(in srgb, var(--appraisal-grid-accent) 28%, transparent);
+    border-radius: .55rem;
+    background: color-mix(in srgb, var(--appraisal-grid-accent) 9%, var(--inventory-surface, var(--bs-body-bg)));
+    color: var(--bs-body-color);
+    font-size: .72rem;
+    font-weight: 650;
+    line-height: 1.35;
+    box-shadow: 0 2px 5px #0000000a;
+}
+
+.appraisal-comparables-grid .appraisal-scope-badge.is-expanded {
+    border-style: dashed;
+    border-color: color-mix(in srgb, #bd7b13 55%, var(--bs-body-color));
+    background: color-mix(in srgb, #bd7b13 12%, var(--inventory-surface, var(--bs-body-bg)));
+}
+
+.appraisal-comparables-grid .appraisal-listing-button {
+    --bs-btn-color: #212529;
+    --bs-btn-hover-color: var(--bs-btn-color);
+    --bs-btn-active-color: var(--bs-btn-color);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-block-size: 1.7rem;
+    margin-inline-end: 0;
+    padding: .1rem .25rem;
+    font-size: .8rem;
+    font-weight: 700;
+}
+
+.appraisal-comparables-grid .appraisal-listing-button:focus-visible {
+    outline: 2px solid var(--appraisal-grid-accent);
+    outline-offset: 2px;
+}
+
+.majordome-inventory-appraisal :is(.pr-market-overview, .pr-demand, .pr-grid-section) {
+    min-width: 0;
+    margin-top: 1.3rem;
+    padding: var(--inventory-appraisal-pad);
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-radius: .9rem;
+    background: var(--inventory-appraisal-surface);
+    box-shadow: 0 .35rem .9rem rgb(15 23 42 / 10%);
+}
+
+.majordome-inventory-appraisal :is(.pr-market-overview, .pr-demand, .pr-grid-section) > header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem 1rem;
+    margin: calc(-1 * var(--inventory-appraisal-pad)) calc(-1 * var(--inventory-appraisal-pad)) .85rem;
+    padding: var(--inventory-appraisal-pad);
+    border-radius: .85rem .85rem 0 0;
+    background: var(--inventory-appraisal-header);
+    color: var(--inventory-appraisal-header-ink);
+}
+
+.majordome-inventory-appraisal :is(.pr-heading-group, .pr-vehicle-identity) {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    min-width: 0;
+}
+
+.majordome-inventory-appraisal .pr-section-icon {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    inline-size: 2.4rem;
+    aspect-ratio: 1;
+    border: 1px solid color-mix(in srgb, currentColor 32%, transparent);
+    border-radius: .65rem;
+    background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.majordome-inventory-appraisal :is(.pr-heading-group, .pr-vehicle-identity) h2 {
+    margin: 0;
+    color: inherit;
+    font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+    font-weight: 750;
+    text-shadow: none;
+    overflow-wrap: anywhere;
+}
+
+.majordome-inventory-appraisal .pr-eyebrow {
+    display: block;
+    margin-bottom: .15rem;
+    font-size: .72rem;
+    font-weight: 750;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.majordome-inventory-appraisal [data-appraisal-request-summary] {
+    margin: .35rem 0 0;
+    padding: .25rem .5rem;
+    border-radius: .35rem;
+    background: color-mix(in srgb, var(--inventory-appraisal-header-ink) 12%, transparent);
+    color: var(--inventory-appraisal-header-ink);
+    font-size: .85rem;
+    overflow-wrap: anywhere;
+}
+
+.majordome-inventory-appraisal .pr-market-estimate {
+    display: grid;
+    gap: .15rem;
+    min-width: 0;
+    padding: .5rem .85rem;
+    border: 1px solid color-mix(in srgb, currentColor 32%, transparent);
+    border-radius: .65rem;
+    background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.majordome-inventory-appraisal .pr-market-estimate span { font-size: .82rem; font-weight: 650; }
+.majordome-inventory-appraisal .pr-market-estimate strong {
+    font-size: clamp(1.65rem, 4vw, 2.35rem);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.12;
+    overflow-wrap: anywhere;
+}
+
+.majordome-inventory-appraisal :is(.research-metrics, .pr-demand .pr-bid-metrics) {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .55rem;
+}
+
+.majordome-inventory-appraisal :is(.research-metric, .pr-demand .pr-bid-metrics > div) {
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: .25rem;
+    min-width: 0;
+    padding: .7rem .55rem;
+    border: 1px solid color-mix(in srgb, var(--inventory-appraisal-accent) 30%, var(--bs-border-color, #dee2e6));
+    border-radius: .65rem;
+    background: linear-gradient(150deg, var(--inventory-appraisal-surface), var(--inventory-appraisal-tint));
+    text-align: center;
+}
+
+.majordome-inventory-appraisal :is(.research-metric, .pr-demand .pr-bid-metrics) span {
+    color: var(--bs-secondary-color, #526075);
+    font-size: .8rem;
+    font-weight: 650;
+}
+
+.majordome-inventory-appraisal :is(.research-metric, .pr-demand .pr-bid-metrics) strong {
+    color: color-mix(in srgb, var(--inventory-appraisal-accent) 42%, var(--inventory-appraisal-ink));
+    font-size: clamp(1rem, 2.5vw, 1.35rem);
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+.majordome-inventory-appraisal :is([data-appraisal-demand-message], .pr-demand-note) {
+    margin: .7rem 0 0;
+    color: var(--bs-secondary-color, #526075);
+    font-size: .85rem;
+}
+
+.majordome-inventory-appraisal [data-appraisal-demand-message]:empty { display: none; }
+
+@media (max-width: 575.98px) {
+    .majordome-inventory-appraisal .pr-market-estimate { width: 100%; }
+    .majordome-inventory-appraisal :is(.research-metrics, .pr-demand .pr-bid-metrics) { grid-template-columns: minmax(0, 1fr); }
+    .majordome-inventory-appraisal :is(.research-metric, .pr-demand .pr-bid-metrics > div) {
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        justify-items: start;
+        text-align: start;
+    }
+}
+
+.majordome-inventory-appraisal [data-appraisal-caption] { display: block; margin-top: .15rem; }
+.majordome-inventory-appraisal .pr-comparables-switch { min-width: 0; margin: 0; }
+
+.majordome-inventory-appraisal .pr-comparables-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .25rem;
+    padding: .25rem;
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-radius: .75rem;
+    background: var(--bs-tertiary-bg, var(--inventory-appraisal-surface));
+    color: var(--inventory-appraisal-ink);
+    box-shadow: 0 .25rem .6rem rgb(0 0 0 / 18%);
+}
+
+.majordome-inventory-appraisal .pr-comparables-options label { position: relative; cursor: pointer; }
+.majordome-inventory-appraisal .pr-comparables-options input { position: absolute; opacity: 0; }
+
+.majordome-inventory-appraisal .pr-comparables-options span {
+    display: grid;
+    place-items: center;
+    min-inline-size: 4.5rem;
+    min-block-size: 2.25rem;
+    padding: .3rem .65rem;
+    border-radius: .5rem;
+    font-size: .85rem;
+    font-weight: 700;
+}
+
+.majordome-inventory-appraisal .pr-comparables-options input:checked + span {
+    background: var(--inventory-appraisal-header);
+    color: var(--inventory-appraisal-header-ink);
+    box-shadow: 0 2px 5px rgb(0 0 0 / 24%);
+}
+
+.majordome-inventory-appraisal .pr-comparables-options input:focus-visible + span {
+    outline: 2px solid var(--inventory-appraisal-accent);
+    outline-offset: 1px;
+}
+
+.majordome-inventory-appraisal :is(.pr-comparables-description, .research-grid-note) {
+    color: var(--bs-secondary-color, #526075);
+    font-size: .85rem;
+}
+
+.majordome-inventory-appraisal .pr-comparables-description {
+    margin: 0 0 .85rem;
+    padding: .65rem .8rem;
+    border-inline-start: .2rem solid var(--inventory-appraisal-accent);
+    border-radius: .2rem .55rem .55rem .2rem;
+    background: var(--inventory-appraisal-tint);
+}
+
+.majordome-inventory-appraisal .research-grid-note { margin: .7rem 0 0; }
+
 .majordome-remove-bg-modal .modal-content {
     overflow: hidden;
     border: 1px solid var(--bs-border-color-translucent, rgba(148, 163, 184, .2));
@@ -431,15 +787,23 @@ html.theme-silver .majordome-admin-grid {
 }
 
 #majordomeInventoryTable .majordome-inventory-col-image {
-    width: 100px;
+    width: 80px;
+}
+
+:is(#majordomeInventoryGrid, #majordomeManagementGrid) .majordome-thumb {
+    width: 88px;
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: contain;
+}
+
+@media (max-width: 767.98px) {
+    :is(#majordomeInventoryGrid, #majordomeManagementGrid) .majordome-thumb { width: 76px; }
 }
 
 #majordomeInventoryTable .majordome-inventory-col-vehicle {
     min-width: 200px;
-}
-
-#majordomeInventoryTable .majordome-inventory-col-purchased {
-    min-width: 132px;
 }
 
 #majordomeInventoryTable .majordome-inventory-col-gtx {
@@ -496,15 +860,29 @@ html.theme-silver .majordome-admin-grid {
 }
 
 #majordomeManagementTable .majordome-management-col-expand {
-    width: 56px;
+    width: 36px;
 }
 
 #majordomeManagementTable .majordome-management-col-image {
-    width: 100px;
+    width: 50px;
 }
 
 #majordomeManagementTable .majordome-management-col-vehicle {
     width: 170px;
+}
+
+:is(#majordomeManagementTable, #majordomeInventoryTable) .majordome-vehicle-identifiers {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+}
+
+:is(#majordomeManagementTable, #majordomeInventoryTable) .majordome-vehicle-identifiers > :last-child {
+    flex-shrink: 0;
+}
+
+:is(#majordomeManagementTable, #majordomeInventoryTable) .majordome-vehicle-identifier-label {
+    display: none;
 }
 
 #majordomeManagementTable .majordome-management-col-stock {
@@ -990,7 +1368,9 @@ body.majordome-inventory-page .body-content {
         --gtx-admin-grid-header-text: #111827;
     }
 
-    .majordome-inventory-shell {
+    .majordome-inventory-shell,
+    .majordome-inventory-grid-style,
+    :is(#MajordomeLink, #AboutMenuLink, #vinProviderPicker) {
         --inventory-border: var(--bs-border-color-translucent, rgba(30, 41, 59, .12));
         --inventory-line: var(--bs-border-color-translucent, rgba(148, 163, 184, .22));
         --inventory-muted: var(--bs-secondary-color, #64748b);
@@ -1000,6 +1380,9 @@ body.majordome-inventory-page .body-content {
         --inventory-header-bg: var(--gtx-grad, var(--bs-primary-bg-subtle, #f8fafc));
         --inventory-header-color: #fff;
         --inventory-header-border: rgba(255, 255, 255, .24);
+    }
+
+    .majordome-inventory-shell {
         display: flex;
         height: var(--majordome-inventory-workspace-height);
         max-height: var(--majordome-inventory-workspace-height);
@@ -1017,7 +1400,7 @@ body.majordome-inventory-page .body-content {
         background: linear-gradient(180deg, var(--inventory-surface) 0%, var(--inventory-surface-alt) 100%);
     }
 
-    html.theme-silver #inventoryGridShell {
+    html.theme-silver :is(#inventoryGridShell, .majordome-inventory-grid-style) {
         --inventory-header-color: #111827;
         --inventory-header-border: rgba(15, 23, 42, .16);
     }
@@ -1035,17 +1418,17 @@ body.majordome-inventory-page .body-content {
         pointer-events: auto;
     }
 
-    #inventoryGridShell .majordome-batch-actions-dropdown {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker) .majordome-batch-actions-dropdown {
         position: relative;
     }
 
-    #inventoryGridShell .majordome-batch-actions-menu {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker) .majordome-batch-actions-menu {
         width: min(18rem, calc(100vw - 1rem));
         border: 1px solid var(--inventory-border);
         background: var(--inventory-surface);
     }
 
-    #inventoryGridShell .majordome-batch-action {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker) .majordome-batch-action {
         display: grid;
         grid-template-columns: 2.15rem minmax(0, 1fr);
         gap: .7rem;
@@ -1057,13 +1440,13 @@ body.majordome-inventory-page .body-content {
         white-space: normal;
     }
 
-    #inventoryGridShell .majordome-batch-action:hover,
-    #inventoryGridShell .majordome-batch-action:focus {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker) .majordome-batch-action:hover,
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker) .majordome-batch-action:focus {
         color: var(--inventory-ink);
         background: var(--inventory-surface-alt);
     }
 
-    #inventoryGridShell .majordome-batch-action-icon {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker) .majordome-batch-action-icon {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -1076,17 +1459,17 @@ body.majordome-inventory-page .body-content {
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35);
     }
 
-    #inventoryGridShell .majordome-batch-action strong,
-    #inventoryGridShell .majordome-batch-action small {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker) .majordome-batch-action strong,
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker) .majordome-batch-action small {
         display: block;
     }
 
-    #inventoryGridShell .majordome-batch-action strong {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker) .majordome-batch-action strong {
         font-size: .78rem;
         line-height: 1.2;
     }
 
-    #inventoryGridShell .majordome-batch-action small {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker) .majordome-batch-action small {
         margin-top: .15rem;
         color: var(--inventory-muted);
         font-size: .66rem;
@@ -1102,35 +1485,38 @@ body.majordome-inventory-page .body-content {
         }
 
     #majordomeInventoryTable {
+        min-width: 980px;
+    }
+
+    :is(#majordomeInventoryTable, .majordome-inventory-grid-style .pg-grid-table) {
         --bs-table-bg: transparent;
         --bs-table-hover-bg: rgba(37, 99, 235, .045);
         --bs-table-color: var(--inventory-ink);
         border-collapse: separate;
         border-spacing: 0;
         font-size: .8rem;
-        min-width: 980px;
     }
 
-        #majordomeInventoryTable > thead > tr > th,
-        #majordomeInventoryTable > tbody > tr > td {
+        :is(#majordomeInventoryTable, .majordome-inventory-grid-style .pg-grid-table) > thead > tr > th,
+        :is(#majordomeInventoryTable, .majordome-inventory-grid-style .pg-grid-table) > tbody > tr > td {
             border-color: var(--inventory-line);
         }
 
-        #majordomeInventoryTable > tbody > tr > td {
+        :is(#majordomeInventoryTable, .majordome-inventory-grid-style .pg-grid-table) > tbody > tr > td {
             background: var(--inventory-surface);
             padding: .25rem .4rem;
             vertical-align: middle;
         }
 
-        #majordomeInventoryTable > tbody > tr:nth-child(even) > td {
+        #majordomeInventoryTable > tbody > tr.majordome-vehicle-row > td {
+            padding-block: .15rem;
+        }
+
+        :is(#majordomeInventoryTable, .majordome-inventory-grid-style .pg-grid-table) > tbody > tr:is(:nth-child(even), .pg-row-odd) > td {
             background: var(--inventory-surface-alt);
         }
 
-        #majordomeInventoryTable > tbody > tr.pg-row-odd > td {
-            background: var(--inventory-surface-alt);
-        }
-
-        #majordomeInventoryTable > tbody > tr:first-child > td {
+        :is(#majordomeInventoryTable, .majordome-inventory-grid-style .pg-grid-table) > tbody > tr:first-child > td {
             border-top: 0;
         }
 
@@ -1155,7 +1541,7 @@ body.majordome-inventory-page .body-content {
             border-radius: 999px;
         }
 
-        #majordomeInventoryTable > thead > tr > th {
+        :is(#majordomeInventoryTable, .majordome-inventory-grid-style .pg-grid-table) > thead > tr > th {
             position: sticky;
             top: 0;
             z-index: 2;
@@ -1172,6 +1558,10 @@ body.majordome-inventory-page .body-content {
         }
 
     #majordomeInventoryGrid {
+        height: 100%;
+    }
+
+    :is(#majordomeInventoryGrid, .majordome-inventory-grid-style) {
         --pg-color-border: var(--inventory-line);
         --pg-color-border-inner: var(--inventory-line);
         --pg-color-border-cell: var(--inventory-line);
@@ -1187,7 +1577,6 @@ body.majordome-inventory-page .body-content {
         --pg-color-text-muted: var(--inventory-muted);
         --pg-color-text-subtle: var(--inventory-muted);
         --pg-color-accent: var(--gtx-accent-solid, #1e73be);
-        height: 100%;
         min-height: 0;
     }
 
@@ -1199,20 +1588,18 @@ body.majordome-inventory-page .body-content {
             background: var(--inventory-surface);
         }
 
-        #majordomeInventoryGrid .pg-grid-scroll {
+        :is(#majordomeInventoryGrid, .majordome-inventory-grid-style) .pg-grid-scroll {
             min-height: 0;
             overflow: auto;
             scrollbar-color: rgba(71, 85, 105, .45) transparent;
             scrollbar-width: thin;
         }
 
-        #majordomeInventoryGrid .pg-grid-table thead {
+        :is(#majordomeInventoryGrid, .majordome-inventory-grid-style) .pg-grid-table thead {
             background: var(--inventory-header-bg);
         }
 
-        #majordomeInventoryGrid .pg-th-label,
-        #majordomeInventoryGrid .pg-sort-icon,
-        #majordomeInventoryGrid .pg-filter-btn {
+        :is(#majordomeInventoryGrid, .majordome-inventory-grid-style) :is(.pg-th-label, .pg-sort-icon, .pg-filter-btn) {
             color: var(--inventory-header-color);
         }
 
@@ -1316,13 +1703,6 @@ body.majordome-inventory-page .body-content {
         letter-spacing: .01em;
     }
 
-    .majordome-date-cell {
-        color: #334155;
-        font-size: .76rem;
-        font-weight: 650;
-        white-space: nowrap;
-    }
-
     .majordome-status-pill {
         display: inline-flex;
         align-items: center;
@@ -1365,12 +1745,14 @@ body.majordome-inventory-page .body-content {
 
     .majordome-actions {
         display: inline-grid;
-        grid-template-columns: repeat(4, max-content);
+        grid-template-columns: repeat(var(--majordome-action-count, 4), max-content);
         gap: .35rem;
         min-width: 0;
         width: auto;
         text-align: left;
     }
+
+    .majordome-actions.has-appraisal { --majordome-action-count: 5; }
 
     .majordome-action-group {
         display: flex;
@@ -1854,12 +2236,12 @@ body.majordome-inventory-page .body-content {
             margin-left: 0;
         }
 
-            #inventoryGridShell .majordome-batch-actions-dropdown,
+            :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink) .majordome-batch-actions-dropdown,
             #inventoryGridShell #majordomeBatchActionsDropdown {
                 width: 100%;
             }
 
-            #inventoryGridShell .majordome-batch-actions-menu {
+            :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink) .majordome-batch-actions-menu {
                 width: 100%;
             }
 
@@ -2368,6 +2750,10 @@ body.majordome-inventory-page .body-content {
             background: var(--inventory-surface);
             padding: .25rem .4rem;
             vertical-align: middle;
+        }
+
+        #majordomeManagementTable > tbody > tr > .majordome-management-expand-cell {
+            padding-inline: 0;
         }
 
         #majordomeManagementTable tbody tr.majordome-management-row.is-alt td,
@@ -3022,3 +3408,117 @@ body.majordome-inventory-page .body-content {
             max-height: none;
         }
     }
+
+/* Role editor: scoped cards keep the shared modal and other editors unchanged. */
+#roleModal .modal-header { padding: .65rem 1rem; }
+@media (min-width: 768px) {
+    #roleModal .modal-dialog { max-width: min(1000px, calc(100% - 2rem)); }
+}
+#roleModalBody {
+    --role-editor-accent: var(--gtx-accent-solid, #175cd3);
+    --role-editor-surface: var(--bs-body-bg, #fff);
+    --role-editor-line: color-mix(in srgb, var(--role-editor-accent) 16%, var(--role-editor-surface));
+    background: linear-gradient(145deg, color-mix(in srgb, var(--role-editor-accent) 5%, var(--role-editor-surface)), var(--role-editor-surface) 65%);
+    padding: 1rem;
+}
+#roleModalBody .role-editor-card {
+    border: 1px solid var(--role-editor-line);
+    border-radius: 1rem;
+    background: var(--role-editor-surface);
+    box-shadow: 0 .4rem 1.3rem rgba(15, 23, 42, .06), 0 1px 2px rgba(15, 23, 42, .04);
+}
+#roleModalBody .role-editor-card-header {
+    padding: .5rem 1rem;
+    border-bottom: 1px solid var(--role-editor-line) !important;
+    background: linear-gradient(120deg, color-mix(in srgb, var(--role-editor-accent) 9%, var(--role-editor-surface)), var(--role-editor-surface));
+}
+#roleModalBody .role-editor-heading { display: flex; align-items: center; gap: .4rem; font-size: .85rem; line-height: 1.2; }
+#roleModalBody .role-editor-heading-icon {
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 1.5rem;
+    height: 1.5rem;
+    border: 1px solid color-mix(in srgb, var(--role-editor-accent) 20%, transparent);
+    border-radius: .4rem;
+    color: var(--role-editor-accent);
+    background: color-mix(in srgb, var(--role-editor-accent) 10%, var(--role-editor-surface));
+    font-size: .85rem;
+}
+#roleModalBody .role-editor-card > .card-body { padding: 1rem !important; }
+#roleModalBody .role-editor-permissions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; gap: .3rem; }
+#roleModalBody #rolePasswordPolicy { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .25rem .75rem; font-size: .78rem; }
+#roleModalBody .role-editor-permission {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    min-height: 2.1rem;
+    margin: 0;
+    padding: .4rem .55rem;
+    border: 1px solid transparent;
+    border-radius: .65rem;
+    transition: background-color .15s ease, border-color .15s ease;
+}
+#roleModalBody .role-editor-permission:has(:checked) {
+    border-color: color-mix(in srgb, var(--role-editor-accent) 12%, transparent);
+    background: color-mix(in srgb, var(--role-editor-accent) 5%, var(--role-editor-surface));
+}
+#roleModalBody .role-editor-permission .form-check-input { flex: 0 0 2.15rem; width: 2.15rem; height: 1.15rem; margin: 0; cursor: pointer; }
+#roleModalBody .role-editor-permission .form-check-input:checked { background-color: var(--role-editor-accent); border-color: var(--role-editor-accent); }
+#roleModalBody .role-editor-permission .form-check-input:disabled { cursor: default; }
+#roleModalBody .role-editor-permission .form-check-label { flex: 1; font-size: .85rem; font-weight: 500; cursor: pointer; }
+#roleModalBody .role-editor-permission:focus-within { border-color: var(--role-editor-accent); }
+#roleModalBody .role-editor-note { display: flex; gap: .4rem; padding: .45rem .6rem; border-radius: .75rem; background: color-mix(in srgb, var(--role-editor-accent) 7%, var(--role-editor-surface)); color: var(--bs-secondary-color, #64748b); font-size: .75rem; line-height: 1.4; }
+#roleModalBody .role-editor-note > i { color: var(--role-editor-accent); font-size: 1rem; }
+#roleModalBody .form-label { margin-bottom: .25rem; font-size: .85rem; }
+#roleModalBody .form-control { min-height: 2.2rem; border-radius: .65rem; }
+#roleModalBody .form-text { font-size: .75rem; line-height: 1.35; }
+#roleModalBody .form-control:focus { border-color: var(--role-editor-accent); box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--role-editor-accent) 12%, transparent) !important; }
+#roleModalBody .input-group-text { border-radius: .65rem 0 0 .65rem; color: var(--role-editor-accent); }
+#roleModalBody .input-group > .form-control { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+#roleModalBody .role-editor-footer { margin-top: .5rem; padding-bottom: 0 !important; background: transparent; }
+html[data-background-theme="dark"] #roleModalBody { --role-editor-surface: #192330; color: #e2e8f0; --bs-secondary-color: #aab9cc; }
+@media (prefers-reduced-motion: reduce) {
+    #roleModalBody .role-editor-permission { transition: none; }
+}
+
+/* Majordome navigation uses the inventory Actions menu's icon-and-description rows. */
+html body :is(#MajordomeLink, #AboutMenuLink) > .dropdown.majordome-batch-actions-menu {
+    width: min(18rem, calc(100vw - 1rem));
+    max-height: calc(100dvh - 8rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border: 1px solid var(--inventory-border);
+    background: var(--inventory-surface) !important;
+}
+:is(#MajordomeLink, #AboutMenuLink) > .dropdown > li { margin: 0; }
+html body :is(#MajordomeLink, #AboutMenuLink) > .dropdown > li > .majordome-batch-action {
+    display: grid;
+    grid-template-columns: 2.15rem minmax(0, 1fr);
+    gap: .7rem;
+    padding: .45rem .6rem;
+    color: var(--inventory-ink) !important;
+    text-transform: none;
+    text-decoration: none;
+    white-space: normal;
+}
+html body :is(#MajordomeLink, #AboutMenuLink) > .dropdown > li > .majordome-batch-action:hover,
+html body :is(#MajordomeLink, #AboutMenuLink) > .dropdown > li > .majordome-batch-action:focus-visible {
+    color: var(--inventory-ink);
+    background: var(--inventory-surface-alt);
+}
+
+
+:is(#MajordomeLink, #AboutMenuLink) .majordome-batch-action small {
+    color: var(--inventory-muted);
+}
+
+@media (min-width: 768px) {
+    html body #MajordomeLink > .dropdown.majordome-menu-columns {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: .35rem;
+        width: min(37rem, calc(100vw - 1rem));
+    }
+    #MajordomeLink > .dropdown.majordome-menu-columns > li { min-width: 0; }
+    #MajordomeLink > .dropdown.majordome-menu-columns > li > a { height: 100%; }
+}

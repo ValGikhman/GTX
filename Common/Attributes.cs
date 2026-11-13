@@ -11,8 +11,7 @@ namespace GTX.Common
         public string RedirectController { get; set; } = "Home";
         public string RedirectAction { get; set; } = "NeedLogin";
 
-        // If you want to override role name later
-        public CommonUnit.Roles RequiredRole { get; set; } = CommonUnit.Roles.User;
+        public bool RequireMajordome { get; set; }
 
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
@@ -28,21 +27,11 @@ namespace GTX.Common
                 return;
             }
 
-            var role = RoleCookie.GetCurrentRole(
-                filterContext.HttpContext.Request,
-                filterContext.HttpContext.Session
-            );
-
-            var hasAccess = RequiredRole == CommonUnit.Roles.User
-                ? role != CommonUnit.Roles.User
-                : role == RequiredRole;
-
-            if (role == CommonUnit.Roles.Blogger &&
-                !string.Equals(filterContext.ActionDescriptor.ControllerDescriptor.ControllerName, "Blogs", StringComparison.OrdinalIgnoreCase) &&
-                !string.Equals(filterContext.ActionDescriptor.ControllerDescriptor.ControllerName, "Specials", StringComparison.OrdinalIgnoreCase))
-            {
-                hasAccess = false;
-            }
+            var role = SiteAccess.Current(filterContext.HttpContext.Request);
+            var controller = filterContext.ActionDescriptor.ControllerDescriptor.ControllerName;
+            var item = MajordomeMenu.ForRequest(controller, filterContext.ActionDescriptor.ActionName);
+            var hasAccess = SiteAccess.Can(role, item);
+            if (RequireMajordome) hasAccess = hasAccess && SiteAccess.IsMajordome(role);
 
             if (!hasAccess)
             {

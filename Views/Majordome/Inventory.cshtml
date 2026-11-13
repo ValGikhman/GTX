@@ -5,15 +5,26 @@
         ?? Array.Empty<Services.InventoryDashboardVehicle>();
     var majordomeInventoryVehicles = ViewBag.MajordomeInventoryVehicles as object[]
         ?? Array.Empty<object>();
+    var inventoryRole = GTX.Common.SiteAccess.Current(ViewContext.HttpContext.Request);
+    var canAppraise = GTX.Common.SiteAccess.Can(inventoryRole, GTX.Common.MajordomeItem.Appraisal);
+    var removeBgEnabled = ViewBag.RemoveBgEnabled is bool && (bool)ViewBag.RemoveBgEnabled;
 }
 <head>
     <script>
         window.inventoryImagesBaseUrl = @Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(InventoryImageSettings.BaseUrl, true));
         window.inventoryImagesPlaceholderUrl = @Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(InventoryImageSettings.PlaceholderUrl, true));
         window.inventoryImagesCloudflareEnabled = @Html.Raw(InventoryImageSettings.CloudflareEnabled ? "true" : "false");
+        window.gtx = window.gtx || {};
+        window.gtx.removeBgEnabled = @Html.Raw(removeBgEnabled ? "true" : "false");
     </script>
     <script src="~/Scripts/majordome.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome.js")).Ticks)"></script>
     <script src="~/Scripts/majordome-inventory-grid.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome-inventory-grid.js")).Ticks)"></script>
+    @if (canAppraise)
+    {
+        <script src="~/Scripts/majordome-appraisal-comparables.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome-appraisal-comparables.js")).Ticks)"></script>
+        <script src="~/Scripts/majordome-appraisal-research.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome-appraisal-research.js")).Ticks)"></script>
+        <script src="~/Scripts/majordome-inventory-appraisal.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome-inventory-appraisal.js")).Ticks)"></script>
+    }
     <script src="~/Scripts/inventory-history.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/inventory-history.js")).Ticks)"></script>
 
     <!-- Lightbox2 JS -->
@@ -41,6 +52,11 @@
         <span class="visually-hidden">Working...</span>
     </div>
 </div>
+
+@if (canAppraise)
+{
+    @Html.Partial("_InventoryAppraisalModal")
+}
 
 <!-- Modal -->
 <div class="modal fade" id="overlayModal" data-bs-keyboard="true" tabindex="-1" aria-labelledby="overlayTitle" aria-hidden="true">
@@ -132,7 +148,7 @@
                                 <div class="invalid-feedback"></div>
                             </div>
                             <div class="majordome-editor-id-gtx">
-                                <label class="form-label" for="majordomeInventoryEditorLocationCode"><i class="bi bi-geo-alt majordome-editor-label-icon" aria-hidden="true"></i>GTX</label>
+                                <label class="form-label" for="majordomeInventoryEditorLocationCode"><i class="bi bi-geo-alt majordome-editor-label-icon" aria-hidden="true"></i>Location</label>
                                 <select class="form-select majordome-editor-select" id="majordomeInventoryEditorLocationCode" name="LocationCode" data-inventory-field="LocationCode" data-allow-new="true" maxlength="1"></select>
                                 <div class="invalid-feedback"></div>
                             </div>
@@ -328,10 +344,13 @@
                 <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-book-half"></i></span>
                 <span><strong>Re-story all</strong><small>Create missing vehicle stories</small></span>
             </button>
-            <button type="button" id="btnRemoveBackgrounds" class="dropdown-item majordome-batch-action rounded-3">
-                <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-eraser-fill"></i></span>
-                <span><strong>Remove backgrounds</strong><small>Process eligible first images</small></span>
-            </button>
+            @if (removeBgEnabled)
+            {
+                <button type="button" id="btnRemoveBackgrounds" class="dropdown-item majordome-batch-action rounded-3">
+                    <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-eraser-fill"></i></span>
+                    <span><strong>Remove backgrounds</strong><small>Process eligible first images</small></span>
+                </button>
+            }
         </div>
     </div>
 </template>
@@ -804,23 +823,6 @@
             toggleMajordomeHistoryChange($(this));
         });
 
-        $("#majordomeInventoryGrid").on("dblclick", ".majordome-row-details", function (e) {
-            if ($(e.target).closest(".copyable").length) return;
-            e.preventDefault();
-            e.stopPropagation();
-            const stock = $(this).closest(".majordome-vehicle-row").attr("data-stock");
-            selectMajordomeVehicle(stock);
-            $("#details-tab").tab("show");
-        });
-
-        $("#majordomeInventoryGrid").on("dblclick", ".majordome-row-image", function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            const stock = $(this).closest(".majordome-vehicle-row").attr("data-stock");
-            selectMajordomeVehicle(stock);
-            $("#gallery-tab").tab("show");
-        });
-
         $("#majordomeInventoryGrid").on("click", ".js-amm-upload-trigger", function (e) {
             e.preventDefault();
             e.stopPropagation();
@@ -833,6 +835,17 @@
             const stock = $(this).attr("data-stock");
             selectMajordomeVehicle(stock);
             openMajordomeInventoryEditor(findMajordomeInventoryVehicle(stock), "edit");
+        });
+
+        $("#majordomeInventoryGrid").on("click", ".js-amm-appraise", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const vehicle = findMajordomeInventoryVehicle($(this).attr("data-stock"));
+            if (vehicle && window.majordomeInventoryAppraisal) {
+                window.majordomeInventoryAppraisal.open(vehicle, this, function (vin) {
+                    return inventoryVehiclesSource.find(row => safeText(row.VIN).trim().toUpperCase() === vin);
+                });
+            }
         });
 
         $("#majordomeInventoryGrid").on("change", ".js-amm-upload-input", function (e) {
@@ -3063,6 +3076,7 @@
     }
 
     async function openMajordomeBulkProgressModal(actionKey, options) {
+        if (actionKey === "remove-backgrounds" && !(window.gtx && window.gtx.removeBgEnabled === true)) return;
         if (majordomeBulkJob && majordomeBulkJob.running) return;
 
         const config = getMajordomeBulkConfig(actionKey, options);
@@ -3543,12 +3557,13 @@
         const vin = escapeHtml(vehicle.VIN);
         const imagesCount = vehicle.Images ? vehicle.Images.length : 0;
         const canDeleteImages = imagesCount > 0;
+        const hasAppraisal = !!document.getElementById("majordomeInventoryAppraisalModal");
         const deleteImagesTitle = canDeleteImages
             ? `Delete all ${imagesCount} pictures for Stock# ${stock}`
             : `No images to delete for Stock# ${stock}`;
 
         return `
-            <div class="majordome-actions">
+            <div class="majordome-actions${hasAppraisal ? " has-appraisal" : ""}">
                 <div class="majordome-action-group">
                     <div class="majordome-action-title">Edit</div>
                     <div class="majordome-action-buttons">
@@ -3557,6 +3572,15 @@
                         </button>
                     </div>
                 </div>
+                ${hasAppraisal ? `
+                    <div class="majordome-action-group">
+                        <div class="majordome-action-title">Appraisal</div>
+                        <div class="majordome-action-buttons align-self-stretch">
+                            <button type="button" class="btn btn-gradient-grey border-dark shadow-sm w-100 js-amm-appraise" data-stock="${stock}" aria-label="Appraise Stock# ${stock}" aria-haspopup="dialog" aria-controls="majordomeInventoryAppraisalModal" title="Appraise Stock# ${stock}">
+                                <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>` : ""}
                 <div class="majordome-action-group">
                     <div class="majordome-action-title">Images</div>
                     <div class="majordome-action-buttons">
@@ -3601,7 +3625,6 @@
         const stock = safeText(row.Stock);
         const search = buildVehicleSearch(searchObject);
         const tokenSearch = buildVehicleTokenSearch(searchObject);
-        const purchaseDate = formatPurchaseDate(row.PurchaseDate);
         const upload = safeText(row.SetToUpload).toUpperCase() === "Y";
         const story = hasStory(row);
         const dataOne = hasDataOne(row);
@@ -3625,8 +3648,6 @@
         const statusLabels = (Array.isArray(row.HistoryStatuses) ? row.HistoryStatuses : [])
             .map(function (code) { return getMajordomeStatusDotInfo(code).label; })
             .filter(Boolean);
-        const purchaseTimestamp = row.PurchaseDate ? new Date(row.PurchaseDate).getTime() : Number.NEGATIVE_INFINITY;
-        const safePurchaseTimestamp = Number.isFinite(purchaseTimestamp) ? purchaseTimestamp : Number.NEGATIVE_INFINITY;
         const numericDays = Number(daysValue);
         const imageRenderer = window.majordomeVehicleCells && window.majordomeVehicleCells.renderImageContent;
         const detailsRenderer = window.majordomeVehicleCells && window.majordomeVehicleCells.renderDetailsContent;
@@ -3639,8 +3660,6 @@
                 : 0,
             VehicleLabel: `${safeText(row.Year)} ${safeText(row.Make)} ${safeText(row.Model)} ${safeText(row.VehicleStyle)}`.trim(),
             VehicleSort: `${safeText(row.Make)} ${safeText(row.Year)} ${safeText(row.Model)} ${safeText(row.VehicleStyle)}`.trim(),
-            PurchasedDisplay: purchaseDate,
-            PurchasedSort: safePurchaseTimestamp,
             Stock: stock,
             Gtx: gtxValue,
             Status: statusLabels.join(", ") || "None",
@@ -3663,7 +3682,6 @@
                 </button>`,
             ImageHtml: imageRenderer ? imageRenderer(row) : "",
             VehicleHtml: detailsRenderer ? detailsRenderer(row) : escapeHtml(`${row.Year || ""} ${row.Make || ""} ${row.Model || ""}`),
-            PurchasedHtml: escapeHtml(purchaseDate),
             StockHtml: `<span class="shadow majordome-status-pill majordome-status-location ${escapeHtml(gtxBadge.toneClass)} px-2">${escapeHtml(stock)}</span>`,
             GtxHtml: `<span class="majordome-status-pill majordome-status-location ${escapeHtml(gtxBadge.toneClass)} shadow">${escapeHtml(gtxBadge.label)}</span>`,
             StatusHtml: renderMajordomeStatusDots(row.HistoryStatuses),
@@ -3840,6 +3858,22 @@
         const grid = window.majordomeInventoryAddGrid;
 
         if (!grid || !grid.initialize(gridRows, {
+            dblClick: function (detail) {
+                const $target = $(detail.event.target);
+                if ($target.closest("a, button, input, select, textarea").length) return;
+                const $row = $(detail.rowElement);
+                if ($target.closest(".majordome-row-details, .majordome-row-image").length) {
+                    detail.event.preventDefault();
+                    selectMajordomeVehicle($row.attr("data-stock"));
+                    $($target.closest(".majordome-row-image").length ? "#gallery-tab" : "#details-tab").tab("show");
+                    return;
+                }
+                const $edit = $row.find(".js-amm-edit-inventory:not(:disabled)").first();
+                if ($edit.length) {
+                    detail.event.preventDefault();
+                    $edit.trigger("click");
+                }
+            },
             onRender: function () {
                 markSelectedRow(selectedVehicleStock);
                 syncMajordomeEmptyState();

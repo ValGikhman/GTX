@@ -240,6 +240,14 @@
 
         const $grid = $("#announcementsAddGrid");
         $grid.addGrid({
+            dblClick: function (detail) {
+                if ($(detail.event.target).closest("a, button, input, select, textarea").length) return;
+                const $edit = $(detail.rowElement).find("a[data-announcement-modal='true']").first();
+                if ($edit.length) {
+                    detail.event.preventDefault();
+                    $edit.trigger("click");
+                }
+            },
             data: rows,
             columns: [
                 { field: "Title", title: "Title", width: 220, filterable: false, searchable: true, searchField: "SearchText", template: "#announcement-grid-title-template" },

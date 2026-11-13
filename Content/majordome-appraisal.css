@@ -1,0 +1,695 @@
+/* Appraisal uses GTX's accent and Bootstrap's active background palette. */
+#price-research {
+    --pr-ink: var(--bs-body-color);
+    --pr-muted: var(--bs-secondary-color);
+    --pr-surface: var(--bs-body-bg);
+    --pr-inset: var(--bs-tertiary-bg);
+    --pr-line: var(--bs-border-color);
+    --pr-brand: var(--gtx-accent-solid, #1e73be);
+    --pr-accent: color-mix(in srgb, var(--pr-brand) 67%, var(--pr-ink));
+    --pr-tint: color-mix(in srgb, var(--pr-brand) 10%, var(--pr-surface));
+    --pr-highlight: color-mix(in srgb, var(--pr-brand) 18%, var(--pr-surface));
+    --pr-accent-line: color-mix(in srgb, var(--pr-brand) 35%, var(--pr-line));
+    --pr-heading-ink: #fff;
+    --pr-heading-shade: transparent;
+    --pr-heading-chip: rgb(0 0 0 / 14%);
+    --pr-heading-background: linear-gradient(var(--pr-heading-shade), var(--pr-heading-shade)), var(--gtx-grad, var(--pr-brand));
+    --pr-gap: clamp(.9rem, 2vw, 1.35rem);
+    --pr-pad: clamp(1rem, 2.8vw, 1.8rem);
+    --pr-radius: 1.15rem;
+}
+
+html.theme-silver #price-research {
+    --pr-heading-ink: #111827;
+    --pr-heading-chip: rgb(255 255 255 / 36%);
+}
+
+html.theme-metallica #price-research {
+    --pr-heading-shade: rgb(0 0 0 / 38%);
+}
+
+[data-background-theme="grey"] #price-research,
+[data-bs-theme="dark"] #price-research {
+    --pr-accent: color-mix(in srgb, var(--pr-brand) 43%, var(--pr-ink));
+}
+
+#price-research [hidden] {
+    display: none !important;
+}
+
+#price-research :is(.vin-decoder-input-group, .pr-bid-money),
+#price-research-form .form-control:not(#pr-vin) {
+    box-shadow: 0 2px 4px rgb(0 0 0 / 8%), 0 5px 12px rgb(0 0 0 / 10%);
+}
+
+#price-research .pr-results-panel {
+    margin-top: 1.5rem;
+}
+
+#price-research .pr-results-panel:has(#pr-results:not([hidden])) {
+    min-height: 0;
+    overflow: visible;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+#price-research .pr-progress {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    padding: 1rem var(--pr-pad);
+    color: var(--pr-accent);
+    background: var(--pr-tint);
+    border-bottom: 1px solid var(--pr-line);
+    font-weight: 650;
+}
+
+#price-research .research-results {
+    display: grid;
+    gap: var(--pr-gap);
+    color: var(--pr-ink);
+}
+
+#price-research :is(.pr-market-overview, .pr-auction, .pr-demand, .pr-grid-section) {
+    min-width: 0;
+    border: 1px solid var(--pr-line);
+    border-radius: var(--pr-radius);
+    background: var(--pr-surface);
+    box-shadow: 0 .45rem 1.35rem color-mix(in srgb, #050914 9%, transparent);
+}
+
+#price-research .pr-market-overview {
+    overflow: hidden;
+}
+#price-research :is(.pr-auction, .pr-demand, .pr-grid-section) {
+    padding: var(--pr-pad);
+}
+
+#price-research .pr-market-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    padding: var(--pr-pad);
+}
+
+#price-research :is(.pr-vehicle-identity, .pr-heading-group) {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    min-width: 0;
+}
+
+#price-research .pr-section-icon {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    width: 2.6rem;
+    aspect-ratio: 1;
+    border: 1px solid var(--pr-accent-line);
+    border-radius: .75rem;
+    background: var(--pr-highlight);
+    color: var(--pr-accent);
+    font-size: 1.15rem;
+}
+
+#price-research .research-results h2 {
+    margin: 0;
+    color: var(--pr-ink);
+    font-size: clamp(1.15rem, 2.1vw, 1.55rem);
+    font-weight: 750;
+    letter-spacing: -.025em;
+    text-shadow: none;
+}
+
+#price-research .pr-market-heading h2 {
+    font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+    overflow-wrap: anywhere;
+}
+
+#price-research .pr-eyebrow {
+    display: block;
+    margin-bottom: .2rem;
+    color: var(--pr-accent);
+    font-size: .72rem;
+    font-weight: 750;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+#price-research #pr-request-summary {
+    margin: .35rem 0 0;
+    color: var(--pr-heading-ink);
+    font-size: .86rem;
+    overflow-wrap: anywhere;
+}
+
+#price-research :is(.pr-market-estimate, .research-metric, .pr-bid-metrics > div) {
+    display: grid;
+    align-content: start;
+    gap: .3rem;
+    min-width: 0;
+}
+
+#price-research :is(.pr-market-estimate, .research-metric, .pr-bid-metrics) span {
+    color: var(--pr-muted);
+    font-size: .84rem;
+    font-weight: 600;
+}
+
+#price-research :is(.pr-market-estimate, .research-metric, .pr-bid-metrics, .pr-bid-costs) strong,
+#price-research #pr-bid-maximum {
+    color: var(--pr-ink);
+    font-size: clamp(1.05rem, 2vw, 1.4rem);
+    line-height: 1.12;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+#price-research .pr-market-estimate strong,
+#price-research #pr-bid-maximum {
+    font-size: clamp(1.8rem, 4vw, 2.65rem);
+    letter-spacing: -.045em;
+}
+
+#price-research .research-metrics,
+#price-research .pr-bid-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+    gap: .65rem;
+    background: var(--pr-inset);
+}
+
+#price-research .research-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .75rem;
+    padding: clamp(.75rem, 2vw, 1.25rem);
+    border-top: 1px solid var(--pr-line);
+}
+
+#price-research .research-metric {
+    align-content: center;
+    justify-items: center;
+    gap: .45rem;
+    min-block-size: 6rem;
+    padding: .9rem .75rem;
+    border: 1px solid var(--pr-accent-line);
+    border-radius: .75rem;
+    background: linear-gradient(165deg, var(--pr-surface), var(--pr-tint));
+    box-shadow: 0 2px 4px rgb(0 0 0 / 8%), 0 6px 12px rgb(0 0 0 / 10%);
+    text-align: center;
+}
+
+#price-research .research-metric strong {
+    color: var(--pr-accent);
+    font-size: clamp(1.35rem, 2.7vw, 1.9rem);
+}
+
+#price-research :is(.pr-auction-heading, .pr-grid-section > header, .pr-demand > header) {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: .8rem 1rem;
+    margin: calc(-1 * var(--pr-pad)) calc(-1 * var(--pr-pad)) 1rem;
+    padding: var(--pr-pad);
+    border-radius: calc(var(--pr-radius) - 1px) calc(var(--pr-radius) - 1px) 0 0;
+    border-bottom: 1px solid var(--pr-accent-line);
+}
+
+#price-research :is(.pr-auction-heading, .pr-market-heading, .pr-grid-section > header, .pr-demand > header) {
+    --pr-muted: var(--pr-heading-ink);
+    background: var(--pr-heading-background);
+}
+
+#price-research .pr-auction-heading {
+    padding-block: clamp(.55rem, 1.5vw, .95rem);
+}
+
+#price-research :is(.pr-auction-heading, .pr-market-heading, .pr-grid-section > header, .pr-demand > header) :is(h2, .pr-eyebrow, .pr-section-icon, .pr-market-estimate span, .pr-market-estimate strong) {
+    color: var(--pr-heading-ink);
+}
+
+#price-research :is(.pr-auction-heading, .pr-market-heading, .pr-grid-section > header, .pr-demand > header) .pr-section-icon,
+#price-research #pr-bid-maximum {
+    border-color: color-mix(in srgb, var(--pr-heading-ink) 30%, transparent);
+    background: var(--pr-heading-chip);
+}
+
+#price-research #pr-bid-maximum {
+    padding: .45rem .85rem .5rem;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: .7rem;
+    color: var(--pr-heading-ink);
+}
+
+#price-research .pr-bid-inputs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    gap: .75rem 1rem;
+}
+
+#price-research .pr-bid-inputs label {
+    margin-bottom: .35rem;
+    font-size: .88rem;
+    font-weight: 700;
+}
+#price-research .pr-bid-inputs small {
+    color: var(--pr-muted);
+    font-weight: 500;
+}
+
+#price-research .pr-bid-money {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--pr-line);
+    border-radius: .65rem;
+    background: var(--pr-surface);
+}
+
+#price-research .pr-bid-money span {
+    padding: .55rem .75rem;
+    border-right: 1px solid var(--pr-line);
+    color: var(--pr-muted);
+}
+#price-research .pr-bid-money input {
+    width: 100%;
+    min-width: 0;
+    padding: .6rem .75rem;
+    border: 0;
+    border-radius: 0 .65rem .65rem 0;
+    color: var(--pr-ink);
+    background: transparent;
+    font-variant-numeric: tabular-nums;
+}
+#price-research .pr-bid-money input::placeholder {
+    color: var(--pr-muted);
+}
+#price-research .pr-bid-money:focus-within:not(:has(input:active)) {
+    outline: 2px solid var(--pr-accent);
+    outline-offset: 2px;
+}
+#price-research .pr-bid-money input:focus {
+    outline: 0;
+}
+
+#price-research #pr-submit {
+    display: flex;
+    width: fit-content;
+    max-width: 100%;
+    min-width: 11rem;
+    min-height: 3.25rem;
+    margin-inline-start: auto;
+    padding: .8rem 1.45rem;
+    font-size: 1rem;
+}
+
+#price-research .pr-bid-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem .8rem;
+    margin: .8rem 0;
+}
+
+#price-research .pr-bid-costs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+#price-research .pr-bid-costs > span {
+    display: inline-flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: .3rem .5rem;
+    padding: .35rem .65rem;
+    border: 1px solid var(--pr-line);
+    border-radius: 999px;
+    color: var(--pr-muted);
+    background: var(--pr-inset);
+    font-size: .8rem;
+}
+
+#price-research .pr-bid-costs strong {
+    font-size: .88rem;
+}
+
+#price-research .pr-bid-metrics > div {
+    padding: .8rem;
+    border: 1px solid var(--pr-line);
+    border-radius: .65rem;
+    background: var(--pr-inset);
+}
+
+#price-research #pr-auction .pr-bid-metrics > div {
+    align-content: center;
+    justify-items: center;
+    gap: .45rem;
+    min-block-size: 6rem;
+    padding: .9rem .75rem;
+    border-color: var(--pr-accent-line);
+    border-radius: .75rem;
+    background: linear-gradient(165deg, var(--pr-surface), var(--pr-tint));
+    box-shadow: 0 2px 4px rgb(0 0 0 / 8%), 0 6px 12px rgb(0 0 0 / 10%);
+    text-align: center;
+}
+
+#price-research #pr-auction .pr-bid-metrics > div strong {
+    color: var(--pr-accent);
+    font-size: clamp(1.25rem, 2.5vw, 1.8rem);
+}
+
+#price-research #pr-demand .pr-bid-metrics {
+    margin: .15rem 0 .25rem;
+    padding: clamp(.75rem, 2vw, 1.25rem);
+    border: 1px solid var(--pr-line);
+    border-radius: .85rem;
+}
+
+#price-research #pr-demand .pr-bid-metrics > div {
+    align-content: center;
+    justify-items: center;
+    gap: .45rem;
+    min-block-size: 6rem;
+    padding: .9rem .75rem;
+    border-color: var(--pr-accent-line);
+    border-radius: .75rem;
+    background: linear-gradient(165deg, var(--pr-surface), var(--pr-tint));
+    box-shadow: 0 2px 4px rgb(0 0 0 / 8%), 0 6px 12px rgb(0 0 0 / 10%);
+    text-align: center;
+}
+
+#price-research #pr-demand .pr-bid-metrics > div strong {
+    color: var(--pr-accent);
+    font-size: clamp(1.25rem, 2.5vw, 1.8rem);
+}
+
+#price-research #pr-demand-message:not(:empty) {
+    margin-top: .85rem;
+    padding: .65rem .8rem;
+    border-left: .2rem solid var(--pr-brand);
+    border-radius: .2rem .55rem .55rem .2rem;
+    background: var(--pr-tint);
+}
+
+#price-research #pr-demand .pr-demand-note {
+    margin-top: .8rem;
+    padding-top: .7rem;
+    border-top: 1px solid var(--pr-line);
+}
+
+#price-research :is(.pr-demand .pr-bid-metrics > div:first-child, #pr-bid-at-maximum > div:nth-child(2)) {
+    border-color: var(--pr-accent-line);
+    background: var(--pr-tint);
+}
+
+#price-research :is(#pr-demand-days, #pr-bid-max-profit) {
+    color: var(--pr-accent);
+}
+
+#price-research .pr-bid-current {
+    margin-top: .9rem;
+    padding: .85rem;
+    border: 1px solid var(--pr-line);
+    border-radius: .75rem;
+}
+#price-research .pr-bid-current h4 {
+    font-size: 1rem;
+    font-weight: 750;
+}
+#price-research .pr-bid-current p {
+    color: var(--bs-success-text-emphasis);
+    font-size: .9rem;
+}
+
+#price-research :is(.pr-bid-error, .pr-bid-current .is-below-target) {
+    color: var(--bs-danger-text-emphasis);
+}
+#price-research .pr-bid-status:not(:empty) {
+    margin: 0;
+    font-size: .9rem;
+    font-weight: 650;
+}
+#price-research :is(.pr-bid-status, #pr-demand-message):empty {
+    display: none;
+}
+
+#price-research :is(.pr-bid-assumption, .pr-bid-scope, .pr-demand-note, .pr-comparables-description, .research-grid-note, #pr-demand-time, #pr-comparables-caption) {
+    color: var(--pr-muted);
+    font-size: .85rem;
+}
+#price-research :is(.pr-bid-assumption, .pr-bid-scope, #pr-demand-message, .research-grid-note) {
+    margin: .7rem 0 0;
+}
+#price-research .pr-demand-note {
+    margin: .45rem 0 0;
+}
+#price-research #pr-demand-message {
+    font-size: .9rem;
+}
+#price-research #pr-comparables-caption {
+    display: block;
+    margin-top: .2rem;
+}
+
+#price-research .pr-comparables-switch {
+    min-width: 0;
+    margin: 0;
+}
+
+#price-research .pr-comparables-options {
+    display: inline-grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .25rem;
+    padding: .25rem;
+    border: 1px solid var(--pr-line);
+    border-radius: .85rem;
+    background: var(--pr-inset);
+    box-shadow: 0 .25rem .6rem rgb(0 0 0 / 18%), inset 0 1px 2px rgb(0 0 0 / 10%);
+}
+
+#price-research .pr-comparables-options label {
+    position: relative;
+    cursor: pointer;
+}
+#price-research .pr-comparables-options input {
+    position: absolute;
+    opacity: 0;
+}
+#price-research .pr-comparables-options span {
+    display: grid;
+    place-items: center;
+    min-inline-size: 5rem;
+    min-block-size: 2.5rem;
+    padding: .35rem .75rem;
+    border: 1px solid transparent;
+    border-radius: .6rem;
+    font-size: .85rem;
+    font-weight: 700;
+    text-align: center;
+}
+#price-research .pr-comparables-options label:hover input:not(:checked) + span {
+    background: var(--pr-tint);
+}
+#price-research .pr-comparables-options input:checked + span {
+    color: var(--pr-heading-ink);
+    border-color: var(--pr-brand);
+    background: var(--pr-heading-background);
+    box-shadow: 0 2px 5px rgb(0 0 0 / 24%);
+}
+#price-research .pr-comparables-options input:focus-visible + span {
+    outline: 2px solid var(--pr-accent);
+    outline-offset: 1px;
+}
+
+#price-research .pr-comparables-description {
+    margin-bottom: .85rem;
+    padding: .65rem .8rem;
+    border-left: .2rem solid var(--pr-brand);
+    border-radius: .2rem .55rem .55rem .2rem;
+    background: var(--pr-tint);
+}
+
+@media (max-width: 575.98px) {
+    #price-research .research-metrics {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    #price-research .pr-market-estimate {
+        width: 100%;
+        padding-top: .75rem;
+        border-top: 1px solid color-mix(in srgb, var(--pr-heading-ink) 30%, transparent);
+    }
+    #price-research .pr-vehicle-identity {
+        align-items: flex-start;
+    }
+}
+
+/* Individual and PDF watch-list research share the existing appraisal console. */
+#price-research .vin-decoder-console { align-items: start; }
+#price-research .pr-research-workspace {
+    --pr-individual-controls-width: 21.3rem;
+    container-type: inline-size;
+    min-width: 0;
+}
+#price-research #price-research-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    width: min(100%, var(--pr-individual-controls-width));
+    margin-inline-start: auto;
+    align-items: center;
+    gap: .25rem .5rem;
+}
+#price-research .pr-appraisal-vin { display: contents; }
+#price-research .pr-appraisal-vin .form-label { grid-column: 1; grid-row: 1; margin: 0; }
+#price-research .pr-appraisal-vin .vin-decoder-input-group { grid-column: 1; grid-row: 2; padding: .15rem; }
+#price-research .pr-appraisal-vin .input-group-text { width: 1.8rem; }
+#price-research .pr-appraisal-vin .form-control { padding-inline: .25rem; }
+#price-research #pr-submit { grid-column: 2; grid-row: 2; white-space: nowrap; }
+@container (min-width: 33rem) {
+    #price-research #price-research-form {
+        width: 100%;
+        grid-template-columns: minmax(0, 1fr) var(--pr-individual-controls-width);
+        column-gap: 0;
+    }
+    #price-research #pr-submit { justify-self: end; }
+}
+#price-research .pr-market-research-label {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+}
+
+#price-research .pr-market-logo-dark,
+[data-bs-theme="dark"] #price-research .pr-market-logo-light {
+    display: none;
+}
+
+[data-bs-theme="dark"] #price-research .pr-market-logo-dark {
+    display: inline-block;
+}
+
+#price-research .pr-appraisal-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: .65rem;
+    margin-bottom: 1rem;
+}
+#price-research .pr-appraisal-tabs { flex-wrap: nowrap; gap: .3rem; }
+#price-research .pr-appraisal-tabs .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .4rem .5rem;
+    white-space: nowrap;
+}
+#price-research .pr-appraisal-scope:not([hidden]) {
+    display: grid;
+    margin-inline-start: auto;
+    grid-template-columns: repeat(2, minmax(4.25rem, 6.25rem));
+    gap: .4rem;
+}
+#price-research .pr-appraisal-scope[data-appraisal-scope="individual"] {
+    width: min(100%, var(--pr-individual-controls-width));
+    grid-template-columns: minmax(0, 8fr) repeat(2, minmax(0, 6.25fr));
+}
+#price-research .pr-appraisal-scope .form-label {
+    display: flex;
+    align-items: center;
+    gap: .25rem;
+    margin-bottom: .25rem;
+    color: var(--pr-ink);
+    font-size: .75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+#price-research .pr-appraisal-scope .form-label i { color: var(--pr-accent); }
+#price-research .pr-appraisal-scope .form-control { min-width: 0; padding-inline: .4rem; }
+#price-research .pr-research-workspace .nav-link { border: 1px solid var(--pr-line); color: var(--pr-ink); background: var(--pr-inset); border-radius: .7rem; font-weight: 600; }
+#price-research .pr-research-workspace .nav-link.active { color: #fff; background: var(--gtx-grad); border-color: transparent; }
+#price-research #pr-batch-inputs {
+    width: min(100%, 36rem);
+    margin-inline: auto;
+}
+#price-research .pr-pdf-drop { display: flex; flex-direction: column; align-items: center; gap: .4rem; position: relative; padding: 1.5rem 1rem; border: 2px dashed var(--pr-accent-line); border-radius: 1rem; background: var(--pr-tint); color: var(--pr-ink); text-align: center; cursor: pointer; }
+#price-research .pr-pdf-drop > i { font-size: 2rem; color: var(--pr-accent); }
+#price-research .pr-pdf-drop > small { color: var(--pr-muted); font-size: .75rem; }
+#price-research .pr-pdf-drop-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .4rem .65rem; max-width: 100%; overflow-wrap: anywhere; }
+#price-research .pr-pdf-drop.is-loaded { border-color: var(--bs-success-border-subtle); }
+#price-research .pr-pdf-drop.is-loaded > i { color: var(--bs-success-text-emphasis); }
+#price-research .pr-pdf-drop:is(:hover,:focus-within,.is-dragging) { border-color: var(--pr-accent); background: var(--pr-highlight); }
+#price-research .pr-pdf-drop.is-busy { opacity: .6; cursor: wait; }
+#price-research #pr-batch-status { font-size: .8rem; color: var(--pr-muted); }
+#price-research #pr-batch-grid .pg-grid-table td { white-space: normal; }
+#price-research [hidden] { display: none !important; }
+
+#pr-batch-grid .pr-batch-odometer {
+    display: block;
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+}
+
+#pr-batch-grid .pr-batch-retry {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: .2rem .45rem;
+    border: 1px solid var(--pr-accent-line);
+    border-radius: 2rem;
+    color: var(--pr-ink);
+    background: linear-gradient(180deg, var(--pr-surface), var(--pr-tint));
+    box-shadow: 0 2px 5px rgba(15,23,42,.07);
+    font-weight: 600;
+    white-space: nowrap;
+    transition: box-shadow .15s ease, border-color .15s ease, transform .15s ease;
+}
+#pr-batch-grid .pr-batch-cars-logo { width: 4rem; height: 1.6rem; object-fit: contain; }
+#pr-batch-grid .pr-batch-marketcheck-logo { transform: scale(1.15); }
+#pr-batch-grid .pr-batch-retry:is(:hover,:focus-visible):not(:disabled) { border-color: var(--pr-accent); box-shadow: 0 3px 9px rgba(15,23,42,.13); transform: translateY(-1px); }
+#pr-batch-grid .pr-batch-retry:focus-visible { outline: 2px solid var(--pr-accent); outline-offset: 2px; }
+html[data-background-theme="dark"] #pr-batch-grid .pr-batch-retry {
+    color: #172131;
+    border-color: #8694a8;
+    background: linear-gradient(110deg, #f1f5f9 0%, #cbd5e1 58%, #5a6677 100%);
+    box-shadow: 0 2px 5px rgb(0 0 0 / 22%);
+}
+html[data-background-theme="dark"] #pr-batch-grid .pr-batch-retry:is(:hover, :focus-visible):not(:disabled) {
+    background: linear-gradient(110deg, #fff 0%, #dbe4ef 58%, #738196 100%);
+}
+@media (prefers-reduced-motion: reduce) { #pr-batch-grid .pr-batch-retry { transition: none; } }
+
+#price-research .pr-batch-heading {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 0 1rem;
+}
+#price-research .pr-batch-heading-title {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    margin-inline-start: .5rem;
+    padding: .65rem .5rem;
+}
+#price-research .pr-batch-heading-icon { display: inline-grid; place-items: center; width: 3.1rem; height: 3.1rem; flex: 0 0 3.1rem; border: 1px solid var(--pr-accent-line); border-radius: .95rem; color: var(--pr-accent); background: linear-gradient(145deg,var(--pr-surface),var(--pr-highlight)); box-shadow: 0 .25rem .7rem rgba(15,23,42,.07); font-size: 1.35rem; }
+#price-research .pr-batch-eyebrow { display: block; margin-bottom: .15rem; color: var(--pr-accent); font-size: .65rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+#price-research .pr-batch-heading h2 { margin: 0; color: var(--pr-ink); font-size: clamp(1.1rem, 2vw, 1.4rem); font-weight: 750; letter-spacing: -.02em; }
+#price-research .pr-batch-heading p { margin: .25rem 0 0; color: var(--pr-muted); font-size: .78rem; }
+
+#price-research #pr-batch-grid { min-width: 0; width: 100%; }
+#price-research #pr-batch-grid .pg-grid-table { width: 100%; min-width: 0; table-layout: fixed; }
+#price-research #pr-batch-grid .pg-grid-table :is(th, td) { overflow-wrap: anywhere; }
+#price-research #pr-batch-grid .pg-th-label { white-space: normal; }
+@media (max-width: 767.98px) {
+    #price-research #pr-batch-grid .pg-grid-table :is(th, td) { padding-inline: .2rem; font-size: .7rem; }
+    #pr-batch-grid .pr-batch-odometer { white-space: normal; }
+    #pr-batch-grid .pr-batch-retry { padding: .15rem; }
+}

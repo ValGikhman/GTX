@@ -1,9 +1,9 @@
 @model List<GTX.Models.SpecialModel>
-@{ ViewBag.Title = "Specials"; }
+@{ var siteProfile = GTX.SiteProfileStore.Current; ViewBag.Title = "Specials"; }
 <link href="~/Content/specials.css?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/specials.css")).Ticks)" rel="stylesheet" />
 @Html.Partial("_MarketingHero", null, new ViewDataDictionary {
-    { "Kicker", "GTX Auto Group" }, { "Title", "Explore our" }, { "Accent", "Specials" },
-    { "Description", "Discover the latest offers from GTX Auto Group." }, { "Word", "SPECIALS" }, { "Icon", "bi-tags" }
+    { "Kicker", siteProfile.CompanyName }, { "Title", "Explore our" }, { "Accent", "Specials" },
+    { "Description", "Discover the latest offers from " + siteProfile.CompanyName + "." }, { "Word", "SPECIALS" }, { "Icon", "bi-tags" }
 })
 <main class="marketing-page blog-list-page specials-page">
     <section class="marketing-content-shell">

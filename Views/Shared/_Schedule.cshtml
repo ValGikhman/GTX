@@ -1,20 +1,22 @@
 @using System.Linq
 @{
-    var openHours = AppCache.GetOrCreate(Constants.OPENHOURS_CACHE,
-        () => Utility.XMLHelpers.XmlRepository.GetOpenHours(), minutes: 60) ?? new GTX.Models.OpenHours[0];
+    var siteProfile = GTX.SiteProfileStore.Current;
+    var profileDirectionsUrl = "https://www.google.com/maps/search/?api=1&query=" + Uri.EscapeDataString(siteProfile.FullAddress);
+    var profileMapUrl = "https://www.google.com/maps?q=" + Uri.EscapeDataString(siteProfile.FullAddress) + "&output=embed";
+    var openHours = siteProfile.GetOpenHours();
     var now = DateTime.Now;
     var todayName = now.DayOfWeek.ToString();
     var todayHours = openHours.FirstOrDefault(open => string.Equals(open.Day, todayName, StringComparison.OrdinalIgnoreCase));
-    var isOpenNow = todayHours != null && now.Hour >= todayHours.From && now.Hour < todayHours.To;
+    var isOpenNow = todayHours != null && todayHours.IsOpenAt(now);
 }
 
 <div class="open-hours-panel">
-    <section class="open-hours-visual" aria-label="GTX Auto Group showroom">
+    <section class="open-hours-visual" aria-label="@siteProfile.CompanyName showroom">
         <div class="open-hours-photo-wrap">
-            <img class="open-hours-photo" src="@SiteImageUrl.Build("gtx.jpg")" alt="GTX Auto Group showroom" loading="lazy" decoding="async">
+            <img class="open-hours-photo" src="@SiteImageUrl.Build("gtx.jpg")" alt="@siteProfile.CompanyName showroom" loading="lazy" decoding="async">
             <div class="open-hours-photo-shade" aria-hidden="true"></div>
             <div class="open-hours-photo-copy">
-                <span class="open-hours-kicker">West Chester, Ohio</span>
+                <span class="open-hours-kicker">@siteProfile.City, @siteProfile.State</span>
                 <h2>Come by.<br>Take your time.</h2>
                 <p>See the vehicle in person and meet the people who know it best.</p>
             </div>
@@ -31,9 +33,9 @@
             <iframe loading="lazy"
                     allowfullscreen
                     referrerpolicy="no-referrer-when-downgrade"
-                    src="https://www.google.com/maps?q=9516+Princeton+Glendale+Rd,+West+Chester,+OH,+45011&output=embed"
+                    src="@profileMapUrl"
                     class="open-hours-map"
-                    title="Map to GTX Auto Group">
+                    title="Map to @siteProfile.CompanyName">
             </iframe>
         </div>
     </section>
@@ -75,12 +77,15 @@
             <span class="open-hours-location-icon" aria-hidden="true"><i class="bi bi-geo-alt-fill"></i></span>
             <span class="open-hours-address-text">
                 <small>Our showroom</small>
-                <strong>9516 Princeton Glendale Rd</strong>
-                <span>West Chester, OH 45011</span>
+                <strong>@siteProfile.StreetAddress</strong>
+                @if (!string.IsNullOrWhiteSpace(siteProfile.AddressLine2)) {
+                    <span>@siteProfile.AddressLine2</span>
+                }
+                <span>@siteProfile.City, @siteProfile.State @siteProfile.ZipCode</span>
             </span>
             <button type="button"
                     class="open-hours-copy-address mobile-menu-copy-address"
-                    data-copy-address="9516 Princeton Glendale Rd, West Chester, OH 45011"
+                    data-copy-address="@siteProfile.FullAddress"
                     aria-label="Copy address">
                 <i class="bi bi-copy" aria-hidden="true"></i>
                 <span>Copy</span>
@@ -88,12 +93,12 @@
         </div>
 
         <div class="open-hours-actions">
-            <a class="open-hours-action open-hours-action-call" href="tel:+15134892886">
+            <a class="open-hours-action open-hours-action-call" href="@siteProfile.PhoneUri">
                 <i class="bi bi-telephone-fill" aria-hidden="true"></i>
-                <span><small>Questions?</small><strong>(513) 489-2886</strong></span>
+                <span><small>Questions?</small><strong>@siteProfile.Phone</strong></span>
             </a>
             <a class="open-hours-action open-hours-action-directions"
-               href="https://www.google.com/maps/search/?api=1&query=9516+Princeton+Glendale+Rd%2C+West+Chester%2C+OH+45011"
+               href="@profileDirectionsUrl"
                target="_blank"
                rel="noopener noreferrer">
                 <i class="bi bi-sign-turn-right-fill" aria-hidden="true"></i>

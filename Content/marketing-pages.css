@@ -557,6 +557,21 @@
     transition: transform .5s ease;
 }
 
+.blog-list-media-has-video {
+    display: flex;
+    align-items: center;
+}
+
+.blog-list-media-has-video video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+}
+
+.blog-list-media.blog-list-media-has-video::after { content: none; }
+
 .blog-list-card:hover .blog-list-media img {
     transform: scale(1.04);
 }
@@ -688,6 +703,39 @@
     backdrop-filter: blur(16px);
 }
 
+.vin-decoder-console-centered {
+    grid-template-columns: minmax(0, max-content) minmax(0, 26rem);
+    justify-content: center;
+    align-items: center;
+    gap: clamp(.75rem, 2vw, 1.5rem);
+}
+
+.vin-decoder-console-centered .vin-decoder-console-copy {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.vin-decoder-entry-row {
+    --vin-entry-size: 3.75rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--vin-entry-size);
+    align-items: center;
+    gap: .5rem;
+}
+
+.vin-decoder-entry-row > .vin-decoder-input-group,
+.vin-decoder-entry-row > .vin-schema-button { block-size: var(--vin-entry-size); }
+
+.vin-decoder-entry-row > .vin-schema-button {
+    inline-size: var(--vin-entry-size);
+    padding: 0 !important;
+}
+
+@media (max-width: 575.98px) {
+    .vin-decoder-console-centered { grid-template-columns: minmax(0, 26rem); }
+}
+
 .vin-decoder-console::before {
     position: absolute;
     top: 0;
@@ -745,6 +793,43 @@
 
 .vin-decoder-controls {
     min-width: 0;
+}
+
+/* Let the menu cross the console edge while keeping its decorative accents clipped. */
+.vin-decoder-page .vin-decoder-console:has(#vinProviderMenu.show) {
+    overflow: visible;
+    z-index: 1;
+}
+
+.vin-decoder-page .vin-decoder-console:has(#vinProviderMenu.show)::before {
+    width: 100%;
+    border-radius: inherit;
+    clip-path: inset(0 calc(100% - .3rem) 0 0);
+}
+
+.vin-decoder-page .vin-decoder-console:has(#vinProviderMenu.show)::after {
+    right: 0;
+    bottom: 0;
+    width: 10rem;
+    height: 7rem;
+    border: 0;
+    border-radius: 0;
+    background: radial-gradient(circle at 8rem 8rem,
+        transparent 5.5rem,
+        color-mix(in srgb, var(--mp-accent) 6%, transparent) 5.5rem 8rem,
+        transparent 8rem);
+}
+
+#vinProviderPicker .vin-provider-option[aria-pressed="true"] {
+    background: var(--inventory-surface-alt);
+}
+
+#vinProviderPicker .vin-provider-check {
+    color: var(--mp-accent);
+}
+
+#vinProviderPicker .vin-provider-option[aria-pressed="false"] .vin-provider-check {
+    visibility: hidden;
 }
 
 .vin-decoder-input-group {
@@ -1507,7 +1592,7 @@ html.theme-silver .blog-read-link {
         grid-template-columns: 1fr;
     }
 
-    .vin-decoder-console {
+    .vin-decoder-console:not(.vin-decoder-console-centered) {
         grid-template-columns: 1fr;
     }
 

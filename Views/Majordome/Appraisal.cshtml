@@ -1,0 +1,210 @@
+@{
+    ViewBag.Title = "Appraisal";
+    ViewData["SuppressPageTitle"] = true;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var cssVersion = System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/majordome-appraisal.css")).Ticks;
+}
+
+@section Meta {
+    <meta name="robots" content="noindex,nofollow" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/majordome-appraisal.css")?v=@cssVersion" />
+}
+
+@Html.Partial("_MarketingHero", null, new ViewDataDictionary
+{
+    { "Kicker", "Majordome" },
+    { "Title", "Vehicle" },
+    { "Accent", "Appraisal" },
+    { "Description", "Compare the local market and calculate your maximum auction bid." },
+    { "Word", "Market" },
+    { "Icon", "bi-bar-chart-line" }
+})
+
+<main class="marketing-page vin-decoder-page" id="price-research">
+    <section class="marketing-content-shell vin-decoder-shell">
+        <div class="marketing-section-label">
+            <span>Vehicle pricing</span>
+            <small>MarketCheck research</small>
+        </div>
+        <section class="vin-decoder-console" aria-labelledby="appraisal-title">
+            <div class="vin-decoder-console-copy">
+                <span class="vin-decoder-console-icon" aria-hidden="true"><i class="bi bi-bar-chart-line"></i></span>
+                <div>
+                    <small class="pr-market-research-label">
+                        <a href="https://www.marketcheck.com/" target="_blank" rel="noopener noreferrer" aria-label="MarketCheck home (opens in a new tab)">
+                            <img class="pr-market-logo-light" src="https://www.marketcheck.com/images/logo/mc-logo-og-light.svg" alt="" width="94" height="15" referrerpolicy="no-referrer" />
+                            <img class="pr-market-logo-dark" src="https://www.marketcheck.com/images/logo/mc-logo-og-dark.svg" alt="" width="94" height="15" referrerpolicy="no-referrer" />
+                        </a>
+                        <span>research</span>
+                    </small>
+                    <h2 id="appraisal-title">Research a vehicle</h2>
+                </div>
+            </div>
+            @Html.Partial("_BatchAppraisalControls")
+        </section>
+
+        <section id="pr-individual-results" class="vin-decoder-results pr-results-panel" aria-label="Appraisal results" aria-busy="false">
+            <div id="pr-progress" class="pr-progress" role="status" hidden>
+                <span class="spinner-border spinner-border-sm" aria-hidden="true"></span> Researching the market...
+            </div>
+            <div id="pr-error" class="alert alert-danger" role="alert" hidden>
+            </div>
+            <div id="pr-empty" class="vin-decoder-empty">
+                <span aria-hidden="true"><i class="bi bi-search"></i></span>
+                <strong>Waiting for a VIN</strong>
+                <small>Market pricing and comparable listings will appear here.</small>
+            </div>
+            <div id="pr-results" class="research-results" hidden>
+                @Html.Partial("_AppraisalMarketOverview", "pr")
+                <section id="pr-auction" class="pr-auction" aria-labelledby="pr-auction-heading" data-bid-url="@Url.Action("AppraisalBid", "Majordome")" aria-busy="false" hidden>
+                    <header class="pr-auction-heading">
+                        <div class="pr-heading-group">
+                            <span class="pr-section-icon" aria-hidden="true"><i class="bi bi-calculator"></i></span>
+                            <div>
+                                <span class="pr-eyebrow">Auction budget</span>
+                                <h2 id="pr-auction-heading">
+                                    Maximum hammer bid
+                                    <button type="button" class="btn appraisal-metric-help" data-appraisal-help aria-label="About maximum hammer bid" data-bs-title="Maximum hammer bid" data-bs-content="The highest winning bid that meets your minimum profit target at the expected resale price, after auction fees and transport. Appraisal rounds down to the configured bid increment.">
+                                        <i class="bi bi-question-circle" aria-hidden="true">
+                                        </i>
+                                    </button>
+                                </h2>
+                            </div>
+                        </div>
+                        <strong id="pr-bid-maximum">—</strong>
+                    </header>
+                    <form id="pr-auction-form" class="pr-auction-form" autocomplete="off">
+                        @Html.AntiForgeryToken()
+                        <div class="pr-bid-inputs">
+                            <div>
+                                <label for="pr-bid-resale">Expected resale price</label>
+                                <div class="pr-bid-money">
+                                    <span aria-hidden="true">$</span>
+                                    <input id="pr-bid-resale" name="ExpectedSellingPriceUsd" type="number" min="0.01" max="2000000" step="0.01" inputmode="decimal" required aria-describedby="pr-bid-assumption" />
+                                </div>
+                            </div>
+                            <div>
+                                <label for="pr-bid-current">
+                                    Current hammer bid
+                                    <small>(optional)</small>
+                                </label>
+                                <div class="pr-bid-money">
+                                    <span aria-hidden="true">$</span>
+                                    <input id="pr-bid-current" name="CurrentHammerBidUsd" type="number" min="0" max="2000000" step="0.01" inputmode="decimal" placeholder="Enter the live auction bid" />
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <p id="pr-bid-assumption" class="pr-bid-assumption">Resale starts from the MarketCheck estimate. Edit this assumption to match your expected selling price.</p>
+                    <div class="pr-bid-summary">
+                        <p id="pr-bid-status" class="pr-bid-status" role="status" aria-live="polite"></p>
+                        <div id="pr-bid-costs" class="pr-bid-costs" hidden>
+                            <span>
+                                Auction fee
+                                <strong id="pr-bid-fee">—</strong>
+                            </span>
+                            <span>
+                                Transport
+                                <strong id="pr-bid-transport">—</strong>
+                            </span>
+                            <span>
+                                Minimum profit
+                                <strong id="pr-bid-target">—</strong>
+                            </span>
+                        </div>
+                    </div>
+                    <p id="pr-bid-error" class="pr-bid-error" role="alert" hidden></p>
+                    <div id="pr-bid-at-maximum" class="pr-bid-metrics" hidden>
+                        <div>
+                            <span>
+                                Total investment at maximum bid
+                                <button type="button" class="btn appraisal-metric-help" data-appraisal-help aria-label="About total investment at maximum bid" data-bs-title="Total investment at maximum bid" data-bs-content="What you would have invested if you won at the maximum hammer bid. It adds the winning bid, auction fee, and transport.">
+                                    <i class="bi bi-question-circle" aria-hidden="true">
+                                    </i>
+                                </button>
+                            </span>
+                            <strong id="pr-bid-max-investment">—</strong>
+                        </div>
+                        <div>
+                            <span>
+                                Profit at maximum bid
+                                <button type="button" class="btn appraisal-metric-help" data-appraisal-help aria-label="About profit at maximum bid" data-bs-title="Profit at maximum bid" data-bs-content="Expected resale price minus your total investment at the maximum hammer bid. Other expenses such as repairs and holding costs are excluded.">
+                                    <i class="bi bi-question-circle" aria-hidden="true">
+                                    </i>
+                                </button>
+                            </span>
+                            <strong id="pr-bid-max-profit">—</strong>
+                        </div>
+                        <div>
+                            <span>
+                                Break-even hammer bid
+                                <button type="button" class="btn appraisal-metric-help" data-appraisal-help aria-label="About break-even hammer bid" data-bs-title="Break-even hammer bid" data-bs-content="Expected resale price minus the auction fee and transport, with a floor of zero. At a positive break-even bid, the resale covers those costs and leaves zero profit before other expenses.">
+                                    <i class="bi bi-question-circle" aria-hidden="true">
+                                    </i>
+                                </button>
+                            </span>
+                            <strong id="pr-bid-break-even">—</strong>
+                        </div>
+                    </div>
+                    <div id="pr-bid-at-current" class="pr-bid-current" hidden>
+                        <h4>At your current bid</h4>
+                        <p id="pr-bid-current-verdict">
+                        </p>
+                        <div class="pr-bid-metrics">
+                            <div>
+                                <span>Total investment</span>
+                                <strong id="pr-bid-current-investment">—</strong>
+                            </div>
+                            <div>
+                                <span>Estimated profit</span>
+                                <strong id="pr-bid-current-profit">—</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <p id="pr-bid-scope" class="pr-bid-scope">Auction fee and transport only. Profit is before other expenses.</p>
+                </section>
+                @Html.Partial("_AppraisalMarketDemand", "pr")
+                @Html.Partial("_AppraisalComparables", "pr")
+            </div>
+        </section>
+        <section id="pr-batch-results" class="vin-decoder-results" hidden aria-label="Multiple vehicle appraisal results">
+            <header class="pr-batch-heading">
+                <div class="pr-batch-heading-title">
+                    <span class="pr-batch-heading-icon" aria-hidden="true"><i class="bi bi-collection-fill"></i></span>
+                    <div><span class="pr-batch-eyebrow">Batch appraisal</span><h2>Auction shortlist</h2></div>
+                </div>
+                <span id="pr-batch-status" role="status" aria-live="polite"></span>
+            </header>
+            <div id="pr-batch-error" class="alert alert-danger" role="alert" hidden></div>
+            <div id="pr-batch-grid" class="gtx-admin-add-grid"></div>
+        </section>
+    </section>
+</main>
+
+<div class="modal" id="pr-batch-progress-modal" tabindex="-1" aria-labelledby="pr-batch-progress-title" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="gtx-modal-title-icon" aria-hidden="true"><i class="bi bi-collection-fill"></i></span>
+                <h2 class="modal-title" id="pr-batch-progress-title">Appraising vehicles</h2>
+            </div>
+            <div class="modal-body">
+                <p id="pr-batch-progress-message" class="mb-2" role="status"></p>
+                <div id="pr-batch-progress" class="progress" role="progressbar" aria-label="Vehicles processed" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                    <div id="pr-batch-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="pr-batch-stop" class="btn btn-outline-secondary">Stop after current</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="@Url.Content("~/Scripts/majordome-appraisal-batch.js")?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome-appraisal-batch.js")).Ticks)"></script>
+    <script src="@Url.Content("~/Scripts/majordome-appraisal-bid.js")?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome-appraisal-bid.js")).Ticks)"></script>
+    <script src="@Url.Content("~/Scripts/majordome-appraisal-comparables.js")?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome-appraisal-comparables.js")).Ticks)"></script>
+    <script src="@Url.Content("~/Scripts/majordome-appraisal-research.js")?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome-appraisal-research.js")).Ticks)"></script>
+    <script src="@Url.Content("~/Scripts/majordome-appraisal.js")?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome-appraisal.js")).Ticks)"></script>
+}

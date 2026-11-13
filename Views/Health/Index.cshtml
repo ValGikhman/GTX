@@ -1,377 +1,20 @@
-﻿@{
+@{
     ViewBag.Title = "Health";
     Layout = "~/Views/Shared/_Layout.cshtml";
     var cdnEnabled = InventoryImageSettings.CloudflareEnabled;
-    var isOwner = string.Equals(
-        Convert.ToString(ViewBag.CurrentRole),
-        CommonUnit.Roles.Owner.ToString(),
-        StringComparison.OrdinalIgnoreCase);
+    var removeBgEnabled = GTX.Common.ServiceConfiguration.Enabled("RemoveBg:Enabled");
+    var openAiEnabled = GTX.Common.ServiceConfiguration.Enabled("OpenAI:ChatBot");
+    var carGurusEnabled = GTX.Common.ServiceConfiguration.Enabled("CarGurus:Enabled");
+    var dataOneEnabled = GTX.Common.ServiceConfiguration.Enabled("DataOne");
+    var isMajordome = GTX.Common.SiteAccess.IsMajordome(GTX.Common.SiteAccess.Current(ViewContext.HttpContext.Request));
 }
 
-<style>
-    body {
-        background: #eef2f7;
-    }
-
-    .wrap {
-        max-width: 90%;
-        margin-left: auto;
-        margin-right: auto;
-        padding-bottom: 4.5rem;
-    }
-
-    .card-elev {
-        border: 0;
-        border-radius: 18px;
-        box-shadow: 0 10px 30px rgba(0,0,0,.06);
-    }
-
-    .health-cards-row {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 1rem;
-    }
-
-    .health-card-col {
-        min-width: 0;
-    }
-
-    .health-card {
-        position: relative;
-        overflow: hidden;
-        border: 1px solid rgba(15, 23, 42, .08);
-        border-radius: 22px !important;
-        background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
-        box-shadow: 0 18px 45px rgba(15, 23, 42, .12), 0 2px 8px rgba(15, 23, 42, .06) !important;
-        transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-    }
-
-    .health-card:hover {
-        transform: translateY(-2px);
-        border-color: rgba(37, 99, 235, .2);
-        box-shadow: 0 24px 58px rgba(15, 23, 42, .16), 0 4px 16px rgba(37, 99, 235, .09) !important;
-    }
-
-    .health-card::before {
-        content: "";
-        position: absolute;
-        inset: 0 0 auto 0;
-        height: 4px;
-        background: linear-gradient(90deg, #2563eb, #0f766e);
-    }
-
-    .health-card-iis::before {
-        background: linear-gradient(90deg, #2563eb, #06b6d4);
-    }
-
-    .health-card-cpu::before {
-        background: linear-gradient(90deg, #f97316, #ef4444);
-    }
-
-    .health-card-memory::before {
-        background: linear-gradient(90deg, #7c3aed, #2563eb);
-    }
-
-    .health-card-sessions::before {
-        background: linear-gradient(90deg, #16a34a, #0f766e);
-    }
-
-    .health-card-maintenance::before {
-        background: linear-gradient(90deg, #64748b, #334155);
-    }
-
-    .health-card-status::before {
-        background: linear-gradient(90deg, #0f766e, #2563eb);
-    }
-
-    .health-card-cdn::before {
-        background: linear-gradient(90deg, #f59e0b, #2563eb);
-    }
-
-    .health-card-remove-bg::before {
-        background: linear-gradient(90deg, #f59e0b, #7c3aed, #2563eb);
-    }
-
-    .health-card-openai::before {
-        background: linear-gradient(90deg, #10a37f, #2563eb, #7c3aed);
-    }
-
-    .health-card-bucket::before {
-        background: linear-gradient(90deg, #f97316, #f59e0b, #06b6d4);
-    }
-
-    .health-card-head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: .85rem;
-        margin-bottom: 1rem;
-    }
-
-    .health-card-title {
-        display: flex;
-        align-items: center;
-        gap: .8rem;
-        min-width: 0;
-    }
-
-    .health-icon {
-        width: 2.85rem;
-        height: 2.85rem;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: .9rem;
-        color: #fff;
-        box-shadow: 0 .85rem 1.7rem rgba(15, 23, 42, .18);
-        font-size: 1.25rem;
-        flex: 0 0 auto;
-    }
-
-    .health-icon-iis {
-        background: linear-gradient(135deg, #2563eb, #06b6d4);
-    }
-
-    .health-icon-status {
-        background: linear-gradient(135deg, #0f766e, #2563eb);
-    }
-
-    .health-icon-cpu {
-        background: linear-gradient(135deg, #f97316, #ef4444);
-    }
-
-    .health-icon-memory {
-        background: linear-gradient(135deg, #7c3aed, #2563eb);
-    }
-
-    .health-icon-sessions {
-        background: linear-gradient(135deg, #16a34a, #0f766e);
-    }
-
-    .health-icon-maintenance {
-        background: linear-gradient(135deg, #475569, #111827);
-    }
-
-    .health-icon-cdn {
-        background: linear-gradient(135deg, #f59e0b, #2563eb);
-    }
-
-    .health-icon-remove-bg {
-        background: linear-gradient(135deg, #f59e0b, #7c3aed 55%, #2563eb);
-    }
-
-    .health-icon-openai {
-        background: linear-gradient(135deg, #10a37f, #2563eb 55%, #7c3aed);
-    }
-
-    .health-icon-bucket {
-        background: linear-gradient(135deg, #f97316, #f59e0b 50%, #06b6d4);
-    }
-
-    .health-token-value {
-        align-items: baseline;
-        display: flex;
-        flex-wrap: wrap;
-        gap: .4rem;
-    }
-
-    .health-token-unit {
-        color: #64748b;
-        font-size: .8rem;
-        font-weight: 750;
-        letter-spacing: .03em;
-        text-transform: uppercase;
-    }
-
-    .health-card-cdn.is-disabled {
-        background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
-    }
-
-    .health-card-cdn.is-disabled::before {
-        background: linear-gradient(90deg, #94a3b8, #64748b);
-    }
-
-    .health-card-cdn.is-disabled .health-icon-cdn {
-        background: linear-gradient(135deg, #64748b, #334155);
-    }
-
-    .cdn-service-list {
-        display: grid;
-        gap: .9rem;
-    }
-
-    .cdn-service-name {
-        color: #334155;
-        font-size: .8rem;
-        font-weight: 800;
-    }
-
-    .health-refresh-actions {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: .65rem;
-    }
-
-    .health-refresh-actions .btn {
-        width: 100%;
-        min-height: 2.15rem;
-        min-width: 0;
-        border-radius: .7rem;
-        white-space: nowrap;
-    }
-
-    .health-refresh-actions-single {
-        grid-template-columns: minmax(0, 1fr);
-        justify-items: center;
-    }
-
-    .health-refresh-actions-single .btn {
-        width: auto;
-        min-width: 9.5rem;
-        max-width: 100%;
-    }
-
-    .health-card-maintenance {
-        border: 1px solid rgba(0, 0, 0, .08);
-        transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease;
-    }
-
-    .health-card-maintenance.is-offline {
-        background: linear-gradient(180deg, #fff5f5 0%, #ffe3e3 100%);
-        border-color: rgba(220, 53, 69, .6);
-        box-shadow: 0 22px 54px rgba(220, 53, 69, .22), 0 4px 18px rgba(220, 53, 69, .12) !important;
-    }
-
-    .health-card-maintenance.is-offline::before {
-        background: linear-gradient(90deg, #dc3545, #f97316);
-    }
-
-    .health-card-maintenance.is-offline .health-icon-maintenance {
-        background: linear-gradient(135deg, #dc3545, #f97316);
-        box-shadow: 0 .85rem 1.7rem rgba(220, 53, 69, .25);
-    }
-
-    .health-card-maintenance.is-offline .kpi-label,
-    .health-card-maintenance.is-offline .kpi-sub,
-    .health-card-maintenance.is-offline .kpi-value {
-        color: #842029 !important;
-    }
-
-    .health-card-maintenance.is-offline #offlineStatusText {
-        color: #b02a37 !important;
-        font-weight: 800;
-    }
-
-    .kpi-label {
-        font-size: .8rem;
-        color: rgba(33,37,41,.65);
-        letter-spacing: .02em;
-    }
-
-    .kpi-value {
-        font-size: 2rem;
-        font-weight: 800;
-        letter-spacing: -0.03em;
-        line-height: 1.1;
-    }
-
-    .kpi-sub {
-        font-size: .85rem;
-        color: rgba(33,37,41,.65);
-    }
-
-    .mono {
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    }
-
-    .pill {
-        border-radius: 999px;
-    }
-
-    .progress {
-        height: 10px;
-        border-radius: 999px;
-        background: rgba(0,0,0,.06);
-    }
-
-    .progress-bar {
-        border-radius: 999px;
-    }
-
-    .table thead th {
-        font-size: .8rem;
-        color: rgba(33,37,41,.65);
-        font-weight: 700;
-        border-bottom: 1px solid rgba(0,0,0,.06);
-        white-space: nowrap;
-    }
-
-    .table td {
-        padding-top: 14px;
-        padding-bottom: 14px;
-    }
-
-    .cell-metric {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: 10px;
-    }
-
-        .cell-metric .val {
-            font-weight: 800;
-            letter-spacing: -0.01em;
-        }
-
-        .cell-metric .unit {
-            font-size: .8rem;
-            color: rgba(33,37,41,.6);
-        }
-
-    /* Optional: slightly tighter padding on very small screens */
-    @@media (max-width: 575.98px) {
-        .health-card {
-            padding: 1.25rem !important;
-        }
-        /* ~p-4 */
-        .kpi-value {
-            font-size: 1.75rem;
-        }
-    }
-
-    /* Bigger Bootstrap switch */
-    .big-switch.form-check-input {
-        width: 3.4rem;
-        height: 1.8rem;
-        margin-top: 0;
-        cursor: pointer;
-    }
-
-    .maintenance-switch-row {
-        padding-left: 0;
-        gap: .75rem;
-    }
-
-    .maintenance-switch-row .form-check-label,
-    .maintenance-switch-row .form-check-input {
-        flex: 0 0 auto;
-        margin: 0;
-    }
-
-    .maintenance-switch-row .form-check-input {
-        float: none;
-    }
-
-        /* Improve thumb size/position for the bigger switch */
-        .big-switch.form-check-input:checked {
-            background-position: right center;
-        }
-
-    /* Optional: slightly bigger label next to it */
-    .form-check-label {
-        cursor: pointer;
-    }
-</style>
+@helper HealthWaiting()
+{
+    <span class="health-value-placeholder is-waiting" role="img" aria-label="Waiting for data" title="Waiting for data"><i class="bi bi-clock-history" aria-hidden="true"></i></span>
+}
+
+<link href="@Url.Content("~/Content/health.css")?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/health.css")).Ticks)" rel="stylesheet" />
 
 @Html.Partial("_MarketingHero", null, new ViewDataDictionary
 {
@@ -404,9 +47,9 @@
                 </div>
 
                 <div class="mt-3">
-                    <div id="statusText" class="kpi-value">Polling…</div>
+                    <div id="statusText" class="kpi-value">Polling...</div>
                     <div class="kpi-sub mt-2">
-                        <i class="bi bi-clock-history me-1"></i>Updated: <span class="mono" id="updated">—</span>
+                        <i class="bi bi-clock-history me-1"></i>Updated: <span class="mono" id="updated">@HealthWaiting()</span>
                     </div>
                 </div>
             </div>
@@ -429,7 +72,7 @@
 
                 <div class="mt-3">
                     <div class="d-flex align-items-end justify-content-between">
-                        <div class="kpi-value" id="iisCpu">—</div>
+                        <div class="kpi-value" id="iisCpu">@HealthWaiting()</div>
                         <div class="kpi-sub">CPU</div>
                     </div>
                     <div class="progress mt-2">
@@ -439,7 +82,7 @@
 
                 <div class="mt-4">
                     <div class="d-flex align-items-end justify-content-between">
-                        <div class="kpi-value" id="iisMem">—</div>
+                        <div class="kpi-value" id="iisMem">@HealthWaiting()</div>
                         <div class="kpi-sub">Memory</div>
                     </div>
                     <div class="progress mt-2">
@@ -448,8 +91,8 @@
                 </div>
 
                 <div class="kpi-sub mt-4">
-                    PID: <span class="mono" id="iisPid">—</span><br />
-                    Working Set: <span class="mono" id="iisWs">—</span>
+                    PID: <span class="mono" id="iisPid">@HealthWaiting()</span><br />
+                    Working Set: <span class="mono" id="iisWs">@HealthWaiting()</span>
                 </div>
             </div>
         </div>
@@ -469,7 +112,7 @@
                     </div>
                 </div>
                 <div class="d-flex align-items-end justify-content-between mt-1 flex-wrap gap-2">
-                    <div class="kpi-value" id="totCpu">—</div>
+                    <div class="kpi-value" id="totCpu">@HealthWaiting()</div>
                 </div>
                 <div class="progress mt-2">
                     <div id="totCpuBar" class="progress-bar" style="width:0%"></div>
@@ -493,13 +136,13 @@
                     </div>
                 </div>
                 <div class="d-flex align-items-end justify-content-between mt-1 flex-wrap gap-2">
-                    <div class="kpi-value" id="totMem">—</div>
-                    <div class="kpi-sub mono" id="updated2">—</div>
+                    <div class="kpi-value" id="totMem">@HealthWaiting()</div>
+                    <div class="kpi-sub mono" id="updated2">@HealthWaiting()</div>
                 </div>
                 <div class="progress mt-2">
                     <div id="totMemBar" class="progress-bar" style="width:0%"></div>
                 </div>
-                <div class="kpi-sub mt-2" id="totRam">—</div>
+                <div class="kpi-sub mt-2" id="totRam">@HealthWaiting()</div>
                 <div class="kpi-sub mt-1" id="totMemLoad" style="display:none;"></div>
             </div>
         </div>
@@ -520,7 +163,7 @@
                 </div>
 
                 <div class="d-flex align-items-end justify-content-between mt-1">
-                    <div class="kpi-value" id="activeSessions">—</div>
+                    <div class="kpi-value" id="activeSessions">@HealthWaiting()</div>
                 </div>
 
                 <div class="kpi-sub mt-2">
@@ -562,9 +205,11 @@
             </div>
         </div>
 
+        @if (cdnEnabled)
+        {
         <!-- Cloudflare CDN Card -->
         <div class="health-card-col">
-            <div class="h-100 p-4 health-card health-card-cdn d-flex flex-column @(cdnEnabled ? string.Empty : "is-disabled")">
+            <div class="h-100 p-4 health-card health-card-cdn d-flex flex-column">
                 <div class="health-card-head">
                     <div class="health-card-title">
                         <div class="health-icon health-icon-cdn">
@@ -577,38 +222,32 @@
                 </div>
 
                 <div class="flex-grow-1">
-                    <div class="kpi-value">@(cdnEnabled ? "Cloudflare" : "Local")</div>
+                    <div class="kpi-value">Cloudflare</div>
                     <div class="cdn-service-list mt-3">
                         <div>
                             <div class="cdn-service-name"><i class="bi bi-car-front-fill me-1" aria-hidden="true"></i>Inventory purge</div>
                         <div id="inventoryCdnStatus" class="kpi-sub mt-2">
-                            @(cdnEnabled
-                                ? "Inventory images"
-                                : "Inventory images are served on-site; CDN refresh is unavailable.")
+                            Inventory images
                         </div>
                         </div>
                         <div>
                             <div class="cdn-service-name"><i class="bi bi-images me-1" aria-hidden="true"></i>Images purge</div>
                         <div id="siteImagesCdnStatus" class="kpi-sub mt-2">
-                            @(cdnEnabled
-                                ? "GTX/SiteImages assets"
-                                : "Site images are served on-site; CDN refresh is unavailable.")
+                            GTX/SiteImages assets
                         </div>
                         </div>
                     </div>
                 </div>
 
-                @if (isOwner)
+                @if (isMajordome)
                 {
                     <div class="health-refresh-actions pt-4 mt-auto">
                         <button type="button" id="btnRefreshInventoryCdn"
-                                class="btn btn-sm btn-outline-success shadow-sm"
-                                @(cdnEnabled ? null : "disabled")>
+                                class="btn btn-sm btn-outline-success shadow-sm">
                             <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>Inventory
                         </button>
                         <button type="button" id="btnRefreshSiteImagesCdn"
-                                class="btn btn-sm btn-outline-success shadow-sm"
-                                @(cdnEnabled ? null : "disabled")>
+                                class="btn btn-sm btn-outline-success shadow-sm">
                             <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>Images
                         </button>
                     </div>
@@ -633,10 +272,10 @@
 
                 <div class="mt-4 d-flex flex-column flex-grow-1">
                     <div class="health-token-value">
-                        <div id="cloudflareImageCount" class="kpi-value">—</div>
+                        <div id="cloudflareImageCount" class="kpi-value">@HealthWaiting()</div>
                         <div class="health-token-unit">images hosted</div>
                     </div>
-                    <div id="cloudflareBucketDetail" class="kpi-sub mt-2">Reading the GTX bucket…</div>
+                    <div id="cloudflareBucketDetail" class="kpi-sub mt-2">Reading the GTX bucket...</div>
                     <div class="health-refresh-actions health-refresh-actions-single pt-4 mt-auto">
                         <button type="button" id="btnRefreshCloudflareBucket" class="btn btn-sm btn-outline-success shadow-sm">
                             <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>Refresh count
@@ -646,6 +285,9 @@
             </div>
         </div>
 
+        }
+        @if (removeBgEnabled)
+        {
         <!-- Background Removal Token Card -->
         <div class="health-card-col">
             <div id="removeBgHealthCard" class="h-100 p-4 health-card health-card-remove-bg d-flex flex-column">
@@ -663,10 +305,10 @@
 
                 <div class="mt-4 d-flex flex-column flex-grow-1">
                     <div class="health-token-value">
-                        <div id="removeBgTokenCount" class="kpi-value">—</div>
+                        <div id="removeBgTokenCount" class="kpi-value">@HealthWaiting()</div>
                         <div class="health-token-unit">tokens available</div>
                     </div>
-                    <div id="removeBgTokenDetail" class="kpi-sub mt-2">Contacting remove.bg…</div>
+                    <div id="removeBgTokenDetail" class="kpi-sub mt-2">Contacting remove.bg...</div>
                     <div class="health-refresh-actions health-refresh-actions-single pt-4 mt-auto">
                         <button type="button" id="btnRefreshRemoveBgTokens" class="btn btn-sm btn-outline-success shadow-sm">
                             <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>Refresh balance
@@ -676,6 +318,9 @@
             </div>
         </div>
 
+        }
+        @if (openAiEnabled)
+        {
         <!-- OpenAI Rate-Limit Token Card -->
         <div class="health-card-col">
             <div id="openAiHealthCard" class="h-100 p-4 health-card health-card-openai d-flex flex-column">
@@ -693,15 +338,78 @@
 
                 <div class="mt-4 d-flex flex-column flex-grow-1">
                     <div class="health-token-value">
-                        <div id="openAiTokenCount" class="kpi-value">—</div>
+                        <div id="openAiTokenCount" class="kpi-value">@HealthWaiting()</div>
                         <div class="health-token-unit">tokens remaining</div>
                     </div>
-                    <div id="openAiTokenDetail" class="kpi-sub mt-2">Waiting for an OpenAI request…</div>
+                    <div id="openAiTokenDetail" class="kpi-sub mt-2">Waiting for an OpenAI request...</div>
                     <div class="kpi-sub mt-auto pt-4">Latest API rate-limit window, not billing credit.</div>
                 </div>
             </div>
         </div>
 
+        }
+        @if (carGurusEnabled)
+        {
+        <div class="health-card-col">
+            <div class="h-100 p-4 health-card health-card-marketcheck d-flex flex-column">
+                <div class="health-card-head">
+                    <div class="health-card-title">
+                        <div class="health-icon health-icon-marketcheck">
+                            <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>
+                        </div>
+                        <div>
+                            <div class="kpi-label mb-0">MarketCheck</div>
+                            <div class="kpi-sub mt-1">Monthly API quota</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 d-flex flex-column flex-grow-1">
+                    <div class="health-token-value">
+                        <div id="marketCheckQuotaCount" class="kpi-value">@HealthWaiting()</div>
+                        <div class="health-token-unit">calls remaining</div>
+                    </div>
+                    <div id="marketCheckQuotaDetail" class="kpi-sub mt-2" aria-live="polite">Loading MarketCheck quota...</div>
+                    <div class="kpi-sub mt-2">From the latest MarketCheck response with quota data.</div>
+                    <div class="health-refresh-actions health-refresh-actions-single pt-4 mt-auto">
+                        <button type="button" id="btnRefreshMarketCheckQuota" class="btn btn-sm btn-outline-success shadow-sm">
+                            <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>Refresh count
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        }
+        @if (dataOneEnabled)
+        {
+        <div class="health-card-col">
+            <div class="h-100 p-4 health-card health-card-dataone d-flex flex-column">
+                <div class="health-card-head">
+                    <div class="health-card-title">
+                        <div class="health-icon health-icon-dataone">
+                            <i class="bi bi-car-front" aria-hidden="true"></i>
+                        </div>
+                        <div>
+                            <div class="kpi-label mb-0">DataOne</div>
+                            <div class="kpi-sub mt-1">VIN decoder summary</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 d-flex flex-column flex-grow-1">
+                    <div class="health-token-value">
+                        <div id="dataOneCallCount" class="kpi-value">@HealthWaiting()</div>
+                        <div class="health-token-unit">reported calls remaining</div>
+                    </div>
+                    <div id="dataOneCallDetail" class="kpi-sub mt-2">Loading DataOne status...</div>
+                    <div class="kpi-sub mt-2">Based on the latest direct GTX VIN decode response.</div>
+                    <div class="health-refresh-actions health-refresh-actions-single pt-4 mt-auto">
+                        <button type="button" id="btnRefreshDataOneQuota" class="btn btn-sm btn-outline-success shadow-sm">
+                            <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>Refresh count
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        }
     </div>
 </div>
 
@@ -716,25 +424,43 @@
     const POLL_VISIBLE_MS = 2000;
 
     let pollTimer = null;
-    let requestInFlight = false;
+    let healthRequest = null;
     let disposed = false;
 
+    function setHealthValue($target, value, state) {
+        if (!$target.length) return;
+        if (value !== null && value !== undefined && value !== "" && (typeof value !== "number" || Number.isFinite(value))) {
+            $target.text(value);
+            return;
+        }
+
+        const waiting = state === "waiting";
+        const label = waiting ? "Waiting for data" : "Unavailable";
+        const $placeholder = $("<span>", {
+            "class": "health-value-placeholder " + (waiting ? "is-waiting" : "is-unavailable"),
+            role: "img", "aria-label": label, title: label
+        });
+        $("<i>", { "class": "bi " + (waiting ? "bi-clock-history" : "bi-dash-circle"), "aria-hidden": "true" }).appendTo($placeholder);
+        $target.empty().append($placeholder);
+    }
+
     function fmtBytes(b) {
-        if (b === null || b === undefined) return "—";
+        if (b === null || b === undefined) return null;
         const u = ["B", "KB", "MB", "GB", "TB"];
         let i = 0, n = Number(b);
+        if (!Number.isFinite(n)) return null;
         while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; }
         return (i === 0 ? n.toFixed(0) : n.toFixed(2)) + " " + u[i];
     }
 
     function fmtPct(v) {
-        if (v === null || v === undefined || isNaN(v)) return "—";
+        if (v === null || v === undefined || isNaN(v)) return null;
         return Number(v).toFixed(1);
     }
 
     function fmtPctWithSymbol(v) {
         const pct = fmtPct(v);
-        return pct === "—" ? pct : pct + "%";
+        return pct === null ? pct : pct + "%";
     }
 
     function clampPct(v) {
@@ -867,13 +593,14 @@
 
     function refreshRemoveBgTokenBalance() {
         const $button = $("#btnRefreshRemoveBgTokens");
+        if (!$button.length || $button.prop("disabled")) return;
         const $count = $("#removeBgTokenCount");
         const $detail = $("#removeBgTokenDetail");
         const originalHtml = $button.html();
 
         $button.prop("disabled", true)
-            .html('<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>Checking…');
-        $detail.text("Contacting remove.bg…");
+            .html('<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>Checking...');
+        $detail.text("Contacting remove.bg...");
 
         $.ajax({
             url: removeBgAccountUrl,
@@ -884,7 +611,7 @@
         })
             .done(function (response) {
                 if (!response || !response.success) {
-                    $count.text("—");
+                    setHealthValue($count, null);
                     $detail.text((response && response.message) || "The remove.bg balance could not be loaded.");
                     return;
                 }
@@ -899,7 +626,7 @@
                 const message = xhr.responseJSON && xhr.responseJSON.message
                     ? xhr.responseJSON.message
                     : "The remove.bg balance could not be loaded.";
-                $count.text("—");
+                setHealthValue($count, null);
                 $detail.text(message);
             })
             .always(function () {
@@ -909,13 +636,14 @@
 
     function refreshCloudflareBucketStats() {
         const $button = $("#btnRefreshCloudflareBucket");
+        if (!$button.length || $button.prop("disabled")) return;
         const $count = $("#cloudflareImageCount");
         const $detail = $("#cloudflareBucketDetail");
         const originalHtml = $button.html();
 
         $button.prop("disabled", true)
-            .html('<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>Counting…');
-        $detail.text("Reading the GTX bucket…");
+            .html('<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>Counting...');
+        $detail.text("Reading the GTX bucket...");
 
         $.ajax({
             url: inventoryBucketStatsUrl,
@@ -926,7 +654,7 @@
         })
             .done(function (response) {
                 if (!response || !response.success) {
-                    $count.text("—");
+                    setHealthValue($count, null);
                     $detail.text((response && response.message) || "The GTX bucket could not be counted.");
                     return;
                 }
@@ -936,13 +664,13 @@
                 const imageBytes = Math.max(0, Number(response.ImageBytes) || 0);
                 const otherObjects = Math.max(0, Number(response.OtherObjects) || 0);
                 $count.text(imageCount.toLocaleString("en-US"));
-                $detail.text(`${stockFolders.toLocaleString("en-US")} stock folders · ${fmtBytes(imageBytes)} images · ${otherObjects.toLocaleString("en-US")} other objects`);
+                $detail.text(`${stockFolders.toLocaleString("en-US")} stock folders | ${fmtBytes(imageBytes)} images | ${otherObjects.toLocaleString("en-US")} other objects`);
             })
             .fail(function (xhr) {
                 const message = xhr.responseJSON && xhr.responseJSON.message
                     ? xhr.responseJSON.message
                     : "The GTX bucket could not be counted.";
-                $count.text("—");
+                setHealthValue($count, null);
                 $detail.text(message);
             })
             .always(function () {
@@ -955,15 +683,11 @@
             return;
         }
 
-        if (requestInFlight) {
-            scheduleNextPoll(false);
-            return;
-        }
+        if (healthRequest) return healthRequest;
 
-        requestInFlight = true;
-        setStatus("loading", "Refreshing…");
+        setStatus("loading", "Refreshing...");
 
-        $.ajax({
+        healthRequest = $.ajax({
             url: healthUrl,
             method: "GET",
             cache: false,
@@ -975,12 +699,15 @@
                 const totalPhys = safeGet(data, "Totals.TotalPhysBytes", null);
                 const availPhys = safeGet(data, "Totals.AvailPhysBytes", null);
 
-                dom.totCpu.text(fmtPctWithSymbol(totCpu));
-                dom.totMem.text(fmtPctWithSymbol(totMem));
+                setHealthValue(dom.totCpu, fmtPctWithSymbol(totCpu));
+                setHealthValue(dom.totMem, fmtPctWithSymbol(totMem));
                 setBar(dom.totCpuBar, totCpu);
                 setBar(dom.totMemBar, totMem);
 
-                dom.totRam.text(`${fmtBytes(totalPhys)} total / ${fmtBytes(availPhys)} free`);
+                const totalRam = fmtBytes(totalPhys);
+                const availableRam = fmtBytes(availPhys);
+                setHealthValue(dom.totRam, totalRam !== null || availableRam !== null
+                    ? `${totalRam || "Unavailable"} total / ${availableRam || "Unavailable"} free` : null);
 
                 const memLoad = safeGet(data, "Totals.MemoryLoadPercent", null);
                 if (memLoad !== null && memLoad !== undefined) {
@@ -991,20 +718,20 @@
 
                 const stRaw = safeGet(data, "ServerTime", null);
                 const st = parseNetDate(stRaw);
-                const timeText = st ? st.toLocaleTimeString() : "—";
-                dom.updated.text(timeText);
-                dom.updated2.text(timeText);
+                const timeText = st ? st.toLocaleTimeString() : null;
+                setHealthValue(dom.updated, timeText);
+                setHealthValue(dom.updated2, timeText);
 
                 const iis = safeGet(data, "IIS", null);
-                dom.iisPid.text(safeGet(iis, "Pid", "—"));
-                dom.iisCpu.text(fmtPctWithSymbol(safeGet(iis, "CpuPercent", null)));
-                dom.iisMem.text(fmtPctWithSymbol(safeGet(iis, "MemoryPercent", null)));
-                dom.iisWs.text(fmtBytes(safeGet(iis, "WorkingSetBytes", null)));
+                setHealthValue(dom.iisPid, safeGet(iis, "Pid", null));
+                setHealthValue(dom.iisCpu, fmtPctWithSymbol(safeGet(iis, "CpuPercent", null)));
+                setHealthValue(dom.iisMem, fmtPctWithSymbol(safeGet(iis, "MemoryPercent", null)));
+                setHealthValue(dom.iisWs, fmtBytes(safeGet(iis, "WorkingSetBytes", null)));
                 setBar(dom.iisCpuBar, safeGet(iis, "CpuPercent", 0));
                 setBar(dom.iisMemBar, safeGet(iis, "MemoryPercent", 0));
 
                 const act = safeGet(data, "ActiveSessions", null);
-                dom.activeSessions.text(act === null ? "—" : act);
+                setHealthValue(dom.activeSessions, act);
 
                 const openAi = safeGet(data, "OpenAI", null);
                 const openAiConfigured = !!safeGet(openAi, "Configured", false);
@@ -1012,11 +739,11 @@
                 const rateLimit = safeGet(openAi, "RateLimit", null);
 
                 if (!openAiConfigured) {
-                    dom.openAiTokenCount.text("—");
+                    setHealthValue(dom.openAiTokenCount, null);
                     dom.openAiTokenDetail.text("OpenAI API key is not configured.");
                 } else if (!rateLimit) {
-                    dom.openAiTokenCount.text("—");
-                    dom.openAiTokenDetail.text(`${openAiModel} · waiting for the next chatbot or Create Story request`);
+                    setHealthValue(dom.openAiTokenCount, null, "waiting");
+                    dom.openAiTokenDetail.text(`${openAiModel} | waiting for the next chatbot or Create Story request`);
                 } else {
                     const remainingTokens = safeGet(rateLimit, "RemainingTokens", null);
                     const tokenLimit = safeGet(rateLimit, "TokenLimit", null);
@@ -1025,27 +752,124 @@
                     const capturedAt = parseNetDate(safeGet(rateLimit, "CapturedAt", null));
                     const details = [safeGet(rateLimit, "Model", openAiModel)];
 
-                    dom.openAiTokenCount.text(
+                    setHealthValue(dom.openAiTokenCount,
                         remainingTokens === null
-                            ? "—"
+                            ? null
                             : Number(remainingTokens).toLocaleString("en-US"));
 
                     if (tokenLimit !== null) details.push(`${Number(tokenLimit).toLocaleString("en-US")} token limit`);
                     if (remainingRequests !== null) details.push(`${Number(remainingRequests).toLocaleString("en-US")} requests left`);
                     if (tokenReset) details.push(`resets in ${tokenReset}`);
                     if (capturedAt) details.push(`sampled ${capturedAt.toLocaleTimeString()}`);
-                    dom.openAiTokenDetail.text(details.join(" · "));
+                    dom.openAiTokenDetail.text(details.join(" | "));
                 }
 
+                renderDataOneSummary(data.DataOne);
                 setStatus("ok", "Live");
             },
             error: function (xhr) {
                 setStatus("error", "HTTP " + (xhr && xhr.status ? xhr.status : "error"));
             },
             complete: function () {
-                requestInFlight = false;
+                healthRequest = null;
                 scheduleNextPoll(false);
             }
+        });
+        return healthRequest;
+    }
+
+    function refreshDataOneQuota() {
+        const $button = $("#btnRefreshDataOneQuota");
+        if (!$button.length || $button.prop("disabled")) return;
+
+        const request = refreshNow();
+        if (!request) return;
+
+        const originalHtml = $button.html();
+        $button.prop("disabled", true)
+            .html('<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>Refreshing...');
+
+        request.fail(function () {
+            $("#dataOneCallDetail").text("Could not refresh the DataOne count.");
+        }).always(function () {
+            $button.prop("disabled", false).html(originalHtml);
+        });
+    }
+
+    function renderDataOneSummary(dataOne) {
+        const $count = $("#dataOneCallCount");
+        const $detail = $("#dataOneCallDetail");
+        const response = safeGet(dataOne, "LatestResponse", null);
+
+        setHealthValue($count, null);
+        if (!dataOne) {
+            $detail.text("DataOne status is unavailable.");
+        } else if (!dataOne.Configured) {
+            $detail.text("DataOne credentials are missing.");
+        } else if (!response) {
+            setHealthValue($count, null, "waiting");
+            $detail.text("Waiting for a direct DataOne VIN decode response.");
+        } else {
+            const details = [];
+            if (response.Remaining == null) {
+                details.push("DataOne did not report a remaining call count.");
+            } else {
+                $count.text(Number(response.Remaining).toLocaleString("en-US"));
+            }
+            if (response.Limit != null) details.push(Number(response.Limit).toLocaleString("en-US") + " reported limit");
+            details.push("HTTP " + response.HttpStatus);
+            const observed = parseNetDate(response.ObservedAt);
+            if (observed) details.push("observed " + observed.toLocaleString());
+            $detail.text(details.join(" | "));
+        }
+    }
+
+    function refreshMarketCheckQuota() {
+        const $button = $("#btnRefreshMarketCheckQuota");
+        if (!$button.length || $button.prop("disabled")) return;
+        const originalHtml = $button.html();
+        const $marketCheckCount = $("#marketCheckQuotaCount");
+        const $marketCheckDetail = $("#marketCheckQuotaDetail");
+        $button.prop("disabled", true)
+            .html('<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>Refreshing...');
+        $marketCheckDetail.text("Loading MarketCheck quota...");
+
+        $.ajax({
+            url: '@Url.Action("MarketCheckQuota", "Health")',
+            cache: false,
+            dataType: "json",
+            timeout: 10000
+        }).done(function (data) {
+            if (!data || data.Status !== "ok" || !data.Quota) {
+                setHealthValue($marketCheckCount, null);
+                $marketCheckDetail.text(data && data.Status === "unconfigured" ? "AutoDealer.dev appraisal is not configured." : "Could not read quota from AutoDealer.dev.");
+                return;
+            }
+
+            const quota = data.Quota;
+            const reset = parseNetDate(quota.ResetAt);
+            const observed = parseNetDate(quota.ObservedAt);
+            if (reset && reset <= new Date()) {
+                setHealthValue($marketCheckCount, null, "waiting");
+                $marketCheckDetail.text("The previous quota window ended. Waiting for a new MarketCheck response.");
+                return;
+            }
+            if (quota.Remaining == null) {
+                setHealthValue($marketCheckCount, null, observed ? "unavailable" : "waiting");
+                $marketCheckDetail.text(observed ? "MarketCheck did not report a remaining call count." : "No MarketCheck quota headers have been captured yet.");
+                return;
+            }
+            $marketCheckCount.text(Number(quota.Remaining).toLocaleString("en-US"));
+            const details = [];
+            if (quota.Limit != null) details.push(Number(quota.Limit).toLocaleString("en-US") + " monthly limit");
+            if (reset) details.push("Resets " + reset.toLocaleString());
+            if (observed) details.push("Updated " + observed.toLocaleString());
+            $marketCheckDetail.text(details.join(" | "));
+        }).fail(function () {
+            setHealthValue($marketCheckCount, null);
+            $marketCheckDetail.text("Could not load the MarketCheck quota.");
+        }).always(function () {
+            $button.prop("disabled", false).html(originalHtml);
         });
     }
 
@@ -1140,6 +964,9 @@
         refreshRemoveBgTokenBalance();
         $("#btnRefreshCloudflareBucket").on("click", refreshCloudflareBucketStats);
         refreshCloudflareBucketStats();
+        $("#btnRefreshMarketCheckQuota").on("click", refreshMarketCheckQuota);
+        refreshMarketCheckQuota();
+        $("#btnRefreshDataOneQuota").on("click", refreshDataOneQuota);
 
         $(document).on("visibilitychange.health", function () {
             if (document.visibilityState === "visible") {

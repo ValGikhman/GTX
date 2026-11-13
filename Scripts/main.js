@@ -195,7 +195,8 @@
         applyFilterTerm(searchText);
     }).focus();
 
-    $("#filterLiked").on("click", function () {
+    $(".filterLiked").on("click", function (event) {
+        event.preventDefault();
         applyFilterLiked();
     });
 
@@ -270,7 +271,7 @@ function setMajordomeMenu(role) {
     // role -> bootstrap icon class
     const roleIcons = {
         "user": "bi-person-circle",          // default user
-        "owner": "bi-shield-lock",           // owner
+        "owner": "bi-person-badge",          // owner
         "tech": "bi-tools",                  // tech
         "manager": "bi-clipboard-check",     // manager
         "sales": "bi-currency-dollar",       // sales
@@ -278,80 +279,19 @@ function setMajordomeMenu(role) {
         "blogger": "bi-pencil-square"
     };
 
-    switch (r) {
-        case "blogger":
-            $("#MajordomeLink .dropdown > li").hide();
-            $("#menuBlogs, #menuSpecials").show();
-            break;
-        case "tech":
-            $("#menuInventory").show();
-            $("#menuInventoryDashboard").hide();
-            $("#menuInventoryManagement").hide();
-            $("#menuVinDecoder").show();
-            $("#menuAnnouncements").hide();
-            $("#menuBlogs, #menuSpecials").hide();
-            $("#menuEmployees").hide();
-            $("#menuHealth").hide();
-            $("#menuSitemap").show();
-            break;
-
-        case "owner":
-            $("#menuInventory").show();
-            $("#menuInventoryDashboard").show();
-            $("#menuInventoryManagement").show();
-            $("#menuVinDecoder").show();
-            $("#menuAnnouncements").show();
-            $("#menuBlogs, #menuSpecials").show();
-            $("#menuEmployees").show();
-            $("#menuHealth").show();
-            $("#menuSitemap").show();
-            $("#menuChatBotCommands").show();
-            break;
-
-        case "sales":
-            $("#menuInventory").hide();
-            $("#menuInventoryDashboard").hide();
-            $("#menuInventoryManagement").hide();
-            $("#menuVinDecoder").hide();
-            $("#menuAnnouncements").hide();
-            $("#menuBlogs, #menuSpecials").hide();
-            $("#menuEmployees").hide();
-            $("#menuHealth").hide();
-            $("#menuSitemap").show();
-            break;
-
-        case "manager":
-            $("#menuInventory").hide();
-            $("#menuInventoryDashboard").hide();
-            $("#menuInventoryManagement").hide();
-            $("#menuVinDecoder").show();
-            $("#menuAnnouncements").show();
-            $("#menuBlogs, #menuSpecials").show();
-            $("#menuEmployees").show();
-            $("#menuHealth").hide();
-            $("#menuSitemap").show();
-            break;
-
-        case "support":
-            $("#menuInventory").hide();
-            $("#menuInventoryDashboard").hide();
-            $("#menuInventoryManagement").hide();
-            $("#menuVinDecoder").hide();
-            $("#menuAnnouncements").hide();
-            $("#menuBlogs, #menuSpecials").show();
-            $("#menuEmployees").hide();
-            $("#menuHealth").hide();
-            $("#menuSitemap").show();
-            break;
-        default:
-            $("#menuVinDecoder, #menuInventory, #menuInventoryDashboard, #menuInventoryManagement, #menuAnnouncements, #menuBlogs, #menuSpecials, #menuEmployees, #menuHealth, #menuSitemap, #menuChatBotCommands").hide();
-            break;
-    }
+    const permissions = window.gtx && window.gtx.menuPermissions || [];
+    let visibleMenuItems = 0;
+    $("#MajordomeLink [data-menu-permission]").each(function () {
+        const allowed = r !== "user" && permissions.indexOf($(this).attr("data-menu-permission")) >= 0;
+        $(this).toggle(allowed);
+        if (allowed) visibleMenuItems++;
+    });
+    $("#MajordomeLink > .dropdown").toggleClass("majordome-menu-columns", visibleMenuItems >= 5);
     // text
     $('.role-text').text(role || "");
 
     // icon swap (remove any bi-* then add the mapped icon)
-    const iconClass = roleIcons[r] || roleIcons["user"];
+    const iconClass = permissions.indexOf("Roles") >= 0 ? "bi-shield-lock" : roleIcons[r] || roleIcons["user"];
     const $icon = $(".role-icon");
 
     // remove all bi- classes so you don't accumulate old ones
@@ -387,15 +327,16 @@ function loadLikedCars() {
 }
 
 function saveLikedCars() {
+    likedCars = parseCarCookie((likedCars || []).join("|"));
     saveCarCookie(cookieLike, likedCars);
 }
 
 function isCarLiked(stock) {
-    return likedCars.includes(stock);
+    return likedCars.includes(String(stock == null ? "" : stock).trim().toUpperCase());
 }
 
 function updateLiked(stock) {
-    if (likedCars.includes(stock)) {
+    if (isCarLiked(stock)) {
         $("#like-btn").removeClass("bi-heart").addClass("bi-heart-fill").show();
     } else {
         $("#like-btn").removeClass("bi-heart-fill").addClass("bi-heart").show();
@@ -408,6 +349,7 @@ function updateFilterLiked() {
     } else {
         $("#filterLiked").removeClass("bi-heart-fill").addClass("bi-heart").show();
     }
+    $(".filterLiked").attr("aria-pressed", $("#filterLiked").hasClass("bi-heart-fill") ? "true" : "false");
 }
 
 function loadLastCars() {

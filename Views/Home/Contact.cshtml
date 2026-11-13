@@ -1,5 +1,7 @@
 ﻿@model GTX.Models.ContactModel
 @{
+    var siteProfile = GTX.SiteProfileStore.Current;
+    var profileDirectionsUrl = "https://www.google.com/maps/search/?api=1&query=" + Uri.EscapeDataString(siteProfile.FullAddress);
     var isTestDrive = Model != null && Model.IsTestDrive;
     var heroKicker = isTestDrive ? I18n.R("Hero_TestDrive_Kicker") : I18n.R("Hero_Contact_Kicker");
     var heroTitle = isTestDrive ? I18n.R("Hero_TestDrive_Title") : I18n.R("Hero_Contact_Title");
@@ -32,13 +34,13 @@
     <section class="marketing-content-shell">
         <div class="marketing-section-label">
             <span>@(isTestDrive ? I18n.R("Section_ReserveDrive") : I18n.R("Section_VisitMessage"))</span>
-            <small>@I18n.R("Section_ContactAddress")</small>
+            <small>@siteProfile.FullAddress</small>
         </div>
 
         <div class="contact-layout">
             <aside class="contact-showroom">
                 <div class="contact-showroom-photo">
-                    <img src="@SiteImageUrl.Build("gtx.jpg")" alt="GTX Auto Group showroom" />
+                    <img src="@SiteImageUrl.Build("gtx.jpg")" alt="@siteProfile.CompanyName showroom" />
                     <span class="contact-showroom-photo-copy">
                         <small>Your local showroom</small>
                         <strong>Come see what feels right.</strong>
@@ -48,15 +50,22 @@
                 <div class="contact-showroom-details">
                     <address class="contact-address">
                         <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
-                        <span><strong>GTX Auto Group</strong><br />9516 Princeton Glendale Rd<br />West Chester Twp, OH 45011</span>
+                        <span>
+                            <strong>@siteProfile.CompanyName</strong><br />
+                            @siteProfile.StreetAddress<br />
+                            @if (!string.IsNullOrWhiteSpace(siteProfile.AddressLine2)) {
+                                <span>@siteProfile.AddressLine2</span><br />
+                            }
+                            @siteProfile.City, @siteProfile.State @siteProfile.ZipCode
+                        </span>
                     </address>
 
                     <div class="contact-actions">
-                        <a class="contact-action" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&amp;query=9516+Princeton+Glendale+Rd%2C+West+Chester%2C+OH+45011">
+                        <a class="contact-action" target="_blank" rel="noopener noreferrer" href="@profileDirectionsUrl">
                             <i class="bi bi-sign-turn-right-fill" aria-hidden="true"></i> Directions
                         </a>
-                        <a class="contact-action" href="tel:+15134892886">
-                            <i class="bi bi-telephone-fill" aria-hidden="true"></i> (513) 489-2886
+                        <a class="contact-action" href="@siteProfile.PhoneUri">
+                            <i class="bi bi-telephone-fill" aria-hidden="true"></i> @siteProfile.Phone
                         </a>
                     </div>
                 </div>

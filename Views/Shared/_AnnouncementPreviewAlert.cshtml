@@ -26,6 +26,7 @@
 }
 
 @{
+    var siteProfile = GTX.SiteProfileStore.Current;
     var cls = GetBootstrapAlertClass(Model.Type);   // info/success/warning/danger/primary
     var icon = GetIcon(Model.Type);
 }
@@ -118,7 +119,7 @@
     <div class="d-flex flex-column align-items-center gap-2 pt-2">
         <div class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill border shadow-sm bg-white">
             <i class="bi @icon fs-5"></i>
-            <span class="fw-semibold text-uppercase small" style="letter-spacing:.08em;">GTX Announcement</span>
+            <span class="fw-semibold text-uppercase small" style="letter-spacing:.08em;">@siteProfile.CompanyName Announcement</span>
         </div>
 
         <div class="display-6 fw-bold lh-1 mb-1">

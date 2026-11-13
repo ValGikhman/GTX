@@ -631,7 +631,7 @@ function loadGallery(vehicle) {
                 <div class="majordome-photo-actions">
                     <button type="button" id="${safeId}" class="delete-image bi bi-trash btn btn-light shadow-sm" data-filename="${safeSource}" title="Delete image"></button>
                     <button type="button" id="${safeId}" class="overlay-image ${imageIcon} btn btn-light shadow-sm ${showImageEdit}" data-filename="${safeSource}" title="Create overlay file"></button>
-                    <button type="button" id="${safeId}" class="remove-image-background bi bi-eraser btn btn-light shadow-sm ${showImageEdit}" data-filename="${safeSource}" title="Remove background"></button>
+                    ${window.gtx && window.gtx.removeBgEnabled === true ? `<button type="button" id="${safeId}" class="remove-image-background bi bi-eraser btn btn-light shadow-sm ${showImageEdit}" data-filename="${safeSource}" title="Remove background"></button>` : ""}
                     <button type="button" id="${safeId}" class="rotate-image-ccw bi bi-arrow-counterclockwise btn btn-light shadow-sm ${showImageEdit}" data-filename="${safeSource}" data-degrees="-90" title="Rotate image left"></button>
                     <button type="button" id="${safeId}" class="rotate-image bi bi-arrow-clockwise btn btn-light shadow-sm ${showImageEdit}" data-filename="${safeSource}" data-degrees="90" title="Rotate image right"></button>
                     <button type="button" class="move-to-top bi bi-front btn btn-light shadow-sm" title="Make it default image"></button>
@@ -1088,6 +1088,8 @@ async function rotateImage(file, degrees, triggerElement) {
 }
 
 function showRemoveBackgroundConfirmation(options) {
+    if (!(window.gtx && window.gtx.removeBgEnabled === true))
+        return Promise.resolve({ useImage: false, previewToken: "" });
     var settings = options || {};
 
     return new Promise(function (resolve) {
@@ -1364,6 +1366,7 @@ function showRemoveBackgroundConfirmation(options) {
 }
 
 async function removeImageBackground(file, triggerElement) {
+    if (!(window.gtx && window.gtx.removeBgEnabled === true)) return;
     const stock = getActiveMajordomeStock();
     if (!stock) {
         window.gtxAlert("Please select a vehicle first.");

@@ -25,9 +25,9 @@ namespace GTX.Controllers
             ? InventoryImageSettings.BaseUrl + "/"
             : "/InventoryImages/Get?path=";
         protected string DefaultInventoryImage => InventoryImageSettings.PlaceholderUrl;
-        public readonly string openAiApiKey = ConfigurationManager.AppSettings["OpenAI:ApiKey"];
-        public readonly string dataOneApiKey = ConfigurationManager.AppSettings["DataOne:AccessKey"];
-        public readonly string dataOneSecretApiKey = ConfigurationManager.AppSettings["DataOne:SecretAccessKey"];
+        public string openAiApiKey => ServiceConfiguration.Get("OpenAI:ApiKey");
+        public string dataOneApiKey => ServiceConfiguration.Get("DataOne:AccessKey");
+        public string dataOneSecretApiKey => ServiceConfiguration.Get("DataOne:SecretAccessKey");
 
         protected static string BuildStockImageSource(string stock, string source)
         {
@@ -84,12 +84,20 @@ namespace GTX.Controllers
         protected override void OnActionExecuting(ActionExecutingContext filterContext) {
             base.OnActionExecuting(filterContext);
 
+            try { ServiceConfiguration.Read(); }
+            catch (Exception ex) when (ex is ConfigurationErrorsException || ex is IOException || ex is UnauthorizedAccessException) {
+                System.Diagnostics.Trace.TraceError("Service settings are temporarily unavailable.");
+                filterContext.Result = new HttpStatusCodeResult(503, "Service settings are temporarily unavailable.");
+                return;
+            }
+
             try {
                 Model = new BaseModel();
 
                 Model.Responsibility = CommonUnit.GetConfiguredResponsibility();
                 Model.Environment = CommonUnit.GetConfiguredEnvironment();
-                Model.IsDataOne = ConfigurationManager.AppSettings["DataOne"] == "true";
+                Model.IsDataOne = ServiceConfiguration.Enabled("DataOne");
+                ViewBag.RemoveBgEnabled = ServiceConfiguration.Enabled("RemoveBg:Enabled");
 
                 SessionData.Responsibility = Model.Responsibility;
                 SessionData.Environment = Model.Environment;
@@ -99,9 +107,9 @@ namespace GTX.Controllers
 
                 Model.Inventory = AppCache.GetOrCreate(Constants.INVENTORY_CACHE, () => LoadInventory(includeHiddenInventory: false, includeDataOneContent: false),  minutes: 60);
                 Model.Employers = AppCache.GetOrCreate(Constants.EMPLOYERS_CACHE, () => GetEmployers(), minutes: 60);
-                Model.OpenHours = AppCache.GetOrCreate(Constants.OPENHOURS_CACHE, () => Utility.XMLHelpers.XmlRepository.GetOpenHours(), minutes: 60);
+                Model.OpenHours = Utility.XMLHelpers.XmlRepository.GetOpenHours();
                 Model.Categories = AppCache.GetOrCreate(Constants.CATEGORIES_CACHE, () => GetCategories(), minutes: 60);
-                Model.Passwords = AppCache.GetOrCreate(Constants.PASSWORDS_CACHE, () => GetPasswords(), minutes: 60);
+                // Credentials are read only by SiteRoleStore.
                 var published = Model.Inventory?.Published ?? DateTime.Now;
                 if (published == default(DateTime))
                 {
@@ -109,10 +117,11 @@ namespace GTX.Controllers
                 }
 
                 ViewBag.Published = Model.Environment == CommonUnit.Environment.Dev ? published : published.AddHours(-5);
-                var role = RoleCookie.GetCurrentRole(Request, Session);
+                var access = SiteAccess.Current(Request);
 
-                ViewBag.CurrentRole = role.ToString();
-                Model.IsMajordome = (role != CommonUnit.Roles.User);
+                ViewBag.CurrentRole = access?.Name ?? "User";
+                ViewBag.MenuPermissions = MajordomeMenu.Items.Where(item => SiteAccess.Can(access, item.Item)).Select(item => item.Item.ToString()).ToArray();
+                Model.IsMajordome = access != null;
                 ViewBag.IsMajordome = Model.IsMajordome;
 
                 Model.Filters = AppCache.GetOrCreate(Constants.FILTERS_CACHE, () => BuildFilters(Model.Inventory), minutes: 60);
@@ -194,37 +203,10 @@ namespace GTX.Controllers
             currentRole = CommonUnit.Roles.User;
             password = (password ?? "").Trim();
 
-            var expected = Model.Passwords.FirstOrDefault(m => m.Password == password);
+            var expected = new SiteRoleStore().Authenticate(password);
             if (expected == null) return false;
-
-            // Preserve the existing sitePassword:Blog setting as a Blogger login.
-            var roleName = string.Equals(expected.Role, "Blog", StringComparison.OrdinalIgnoreCase)
-                ? nameof(CommonUnit.Roles.Blogger)
-                : expected.Role;
-            if (!string.IsNullOrWhiteSpace(roleName) &&
-                Enum.TryParse(roleName, true, out CommonUnit.Roles role))
-            {
-                currentRole = role;
-            }
-
-            // session
-            session["CurrentRole"] = currentRole;
-
-            // encrypted cookie
-            var bytes = Encoding.UTF8.GetBytes(currentRole.ToString());
-            var encoded = MachineKey.Encode(bytes, MachineKeyProtection.All);
-
-            var cookie = new HttpCookie(RoleCookie.CookieName, encoded)
-            {
-                HttpOnly = true,
-                Secure = request.IsSecureConnection,   // ✅ MVC5 correct
-                Path = "/"
-            };
-
-            if (rememberOnThisComputer)
-                cookie.Expires = DateTime.UtcNow.AddDays(30);
-
-            response.Cookies.Add(cookie);
+            if (!Enum.TryParse(expected.Name, true, out currentRole)) currentRole = (CommonUnit.Roles)expected.Id;
+            SiteAccess.SignIn(expected, request, response, session, rememberOnThisComputer);
 
             return true;
         }
@@ -284,7 +266,7 @@ namespace GTX.Controllers
         private static int DataOneInventoryCacheMinutes()
         {
             int minutes;
-            return int.TryParse(ConfigurationManager.AppSettings["OpenAI:ChatInventoryCacheMinutes"], out minutes)
+            return int.TryParse(ServiceConfiguration.Get("OpenAI:ChatInventoryCacheMinutes"), out minutes)
                 ? Math.Max(1, Math.Min(60, minutes))
                 : 1;
         }
@@ -337,7 +319,7 @@ namespace GTX.Controllers
                 var userNow = utcNow.AddMinutes(-offset);
                 var todayName = userNow.DayOfWeek.ToString();
                 var today = Model.OpenHours?.FirstOrDefault(m => m.Day == todayName);
-                bool isOpen = today != null && userNow.Hour >= today.From && userNow.Hour <= today.To;
+                bool isOpen = today != null && today.IsOpenAt(userNow);
                 var returnValue = isOpen ? I18n.R("All_NowOpen") : I18n.R("All_Closed");
 
                 return Json(new { Now = returnValue }, JsonRequestBehavior.AllowGet);
@@ -612,15 +594,5 @@ namespace GTX.Controllers
 
         #endregion
 
-        #region Passwords
-        private List<SitePassword> GetPasswords()
-        {
-            return ConfigurationManager.AppSettings.AllKeys.Where(k => k.StartsWith("sitePassword:", StringComparison.OrdinalIgnoreCase))
-                .Select(k => new SitePassword {
-                    Role = k.Substring("sitePassword:".Length),
-                    Password = ConfigurationManager.AppSettings[k]
-                }).ToList();
-        }
-        #endregion
     }
 }
