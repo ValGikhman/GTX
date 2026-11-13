@@ -795,6 +795,43 @@
     min-width: 0;
 }
 
+/* Let the menu cross the console edge while keeping its decorative accents clipped. */
+.vin-decoder-page .vin-decoder-console:has(#vinProviderMenu.show) {
+    overflow: visible;
+    z-index: 1;
+}
+
+.vin-decoder-page .vin-decoder-console:has(#vinProviderMenu.show)::before {
+    width: 100%;
+    border-radius: inherit;
+    clip-path: inset(0 calc(100% - .3rem) 0 0);
+}
+
+.vin-decoder-page .vin-decoder-console:has(#vinProviderMenu.show)::after {
+    right: 0;
+    bottom: 0;
+    width: 10rem;
+    height: 7rem;
+    border: 0;
+    border-radius: 0;
+    background: radial-gradient(circle at 8rem 8rem,
+        transparent 5.5rem,
+        color-mix(in srgb, var(--mp-accent) 6%, transparent) 5.5rem 8rem,
+        transparent 8rem);
+}
+
+#vinProviderPicker .vin-provider-option[aria-pressed="true"] {
+    background: var(--inventory-surface-alt);
+}
+
+#vinProviderPicker .vin-provider-check {
+    color: var(--mp-accent);
+}
+
+#vinProviderPicker .vin-provider-option[aria-pressed="false"] .vin-provider-check {
+    visibility: hidden;
+}
+
 .vin-decoder-input-group {
     padding: .3rem;
     border: 1px solid color-mix(in srgb, var(--mp-accent) 22%, var(--vin-line));

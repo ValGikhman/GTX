@@ -10,7 +10,9 @@ $arguments += Get-ChildItem -LiteralPath $binPath -Filter *.dll | ForEach-Object
     try { [void][Reflection.AssemblyName]::GetAssemblyName($_.FullName); '/r:"' + $_.FullName + '"' }
     catch { } # Skip native DLLs.
 }
-$arguments += @('/out:"' + $exePath + '"', '"' + (Join-Path $PSScriptRoot 'vin-decoder-api.cs') + '"', '"' + (Join-Path $projectRoot 'Controllers/VinDecoderController.cs') + '"')
+$arguments += @('/out:"' + $exePath + '"', '"' + (Join-Path $PSScriptRoot 'vin-decoder-api.cs') + '"', '"' + (Join-Path $projectRoot 'Controllers/VinDecoderController.cs') + '"', '"' + (Join-Path $projectRoot 'Common/VinDecoderReportClient.cs') + '"')
+$arguments += '"' + (Join-Path $PSScriptRoot 'vin-decoder-report.cs') + '"'
+$arguments += '"' + (Join-Path $projectRoot 'Common/VinDecoderReportFormatter.cs') + '"'
 $responsePath = Join-Path $testDirectory 'compile.rsp'
 [IO.File]::WriteAllLines($responsePath, $arguments)
 & (Join-Path $binPath 'roslyn/csc.exe') ('@' + $responsePath)

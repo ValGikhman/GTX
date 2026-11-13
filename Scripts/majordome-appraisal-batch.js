@@ -97,6 +97,10 @@
         return Number.isInteger(miles) && miles >= 0 && miles <= 2000000;
     }
 
+    function mileageBucket(miles) {
+        return validMileage(miles) ? Math.max(100000, Math.ceil(miles / 50000) * 50000) : null;
+    }
+
     function carsSearchUrl(row) {
         const {year, make, model, trim, driveType} = searchVehicle(row);
         if (!validSearchYear(year) || !make || !model || !validSearchScope()) return null;
@@ -113,9 +117,8 @@
         if (trim) query.set('trims[]', make + '-' + model + '-' + vehicleSlug(trim));
         const drivetrain = carsDrivetrain(driveType);
         if (drivetrain) query.set('drivetrain_slugs[]', drivetrain);
-        if (validMileage(row.Miles)) {
-            query.set('mileage_max', row.Miles);
-        }
+        const maxMiles = mileageBucket(row.Miles);
+        if (maxMiles !== null) query.set('mileage_max', maxMiles);
         return 'https://www.cars.com/shopping/results/?' + query.toString();
     }
 
@@ -217,7 +220,8 @@
             sortType: 'PRICE',
             vehicleHistoryOptions: 'LEMON_FREE,NON_SALVAGE'
         });
-        if (validMileage(row.Miles)) query.set('maxMileage', row.Miles);
+        const maxMiles = mileageBucket(row.Miles);
+        if (maxMiles !== null) query.set('maxMileage', maxMiles);
         return 'https://www.cargurus.com/search?' + query;
     }
 
@@ -248,7 +252,8 @@
         ],tableClass:'table align-middle m-0',height:null,pageable:false,resizable:false,reorderable:false,sortable:true,searchable:true,showSearch:true,searchPlaceholder:'Search run, vehicle, VIN, or status…',showRecordCount:true,recordType:{singular:'vehicle',plural:'vehicles',icon:'bi bi-car-front'},exportToExcel:false,exportToPdf:false,showPrint:true,exportFileName:'Auction shortlist',exportPdfWrap:true,groupable:false,alternateRows:true});
     }
     async function appraise(row) {
-        if (!number(row.Miles) || !Number.isInteger(row.Miles) || row.Miles < 0 || row.Miles > 2000000) {
+        const miles = mileageBucket(row.Miles);
+        if (miles === null) {
             row.Status = 'Mileage missing or invalid in file; skipped';
             row.StatusTone = 'danger';
             return;
@@ -257,7 +262,7 @@
         row.StatusTone = 'info';
         row.Status='Researching MarketCheck…'; render();
         try {
-            const result = await $.ajax({url:form.dataset.appraiseUrl,type:'POST',dataType:'json',timeout:90000,data:{vin:row.Vin,miles:row.Miles,zip:zip.value,radius:radius.value,__RequestVerificationToken:token()}});
+            const result = await $.ajax({url:form.dataset.appraiseUrl,type:'POST',dataType:'json',timeout:90000,data:{vin:row.Vin,miles:miles,zip:zip.value,radius:radius.value,__RequestVerificationToken:token()}});
             if (!number(result.marketCheckRetailUsd)) throw new Error('No usable MarketCheck estimate returned.');
             row.Estimate=result.marketCheckRetailUsd; row.Maximum=result.maximumHammerBidUsd; row.Done=true;
             row.Status=result.message || 'Complete';

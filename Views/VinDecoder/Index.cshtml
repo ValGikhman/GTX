@@ -16,7 +16,7 @@
 <div id="vindecoderOverlay" class="spinner-overlay spinner-hidden" aria-hidden="true">
     <div class="text-center">
         <div class="spinner-border text-light" role="status" aria-label="Working..."></div>
-        <div class="text-light mt-3 small opacity-75">Decoding VIN…</div>
+        <div id="vinWorkingMessage" class="text-light mt-3 small opacity-75">Loading VIN report…</div>
     </div>
 </div>
 
@@ -39,6 +39,35 @@
 
             <div class="vin-decoder-controls">
                 @Html.AntiForgeryToken()
+                <div id="vinProviderPicker" class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                    <input type="hidden" id="vinProvider" value="dataone" />
+                    <div class="dropdown majordome-batch-actions-dropdown">
+                        <button type="button" id="vinProviderDropdown"
+                                class="btn btn-sm btn-gradient dropdown-toggle d-flex align-items-center gap-2 text-nowrap shadow"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-diagram-3-fill" aria-hidden="true"></i>
+                            <span id="vinProviderName">DataOne</span>
+                        </button>
+                        <div id="vinProviderMenu" class="dropdown-menu majordome-batch-actions-menu p-1 shadow" aria-labelledby="vinProviderDropdown">
+                            <button type="button" id="vinProviderDataOne" value="dataone" data-provider-name="DataOne"
+                                    class="dropdown-item majordome-batch-action vin-provider-option rounded-3" aria-pressed="true">
+                                <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-database-check"></i></span>
+                                <span>
+                                    <strong>DataOne<i class="bi bi-check2 ms-2 vin-provider-check" aria-hidden="true"></i></strong>
+                                    <small>Factory specifications and installed equipment</small>
+                                </span>
+                            </button>
+                            <button type="button" id="vinProviderMarketCheck" value="neovin" data-provider-name="MarketCheck"
+                                    class="dropdown-item majordome-batch-action vin-provider-option rounded-3" aria-pressed="false">
+                                <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-car-front-fill"></i></span>
+                                <span>
+                                    <strong>MarketCheck<i class="bi bi-check2 ms-2 vin-provider-check" aria-hidden="true"></i></strong>
+                                    <small>Vehicle specifications, features and equipment</small>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 <div class="vin-decoder-entry-row">
                     <div class="input-group input-group-lg vin-decoder-input-group flex-nowrap">
                         <span class="input-group-text">
@@ -55,6 +84,8 @@
                         <i class="bi bi-x-circle" aria-hidden="true"></i>
                     </button>
                 </div>
+
+                <span id="vinReportStatus" class="small d-block mt-2" role="status" aria-live="polite"></span>
 
                 <div id="vinError" class="alert alert-danger d-none" role="alert">
                     <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
@@ -80,14 +111,26 @@
         const $vin = $("#vin");
         const $btn = $("#decode");
         const $clear = $("#clear");
+        const $provider = $("#vinProvider");
+        const $providerToggle = $("#vinProviderDropdown");
+        const $providerChoices = $("#vinProviderMenu .vin-provider-option");
+        const $providerName = $("#vinProviderName");
         const $overlay = $("#vindecoderOverlay");
+        const $workingMessage = $("#vinWorkingMessage");
         const $err = $("#vinError");
         const $errMsg = $("#vinError .msg");
         const $result = $("#dataOneVinDecoder");
         const $empty = $("#emptyState");
-        const $controls = $btn.add($clear).add($vin);
+        const $reportStatus = $("#vinReportStatus");
+        const $controls = $btn.add($clear).add($vin).add($provider).add($providerToggle).add($providerChoices);
         const $token = $(".vin-decoder-controls input[name='__RequestVerificationToken']");
+        const providerUrls = {
+            dataone: '@Url.Action("DecodeDataOneByAnyVin", "VinDecoder")',
+            neovin: '@Url.Action("DecodeMarketCheckByAnyVin", "VinDecoder")'
+        };
         let decoding = false;
+        let selectedProvider = $provider.val();
+        let requestedVin = "";
 
         function showError(message) {
             $errMsg.text(message);
@@ -99,6 +142,14 @@
 
         function clearError() {
             $err.addClass("d-none");
+            $errMsg.text("");
+        }
+
+        function clearReport() {
+            clearError();
+            $result.empty();
+            $empty.show();
+            $reportStatus.text("");
         }
 
         function validateVin(vin) {
@@ -112,11 +163,21 @@
             return ($vin.val() || "").trim().toUpperCase();
         }
 
-        function updateDecodeButton() {
-            $btn.prop("disabled", decoding || validateVin(readVin()) !== null);
+        function updateActionButtons() {
+            const disabled = decoding || validateVin(readVin()) !== null || !Object.prototype.hasOwnProperty.call(providerUrls, $provider.val());
+            $btn.prop("disabled", disabled);
         }
 
-        async function submit() {
+        function updateProviderSelection() {
+            $providerChoices.each(function () {
+                const $choice = $(this);
+                const selected = this.value === $provider.val();
+                $choice.attr("aria-pressed", selected ? "true" : "false");
+                if (selected) $providerName.text($choice.attr("data-provider-name"));
+            });
+        }
+
+        async function requestReport() {
             if (decoding) return;
 
             const vin = readVin();
@@ -127,25 +188,32 @@
                 $vin.trigger("focus").select();
                 return;
             }
+            const provider = $provider.val();
+            if (!Object.prototype.hasOwnProperty.call(providerUrls, provider)) {
+                showError("Please select a VIN decoder.");
+                return;
+            }
 
+            selectedProvider = provider;
+            requestedVin = vin;
             decoding = true;
             $controls.prop("disabled", true);
+            $workingMessage.text("Loading VIN report…");
             showSpinner($overlay);
             clearError();
             $result.empty();
             $empty.hide();
+            $reportStatus.text("");
 
             try {
-                const res = await fetch('@Url.Action("DecodeDataOneByAnyVin", "VinDecoder")', {
+                const requestData = { vin: vin, __RequestVerificationToken: $token.val() };
+                const res = await fetch(providerUrls[provider], {
                     method: "POST",
                     headers: {
                         "X-Requested-With": "XMLHttpRequest",
                         "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
                     },
-                    body: $.param({
-                        vin: vin,
-                        __RequestVerificationToken: $token.val()
-                    })
+                    body: $.param(requestData)
                 });
 
                 if (!res.ok || res.redirected) {
@@ -153,15 +221,24 @@
                         ? "The VIN decoding limit has been reached. Please try again later."
                         : res.status === 504
                             ? "VIN decoding timed out. Please try again."
-                            : res.redirected || res.status === 401 || res.status === 403
-                                ? "Please sign in again to use the VIN decoder."
-                                : "Failed to decode VIN. Please try again.";
+                            : res.status === 503
+                                ? "The selected VIN decoding service is not configured or is temporarily unavailable. Ask an administrator to check Services."
+                                : res.redirected || res.status === 401 || res.status === 403
+                                    ? "Please sign in again to use the VIN decoder."
+                                    : "Failed to decode VIN. Please try again.";
                     throw new Error(message);
                 }
 
                 const html = await res.text();
                 window.gtxSecurity.setSafeHtml($result, html);
                 $result.find("details.avd-style").prop("open", true);
+                const saved = (res.headers.get("X-GTX-Vin-Saved") || "").trim().toLowerCase();
+                const source = (res.headers.get("X-GTX-Vin-Source") || "").trim().toLowerCase();
+                $reportStatus.text(source === "database" ? "Saved report loaded."
+                    : saved === "true" ? "Saved for this inventory vehicle."
+                    : saved === "false" ? "Decoded. Saving is available for inventory vehicles."
+                    : saved === "failed" ? "Decoded, but saving failed. Please try again later."
+                    : "Decoded.");
 
                 $result.addClass("fade-in");
                 setTimeout(() => $result.removeClass("fade-in"), 250);
@@ -174,10 +251,11 @@
                 hideSpinner($overlay);
                 decoding = false;
                 $controls.prop("disabled", false);
-                updateDecodeButton();
+                updateActionButtons();
             }
         }
 
+        function submit() { return requestReport(); }
         $btn.on("click", submit);
 
         $vin.on("keydown", function (e) {
@@ -186,15 +264,29 @@
                 submit();
             }
         }).on("input", function () {
-            clearError();
-            updateDecodeButton();
+            if (decoding) { $vin.val(requestedVin); return; }
+            clearReport();
+            updateActionButtons();
         }).trigger("focus");
-        updateDecodeButton();
+        updateActionButtons();
+
+        $provider.on("change", function () {
+            if (decoding) { $provider.val(selectedProvider); return; }
+            selectedProvider = $provider.val();
+            updateProviderSelection();
+            clearReport();
+            updateActionButtons();
+        });
+
+        $providerChoices.on("click", function () {
+            if (decoding || this.value === $provider.val()) return;
+            $provider.val(this.value).trigger("change");
+        });
+        updateProviderSelection();
 
         $clear.on("click", function () {
+            if (decoding) return;
             $vin.val("").trigger("input").trigger("focus");
-            $result.empty();
-            $empty.show();
         });
     });
 </script>
