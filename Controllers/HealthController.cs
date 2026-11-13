@@ -259,7 +259,6 @@ public class HealthController : BaseController
 
         var activeSessions = Convert.ToInt32(HttpContext.Application["TotalSessions"] ?? 0);
         var openAiEnabled = ServiceConfiguration.Enabled("OpenAI:ChatBot");
-        var dataOneEnabled = ServiceConfiguration.Enabled("DataOne");
         var openAiRateLimit = openAiEnabled ? OpenAiRateLimitHealth.GetLatest() : null;
 
         return Json(new
@@ -268,12 +267,6 @@ public class HealthController : BaseController
             Totals = totals,
             IIS = iisObj,
             ActiveSessions = activeSessions,
-            DataOne = new
-            {
-                Enabled = dataOneEnabled,
-                Configured = dataOneEnabled && !string.IsNullOrWhiteSpace(dataOneApiKey) && !string.IsNullOrWhiteSpace(dataOneSecretApiKey),
-                LatestResponse = dataOneEnabled ? Services.VinDecoderService.GetLatestResponse(dataOneApiKey) : null
-            },
             OpenAI = new
             {
                 Enabled = openAiEnabled,

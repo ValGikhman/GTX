@@ -5,7 +5,6 @@
     var removeBgEnabled = GTX.Common.ServiceConfiguration.Enabled("RemoveBg:Enabled");
     var openAiEnabled = GTX.Common.ServiceConfiguration.Enabled("OpenAI:ChatBot");
     var carGurusEnabled = GTX.Common.ServiceConfiguration.Enabled("CarGurus:Enabled");
-    var dataOneEnabled = GTX.Common.ServiceConfiguration.Enabled("DataOne");
     var isMajordome = GTX.Common.SiteAccess.IsMajordome(GTX.Common.SiteAccess.Current(ViewContext.HttpContext.Request));
 }
 
@@ -379,37 +378,6 @@
             </div>
         </div>
         }
-        @if (dataOneEnabled)
-        {
-        <div class="health-card-col">
-            <div class="h-100 p-4 health-card health-card-dataone d-flex flex-column">
-                <div class="health-card-head">
-                    <div class="health-card-title">
-                        <div class="health-icon health-icon-dataone">
-                            <i class="bi bi-car-front" aria-hidden="true"></i>
-                        </div>
-                        <div>
-                            <div class="kpi-label mb-0">DataOne</div>
-                            <div class="kpi-sub mt-1">VIN decoder summary</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-4 d-flex flex-column flex-grow-1">
-                    <div class="health-token-value">
-                        <div id="dataOneCallCount" class="kpi-value">@HealthWaiting()</div>
-                        <div class="health-token-unit">reported calls remaining</div>
-                    </div>
-                    <div id="dataOneCallDetail" class="kpi-sub mt-2">Loading DataOne status...</div>
-                    <div class="kpi-sub mt-2">Based on the latest direct GTX VIN decode response.</div>
-                    <div class="health-refresh-actions health-refresh-actions-single pt-4 mt-auto">
-                        <button type="button" id="btnRefreshDataOneQuota" class="btn btn-sm btn-outline-success shadow-sm">
-                            <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>Refresh count
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        }
     </div>
 </div>
 
@@ -764,7 +732,6 @@
                     dom.openAiTokenDetail.text(details.join(" | "));
                 }
 
-                renderDataOneSummary(data.DataOne);
                 setStatus("ok", "Live");
             },
             error: function (xhr) {
@@ -776,52 +743,6 @@
             }
         });
         return healthRequest;
-    }
-
-    function refreshDataOneQuota() {
-        const $button = $("#btnRefreshDataOneQuota");
-        if (!$button.length || $button.prop("disabled")) return;
-
-        const request = refreshNow();
-        if (!request) return;
-
-        const originalHtml = $button.html();
-        $button.prop("disabled", true)
-            .html('<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>Refreshing...');
-
-        request.fail(function () {
-            $("#dataOneCallDetail").text("Could not refresh the DataOne count.");
-        }).always(function () {
-            $button.prop("disabled", false).html(originalHtml);
-        });
-    }
-
-    function renderDataOneSummary(dataOne) {
-        const $count = $("#dataOneCallCount");
-        const $detail = $("#dataOneCallDetail");
-        const response = safeGet(dataOne, "LatestResponse", null);
-
-        setHealthValue($count, null);
-        if (!dataOne) {
-            $detail.text("DataOne status is unavailable.");
-        } else if (!dataOne.Configured) {
-            $detail.text("DataOne credentials are missing.");
-        } else if (!response) {
-            setHealthValue($count, null, "waiting");
-            $detail.text("Waiting for a direct DataOne VIN decode response.");
-        } else {
-            const details = [];
-            if (response.Remaining == null) {
-                details.push("DataOne did not report a remaining call count.");
-            } else {
-                $count.text(Number(response.Remaining).toLocaleString("en-US"));
-            }
-            if (response.Limit != null) details.push(Number(response.Limit).toLocaleString("en-US") + " reported limit");
-            details.push("HTTP " + response.HttpStatus);
-            const observed = parseNetDate(response.ObservedAt);
-            if (observed) details.push("observed " + observed.toLocaleString());
-            $detail.text(details.join(" | "));
-        }
     }
 
     function refreshMarketCheckQuota() {
@@ -966,7 +887,6 @@
         refreshCloudflareBucketStats();
         $("#btnRefreshMarketCheckQuota").on("click", refreshMarketCheckQuota);
         refreshMarketCheckQuota();
-        $("#btnRefreshDataOneQuota").on("click", refreshDataOneQuota);
 
         $(document).on("visibilitychange.health", function () {
             if (document.visibilityState === "visible") {
