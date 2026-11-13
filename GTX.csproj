@@ -287,6 +287,20 @@
     <Compile Include="Controllers\MajordomeController.BatchAppraisal.cs" />
     <Compile Include="Common\AppraisalComparableScope.cs" />
     <Compile Include="Common\AppraisalVehicleIdentity.cs" />
+    <Compile Include="Common\VinDecoderReportClient.cs" />
+    <Compile Include="Common\VinDecoderReportFormatter.cs" />
+    <Compile Include="..\autodealer.dev\Models\VinReportStyles.cs">
+      <Link>Common\VinReports\VinReportStyles.cs</Link>
+    </Compile>
+    <Compile Include="..\autodealer.dev\Models\VinDecodeHtmlRenderer.cs">
+      <Link>Common\VinReports\VinDecodeHtmlRenderer.cs</Link>
+    </Compile>
+    <Compile Include="..\autodealer.dev\Models\NeoVinModels.cs">
+      <Link>Common\VinReports\NeoVinModels.cs</Link>
+    </Compile>
+    <Compile Include="..\autodealer.dev\Models\NeoVinHtmlRenderer.cs">
+      <Link>Common\VinReports\NeoVinHtmlRenderer.cs</Link>
+    </Compile>
     <Compile Include="Common\CarGurusAuctionResearch.cs" />
     <Compile Include="Controllers\ChatController.MarketListings.cs" />
     <Compile Include="Controllers\ChatController.VinDecode.cs" />

@@ -15,7 +15,8 @@ async function waitFor(condition, message) {
     }
     assert.ok(condition(), message);
 }
-async function scenario(failFirst, extension = 'pdf') {
+async function scenario(failFirst, extension = 'pdf', mileages = [[116589, 150000], [89675, 100000]]) {
+    const [[lexusMiles, lexusBucket], [fordMiles, fordBucket]] = mileages;
     const nodes = {};
     for (const id of ['pr-batch-inputs', 'pr-pdf-file', 'pr-pdf-drop', 'pr-batch-status', 'pr-batch-error',
         'pr-batch-run', 'pr-batch-stop', 'pr-batch-zip', 'pr-batch-radius', 'pr-individual-inputs',
@@ -62,8 +63,8 @@ async function scenario(failFirst, extension = 'pdf') {
         if (options.url === 'parse') {
             const vehicles = [
                 // Wrong import fields ensure marketplace searches use the decoded VIN.
-                { Vin: lexusVin, Miles: 116589, Vehicle: '2000 Toyota Wrong', Year: '2000', Make: 'Toyota', Model: 'Wrong' },
-                { Vin: fordVin, Miles: 89675, Vehicle: '2021 Ford T250' },
+                { Vin: lexusVin, Miles: lexusMiles, Vehicle: '2000 Toyota Wrong', Year: '2000', Make: 'Toyota', Model: 'Wrong' },
+                { Vin: fordVin, Miles: fordMiles, Vehicle: '2021 Ford T250' },
                 { Vin: failedVin, Miles: null, Warning: 'Check mileage' }
             ];
             if (++parseCalls === 1) vehicles.push({ Vin: removedVin, Miles: 60000, Vehicle: 'Removed from replacement file' });
@@ -141,7 +142,9 @@ async function scenario(failFirst, extension = 'pdf') {
     assert.equal(cars.get('zip'), '45040');
     assert.equal(cars.get('maximum_distance'), '100');
     assert.equal(cars.get('sort'), 'list_price');
-    assert.equal(cars.get('mileage_max'), '116589', 'Decoded values never replace uploaded odometer mileage');
+    assert.equal(cars.get('mileage_max'), String(lexusBucket), 'Cars.com uses the bucket ceiling of the uploaded odometer mileage');
+    assert.equal(rows[0].Miles, lexusMiles, 'Bucketing must preserve the displayed odometer');
+    assert.equal(columns.find(column => column.field === 'Miles').exportValue(rows[0], 'csv'), lexusMiles, 'Exports keep the actual odometer');
     assert.equal(marketplace(rows[1], 'www.cars.com').searchParams.get('models[]'), 'ford-transit');
     assert.equal(marketplace(rows[2], 'www.cars.com'), undefined, 'Decoder failure must not create a guessed search');
     const lexus = marketplace(rows[0], 'www.cargurus.com').searchParams;
@@ -149,12 +152,14 @@ async function scenario(failFirst, extension = 'pdf') {
     assert.equal(lexus.get('endYear'), '2019');
     assert.equal(lexus.get('zip'), '45040');
     assert.equal(lexus.get('distance'), '100');
-    assert.equal(lexus.get('maxMileage'), '116589');
+    assert.equal(lexus.get('maxMileage'), String(lexusBucket));
     assert.equal(lexus.get('sortDirection'), 'ASC');
     assert.equal(lexus.get('sortType'), 'PRICE');
     assert.equal(lexus.get('vehicleHistoryOptions'), 'LEMON_FREE,NON_SALVAGE');
     assert.equal(lexus.get('makeModelTrimPaths'), 'm37/d2720/350 Luxury FWD', 'Only the decoded Luxury trim is requested');
     assert.equal(marketplace(rows[1], 'www.cargurus.com').searchParams.get('makeModelTrimPaths'), 'm2/d1067');
+    assert.equal(marketplace(rows[1], 'www.cargurus.com').searchParams.get('maxMileage'), String(fordBucket));
+    assert.equal(marketplace(rows[1], 'www.cars.com').searchParams.get('mileage_max'), String(fordBucket));
     assert.ok(marketplace(rows[1], 'www.cargurus.com').search.includes('vehicleHistoryOptions=LEMON_FREE%2CNON_SALVAGE'));
     assert.equal(marketplace(rows[2], 'www.cargurus.com'), undefined);
 
@@ -170,8 +175,10 @@ async function scenario(failFirst, extension = 'pdf') {
         assert.equal(rows[0].Done, false);
     } else {
         assert.equal(calls.length, 2, 'A decode failure does not stop valid appraisal work');
-        assert.equal(calls[0].miles, 116589);
-        assert.equal(calls[1].miles, 89675);
+        assert.equal(calls[0].miles, lexusBucket, 'MarketCheck receives the same bucket as marketplace links');
+        assert.equal(calls[1].miles, fordBucket);
+        assert.equal(rows[0].Miles, lexusMiles);
+        assert.equal(rows[1].Miles, fordMiles);
         assert.equal(rows[0].Estimate, 16000);
         assert.equal(rows[0].Maximum, 10500);
         assert.equal(rows[1].Done, true);
@@ -186,5 +193,12 @@ const watchdog = setTimeout(() => {
     await scenario(false);
     await scenario(false, 'csv');
     await scenario(true, 'csv');
-    console.log('PASS: VIN-decoded marketplace filters, decode caching/serial queue/stale uploads, parse-only uploads, appraisal queue, exact mileage and quota handling.');
+    for (const mileages of [
+        [[0, 100000], [1, 100000]],
+        [[100000, 100000], [100001, 150000]],
+        [[150000, 150000], [150001, 200000]],
+        [[200000, 200000], [200001, 250000]],
+        [[1999999, 2000000], [2000000, 2000000]]
+    ]) await scenario(false, 'csv', mileages);
+    console.log('PASS: Shared request mileage buckets, preserved odometer display/export, VIN-decoded marketplace filters, decode queue/cache/stale uploads, appraisal queue and quota handling.');
 })().catch(error => { console.error(error); process.exitCode = 1; }).finally(() => clearTimeout(watchdog));

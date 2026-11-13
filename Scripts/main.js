@@ -195,7 +195,8 @@
         applyFilterTerm(searchText);
     }).focus();
 
-    $("#filterLiked").on("click", function () {
+    $(".filterLiked").on("click", function (event) {
+        event.preventDefault();
         applyFilterLiked();
     });
 
@@ -326,15 +327,16 @@ function loadLikedCars() {
 }
 
 function saveLikedCars() {
+    likedCars = parseCarCookie((likedCars || []).join("|"));
     saveCarCookie(cookieLike, likedCars);
 }
 
 function isCarLiked(stock) {
-    return likedCars.includes(stock);
+    return likedCars.includes(String(stock == null ? "" : stock).trim().toUpperCase());
 }
 
 function updateLiked(stock) {
-    if (likedCars.includes(stock)) {
+    if (isCarLiked(stock)) {
         $("#like-btn").removeClass("bi-heart").addClass("bi-heart-fill").show();
     } else {
         $("#like-btn").removeClass("bi-heart-fill").addClass("bi-heart").show();
@@ -347,6 +349,7 @@ function updateFilterLiked() {
     } else {
         $("#filterLiked").removeClass("bi-heart-fill").addClass("bi-heart").show();
     }
+    $(".filterLiked").attr("aria-pressed", $("#filterLiked").hasClass("bi-heart-fill") ? "true" : "false");
 }
 
 function loadLastCars() {

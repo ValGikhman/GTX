@@ -77,7 +77,7 @@ namespace GTX.Controllers {
             if (!System.Text.RegularExpressions.Regex.IsMatch(vin ?? "", "^[A-HJ-NPR-Z0-9]{17}$") || !miles.HasValue || miles < 0 || miles > 2000000
                 || !System.Text.RegularExpressions.Regex.IsMatch(zip ?? "", "^[0-9]{5}$") || !radius.HasValue || radius < 1 || radius > 500)
                 return AppraisalJson(400, new { message = "Verify the VIN, odometer miles, ZIP and radius." });
-            var estimatePath = FormattableString.Invariant($"/{vin}/json?miles={miles.Value}&zip={zip}&radius={radius.Value}");
+            var estimatePath = BuildBatchAppraisalEstimatePath(vin, miles.Value, zip, radius.Value);
             var priceResponse = await SendAppraisalAsync(estimatePath, null, HttpMethod.Get);
             if (Response.StatusCode != 200) return priceResponse;
             var priceContent = priceResponse as ContentResult;
@@ -93,6 +93,11 @@ namespace GTX.Controllers {
             });
             if (bid == null || bid["maximumHammerBidUsd"] == null) return AppraisalJson(502, new { marketCheckRetailUsd = price, message = "The auction service returned no budget result. Retry this vehicle." });
             return AppraisalJson(200, new { marketCheckRetailUsd = price, maximumHammerBidUsd = (decimal?)bid?["maximumHammerBidUsd"], message = bid?["maximumHammerBidUsd"]?.Type == JTokenType.Null ? "No feasible bid at the configured profit target." : "Complete" });
+        }
+
+        private static string BuildBatchAppraisalEstimatePath(string vin, int miles, string zip, int radius) {
+            var searchMiles = Math.Max(100000, ((miles + 49999) / 50000) * 50000);
+            return FormattableString.Invariant($"/{vin}/json?miles={searchMiles}&zip={zip}&radius={radius}");
         }
     }
 }

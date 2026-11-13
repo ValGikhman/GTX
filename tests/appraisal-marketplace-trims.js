@@ -40,7 +40,7 @@ function row(trim = 'Veloce', drive = 'AWD') {
         assert.equal(url.searchParams.get('endYear'), '2023');
         assert.equal(url.searchParams.get('zip'), '45011');
         assert.equal(url.searchParams.get('distance'), '100');
-        assert.equal(url.searchParams.get('maxMileage'), '26124');
+        assert.equal(url.searchParams.get('maxMileage'), '100000');
         assert.equal(url.searchParams.get('sortType'), 'PRICE');
         assert.equal(url.searchParams.get('sortDirection'), 'ASC');
         assert.equal(url.searchParams.get('vehicleHistoryOptions'), 'LEMON_FREE,NON_SALVAGE');
@@ -57,7 +57,7 @@ function row(trim = 'Veloce', drive = 'AWD') {
         assert.equal(cars.searchParams.has('year_max'), false);
         assert.equal(cars.searchParams.get('zip'), '45011');
         assert.equal(cars.searchParams.get('maximum_distance'), '100');
-        assert.equal(cars.searchParams.get('mileage_max'), '26124');
+        assert.equal(cars.searchParams.get('mileage_max'), '100000');
         assert.equal(cars.searchParams.get('sort'), 'list_price');
     }
     for (const vehicle of [row('', 'AWD'), row('Veloce', ''), row('Veloce', 'RWD')]) {
@@ -66,6 +66,20 @@ function row(trim = 'Veloce', drive = 'AWD') {
     }
     for (const [decoded, expected] of [['AWD', 'all_wheel_drive'], ['Front-wheel Drive', 'front_wheel_drive'], ['RWD', 'rear_wheel_drive'], ['4WD', 'four_wheel_drive'], ['4x2', null], ['', null]]) {
         assert.equal(context.carsDrivetrain(decoded), expected);
+    }
+    const bucketVehicle = row();
+    await context.findCarGurusPaths(bucketVehicle);
+    for (const [miles, maximum] of [
+        [0, '100000'], [1, '100000'], [99999, '100000'], [100000, '100000'],
+        [100001, '150000'], [149999, '150000'], [150000, '150000'],
+        [150001, '200000'], [200000, '200000'], [200001, '250000'],
+        [1999999, '2000000'], [2000000, '2000000'],
+        [null, null], [undefined, null], [-1, null], [1.5, null], ['1000', null], [2000001, null], [NaN, null]
+    ]) {
+        bucketVehicle.Miles = miles;
+        assert.equal(new URL(context.carsSearchUrl(bucketVehicle)).searchParams.get('mileage_max'), maximum, `Cars.com mileage bucket for ${miles}`);
+        assert.equal(new URL(context.carGurusSearchUrl(bucketVehicle)).searchParams.get('maxMileage'), maximum, `CarGurus mileage bucket for ${miles}`);
+        assert.ok(Object.is(bucketVehicle.Miles, miles), 'Search filters must preserve the actual odometer reading');
     }
     context.carGurusEntities = async makeId => makeId ? [
         { id: 'd1067', name: 'Transit Cargo' }, { id: 'd2270', name: 'Transit Passenger' },
@@ -97,5 +111,5 @@ function row(trim = 'Veloce', drive = 'AWD') {
             assert.equal(link, null, 'Do not guess a CarGurus body type from the 250 trim');
         }
     }
-    console.log('PASS: Marketplace trim/history filters, Ford Transit body-type matching, year/mileage/location scope and ambiguity handling.');
+    console.log('PASS: Marketplace mileage buckets, trim/history filters, Ford Transit body-type matching, location scope and ambiguity handling.');
 })().catch(error => { console.error(error); process.exitCode = 1; });

@@ -778,9 +778,10 @@
         $("#Comment").val(request);
 
         $("#like-btn").on("click", function () {
-            var index = likedCars.indexOf(stock);
+            const likedStock = String(stock == null ? "" : stock).trim().toUpperCase();
+            var index = likedCars.indexOf(likedStock);
             if (index === -1) {
-                likedCars.push(stock);
+                likedCars.push(likedStock);
             } else {
                 likedCars.splice(index, 1);
             }

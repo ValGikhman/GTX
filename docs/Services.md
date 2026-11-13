@@ -24,6 +24,16 @@ OpenAI's existing switch controls the chatbot; configured comparison and story
 features continue to use its API settings. The CarGurus switch controls CarGurus
 browsing. Its card also contains the shared vehicle-research API URL/key used by
 VIN decoding and appraisal. Disabling CarGurus does not disable those other tools.
+The VIN Decoder page offers DataOne by default and MarketCheck NeoVIN in its
+provider dropdown. NeoVIN uses the vehicle-research API URL and key on this card,
+calling AutoDealer.dev's `/api/service/neovin/{VIN}/html` endpoint. The account key
+must have `vin:read` access; AutoDealer.dev keeps its own MarketCheck provider key.
+Changing the dropdown clears the previous report; press Decode to request a report
+from the selected provider. Inventory VIN reports are saved automatically. Load
+saved reopens the selected provider's report without another provider request;
+VINs outside inventory can be decoded but are not saved. The auction shortlist
+keeps its existing decoder. See [saved VIN reports](VinDecoderReports.md) for the
+existing-table storage format and deployment requirements.
 Turning off DataOne blocks direct DataOne calls and inventory enrichment. Turning
 off Cloudflare uses native images and blocks R2/cache operations. Turning off Remove
 Background hides both gallery and batch actions and rejects new removal/confirmation

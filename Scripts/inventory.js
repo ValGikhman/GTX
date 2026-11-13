@@ -119,11 +119,10 @@ function applyFilterLiked() {
         return;
     }
 
-    const items = document.querySelectorAll("#inventory > li");
+    const items = document.querySelectorAll("#inventory > li.card");
     items.forEach(item => {
         if ($("#filterLiked").hasClass("bi-heart-fill")) {
-            var heart = $(item).find(".liked");
-            if (heart && heart[0].style.display === "") {
+            if (isCarLiked($(item).data("stock"))) {
                 item.style.display = "";
             }
             else {
@@ -590,7 +589,7 @@ function calculateMonthlyPayment(P, rate, month) {
 
     function inventoryLikedMatches($vehicle) {
         if (!$("#filterLiked").hasClass("bi-heart-fill")) return true;
-        return $vehicle.find(".liked").length && $vehicle.find(".liked")[0].style.display === "";
+        return isCarLiked($vehicle.data("stock"));
     }
 
     function inventoryLastMatches($vehicle) {
@@ -1174,7 +1173,7 @@ function calculateMonthlyPayment(P, rate, month) {
             window.setTimeout(window.applyInventoryPanelFilters, 0);
         });
 
-        $(document).on("click", "#filterLiked, #filterLast", function () {
+        $(document).on("click", "#filterLast", function () {
             window.setTimeout(window.applyInventoryPanelFilters, 0);
         });
 

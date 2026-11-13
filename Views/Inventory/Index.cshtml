@@ -1076,9 +1076,14 @@
                 hideSpinner("#loadingOverlay");
             }
 
+            const previousLikes = likedCars.slice().sort().join("|");
             loadLastCars();
             loadLikedCars();
             refreshCarLikes();
+            if (window.applyInventoryPanelFilters && $("#filterLiked").hasClass("bi-heart-fill")
+                && previousLikes !== likedCars.slice().sort().join("|")) {
+                window.applyInventoryPanelFilters();
+            }
         });
 
         $(document).on("visibilitychange", function () {
