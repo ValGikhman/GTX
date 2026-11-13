@@ -274,6 +274,40 @@ body {
         line-height: 1.1;
     }
 
+    .health-value-placeholder {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 1em;
+        color: var(--bs-secondary-color, #64748b);
+        font-size: .72em;
+        line-height: 1;
+        vertical-align: baseline;
+    }
+
+    .health-value-placeholder .bi {
+        line-height: 1;
+    }
+
+    .health-value-placeholder.is-waiting {
+        animation: health-waiting-pulse 1.8s ease-in-out infinite;
+    }
+
+    .health-value-placeholder.is-unavailable {
+        opacity: .75;
+    }
+
+    @keyframes health-waiting-pulse {
+        0%, 100% { opacity: .5; }
+        50% { opacity: 1; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .health-value-placeholder.is-waiting {
+            animation: none;
+        }
+    }
+
     .kpi-sub {
         font-size: .85rem;
         color: rgba(33,37,41,.65);
