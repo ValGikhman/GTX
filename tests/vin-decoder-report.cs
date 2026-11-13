@@ -236,6 +236,7 @@ internal static class VinDecoderReportTests {
             if (provider == "dataone") Check(request.Method == HttpMethod.Get && request.RequestUri.AbsolutePath == "/api/service/vin/" + Vin + "/report", "DataOne raw XML and HTML must come from one report request");
             else {
                 Check(request.Method == HttpMethod.Post && request.RequestUri.AbsolutePath == "/api/service/neovin", "NeoVIN must use its one-call report endpoint");
+                Check(request.Headers.ExpectContinue == false, "NeoVIN POST must disable 100-continue because hosted IIS rejects it");
                 Check((string)JObject.Parse(await request.Content.ReadAsStringAsync())["Vin"] == Vin, "NeoVIN must receive the requested VIN");
             }
             var body = new JObject { ["vin"] = Vin, ["decodedAtUtc"] = Timestamp, ["html"] = Html };
