@@ -49,7 +49,9 @@ internal static class VinDecoderReportTests {
         Check(Path.GetFileName(basePath.TrimEnd('\\', '/')).StartsWith("gtx-vin-api-", StringComparison.Ordinal), "Controller fixtures must use their isolated test directory");
         var settings = Path.Combine(basePath, "App_Data");
         Directory.CreateDirectory(settings);
-        File.WriteAllText(Path.Combine(settings, "Services.config"), "<services><add key=\"AutoDealer:AppraisalBaseUrl\" value=\"https://research.example.test:4443/root/\"/><add key=\"AutoDealer:ApiKey\" value=\"test-key.test-secret\"/></services>");
+        var settingsPath = Path.Combine(settings, "Services.config");
+        const string settingsXml = "<services><add key=\"AutoDealer:AppraisalBaseUrl\" value=\"https://research.example.test:4443/root/\"/><add key=\"AutoDealer:ApiKey\" value=\"test-key.test-secret\"/></services>";
+        File.WriteAllText(settingsPath, settingsXml);
         var clientField = typeof(VinDecoderController).GetField("AutoDealerClient", BindingFlags.Static | BindingFlags.NonPublic);
         var previousClient = clientField.GetValue(null);
         try {
@@ -62,31 +64,104 @@ internal static class VinDecoderReportTests {
                     var result = (provider == "dataone" ? controller.DecodeDataOneByAnyVin(" " + Vin.ToLowerInvariant() + " ") : controller.DecodeMarketCheckByAnyVin(Vin)).GetAwaiter().GetResult() as ContentResult;
                     Check(Styled(result) && handler.Calls == 1, "Inventory decode must format, save and display the same single fetched report");
                     Check(Header(controller, "X-GTX-Vin-Saved") == "true" && inventory.Saved.ContainsKey(provider), "A successful inventory save must be reported accurately in IIS Classic mode");
+                    Check(Header(controller, "X-GTX-Vin-Source") == "provider", "A missing selected-provider report must be decoded even if another provider is saved");
                     inventory.Saved[provider].Html = "<p>Old snapshot styling</p>";
-                    var loaded = controller.LoadSavedReport(Vin, provider) as ContentResult;
-                    Check(Styled(loaded) && !loaded.Content.Contains("Old snapshot styling") && handler.Calls == 1, "Saved raw payloads must use the current shared formatter without decoding again");
+                    var saves = inventory.SaveCalls;
+                    var loaded = Decode(controller, provider) as ContentResult;
+                    Check(Styled(loaded) && !loaded.Content.Contains("Old snapshot styling") && handler.Calls == 1, "Decode must reformat saved raw payloads without calling the provider again");
+                    Check(inventory.SaveCalls == saves && Header(controller, "X-GTX-Vin-Saved") == "true" && Header(controller, "X-GTX-Vin-Source") == "database", "Cache hits must identify the database source without saving again");
                     if (provider == "neovin") Check(loaded.Content.Contains("2026-11-12 15:30 UTC"), "Reformatting must preserve the original decode time");
+                    else {
+                        inventory.Saved[provider].DecodedUtc = null;
+                        inventory.Saved[provider].Html = null;
+                        Check(Styled(Decode(controller, provider) as ContentResult) && handler.Calls == 1, "Legacy DataOne raw XML without a timestamp or HTML snapshot must remain usable");
+                    }
+                    Check(Styled(controller.LoadSavedReport(Vin, provider) as ContentResult) && handler.Calls == 1, "The legacy saved-report action must remain compatible without billing");
                 }
             }
             Check(inventory.Saved.Count == 2, "Both provider reports must be addressable");
-            inventory.FailSave = true;
-            using (var client = new HttpClient(new Handler("neovin"))) {
-                clientField.SetValue(null, client);
-                Check(Styled(controller.DecodeMarketCheckByAnyVin(Vin).GetAwaiter().GetResult() as ContentResult), "A save failure must preserve the decoded report");
-                Check(Header(controller, "X-GTX-Vin-Saved") == "failed", "A failed save must not claim success");
+
+            File.WriteAllText(settingsPath, "<services");
+            try {
+                foreach (var provider in new[] { "dataone", "neovin" }) {
+                    var handler = new Handler(provider);
+                    using (var client = new HttpClient(handler)) {
+                        clientField.SetValue(null, client);
+                        Check(Styled(Decode(controller, provider) as ContentResult) && handler.Calls == 0, "Saved reports must load before reading unavailable API configuration");
+                    }
+                }
+            } finally { File.WriteAllText(settingsPath, settingsXml); }
+
+            foreach (var failure in new Exception[] {
+                new InvalidOperationException("simulated database read failure"),
+                new ArgumentException("simulated unsupported saved format"),
+                new System.Xml.XmlException("simulated invalid envelope")
+            }) {
+                inventory.ReadFailure = failure;
+                var handler = new Handler("dataone");
+                using (var client = new HttpClient(handler)) {
+                    clientField.SetValue(null, client);
+                    Check((Decode(controller, "dataone") as HttpStatusCodeResult)?.StatusCode == 503 && handler.Calls == 0, "Saved-report read failures must return a safe error without a paid request");
+                }
             }
-            inventory.Stock = null;
-            var outside = new Handler("neovin");
-            using (var client = new HttpClient(outside)) {
+            inventory.ReadFailure = null;
+            inventory.StockFailure = new InvalidOperationException("simulated inventory failure");
+            var unavailable = new Handler("dataone");
+            using (var client = new HttpClient(unavailable)) {
                 clientField.SetValue(null, client);
-                var saves = inventory.SaveCalls;
-                Check(Styled(controller.DecodeMarketCheckByAnyVin(Vin).GetAwaiter().GetResult() as ContentResult), "Non-inventory VIN decoding must remain available with the shared style");
-                Check(Header(controller, "X-GTX-Vin-Saved") == "false" && inventory.SaveCalls == saves, "Non-inventory VINs must not be saved");
-                Check((controller.LoadSavedReport(Vin, "neovin") as HttpStatusCodeResult)?.StatusCode == 404 && outside.Calls == 1, "Missing saved results must not trigger a provider request");
+                Check((Decode(controller, "dataone") as HttpStatusCodeResult)?.StatusCode == 503 && unavailable.Calls == 0, "Unavailable inventory must not trigger a paid request");
+            }
+            inventory.StockFailure = null;
+
+            foreach (var provider in new[] { "dataone", "neovin" }) {
+                var saved = inventory.Saved[provider];
+                var raw = saved.RawPayload;
+                var formatter = saved.FormatterKey;
+                var handler = new Handler(provider);
+                using (var client = new HttpClient(handler)) {
+                    clientField.SetValue(null, client);
+                    saved.RawPayload = provider == "dataone" ? "<invalid>" : "{";
+                    Check((Decode(controller, provider) as HttpStatusCodeResult)?.StatusCode == 502 && handler.Calls == 0, "Corrupt cached payloads must not silently trigger billing");
+                    saved.RawPayload = raw;
+                    saved.FormatterKey = "unsupported-v2";
+                    Check((Decode(controller, provider) as HttpStatusCodeResult)?.StatusCode == 503 && handler.Calls == 0, "Unsupported cached formatting must not silently trigger billing");
+                    saved.FormatterKey = formatter;
+                    saved.Vin = "1HGCM82633A004353";
+                    var saves = inventory.SaveCalls;
+                    Check(Styled(Decode(controller, provider) as ContentResult) && handler.Calls == 1, "A saved report for another VIN must not be returned for a reused stock");
+                    Check(inventory.SaveCalls == saves + 1 && inventory.Saved[provider].Vin == Vin && Header(controller, "X-GTX-Vin-Source") == "provider", "A VIN mismatch must decode and save the requested VIN");
+                }
+            }
+
+            inventory.Saved.Remove("neovin");
+            inventory.FailSave = true;
+            var failedSave = new Handler("neovin");
+            using (var client = new HttpClient(failedSave)) {
+                clientField.SetValue(null, client);
+                Check(Styled(Decode(controller, "neovin") as ContentResult) && failedSave.Calls == 1, "A save failure must preserve the decoded report");
+                Check(Header(controller, "X-GTX-Vin-Saved") == "failed" && Header(controller, "X-GTX-Vin-Source") == "provider", "A failed save must not claim success");
+            }
+            inventory.FailSave = false;
+            inventory.Stock = null;
+            foreach (var provider in new[] { "dataone", "neovin" }) {
+                var outside = new Handler(provider);
+                using (var client = new HttpClient(outside)) {
+                    clientField.SetValue(null, client);
+                    var saves = inventory.SaveCalls;
+                    var reads = inventory.ReadCalls;
+                    Check(Styled(Decode(controller, provider) as ContentResult), "Non-inventory VIN decoding must remain available with the shared style");
+                    Check(Header(controller, "X-GTX-Vin-Saved") == "false" && inventory.SaveCalls == saves && inventory.ReadCalls == reads, "Non-inventory VINs must not read or save inventory reports");
+                    Check(Header(controller, "X-GTX-Vin-Source") == "provider" && outside.Calls == 1, "Non-inventory VINs must decode once through the selected provider");
+                    Check((controller.LoadSavedReport(Vin, provider) as HttpStatusCodeResult)?.StatusCode == 404 && outside.Calls == 1, "Missing saved results must not trigger a provider request");
+                }
             }
             Check((controller.LoadSavedReport(Vin, "unknown") as HttpStatusCodeResult)?.StatusCode == 400, "Unknown provider names must be rejected");
         } finally { clientField.SetValue(null, previousClient); }
-        Console.WriteLine("PASS: one-call raw report capture, strict metadata/origin validation, inventory-only autosave, both-provider load without billing, and preserved report after save failure");
+        Console.WriteLine("PASS: cache-first DataOne/MarketCheck decoding, provider-specific misses, current/legacy raw formatting before API configuration, safe read/payload errors without billing, inventory-only autosave, and preserved report after save failure");
+    }
+
+    private static ActionResult Decode(VinDecoderController controller, string provider) {
+        return (provider == "dataone" ? controller.DecodeDataOneByAnyVin(" " + Vin.ToLowerInvariant() + " ") : controller.DecodeMarketCheckByAnyVin(Vin)).GetAwaiter().GetResult();
     }
 
     private static VinDecoderReportDTO Fetch(HttpClient client, string provider, Uri origin = null) {
@@ -119,6 +194,9 @@ internal static class VinDecoderReportTests {
         internal string Stock = "GTX0000001";
         internal bool FailSave;
         internal int SaveCalls;
+        internal int ReadCalls;
+        internal Exception ReadFailure;
+        internal Exception StockFailure;
         internal readonly Dictionary<string, VinDecoderReportDTO> Saved = new Dictionary<string, VinDecoderReportDTO>();
         internal Inventory() : base(typeof(IInventoryService)) { }
         public override IMessage Invoke(IMessage message) {
@@ -126,8 +204,15 @@ internal static class VinDecoderReportTests {
             try {
                 object result;
                 switch (call.MethodName) {
-                    case "GetInventoryStockByVin": Check((string)call.Args[0] == Vin, "Inventory lookup must use normalized VIN"); result = Stock; break;
-                    case "GetVinDecoderReport": Saved.TryGetValue((string)call.Args[1], out var report); result = report; break;
+                    case "GetInventoryStockByVin":
+                        Check((string)call.Args[0] == Vin, "Inventory lookup must use normalized VIN");
+                        if (StockFailure != null) throw StockFailure;
+                        result = Stock; break;
+                    case "GetVinDecoderReport":
+                        ReadCalls++;
+                        Check((string)call.Args[0] == Stock, "The report must be loaded for its resolved inventory stock");
+                        if (ReadFailure != null) throw ReadFailure;
+                        Saved.TryGetValue((string)call.Args[1], out var report); result = report; break;
                     case "SaveVinDecoderReport":
                         SaveCalls++;
                         if (FailSave) throw new InvalidOperationException("simulated write failure");

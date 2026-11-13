@@ -57,19 +57,26 @@ namespace GTX.Controllers
             {
                 var stock = InventoryService.GetInventoryStockByVin(normalizedVin);
                 if (stock == null) return HttpNotFound("This VIN is not in inventory.");
-                var report = InventoryService.GetVinDecoderReport(stock, provider);
-                if (report == null || (!string.IsNullOrWhiteSpace(report.Vin)
-                    && !string.Equals(report.Vin, normalizedVin, StringComparison.OrdinalIgnoreCase)))
-                    return HttpNotFound("No saved report exists for this VIN and provider.");
-                var html = VinDecoderReportFormatter.Render(report);
-                Response.AppendHeader("X-GTX-Vin-Saved", "true");
-                return Content(html, "text/html", Encoding.UTF8);
+                return (ActionResult)ReadSavedReport(stock, normalizedVin, provider)
+                    ?? HttpNotFound("No saved report exists for this VIN and provider.");
             }
             catch (VinDecoderReportException ex) { return new HttpStatusCodeResult(ex.StatusCode, ex.Message); }
-            catch (Exception ex) when (ex is System.Data.SqlClient.SqlException || ex is InvalidOperationException || ex is System.Xml.XmlException)
+            catch (Exception ex) when (ex is System.Data.SqlClient.SqlException || ex is InvalidOperationException || ex is System.Xml.XmlException || ex is ArgumentException)
             {
                 return new HttpStatusCodeResult(503, "Saved VIN reports are temporarily unavailable.");
             }
+        }
+
+        private ContentResult ReadSavedReport(string stock, string vin, string provider)
+        {
+            var report = InventoryService.GetVinDecoderReport(stock, provider);
+            if (report == null || (!string.IsNullOrWhiteSpace(report.Vin)
+                && !string.Equals(report.Vin, vin, StringComparison.OrdinalIgnoreCase)))
+                return null;
+            var html = VinDecoderReportFormatter.Render(report);
+            Response.AppendHeader("X-GTX-Vin-Saved", "true");
+            Response.AppendHeader("X-GTX-Vin-Source", "database");
+            return Content(html, "text/html", Encoding.UTF8);
         }
 
         private async Task<ActionResult> DecodeInventoryReportAsync(string vin, string provider)
@@ -80,6 +87,19 @@ namespace GTX.Controllers
             try { stock = InventoryService.GetInventoryStockByVin(normalizedVin); }
             catch (Exception ex) when (ex is System.Data.SqlClient.SqlException || ex is InvalidOperationException)
             { return new HttpStatusCodeResult(503, "Inventory is temporarily unavailable."); }
+
+            // Only a missing report may fall through to a provider request.
+            if (stock != null)
+            {
+                try
+                {
+                    var saved = ReadSavedReport(stock, normalizedVin, provider);
+                    if (saved != null) return saved;
+                }
+                catch (VinDecoderReportException ex) { return new HttpStatusCodeResult(ex.StatusCode, ex.Message); }
+                catch (Exception ex) when (ex is System.Data.SqlClient.SqlException || ex is InvalidOperationException || ex is System.Xml.XmlException || ex is ArgumentException)
+                { return new HttpStatusCodeResult(503, "Saved VIN reports are temporarily unavailable."); }
+            }
 
             try
             {
@@ -94,6 +114,7 @@ namespace GTX.Controllers
                     return new HttpStatusCodeResult(503, "Configure the vehicle research API URL and key in Services.");
                 var report = await VinDecoderReportClient.FetchAsync(AutoDealerClient, origin, apiKey, normalizedVin, provider);
                 report.Html = VinDecoderReportFormatter.Render(report);
+                Response.AppendHeader("X-GTX-Vin-Source", "provider");
                 if (stock == null) Response.AppendHeader("X-GTX-Vin-Saved", "false");
                 else try
                 {

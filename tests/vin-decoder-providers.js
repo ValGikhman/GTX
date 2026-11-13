@@ -4,19 +4,29 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const view = fs.readFileSync(path.join(__dirname, '../Views/VinDecoder/Index.cshtml'), 'utf8');
-const providerMarkup = view.match(/<select\b[^>]*id="vinProvider"[^>]*>([\s\S]*?)<\/select>/);
-assert.ok(providerMarkup, 'The decoder page must offer a labeled provider dropdown');
-assert.match(view, /<label\b[^>]*for="vinProvider"/);
-const options = [...providerMarkup[1].matchAll(/<option\b([^>]*)>([^<]*)<\/option>/g)].map(match => ({
-    value: match[1].match(/\bvalue="([^"]*)"/)[1],
-    label: match[2],
-    selected: /\bselected(?:=|\s|$)/.test(match[1])
-}));
+assert.doesNotMatch(view, /loadSaved|LoadSavedReport|Load saved/, 'Saved reports must be checked automatically through Decode');
+const providerMarkup = view.match(/<input\b[^>]*id="vinProvider"[^>]*>/);
+assert.ok(providerMarkup, 'The decoder page must retain its provider value');
+assert.match(providerMarkup[0], /\btype="hidden"/);
+const providerToggleMarkup = view.match(/<button\b[^>]*id="vinProviderDropdown"[^>]*data-bs-toggle="dropdown"[^>]*>([\s\S]*?)<\/button>/);
+assert.ok(providerToggleMarkup, 'The provider picker must use a dropdown button');
+assert.match(providerToggleMarkup[1], /<span id="vinProviderName">DataOne<\/span>/, 'The button must display the selected provider');
+assert.doesNotMatch(providerToggleMarkup[1], /Providers/);
+assert.equal([...view.matchAll(/id="vinProviderName"/g)].length, 1, 'The selected provider must appear only inside the button');
+assert.match(view, /id="vinProviderDropdown"[^>]*class="[^"]*btn-gradient/);
+assert.match(view, /id="vinProviderMenu"[^>]*aria-labelledby="vinProviderDropdown"/);
+const options = [...view.matchAll(/<button\b([^>]*class="[^"]*\bvin-provider-option\b[^"]*"[^>]*)>([\s\S]*?)<\/button>/g)].map(match => {
+    const attribute = name => match[1].match(new RegExp('\\b' + name + '="([^"]*)"'))[1];
+    assert.match(match[2], /class="majordome-batch-action-icon"/);
+    assert.match(match[2], /<small>[^<]+<\/small>/, 'Each provider needs a short description');
+    assert.doesNotMatch(match[2], /neovin|neon/i, 'Internal product names must not appear in provider labels');
+    return { id: attribute('id'), value: attribute('value'), label: attribute('data-provider-name'), pressed: attribute('aria-pressed') };
+});
 assert.equal(options.length, 2);
-const defaultProvider = options.find(option => option.selected) || options[0];
+const defaultProvider = options.find(option => option.value === providerMarkup[0].match(/\bvalue="([^"]*)"/)[1]);
 assert.equal(defaultProvider.value, 'dataone', 'DataOne must remain the initial provider');
 assert.equal(defaultProvider.label, 'DataOne');
-assert.equal(options.find(option => option.value === 'neovin').label, 'MarketCheck NeoVIN');
+assert.equal(options.find(option => option.value === 'neovin').label, 'MarketCheck');
 
 class Element {
     constructor(value = '', classes = []) {
@@ -27,10 +37,12 @@ class Element {
         this.disabled = false;
         this.reportHtml = '';
         this.textValue = '';
+        this.attributes = {};
     }
     val(value) { if (!arguments.length) return this.value; this.value = value; return this; }
     text(value) { if (!arguments.length) return this.textValue; this.textValue = String(value); return this; }
     prop(name, value) { if (arguments.length === 1) return this[name]; this[name] = value; return this; }
+    attr(name, value) { if (arguments.length === 1) return this.attributes[name]; this.attributes[name] = value; return this; }
     add(other) { return new Collection([this, other]); }
     addClass(name) { this.classes.add(name); return this; }
     removeClass(name) { this.classes.delete(name); return this; }
@@ -47,18 +59,26 @@ class Element {
 }
 class Collection {
     constructor(elements) { this.elements = elements; }
-    add(element) { this.elements.push(element); return this; }
+    add(element) { this.elements.push(...(element instanceof Collection ? element.elements : [element])); return this; }
     prop(name, value) { this.elements.forEach(element => element.prop(name, value)); return this; }
+    on(event, handler) { this.elements.forEach(element => element.on(event, handler)); return this; }
+    each(handler) { this.elements.forEach((element, index) => handler.call(element, index, element)); return this; }
 }
 
 const nodes = {
-    vin: new Element(), decode: new Element(), clear: new Element(), loadSaved: new Element(),
+    vin: new Element(), decode: new Element(), clear: new Element(),
     vinProvider: new Element(defaultProvider.value),
+    vinProviderDropdown: new Element(), vinProviderName: new Element(),
     vindecoderOverlay: new Element('', ['spinner-hidden']),
     vinError: new Element('', ['d-none']), errorMessage: new Element(),
     dataOneVinDecoder: new Element(), emptyState: new Element(), token: new Element('offline-token'),
     vinReportStatus: new Element(), vinWorkingMessage: new Element()
 };
+for (const option of options) {
+    nodes[option.id] = new Element(option.value)
+        .attr('data-provider-name', option.label).attr('aria-pressed', option.pressed);
+}
+const providerChoices = new Collection(options.map(option => nodes[option.id]));
 const inputGroup = new Element();
 const details = new Element();
 const requests = [];
@@ -67,6 +87,8 @@ let spinnerStarts = 0;
 let spinnerStops = 0;
 const $ = argument => {
     if (typeof argument === 'function') { argument(); return; }
+    if (argument instanceof Element) return argument;
+    if (argument === '#vinProviderMenu .vin-provider-option') return providerChoices;
     if (argument === '#vinError .msg') return nodes.errorMessage;
     if (argument === ".vin-decoder-controls input[name='__RequestVerificationToken']") return nodes.token;
     assert.ok(typeof argument === 'string' && argument.startsWith('#'), 'Use actual page nodes');
@@ -97,47 +119,55 @@ function assertReady() {
     assert.equal(nodes.vin.disabled, false);
     assert.equal(nodes.clear.disabled, false);
     assert.equal(nodes.vinProvider.disabled, false);
+    assert.equal(nodes.vinProviderDropdown.disabled, false);
+    for (const option of options) assert.equal(nodes[option.id].disabled, false);
     assert.ok(nodes.vindecoderOverlay.classes.has('spinner-hidden'));
 }
-function checkRequest(index, provider, loadSaved = false) {
+function assertSelected(provider) {
+    assert.equal(nodes.vinProvider.val(), provider);
+    for (const option of options) {
+        assert.equal(nodes[option.id].attr('aria-pressed'), String(option.value === provider));
+    }
+    assert.equal(nodes.vinProviderName.text(), options.find(option => option.value === provider).label);
+}
+function checkRequest(index, provider) {
     const request = requests[index];
-    assert.equal(request.url, loadSaved ? '/VinDecoder/LoadSavedReport'
-        : provider === 'dataone' ? '/VinDecoder/DecodeDataOneByAnyVin' : '/VinDecoder/DecodeMarketCheckByAnyVin');
+    assert.equal(request.url, provider === 'dataone' ? '/VinDecoder/DecodeDataOneByAnyVin' : '/VinDecoder/DecodeMarketCheckByAnyVin');
     assert.equal(request.options.method, 'POST');
     assert.equal(request.options.headers['X-Requested-With'], 'XMLHttpRequest');
     assert.match(request.options.headers['Content-Type'], /^application\/x-www-form-urlencoded/);
     const body = new URLSearchParams(request.options.body);
     assert.equal(body.get('vin'), '1HGCM82633A004352');
     assert.equal(body.get('__RequestVerificationToken'), 'offline-token');
-    assert.equal(body.get('provider'), loadSaved ? provider : null);
+    assert.equal(body.get('provider'), null);
     return request;
 }
-function response(status, html = '<details class="avd-style">Offline report</details>', redirected = false, saved = null) {
+function response(status, html = '<details class="avd-style">Offline report</details>', redirected = false, saved = null, source = 'provider') {
     return { ok: status >= 200 && status < 300, status, redirected,
-        headers: { get(name) { return name === 'X-GTX-Vin-Saved' ? saved : null; } },
+        headers: { get(name) { return name === 'X-GTX-Vin-Saved' ? saved : name === 'X-GTX-Vin-Source' ? source : null; } },
         async text() { return html; } };
 }
 
 (async () => {
     assert.equal(requests.length, 0, 'Opening the page must not decode anything');
     assert.equal(nodes.decode.disabled, true);
-    assert.equal(nodes.loadSaved.disabled, true);
-    nodes.vinProvider.val('neovin').fire('change');
+    assertSelected('dataone');
+    nodes.vinProviderMarketCheck.fire('click');
+    assertSelected('neovin');
     assert.equal(requests.length, 0, 'Selecting a provider must not request a report');
-    nodes.vinProvider.val('dataone').fire('change');
+    nodes.vinProviderDataOne.fire('click');
+    assertSelected('dataone');
     nodes.vin.val('1hgcm82633a004352').trigger('input');
     assert.equal(nodes.decode.disabled, false);
-    assert.equal(nodes.loadSaved.disabled, false);
 
     let pending = nodes.decode.fire('click');
     const first = checkRequest(0, 'dataone');
     assert.equal(nodes.vin.val(), '1HGCM82633A004352');
-    for (const name of ['vin', 'decode', 'clear', 'vinProvider', 'loadSaved']) assert.equal(nodes[name].disabled, true, name + ' must be disabled while decoding');
-    assert.equal(nodes.vinWorkingMessage.text(), 'Decoding VIN…');
+    for (const name of ['vin', 'decode', 'clear', 'vinProvider', 'vinProviderDropdown', ...options.map(option => option.id)]) assert.equal(nodes[name].disabled, true, name + ' must be disabled while loading a report');
+    assert.equal(nodes.vinWorkingMessage.text(), 'Loading VIN report…');
     assert.equal(nodes.emptyState.visible, false);
     assert.equal(nodes.vindecoderOverlay.classes.has('spinner-hidden'), false);
     await nodes.decode.fire('click');
-    await nodes.loadSaved.fire('click');
     nodes.vin.fire('keydown', { key: 'Enter', preventDefault() {} });
     nodes.clear.fire('click');
     assert.equal(requests.length, 1, 'Click and Enter retries must share the busy guard');
@@ -146,6 +176,9 @@ function response(status, html = '<details class="avd-style">Offline report</det
     assert.equal(nodes.vin.val(), '1HGCM82633A004352', 'A busy input event must not relabel the requested VIN');
     nodes.vinProvider.val('neovin').fire('change');
     assert.equal(nodes.vinProvider.val(), 'dataone', 'A programmatic busy provider change must not relabel an in-flight report');
+    nodes.vinProviderMarketCheck.fire('click');
+    assertSelected('dataone');
+    assert.equal(requests.length, 1, 'A busy provider click must not issue another request');
     first.resolve(response(200, '<details class="avd-style">Offline report</details>', false, 'true'));
     await pending;
     assertReady();
@@ -153,10 +186,13 @@ function response(status, html = '<details class="avd-style">Offline report</det
     assert.equal(details.open, true);
     assert.match(nodes.dataOneVinDecoder.reportHtml, /Offline report/);
     assert.equal(nodes.vinReportStatus.text(), 'Saved for this inventory vehicle.');
+    nodes.vinProviderDataOne.fire('click');
+    assert.match(nodes.dataOneVinDecoder.reportHtml, /Offline report/, 'Selecting the current provider must preserve the report');
 
     nodes.errorMessage.text('Old provider error');
     nodes.vinError.removeClass('d-none');
-    nodes.vinProvider.val('neovin').fire('change');
+    nodes.vinProviderMarketCheck.fire('click');
+    assertSelected('neovin');
     assert.equal(requests.length, 1);
     assert.equal(nodes.dataOneVinDecoder.reportHtml, '', 'Changing providers must clear the old report');
     assert.equal(nodes.emptyState.visible, true);
@@ -191,40 +227,29 @@ function response(status, html = '<details class="avd-style">Offline report</det
     assert.equal(nodes.vinReportStatus.text(), 'Decoded, but saving failed. Please try again later.');
     assert.equal(requests.length, requestCount, 'A persistence failure must never automatically repeat a paid decode');
 
-    pending = nodes.loadSaved.fire('click');
-    const savedReport = checkRequest(requests.length - 1, 'neovin', true);
-    assert.equal(nodes.vinWorkingMessage.text(), 'Loading saved report…');
-    assert.equal(nodes.loadSaved.disabled, true);
+    const beforeSaved = requests.length;
+    pending = nodes.decode.fire('click');
+    const savedReport = checkRequest(requests.length - 1, 'neovin');
+    assert.equal(nodes.vinWorkingMessage.text(), 'Loading VIN report…');
     await nodes.decode.fire('click');
-    await nodes.loadSaved.fire('click');
-    assert.equal(requests.at(-1), savedReport, 'Loading must share the decode busy guard');
+    assert.equal(requests.at(-1), savedReport, 'Cached responses must share the decode busy guard');
     const storedHtml = '<details class="avd-style">Trusted saved NeoVIN report</details>';
-    savedReport.resolve(response(200, storedHtml, false, 'true'));
+    savedReport.resolve(response(200, storedHtml, false, 'true', 'database'));
     await pending;
     assertReady();
     assert.equal(nodes.dataOneVinDecoder.reportHtml, storedHtml);
     assert.equal(nodes.vinReportStatus.text(), 'Saved report loaded.');
+    assert.equal(requests.length, beforeSaved + 1, 'Decode must use a single browser request for a cached report');
 
-    const paidBeforeMissing = requests.filter(request => request.url !== '/VinDecoder/LoadSavedReport').length;
-    pending = nodes.loadSaved.fire('click');
-    const missing = checkRequest(requests.length - 1, 'neovin', true);
-    missing.resolve({ ok: false, status: 404, redirected: false, async text() { assert.fail('A missing saved report must not inject upstream HTML'); } });
-    await pending;
-    assertReady();
-    assert.equal(nodes.dataOneVinDecoder.reportHtml, '');
-    assert.equal(nodes.vinReportStatus.text(), '');
-    assert.equal(nodes.emptyState.visible, true);
-    assert.match(nodes.errorMessage.text(), /No saved report/);
-    assert.equal(requests.filter(request => request.url !== '/VinDecoder/LoadSavedReport').length, paidBeforeMissing,
-        'A missing stored report must never fall back to a paid decode');
-
-    nodes.vinProvider.val('dataone').fire('change');
-    pending = nodes.loadSaved.fire('click');
-    const savedDataOne = checkRequest(requests.length - 1, 'dataone', true);
-    savedDataOne.resolve(response(200, '<details class="avd-style">Saved DataOne report</details>', false, 'true'));
+    nodes.vinProviderDataOne.fire('click');
+    assertSelected('dataone');
+    pending = nodes.decode.fire('click');
+    const savedDataOne = checkRequest(requests.length - 1, 'dataone');
+    savedDataOne.resolve(response(200, '<details class="avd-style">Saved DataOne report</details>', false, 'true', 'database'));
     await pending;
     assert.equal(nodes.vinReportStatus.text(), 'Saved report loaded.');
-    nodes.vinProvider.val('neovin').fire('change');
+    nodes.vinProviderMarketCheck.fire('click');
+    assertSelected('neovin');
     const successfulReports = safeHtmlCalls.length;
 
     for (const [status, redirected, expected] of [
@@ -255,8 +280,8 @@ function response(status, html = '<details class="avd-style">Offline report</det
     nodes.clear.fire('click');
     assert.equal(nodes.vin.val(), '');
     assert.equal(nodes.vinProvider.val(), 'neovin', 'Clear VIN must preserve the selected provider');
+    assertSelected('neovin');
     assert.equal(nodes.decode.disabled, true);
-    assert.equal(nodes.loadSaved.disabled, true);
     assert.equal(nodes.dataOneVinDecoder.reportHtml, '');
     assert.equal(nodes.emptyState.visible, true);
     assert.equal(nodes.vinReportStatus.text(), '');
@@ -265,11 +290,9 @@ function response(status, html = '<details class="avd-style">Offline report</det
     for (const invalid of ['', 'SHORT', '1HGCM82633A00435I']) {
         nodes.vin.val(invalid).trigger('input');
         assert.equal(nodes.decode.disabled, true);
-        assert.equal(nodes.loadSaved.disabled, true);
         await nodes.decode.fire('click');
-        await nodes.loadSaved.fire('click');
     }
     assert.equal(requests.length, beforeInvalid, 'Invalid VINs must not reach either provider');
     assert.equal(spinnerStarts, spinnerStops, 'Success and all failure paths must release the busy overlay');
-    console.log('PASS: actual VIN decoder UI, DataOne/NeoVIN POSTs, inventory autosave headers, saved-report POST/loading/404 without paid fallback, VIN/provider clearing, busy guards, safe HTML and error/clear behavior.');
+    console.log('PASS: selected-provider menu, one-request DataOne/MarketCheck decode and cached report responses, inventory autosave headers, busy guards, VIN/provider clearing, safe HTML and error/clear behavior.');
 })().catch(error => { console.error(error); process.exitCode = 1; });
