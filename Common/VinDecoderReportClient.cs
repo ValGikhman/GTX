@@ -36,7 +36,11 @@ namespace GTX.Common {
                 using (var request = new HttpRequestMessage(neo ? HttpMethod.Post : HttpMethod.Get, endpoint)) {
                     request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey.Trim());
                     request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    if (neo) request.Content = new StringContent(new JObject { ["Vin"] = vin }.ToString(Newtonsoft.Json.Formatting.None), Encoding.UTF8, "application/json");
+                    if (neo) {
+                        // Hosted IIS rejects the 100-continue handshake before reading the JSON.
+                        request.Headers.ExpectContinue = false;
+                        request.Content = new StringContent(new JObject { ["Vin"] = vin }.ToString(Newtonsoft.Json.Formatting.None), Encoding.UTF8, "application/json");
+                    }
                     using (var response = await client.SendAsync(request)) {
                         if ((int)response.StatusCode == 429) throw new VinDecoderReportException(429, "The VIN decoding limit has been reached. Please try again later.");
                         if (response.StatusCode == HttpStatusCode.ServiceUnavailable) throw new VinDecoderReportException(503, "The selected VIN decoding service is unavailable.");

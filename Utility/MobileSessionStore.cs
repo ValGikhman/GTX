@@ -25,7 +25,7 @@ namespace GTX.Helpers {
                 return hmac.ComputeHash(Encoding.UTF8.GetBytes("GTX.MobileSession.v1\0" + password));
         }
         public string Create(string password) {
-            if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException("Owner password is required.", "password");
+            if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException("Mobile password is required.", "password");
             var token = new byte[32];
             using (var random = RandomNumberGenerator.Create()) random.GetBytes(token);
             Directory.CreateDirectory(directory);
