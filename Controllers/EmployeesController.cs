@@ -51,10 +51,12 @@ namespace GTX.Controllers {
 
             Log($"Deleting employee: {SerializeModel(employee)}");
             try {
+                if (!_employeesService.DeleteEmployee(id))
+                    throw new InvalidOperationException("Employee could not be deleted.");
+                AppCache.Remove(Constants.EMPLOYERS_CACHE);
                 if (!string.IsNullOrWhiteSpace(employee.PhotoPath)) {
                     DeletePhoto(employee.PhotoPath);
                 }
-                _employeesService.DeleteEmployee(id);
                 return RedirectToAction("Index");
             }
             catch (Exception ex) {
@@ -104,7 +106,7 @@ namespace GTX.Controllers {
 
                 // 2) create entity and save
                 var entity = EmployeeModel.ToEntity(model);
-                _employeesService.SaveEmployee(entity);
+                SaveEmployeeAndRefreshStaff(entity);
 
                 return Json(new { ok = true, id = entity.Id });
             }
@@ -159,7 +161,7 @@ namespace GTX.Controllers {
                     // Keep the working photo until the employee record accepts the replacement.
                     entity.PhotoPath = NormalizeEmployeePhotoPath(model.PhotoPath);
                     MapEmployeeFields(entity, model);
-                    _employeesService.SaveEmployee(entity);
+                    SaveEmployeeAndRefreshStaff(entity);
                     DeletePhoto(previousPhotoPath);
 
                     return Json(new { ok = true, id = entity.Id, photoPath = entity.PhotoPath });
@@ -181,7 +183,7 @@ namespace GTX.Controllers {
                 MapEmployeeFields(entity, model);
                 entity.PhotoPath = NormalizeEmployeePhotoPath(model.PhotoPath);
 
-                _employeesService.SaveEmployee(entity);
+                SaveEmployeeAndRefreshStaff(entity);
 
                 return Json(new { ok = true, id = entity.Id, photoPath = entity.PhotoPath });
             }
@@ -194,6 +196,13 @@ namespace GTX.Controllers {
                 Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 return Json(new { ok = false, message = ex.Message });
             }
+        }
+
+        private void SaveEmployeeAndRefreshStaff(Services.Employee entity)
+        {
+            if (!_employeesService.SaveEmployee(entity))
+                throw new InvalidOperationException("Employee could not be saved.");
+            AppCache.Remove(Constants.EMPLOYERS_CACHE);
         }
 
         private static void MapEmployeeFields(Services.Employee entity, EmployeeModel model)

@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Services;
 using System;
-using System.Configuration;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -14,7 +13,7 @@ using System.Web.Mvc;
 namespace GTX.Controllers
 {
     // Native client API, separate from the anonymous public inventory API.
-    // Uses the configured Majordome password and persistent, revocable opaque sessions.
+    // Uses a dedicated fixed mobile password and persistent, revocable opaque sessions.
     public sealed class MobileManagementController : Controller {
         private static readonly object LoginLock = new object();
         private readonly IInventoryService inventory;
@@ -23,7 +22,7 @@ namespace GTX.Controllers
         public sealed class LoginRequest { public string Password { get; set; } }
         public MobileManagementController() : this(new InventoryService()) { }
         public MobileManagementController(IInventoryService service) { inventory = service; }
-        private static string MajordomePassword => Common.MajordomeAccount.Current()?.PasswordHash;
+        private string MobilePassword => Common.MobileManagementPassword.Read(Server.MapPath("~/App_Data/MobileManagement.config"));
         private static string Hash(string value) {
             using (var sha = SHA256.Create()) return Convert.ToBase64String(sha.ComputeHash(Encoding.UTF8.GetBytes(value ?? "")));
         }
@@ -39,8 +38,8 @@ namespace GTX.Controllers
             Response.Cache.SetNoStore();
             Response.SuppressFormsAuthenticationRedirect = true;
             if (!string.Equals(context.ActionDescriptor.ActionName, "Login", StringComparison.OrdinalIgnoreCase)) {
-                if (!Sessions.IsValid(BearerToken, MajordomePassword)) {
-                    context.Result = Payload(new { message = "Sign in with an administrator account." }, 401);
+                if (!Sessions.IsValid(BearerToken, MobilePassword)) {
+                    context.Result = Payload(new { message = "Sign in with your GTX mobile password." }, 401);
                 }
             }
             base.OnActionExecuting(context);
@@ -66,7 +65,7 @@ namespace GTX.Controllers
                 if (attempts.Count >= 10) return Payload(new { message = "Too many attempts. Try again in five minutes." }, 429);
                 attempts.Count++;
             }
-            var expected = MajordomePassword;
+            var expected = MobilePassword;
             var supplied = request?.Password?.Trim();
             if (string.IsNullOrWhiteSpace(expected) || supplied == null || supplied.Length > 512 || !System.Web.Helpers.Crypto.VerifyHashedPassword(expected, supplied))
                 return Payload(new { message = "Invalid password." }, 401);

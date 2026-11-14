@@ -47,6 +47,8 @@ async function checkBackgroundRemoval() {
 
 function checkHealthWithoutServiceCards() {
     const view = fs.readFileSync(path.join(__dirname, '../Views/Health/Index.cshtml'), 'utf8');
+    assert.doesNotMatch(view, /dataOneEnabled|health-card-dataone|dataOneCall|refreshDataOneQuota|renderDataOneSummary/,
+        'Health must not display or refresh an unsupported DataOne quota');
     const script = view.slice(view.lastIndexOf('<script>') + '<script>'.length, view.lastIndexOf('</script>'))
         .replace(/@Url\.Action\("([^"]+)",\s*"([^"]+)"\)/g, '/$2/$1');
     let ready;
@@ -76,13 +78,12 @@ function checkHealthWithoutServiceCards() {
     context.refreshRemoveBgTokenBalance();
     context.refreshCloudflareBucketStats();
     context.refreshMarketCheckQuota();
-    context.refreshDataOneQuota();
     assert.equal(requests.length, 0, 'Missing service cards must not trigger optional service requests');
 
     context.refreshNow();
     assert.equal(requests.length, 1, 'General system health must keep polling');
     assert.equal(requests[0].url, '/Health/HealthJson');
-    requests[0].success({ Totals: {}, IIS: {}, DataOne: { Configured: false }, OpenAI: { Configured: false } });
+    requests[0].success({ Totals: {}, IIS: {}, OpenAI: { Configured: false } });
     requests[0].complete();
 }
 
