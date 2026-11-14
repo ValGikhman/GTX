@@ -164,6 +164,11 @@
     {
         <link href="~/Content/chat-bot.css?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/chat-bot.css")).Ticks)" rel="stylesheet" />
     }
+    @if (isHomeIndexPage)
+    {
+        <link href="@Url.Content("~/Content/specials-player.css")?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/specials-player.css")).Ticks)" rel="stylesheet" />
+        <script defer src="@Url.Content("~/Scripts/specials-player.js")?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/specials-player.js")).Ticks)"></script>
+    }
     @Scripts.Render("~/scripts/modernizr")
     @Scripts.Render("~/scripts/bootstrap")
 

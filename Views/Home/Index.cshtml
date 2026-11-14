@@ -16,7 +16,7 @@
     var announcementId = hasAnnouncements ? Model.Announcements[0].Id : 0;
 }
 
-<section class="hero home-hero" aria-labelledby="homeHeroTitle">
+<section class="hero home-hero" aria-labelledby="homeHeroTitle" data-specials-player>
     <video class="video-background-video" autoplay muted loop playsinline webkit-playsinline preload="metadata" aria-hidden="true" tabindex="-1">
         <source src="@SiteImageUrl.Build("video/GTX.mp4")" type="video/mp4" />
     </video>
@@ -28,6 +28,8 @@
     <span class="home-hero-brand" aria-hidden="true">
         <img src="@SiteImageUrl.Build("brand-index.png")" alt="" />
     </span>
+
+    @Html.Partial("_SpecialsPlayerLink", new ViewDataDictionary { { "SpecialsOverlay", true } })
 
     <div class="home-hero-shell">
         <div class="home-hero-copy">
