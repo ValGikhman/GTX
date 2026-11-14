@@ -504,7 +504,7 @@
                 });
 
                 if (group.Context) $("<p>", { "class": "bot-market-context", text: group.Context }).appendTo($source);
-                if (group.Listings.length) appendMarketListings($source, group.Listings, group.Name + " listings");
+                if (group.Listings.length) appendMarketListings($source, group.Listings, group.Name + " listings", group.Name === "CarGurus");
                 if (group.Note) $("<p>", { "class": "bot-market-note", text: group.Note }).appendTo($source);
                 appendMarketView($source, group.ViewUrl);
             });
@@ -514,15 +514,15 @@
         }
 
         function marketSortValue(value) {
-            var numeric = (value || "").replace(/[$,]/g, "").trim();
+            var numeric = String(value == null ? "" : value).replace(/[$,]/g, "").trim();
             return /^\d+(?:\.\d+)?$/.test(numeric) ? Number(numeric) : Infinity;
         }
 
-        function appendMarketListings($parent, listings, title) {
+        function appendMarketListings($parent, listings, title, sortByDistance) {
             var ordered = listings.map(function (listing, index) {
-                return { listing: listing, index: index, price: marketSortValue(listing.Ask) };
+                return { listing: listing, index: index, sortValue: marketSortValue(sortByDistance ? listing.Distance : listing.Ask) };
             }).sort(function (a, b) {
-                return (a.price - b.price) || (a.index - b.index);
+                return (a.sortValue - b.sortValue) || (a.index - b.index);
             });
             var $container = $("<div>", { "class": "bot-market-listings-wrap" }).appendTo($parent);
             var $table = $("<table>", { "class": "bot-market-listings", "aria-label": title })
@@ -530,7 +530,7 @@
             var $head = $("<tr>").appendTo($("<thead>").appendTo($table));
             ["Vehicle", "Ask", "Miles", "Distance"].forEach(function (label) {
                 var $column = $("<th>", { scope: "col", text: label }).appendTo($head);
-                if (label === "Ask") $column.attr("aria-sort", "ascending");
+                if (label === (sortByDistance ? "Distance" : "Ask")) $column.attr("aria-sort", "ascending");
             });
             var $body = $("<tbody>").appendTo($table);
             ordered.forEach(function (item) {
@@ -558,8 +558,10 @@
                         .appendTo($("<td>", { colspan: 4 }).appendTo($statusRow));
                     statuses.forEach(function (status) {
                         var outsideScope = /^(Outside radius|Over mileage|Other package)$/.test(status);
-                        var color = outsideScope ? "danger" : (status === "Searched VIN" ? "warning" : "success");
-                        $("<span>", { "class": "badge rounded-pill text-bg-" + color, text: status }).appendTo($statuses);
+                        var statusClass = status === "Within scope"
+                            ? "bg-success-subtle text-success border border-success-subtle"
+                            : "text-bg-" + (outsideScope ? "danger" : "warning");
+                        $("<span>", { "class": "badge rounded-pill " + statusClass, text: status }).appendTo($statuses);
                     });
                 }
             });
@@ -583,7 +585,7 @@
             if (reply.ListingGroups && reply.ListingGroups.length) {
                 appendMarketTabs($card, reply.ListingGroups);
             } else if (reply.Listings && reply.Listings.length) {
-                appendMarketListings($card, reply.Listings, reply.Title || "Retail listings");
+                appendMarketListings($card, reply.Listings, reply.Title || "Retail listings", reply.Source === "CG");
             }
 
             if (reply.Metrics.length) {

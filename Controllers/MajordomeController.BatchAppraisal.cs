@@ -96,7 +96,7 @@ namespace GTX.Controllers {
         }
 
         private static string BuildBatchAppraisalEstimatePath(string vin, int miles, string zip, int radius) {
-            var searchMiles = Math.Max(100000, ((miles + 49999) / 50000) * 50000);
+            var searchMiles = AppraisalSearchMileage.Bucket(miles).Value;
             return FormattableString.Invariant($"/{vin}/json?miles={searchMiles}&zip={zip}&radius={radius}");
         }
     }

@@ -35,6 +35,9 @@ namespace GTX.Controllers
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
         private static readonly Regex CarGurusRadius = new Regex(@"\b(?:within\s+(?<radius>[0-9]{1,3})\s*-?\s*(?:miles?|mi)\b|(?<radius>[0-9]{1,3})\s*-?\s*(?:miles?|mi)\s+radius\b|radius\s*(?:of\s+|:\s*)?(?<radius>[0-9]{1,3})\b)",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        private static readonly Regex CarGurusOdometer = new Regex(
+            @"\b(?:(?<operator>less than|under|up to|at most|no more than|max(?:imum)?)\s+)?(?<miles>[0-9][0-9,]*(?:\.[0-9]+)?)\s*(?<thousands>k)?\s*(?:odometer\s+)?(?:miles?|mi)\b(?!\s*(?:away|from|of|radius)\b)",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
         private static readonly HttpClient VinLookupClient = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false })
         {
             Timeout = TimeSpan.FromSeconds(15)
@@ -600,10 +603,12 @@ namespace GTX.Controllers
             var radiusMatch = CarGurusRadius.Match(message);
             var radius = radiusMatch.Success ? radiusMatch.Groups["radius"].Value : MajordomeController.AppraisalDefaultRadius;
             var mileage = CarGurusMileage(message);
-            var maxMiles = string.IsNullOrEmpty(mileage.LimitOperator) ? null : mileage.Miles;
-            if (Regex.IsMatch(mileage.LimitOperator ?? "", @"^(?:less than|under)$", RegexOptions.IgnoreCase))
-                maxMiles--;
-            var criteria = CarGurusMention.Replace(vehicle == null ? message : CarGurusVin.Replace(message, vehicle), "");
+            var maxMiles = AppraisalSearchMileage.Bucket(mileage.Miles);
+            var criteria = message;
+            if (maxMiles.HasValue)
+                criteria = criteria.Remove(mileage.Match.Index, mileage.Match.Length).Insert(mileage.Match.Index,
+                    "up to " + maxMiles.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) + " odometer miles");
+            criteria = CarGurusMention.Replace(vehicle == null ? criteria : CarGurusVin.Replace(criteria, vehicle), "");
             var toolArguments = new JObject
             {
                 ["search_text"] = $"{criteria.Trim().TrimEnd('.', '!', '?')} within {radius} miles of ZIP {zip}, closest distance first, local dealer inventory only, no shipping",
@@ -647,19 +652,17 @@ namespace GTX.Controllers
                         && ((string)item["text"])?.IndexOf("(No listings found.", StringComparison.OrdinalIgnoreCase) >= 0);
 
                 var searchOutput = search?["output"]?.Type == JTokenType.String ? (string)search["output"] : null;
-                noMatches |= searchOutput?.TrimStart().StartsWith("Found 0 vehicles", StringComparison.OrdinalIgnoreCase) == true;
+                noMatches |= CarGurusAuctionResearch.IsNoListings(searchOutput);
                 if (!noMatches && string.IsNullOrWhiteSpace(searchOutput) && publicIds.Length == 0)
                     return new ChatMarketReply { Note = CarGurusUnavailable };
 
-                var listings = Regex.Matches(searchOutput ?? "",
-                    @"^- Listing ID (?<id>[0-9]{1,18}): (?<vehicle>.+?) — (?<ask>.+?) · (?<location>[^\r\n]+)", RegexOptions.Multiline)
-                    .Cast<Match>().GroupBy(match => match.Groups["id"].Value).Select(group => group.First()).Take(5).ToArray();
+                var listings = CarGurusAuctionResearch.ParseListings(searchOutput);
                 if (listings.Length == 0 && !noMatches && vehicle == null)
                     return new ChatMarketReply { Note = "CarGurus returned a response without readable listing details." };
 
                 var ids = listings.Select(match => match.Groups["id"].Value).ToArray();
                 var detailsTask = GetCarGurusListingDetailsAsync(apiKey, payload, ids.Union(publicIds).ToArray(), zip);
-                var viewTask = BuildCarGurusViewUrlAsync(decoded?.Item1 ?? message, publicSearch.ModelPath, zip, radius, mileage.Miles,
+                var viewTask = BuildCarGurusViewUrlAsync(decoded?.Item1 ?? message, publicSearch.ModelPath, zip, radius, maxMiles,
                     CarGurusWheelSystem(decoded?.Item3 ?? vehicle ?? message));
                 await Task.WhenAll(detailsTask, viewTask);
                 var details = await detailsTask;
@@ -674,7 +677,7 @@ namespace GTX.Controllers
                         Vehicle = detail?.Vehicle ?? match.Groups["vehicle"].Value.Trim(),
                         Ask = detail?.Ask ?? CarGurusAsk(match.Groups["ask"].Value),
                         Location = detail?.Location ?? match.Groups["location"].Value.Trim(),
-                        Odometer = detail?.Odometer,
+                        Odometer = detail?.Odometer ?? (match.Groups["miles"].Success ? match.Groups["miles"].Value.Trim() : null),
                         Distance = detail?.Distance,
                         IsSearchedVin = vehicle != null && string.Equals(detail?.Vin, vins[0], StringComparison.OrdinalIgnoreCase),
                         Url = "https://www.cargurus.com/details/" + id
@@ -714,7 +717,7 @@ namespace GTX.Controllers
                     else if (miles > maxMiles) scope.Add("Over mileage");
                     if (!row.IsSearchedVin && package != null && !string.Equals(row.Vehicle, package, StringComparison.OrdinalIgnoreCase))
                         scope.Add(string.Equals(row.Vehicle, decoded.Item1, StringComparison.OrdinalIgnoreCase) ? "Package unverified" : "Other package");
-                    row.Scope = string.Join(" · ", scope);
+                    row.Scope = scope.Count == 0 ? "Within scope" : string.Join(" · ", scope);
                 }
                 if (displayed.Count == 0) return new ChatMarketReply { Note = CarGurusNoListings };
 
@@ -756,19 +759,19 @@ namespace GTX.Controllers
         private static int? CarGurusNumber(string value) =>
             int.TryParse(value?.Replace(",", ""), out var number) ? (int?)number : null;
 
-        private static (int? Miles, string LimitOperator) CarGurusMileage(string message)
+        private static (int? Miles, Match Match) CarGurusMileage(string message)
         {
-            var mileageText = CarGurusRadius.Replace(message, " ");
-            var match = Regex.Match(mileageText,
-                @"\b(?:(?<operator>less than|under|up to|at most|no more than|max(?:imum)?)\s+)?(?<miles>[0-9][0-9,]*(?:\.[0-9]+)?)\s*(?<thousands>k)?\s*(?:odometer\s+)?(?:miles?|mi)\b(?!\s*(?:away|from|of|radius)\b)",
-                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            var radii = CarGurusRadius.Matches(message).Cast<Match>().ToArray();
+            var match = CarGurusOdometer.Matches(message).Cast<Match>().FirstOrDefault(candidate =>
+                !radii.Any(radius => candidate.Index < radius.Index + radius.Length && radius.Index < candidate.Index + candidate.Length));
+            if (match == null) return (null, null);
             if (!decimal.TryParse(match.Groups["miles"].Value.Replace(",", ""), System.Globalization.NumberStyles.AllowDecimalPoint,
                 System.Globalization.CultureInfo.InvariantCulture, out var miles)) return (null, null);
 
             if (miles > int.MaxValue) return (null, null);
             if (match.Groups["thousands"].Success) miles *= 1000;
             if (miles > int.MaxValue || decimal.Truncate(miles) != miles) return (null, null);
-            return ((int)miles, match.Groups["operator"].Value);
+            return ((int)miles, match);
         }
 
         private static int CarGurusRank(ChatMarketListing row, string vehicle, int? radius, int? maxMiles)
@@ -991,26 +994,7 @@ namespace GTX.Controllers
                 var response = await PostOpenAiAsync(apiKey, payload);
                 var call = FindCarGurusToolCall(response, CarGurusAuctionResearch.DetailTool);
                 var output = call?["output"]?.Type == JTokenType.String ? (string)call["output"] : "";
-                foreach (var block in Regex.Split(output.Trim(), @"\r?\n[ \t]*\r?\n"))
-                {
-                    var id = Regex.Match(block, @"^Listing URL: https://www\.cargurus\.com/details/(?<id>[0-9]+)\s*$", RegexOptions.Multiline);
-                    if (!id.Success) continue;
-
-                    var title = Regex.Match(block, @"^(?<title>[^\r\n]+)\r?\nVIN:", RegexOptions.Multiline);
-                    var vin = Regex.Match(block, @"^VIN: (?<vin>[A-HJ-NPR-Z0-9]{17})\b", RegexOptions.Multiline | RegexOptions.IgnoreCase);
-                    var price = Regex.Match(block, @"^Price:\s*(?<ask>\$[0-9][0-9,]*(?:\.[0-9]{2})?)", RegexOptions.Multiline);
-                    var mileage = Regex.Match(block, @"\| Mileage:\s*(?<miles>[0-9][0-9,]*)", RegexOptions.Multiline);
-                    var dealer = Regex.Match(block, @"^Dealer: (?<location>[^\r\n·]+)(?:[^\r\n]*? · (?<distance>[\d,]+) mi\b)?", RegexOptions.Multiline);
-                    details[id.Groups["id"].Value] = new ChatMarketListing
-                    {
-                        Vehicle = title.Success ? title.Groups["title"].Value.Trim() : null,
-                        Vin = vin.Success ? vin.Groups["vin"].Value : null,
-                        Ask = price.Success ? price.Groups["ask"].Value : null,
-                        Odometer = mileage.Success ? mileage.Groups["miles"].Value : null,
-                        Location = dealer.Success ? dealer.Groups["location"].Value.Trim() : null,
-                        Distance = dealer.Groups["distance"].Success ? dealer.Groups["distance"].Value : null
-                    };
-                }
+                return CarGurusAuctionResearch.ParseDetails(output);
             }
             catch (Exception ex) when (ex is OpenAiRequestException || ex is HttpRequestException
                 || ex is TaskCanceledException || ex is JsonException || ex is ConfigurationErrorsException)
