@@ -11,9 +11,13 @@ roles receive these initial grants once, using `dbo.SiteRoleSetup` marker `Id=2`
 later application restarts preserve permission edits. Old Roles/Profile/Services grants
 never authorize regular roles.
 
-The existing administrator-only CDN purge actions and mobile-management login now
-require Majordome. Ordinary staff pages, chat appraisal, and VIN decoding use the
-current role's menu permissions.
+The existing administrator-only CDN purge actions require Majordome. Mobile login
+uses its own fixed password from the private `App_Data/MobileManagement.config`
+file; website role and administrator password changes do not affect it. Provision
+that file separately on each host and preserve it across publishes. It stores only
+a salted PBKDF2 hash in `<mobileManagement passwordHash="..." />`, never the plain
+password. A missing or invalid file disables mobile login. Ordinary staff pages,
+chat appraisal, and VIN decoding use the current role's menu permissions.
 
 ## Set or change the password
 
@@ -33,8 +37,8 @@ Keep this file in the protected App_Data directory, outside public static conten
 Hosting can instead supply the same hash in the process environment variable
 `GTX_MAJORDOME_PASSWORD_HASH`. That variable takes precedence over the private file.
 A missing or invalid hash disables administrator login; regular database roles
-continue to work. Changing the hash invalidates existing administrator web and
-mobile sessions. A process environment change may require restarting the host.
+continue to work. Changing the hash invalidates existing administrator web
+sessions. A process environment change may require restarting the host.
 
 The password-only login checks Majordome first. If an existing regular role has
 the same password, set a different password for that role from Roles; its record
