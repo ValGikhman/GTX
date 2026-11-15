@@ -1,5 +1,25 @@
-<a href="@Url.Action("List", "Specials")" class="specials-player-link" aria-label="View specials" title="View specials"
-   data-specials-feed="@Url.Action("Links", "Specials")" data-specials-url="@Url.Action("Special", "Specials", new { id = "__id__" })">
-    <span class="specials-player-link-label" aria-hidden="true">GTX Specials <span class="specials-player-link-counter"></span></span>
-    <span class="specials-player-link-title">Specials</span>
-</a>
+@helper SpecialOfferControls()
+{
+    <button type="button" class="specials-player-control specials-player-prev" data-specials-step="-1" aria-label="Previous special" title="Previous special" hidden>
+        <i class="bi bi-chevron-left" aria-hidden="true"></i>
+    </button>
+    <a href="@Url.Action("List", "Specials")" class="specials-player-link" aria-label="View specials" title="View specials"
+       data-specials-feed="@Url.Action("Links", "Specials")" data-specials-url="@Url.Action("Special", "Specials", new { id = "__id__" })">
+        <span class="specials-player-link-label" aria-hidden="true">GTX Specials <span class="specials-player-link-counter"></span></span>
+        <span class="specials-player-link-title">Specials</span>
+    </a>
+    <button type="button" class="specials-player-control specials-player-next" data-specials-step="1" aria-label="Next special" title="Next special" hidden>
+        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+    </button>
+}
+
+@if (Equals(ViewData["SpecialsOverlay"], true))
+{
+    @SpecialOfferControls()
+}
+else
+{
+    <span class="specials-player" data-specials-player role="group" aria-label="Special offers">
+        @SpecialOfferControls()
+    </span>
+}
