@@ -163,7 +163,8 @@
     });
 
     $("#term")
-        .on("blur", function () {
+        .on("blur", function (event) {
+            if ($(event.relatedTarget).closest("a[data-inventory-reset]").length) return;
             const term = $(this).val();
             if (term.length > 0) {
                 applyTerm(term);

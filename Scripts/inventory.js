@@ -10,10 +10,26 @@
         });
 }
 
+var inventoryAllNavigationPending = false;
+
+$(document).on("click", "a[data-inventory-reset]", function (event) {
+    if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.which === 2) return;
+    inventoryAllNavigationPending = true;
+    try {
+        sessionStorage.removeItem("term");
+    } catch (error) {
+        // The link still opens all inventory when browser storage is unavailable.
+    }
+});
+
+$(window).on("pageshow", function () {
+    inventoryAllNavigationPending = false;
+});
+
 function applyTerm(term) {
     $.post(`${root}Inventory/ApplyTerm`, { term })
         .done(function (response) {
-            if (response.redirectUrl) {
+            if (response.redirectUrl && !inventoryAllNavigationPending) {
                 window.location.href = response.redirectUrl;
             }
         })
@@ -1194,7 +1210,7 @@ function calculateMonthlyPayment(P, rate, month) {
             $(this).trigger("click");
         });
 
-        $(document).on("click", "#inventoryMobileClearFilters", function (event) {
+        $(document).on("click", "#inventoryMobileClearFilters, #inventoryEmptyReset", function (event) {
             event.preventDefault();
             event.stopPropagation();
             $("#inventoryClearFilters").trigger("click");
@@ -1215,17 +1231,28 @@ function calculateMonthlyPayment(P, rate, month) {
             $("#inventoryClearFilters").trigger("click");
         });
 
-        var hasChatbotStockFilter = $("#inventorySplit").data("chatbot-stock-filter") === true;
+        var hasServerInventoryFilter = $("#inventorySplit").data("server-stock-filter") === true;
 
         $("#inventoryClearFilters").on("click", function () {
             var type = routeTypeFilter();
             var allInventoryUrl = $("#inventorySplit").data("all-inventory-url");
 
-            if (hasChatbotStockFilter && allInventoryUrl) {
+            $("#filterTerm").val("").removeClass("text-info border-info");
+            $("#filterLiked").removeClass("bi-heart-fill").addClass("bi-heart");
+            $(".filterLiked").attr("aria-pressed", "false");
+            $("#filterLast").removeClass("bi-journal-album").addClass("bi-journal");
+            $(".inventory-filter-check").prop("checked", false);
+            resetInventoryRanges();
+            try {
+                sessionStorage.removeItem("term");
+            } catch (error) {
+                // Clearing the visible filters must also work without browser storage.
+            }
+
+            if (hasServerInventoryFilter && allInventoryUrl) {
                 // The stock subset is server-rendered; reload All without its query string.
                 // Storage may be unavailable, but that must not prevent resetting the results.
                 try {
-                    sessionStorage.removeItem("term");
                     sessionStorage.removeItem("lastVisitedPage");
                     localStorage.removeItem("matchedStocks");
                 } catch (error) {
@@ -1233,13 +1260,11 @@ function calculateMonthlyPayment(P, rate, month) {
                 }
             }
 
-            if ((hasChatbotStockFilter || type) && allInventoryUrl) {
+            if ((hasServerInventoryFilter || type) && allInventoryUrl) {
                 window.location.href = allInventoryUrl;
                 return;
             }
 
-            $(".inventory-filter-check").prop("checked", false);
-            resetInventoryRanges();
             window.applyInventoryPanelFilters();
         });
 

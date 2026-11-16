@@ -28,6 +28,12 @@ namespace GTX.Models {
     }
 
     public class Inventory {
+        // Cache the inventory data, but keep each request's displayed list separate.
+        public Inventory CreateForRequest() {
+            var all = All ?? Array.Empty<GTX>();
+            return new Inventory { Published = Published, All = all, Vehicles = all };
+        }
+
         public DateTime Published { get; set; }
 
         public string Title { get; set; }
