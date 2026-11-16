@@ -33,7 +33,24 @@ namespace GTX.Controllers
         }
 
         [HttpGet]
-        public ActionResult Index() {
+        public ActionResult Index(string search = null) {
+            var vehicles = Model.Inventory.All ?? Array.Empty<Models.GTX>();
+            var hasSearch = search != null || Request?.QueryString.GetValues("search") != null;
+            if (hasSearch) {
+                var snapshot = InventorySearchResults.Find(search);
+                if (snapshot == null) {
+                    Response.StatusCode = (int)HttpStatusCode.Gone;
+                    Response.TrySkipIisCustomErrors = true;
+                    return Content("These search results have expired. Please return to Inventory and repeat your search.", "text/plain");
+                }
+
+                var byStock = vehicles.Where(vehicle => vehicle != null)
+                    .ToLookup(vehicle => vehicle.Stock ?? string.Empty, StringComparer.OrdinalIgnoreCase);
+                vehicles = snapshot.SelectMany(stock => byStock[stock]).ToArray();
+            }
+
+            Model.Inventory.Vehicles = vehicles;
+            ViewBag.HasServerInventoryFilter = hasSearch;
             Model.Inventory.Title = "Found";
             ViewBag.Message = "Inventory";
             ViewBag.Title = I18n.F("Title_TotalVehicles", Model.Inventory.Title.ToUpper(), Model.Inventory.Vehicles.Length);
@@ -262,7 +279,7 @@ namespace GTX.Controllers
         [HttpGet]
         public ActionResult All(string make, int? maximumYear, string color, string stocks, string results = null) {
             var vehicles = Model?.Inventory?.All ?? Array.Empty<Models.GTX>();
-            ViewBag.HasChatbotStockFilter = !string.IsNullOrWhiteSpace(stocks) || results != null;
+            ViewBag.HasServerInventoryFilter = !string.IsNullOrWhiteSpace(stocks) || results != null;
 
             if (results != null) {
                 var snapshot = ChatInventoryResults.Find(results);
@@ -427,10 +444,7 @@ namespace GTX.Controllers
 
             if (model.Transmissions != null) model.Transmissions = model.Transmissions.Select(word => word.Substring(0, 1).ToUpper()).ToArray();
 
-            Model.Inventory.Vehicles = ApplyFilters(model);
-            Model.Inventory.Title = I18n.R("All_Search");
-            ViewBag.Message = "Inventory";
-            return Json(new { redirectUrl = Url.Content("~/Inventory/Index") });
+            return SearchRedirect(ApplyFilters(model));
         }
 
         [HttpPost]
@@ -440,25 +454,23 @@ namespace GTX.Controllers
             var request = new QueryHelper<Models.GTX>(Model.Inventory.All);
 
             request.InList(m => m.Make, make);
-            Model.Inventory.Vehicles = request.Query.OrderBy(m => m.Make).ThenBy(m => m.Model).ToArray();
-            Model.Inventory.Title = I18n.R("All_Search");
-            ViewBag.Message = "Inventory";
-            return Json(new { redirectUrl = Url.Content("~/Inventory/Index") });
+            return SearchRedirect(request.Query.OrderBy(m => m.Make).ThenBy(m => m.Model));
         }
 
         [HttpPost]
         public JsonResult ApplyTerm(string term) {
             if (string.IsNullOrWhiteSpace(term)) {
-                Model.Inventory.Vehicles = Model.Inventory.All;
-                Model.Inventory.Title = "All";
-                return Json(new { redirectUrl = Url.Content("~/Inventory/Index") });
+                return Json(new { redirectUrl = Url.Action("All") });
             }
 
             term = term.Trim().ToUpper();
 
-            Model.Inventory.Vehicles = ApplyTerms(term);
-            Model.Inventory.Title = I18n.R("All_Search");
-            return Json(new { redirectUrl = Url.Content("~/Inventory/Index") });
+            return SearchRedirect(ApplyTerms(term));
+        }
+
+        private JsonResult SearchRedirect(IEnumerable<Models.GTX> vehicles) {
+            var token = InventorySearchResults.Store(vehicles.Select(vehicle => vehicle.Stock));
+            return Json(new { redirectUrl = Url.Action("Index", new { search = token }) });
         }
 
         [HttpGet]

@@ -6,10 +6,10 @@
 <head>
     <script src="~/Scripts/specials-player.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/specials-player.js")).Ticks)"></script>
     <link href="~/Content/specials-player.css?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/specials-player.css")).Ticks)" rel="stylesheet" />
-    @{ var hasChatbotStockFilter = ViewBag.HasChatbotStockFilter == true;
-                    var inventoryClearLabel = hasChatbotStockFilter ? "Reset" : "Clear";
-                    var inventoryClearTitle = hasChatbotStockFilter ? "Reset chatbot results — show all inventory" : "Clear filters";
-                    var inventoryClearIcon = hasChatbotStockFilter ? "bi-arrow-counterclockwise" : "bi-eraser-fill"; }
+    @{ var hasServerInventoryFilter = ViewBag.HasServerInventoryFilter == true;
+                    var inventoryClearLabel = hasServerInventoryFilter ? "Reset" : "Clear";
+                    var inventoryClearTitle = hasServerInventoryFilter ? "Reset search results — show all inventory" : "Clear filters";
+                    var inventoryClearIcon = hasServerInventoryFilter ? "bi-arrow-counterclockwise" : "bi-eraser-fill"; }
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-L828PN8ET1"></script>
     <script>
@@ -813,7 +813,7 @@
         <i class="bi bi-map"></i> <strong> Map </strong>
     </a>
 </div>
-<div id="inventorySplit" class="inventory-wrapper inventory-split" data-route-type-filter="@inventoryRouteType" data-chatbot-stock-filter="@(hasChatbotStockFilter ? "true" : "false")" data-all-inventory-url="@Url.Action("All", "Inventory")">
+<div id="inventorySplit" class="inventory-wrapper inventory-split" data-route-type-filter="@inventoryRouteType" data-server-stock-filter="@(hasServerInventoryFilter ? "true" : "false")" data-all-inventory-url="@Url.Action("All", "Inventory")">
     <div id="inventorySidebarPane" class="inventory-sidebar-pane offcanvas offcanvas-top inventory-filter-offcanvas" tabindex="-1" aria-labelledby="inventoryFiltersLabel">
         <div class="offcanvas-header inventory-filter-offcanvas-header d-lg-none">
             <button type="button"
@@ -868,8 +868,8 @@
                     <button type="button"
                             id="inventoryMobileClearFilters"
                             class="btn btn-gradient-grey border-black shadow rounded-4 inventory-mobile-filter-action-btn inventory-mobile-clear-btn"
-                            title="@(hasChatbotStockFilter ? inventoryClearTitle : I18n.R("Filter_ClearFilters"))"
-                            aria-label="@(hasChatbotStockFilter ? inventoryClearTitle : I18n.R("Filter_ClearFilters"))">
+                            title="@(hasServerInventoryFilter ? inventoryClearTitle : I18n.R("Filter_ClearFilters"))"
+                            aria-label="@(hasServerInventoryFilter ? inventoryClearTitle : I18n.R("Filter_ClearFilters"))">
                         <i class="bi @inventoryClearIcon"></i>
                     </button>
                 </div>
@@ -879,6 +879,9 @@
 
         <div class="inventory-empty-filter shadow-sm p-4 mb-3 text-center">
             No vehicles match the selected filters.
+            <button type="button" id="inventoryEmptyReset" class="btn btn-gradient-grey border-dark rounded-3 shadow d-block mx-auto mt-3">
+                Reset — show all inventory
+            </button>
         </div>
 
         <ul id="inventory" class="d-flex flex-wrap justify-content-center gap-3">

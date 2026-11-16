@@ -105,7 +105,7 @@ namespace GTX.Controllers
                 ViewBag.ResponsibilityIcon = Model.Responsibility == CommonUnit.Responsibility.Site ? "bi-globe2" : "bi-tv";
                 ViewBag.Environment = SessionData.Environment == CommonUnit.Environment.Dev ? "DEV" : string.Empty;
 
-                Model.Inventory = AppCache.GetOrCreate(Constants.INVENTORY_CACHE, () => LoadInventory(includeHiddenInventory: false, includeDataOneContent: false),  minutes: 60);
+                Model.Inventory = AppCache.GetOrCreate(Constants.INVENTORY_CACHE, () => LoadInventory(includeHiddenInventory: false, includeDataOneContent: false), minutes: 60).CreateForRequest();
                 Model.Employers = AppCache.GetOrCreate(Constants.EMPLOYERS_CACHE, () => GetEmployers(), minutes: 60);
                 Model.OpenHours = Utility.XMLHelpers.XmlRepository.GetOpenHours();
                 Model.Categories = AppCache.GetOrCreate(Constants.CATEGORIES_CACHE, () => GetCategories(), minutes: 60);
@@ -137,7 +137,7 @@ namespace GTX.Controllers
                     Model.Inventory = AppCache.GetOrCreate(
                         Constants.MAJORDOME_INVENTORY_CACHE,
                         () => LoadInventory(includeHiddenInventory: true, includeDataOneContent: false),
-                        minutes: 10);
+                        minutes: 10).CreateForRequest();
                 }
 
             }
