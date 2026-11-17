@@ -36,7 +36,6 @@
                 <a class="home-service-ad" href="@(servicesUrl + "/" + service.Id)" target="_blank" rel="noopener">
                     <img src="@Url.Content("~/Content/images/carcare/care-" + service.ImageId + "-480.jpg?v=20261031")" alt="" width="480" height="320" loading="@(index == 0 ? "eager" : "lazy")" decoding="async" />
                     <div class="home-service-copy">
-                        <small>GTX Car Care Center</small>
                         <h3>@I18n.R(service.Key)</h3>
                     </div>
                 </a>
