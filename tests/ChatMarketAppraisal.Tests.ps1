@@ -6,6 +6,10 @@ $testDirectory = Join-Path ([IO.Path]::GetTempPath()) ('gtx-chat-appraisal-' + [
 New-Item -ItemType Directory -Path $testDirectory | Out-Null
 $exePath = Join-Path $testDirectory 'ChatMarketAppraisalTests.exe'
 $arguments = @('/nologo', '/target:exe', '/r:System.Web.dll', '/r:System.Configuration.dll', '/r:System.Core.dll', '/r:System.Runtime.Caching.dll')
+# A fresh build may use the framework HTTP assembly without copying it into bin.
+if (-not (Test-Path -LiteralPath (Join-Path $binPath 'System.Net.Http.dll'))) {
+    $arguments += '/r:System.Net.Http.dll'
+}
 $arguments += Get-ChildItem -LiteralPath $binPath -Filter *.dll | ForEach-Object {
     try { [void][Reflection.AssemblyName]::GetAssemblyName($_.FullName); '/r:"' + $_.FullName + '"' }
     catch { } # Skip native DLLs.
