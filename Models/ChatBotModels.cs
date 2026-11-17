@@ -58,6 +58,7 @@ namespace GTX.Models
         public ChatMarketSection[] Sections { get; set; } = Array.Empty<ChatMarketSection>();
         public ChatMarketListing[] Listings { get; set; } = Array.Empty<ChatMarketListing>();
         public ChatMarketListingGroup[] ListingGroups { get; set; } = Array.Empty<ChatMarketListingGroup>();
+        public bool PreserveListingOrder { get; set; }
         public string Note { get; set; }
         public string ViewUrl { get; set; }
         internal object AppraisalParameters { get; set; }
@@ -90,7 +91,7 @@ namespace GTX.Models
 
     public sealed class ChatMarketListing
     {
-        internal string Vin { get; set; }
+        public string Vin { get; set; }
         public bool IsSearchedVin { get; set; }
         public string Scope { get; set; }
         public string Vehicle { get; set; }
@@ -98,6 +99,7 @@ namespace GTX.Models
         public string Location { get; set; }
         public string Odometer { get; set; }
         public string Distance { get; set; }
+        public string DaysListed { get; set; }
         public string Url { get; set; }
     }
 

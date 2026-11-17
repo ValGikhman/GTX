@@ -106,6 +106,15 @@ namespace Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Documentary Fee.
+        /// </summary>
+        internal static string All_DocumentaryFee {
+            get {
+                return ResourceManager.GetString("All_DocumentaryFee", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Drive.
         /// </summary>
         internal static string All_Drive {
@@ -150,6 +159,15 @@ namespace Resources {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to Internet Price.
+        /// </summary>
+        internal static string All_InternetPrice {
+            get {
+                return ResourceManager.GetString("All_InternetPrice", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Location.
         /// </summary>
@@ -196,6 +214,15 @@ namespace Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No Hidden Fees.
+        /// </summary>
+        internal static string All_NoHiddenFees {
+            get {
+                return ResourceManager.GetString("All_NoHiddenFees", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Now open.
         /// </summary>
         internal static string All_NowOpen {
@@ -231,6 +258,15 @@ namespace Resources {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to Retail Price.
+        /// </summary>
+        internal static string All_RetailPrice {
+            get {
+                return ResourceManager.GetString("All_RetailPrice", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Search.
         /// </summary>
@@ -268,6 +304,15 @@ namespace Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Transparent Price.
+        /// </summary>
+        internal static string All_TransparentPrice {
+            get {
+                return ResourceManager.GetString("All_TransparentPrice", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Type.
         /// </summary>
         internal static string All_Type {
@@ -286,6 +331,15 @@ namespace Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Year.
+        /// </summary>
+        internal static string All_Year {
+            get {
+                return ResourceManager.GetString("All_Year", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to You may also like.
         /// </summary>
         internal static string All_YouMayLike {
@@ -294,6 +348,60 @@ namespace Resources {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to Ask [[CompanyShortName]].
+        /// </summary>
+        internal static string Chat_AskGtx {
+            get {
+                return ResourceManager.GetString("Chat_AskGtx", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Open [[CompanyShortName]] Auto Assistant.
+        /// </summary>
+        internal static string Chat_OpenAssistant {
+            get {
+                return ResourceManager.GetString("Chat_OpenAssistant", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Add to comparison.
+        /// </summary>
+        internal static string Compare_Add {
+            get {
+                return ResourceManager.GetString("Compare_Add", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Compare.
+        /// </summary>
+        internal static string Compare_Button {
+            get {
+                return ResourceManager.GetString("Compare_Button", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remove from comparison.
+        /// </summary>
+        internal static string Compare_Remove {
+            get {
+                return ResourceManager.GetString("Compare_Remove", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Compare {0} specifications.
+        /// </summary>
+        internal static string Compare_VehicleSpecifications {
+            get {
+                return ResourceManager.GetString("Compare_VehicleSpecifications", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Choose your filters.
         /// </summary>
@@ -304,6 +412,24 @@ namespace Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Clear filters.
+        /// </summary>
+        internal static string Filter_ClearFilters {
+            get {
+                return ResourceManager.GetString("Filter_ClearFilters", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Filters.
+        /// </summary>
+        internal static string Filter_Filters {
+            get {
+                return ResourceManager.GetString("Filter_Filters", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to More than.
         /// </summary>
         internal static string Filter_MoreThan {
@@ -312,6 +438,15 @@ namespace Resources {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to Open filters.
+        /// </summary>
+        internal static string Filter_OpenFilters {
+            get {
+                return ResourceManager.GetString("Filter_OpenFilters", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Sort by : .
         /// </summary>
@@ -331,6 +466,1473 @@ namespace Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to A better journey..
+        /// </summary>
+        internal static string Hero_About_Accent {
+            get {
+                return ResourceManager.GetString("Hero_About_Accent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A [[City]] dealership built around honest guidance, carefully selected vehicles, and people who genuinely listen..
+        /// </summary>
+        internal static string Hero_About_Description {
+            get {
+                return ResourceManager.GetString("Hero_About_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Driven by trust since day one.
+        /// </summary>
+        internal static string Hero_About_Kicker {
+            get {
+                return ResourceManager.GetString("Hero_About_Kicker", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to More than cars..
+        /// </summary>
+        internal static string Hero_About_Title {
+            get {
+                return ResourceManager.GetString("Hero_About_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to STORY.
+        /// </summary>
+        internal static string Hero_About_Word {
+            get {
+                return ResourceManager.GetString("Hero_About_Word", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Control the moment..
+        /// </summary>
+        internal static string Hero_Announcements_Accent {
+            get {
+                return ResourceManager.GetString("Hero_Announcements_Accent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Manage announcement content, targeting, display behavior, and publishing windows from one workspace..
+        /// </summary>
+        internal static string Hero_Announcements_Description {
+            get {
+                return ResourceManager.GetString("Hero_Announcements_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Timely messages. Clear visibility..
+        /// </summary>
+        internal static string Hero_Announcements_Kicker {
+            get {
+                return ResourceManager.GetString("Hero_Announcements_Kicker", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Create the alert..
+        /// </summary>
+        internal static string Hero_Announcements_Title {
+            get {
+                return ResourceManager.GetString("Hero_Announcements_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ALERTS.
+        /// </summary>
+        internal static string Hero_Announcements_Word {
+            get {
+                return ResourceManager.GetString("Hero_Announcements_Word", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Publish with purpose..
+        /// </summary>
+        internal static string Hero_BlogAdmin_Accent {
+            get {
+                return ResourceManager.GetString("Hero_BlogAdmin_Accent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Manage dealership stories, updates, and customer-facing articles from one editorial workspace..
+        /// </summary>
+        internal static string Hero_BlogAdmin_Description {
+            get {
+                return ResourceManager.GetString("Hero_BlogAdmin_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Create, refine, and publish.
+        /// </summary>
+        internal static string Hero_BlogAdmin_Kicker {
+            get {
+                return ResourceManager.GetString("Hero_BlogAdmin_Kicker", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Shape the story..
+        /// </summary>
+        internal static string Hero_BlogAdmin_Title {
+            get {
+                return ResourceManager.GetString("Hero_BlogAdmin_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to STORIES.
+        /// </summary>
+        internal static string Hero_BlogAdmin_Word {
+            get {
+                return ResourceManager.GetString("Hero_BlogAdmin_Word", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to taking with you..
+        /// </summary>
+        internal static string Hero_BlogList_Accent {
+            get {
+                return ResourceManager.GetString("Hero_BlogList_Accent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Buying guidance, dealership news, and thoughtful reads from the people who know the road..
+        /// </summary>
+        internal static string Hero_BlogList_Description {
+            get {
+                return ResourceManager.GetString("Hero_BlogList_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ideas for the road ahead.
+        /// </summary>
+        internal static string Hero_BlogList_Kicker {
+            get {
+                return ResourceManager.GetString("Hero_BlogList_Kicker", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stories worth.
+        /// </summary>
+        internal static string Hero_BlogList_Title {
+            get {
+                return ResourceManager.GetString("Hero_BlogList_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to READ.
+        /// </summary>
+        internal static string Hero_BlogList_Word {
+            get {
+                return ResourceManager.GetString("Hero_BlogList_Word", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Explore what&apos;s next..
+        /// </summary>
+        internal static string Hero_CapitalOne_Accent {
+            get {
+                return ResourceManager.GetString("Hero_CapitalOne_Accent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Start your next car search with Capital One pre-qualification, then find your next vehicle at [[CompanyName]]. Our team is here to help along the way..
+        /// </summary>
+        internal static string Hero_CapitalOne_Description {
+            get {
+                return ResourceManager.GetString("Hero_CapitalOne_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Capital One pre-qualification.
+        /// </summary>
+        internal static string Hero_CapitalOne_Kicker {
+            get {
+                return ResourceManager.GetString("Hero_CapitalOne_Kicker", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Get pre-qualified..
+        /// </summary>
+        internal static string Hero_CapitalOne_Title {
+            get {
+                return ResourceManager.GetString("Hero_CapitalOne_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to DRIVE.
+        /// </summary>
+        internal static string Hero_CapitalOne_Word {
+            get {
+                return ResourceManager.GetString("Hero_CapitalOne_Word", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Keep every route precise..
+        /// </summary>
+        internal static string Hero_ChatBotCommands_Accent {
+            get {
+                return ResourceManager.GetString("Hero_ChatBotCommands_Accent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Review recognized phrases, inspect their application dependencies, and maintain the commands available to your assistant..
+        /// </summary>
+        internal static string Hero_ChatBotCommands_Description {
+            get {
+                return ResourceManager.GetString("Hero_ChatBotCommands_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Owner command center.
+        /// </summary>
+        internal static string Hero_ChatBotCommands_Kicker {
+            get {
+                return ResourceManager.GetString("Hero_ChatBotCommands_Kicker", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Manage CB commands..
+        /// </summary>
+        internal static string Hero_ChatBotCommands_Title {
+            get {
+                return ResourceManager.GetString("Hero_ChatBotCommands_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to COMMANDS.
+        /// </summary>
+        internal static string Hero_ChatBotCommands_Word {
+            get {
+                return ResourceManager.GetString("Hero_ChatBotCommands_Word", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to a conversation..
+        /// </summary>
+        internal static string Hero_Contact_Accent {
+            get {
+                return ResourceManager.GetString("Hero_Contact_Accent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ask a question, plan a visit, or tell us what you’re looking for. Our team is ready to help..
+        /// </summary>
+        internal static string Hero_Contact_Description {
+            get {
+                return ResourceManager.GetString("Hero_Contact_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Real people. Straight answers..
+        /// </summary>
+        internal static string Hero_Contact_Kicker {
+            get {
+                return ResourceManager.GetString("Hero_Contact_Kicker", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Let’s start.
+        /// </summary>
+        internal static string Hero_Contact_Title {
+            get {
+                return ResourceManager.GetString("Hero_Contact_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to HELLO.
+        /// </summary>
+        internal static string Hero_Contact_Word {
+            get {
+                return ResourceManager.GetString("Hero_Contact_Word", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Lead the inventory..
+        /// </summary>
+        internal static string Hero_Dashboard_Accent {
+            get {
+                return ResourceManager.GetString("Hero_Dashboard_Accent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Track status, location, aging, and recent activity from one focused operational view..
+        /// </summary>
+        internal static string Hero_Dashboard_Description {
+            get {
+                return ResourceManager.GetString("Hero_Dashboard_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Inventory intelligence at a glance.
+        /// </summary>
+        internal static string Hero_Dashboard_Kicker {
+            get {
+                return ResourceManager.GetString("Hero_Dashboard_Kicker", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to See the movement..
+        /// </summary>
+        internal static string Hero_Dashboard_Title {
+            get {
+                return ResourceManager.GetString("Hero_Dashboard_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to PULSE.
+        /// </summary>
+        internal static string Hero_Dashboard_Word {
+            get {
+                return ResourceManager.GetString("Hero_Dashboard_Word", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Present it beautifully..
+        /// </summary>
+        internal static string Hero_Employees_Accent {
+            get {
+                return ResourceManager.GetString("Hero_Employees_Accent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Keep staff profiles, roles, contact details, and public visibility accurate and polished..
+        /// </summary>
+        internal static string Hero_Employees_Description {
+            get {
+                return ResourceManager.GetString("Hero_Employees_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The people behind the experience.
+        /// </summary>
+        internal static string Hero_Employees_Kicker {
+            get {
+                return ResourceManager.GetString("Hero_Employees_Kicker", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Build the team..
+        /// </summary>
+        internal static string Hero_Employees_Title {
+            get {
+                return ResourceManager.GetString("Hero_Employees_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to PEOPLE.
+        /// </summary>
+        internal static string Hero_Employees_Word {
+            get {
+                return ResourceManager.GetString("Hero_Employees_Word", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Stay ahead..
+        /// </summary>
+        internal static string Hero_Health_Accent {
+            get {
+                return ResourceManager.GetString("Hero_Health_Accent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Monitor application health, server resources, active sessions, and maintenance state in real time..
+        /// </summary>
+        internal static string Hero_Health_Description {
+            get {
+                return ResourceManager.GetString("Hero_Health_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Live operational awareness.
+        /// </summary>
+        internal static string Hero_Health_Kicker {
+            get {
+                return ResourceManager.GetString("Hero_Health_Kicker", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Know the system..
+        /// </summary>
+        internal static string Hero_Health_Title {
+            get {
+                return ResourceManager.GetString("Hero_Health_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to HEALTH.
+        /// </summary>
+        internal static string Hero_Health_Word {
+            get {
+                return ResourceManager.GetString("Hero_Health_Word", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Protect the pipeline..
+        /// </summary>
+        internal static string Hero_InventoryManagement_Accent {
+            get {
+                return ResourceManager.GetString("Hero_InventoryManagement_Accent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Upload inventory data, review every change, and keep dealership records synchronized with confidence..
+        /// </summary>
+        internal static string Hero_InventoryManagement_Description {
+            get {
+                return ResourceManager.GetString("Hero_InventoryManagement_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Import, audit, and reconcile.
+        /// </summary>
+        internal static string Hero_InventoryManagement_Kicker {
+            get {
+                return ResourceManager.GetString("Hero_InventoryManagement_Kicker", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Control the feed..
+        /// </summary>
+        internal static string Hero_InventoryManagement_Title {
+            get {
+                return ResourceManager.GetString("Hero_InventoryManagement_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to CONTROL.
+        /// </summary>
+        internal static string Hero_InventoryManagement_Word {
+            get {
+                return ResourceManager.GetString("Hero_InventoryManagement_Word", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Move with precision..
+        /// </summary>
+        internal static string Hero_Majordome_Accent {
+            get {
+                return ResourceManager.GetString("Hero_Majordome_Accent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Edit vehicles, decode specifications, manage imagery, and coordinate bulk actions from one powerful workspace..
+        /// </summary>
+        internal static string Hero_Majordome_Description {
+            get {
+                return ResourceManager.GetString("Hero_Majordome_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your inventory command center.
+        /// </summary>
+        internal static string Hero_Majordome_Kicker {
+            get {
+                return ResourceManager.GetString("Hero_Majordome_Kicker", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Command the inventory..
+        /// </summary>
+        internal static string Hero_Majordome_Title {
+            get {
+                return ResourceManager.GetString("Hero_Majordome_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to COMMAND.
+        /// </summary>
+        internal static string Hero_Majordome_Word {
+            get {
+                return ResourceManager.GetString("Hero_Majordome_Word", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to clarity..
+        /// </summary>
+        internal static string Hero_Privacy_Accent {
+            get {
+                return ResourceManager.GetString("Hero_Privacy_Accent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to A straightforward explanation of what we collect, why we use it, and the choices available to you..
+        /// </summary>
+        internal static string Hero_Privacy_Description {
+            get {
+                return ResourceManager.GetString("Hero_Privacy_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your information. Your choices..
+        /// </summary>
+        internal static string Hero_Privacy_Kicker {
+            get {
+                return ResourceManager.GetString("Hero_Privacy_Kicker", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Privacy with.
+        /// </summary>
+        internal static string Hero_Privacy_Title {
+            get {
+                return ResourceManager.GetString("Hero_Privacy_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to TRUST.
+        /// </summary>
+        internal static string Hero_Privacy_Word {
+            get {
+                return ResourceManager.GetString("Hero_Privacy_Word", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remarkable service..
+        /// </summary>
+        internal static string Hero_Staff_Accent {
+            get {
+                return ResourceManager.GetString("Hero_Staff_Accent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Knowledgeable, approachable, and ready to help you find the right vehicle with confidence..
+        /// </summary>
+        internal static string Hero_Staff_Description {
+            get {
+                return ResourceManager.GetString("Hero_Staff_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Meet the people behind the drive.
+        /// </summary>
+        internal static string Hero_Staff_Kicker {
+            get {
+                return ResourceManager.GetString("Hero_Staff_Kicker", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Real people..
+        /// </summary>
+        internal static string Hero_Staff_Title {
+            get {
+                return ResourceManager.GetString("Hero_Staff_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to TEAM.
+        /// </summary>
+        internal static string Hero_Staff_Word {
+            get {
+                return ResourceManager.GetString("Hero_Staff_Word", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to transparent..
+        /// </summary>
+        internal static string Hero_Terms_Accent {
+            get {
+                return ResourceManager.GetString("Hero_Terms_Accent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The rules and responsibilities that guide use of our website, services, and communications..
+        /// </summary>
+        internal static string Hero_Terms_Description {
+            get {
+                return ResourceManager.GetString("Hero_Terms_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Clear expectations. Confident use..
+        /// </summary>
+        internal static string Hero_Terms_Kicker {
+            get {
+                return ResourceManager.GetString("Hero_Terms_Kicker", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Terms made.
+        /// </summary>
+        internal static string Hero_Terms_Title {
+            get {
+                return ResourceManager.GetString("Hero_Terms_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to TERMS.
+        /// </summary>
+        internal static string Hero_Terms_Word {
+            get {
+                return ResourceManager.GetString("Hero_Terms_Word", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Feel the difference..
+        /// </summary>
+        internal static string Hero_TestDrive_Accent {
+            get {
+                return ResourceManager.GetString("Hero_TestDrive_Accent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Choose a date and time that works for you. We’ll have everything ready when you arrive..
+        /// </summary>
+        internal static string Hero_TestDrive_Description {
+            get {
+                return ResourceManager.GetString("Hero_TestDrive_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your next drive starts here.
+        /// </summary>
+        internal static string Hero_TestDrive_Kicker {
+            get {
+                return ResourceManager.GetString("Hero_TestDrive_Kicker", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Take the wheel..
+        /// </summary>
+        internal static string Hero_TestDrive_Title {
+            get {
+                return ResourceManager.GetString("Hero_TestDrive_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to DRIVE.
+        /// </summary>
+        internal static string Hero_TestDrive_Word {
+            get {
+                return ResourceManager.GetString("Hero_TestDrive_Word", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Great experiences..
+        /// </summary>
+        internal static string Hero_Testimonials_Accent {
+            get {
+                return ResourceManager.GetString("Hero_Testimonials_Accent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The best measure of our work is what customers remember after they drive away..
+        /// </summary>
+        internal static string Hero_Testimonials_Description {
+            get {
+                return ResourceManager.GetString("Hero_Testimonials_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Real stories from real customers.
+        /// </summary>
+        internal static string Hero_Testimonials_Kicker {
+            get {
+                return ResourceManager.GetString("Hero_Testimonials_Kicker", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Good cars..
+        /// </summary>
+        internal static string Hero_Testimonials_Title {
+            get {
+                return ResourceManager.GetString("Hero_Testimonials_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to LOVE.
+        /// </summary>
+        internal static string Hero_Testimonials_Word {
+            get {
+                return ResourceManager.GetString("Hero_Testimonials_Word", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to confidence..
+        /// </summary>
+        internal static string Hero_VinDecoder_Accent {
+            get {
+                return ResourceManager.GetString("Hero_VinDecoder_Accent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Turn a VIN into clear vehicle specifications with a fast, focused decoding workspace..
+        /// </summary>
+        internal static string Hero_VinDecoder_Description {
+            get {
+                return ResourceManager.GetString("Hero_VinDecoder_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Seventeen characters. One complete picture..
+        /// </summary>
+        internal static string Hero_VinDecoder_Kicker {
+            get {
+                return ResourceManager.GetString("Hero_VinDecoder_Kicker", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Decode with.
+        /// </summary>
+        internal static string Hero_VinDecoder_Title {
+            get {
+                return ResourceManager.GetString("Hero_VinDecoder_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to DECODE.
+        /// </summary>
+        internal static string Hero_VinDecoder_Word {
+            get {
+                return ResourceManager.GetString("Hero_VinDecoder_Word", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to that feels like you..
+        /// </summary>
+        internal static string Home_Accent {
+            get {
+                return ResourceManager.GetString("Home_Accent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Accredited locally. Connected statewide..
+        /// </summary>
+        internal static string Home_Accreditation {
+            get {
+                return ResourceManager.GetString("Home_Accreditation", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Available now.
+        /// </summary>
+        internal static string Home_AvailableNow {
+            get {
+                return ResourceManager.GetString("Home_AvailableNow", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to BBB Accredited Business.
+        /// </summary>
+        internal static string Home_BbbAlt {
+            get {
+                return ResourceManager.GetString("Home_BbbAlt", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to View [[CompanyName]]&apos;s BBB Accredited Business profile.
+        /// </summary>
+        internal static string Home_BbbProfile {
+            get {
+                return ResourceManager.GetString("Home_BbbProfile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to All inventory.
+        /// </summary>
+        internal static string Home_BrowseInventory {
+            get {
+                return ResourceManager.GetString("Home_BrowseInventory", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Call for price.
+        /// </summary>
+        internal static string Home_CallForPrice {
+            get {
+                return ResourceManager.GetString("Home_CallForPrice", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Call our team.
+        /// </summary>
+        internal static string Home_CallTeam {
+            get {
+                return ResourceManager.GetString("Home_CallTeam", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Call [[CompanyName]] for the price of {0}.
+        /// </summary>
+        internal static string Home_CallVehiclePrice {
+            get {
+                return ResourceManager.GetString("Home_CallVehiclePrice", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Car washes.
+        /// </summary>
+        internal static string Home_CarWash {
+            get {
+                return ResourceManager.GetString("Home_CarWash", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cyl.
+        /// </summary>
+        internal static string Home_Cylinders {
+            get {
+                return ResourceManager.GetString("Home_Cylinders", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Carefully selected vehicles, straightforward guidance, and a local team ready to help you drive with confidence..
+        /// </summary>
+        internal static string Home_Description {
+            get {
+                return ResourceManager.GetString("Home_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Car detailing.
+        /// </summary>
+        internal static string Home_Detailing {
+            get {
+                return ResourceManager.GetString("Home_Detailing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Engine.
+        /// </summary>
+        internal static string Home_Engine {
+            get {
+                return ResourceManager.GetString("Home_Engine", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Engine N/A.
+        /// </summary>
+        internal static string Home_EngineUnavailable {
+            get {
+                return ResourceManager.GetString("Home_EngineUnavailable", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Featured inventory and quick actions.
+        /// </summary>
+        internal static string Home_FeaturedAndActions {
+            get {
+                return ResourceManager.GetString("Home_FeaturedAndActions", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Financing.
+        /// </summary>
+        internal static string Home_Financing {
+            get {
+                return ResourceManager.GetString("Home_Financing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Fresh arrivals.
+        /// </summary>
+        internal static string Home_FreshArrivals {
+            get {
+                return ResourceManager.GetString("Home_FreshArrivals", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Local, personal service.
+        /// </summary>
+        internal static string Home_LocalService {
+            get {
+                return ResourceManager.GetString("Home_LocalService", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Miles.
+        /// </summary>
+        internal static string Home_Miles {
+            get {
+                return ResourceManager.GetString("Home_Miles", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Newest vehicles.
+        /// </summary>
+        internal static string Home_NewestVehicles {
+            get {
+                return ResourceManager.GetString("Home_NewestVehicles", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Next service.
+        /// </summary>
+        internal static string Home_NextService {
+            get {
+                return ResourceManager.GetString("Home_NextService", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Next vehicle.
+        /// </summary>
+        internal static string Home_NextVehicle {
+            get {
+                return ResourceManager.GetString("Home_NextVehicle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to N/A.
+        /// </summary>
+        internal static string Home_NotAvailable {
+            get {
+                return ResourceManager.GetString("Home_NotAvailable", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ohio Independent Automobile Dealers Association member.
+        /// </summary>
+        internal static string Home_OiadaAlt {
+            get {
+                return ResourceManager.GetString("Home_OiadaAlt", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to View [[CompanyName]]&apos;s OIADA member profile.
+        /// </summary>
+        internal static string Home_OiadaProfile {
+            get {
+                return ResourceManager.GetString("Home_OiadaProfile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Oil changes.
+        /// </summary>
+        internal static string Home_OilChange {
+            get {
+                return ResourceManager.GetString("Home_OilChange", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Pause.
+        /// </summary>
+        internal static string Home_Pause {
+            get {
+                return ResourceManager.GetString("Home_Pause", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Pause featured inventory.
+        /// </summary>
+        internal static string Home_PauseInventory {
+            get {
+                return ResourceManager.GetString("Home_PauseInventory", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Pause services slideshow.
+        /// </summary>
+        internal static string Home_PauseServices {
+            get {
+                return ResourceManager.GetString("Home_PauseServices", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Play.
+        /// </summary>
+        internal static string Home_Play {
+            get {
+                return ResourceManager.GetString("Home_Play", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Play featured inventory.
+        /// </summary>
+        internal static string Home_PlayInventory {
+            get {
+                return ResourceManager.GetString("Home_PlayInventory", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Play services slideshow.
+        /// </summary>
+        internal static string Home_PlayServices {
+            get {
+                return ResourceManager.GetString("Home_PlayServices", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Previous service.
+        /// </summary>
+        internal static string Home_PreviousService {
+            get {
+                return ResourceManager.GetString("Home_PreviousService", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Previous vehicle.
+        /// </summary>
+        internal static string Home_PreviousVehicle {
+            get {
+                return ResourceManager.GetString("Home_PreviousVehicle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Pricing.
+        /// </summary>
+        internal static string Home_Pricing {
+            get {
+                return ResourceManager.GetString("Home_Pricing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Questions?.
+        /// </summary>
+        internal static string Home_Questions {
+            get {
+                return ResourceManager.GetString("Home_Questions", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Quick actions.
+        /// </summary>
+        internal static string Home_QuickActions {
+            get {
+                return ResourceManager.GetString("Home_QuickActions", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Loading customer reviews….
+        /// </summary>
+        internal static string Home_ReviewsLoading {
+            get {
+                return ResourceManager.GetString("Home_ReviewsLoading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No 4–5 star reviews in the loaded results. Use Read More below or view all reviews on Hibu..
+        /// </summary>
+        internal static string Home_ReviewsNoMatches {
+            get {
+                return ResourceManager.GetString("Home_ReviewsNoMatches", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Read our reviews on Hibu.
+        /// </summary>
+        internal static string Home_ReviewsReadOnHibu {
+            get {
+                return ResourceManager.GetString("Home_ReviewsReadOnHibu", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Reviews could not load here..
+        /// </summary>
+        internal static string Home_ReviewsUnavailable {
+            get {
+                return ResourceManager.GetString("Home_ReviewsUnavailable", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to View reviews on [[CompanyName]].
+        /// </summary>
+        internal static string Home_ReviewsViewAll {
+            get {
+                return ResourceManager.GetString("Home_ReviewsViewAll", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to [[CompanyName]] CAR CARE.
+        /// </summary>
+        internal static string Home_Services {
+            get {
+                return ResourceManager.GetString("Home_Services", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to AC Service.
+        /// </summary>
+        internal static string Home_Service_ac_service {
+            get {
+                return ResourceManager.GetString("Home_Service_ac_service", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Body Shop.
+        /// </summary>
+        internal static string Home_Service_body_shop {
+            get {
+                return ResourceManager.GetString("Home_Service_body_shop", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Brake Service.
+        /// </summary>
+        internal static string Home_Service_brake_service {
+            get {
+                return ResourceManager.GetString("Home_Service_brake_service", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Computer Diagnostic.
+        /// </summary>
+        internal static string Home_Service_computer_diagnostic {
+            get {
+                return ResourceManager.GetString("Home_Service_computer_diagnostic", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cooling System.
+        /// </summary>
+        internal static string Home_Service_cooling_system {
+            get {
+                return ResourceManager.GetString("Home_Service_cooling_system", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Car Wash &amp; Detailing.
+        /// </summary>
+        internal static string Home_Service_detailing {
+            get {
+                return ResourceManager.GetString("Home_Service_detailing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Electrical Repair.
+        /// </summary>
+        internal static string Home_Service_electrical_repair {
+            get {
+                return ResourceManager.GetString("Home_Service_electrical_repair", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Engine Repair.
+        /// </summary>
+        internal static string Home_Service_engine_repair {
+            get {
+                return ResourceManager.GetString("Home_Service_engine_repair", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Exhaust System.
+        /// </summary>
+        internal static string Home_Service_exhaust_system {
+            get {
+                return ResourceManager.GetString("Home_Service_exhaust_system", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Heating System.
+        /// </summary>
+        internal static string Home_Service_heating_system {
+            get {
+                return ResourceManager.GetString("Home_Service_heating_system", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Hybrid Repair.
+        /// </summary>
+        internal static string Home_Service_hybrid_repair {
+            get {
+                return ResourceManager.GetString("Home_Service_hybrid_repair", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Oil Service With Multi-Point Inspection.
+        /// </summary>
+        internal static string Home_Service_oil_change {
+            get {
+                return ResourceManager.GetString("Home_Service_oil_change", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Suspension Service.
+        /// </summary>
+        internal static string Home_Service_suspension_service {
+            get {
+                return ResourceManager.GetString("Home_Service_suspension_service", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Tire Care.
+        /// </summary>
+        internal static string Home_Service_tire_change {
+            get {
+                return ResourceManager.GetString("Home_Service_tire_change", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Transmission Service.
+        /// </summary>
+        internal static string Home_Service_transmission_service {
+            get {
+                return ResourceManager.GetString("Home_Service_transmission_service", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Vehicle Inspections.
+        /// </summary>
+        internal static string Home_Service_vehicle_inspections {
+            get {
+                return ResourceManager.GetString("Home_Service_vehicle_inspections", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your car, your style, your way.
+        /// </summary>
+        internal static string Home_Slogan {
+            get {
+                return ResourceManager.GetString("Home_Slogan", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Straightforward buying.
+        /// </summary>
+        internal static string Home_StraightforwardBuying {
+            get {
+                return ResourceManager.GetString("Home_StraightforwardBuying", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Tire changes.
+        /// </summary>
+        internal static string Home_TireChange {
+            get {
+                return ResourceManager.GetString("Home_TireChange", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Find the drive.
+        /// </summary>
+        internal static string Home_Title {
+            get {
+                return ResourceManager.GetString("Home_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Top rated in Cincinnati.
+        /// </summary>
+        internal static string Home_TopRated {
+            get {
+                return ResourceManager.GetString("Home_TopRated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Trans.
+        /// </summary>
+        internal static string Home_Transmission {
+            get {
+                return ResourceManager.GetString("Home_Transmission", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Trust you can verify.
+        /// </summary>
+        internal static string Home_Trust {
+            get {
+                return ResourceManager.GetString("Home_Trust", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Explore car care services.
+        /// </summary>
+        internal static string Home_ViewServices {
+            get {
+                return ResourceManager.GetString("Home_ViewServices", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to View {0} details.
+        /// </summary>
+        internal static string Home_ViewVehicleDetails {
+            get {
+                return ResourceManager.GetString("Home_ViewVehicleDetails", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Why choose [[CompanyName]].
+        /// </summary>
+        internal static string Home_WhyChoose {
+            get {
+                return ResourceManager.GetString("Home_WhyChoose", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your car.
+        /// </summary>
+        internal static string Home_YourCar {
+            get {
+                return ResourceManager.GetString("Home_YourCar", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your style.
+        /// </summary>
+        internal static string Home_YourStyle {
+            get {
+                return ResourceManager.GetString("Home_YourStyle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your way.
+        /// </summary>
+        internal static string Home_YourWay {
+            get {
+                return ResourceManager.GetString("Home_YourWay", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to About us.
         /// </summary>
         internal static string Nav_AboutUs {
@@ -338,7 +1940,7 @@ namespace Resources {
                 return ResourceManager.GetString("Nav_AboutUs", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Admin.
         /// </summary>
@@ -347,7 +1949,7 @@ namespace Resources {
                 return ResourceManager.GetString("Nav_Admin", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to All.
         /// </summary>
@@ -356,7 +1958,7 @@ namespace Resources {
                 return ResourceManager.GetString("Nav_All", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Blog.
         /// </summary>
@@ -365,7 +1967,16 @@ namespace Resources {
                 return ResourceManager.GetString("Nav_Blog", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Get Pre-qualified with Capital One.
+        /// </summary>
+        internal static string Nav_CapitalOnePrequalified {
+            get {
+                return ResourceManager.GetString("Nav_CapitalOnePrequalified", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Contact.
         /// </summary>
@@ -374,7 +1985,7 @@ namespace Resources {
                 return ResourceManager.GetString("Nav_Contact", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Contact us.
         /// </summary>
@@ -383,7 +1994,7 @@ namespace Resources {
                 return ResourceManager.GetString("Nav_ContactUs", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Convertibles.
         /// </summary>
@@ -392,7 +2003,7 @@ namespace Resources {
                 return ResourceManager.GetString("Nav_Convertibles", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Coupes.
         /// </summary>
@@ -401,7 +2012,16 @@ namespace Resources {
                 return ResourceManager.GetString("Nav_Coupes", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Customer reviews.
+        /// </summary>
+        internal static string Nav_CustomerReviews {
+            get {
+                return ResourceManager.GetString("Nav_CustomerReviews", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Credit application.
         /// </summary>
@@ -410,7 +2030,7 @@ namespace Resources {
                 return ResourceManager.GetString("Nav_GetPrequalified", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Hatchbacks.
         /// </summary>
@@ -419,7 +2039,7 @@ namespace Resources {
                 return ResourceManager.GetString("Nav_Hatchbacks", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Inventory.
         /// </summary>
@@ -428,7 +2048,7 @@ namespace Resources {
                 return ResourceManager.GetString("Nav_Inventory", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Login.
         /// </summary>
@@ -437,7 +2057,7 @@ namespace Resources {
                 return ResourceManager.GetString("Nav_Login", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Our staff.
         /// </summary>
@@ -446,7 +2066,7 @@ namespace Resources {
                 return ResourceManager.GetString("Nav_OurStaff", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Schedule test drive.
         /// </summary>
@@ -455,7 +2075,7 @@ namespace Resources {
                 return ResourceManager.GetString("Nav_ScheduleTestDrive", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Search inventory.
         /// </summary>
@@ -464,7 +2084,7 @@ namespace Resources {
                 return ResourceManager.GetString("Nav_SearchInventory", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Sedans.
         /// </summary>
@@ -473,7 +2093,7 @@ namespace Resources {
                 return ResourceManager.GetString("Nav_Sedans", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to SUVs.
         /// </summary>
@@ -482,7 +2102,7 @@ namespace Resources {
                 return ResourceManager.GetString("Nav_SUVs", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Testimonials.
         /// </summary>
@@ -491,7 +2111,7 @@ namespace Resources {
                 return ResourceManager.GetString("Nav_Testimonials", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Trucks.
         /// </summary>
@@ -500,7 +2120,7 @@ namespace Resources {
                 return ResourceManager.GetString("Nav_Trucks", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Vans.
         /// </summary>
@@ -509,13 +2129,193 @@ namespace Resources {
                 return ResourceManager.GetString("Nav_Vans", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Wagons.
         /// </summary>
         internal static string Nav_Wagons {
             get {
                 return ResourceManager.GetString("Nav_Wagons", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Created: {0}.
+        /// </summary>
+        internal static string Reviews_CreatedDate {
+            get {
+                return ResourceManager.GetString("Reviews_CreatedDate", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Read customer reviews from Google and Hibu..
+        /// </summary>
+        internal static string Reviews_Description {
+            get {
+                return ResourceManager.GetString("Reviews_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No customer reviews are available yet..
+        /// </summary>
+        internal static string Reviews_Empty {
+            get {
+                return ResourceManager.GetString("Reviews_Empty", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Load more reviews.
+        /// </summary>
+        internal static string Reviews_LoadMore {
+            get {
+                return ResourceManager.GetString("Reviews_LoadMore", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} out of 5 stars.
+        /// </summary>
+        internal static string Reviews_Rating {
+            get {
+                return ResourceManager.GetString("Reviews_Rating", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Try again.
+        /// </summary>
+        internal static string Reviews_Retry {
+            get {
+                return ResourceManager.GetString("Reviews_Retry", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Write a Google review.
+        /// </summary>
+        internal static string Reviews_WriteGoogleReview {
+            get {
+                return ResourceManager.GetString("Reviews_WriteGoogleReview", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Get started with Capital One.
+        /// </summary>
+        internal static string Section_CapitalOne {
+            get {
+                return ResourceManager.GetString("Section_CapitalOne", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Shared by the [[CompanyName]] community.
+        /// </summary>
+        internal static string Section_Community {
+            get {
+                return ResourceManager.GetString("Section_Community", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to [[FullAddress]].
+        /// </summary>
+        internal static string Section_ContactAddress {
+            get {
+                return ResourceManager.GetString("Section_ContactAddress", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Customer stories.
+        /// </summary>
+        internal static string Section_CustomerStories {
+            get {
+                return ResourceManager.GetString("Section_CustomerStories", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to [[CompanyName]] · [[City]], [[State]].
+        /// </summary>
+        internal static string Section_DealershipLocation {
+            get {
+                return ResourceManager.GetString("Section_DealershipLocation", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to From the journal.
+        /// </summary>
+        internal static string Section_Journal {
+            get {
+                return ResourceManager.GetString("Section_Journal", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Our story.
+        /// </summary>
+        internal static string Section_OurStory {
+            get {
+                return ResourceManager.GetString("Section_OurStory", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Reserve your drive.
+        /// </summary>
+        internal static string Section_ReserveDrive {
+            get {
+                return ResourceManager.GetString("Section_ReserveDrive", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Stories: {0}.
+        /// </summary>
+        internal static string Section_StoryCount {
+            get {
+                return ResourceManager.GetString("Section_StoryCount", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Faces you can trust.
+        /// </summary>
+        internal static string Section_TrustedFaces {
+            get {
+                return ResourceManager.GetString("Section_TrustedFaces", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Vehicle identity workspace.
+        /// </summary>
+        internal static string Section_VehicleIdentity {
+            get {
+                return ResourceManager.GetString("Section_VehicleIdentity", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to AutoDealer.dev VIN intelligence.
+        /// </summary>
+        internal static string Section_VinIntelligence {
+            get {
+                return ResourceManager.GetString("Section_VinIntelligence", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Visit or message us.
+        /// </summary>
+        internal static string Section_VisitMessage {
+            get {
+                return ResourceManager.GetString("Section_VisitMessage", resourceCulture);
             }
         }
         

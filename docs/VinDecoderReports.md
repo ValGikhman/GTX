@@ -36,11 +36,34 @@ other provider and the row Id. Saves and provider deletions merge the latest row
 inside a transaction to prevent concurrent updates from losing another report.
 
 DataOne and NeoVIN share the same report stylesheet, headers, disclosure panels
-and tables. NeoVIN groups repeated category prefixes under a single parent, such
+and tables. NeoVIN omits the redundant Basic summary panel and Created/Updated
+metadata fields from the formatted report; the original payload remains intact.
+NeoVIN groups repeated category prefixes under a single parent, such
 as Features → Safety → Standard, and omits generated field counters. Repeated
 feature types and equipment item/attribute pairs form their own subgroups within
-each category; locations such as front and rear, values and extra metadata remain
-visible. All provider rows and the complete raw response remain available.
+each category. When every primary field repeats its group heading, such as
+Steering Wheel Function, the group shows a value list instead of a table. Extra
+metadata stays expandable under its own value. Distinct labels such as front
+and rear retain their field tables. Slash-separated field prefixes also form
+nested groups throughout the report: warranty fields such as `Total / Duration`
+and `Total / Distance` appear under Total with local Duration and Distance labels.
+Array entries such as Item 1
+and Item 2 stay in separate groups, preserving their values and record context.
+Records with Code and Name use Name as the group heading, keeping Code in the
+table and omitting the repeated Name row. Equal names remain separate records.
+Records containing a nonblank Category and Description are grouped by their
+Category value within each source collection. Category headings form one
+alphabetical stack within their section. Their descriptions appear as a list
+instead of numbered Item tables; descriptions with extra metadata expand
+to show those fields. Duplicates and source order within each category remain
+intact, and incomplete records keep the normal field tables.
+Every NeoVIN table shows two specification/value pairs per row (four
+columns), with an empty final pair when needed and no repeated column headers.
+Numeric values align right and use thousands separators without rounding or
+removing decimal precision. Years,
+identifiers and leading zeros keep their original text; values containing units
+remain verbatim. Narrow screens can scroll each table horizontally. All provider
+rows and the complete raw response remain available.
 GTX formats both fresh and saved raw payloads through the selected,
 allowlisted formatter. Saved HTML is a snapshot rather than the source used to
 reopen reports, so styling updates apply without a new paid decode. NeoVIN keeps
