@@ -518,19 +518,23 @@
             return /^\d+(?:\.\d+)?$/.test(numeric) ? Number(numeric) : Infinity;
         }
 
-        function appendMarketListings($parent, listings, title, sortByDistance) {
+        function appendMarketListings($parent, listings, title, sortByDistance, preserveOrder) {
             var ordered = listings.map(function (listing, index) {
                 return { listing: listing, index: index, sortValue: marketSortValue(sortByDistance ? listing.Distance : listing.Ask) };
             }).sort(function (a, b) {
-                return (a.sortValue - b.sortValue) || (a.index - b.index);
+                return preserveOrder ? a.index - b.index : (a.sortValue - b.sortValue) || (a.index - b.index);
             });
+            var showDays = listings.some(function (listing) { return listing.DaysListed != null && String(listing.DaysListed).trim() !== ""; });
+            var columns = ["Vehicle", "Ask", "Miles", "Distance"];
+            if (showDays) columns.push("Days listed");
             var $container = $("<div>", { "class": "bot-market-listings-wrap" }).appendTo($parent);
+            if (preserveOrder) $container.addClass("is-appraisal").attr("tabindex", 0).attr("role", "region").attr("aria-label", title + " comparables");
             var $table = $("<table>", { "class": "bot-market-listings", "aria-label": title })
                 .appendTo($container);
             var $head = $("<tr>").appendTo($("<thead>").appendTo($table));
-            ["Vehicle", "Ask", "Miles", "Distance"].forEach(function (label) {
+            columns.forEach(function (label) {
                 var $column = $("<th>", { scope: "col", text: label }).appendTo($head);
-                if (label === (sortByDistance ? "Distance" : "Ask")) $column.attr("aria-sort", "ascending");
+                if (!preserveOrder && label === (sortByDistance ? "Distance" : "Ask")) $column.attr("aria-sort", "ascending");
             });
             var $body = $("<tbody>").appendTo($table);
             ordered.forEach(function (item) {
@@ -545,17 +549,20 @@
                     $("<span>", { text: name }).appendTo($vehicle);
                 }
                 if (title) $("<small>", { text: title[2] }).appendTo($vehicle);
+                if (preserveOrder && /^[A-HJ-NPR-Z0-9]{17}$/i.test(listing.Vin || ""))
+                    $("<small>", { "class": "bot-market-listing-vin", text: listing.Vin }).appendTo($vehicle);
                 $("<small>", { text: listing.Location }).appendTo($vehicle);
                 var statuses = listing.Scope ? listing.Scope.split(" · ") : [];
                 if (listing.IsSearchedVin) statuses.unshift("Searched VIN");
                 $("<td>", { text: listing.Ask || "—" }).appendTo($row);
                 $("<td>", { text: listing.Odometer || "—" }).appendTo($row);
                 $("<td>", { text: listing.Distance ? listing.Distance + " mi" : "—" }).appendTo($row);
+                if (showDays) $("<td>", { text: listing.DaysListed == null || String(listing.DaysListed).trim() === "" ? "—" : listing.DaysListed }).appendTo($row);
                 if (statuses.length) {
                     $row.addClass("has-listing-status");
                     var $statusRow = $("<tr>", { "class": "bot-market-listing-status-row" }).appendTo($body);
                     var $statuses = $("<div>", { "class": "bot-market-listing-statuses" })
-                        .appendTo($("<td>", { colspan: 4 }).appendTo($statusRow));
+                        .appendTo($("<td>", { colspan: columns.length }).appendTo($statusRow));
                     statuses.forEach(function (status) {
                         var outsideScope = /^(Outside radius|Over mileage|Other package)$/.test(status);
                         var statusClass = status === "Within scope"
@@ -582,12 +589,6 @@
             $("<h3>", { "class": "bot-market-title", text: reply.Title }).appendTo($header);
             if (reply.Context) $("<p>", { "class": "bot-market-context", text: reply.Context }).appendTo($header);
 
-            if (reply.ListingGroups && reply.ListingGroups.length) {
-                appendMarketTabs($card, reply.ListingGroups);
-            } else if (reply.Listings && reply.Listings.length) {
-                appendMarketListings($card, reply.Listings, reply.Title || "Retail listings", reply.Source === "CG");
-            }
-
             if (reply.Metrics.length) {
                 var $metrics = $("<dl>", { "class": "bot-market-metrics" }).appendTo($card);
                 reply.Metrics.forEach(function (metric) {
@@ -595,6 +596,12 @@
                     $("<dt>", { "class": "bot-market-label", text: metric.Label }).appendTo($metric);
                     $("<dd>", { "class": "bot-market-value", text: metric.Value }).appendTo($metric);
                 });
+            }
+
+            if (reply.ListingGroups && reply.ListingGroups.length) {
+                appendMarketTabs($card, reply.ListingGroups);
+            } else if (reply.Listings && reply.Listings.length) {
+                appendMarketListings($card, reply.Listings, reply.Title || "Retail listings", reply.Source === "CG", reply.PreserveListingOrder === true);
             }
 
             reply.Sections.forEach(function (section) {
@@ -611,7 +618,8 @@
                     .toggleClass("is-multiline", section.Source === "CG").appendTo($section);
             });
 
-            if (reply.Note) $("<p>", { "class": "bot-market-note", text: reply.Note }).appendTo($card);
+            if (reply.Note) $("<p>", { "class": "bot-market-note", text: reply.Note })
+                .toggleClass("is-multiline", reply.PreserveListingOrder === true).appendTo($card);
             appendMarketView($card, reply.ViewUrl);
         }
 
@@ -920,6 +928,21 @@
             openNavigationDestination(destination);
         }
 
+        function updateMarketProgress($thinking, progress) {
+            var appraisal = progress === "market-appraisal";
+            var label = appraisal ? "MarketCheck AI" : progress === true ? "Market" : progress === "dataone" ? "DataOne" : progress === "cargurus" ? "CarGurus" : null;
+            if (!label) return false;
+            var $copy = $thinking.find(".gtx-chat-copy");
+            var $label = $copy.find(".gtx-chat-market-word");
+            if ($label.length && $label.text() === label) return true;
+            $copy.contents().filter(function () { return this.nodeType === 3; }).remove();
+            $label.remove();
+            $copy.prepend(document.createTextNode(appraisal ? "Checking " : "Checking the "),
+                $("<span>", { "class": "gtx-chat-market-word", text: label }),
+                document.createTextNode(appraisal ? "…" : " for you…"));
+            return true;
+        }
+
         function sendMessage(text) {
             text = $.trim(text || "");
             if (!text || sending) return;
@@ -966,21 +989,10 @@
                     timeout: 3000
                 }).done(function (progress) {
                     if (finished) return;
-                    if (progress === true || progress === "cargurus" || progress === "dataone") {
-                        var label = progress === true ? "Market" : (progress === "dataone" ? "DataOne" : "CarGurus");
-                        var $copy = $thinking.find(".gtx-chat-copy");
-                        var $label = $copy.find(".gtx-chat-market-word");
-                        if ($label.length) {
-                            if ($label.text() !== label) $label.text(label);
-                        } else {
-                            $copy.contents().filter(function () { return this.nodeType === 3; }).remove();
-                            $copy.prepend(document.createTextNode("Checking the "),
-                                $("<span>", { "class": "gtx-chat-market-word", text: label }),
-                                document.createTextNode(" for you…"));
-                        }
-                        if (progress !== "dataone") return;
-                    }
+                    if (updateMarketProgress($thinking, progress) && progress !== true && progress !== "dataone") return;
                     progressTimer = window.setTimeout(checkMarketProgress, 650);
+                }).fail(function () {
+                    if (!finished) progressTimer = window.setTimeout(checkMarketProgress, 650);
                 });
             }
 

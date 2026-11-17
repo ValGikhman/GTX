@@ -24,7 +24,7 @@ namespace GTX.Controllers
     {
         private const string RequestTokenSessionKey = "GTX:ChatRequestToken";
         private const string PromptCacheKey = "gtx-dealership-chat-v1";
-        private const string DefaultChatModel = "gpt-4.1-mini";
+        private const string DefaultChatModel = "gpt-5-mini";
         private const int MaxToolRounds = 2;
         private const string CarGurusUnavailable = "I couldn't reach CarGurus for this search. Please try again later.";
         private const string CarGurusNoListings = "CarGurus found no listings matching this search.";
@@ -214,6 +214,14 @@ namespace GTX.Controllers
                         Reply = marketReply.ToPlainText(),
                         MarketReply = marketReply
                     });
+                }
+
+                if (MarketAppraisalMention.IsMatch(message) && !AuctionListingRequest.IsMatch(message)
+                    && SiteAccess.Can(currentRole, MajordomeItem.Appraisal))
+                {
+                    Response.Cache.SetNoStore();
+                    var marketReply = await GetMarketAppraisalReplyAsync(message, progressId, appraisal);
+                    return Json(new ChatBotResponse { Success = true, Reply = marketReply.ToPlainText(), MarketReply = marketReply, PrivateReply = true });
                 }
 
                 var apiKey = ServiceConfiguration.Get("OpenAI:ApiKey");
@@ -469,14 +477,26 @@ namespace GTX.Controllers
                 var appraisalCall = appraisal == null ? null : functionCalls.FirstOrDefault(call =>
                     (string)call["name"] == ChatAuctionAppraisal.ToolName || (string)call["name"] == ChatAuctionAppraisal.MarketPriceToolName
                     || (string)call["name"] == ChatAuctionAppraisal.MarketInventoryToolName
-                    || (string)call["name"] == ChatAuctionAppraisal.MarketListingsToolName);
+                    || (string)call["name"] == ChatAuctionAppraisal.MarketListingsToolName
+                    || (string)call["name"] == ChatAuctionAppraisal.MarketAppraisalToolName);
                 if (appraisalCall != null)
                 {
                     var toolName = (string)appraisalCall["name"];
                     var arguments = (string)appraisalCall["arguments"];
                     if (toolName == ChatAuctionAppraisal.MarketListingsToolName)
                         arguments = ChatAuctionAppraisal.ApplyMarketMileage(arguments, message);
-                    ChatProgressController.StartMarket(progressId);
+                    if (toolName == ChatAuctionAppraisal.MarketAppraisalToolName)
+                    {
+                        var validated = NormalizeMarketAppraisalArguments(JObject.Parse(arguments ?? "{}"), message);
+                        if (validated == null)
+                        {
+                            var missing = MarketAppraisalError("Oy vey, send a VIN or year, make, and model my way,\nAdd the odometer miles for the price today.\nA ZIP and search radius can guide the view,\nThen up to ten comparables can come back to you.");
+                            return new AssistantResult { Reply = missing.ToPlainText(), MarketReply = missing, PrivateReply = true };
+                        }
+                        arguments = validated.ToString(Formatting.None);
+                    }
+                    if (toolName == ChatAuctionAppraisal.MarketAppraisalToolName) ChatProgressController.StartMarketAppraisal(progressId);
+                    else ChatProgressController.StartMarket(progressId);
                     var marketReply = await GetMarketReplyAsync(appraisal, arguments, toolName);
                     return new AssistantResult
                     {
@@ -511,13 +531,9 @@ namespace GTX.Controllers
 
         private async Task<string> GetGreetingAsync(string apiKey)
         {
-            var model = ServiceConfiguration.Get("OpenAI:ChatModel");
-            if (string.IsNullOrWhiteSpace(model)) model = DefaultChatModel;
-            else model = model.Trim();
-
             var payload = new JObject
             {
-                ["model"] = model,
+                ["model"] = DefaultChatModel,
                 ["instructions"] = GreetingInstructions,
                 ["input"] = new JArray(new JObject
                 {
@@ -543,15 +559,11 @@ namespace GTX.Controllers
             bool includeTools,
             bool appraisal)
         {
-            var model = ServiceConfiguration.Get("OpenAI:ChatModel");
-            if (string.IsNullOrWhiteSpace(model)) model = DefaultChatModel;
-            else model = model.Trim();
-
             var payload = new JObject
             {
-                ["model"] = model,
+                ["model"] = DefaultChatModel,
                 ["instructions"] = AssistantInstructions + (appraisal
-                    ? "\nFor signed-in dealership staff, use list_market_dealers when they say 'check market', 'list market', 'look at market', 'see in market', ask to list dealers carrying a particular vehicle, or ask for current or recent MarketCheck dealer listings. These phrases refer to MarketCheck, not the dealership inventory. Accept a VIN or extract the year, make, model, and trim from a vehicle name. For 'List dealers with a 2017 Acura MDX Advance Package around 100,000 miles', pass year=2017, make=Acura, model=MDX, trim=Advance Package, miles=100000. Ask for the vehicle if missing. Use count_market_inventory for an explicit count of similar vehicles by VIN. Pass odometer miles and radius separately. Use get_market_price for a suggested price or plain 'Appraise VIN' and appraise_vehicle for explicit auction or bid analysis. Call exactly one MarketCheck tool. Leave ZIP, radius, and mileage out when omitted so the server uses its configured defaults."
+                    ? "\nFor signed-in dealership staff, use list_market_dealers when they say 'check market', 'list market', 'look at market', 'see in market', ask to list dealers carrying a particular vehicle, or ask for current or recent MarketCheck dealer listings. These phrases refer to MarketCheck, not the dealership inventory. Accept a VIN or extract the year, make, model, and trim from a vehicle name. For 'List dealers with a 2017 Acura MDX Advance Package around 100,000 miles', pass year=2017, make=Acura, model=MDX, trim=Advance Package, miles=100000. Ask for the vehicle if missing. Use count_market_inventory for an explicit count of similar vehicles by VIN. Pass odometer miles and radius separately. Use appraise_market_vehicle for a named-vehicle appraisal or a request for appraisal with up to 10 comparables; use only an explicitly supplied VIN or year, make, model and optional trim, never an invented VIN. Use get_market_price for a suggested price or plain 'Appraise VIN' and appraise_vehicle for explicit auction or bid analysis. Call exactly one MarketCheck tool. Leave ZIP, radius, and mileage out when omitted so the server uses its configured defaults."
                     : ""),
                 ["input"] = input,
                 ["max_output_tokens"] = BoundedAppSetting("OpenAI:ChatMaxOutputTokens", 250, 100, 1000),
@@ -570,6 +582,7 @@ namespace GTX.Controllers
                     tools.Add(ChatAuctionAppraisal.Tool(ChatAuctionAppraisal.ToolName));
                     tools.Add(ChatAuctionAppraisal.Tool(ChatAuctionAppraisal.MarketInventoryToolName));
                     tools.Add(ChatAuctionAppraisal.Tool(ChatAuctionAppraisal.MarketListingsToolName));
+                    tools.Add(ChatAuctionAppraisal.Tool(ChatAuctionAppraisal.MarketAppraisalToolName));
                 }
                 payload["parallel_tool_calls"] = true;
             }
@@ -1047,6 +1060,13 @@ namespace GTX.Controllers
 
         private async Task<JObject> PostOpenAiAsync(string apiKey, JObject payload)
         {
+            // Rabinovich uses the requested model consistently across chat, greetings
+            // and filter extraction. Its reasoning shares the API output-token budget.
+            payload["model"] = DefaultChatModel;
+            payload["reasoning"] = new JObject { ["effort"] = "low" };
+            payload["max_output_tokens"] = Math.Max(1500, (int?)payload["max_output_tokens"] ?? 1500);
+            payload.Remove("temperature");
+            payload.Remove("top_p");
             var responsesUrl = ServiceConfiguration.Get("OpenAI:ResponsesUrl");
             if (string.IsNullOrWhiteSpace(responsesUrl))
             {

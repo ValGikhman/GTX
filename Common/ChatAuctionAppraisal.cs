@@ -19,6 +19,7 @@ namespace GTX.Common
         public const string MarketPriceToolName = "get_market_price";
         public const string MarketInventoryToolName = "count_market_inventory";
         public const string MarketListingsToolName = "list_market_dealers";
+        public const string MarketAppraisalToolName = "appraise_market_vehicle";
         private static readonly CultureInfo Dollars = CultureInfo.GetCultureInfo("en-US");
         private static readonly Regex AppraiseCommand = new Regex(
             @"\A(?:appraise|apprice)\s+(?:vin\s+)?`?(?<vin>[A-HJ-NPR-Z0-9]{17})`?(?:\s+with\s+(?<miles>[0-9]{1,3}(?:[, \u00a0\u202f][0-9]{3})+|[0-9]+)\s+miles)?(?<auction>\s+for\s+auction)?[.!?]?\z",
@@ -57,6 +58,7 @@ namespace GTX.Common
             var auction = name == ToolName;
             var inventory = name == MarketInventoryToolName;
             var marketList = name == MarketListingsToolName;
+            var marketAppraisal = name == MarketAppraisalToolName;
             var parameters = JObject.Parse(@"{
                     'type':'object',
                     'properties':{
@@ -76,7 +78,7 @@ namespace GTX.Common
                 properties["resaleUsd"] = new JObject { ["type"] = "number", ["description"] = "Optional resale assumption in US dollars." };
                 properties["hammerBidUsd"] = new JObject { ["type"] = "number", ["description"] = "Optional current hammer bid in US dollars." };
             }
-            if (marketList)
+            if (marketList || marketAppraisal)
             {
                 parameters.Remove("required");
                 properties["year"] = new JObject { ["type"] = "integer", ["minimum"] = 1886 };
@@ -84,12 +86,17 @@ namespace GTX.Common
                 properties["model"] = new JObject { ["type"] = "string" };
                 properties["trim"] = new JObject { ["type"] = "string" };
             }
+            if (marketAppraisal)
+                properties["comparableCount"] = new JObject { ["type"] = "integer", ["minimum"] = 1, ["maximum"] = 10,
+                    ["description"] = "Number of comparable active listings requested, up to 10; default 10." };
             return new JObject
             {
                 ["type"] = "function",
                 ["name"] = name,
                 ["strict"] = false,
-                ["description"] = marketList
+                ["description"] = marketAppraisal
+                    ? "Appraise a VIN or a vehicle year, make, model and optional trim using MarketCheck MCP, with up to 10 active comparables. Pass the subject odometer miles separately from the geographic radius. A named vehicle uses an identified reference VIN, not the user's actual vehicle."
+                    : marketList
                     ? "List current and recent MarketCheck dealers for a VIN or a vehicle year, make, model, and optional trim. Pass only the mileage, ZIP, and radius that the user supplied."
                     : inventory
                     ? "Decode a VIN and count matching active used-car listings. Leave mileage, ZIP, and radius out when the user omits them."
@@ -161,11 +168,12 @@ namespace GTX.Common
             var auction = toolName == ToolName;
             var inventory = toolName == MarketInventoryToolName;
             var marketList = toolName == MarketListingsToolName;
+            var marketAppraisal = toolName == MarketAppraisalToolName;
             try
             {
                 var input = JObject.Parse(arguments ?? "{}");
                 ApplyProfileDefaults(input, SiteProfileStore.Current);
-                var path = marketList ? "market-listings" : inventory ? "market-inventory" : auction ? "auction-appraisal" : "market-price";
+                var path = marketAppraisal ? "market-appraisal" : marketList ? "market-listings" : inventory ? "market-inventory" : auction ? "auction-appraisal" : "market-price";
                 var url = new Uri(endpoint, path);
                 using (var request = new HttpRequestMessage(HttpMethod.Post, url))
                 {
@@ -175,21 +183,31 @@ namespace GTX.Common
                     request.Content = new StringContent(input.ToString(Formatting.None), Encoding.UTF8, "application/json");
                     using (var response = await Http.SendAsync(request))
                     {
+                        if (marketAppraisal && response.StatusCode == HttpStatusCode.NotFound)
+                            return new ChatMarketReply { Note = "Oy vey, no matching reference VIN came through,\nCheck the year, make, model, and trim in view.\nA real vehicle VIN can help us get it right,\nThen we'll ask MarketCheck for a fresh insight." };
+                        if (marketAppraisal && response.StatusCode == HttpStatusCode.ServiceUnavailable
+                            && (await response.Content.ReadAsStringAsync()).IndexOf("MCP service", StringComparison.OrdinalIgnoreCase) >= 0)
+                            return new ChatMarketReply { Note = "Oy vey, MarketCheck's local MCP service is out of view,\nStart the configured service, then try anew.\nNo confirmed appraisal is ready to show,\nOy, reconnect the service before prices can flow." };
                         if (response.StatusCode == HttpStatusCode.BadRequest)
-                            return new ChatMarketReply { Note = marketList ? "Enter a VIN or the vehicle year, make, and model, plus any ZIP, mileage, or radius you want to use."
+                            return new ChatMarketReply { Note = marketAppraisal ? "Oy vey, send a VIN or year, make, and model my way,\nAdd the odometer miles for the price today.\nA ZIP and search radius can guide the view,\nThen up to ten comparables can come back to you."
+                                : marketList ? "Enter a VIN or the vehicle year, make, and model, plus any ZIP, mileage, or radius you want to use."
                                 : inventory ? "Enter a 17-character VIN, target mileage, and a valid ZIP and radius."
                                 : "Send the 17-character VIN and actual mileage, and we can get the appraisal under way." };
                         if ((int)response.StatusCode == 429)
                         {
                             var body = await response.Content.ReadAsStringAsync();
                             var providerLimit = body.IndexOf("MarketCheck", StringComparison.OrdinalIgnoreCase) >= 0;
+                            if (marketAppraisal) return new ChatMarketReply {
+                                Note = "Oy vey, a request limit stopped this try,\nCheck " + (providerLimit ? "MarketCheck's" : "the appraisal account's") + " quota before requests can fly.\nWait until the account has room for more,\nThen ask again, and we'll knock on its door."
+                            };
                             return new ChatMarketReply { Note = providerLimit
                                 ? "MarketCheck has reached its API request limit. Check your MarketCheck account's monthly quota and rate limits, then retry when requests are available."
                                 : "The appraisal quota has been reached. Try again when more requests are available." };
                         }
                         if (!response.IsSuccessStatusCode)
-                            return UnavailableReply();
+                            return UnavailableReply(marketAppraisal);
                         var result = JObject.Parse(await response.Content.ReadAsStringAsync());
+                        if (marketAppraisal) return FormatMarketAppraisalReply(result);
                         if (marketList) return FormatMarketListingsReply(result);
                         if (inventory) return FormatInventoryReply(result);
                         var resale = (decimal?)input["resaleUsd"];
@@ -210,13 +228,15 @@ namespace GTX.Common
             catch (Exception ex) when (ex is JsonException || ex is HttpRequestException || ex is OperationCanceledException
                 || ex is FormatException || ex is InvalidCastException || ex is OverflowException)
             {
-                return UnavailableReply();
+                return UnavailableReply(marketAppraisal);
             }
         }
 
-        private static ChatMarketReply UnavailableReply() => new ChatMarketReply
+        private static ChatMarketReply UnavailableReply(bool marketAppraisal = false) => new ChatMarketReply
         {
-            Note = "I couldn’t get an appraisal this time. Try again or check the appraisal connection."
+            Note = marketAppraisal
+                ? "Oy vey, the appraisal could not come through,\nPlease check the connection and try anew.\nNo confirmed price is ready to show,\nOy, retry the search before you go."
+                : "I couldn’t get an appraisal this time. Try again or check the appraisal connection."
         };
 
         private static ChatMarketReply FormatPriceReply(JObject result)
@@ -228,6 +248,73 @@ namespace GTX.Common
                 Kicker = "MarketCheck",
                 Title = "Market price",
                 Metrics = new[] { Metric("Suggested retail price", Money(price.Value), primary: true) }
+            };
+        }
+
+        internal static ChatMarketReply FormatMarketAppraisalReply(JObject result)
+        {
+            var estimate = (decimal?)result["marketCheckRetailUsd"];
+            if (!(estimate > 0)) throw new JsonSerializationException();
+            var statistics = result["statistics"] as JObject ?? new JObject();
+            var metrics = new System.Collections.Generic.List<ChatMarketMetric> {
+                Metric("MarketCheck retail estimate", Money(estimate.Value), primary: true)
+            };
+            foreach (var entry in new[] {
+                new[] { "msrpUsd", "Original MSRP" }, new[] { "medianPriceUsd", "Sample median ask" },
+                new[] { "meanPriceUsd", "Sample mean ask" }
+            }) {
+                var amount = (decimal?)(entry[0] == "msrpUsd" ? result[entry[0]] : statistics[entry[0]]);
+                if (amount > 0) metrics.Add(Metric(entry[1], Money(amount.Value)));
+            }
+            var lower = (decimal?)statistics["p25PriceUsd"];
+            var upper = (decimal?)statistics["p75PriceUsd"];
+            if (lower > 0 && upper >= lower) metrics.Add(Metric("Sample middle 50%", Money(lower.Value) + "–" + Money(upper.Value)));
+
+            var listings = (result["comparables"] as JArray ?? new JArray()).OfType<JObject>().Take(10).Select(row => {
+                var asking = (decimal?)row["askingPriceUsd"];
+                var miles = (int?)row["miles"];
+                var days = (decimal?)row["daysListed"];
+                var distance = (decimal?)row["distanceMiles"];
+                var rawUrl = (string)row["url"];
+                return new ChatMarketListing {
+                    Vin = (string)row["vin"], Vehicle = (string)row["vehicle"],
+                    Ask = asking > 0 ? Money(asking.Value) : null,
+                    Odometer = miles >= 0 ? Number(miles.Value) : null,
+                    DaysListed = days >= 0 ? days.Value.ToString("0.#", Dollars) : null,
+                    Distance = distance >= 0 ? distance.Value.ToString("0.#", CultureInfo.InvariantCulture) : null,
+                    Location = string.Join(", ", new[] { (string)row["dealerName"], (string)row["city"], (string)row["state"] }
+                        .Where(value => !string.IsNullOrWhiteSpace(value))),
+                    Url = Uri.TryCreate(rawUrl, UriKind.Absolute, out var url) && url.Scheme == Uri.UriSchemeHttps
+                        && string.IsNullOrEmpty(url.UserInfo) ? url.AbsoluteUri : null
+                };
+            }).ToArray();
+            var sample = (int?)statistics["sampledListingCount"] ?? 0;
+            var priced = (int?)statistics["pricedSampleCount"] ?? 0;
+            var matched = (long?)result["listingCount"];
+            var details = new System.Collections.Generic.List<string> {
+                Number(sample) + " sampled listings · " + Number(priced) + " with asking prices. Statistics describe this fetched sample."
+            };
+            if (matched >= 0) details.Add(Number(matched.Value) + " matching active listings reported by MarketCheck within this search scope.");
+            var minimum = (decimal?)statistics["minPriceUsd"];
+            var maximum = (decimal?)statistics["maxPriceUsd"];
+            if (minimum > 0 && maximum >= minimum) details.Add("Sample asking-price range: " + Money(minimum.Value) + "–" + Money(maximum.Value) + ".");
+            var meanMiles = (decimal?)statistics["meanMiles"];
+            if (meanMiles >= 0) details.Add("Sample average mileage: " + meanMiles.Value.ToString("N0", Dollars) + " miles.");
+            if ((bool?)result["usedReferenceVin"] == true)
+                details.Add("Reference VIN: " + (string)result["vin"] + ". Indicative estimate for the named vehicle; this is not your vehicle's VIN.");
+            else details.Add("Subject VIN: " + (string)result["vin"] + ". The subject is excluded from its comparable listings.");
+            var medianDays = (decimal?)statistics["medianDaysListed"];
+            if (medianDays >= 0) details.Add("Sample median days listed: " + medianDays.Value.ToString("0.#", Dollars) + ".");
+            if (listings.Length == 0) details.Add("No matching comparable listings were returned for this scope.");
+
+            return new ChatMarketReply {
+                Kicker = "MarketCheck appraisal", Title = (string)result["vehicle"] ?? (string)result["vin"],
+                Context = Number((int)result["miles"]) + ((bool?)result["usedDefaultMileage"] == true ? " assumed miles" : " miles")
+                    + " · Within " + Number((int)result["radius"]) + " mi of ZIP " + (string)result["zip"]
+                    + " · " + Number(listings.Length) + " comparables shown, closest mileage first",
+                Metrics = metrics.ToArray(), Listings = listings, PreserveListingOrder = true,
+                Sections = new[] { new ChatMarketSection { Title = "Market evidence", Items = details.ToArray() } },
+                Note = "Oy vey, listed asking prices give a clue,\nTitle and condition need checking by you.\nNo extra history premium was added to the view,\nOy, check each car and its fees before a deal goes through."
             };
         }
 
