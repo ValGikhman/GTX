@@ -628,6 +628,8 @@
 }
 
 .bot-market-listings-wrap { min-width: 0; }
+.bot-market-listings-wrap.is-appraisal { overflow-x: auto; }
+.bot-market-listings-wrap.is-appraisal .bot-market-listings { min-width: 24rem; }
 
 .bot-market-listings {
     width: 100%;
@@ -647,6 +649,7 @@
 
 .bot-market-listings th:first-child { text-align: left; white-space: normal; overflow-wrap: anywhere; }
 .bot-market-listings thead th:not(:first-child) { width: 4.7em; font-size: .66rem; }
+.bot-market-listings thead th:last-child { white-space: normal; }
 .bot-market-listings td { font-size: .68rem; }
 .bot-market-listings a { color: inherit; text-decoration: underline; }
 .bot-market-listings small { display: block; font-size: .68rem; font-weight: 400; line-height: 1.2; }

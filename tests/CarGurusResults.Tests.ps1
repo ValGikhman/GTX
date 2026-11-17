@@ -102,7 +102,7 @@ VIN: 5UX33DT03N9K73927
 '@
 $details = $parseDetails.Invoke($null, [object[]]@($detailCards))
 $firstDetail = $details['456673514']
-$vinProperty = $assembly.GetType('GTX.Models.ChatMarketListing').GetProperty('Vin', [Reflection.BindingFlags]'Instance,NonPublic')
+$vinProperty = $assembly.GetType('GTX.Models.ChatMarketListing').GetProperty('Vin', [Reflection.BindingFlags]'Instance,Public,NonPublic')
 if ($details.Count -ne 2 -or $firstDetail.Vehicle -cne '2022 BMW X4 xDrive30i AWD' -or
     $firstDetail.Ask -cne '$33,397' -or $firstDetail.Odometer -cne '74,256' -or
     $firstDetail.Location -cne 'West Chester, OH' -or $firstDetail.Distance -cne '9' -or

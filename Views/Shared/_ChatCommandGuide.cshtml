@@ -27,8 +27,33 @@
 
         @if (Model)
         {
-            var marketExamples = new[]
+            var appraisalExamples = new[]
             {
+                new {
+                    Prompt = "Appraise a 2021 Honda Accord EX-L with 42k miles — show 10 comparables.",
+                    Detail = "Gets a MarketCheck estimate at the subject's odometer reading, plus comparable listings with dealer details.",
+                    Icon = "bi-graph-up-arrow"
+                },
+                new {
+                    Prompt = "Appraise VIN 4T1BE46K19U342407 with 73,929 miles — show 10 comparables.",
+                    Detail = "Researches an exact VIN and keeps the returned comparable ranking.",
+                    Icon = "bi-upc-scan"
+                },
+                new {
+                    Prompt = "Appraise a 2021 Honda Accord EX-L with 42,000 odometer miles within 50 miles of ZIP 45202 — show 10 comparables.",
+                    Detail = "Sets subject mileage and geographic search radius separately.",
+                    Icon = "bi-geo-alt"
+                },
+                new {
+                    Prompt = "Appraise a 2021 Honda Accord EX-L — show 5 comparables.",
+                    Detail = "Uses configured mileage and location defaults and identifies the assumptions in the result.",
+                    Icon = "bi-sliders"
+                },
+                new {
+                    Prompt = "Appraise a 2021 Honda Accord EX-L with 42k miles and a clean Carfax — show 10 comparables.",
+                    Detail = "Includes your history statement as unverified context; this does not order or verify a Carfax report.",
+                    Icon = "bi-card-checklist"
+                },
                 new {
                     Prompt = "Appraise VIN 4T1BE46K19U342407 with 73,929 miles for auction",
                     Detail = "MC shows the MarketCheck retail estimate and supplies the default resale assumption for the bid ceiling. You can enter your own resale price.",
@@ -58,6 +83,15 @@
                     Prompt = "Appraise VIN 4T1BE46K19U342407 with 73,929 miles for auction. Assume a $9,500 resale price and a $6,000 current hammer bid.",
                     Detail = "Shows your bid ceiling and estimated profit at the bid you entered.",
                     Icon = "bi-cash-coin"
+                }
+            };
+
+            var dealerExamples = new[]
+            {
+                new {
+                    Prompt = "How many active used listings match VIN 4T1BE46K19U342407?",
+                    Detail = "Uses the configured odometer target, ZIP, and radius for the listing count.",
+                    Icon = "bi-sliders"
                 },
                 new {
                     Prompt = "How many active used listings match VIN 4T1BE46K19U342407 around 100,000 odometer miles within 100 miles of ZIP 45040?",
@@ -68,6 +102,11 @@
                     Prompt = "List dealers with a 2017 Acura MDX Advance Package around 100,000 miles",
                     Detail = "Shows current and recent dealers, asking prices, and mileage for the specified trim.",
                     Icon = "bi-building"
+                },
+                new {
+                    Prompt = "List dealers with VIN 4T1BE46K19U342407",
+                    Detail = "Decodes the VIN and finds current and recent dealers using the configured defaults.",
+                    Icon = "bi-upc-scan"
                 },
                 new {
                     Prompt = "Check market for VIN 4T1BE46K19U342407 around 75,000 miles within 50 miles of ZIP 45202",
@@ -97,10 +136,20 @@
             <div id="gtxChatMarketCheckExamples" hidden>
                 <div class="gtx-chat-command-guide-note">
                     <i class="bi bi-info-circle" aria-hidden="true"></i>
-                    <div><strong>Current</strong> shows active listings. <strong>Recent</strong> shows listings seen in the past 90 days. Prices are asking prices. Dealer searches and listing counts use a window of 10,000 miles on either side of your odometer target.</div>
+                    <div><strong>Odometer miles</strong> describe the subject vehicle; <strong>radius</strong> describes the search area. Omitted values use configured defaults. <strong>Current</strong> shows active listings; <strong>Recent</strong> shows listings seen in the past 90 days. Prices are asking prices. Dealer searches and listing counts use a window of 10,000 miles on either side of your odometer target.</div>
                 </div>
 
-                @foreach (var example in marketExamples)
+                <h4 class="h6 mt-3">Appraisals</h4>
+                @foreach (var example in appraisalExamples)
+                {
+                    <div class="gtx-chat-command-guide-item">
+                        <button type="button" data-chat-prompt="@example.Prompt">&quot;@example.Prompt&quot;</button>
+                        <span><i class="bi @example.Icon" aria-hidden="true"></i> @example.Detail</span>
+                    </div>
+                }
+
+                <h4 class="h6 mt-3">Dealer research</h4>
+                @foreach (var example in dealerExamples)
                 {
                     <div class="gtx-chat-command-guide-item">
                         <button type="button" data-chat-prompt="@example.Prompt">&quot;@example.Prompt&quot;</button>
@@ -187,7 +236,7 @@
                     <div class="gtx-chat-guide-retail-help">
                         <p>Name one or more sources and enter a vehicle make and model or VIN. You can add a year, trim, maximum price, or maximum odometer mileage.</p>
                         <p>Open a source tab to view its listings. Listings are ordered by asking price, lowest first.</p>
-                        <p><span class="gtx-chat-guide-source">CarMax</span>, <span class="gtx-chat-guide-source">Carvana</span>, and <span class="gtx-chat-guide-source">Cars.com</span> listings come from <span class="gtx-chat-guide-source">MarketCheck</span> and default to nationwide inventory. Add a ZIP or radius to search locally.</p>
+                        <p><span class="gtx-chat-guide-source">CarMax</span>, <span class="gtx-chat-guide-source">Carvana</span>, and <span class="gtx-chat-guide-source">Cars.com</span> listings come from <span class="gtx-chat-guide-source">MarketCheck</span>. Add a ZIP or radius to choose the search area; otherwise configured location defaults apply.</p>
                     </div>
                 </div>
                 @foreach (var example in retailExamples)

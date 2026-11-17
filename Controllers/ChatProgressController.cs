@@ -25,6 +25,11 @@ namespace GTX.Controllers
             Start(requestId, true);
         }
 
+        internal static void StartMarketAppraisal(Guid? requestId)
+        {
+            Start(requestId, "market-appraisal");
+        }
+
         internal static void StartCarGurus(Guid? requestId)
         {
             Start(requestId, "cargurus");
