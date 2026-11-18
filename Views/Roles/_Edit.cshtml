@@ -1,4 +1,4 @@
-@model GTX.Models.SiteRoleModel
+﻿@model GTX.Models.SiteRoleModel
 @using GTX.Common
 @{ var isEdit = Model != null && Model.Id > 0; }
 @using (Html.BeginForm("Save", Enums.Controllers.Roles.ToString(), FormMethod.Post, new { id = "roleForm" })) {
