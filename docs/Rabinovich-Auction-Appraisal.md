@@ -3,7 +3,7 @@
 Staff with Appraisal access can ask for a named vehicle appraisal and up to ten
 active comparables, without supplying a VIN:
 
-> Appraise a 2021 Honda Accord EX-L with 42k miles — show me 10 comparables.
+> Appraise a 2021 Honda Accord EX-L with 42k miles; show me 10 comparables.
 
 Rabinovich uses MarketCheck MCP to find a matching reference VIN, get the price
 prediction, and retrieve a bounded active-listing sample. A supplied subject VIN
