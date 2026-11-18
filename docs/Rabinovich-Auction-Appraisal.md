@@ -3,7 +3,7 @@
 Staff with Appraisal access can ask for a named vehicle appraisal and up to ten
 active comparables, without supplying a VIN:
 
-> Appraise a 2021 Honda Accord EX-L with 42k miles — show me 10 comparables.
+> Appraise a 2021 Honda Accord EX-L with 42k miles; show me 10 comparables.
 
 Rabinovich uses MarketCheck MCP to find a matching reference VIN, get the price
 prediction, and retrieve a bounded active-listing sample. A supplied subject VIN
@@ -54,13 +54,16 @@ target profit. The rich retail appraisal does not require auction-fee settings.
 
 On Windows, the bundled starter can install an isolated local runtime and start
 the server without changing the user's PATH, Python registry entries or application
-configuration. From the AutoDealer.dev directory, run once:
+configuration. Git must already be available on PATH. Both startup scripts are
+included in the AutoDealer.dev publish output. From its website directory on
+the API server, install the runtime and start MCP:
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File Scripts/Start-MarketCheckMcp.ps1 -Setup
 ```
 
-Later starts omit `-Setup`. The starter reuses a healthy server, otherwise starts
+Installing the dependencies is a one-time step per server. Later starts omit
+`-Setup`. The starter reuses a healthy server, otherwise starts
 it in the background with a hidden window and waits for its health endpoint.
 `-Foreground` runs it in the current terminal when diagnosing startup. The default
 runtime, pinned upstream checkout, process metadata and logs live under
@@ -103,7 +106,7 @@ Deploy the updated AutoDealer.dev backend together with the GTX chatbot changes.
 The MCP service must run on the AutoDealer.dev server: `127.0.0.1` refers to that
 server, not the developer's computer or a separate GTX web host. Starting IIS or
 publishing the .NET application does not install or start the Python service.
-The Windows helper and `Run-AutoDealer.bat` support local development; production
+The Windows helper starts a process but does not register a service. Production
 needs a persistent service supervisor that starts MCP after reboot and restarts
 it on failure. Hosting that cannot run a persistent Python process needs a
 different MCP hosting arrangement before this loopback configuration can work.
@@ -113,6 +116,9 @@ MCP host, complete an MCP initialize/tools-list check, and test one authenticate
 appraisal against the production AutoDealer.dev origin. Check the registered
 Rabinovich key, `vin:read` access, ZIP/radius defaults and provider quota on that
 host. Local success alone does not verify these production dependencies.
+Sandbox and Demo can share the same MCP process when both use the same
+AutoDealer.dev API origin. An `ok` quota health response with empty quota values
+only verifies the API connection; it does not verify that MCP is running.
 
 Vehicle searches request `include_build_object=true` for both the reference-VIN
 and comparable lookups. The official MCP tool otherwise strips the build object,

@@ -10,6 +10,7 @@
 ## Rules
 - Do not migrate this project to ASP.NET Core unless explicitly asked.
 - Prefer small, safe patches.
+- Use plain ASCII punctuation in assistant replies and new or edited user-facing project text, including labels, sample prompts, chatbot replies, and documentation. Never use em dash (U+2014) or en dash (U+2013) characters; use commas, periods, semicolons, or the ASCII hyphen (-) instead.
 - Before changing routes, check RouteConfig, WebApiConfig, Global.asax, controller attributes, and IIS behavior.
 - For JavaScript, keep compatibility with existing jQuery patterns.
 - Show diffs before major changes.

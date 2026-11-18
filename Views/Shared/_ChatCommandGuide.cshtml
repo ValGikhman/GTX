@@ -1,4 +1,4 @@
-@model bool
+﻿@model bool
 @{
     var carGurusEnabled = Model && GTX.Common.ServiceConfiguration.Enabled("CarGurus:Enabled");
     var canDecodeVin = GTX.Common.SiteAccess.Can(GTX.Common.SiteAccess.Current(ViewContext.HttpContext.Request), GTX.Common.MajordomeItem.VinDecoder);
@@ -30,27 +30,27 @@
             var appraisalExamples = new[]
             {
                 new {
-                    Prompt = "Appraise a 2021 Honda Accord EX-L with 42k miles — show 10 comparables.",
+                    Prompt = "Appraise a 2021 Honda Accord EX-L with 42k miles; show 10 comparables.",
                     Detail = "Gets a MarketCheck estimate at the subject's odometer reading, plus comparable listings with dealer details.",
                     Icon = "bi-graph-up-arrow"
                 },
                 new {
-                    Prompt = "Appraise VIN 4T1BE46K19U342407 with 73,929 miles — show 10 comparables.",
+                    Prompt = "Appraise VIN 4T1BE46K19U342407 with 73,929 miles; show 10 comparables.",
                     Detail = "Researches an exact VIN and keeps the returned comparable ranking.",
                     Icon = "bi-upc-scan"
                 },
                 new {
-                    Prompt = "Appraise a 2021 Honda Accord EX-L with 42,000 odometer miles within 50 miles of ZIP 45202 — show 10 comparables.",
+                    Prompt = "Appraise a 2021 Honda Accord EX-L with 42,000 odometer miles within 50 miles of ZIP 45202; show 10 comparables.",
                     Detail = "Sets subject mileage and geographic search radius separately.",
                     Icon = "bi-geo-alt"
                 },
                 new {
-                    Prompt = "Appraise a 2021 Honda Accord EX-L — show 5 comparables.",
+                    Prompt = "Appraise a 2021 Honda Accord EX-L; show 5 comparables.",
                     Detail = "Uses configured mileage and location defaults and identifies the assumptions in the result.",
                     Icon = "bi-sliders"
                 },
                 new {
-                    Prompt = "Appraise a 2021 Honda Accord EX-L with 42k miles and a clean Carfax — show 10 comparables.",
+                    Prompt = "Appraise a 2021 Honda Accord EX-L with 42k miles and a clean Carfax; show 10 comparables.",
                     Detail = "Includes your history statement as unverified context; this does not order or verify a Carfax report.",
                     Icon = "bi-card-checklist"
                 },
@@ -120,7 +120,7 @@
                 },
                 new {
                     Prompt = "List market for 2017 Acura MDX Advance Package",
-                    Detail = "Uses the configured ZIP, radius, and mileage defaults. You can also start with “see in market.”",
+                    Detail = "Uses the configured ZIP, radius, and mileage defaults. You can also start with 'see in market'.",
                     Icon = "bi-sliders"
                 }
             };
