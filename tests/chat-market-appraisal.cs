@@ -214,8 +214,7 @@ internal static class ChatMarketAppraisalTests
         Check(evidence.Contains("Reference VIN: " + Vin) && evidence.Contains("not your vehicle's VIN"), "A named-vehicle reference VIN must not masquerade as the user's car");
         Check(evidence.Contains("97.5"), "Fractional median days must not be rounded into a fabricated integer");
         Check(reply.Context.Contains("42,000 miles") && reply.Context.Contains("50 mi of ZIP 01234") && reply.Context.Contains("10 comparables"), "Request mileage, geography and displayed result count must stay explicit");
-        CheckFourLines(reply.Note);
-        Check(reply.Note.Contains("condition need checking") && reply.Note.Contains("No extra history premium"), "History and condition must stay unverified without an invented premium");
+        Check(string.IsNullOrEmpty(reply.Note), "Successful appraisals must omit the removed disclaimer verse");
         Check(!reply.Metrics.Any(metric => metric.Label.IndexOf("trade", StringComparison.OrdinalIgnoreCase) >= 0 || metric.Label.IndexOf("private", StringComparison.OrdinalIgnoreCase) >= 0), "The report must not fabricate trade-in or private-party values");
         Check(JToken.DeepEquals(original, body), "Presentation must not change provider evidence");
         var serialized = JObject.Parse(JsonConvert.SerializeObject(reply));

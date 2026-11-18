@@ -313,8 +313,7 @@ namespace GTX.Common
                     + " · Within " + Number((int)result["radius"]) + " mi of ZIP " + (string)result["zip"]
                     + " · " + Number(listings.Length) + " comparables shown, closest mileage first",
                 Metrics = metrics.ToArray(), Listings = listings, PreserveListingOrder = true,
-                Sections = new[] { new ChatMarketSection { Title = "Market evidence", Items = details.ToArray() } },
-                Note = "Oy vey, listed asking prices give a clue,\nTitle and condition need checking by you.\nNo extra history premium was added to the view,\nOy, check each car and its fees before a deal goes through."
+                Sections = new[] { new ChatMarketSection { Title = "Market evidence", Items = details.ToArray() } }
             };
         }
 

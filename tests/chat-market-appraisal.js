@@ -164,7 +164,7 @@ function nextTimer() {
     timers.delete(first[0]); first[1]();
 }
 for (const fail of [false, true]) {
-    context.sendMessage('Appraise a 2021 Honda Accord EX-L with 42k miles — show 10 comparables');
+    context.sendMessage('Appraise a 2021 Honda Accord EX-L with 42k miles; show 10 comparables');
     const post = requests.at(-1), thinking = messages.at(-1).element;
     assert.match(post.options.data.ProgressId, /^[a-f0-9]{32}$/);
     nextTimer();
