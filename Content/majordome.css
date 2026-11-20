@@ -1370,7 +1370,7 @@ body.majordome-inventory-page .body-content {
 
     .majordome-inventory-shell,
     .majordome-inventory-grid-style,
-    :is(#MajordomeLink, #AboutMenuLink, #vinProviderPicker) {
+    :is(#MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker) {
         --inventory-border: var(--bs-border-color-translucent, rgba(30, 41, 59, .12));
         --inventory-line: var(--bs-border-color-translucent, rgba(148, 163, 184, .22));
         --inventory-muted: var(--bs-secondary-color, #64748b);
@@ -1422,13 +1422,13 @@ body.majordome-inventory-page .body-content {
         position: relative;
     }
 
-    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker) .majordome-batch-actions-menu {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker) .majordome-batch-actions-menu {
         width: min(18rem, calc(100vw - 1rem));
         border: 1px solid var(--inventory-border);
         background: var(--inventory-surface);
     }
 
-    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker) .majordome-batch-action {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker) .majordome-batch-action {
         display: grid;
         grid-template-columns: 2.15rem minmax(0, 1fr);
         gap: .7rem;
@@ -1446,7 +1446,7 @@ body.majordome-inventory-page .body-content {
         background: var(--inventory-surface-alt);
     }
 
-    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker) .majordome-batch-action-icon {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker) .majordome-batch-action-icon {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -1459,17 +1459,16 @@ body.majordome-inventory-page .body-content {
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35);
     }
 
-    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker) .majordome-batch-action strong,
-    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker) .majordome-batch-action small {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker) :is(.majordome-batch-action strong, .majordome-batch-action small) {
         display: block;
     }
 
-    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker) .majordome-batch-action strong {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker) .majordome-batch-action strong {
         font-size: .78rem;
         line-height: 1.2;
     }
 
-    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker) .majordome-batch-action small {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker) .majordome-batch-action small {
         margin-top: .15rem;
         color: var(--inventory-muted);
         font-size: .66rem;
@@ -3481,8 +3480,8 @@ html[data-background-theme="dark"] #roleModalBody { --role-editor-surface: #1923
     #roleModalBody .role-editor-permission { transition: none; }
 }
 
-/* Majordome navigation uses the inventory Actions menu's icon-and-description rows. */
-html body :is(#MajordomeLink, #AboutMenuLink) > .dropdown.majordome-batch-actions-menu {
+/* Majordome navigation and inventory layout use the Actions menu's icon-and-description rows. */
+html body :is(#MajordomeLink, #AboutMenuLink, #inventoryCardLayoutPicker) > .majordome-batch-actions-menu {
     width: min(18rem, calc(100vw - 1rem));
     max-height: calc(100dvh - 8rem);
     overflow-y: auto;
@@ -3490,8 +3489,8 @@ html body :is(#MajordomeLink, #AboutMenuLink) > .dropdown.majordome-batch-action
     border: 1px solid var(--inventory-border);
     background: var(--inventory-surface) !important;
 }
-:is(#MajordomeLink, #AboutMenuLink) > .dropdown > li { margin: 0; }
-html body :is(#MajordomeLink, #AboutMenuLink) > .dropdown > li > .majordome-batch-action {
+:is(#MajordomeLink, #AboutMenuLink, #inventoryCardLayoutPicker) > .majordome-batch-actions-menu > li { margin: 0; }
+html body :is(#MajordomeLink, #AboutMenuLink, #inventoryCardLayoutPicker) > .majordome-batch-actions-menu > li > .majordome-batch-action {
     display: grid;
     grid-template-columns: 2.15rem minmax(0, 1fr);
     gap: .7rem;
@@ -3501,8 +3500,8 @@ html body :is(#MajordomeLink, #AboutMenuLink) > .dropdown > li > .majordome-batc
     text-decoration: none;
     white-space: normal;
 }
-html body :is(#MajordomeLink, #AboutMenuLink) > .dropdown > li > .majordome-batch-action:hover,
-html body :is(#MajordomeLink, #AboutMenuLink) > .dropdown > li > .majordome-batch-action:focus-visible {
+html body :is(#MajordomeLink, #AboutMenuLink, #inventoryCardLayoutPicker) > .majordome-batch-actions-menu > li > .majordome-batch-action:is(:hover, :focus-visible),
+    #inventoryCardLayoutPicker .majordome-batch-action.active {
     color: var(--inventory-ink);
     background: var(--inventory-surface-alt);
 }

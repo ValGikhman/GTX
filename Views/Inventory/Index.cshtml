@@ -3,6 +3,72 @@
     var siteProfile = GTX.SiteProfileStore.Current;
     var profileDirectionsUrl = "https://www.google.com/maps/search/?api=1&query=" + Uri.EscapeDataString(siteProfile.FullAddress);
 }
+@section scripts {
+    <script>
+        (function () {
+            const preferenceKey = "gtx-inventory-card-layout";
+            const inventory = document.getElementById("inventory");
+            const toggle = document.getElementById("inventoryCardLayoutDropdown");
+            if (!toggle) return;
+
+            const label = document.getElementById("inventoryCardLayoutLabel");
+            const options = Array.from(document.querySelectorAll("#inventoryCardLayoutMenu [data-card-layout]"));
+            const photoPosition = @Html.Raw(System.Web.Helpers.Json.Encode(I18n.R("InventoryGallery_PhotoPosition")));
+
+            function showGalleryPhoto(media, index) {
+                const photos = $(media).data("galleryPhotos");
+                const current = (index + photos.length) % photos.length;
+                media.querySelector(".gtx-img").src = photos[current];
+                media.querySelector(".gtx-gallery-status").textContent = photoPosition.replace("{0}", current + 1).replace("{1}", photos.length);
+                if (current === 0) {
+                    delete media.dataset.galleryIndex;
+                } else {
+                    media.dataset.galleryIndex = current;
+                }
+            }
+
+            function applyLayout(option) {
+                const layout = option.dataset.cardLayout;
+                const previousLayout = inventory.dataset.cardLayout;
+                if (layout === "classic") {
+                    delete inventory.dataset.cardLayout;
+                } else {
+                    inventory.dataset.cardLayout = layout;
+                }
+
+                if (previousLayout === "gallery" && layout !== "gallery") {
+                    inventory.querySelectorAll(".gtx-media[data-gallery-index]").forEach(media => showGalleryPhoto(media, 0));
+                }
+
+                label.textContent = option.querySelector("strong").textContent;
+                options.forEach(item => {
+                    const selected = item === option;
+                    item.classList.toggle("active", selected);
+                    item.setAttribute("aria-pressed", String(selected));
+                });
+            }
+
+            let savedLayout;
+            try { savedLayout = window.localStorage.getItem(preferenceKey); } catch (error) { /* Storage is optional. */ }
+            applyLayout(options.find(option => option.dataset.cardLayout === savedLayout) || options[0]);
+
+            $(inventory).on("click", ".gtx-gallery-arrow", function (event) {
+                event.stopPropagation();
+                if (inventory.dataset.cardLayout !== "gallery") return;
+
+                const media = this.closest(".gtx-media");
+                const index = Number(media.dataset.galleryIndex || 0) + Number(this.dataset.galleryStep);
+                showGalleryPhoto(media, index);
+            });
+
+            options.forEach(option => option.addEventListener("click", () => {
+                applyLayout(option);
+                try { window.localStorage.setItem(preferenceKey, option.dataset.cardLayout); } catch (error) { /* Current page still switches. */ }
+                toggle.focus({ preventScroll: true });
+            }));
+        })();
+    </script>
+}
 <head>
     <script src="~/Scripts/specials-player.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/specials-player.js")).Ticks)"></script>
     <link href="~/Content/specials-player.css?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/specials-player.css")).Ticks)" rel="stylesheet" />
