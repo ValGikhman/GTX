@@ -407,3 +407,547 @@ html.theme-metallica .gtx-chip {
         height: 20px;
     }
 }
+
+.gtx-card-specs,
+.gtx-card-specs > div,
+.gtx-card-spec-compact {
+    display: none;
+}
+
+.gtx-card-specs {
+    margin: 0;
+}
+
+.gtx-card-specs dt {
+    font-size: .75rem;
+    font-weight: 600;
+}
+
+.gtx-card-specs dd {
+    margin: 0;
+    font-size: .9rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.gtx-card-indicators,
+.gtx-card-price-summary {
+    display: contents;
+}
+
+#inventory[data-card-layout] > .gtx-card {
+    min-width: 0;
+    min-height: 0;
+}
+
+#inventory[data-card-layout] .gtx-img {
+    height: auto;
+    transform: none;
+}
+
+#inventory[data-card-layout] :is(.gtx-title, .gtx-trimline) {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+#inventory[data-card-layout] .gtx-price-line {
+    white-space: normal;
+}
+
+#inventory[data-card-layout] .gtx-price-line > :last-child {
+    white-space: nowrap;
+}
+
+#inventory[data-card-layout] .gtx-card-action .text-truncate {
+    line-height: 1.15;
+    text-align: center;
+    white-space: normal;
+}
+
+#inventory[data-card-layout] .gtx-badges {
+    flex-wrap: wrap;
+    right: .55rem;
+}
+
+#inventory[data-card-layout] .gtx-compare-toggle {
+    top: auto;
+    bottom: .55rem;
+}
+
+/* Gallery puts the heading over the photo and places vehicle details beside pricing. */
+#inventory[data-card-layout="gallery"] > .gtx-card {
+    flex: 0 1 max(19rem, calc((100% - 1rem) / 2));
+    max-width: 35rem;
+}
+
+#inventory[data-card-layout="gallery"] .gtx-card-content {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto auto 1fr auto auto;
+    grid-template-areas:
+        "hero hero"
+        "ids ids"
+        "specs price"
+        "actions actions"
+        "finance finance";
+    reading-flow: grid-rows;
+}
+
+#inventory[data-card-layout="gallery"] .gtx-media {
+    grid-area: hero;
+}
+
+#inventory[data-card-layout="gallery"] .gtx-badges {
+    top: .55rem;
+    right: 8rem;
+}
+
+#inventory[data-card-layout="gallery"] .gtx-compare-toggle {
+    top: .55rem;
+    bottom: auto;
+}
+
+.gtx-gallery-controls {
+    display: none;
+}
+
+#inventory[data-card-layout="gallery"] .gtx-gallery-controls {
+    display: block;
+}
+
+.gtx-gallery-arrow {
+    z-index: 4;
+    display: grid;
+    place-items: center;
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+}
+
+#inventory[data-card-layout="gallery"] .gtx-header.gradient {
+    grid-area: hero;
+    align-self: end;
+    z-index: 1;
+    padding: .65rem !important;
+}
+
+#inventory[data-card-layout="gallery"] .gtx-card-specs {
+    grid-area: specs;
+    display: grid;
+    align-content: start;
+    padding: .35rem .55rem 0;
+}
+
+#inventory[data-card-layout="gallery"] .gtx-card-specs > :is([data-spec-group="finish"], [data-spec-group="powertrain"], [data-card-spec="drive"]) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: baseline;
+    gap: .15rem .35rem;
+    padding-block: .25rem;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+#inventory[data-card-layout="gallery"] .gtx-card-specs > [data-spec-group="finish"] {
+    align-items: center;
+}
+
+#inventory[data-card-layout="gallery"] .gtx-card-specs [data-spec-group="finish"] dt > .bi {
+    display: none;
+}
+
+#inventory[data-card-layout="gallery"] .gtx-card-specs :is(dt, dd) {
+    overflow-wrap: anywhere;
+    line-height: 1.2;
+}
+
+#inventory[data-card-layout="gallery"] .gtx-card-specs dd {
+    font-size: .8rem;
+    text-align: end;
+}
+
+#inventory[data-card-layout="gallery"] .gtx-card-price-summary {
+    grid-area: price;
+    align-self: start;
+    display: block;
+    padding: .4rem;
+}
+
+#inventory[data-card-layout="gallery"] .gtx-price-panel {
+    padding: .4rem;
+}
+
+#inventory[data-card-layout="gallery"] .gtx-price-line {
+    flex-wrap: wrap;
+    gap: .15rem .35rem;
+}
+
+#inventory[data-card-layout="gallery"] .gtx-price-line > :first-child {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+#inventory[data-card-layout="gallery"] .gtx-price-line > :last-child {
+    margin-inline-start: auto;
+}
+
+/* Specs and Price Focus use wider cards to fit the vehicle details. */
+#inventory:is([data-card-layout="compact"], [data-card-layout="price"]) {
+    container: inventory-detail-cards / inline-size;
+}
+
+#inventory:is([data-card-layout="compact"], [data-card-layout="price"]) > .gtx-card {
+    flex: 0 1 100%;
+    max-width: 36rem;
+}
+
+#inventory[data-card-layout="compact"] > .gtx-card {
+    flex-basis: 76.5%;
+    max-width: 27.54rem;
+}
+
+@container inventory-detail-cards (min-width: 53rem) {
+    #inventory:is([data-card-layout="compact"], [data-card-layout="price"]) > .gtx-card {
+        flex-basis: calc((100% - 1rem) / 2);
+    }
+
+    #inventory[data-card-layout="compact"] > .gtx-card {
+        flex-basis: calc((100% - 1rem) / 2 * .765);
+    }
+}
+
+#inventory[data-card-layout="compact"] .gtx-card-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 40%;
+    grid-template-areas: "heading heading" "specs photo" "footer footer";
+    reading-flow: grid-rows;
+}
+
+#inventory:is([data-card-layout="compact"], [data-card-layout="price"]) .gtx-header {
+    grid-area: heading;
+    align-content: center;
+    padding: .55rem .65rem !important;
+}
+
+#inventory:is([data-card-layout="compact"], [data-card-layout="price"]) .gtx-title-wrap > .d-flex {
+    align-items: center !important;
+}
+
+#inventory:is([data-card-layout="compact"], [data-card-layout="price"]) .gtx-badges .gtx-chip {
+    gap: .22rem;
+    padding: .17rem .34rem;
+    border-color: var(--bs-border-color);
+    background: var(--bs-secondary-bg);
+    color: var(--bs-body-color);
+    box-shadow: none !important;
+    font-size: .7rem;
+}
+
+#inventory[data-card-layout="compact"] :is(.gtx-title, .gtx-trimline) {
+    white-space: nowrap;
+}
+
+#inventory[data-card-layout="compact"] .gtx-make-logo {
+    height: 26px;
+    max-width: 2.25rem;
+    object-fit: contain;
+}
+
+#inventory:is([data-card-layout="compact"], [data-card-layout="price"]) .gtx-media {
+    grid-area: photo;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: .35rem;
+    min-height: 6.5rem;
+    margin-block: .35rem;
+    margin-inline-end: .35rem;
+}
+
+#inventory:is([data-card-layout="compact"], [data-card-layout="price"]) .gtx-badges {
+    position: static;
+    justify-content: center;
+    max-width: 100%;
+    gap: .2rem;
+}
+
+#inventory:is([data-card-layout="compact"], [data-card-layout="price"]) .gtx-compare-toggle {
+    position: static;
+    order: 1;
+    justify-content: center;
+    gap: .2rem;
+    padding-inline: .35rem;
+    max-width: calc(100% - .7rem);
+    overflow-wrap: anywhere;
+    text-align: center;
+}
+
+#inventory:is([data-card-layout="compact"], [data-card-layout="price"]) .gtx-card-specs {
+    grid-area: specs;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: .35rem .55rem;
+    reading-flow: flex-visual;
+}
+
+#inventory:is([data-card-layout="compact"], [data-card-layout="price"]) .gtx-card-specs > div {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: baseline;
+    gap: .35rem;
+    padding-block: .18rem;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+#inventory:is([data-card-layout="compact"], [data-card-layout="price"]) .gtx-card-specs :is(dt, dd) {
+    overflow-wrap: anywhere;
+    line-height: 1.15;
+}
+
+#inventory:is([data-card-layout="compact"], [data-card-layout="price"]) .gtx-card-specs dd {
+    font-size: .8rem;
+    text-align: end;
+}
+
+#inventory:is([data-card-layout="compact"], [data-card-layout="price"]) .gtx-card-spec-standard {
+    display: none;
+}
+
+#inventory:is([data-card-layout="compact"], [data-card-layout="price"]) .gtx-card-spec-compact {
+    display: inline;
+}
+
+#inventory:is([data-card-layout="compact"], [data-card-layout="price"]) [data-card-spec="body"] {
+    order: 1;
+}
+
+#inventory:is([data-card-layout="compact"], [data-card-layout="price"]) [data-card-spec="drive"] {
+    order: 2;
+}
+
+#inventory:is([data-card-layout="compact"], [data-card-layout="price"]) [data-card-spec="vehicle-type"] {
+    order: 3;
+}
+
+#inventory:is([data-card-layout="compact"], [data-card-layout="price"]) [data-card-spec="cylinders"] {
+    order: 4;
+}
+
+#inventory:is([data-card-layout="compact"], [data-card-layout="price"]) [data-card-spec="fuel"] {
+    order: 5;
+}
+
+#inventory:is([data-card-layout="compact"], [data-card-layout="price"]) [data-card-spec="transmission"] {
+    order: 6;
+}
+
+#inventory:is([data-card-layout="compact"], [data-card-layout="price"]) [data-spec-group="finish"] {
+    order: 7;
+}
+
+#inventory[data-card-layout="compact"] .gtx-footer {
+    grid-area: footer;
+}
+
+#inventory[data-card-layout="compact"] .gtx-price-panel {
+    padding: .3rem .4rem;
+}
+
+/* Price Focus keeps the price, specs, and photo under its full-width header. */
+#inventory[data-card-layout="price"] > .gtx-card {
+    container: inventory-price-card / inline-size;
+}
+
+#inventory[data-card-layout="price"] .gtx-card-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.2fr) minmax(0, .9fr);
+    grid-template-areas:
+        "heading heading heading"
+        "price specs photo"
+        "ids ids ids"
+        "actions actions actions"
+        "finance finance finance";
+    reading-flow: grid-rows;
+}
+
+#inventory:is([data-card-layout="gallery"], [data-card-layout="price"]) .gtx-footer {
+    display: contents;
+}
+
+/* Carry the footer's themed background into both parts of the split layout. */
+#inventory:is([data-card-layout="gallery"], [data-card-layout="price"]) .gtx-footer::before,
+#inventory:is([data-card-layout="gallery"], [data-card-layout="price"]) .gtx-footer::after {
+    content: "";
+    background: inherit;
+    z-index: -1;
+    pointer-events: none;
+}
+
+#inventory:is([data-card-layout="gallery"], [data-card-layout="price"]) .gtx-footer::before {
+    grid-area: price;
+}
+
+#inventory:is([data-card-layout="gallery"], [data-card-layout="price"]) .gtx-footer::after {
+    grid-row: ids-start / finance-end;
+    grid-column: 1 / -1;
+}
+
+#inventory[data-card-layout="gallery"] .gtx-footer::after {
+    grid-row: actions-start / finance-end;
+}
+
+#inventory[data-card-layout="price"] .gtx-card-price-summary {
+    grid-area: price;
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+    padding: .35rem;
+}
+
+#inventory[data-card-layout="price"] .gtx-price-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "total" "retail" "internet" "fee" "disclosure";
+    align-content: start;
+    gap: .35rem;
+    padding: .4rem;
+    reading-flow: grid-rows;
+}
+
+#inventory[data-card-layout="price"] .gtx-price-line {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: .15rem .35rem;
+    text-align: center;
+}
+
+#inventory[data-card-layout="price"] .gtx-price-line > :first-child {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+#inventory[data-card-layout="price"] .gtx-retail-line {
+    grid-area: retail;
+}
+
+#inventory[data-card-layout="price"] .gtx-internet-line {
+    grid-area: internet;
+}
+
+#inventory[data-card-layout="price"] .gtx-fee-line {
+    grid-area: fee;
+}
+
+#inventory[data-card-layout="price"] .gtx-transparent-line {
+    grid-area: total;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+    padding: .32rem 0 .45rem;
+}
+
+#inventory[data-card-layout="price"] .gtx-no-hidden-fees {
+    grid-area: disclosure;
+    max-width: 100%;
+    justify-self: center;
+}
+
+#inventory[data-card-layout="price"] .gtx-card-mileage {
+    margin: 0 !important;
+    padding: .1rem .15rem .3rem;
+}
+
+#inventory[data-card-layout="price"] .gtx-card-price-summary :is(.gtx-transparent-line, .gtx-transparent-line .gtx-price-amount, .gtx-meta) {
+    font-size: .95rem;
+    font-weight: 800;
+    line-height: 1.2;
+    text-align: center;
+}
+
+@container inventory-price-card (width < 31rem) {
+    #inventory[data-card-layout="price"] .gtx-card-specs > div {
+        grid-template-columns: minmax(0, 1fr);
+        row-gap: .1rem;
+    }
+
+    #inventory[data-card-layout="price"] .gtx-card-specs dd {
+        text-align: start;
+    }
+}
+
+#inventory:is([data-card-layout="gallery"], [data-card-layout="price"]) .gtx-card-ids {
+    grid-area: ids;
+    padding: .4rem .75rem 0;
+}
+
+#inventory[data-card-layout="gallery"] .gtx-card-ids {
+    padding-block-end: .4rem;
+}
+
+#inventory:is([data-card-layout="gallery"], [data-card-layout="price"]) .gtx-card-actions {
+    grid-area: actions;
+    margin-inline: .75rem;
+}
+
+#inventory:is([data-card-layout="gallery"], [data-card-layout="price"]) .capital-one-stacked-button {
+    grid-area: finance;
+    margin: 0 .75rem .55rem;
+}
+
+.inventory-results-zone {
+    --inventory-results-gutter: 2rem;
+}
+
+@media (min-width: 992px) {
+    .inventory-results-zone:has(#inventory:is([data-card-layout="compact"], [data-card-layout="price"])) {
+        --inventory-results-gutter: 2.25rem;
+    }
+
+    #inventory:is([data-card-layout="compact"], [data-card-layout="price"]) {
+        padding-inline: var(--inventory-results-gutter, 2.25rem);
+    }
+}
+
+#inventory .gtx-card-specs [data-spec-group="finish"] dd {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    column-gap: .4rem;
+    text-align: end;
+}
+
+.gtx-card-color-swatch {
+    display: none;
+}
+
+#inventory:is([data-card-layout="gallery"], [data-card-layout="compact"], [data-card-layout="price"]) .gtx-card-color-swatch {
+    display: inline-block;
+    inline-size: 1.15rem;
+    block-size: 1.15rem;
+    border: 1px solid var(--bs-secondary-color, #6c757d);
+}
+
+@media (max-width: 991.98px) {
+    .inventory-results-zone {
+        --inventory-results-gutter: .05rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .inventory-results-zone:has(#inventory[data-card-layout]) {
+        --inventory-results-gutter: .6rem;
+    }
+
+    #inventory[data-card-layout] {
+        padding-inline: var(--inventory-results-gutter, .6rem) !important;
+    }
+
+    #inventory:is([data-card-layout="gallery"], [data-card-layout="price"]) > .gtx-card {
+        flex-basis: 100%;
+        max-width: none;
+    }
+
+    #inventory[data-card-layout="compact"] > .gtx-card {
+        max-width: none;
+    }
+}
