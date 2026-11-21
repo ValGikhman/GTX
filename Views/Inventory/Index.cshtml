@@ -11,9 +11,61 @@
             const toggle = document.getElementById("inventoryCardLayoutDropdown");
             if (!toggle) return;
 
+            const toolbar = toggle.closest("#filterByTerm");
+            const viewsPicker = toggle.closest("#inventoryCardLayoutPicker");
+            const quickSearch = toolbar.querySelector(".inventory-term-search");
+            const sortControls = toolbar.querySelector(".sort");
             const label = document.getElementById("inventoryCardLayoutLabel");
             const options = Array.from(document.querySelectorAll("#inventoryCardLayoutMenu [data-card-layout]"));
             const photoPosition = @Html.Raw(System.Web.Helpers.Json.Encode(I18n.R("InventoryGallery_PhotoPosition")));
+            let toolbarAlignmentFrame = 0;
+
+            function scheduleToolbarAlignment() {
+                if (toolbarAlignmentFrame) return;
+
+                toolbarAlignmentFrame = window.requestAnimationFrame(() => {
+                    toolbarAlignmentFrame = 0;
+                    let firstCard;
+                    let lastCard;
+                    for (const card of inventory.children) {
+                        if (!card.classList.contains("gtx-card") || card.style.display === "none" || !card.getClientRects().length) continue;
+                        if (firstCard && card.offsetTop !== firstCard.offsetTop) break;
+                        firstCard = firstCard || card;
+                        lastCard = card;
+                    }
+
+                    const bounds = toolbar.getBoundingClientRect();
+                    let start = firstCard ? Math.max(0, firstCard.getBoundingClientRect().left - bounds.left) : 0;
+                    let end = lastCard ? Math.max(0, bounds.right - lastCard.getBoundingClientRect().right) : 0;
+                    let stacked = false;
+
+                    if (sortControls.getClientRects().length) {
+                        const gap = parseFloat(window.getComputedStyle(toolbar).columnGap);
+                        const minSearchWidth = parseFloat(window.getComputedStyle(quickSearch).minWidth);
+                        const viewsWidth = viewsPicker.getBoundingClientRect().width;
+                        const sortWidth = sortControls.getBoundingClientRect().width;
+                        const sideSpace = (bounds.width - minSearchWidth) / 2 - gap;
+                        stacked = Math.max(viewsWidth, sortWidth) > sideSpace;
+
+                        if (stacked) {
+                            const availableInset = Math.max(0, bounds.width - gap - viewsWidth - sortWidth);
+                            start = Math.min(start, availableInset);
+                            end = Math.min(end, availableInset - start);
+                        } else {
+                            // Keep space for centered search before aligning the controls to the card edges.
+                            start = Math.min(start, Math.max(0, sideSpace - viewsWidth));
+                            end = Math.min(end, Math.max(0, sideSpace - sortWidth));
+
+                            const occupiedSide = Math.max(start + viewsWidth, end + sortWidth);
+                            toolbar.style.setProperty("--inventory-search-width", (bounds.width - 2 * (occupiedSide + gap)) + "px");
+                        }
+                    }
+
+                    toolbar.classList.toggle("inventory-toolbar-stacked", stacked);
+                    toolbar.style.setProperty("--inventory-toolbar-start", start + "px");
+                    toolbar.style.setProperty("--inventory-toolbar-end", end + "px");
+                });
+            }
 
             function showGalleryPhoto(media, index) {
                 const photos = $(media).data("galleryPhotos");
@@ -51,6 +103,22 @@
             let savedLayout;
             try { savedLayout = window.localStorage.getItem(preferenceKey); } catch (error) { /* Storage is optional. */ }
             applyLayout(options.find(option => option.dataset.cardLayout === savedLayout) || options[0]);
+
+            new MutationObserver(changes => {
+                if (changes.some(change => change.target === inventory || change.target.parentElement === inventory)) {
+                    scheduleToolbarAlignment();
+                }
+            }).observe(inventory, { childList: true, subtree: true, attributeFilter: ["data-card-layout", "style"] });
+
+            if ("ResizeObserver" in window) {
+                const alignmentObserver = new ResizeObserver(scheduleToolbarAlignment);
+                alignmentObserver.observe(inventory);
+                alignmentObserver.observe(viewsPicker);
+                alignmentObserver.observe(sortControls);
+            }
+
+            window.addEventListener("resize", scheduleToolbarAlignment);
+            scheduleToolbarAlignment();
 
             $(inventory).on("click", ".gtx-gallery-arrow", function (event) {
                 event.stopPropagation();
@@ -970,7 +1038,7 @@
             }
             @if (Model.Inventory?.Vehicles.Count() > 0)
             {
-                <li class="inventory-bottom-paging inventory-toolbar-paging d-none d-lg-flex align-items-center justify-content-center gap-2">
+                <li class="inventory-bottom-paging inventory-toolbar-paging d-none d-lg-flex align-items-center justify-content-center gap-2" hidden>
                     <div class="inventory-page-size d-flex align-items-center gap-2 z-3">
                         <label for="inventoryPageSizeBottom" class="fw-bold mb-0">Show</label>
                         <select id="inventoryPageSizeBottom" class="inventory-page-size-select form-select inventory-toolbar-select shadow rounded-4" aria-label="Vehicles per page" title="Vehicles per page">
@@ -1305,7 +1373,29 @@
 
         refreshCarLikes();
 
+        const $sortField = $('#sortField');
+        const $sortOptions = $('#inventorySortMenu [data-sort-field]');
+        $sortOptions.on('click', function () {
+            $sortField.val(this.dataset.sortField).trigger('change');
+            document.getElementById('inventorySortDropdown').focus({ preventScroll: true });
+        });
+
+        $('#sortDirection').on('click', function () {
+            const $direction = $(this);
+            const descending = $direction.attr('aria-pressed') !== 'true';
+            $direction.attr('aria-pressed', String(descending)).trigger('change');
+        });
+
         $('#sortField, #sortDirection').on('change', function () {
+            if (this.id === 'sortField') {
+                const field = this.value;
+                $sortOptions.each(function () {
+                    const selected = this.dataset.sortField === field;
+                    this.classList.toggle('active', selected);
+                    this.setAttribute('aria-pressed', String(selected));
+                    if (selected) $('#inventorySortLabel').text(this.querySelector('strong').textContent);
+                });
+            }
             updateSortDirectionLabel();
             sortInventory();
         });
@@ -1331,7 +1421,7 @@
 
     function sortInventory() {
         var field = $('#sortField').val();
-        var desc = $('#sortDirection').is(':checked');
+        var desc = $('#sortDirection').attr('aria-pressed') === 'true';
         var $container = $('#inventory');
 
         if (!field) return; // Do nothing if no field selected
@@ -1368,7 +1458,14 @@
     }
 
     function updateSortDirectionLabel() {
-        var isChecked = $('#sortDirection').is(':checked');
-        $('#sortDirectionLabel').text(isChecked ? 'Z-a' : 'A-z');
+        const $direction = $('#sortDirection');
+        const descending = $direction.attr('aria-pressed') === 'true';
+        const field = $('#sortField').val();
+        const labels = field === 'make' || field === 'color' ? ['A-Z', 'Z-A'] : ['1-9', '9-1'];
+
+        $direction.toggleClass('active', descending)
+            .attr('title', descending ? $direction.attr('aria-label') : $direction.attr('data-ascending-label'));
+        $direction.find('i').toggleClass('bi-arrow-down-short', !descending).toggleClass('bi-arrow-up-short', descending);
+        $('#sortDirectionLabel').text(labels[descending ? 1 : 0]);
     }
 </script>

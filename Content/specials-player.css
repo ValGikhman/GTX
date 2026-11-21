@@ -144,6 +144,35 @@
     .inventory-player-title > #title { display: none !important; }
     .inventory-player-title #shorts { position: static !important; transform: none !important; flex: 0 0 auto; padding-left: 0 !important; }
     .inventory-player-title .specials-title-slot { flex: 1 1 0; min-width: 0; justify-content: center; align-items: center; }
+    .inventory-player-title .specials-title-slot:has(.specials-player-control:not([hidden])) { min-width: 9rem; }
+    .inventory-player-title .specials-player {
+        --specials-control-size: clamp(1.6rem, 2.25vw, 2rem);
+        --specials-control-inset: .4rem;
+        position: relative;
+        z-index: 1;
+        transform: translateY(-20px);
+    }
+    .inventory-player-title .specials-player-control {
+        position: absolute;
+        z-index: 1;
+        inset-block: 0;
+        margin-block: auto;
+        width: var(--specials-control-size);
+        height: var(--specials-control-size);
+    }
+    .inventory-player-title .specials-player-prev { inset-inline-start: var(--specials-control-inset); }
+    .inventory-player-title .specials-player-next { inset-inline-end: var(--specials-control-inset); }
+    .inventory-player-title .specials-player-link {
+        --specials-player-accent: var(--gtx-accent-solid, #1e73be);
+        --specials-player-surface: color-mix(in srgb, white 94%, var(--bs-body-bg, #fff));
+        background: linear-gradient(140deg,
+            color-mix(in srgb, var(--specials-player-accent) 10%, var(--specials-player-surface)),
+            var(--specials-player-surface) 48%,
+            color-mix(in srgb, var(--specials-player-accent) 15%, var(--specials-player-surface)));
+    }
+    .inventory-player-title .specials-player:has(> .specials-player-control:not([hidden])) > .specials-player-link {
+        padding-inline: calc(var(--specials-control-size) + var(--specials-control-inset) + .35rem);
+    }
     .inventory-player-title .page-title-inventory-contact { display: flex !important; max-width: 100%; }
     .inventory-player-title .page-title-inventory-address { min-width: 0; flex: 0 1 auto; }
     .inventory-player-title .page-title-inventory-map-btn { flex: 0 0 auto; }

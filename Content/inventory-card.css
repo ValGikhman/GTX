@@ -895,7 +895,11 @@ html.theme-metallica .gtx-chip {
 }
 
 .inventory-results-zone {
-    --inventory-results-gutter: 2rem;
+    --inventory-results-gutter: 0px;
+}
+
+.inventory-results-zone #inventory {
+    padding-inline-start: var(--inventory-results-gutter) !important;
 }
 
 @media (min-width: 992px) {
@@ -904,7 +908,7 @@ html.theme-metallica .gtx-chip {
     }
 
     #inventory:is([data-card-layout="compact"], [data-card-layout="price"]) {
-        padding-inline: var(--inventory-results-gutter, 2.25rem);
+        padding-inline-end: var(--inventory-results-gutter, 2.25rem);
     }
 }
 
@@ -939,7 +943,7 @@ html.theme-metallica .gtx-chip {
     }
 
     #inventory[data-card-layout] {
-        padding-inline: var(--inventory-results-gutter, .6rem) !important;
+        padding-inline-end: var(--inventory-results-gutter, .6rem) !important;
     }
 
     #inventory:is([data-card-layout="gallery"], [data-card-layout="price"]) > .gtx-card {

@@ -880,6 +880,11 @@ function calculateMonthlyPayment(P, rate, month) {
 
         if (!$pageSize.length || !$pager.length || !$("#inventory").length) return;
 
+        if ($pageSize.first().closest("[hidden]").length) {
+            syncInventoryPageSizeControls(inventoryAllPageSize);
+            return;
+        }
+
         if (localStorage.getItem(inventoryPageSizeDefaultKey) !== inventoryDefaultPageSize) {
             localStorage.setItem("inventoryPageSize", inventoryDefaultPageSize);
             localStorage.setItem(inventoryPageSizeDefaultKey, inventoryDefaultPageSize);
