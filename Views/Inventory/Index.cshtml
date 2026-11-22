@@ -20,45 +20,67 @@
             const photoPosition = @Html.Raw(System.Web.Helpers.Json.Encode(I18n.R("InventoryGallery_PhotoPosition")));
             let toolbarAlignmentFrame = 0;
 
+            function getCardWidth() {
+                const card = inventory.querySelector('.gtx-card[data-inventory-filter-match="1"]') || inventory.querySelector(".gtx-card");
+                if (!card) return 0;
+                const width = card.getBoundingClientRect().width;
+                if (width) return width;
+
+                // Keep the card's CSS sizing available when that card is filtered out.
+                const probe = document.createElement("li");
+                probe.className = card.className;
+                probe.style.cssText = "visibility: hidden; height: 0; min-height: 0";
+                inventory.appendChild(probe);
+                const probeWidth = probe.getBoundingClientRect().width;
+                probe.remove();
+                return probeWidth;
+            }
+
             function scheduleToolbarAlignment() {
                 if (toolbarAlignmentFrame) return;
 
                 toolbarAlignmentFrame = window.requestAnimationFrame(() => {
                     toolbarAlignmentFrame = 0;
-                    let firstCard;
-                    let lastCard;
-                    for (const card of inventory.children) {
-                        if (!card.classList.contains("gtx-card") || card.style.display === "none" || !card.getClientRects().length) continue;
-                        if (firstCard && card.offsetTop !== firstCard.offsetTop) break;
-                        firstCard = firstCard || card;
-                        lastCard = card;
+                    if (!sortControls.getClientRects().length) {
+                        toolbar.classList.remove("inventory-toolbar-stacked");
+                        toolbar.style.removeProperty("--inventory-toolbar-start");
+                        toolbar.style.removeProperty("--inventory-toolbar-end");
+                        return;
                     }
 
                     const bounds = toolbar.getBoundingClientRect();
-                    let start = firstCard ? Math.max(0, firstCard.getBoundingClientRect().left - bounds.left) : 0;
-                    let end = lastCard ? Math.max(0, bounds.right - lastCard.getBoundingClientRect().right) : 0;
-                    let stacked = false;
+                    const gridBounds = inventory.getBoundingClientRect();
+                    const gridStyle = window.getComputedStyle(inventory);
+                    const cardGap = parseFloat(gridStyle.columnGap);
+                    const paddingLeft = parseFloat(gridStyle.paddingLeft);
+                    const paddingRight = parseFloat(gridStyle.paddingRight);
+                    const gridWidth = gridBounds.width - (inventory.offsetWidth - inventory.clientWidth) - paddingLeft - paddingRight;
+                    const cardWidth = getCardWidth();
+                    const columns = cardWidth ? Math.floor((gridWidth + cardGap) / (cardWidth + cardGap)) : 0;
+                    // Align to a full row's edges. In a one-column pane, give the toolbar the full width.
+                    const rowInset = Math.max(0, (gridWidth + cardGap - columns * (cardWidth + cardGap)) / 2);
+                    const contentLeft = gridBounds.left + inventory.clientLeft + paddingLeft;
+                    let start = columns > 1 ? Math.max(0, contentLeft + rowInset - bounds.left) : 0;
+                    let end = columns > 1 ? Math.max(0, bounds.right - (contentLeft + gridWidth - rowInset)) : 0;
 
-                    if (sortControls.getClientRects().length) {
-                        const gap = parseFloat(window.getComputedStyle(toolbar).columnGap);
-                        const minSearchWidth = parseFloat(window.getComputedStyle(quickSearch).minWidth);
-                        const viewsWidth = viewsPicker.getBoundingClientRect().width;
-                        const sortWidth = sortControls.getBoundingClientRect().width;
-                        const sideSpace = (bounds.width - minSearchWidth) / 2 - gap;
-                        stacked = Math.max(viewsWidth, sortWidth) > sideSpace;
+                    const gap = parseFloat(window.getComputedStyle(toolbar).columnGap);
+                    const minSearchWidth = parseFloat(window.getComputedStyle(quickSearch).minWidth);
+                    const viewsWidth = viewsPicker.getBoundingClientRect().width;
+                    const sortWidth = sortControls.getBoundingClientRect().width;
+                    const sideSpace = (bounds.width - minSearchWidth) / 2 - gap;
+                    const stacked = Math.max(viewsWidth, sortWidth) > sideSpace;
 
-                        if (stacked) {
-                            const availableInset = Math.max(0, bounds.width - gap - viewsWidth - sortWidth);
-                            start = Math.min(start, availableInset);
-                            end = Math.min(end, availableInset - start);
-                        } else {
-                            // Keep space for centered search before aligning the controls to the card edges.
-                            start = Math.min(start, Math.max(0, sideSpace - viewsWidth));
-                            end = Math.min(end, Math.max(0, sideSpace - sortWidth));
+                    if (stacked) {
+                        const availableInset = Math.max(0, bounds.width - gap - viewsWidth - sortWidth);
+                        start = Math.min(start, availableInset);
+                        end = Math.min(end, availableInset - start);
+                    } else {
+                        // Keep space for centered search before aligning the controls to the card edges.
+                        start = Math.min(start, Math.max(0, sideSpace - viewsWidth));
+                        end = Math.min(end, Math.max(0, sideSpace - sortWidth));
 
-                            const occupiedSide = Math.max(start + viewsWidth, end + sortWidth);
-                            toolbar.style.setProperty("--inventory-search-width", (bounds.width - 2 * (occupiedSide + gap)) + "px");
-                        }
+                        const occupiedSide = Math.max(start + viewsWidth, end + sortWidth);
+                        toolbar.style.setProperty("--inventory-search-width", (bounds.width - 2 * (occupiedSide + gap)) + "px");
                     }
 
                     toolbar.classList.toggle("inventory-toolbar-stacked", stacked);
@@ -98,27 +120,21 @@
                     item.classList.toggle("active", selected);
                     item.setAttribute("aria-pressed", String(selected));
                 });
+                scheduleToolbarAlignment();
             }
 
             let savedLayout;
             try { savedLayout = window.localStorage.getItem(preferenceKey); } catch (error) { /* Storage is optional. */ }
             applyLayout(options.find(option => option.dataset.cardLayout === savedLayout) || options[0]);
 
-            new MutationObserver(changes => {
-                if (changes.some(change => change.target === inventory || change.target.parentElement === inventory)) {
-                    scheduleToolbarAlignment();
-                }
-            }).observe(inventory, { childList: true, subtree: true, attributeFilter: ["data-card-layout", "style"] });
-
             if ("ResizeObserver" in window) {
                 const alignmentObserver = new ResizeObserver(scheduleToolbarAlignment);
-                alignmentObserver.observe(inventory);
+                alignmentObserver.observe(toolbar);
                 alignmentObserver.observe(viewsPicker);
                 alignmentObserver.observe(sortControls);
             }
 
             window.addEventListener("resize", scheduleToolbarAlignment);
-            scheduleToolbarAlignment();
 
             $(inventory).on("click", ".gtx-gallery-arrow", function (event) {
                 event.stopPropagation();

@@ -116,14 +116,7 @@
     border-color: rgba(255, 255, 255, .48);
     background: linear-gradient(180deg, rgba(255, 255, 255, .25), rgba(255, 255, 255, .1) 48%, rgba(0, 0, 0, .08));
 }
-.inventory-player-mobile-bar .specials-player { gap: .25rem; }
-.inventory-player-mobile-bar .specials-player-control {
-    width: 1.75rem;
-    height: 1.75rem;
-    color: inherit;
-    border-color: rgba(255, 255, 255, .48);
-    background: linear-gradient(180deg, rgba(255, 255, 255, .3), rgba(255, 255, 255, .1));
-}
+.inventory-player-mobile-bar .specials-player-control { display: none; }
 .inventory-player-mobile-bar .inventory-mobile-filter-title { flex: 0 0 auto; }
 @media (min-width: 1100px) and (max-height: 800px) {
     .home-hero-copy { transform: none; }

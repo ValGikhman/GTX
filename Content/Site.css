@@ -632,30 +632,6 @@ html[data-background-theme] body #MajordomeLink > a.gradient {
         background: transparent;
     }
 
-    #inventorySidebarPane .inventory-filter-stats {
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        gap: .65rem;
-        padding: .75rem .9rem;
-        border-bottom: 1px solid rgba(15, 23, 42, .12);
-        background: linear-gradient(180deg, #ffffff 0%, #f3f6fa 100%);
-        color: #111827 !important;
-        box-shadow: 0 .35rem .9rem rgba(15, 23, 42, .08);
-    }
-
-    #inventorySidebarPane .inventory-filter-match {
-        flex: 1 1 auto;
-        justify-content: flex-start;
-        color: #111827;
-        font-size: .9rem;
-        font-weight: 900;
-    }
-
-    #inventorySidebarPane #inventoryFilterCount {
-        font-size: 1rem;
-    }
-
     #inventorySidebarPane .inventory-clear-btn {
         min-height: 2.2rem;
         flex: 0 0 auto;
@@ -666,19 +642,20 @@ html[data-background-theme] body #MajordomeLink > a.gradient {
     }
 
     #inventorySidebarPane .inventory-filter-scroll {
-        padding: .7rem .7rem calc(1rem + env(safe-area-inset-bottom));
         background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
     }
 
-    #inventorySidebarPane .inventory-filter-panel {
+    #inventorySidebarPane :is(.inventory-filter-stats, .inventory-filter-panel) {
         margin-bottom: .6rem;
-        border-color: rgba(15, 23, 42, .11);
         border-radius: .7rem;
+    }
+
+    #inventorySidebarPane .inventory-filter-panel {
+        border-color: rgba(15, 23, 42, .11);
         box-shadow: 0 .45rem 1rem rgba(15, 23, 42, .08);
     }
 
     #inventorySidebarPane .inventory-filter-panel-toggle {
-        min-height: 2.9rem;
         padding: .7rem .8rem .7rem .95rem;
     }
 
@@ -736,11 +713,6 @@ html[data-background-theme] body #MajordomeLink > a.gradient {
         left: auto !important;
     }
 
-    .inventory-results-zone #filterByTerm .inventory-term-search {
-        width: 100%;
-        justify-content: center !important;
-    }
-
     .inventory-results-zone #filterTerm {
         min-height: 2.75rem;
     }
@@ -761,14 +733,7 @@ html[data-background-theme] body #MajordomeLink > a.gradient {
         flex-wrap: nowrap !important;
     }
     .inventory-results-zone #filterByTerm #filterWrapper {
-        width: min(82vw, 18rem) !important;
-        max-width: 100%;
         flex-wrap: nowrap;
-    }
-
-    .inventory-results-zone #filterByTerm .inventory-term-search {
-        flex: 0 1 auto;
-        justify-content: center !important;
     }
 
     .inventory-results-zone #filterByTerm #filterTerm {
@@ -2078,7 +2043,6 @@ html[data-background-theme="dark"] {
 .gradient,
 .btn-gradient-grey:not(.active),
 .page-title.inventory-player-title.page-title-mobile-call-enabled,
-.inventory-filter-panel,
 #inventorySidebarPane .inventory-filter-panel > .inventory-filter-panel-toggle {
     background: var(--gtx-gradient-background);
     color: var(--gtx-gradient-ink);
