@@ -76,10 +76,9 @@
                 showFilterChips: true,
                 exportToExcel: false,
                 exportToPdf: false,
-                groupable: true,
                 alternateRows: true,
                 emptyText: "No commands match the current filters.",
-                emptyHint: "Adjust the search, grouping, or column filters.",
+                emptyHint: "Adjust the search or column filters.",
                 dblClick: function (detail) {
                     if ($(detail.event.target).closest("button, a, input, select").length) return;
                     openWizard({
