@@ -1,4 +1,34 @@
 @model GTX.Models.GTX
+@functions {
+    private static bool HasSpecValue(string value)
+    {
+        return !string.IsNullOrEmpty(value) && value != "-" && !string.Equals(value, "N/A", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string DisplayColor(string value)
+    {
+        var color = value?.Trim();
+        return HasSpecValue(color) && !string.Equals(color, "NONE", StringComparison.OrdinalIgnoreCase) ? color : null;
+    }
+
+    private static string ColorSwatch(string name)
+    {
+        switch (name.ToUpperInvariant())
+        {
+            case "GREY":
+                name = "GRAY";
+                break;
+            case "BURGUN":
+            case "BURGUNDY":
+                return "#800020";
+        }
+
+        var color = System.Drawing.Color.FromName(name);
+        return color.IsKnownColor && !color.IsSystemColor && color.A == byte.MaxValue
+            ? $"#{color.R:X2}{color.G:X2}{color.B:X2}"
+            : null;
+    }
+}
 @{
     const int cardImageRenderWidth = 600;
     const int cardImageRenderHeight = 450;
@@ -9,6 +39,13 @@
     var makeImg = SiteImageUrl.Build($"makes/{Model.Make.Replace(" ", "-").ToLowerInvariant()}.png");
     var carTitle = $"{Model.Year} {Model.Make} {Model.Model}";
     var cardImageUrl = InventoryImageUrl.Build(Model.Image, Model.Stock, InventoryImageVariant.Card);
+    var galleryPhotos = new[] { cardImageUrl }
+        .Concat((Model.Images ?? Array.Empty<Services.Image>()).Skip(1)
+            .Where(image => !string.IsNullOrWhiteSpace(image?.Source))
+            .Select(image => InventoryImageUrl.Build(image.Source, Model.Stock, InventoryImageVariant.Card)))
+        .Distinct(StringComparer.Ordinal)
+        .ToArray();
+    var hasGalleryPhotos = galleryPhotos.Length > 1;
     var usCulture = System.Globalization.CultureInfo.GetCultureInfo("en-US");
     var documentaryFee = Model.InternetPrice > 0 ? Constants.DOCUMENTARY_FEE : 0;
     var transparentPrice = Model.InternetPrice + documentaryFee;
@@ -16,6 +53,28 @@
     var cardIndex = cardIndexRaw is int cardIndexValue ? cardIndexValue : int.MaxValue;
     var isPriorityCardImage = cardIndex >= 0 && cardIndex < 4;
     var logoLoadingMode = cardIndex >= 0 && cardIndex < 16 ? "eager" : "lazy";
+    var hasStory = Model.Story is not null &&
+        (Model.Story.HtmlContent ?? string.Empty).IndexOf("ERROR", StringComparison.OrdinalIgnoreCase) < 0;
+    var hasDataOne = Model.HasDataOne || Model.DataOne is not null;
+    var transmissionCode = Model.Transmission?.Trim();
+    var transmission = string.IsNullOrWhiteSpace(Model.TransmissionWord) ? transmissionCode : Model.TransmissionWord.Trim();
+    var compactTransmission = string.IsNullOrEmpty(transmissionCode) ? transmission : transmissionCode;
+    if (!string.IsNullOrEmpty(compactTransmission) && Model.TransmissionSpeed > 0)
+    {
+        compactTransmission += " / " + I18n.F("InventoryCardSpec_SpeedCount", Model.TransmissionSpeed);
+    }
+    var specs = new[]
+    {
+        (Key: "exterior", Group: "finish", Label: "InventoryCardSpec_Exterior", Icon: "bi-palette", Value: DisplayColor(Model.Color)),
+        (Key: "interior", Group: "finish", Label: "InventoryCardSpec_Interior", Icon: "bi-palette2", Value: DisplayColor(Model.Color2)),
+        (Key: "engine", Group: "powertrain", Label: "Home_Engine", Icon: "bi-lightning-charge", Value: Model.Engine?.Trim()),
+        (Key: "cylinders", Group: "powertrain", Label: "All_Cylinders", Icon: "bi-gear-wide-connected", Value: Model.Cylinders > 0 ? Model.Cylinders.ToString() : null),
+        (Key: "transmission", Group: "powertrain", Label: "InventoryCardSpec_Transmission", Icon: "bi-shuffle", Value: string.Equals(transmission, "N", StringComparison.OrdinalIgnoreCase) ? null : transmission),
+        (Key: "drive", Group: "road", Label: "All_Drive", Icon: "bi-diagram-3", Value: Model.DriveTrain?.Trim()),
+        (Key: "fuel", Group: "economy", Label: "All_Fuel", Icon: "bi-fuel-pump", Value: Model.FuelType?.Trim()),
+        (Key: "body", Group: "road", Label: "All_Body", Icon: "bi-car-front", Value: Model.Body?.Trim()),
+        (Key: "vehicle-type", Group: "compact-only", Label: "InventoryCardSpec_VehicleType", Icon: "bi-truck-front", Value: Model.VehicleType?.Trim())
+    }.Where(spec => spec.Group == "finish" || HasSpecValue(spec.Value));
 }
 
 <li id="@Model.Stock"
@@ -23,15 +82,15 @@
     title="Click here to see details."
     data-url="@detailsUrl"
     data-location-code="@Model.LocationCode"
-    data-story="@(Model.Story is not null && !Model.Story.HtmlContent.ToUpper().Contains("ERROR") ? "STORY" : "NOSTORY")"
-    data-dataone="@(Model.HasDataOne || Model.DataOne is not null ? "DATAONE" : "NODATAONE")"
+    data-story="@(hasStory ? "STORY" : "NOSTORY")"
+    data-dataone="@(hasDataOne ? "DATAONE" : "NODATAONE")"
     data-images="@(Model.Image is not null && Model.Image.Contains("no-image") ? "NOIMAGE" : "IMAGE")"
     data-year="@Model.Year"
     data-stock="@Model.Stock.ToUpper()"
     data-vin="@Model.VIN.ToUpper()"
     data-make="@Model.Make.ToUpper()"
     data-model="@Model.Model.ToUpper()"
-    data-transmission="@Model.TransmissionWord.ToUpper()"
+    data-transmission="@((Model.TransmissionWord ?? string.Empty).ToUpper())"
     data-fuel="@((Model.FuelType ?? string.Empty).ToUpper())"
     data-drive="@((Model.DriveTrain ?? string.Empty).ToUpper())"
     data-body="@((Model.Body ?? string.Empty).ToUpper())"
@@ -40,11 +99,11 @@
     data-miles="@Model.Mileage"
     data-price="@Model.InternetPrice"
     data-cylinders="@Model.Cylinders"
-    data-color="@Model.Color.ToUpper()"
-    data-color2="@Model.Color2.ToUpper()">
+    data-color="@((Model.Color ?? string.Empty).ToUpper())"
+    data-color2="@((Model.Color2 ?? string.Empty).ToUpper())">
 
     <!-- Keep structure clickable (your JS likely binds on li/card click) -->
-    <div class="h-100 rounded-4 overflow-hidden">
+    <div class="h-100 rounded-4 overflow-hidden gtx-card-content">
 
         <!-- HEADER (keeps your gradient look) -->
         <div class="card-header gradient gtx-header p-1">
@@ -88,7 +147,8 @@
 
 
         <!-- IMAGE -->
-        <div class="card-body p-0 gtx-media" data-vin="@Model.VIN">
+        <div class="card-body p-0 gtx-media" data-vin="@Model.VIN"
+             data-gallery-photos="@(hasGalleryPhotos ? System.Web.Helpers.Json.Encode(galleryPhotos) : null)">
             <!-- badges use your data flags; optional but helpful visually -->
             <div class="gtx-badges">
                 <!-- Like badge (hidden by default) -->
@@ -96,17 +156,19 @@
                     <i class="bi bi-heart-fill text-danger"></i>
                 </span>
 
-                @if (Model.Story is not null && !(Model.Story.HtmlContent ?? "").ToUpper().Contains("ERROR"))
-                {
-                    <span class="gtx-chip gtx-chip-dark shadow" title="Vehicle story available"><i class="bi bi-feather"></i></span>
-                }
-                @if (Model.HasDataOne || Model.DataOne is not null)
-                {
-                    <span class="gtx-chip gtx-chip-dark shadow" title="DataOne vehicle details available"><i class="bi bi-shield-check"></i></span>
-                }
-                <span class="gtx-chip gtx-chip-dark shadow" title="@Model.DetailsCounter Details page views">
-                    <i class="bi bi-eye-fill"></i>
-                    <span>@Model.DetailsCounter</span>
+                <span class="gtx-card-indicators">
+                    @if (hasStory)
+                    {
+                        <span class="gtx-chip gtx-chip-dark shadow" title="Vehicle story available"><i class="bi bi-feather"></i></span>
+                    }
+                    @if (hasDataOne)
+                    {
+                        <span class="gtx-chip gtx-chip-dark shadow" title="DataOne vehicle details available"><i class="bi bi-shield-check"></i></span>
+                    }
+                    <span class="gtx-chip gtx-chip-dark shadow" title="@Model.DetailsCounter Details page views">
+                        <i class="bi bi-eye-fill"></i>
+                        <span>@Model.DetailsCounter</span>
+                    </span>
                 </span>
             </div>
 
@@ -129,12 +191,65 @@
             {
                 <img class="gtx-img vehicle-image" src="@cardImageUrl" alt="@carTitle" width="@cardImageRenderWidth" height="@cardImageRenderHeight" loading="lazy" fetchpriority="low" decoding="async" />
             }
+
+            @if (hasGalleryPhotos)
+            {
+                <div class="gtx-gallery-controls">
+                    <button type="button" class="gtx-gallery-arrow gtx-open text-dark position-absolute top-50 translate-middle-y start-0 ms-2 shadow p-0"
+                            data-gallery-step="-1" aria-label="@I18n.R("InventoryGallery_PreviousPhoto")">
+                        <i class="bi bi-chevron-left" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="gtx-gallery-arrow gtx-open text-dark position-absolute top-50 translate-middle-y end-0 me-2 shadow p-0"
+                            data-gallery-step="1" aria-label="@I18n.R("InventoryGallery_NextPhoto")">
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </button>
+                    <span class="gtx-gallery-status visually-hidden" role="status"></span>
+                </div>
+            }
         </div>
+
+        <dl class="gtx-card-specs">
+            @foreach (var spec in specs)
+            {
+                var isColor = spec.Group == "finish";
+                var swatch = isColor && spec.Value != null ? ColorSwatch(spec.Value) : null;
+                <div data-card-spec="@spec.Key" data-spec-group="@spec.Group">
+                    <dt>
+                        <i class="bi @spec.Icon me-1" aria-hidden="true"></i>
+                        @if (spec.Key == "drive")
+                        {
+                            <span class="gtx-card-spec-standard">@I18n.R(spec.Label)</span>
+                            <span class="gtx-card-spec-compact">@I18n.R("InventoryCardSpec_Drivetrain")</span>
+                        }
+                        else
+                        {
+                            @I18n.R(spec.Label)
+                        }
+                    </dt>
+                    <dd>
+                        @if (isColor)
+                        {
+                            <span class="gtx-card-color-swatch rounded-pill @(swatch == null ? "invisible" : string.Empty)"
+                                  style="@(swatch == null ? null : $"background-color: {swatch}")" aria-hidden="true"></span>
+                        }
+                        @if (spec.Key == "transmission")
+                        {
+                            <span class="gtx-card-spec-standard">@spec.Value</span>
+                            <span class="gtx-card-spec-compact">@compactTransmission</span>
+                        }
+                        else
+                        {
+                            @(spec.Value ?? "\u00a0")
+                        }
+                    </dd>
+                </div>
+            }
+        </dl>
 
         <!-- FOOTER -->
         <div class="card-footer gradient no-click pb-2 pt-1 fs-6 fw-bold text-shadow gtx-footer">
             <!-- VIN + Stock -->
-            <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex justify-content-between align-items-center gtx-card-ids">
                 <span class="copyable very-small-text hand-pointer text-truncate gtx-card-copy" data-copy-value="@Model.VIN" title="Double-click to copy VIN">
                     @Model.VIN
                 </span>
@@ -142,38 +257,40 @@
                     @Model.Stock
                 </span>
             </div>
-            <a class="gtx-price-panel"
-               href="@detailsUrl"
-               onclick="event.stopPropagation();"
-               title="Click here to see details.">
+            <div class="gtx-card-price-summary">
+                <a class="gtx-price-panel"
+                   href="@detailsUrl"
+                   onclick="event.stopPropagation();"
+                   title="Click here to see details.">
 
-                <div class="gtx-price-line gtx-price-muted gtx-retail-line">
-                    <span><i class="bi bi-tag me-1"></i>@I18n.R("All_RetailPrice")</span>
-                    <span class="gtx-price-amount">@Model.RetailPrice.ToString("C0", usCulture)</span>
-                </div>
+                    <div class="gtx-price-line gtx-price-muted gtx-retail-line">
+                        <span><i class="bi bi-tag me-1"></i>@I18n.R("All_RetailPrice")</span>
+                        <span class="gtx-price-amount">@Model.RetailPrice.ToString("C0", usCulture)</span>
+                    </div>
 
-                <div class="gtx-price-line gtx-price-muted">
-                    <span><i class="bi bi-car-front me-1"></i>@I18n.R("All_InternetPrice")</span>
-                    <span class="gtx-price-amount">@Model.InternetPrice.ToString("C0", usCulture)</span>
-                </div>
-                <div class="gtx-price-line gtx-price-muted">
-                    <span><i class="bi bi-file-earmark-text me-1"></i>@I18n.R("All_DocumentaryFee")</span>
-                    <span>@documentaryFee.ToString("C0", usCulture)</span>
-                </div>
-                <div class="gtx-price-line gtx-transparent-line">
-                    <span><i class="bi bi-patch-check-fill text-warning me-1"></i>@I18n.R("All_TransparentPrice")</span>
-                    <span class="gtx-price-amount">@transparentPrice.ToString("C0", usCulture)</span>
-                </div>
-                <span class="gtx-no-hidden-fees shadow mt-1">
-                    <i class="bi bi-shield-check"></i>
-                    @I18n.R("All_NoHiddenFees")
-                </span>
-            </a>
+                    <div class="gtx-price-line gtx-price-muted gtx-internet-line">
+                        <span><i class="bi bi-car-front me-1"></i>@I18n.R("All_InternetPrice")</span>
+                        <span class="gtx-price-amount">@Model.InternetPrice.ToString("C0", usCulture)</span>
+                    </div>
+                    <div class="gtx-price-line gtx-price-muted gtx-fee-line">
+                        <span><i class="bi bi-file-earmark-text me-1"></i>@I18n.R("All_DocumentaryFee")</span>
+                        <span>@documentaryFee.ToString("C0", usCulture)</span>
+                    </div>
+                    <div class="gtx-price-line gtx-transparent-line">
+                        <span><i class="bi bi-patch-check-fill text-warning me-1"></i>@I18n.R("All_TransparentPrice")</span>
+                        <span class="gtx-price-amount">@transparentPrice.ToString("C0", usCulture)</span>
+                    </div>
+                    <span class="gtx-no-hidden-fees shadow mt-1">
+                        <i class="bi bi-shield-check"></i>
+                        @I18n.R("All_NoHiddenFees")
+                    </span>
+                </a>
 
-            <div class="d-flex justify-content-center align-items-center mt-1">
-                <span class="gtx-meta">
-                    <i class="bi bi-speedometer2 me-1"></i>@Model.Mileage.ToString("N0") @I18n.R("All_Miles")
-                </span>
+                <div class="d-flex justify-content-center align-items-center mt-1 gtx-card-mileage">
+                    <span class="gtx-meta">
+                        <i class="bi bi-speedometer2 me-1"></i>@Model.Mileage.ToString("N0") @I18n.R("All_Miles")
+                    </span>
+                </div>
             </div>
 
             <div class="gtx-card-actions mb-2">

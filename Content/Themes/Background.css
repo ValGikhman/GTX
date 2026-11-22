@@ -33,9 +33,14 @@ html[data-background-theme="dark"] .home-reviews-card #fdnReviewsWidget .review 
     color: var(--bs-body-color);
 }
 
-/* Keep these footer labels dark on the footer surface in dark mode. */
-html[data-background-theme="dark"] :is(.footer-copyright, .footer-call-terms) {
-    color: #212529 !important;
+html[data-background-theme="dark"] .footer-strip.btn-gradient-grey :is(.text-muted, .footer-copyright, .footer-call-terms) {
+    color: var(--gtx-gradient-ink) !important;
+}
+
+html[data-background-theme="dark"] .footer-strip.btn-gradient-grey .link-primary {
+    color: var(--gtx-gradient-ink) !important;
+    color: color-mix(in srgb, var(--gtx-gradient-ink) 85%, var(--bs-primary-text-emphasis, #9ec5fe)) !important;
+    text-decoration-color: currentColor !important;
 }
 
 /* Chrome-inspired neutral charcoal surfaces and light foregrounds. */
@@ -228,18 +233,12 @@ html[data-background-theme]:not([data-background-theme="light"]) #inventorySideb
     color: var(--bs-body-color);
 }
 
-html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane :is(.inventory-filter-panel, .inventory-filter-panel-body, .inventory-dependent-empty) {
-    background: var(--bs-body-bg);
-    color: var(--bs-body-color);
-}
-
-html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane .inventory-filter-panel-toggle {
-    background: linear-gradient(180deg, var(--bs-body-bg), var(--bs-tertiary-bg));
+html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane .inventory-dependent-empty {
     color: var(--bs-body-color);
 }
 
 html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane :is(.inventory-filter-panel-count, .inventory-range-values, .inventory-range-output, .inventory-check-row) {
-    color: var(--bs-body-color);
+    color: var(--gtx-gradient-ink);
 }
 
 html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane .inventory-check-row:hover,
@@ -266,13 +265,8 @@ html[data-background-theme]:not([data-background-theme="light"]) .inventory-empt
 }
 
 @media (max-width: 991.98px) {
-    html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane .inventory-filter-stats {
-        background: var(--bs-tertiary-bg);
-        color: var(--bs-body-color) !important;
-    }
-
-    html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane .inventory-filter-match {
-        color: var(--bs-body-color);
+    html[data-background-theme="dark"] #inventorySidebarPane :is(.inventory-filter-panel-count, .inventory-range-output) {
+        background: var(--bs-secondary-bg);
     }
 }
 
@@ -551,30 +545,16 @@ html[data-background-theme="dark"] .vin-decoder-input-group {
     border-color: #8a9099;
 }
 
-/* The desktop action buttons keep their light silver backgrounds in dark mode. */
-/* Silver button surfaces keep dark lettering when the page palette changes. */
-html[data-background-theme="dark"] .btn:is(.gradient, .btn-gradient-grey:not(.active)) {
-    color: #212529 !important;
+html[data-background-theme="dark"] body .gradient,
+html[data-background-theme="dark"] .card-body.gradient > .card-subtitle.text-muted {
+    color: var(--gtx-gradient-ink) !important;
+}
+
+html[data-background-theme="dark"] .main-menu.no-wrap-group .btn:not(:is(.gradient, .btn-gradient-grey)) {
     --bs-btn-color: #212529;
     --bs-btn-hover-color: #212529;
     --bs-btn-active-color: #212529;
     --bs-btn-disabled-color: #212529;
-}
-
-html[data-background-theme="dark"] .btn:is(.gradient, .btn-gradient-grey:not(.active)) :is(.text-dark, .text-white) {
-    color: #212529 !important;
-}
-
-html[data-background-theme="dark"] .main-menu.no-wrap-group .btn {
-    --bs-btn-color: #212529;
-    --bs-btn-hover-color: #212529;
-    --bs-btn-active-color: #212529;
-    --bs-btn-disabled-color: #212529;
-}
-
-html[data-background-theme="dark"] #shorts .btn,
-html[data-background-theme="dark"] .btn.inventory-contact-map-btn {
-    color: #212529 !important;
 }
 
 html[data-background-theme="grey"] .testimonials-page .t-title {
@@ -594,7 +574,7 @@ html[data-background-theme="dark"] .vdp-record-status-number {
     color: #fff;
 }
 
-html[data-background-theme="dark"] .page-title .btn {
+html[data-background-theme="dark"] .page-title .btn:not(.btn-gradient-grey) {
     --bs-btn-color: #212529;
     --bs-btn-hover-color: #212529;
     --bs-btn-active-color: #212529;
@@ -602,24 +582,20 @@ html[data-background-theme="dark"] .page-title .btn {
     color: #212529 !important;
 }
 
-html[data-background-theme="dark"] .page-title .btn :is(i, span, strong) {
+html[data-background-theme="dark"] .page-title .btn:not(.btn-gradient-grey) :is(i, span, strong) {
     color: #212529 !important;
 }
 
-html[data-background-theme="dark"] .btn.btn-gradient-grey.text-shadow-small:not(.active) {
-    color: #212529 !important;
+html[data-background-theme="dark"] #filterByTerm .btn-gradient-grey:not(.active) .text-danger {
+    color: color-mix(in srgb, var(--bs-danger-text-emphasis) 75%, white) !important;
+}
+
+html[data-background-theme="dark"] #filterByTerm .btn-gradient-grey:not(.active) .text-primary {
+    color: color-mix(in srgb, var(--bs-primary-text-emphasis) 75%, white) !important;
 }
 
 html[data-background-theme="dark"] .nav.nav-tabs :is(.nav-link, .btn[role="tab"]) {
     color: #fff !important;
-}
-
-html[data-background-theme="dark"] .nav.nav-tabs.no-wrap-group .btn.btn-gradient-grey:not(.active) {
-    color: #212529 !important;
-}
-
-html[data-background-theme="dark"] .article.btn.btn-gradient-grey.collapse-toggle {
-    color: #212529 !important;
 }
 
 html body .btn.btn-gradient-grey.text-shadow-small.active {
@@ -638,13 +614,8 @@ html[data-background-theme="dark"] .gtx-card {
 }
 
 html[class][data-background-theme="dark"] body .gtx-card :is(.gtx-header, .gtx-footer).gradient {
-    background: linear-gradient(145deg, #383838, #2b2b2b) !important;
     color: #ededed !important;
     text-shadow: none !important;
-}
-
-html[class][data-background-theme="dark"] body .gtx-card .gtx-header.gradient {
-    background: linear-gradient(135deg, #686868 0%, #555 48%, #424242 100%) !important;
 }
 
 html[data-background-theme="dark"] .gtx-card .text-shadow {
@@ -657,7 +628,11 @@ html[data-background-theme="dark"] .gtx-card .gtx-make-logo-wrap {
     padding: .15rem .3rem;
 }
 
-html[data-background-theme="dark"] .gtx-card :is(.gtx-trimline, .gtx-card-copy, .gtx-price-muted, .gtx-price-muted span) {
+html[data-background-theme="dark"] .gtx-card :is(.gtx-trimline, .gtx-card-copy) {
+    opacity: 1;
+}
+
+html[data-background-theme="dark"] .gtx-card :is(.gtx-price-muted, .gtx-price-muted span) {
     color: #c2c2c2 !important;
     opacity: 1;
 }
@@ -755,19 +730,6 @@ html[data-background-theme="dark"] #menuAboutMobile .btn-outline-dark {
     --bs-btn-disabled-border-color: var(--bs-border-color);
 }
 
-/* Mobile silver controls keep dark lettering; active tabs retain accent colors. */
-@media (max-width: 991.98px) {
-    html[class][data-background-theme] body :is(.gradient, .btn-gradient-grey):not(.active):not(:where(.vdp-tabs .btn)),
-    html[class][data-background-theme] body :is(.gradient, .btn-gradient-grey):not(.active):not(:where(.vdp-tabs .btn)):is(:hover, :focus, :active),
-    html[class][data-background-theme] body :is(.gradient, .btn-gradient-grey):not(.active):not(:where(.vdp-tabs .btn)) .text-dark {
-        color: #212529 !important;
-        --bs-btn-color: #212529;
-        --bs-btn-hover-color: #212529;
-        --bs-btn-active-color: #212529;
-        --bs-btn-disabled-color: #212529;
-    }
-}
-
 /* Inventory add/edit shares the page's dark palette, including readonly fields. */
 html[data-background-theme="dark"] .majordome-editor-body {
     background: linear-gradient(180deg, var(--gtx-page-bg), var(--bs-body-bg));
@@ -831,7 +793,7 @@ html[data-background-theme="dark"] .majordome-editor-footer {
     border-top-color: var(--bs-border-color);
 }
 
-/* Vehicle utility buttons use dark surfaces instead of silver gradients. */
+/* Keep vehicle utility icons and borders visible in Dark. */
 html[class][data-background-theme="dark"] body .vdp-utility-actions .btn.btn-gradient-grey {
     color: #fff !important;
     --bs-btn-color: #fff;

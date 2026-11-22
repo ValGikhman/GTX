@@ -1,88 +1,153 @@
 @{
     var isPublicInventoryToolbar = string.Equals((ViewContext.RouteData.Values["controller"] ?? string.Empty).ToString(), "Inventory", StringComparison.OrdinalIgnoreCase);
+    var layouts = new[]
+    {
+        new { Value = "classic", Icon = "bi-grid-3x2-gap", Resource = "InventoryCardLayout_Classic" },
+        new { Value = "gallery", Icon = "bi-images", Resource = "InventoryCardLayout_Gallery" },
+        new { Value = "compact", Icon = "bi-card-list", Resource = "InventoryCardLayout_Compact" },
+        new { Value = "price", Icon = "bi-cash-stack", Resource = "InventoryCardLayout_Price" }
+    };
+    var defaultLayout = layouts[0];
+    var sortOptions = new[]
+    {
+        new { Value = "make", Icon = "bi-car-front", Title = "InventorySort_Make", Description = "InventorySort_Make_Description" },
+        new { Value = "year", Icon = "bi-calendar3", Title = "All_Year", Description = "InventorySort_Year_Description" },
+        new { Value = "miles", Icon = "bi-speedometer2", Title = "All_Miles", Description = "InventorySort_Miles_Description" },
+        new { Value = "price", Icon = "bi-tag", Title = "All_Price", Description = "InventorySort_Price_Description" },
+        new { Value = "color", Icon = "bi-palette", Title = "InventoryCardSpec_Exterior", Description = "InventorySort_Color_Description" }
+    };
+    var defaultSort = sortOptions[0];
 }
 
-<div id="filterByTerm" class="inventory-result-toolbar d-flex align-items-center justify-content-center flex-wrap w-100">
-    <div class="inventory-toolbar-shell d-flex align-items-center justify-content-center gap-5 flex-wrap">
+<div id="filterByTerm" class="inventory-result-toolbar d-flex align-items-center flex-nowrap gap-2 gap-lg-3 w-100">
+    @if (isPublicInventoryToolbar)
+    {
+        <div id="inventoryCardLayoutPicker" class="dropdown d-flex align-items-center gap-2 flex-shrink-0 ps-lg-2">
+            <span id="inventoryCardLayoutCaption" class="d-none d-lg-inline fw-bold text-nowrap">@I18n.R("InventoryCardLayout_Label")</span>
+            <button id="inventoryCardLayoutDropdown" type="button" class="btn btn-sm btn-gradient dropdown-toggle rounded-4 shadow text-nowrap"
+                    data-bs-toggle="dropdown" aria-expanded="false" aria-controls="inventoryCardLayoutMenu"
+                    aria-labelledby="inventoryCardLayoutCaption inventoryCardLayoutLabel">
+                <i class="bi bi-grid-3x2-gap" aria-hidden="true"></i>
+                <span id="inventoryCardLayoutLabel">@I18n.R(defaultLayout.Resource)</span>
+            </button>
+            <ul id="inventoryCardLayoutMenu" class="dropdown-menu rounded majordome-batch-actions-menu p-1 shadow" aria-labelledby="inventoryCardLayoutDropdown">
+                @foreach (var option in layouts)
+                {
+                    var selected = option.Value == defaultLayout.Value;
+                    <li>
+                        <button type="button" class="dropdown-item majordome-batch-action rounded-3 @(selected ? "active" : null)"
+                                data-card-layout="@option.Value" aria-pressed="@(selected ? "true" : "false")">
+                            <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi @option.Icon"></i></span>
+                            <span><strong>@I18n.R(option.Resource)</strong><small>@I18n.R(option.Resource + "_Description")</small></span>
+                        </button>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+    <!-- Quick Search -->
+    <div class="inventory-term-search d-flex justify-content-center">
+        <div id="filterWrapper" class="input-group rounded-4">
+            <!-- Search box -->
+            <input type="search" id="filterTerm" class="form-control rounded-start-4 rounded-end-4 shadow" placeholder="Search within results..." aria-label="Search inventory">
+
+            <!-- Help -->
+            <button class="filterHelp d-none input-group-text btn btn-gradient-grey border-start-0 rounded-0 border-dark-subtle" data-bs-toggle="modal" data-bs-target="#searchHelpModal">
+                <i id="filterHelp" class="bi-question-circle" title="Help" style="cursor:pointer;"></i>
+            </button>
+
+            <!-- Like -->
+            <button type="button" class="filterLiked input-group-text btn btn-gradient-grey border-start-0 rounded-0 border-dark-subtle" style="margin-left:-3px;" aria-label="Show liked vehicles" aria-pressed="false">
+                <i id="filterLiked" class="bi bi-heart text-danger" title="Show liked" style="cursor:pointer;"></i>
+            </button>
+
+            <!-- Last Seen -->
+            <button class="filterLast input-group-text btn btn-gradient-grey border-start-0 rounded-end-4 border-dark-subtle" style="margin-left:-4px;">
+                <i id="filterLast" class="bi bi-journal text-primary" title="10 last seen cars" style="cursor:pointer;"></i>
+            </button>
+        </div>
+    </div>
+    <div class="inventory-toolbar-shell d-none d-lg-flex align-items-center flex-nowrap gap-2 gap-lg-3">
         <!-- Sort -->
-        <div class="sort d-none d-lg-flex align-items-center gap-2 z-3">
-            <label for="sortField" class="fw-bold mb-0">@I18n.R("Filter_SortBy")</label>
-            <select id="sortField" class="form-select inventory-toolbar-select shadow rounded-4">
-                <option value="make">Make</option>
-                <option value="year">Year</option>
-                <option value="miles">Miles</option>
-                <option value="price">Price</option>
-                <option value="color">Exterior color</option>
-            </select>
-
-            <span class="form-check form-check-inline mx-1">
-                <input class="form-check-input me-2" type="checkbox" id="sortDirection">
-                <label id="sortDirectionLabel" class="fw-bold mb-0" for="sortDirection">A-z</label>
-            </span>
-        </div>
-
-        <!-- Search -->
-        <div class="inventory-term-search d-flex justify-content-center">
-            <div id="filterWrapper" class="input-group rounded-4">
-                <!-- Search box -->
-                <input type="search" id="filterTerm" class="form-control rounded-start-4 rounded-end-4 shadow" placeholder="Search within results..." aria-label="Search inventory">
-
-                <!-- Help -->
-                <button class="filterHelp d-none input-group-text btn btn-gradient-grey border-start-0 rounded-0 border-dark-subtle" data-bs-toggle="modal" data-bs-target="#searchHelpModal">
-                    <i id="filterHelp" class="bi-question-circle" title="Help" style="cursor:pointer;"></i>
+        <div class="sort d-none d-lg-flex align-items-center gap-2 pe-2 z-3">
+            <span id="inventorySortCaption" class="fw-bold">@I18n.R("Filter_SortBy")</span>
+            <input id="sortField" type="hidden" value="@defaultSort.Value" />
+            <div id="inventorySortPicker" class="dropdown">
+                <button id="inventorySortDropdown" type="button" class="btn btn-sm btn-gradient dropdown-toggle rounded-4 shadow text-nowrap"
+                        data-bs-toggle="dropdown" data-bs-popper-config='{"strategy":"fixed"}' aria-expanded="false"
+                        aria-controls="inventorySortMenu" aria-labelledby="inventorySortCaption inventorySortLabel">
+                    <i class="bi bi-sort-down" aria-hidden="true"></i>
+                    <span id="inventorySortLabel">@I18n.R(defaultSort.Title)</span>
                 </button>
-
-                <!-- Like -->
-                <button type="button" class="filterLiked input-group-text btn btn-gradient-grey border-start-0 rounded-0 border-dark-subtle" style="margin-left:-3px;" aria-label="Show liked vehicles" aria-pressed="false">
-                    <i id="filterLiked" class="bi bi-heart text-danger" title="Show liked" style="cursor:pointer;"></i>
-                </button>
-
-                <!-- Last Seen -->
-                <button class="filterLast input-group-text btn btn-gradient-grey border-start-0 rounded-end-4 border-dark-subtle" style="margin-left:-4px;">
-                    <i id="filterLast" class="bi bi-journal text-primary" title="10 last seen cars" style="cursor:pointer;"></i>
-                </button>
+                <ul id="inventorySortMenu" class="dropdown-menu dropdown-menu-end rounded majordome-batch-actions-menu p-1 shadow" aria-labelledby="inventorySortDropdown">
+                    @foreach (var option in sortOptions)
+                    {
+                        var selected = option.Value == defaultSort.Value;
+                        <li>
+                            <button type="button" class="dropdown-item majordome-batch-action rounded-3 @(selected ? "active" : null)"
+                                    data-sort-field="@option.Value" aria-pressed="@(selected ? "true" : "false")">
+                                <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi @option.Icon"></i></span>
+                                <span><strong>@I18n.R(option.Title)</strong><small>@I18n.R(option.Description)</small></span>
+                            </button>
+                        </li>
+                    }
+                </ul>
             </div>
+
+            <button id="sortDirection" type="button"
+                    class="btn btn-sm btn-gradient-grey rounded-4 border border-secondary-subtle focus-ring d-inline-flex align-items-center gap-1 fw-semibold text-nowrap me-0"
+                    aria-label="@I18n.R("InventorySort_Descending")" aria-pressed="false"
+                    data-ascending-label="@I18n.R("InventorySort_Ascending")" title="@I18n.R("InventorySort_Ascending")">
+                <i class="bi bi-arrow-down-short fs-6 lh-1" aria-hidden="true"></i>
+                <span id="sortDirectionLabel" aria-hidden="true">A-Z</span>
+            </button>
         </div>
+
         @if (isPublicInventoryToolbar)
         {
-        <div class="inventory-toolbar-paging d-none d-lg-flex align-items-center justify-content-center gap-2">
-            <div class="inventory-page-size d-flex align-items-center gap-2 z-3">
-                <label for="inventoryPageSize" class="fw-bold mb-0">Show</label>
-                <select id="inventoryPageSize" class="inventory-page-size-select form-select inventory-toolbar-select shadow rounded-4" aria-label="Vehicles per page" title="Vehicles per page">
-                    <option value="20">20</option>
-                    <option value="40">40</option>
-                    <option value="60">60</option>
-                    <option value="80">80</option>
-                    <option value="all" selected>All</option>
-                </select>
-            </div>
+            <div class="inventory-toolbar-paging d-none d-lg-flex align-items-center gap-2" hidden>
+                <div class="inventory-page-size d-flex align-items-center gap-2 z-3">
+                    <label for="inventoryPageSize" class="fw-bold mb-0">Show</label>
+                    <select id="inventoryPageSize" class="inventory-page-size-select form-select inventory-toolbar-select shadow rounded-4" aria-label="Vehicles per page" title="Vehicles per page">
+                        <option value="20">20</option>
+                        <option value="40">40</option>
+                        <option value="60">60</option>
+                        <option value="80">80</option>
+                        <option value="all" selected>All</option>
+                    </select>
+                </div>
 
-            <nav id="inventoryPager" class="inventory-pager d-flex align-items-center gap-1 z-3" aria-label="Inventory pages">
-                <button type="button" class="inventory-pager-btn" data-page-action="first" title="First page" aria-label="First page">
-                    <i class="bi bi-chevron-double-left"></i>
-                </button>
-                <button type="button" class="inventory-pager-btn" data-page-action="prev" title="Previous page" aria-label="Previous page">
-                    <i class="bi bi-chevron-left"></i>
-                </button>
-                <span id="inventoryPageStatus" class="inventory-page-status" aria-live="polite">Page 1 of 1</span>
-                <button type="button" class="inventory-pager-btn" data-page-action="next" title="Next page" aria-label="Next page">
-                    <i class="bi bi-chevron-right"></i>
-                </button>
-                <button type="button" class="inventory-pager-btn" data-page-action="last" title="Last page" aria-label="Last page">
-                    <i class="bi bi-chevron-double-right"></i>
-                </button>
-            </nav>
-        </div>
+                <nav id="inventoryPager" class="inventory-pager d-flex align-items-center gap-1 z-3" aria-label="Inventory pages">
+                    <button type="button" class="inventory-pager-btn" data-page-action="first" title="First page" aria-label="First page">
+                        <i class="bi bi-chevron-double-left"></i>
+                    </button>
+                    <button type="button" class="inventory-pager-btn" data-page-action="prev" title="Previous page" aria-label="Previous page">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <span id="inventoryPageStatus" class="inventory-page-status" aria-live="polite">Page 1 of 1</span>
+                    <button type="button" class="inventory-pager-btn" data-page-action="next" title="Next page" aria-label="Next page">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                    <button type="button" class="inventory-pager-btn" data-page-action="last" title="Last page" aria-label="Last page">
+                        <i class="bi bi-chevron-double-right"></i>
+                    </button>
+                </nav>
+            </div>
         }
     </div>
 </div>
 
 <style>
     #filterByTerm #filterWrapper {
-        width: min(100%, 350px);
+        width: 100%;
+    }
+
+    #filterByTerm #filterTerm {
+        min-width: 0;
     }
 
     #filterByTerm .inventory-toolbar-shell > .sort {
+        flex-shrink: 0;
         margin: 0;
         justify-content: flex-start;
         white-space: nowrap;
@@ -93,25 +158,63 @@
         left: auto !important;
         transform: none !important;
         justify-content: center !important;
-        margin: .75rem 0 0 !important;
-        padding: 0 .5rem .65rem !important;
+        padding: 0 !important;
     }
 
     .inventory-toolbar-shell {
-        width: auto;
-        max-width: 100%;
+        flex: 0 1 auto;
+        min-width: 0;
         min-height: 3rem;
-        padding: .42rem .55rem;
+        padding-block: .35rem;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-width: thin;
     }
 
-    .inventory-toolbar-shell .inventory-term-search {
-        min-width: 0;
-        flex: 0 1 350px;
+    @@media (min-width: 992px) {
+        .inventory-results-zone #inventory {
+            scrollbar-gutter: stable;
+        }
+
+        .inventory-results-zone #filterByTerm.inventory-result-toolbar {
+            --inventory-search-min-width: 9rem;
+            display: grid !important;
+            grid-template-areas: "views search sort";
+            grid-template-columns: minmax(0, 1fr) clamp(var(--inventory-search-min-width), var(--inventory-search-width, 22rem), 22rem) minmax(0, 1fr);
+        }
+
+        .inventory-results-zone #filterByTerm.inventory-toolbar-stacked {
+            grid-template-areas: "views sort" "search search";
+            grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+        }
+
+        #inventoryCardLayoutPicker {
+            grid-area: views;
+            justify-self: start;
+            width: max-content;
+            margin-inline-start: var(--inventory-toolbar-start, 0px);
+        }
+
+        #filterByTerm .inventory-term-search {
+            grid-area: search;
+            justify-self: center;
+            width: min(100%, 22rem);
+            min-width: var(--inventory-search-min-width);
+        }
+
+        #filterByTerm .inventory-toolbar-shell {
+            grid-area: sort;
+            justify-self: end;
+            width: max-content;
+            max-width: calc(100% - var(--inventory-toolbar-end, 0px));
+            margin-inline-end: var(--inventory-toolbar-end, 0px);
+        }
     }
 
     .inventory-toolbar-paging {
         flex: 0 0 auto;
         min-width: 0;
+        max-width: 100%;
         white-space: nowrap;
     }
 
@@ -123,6 +226,7 @@
         padding: .4rem .5rem 0;
     }
 
+    .inventory-toolbar-paging[hidden],
     .inventory-bottom-paging.is-hidden {
         display: none !important;
     }
@@ -143,14 +247,15 @@
         width: auto;
     }
 
-    .inventory-page-size-label {
-        color: #1f2937;
-    }
-
     .inventory-pager {
         min-height: 2.35rem;
         padding: .22rem .35rem;
         white-space: nowrap;
+    }
+
+    #inventoryPager {
+        min-width: 0;
+        max-width: 100%;
     }
 
     .inventory-pager-btn {
@@ -243,33 +348,9 @@
         border: 1px solid rgba(15, 23, 42, .1);
     }
 
-    @@media (min-width: 992px) {
-        .inventory-results-zone #filterByTerm.inventory-result-toolbar,
-        .inventory-toolbar-shell {
-            flex-wrap: nowrap !important;
-        }
-
-        .inventory-results-zone #filterByTerm #filterWrapper {
-            width: 100%;
-            min-width: 220px;
-        }
-    }
-
     @@media (min-width: 992px) and (max-width: 1399.98px) {
-        .inventory-results-zone #filterByTerm.inventory-result-toolbar {
-            gap: .45rem !important;
-        }
-
-        .inventory-results-zone #filterByTerm #filterWrapper {
-            width: 100%;
-        }
-
         .inventory-page-size {
             padding-left: .5rem;
-        }
-
-        .inventory-page-size-label {
-            display: none;
         }
 
         .inventory-page-status {
@@ -286,24 +367,32 @@
         .inventory-page-size label {
             display: none;
         }
-
-        .inventory-toolbar-shell .inventory-term-search {
-            flex-basis: 240px;
-        }
     }
 
     @@media (max-width: 991.98px) {
-        .inventory-results-zone #filterByTerm.inventory-result-toolbar {
-            justify-content: center !important;
-            padding: 0 !important;
+        #inventoryCardLayoutPicker {
+            margin-inline-start: var(--inventory-toolbar-start, var(--inventory-results-gutter, 0px));
+            max-width: 45%;
         }
 
-        .inventory-toolbar-shell {
-            width: 100%;
-            padding: 0;
-            border: 0;
-            background: transparent;
-            box-shadow: none;
+        #inventoryCardLayoutDropdown {
+            display: inline-flex;
+            align-items: center;
+            gap: .25rem;
+            max-width: 100%;
+        }
+
+        #inventoryCardLayoutLabel {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #filterByTerm .inventory-term-search {
+            flex: 1 1 18rem;
+            min-width: 0;
+            max-width: 22rem;
+            min-height: 3rem;
+            padding: .35rem .25rem;
         }
     }
 </style>

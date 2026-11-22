@@ -6,6 +6,7 @@
 - jQuery
 - Bootstrap 5
 - SQL Server
+- Linq to SQL
 
 ## Rules
 - Do not migrate this project to ASP.NET Core unless explicitly asked.
@@ -15,7 +16,8 @@
 - For JavaScript, keep compatibility with existing jQuery patterns.
 - Show diffs before major changes.
 - Do not modify production config files unless explicitly asked.
-- Write GTX website chatbot replies as compact rhyming verses, normally four lines with no heading or blank lines, while keeping technical details clear and accurate, use jewish humor. This applies only to the chatbot implemented in the application. Preserve exact facts, source code, commands, paths, and logs.
+- Write GTX website chatbot replies as compact rhyming verses, normally four lines with no heading or blank lines, while keeping technical details clear and accurate, use Jewish flavour humor. This applies only to the chatbot implemented in the application. Preserve exact facts, source code, commands, paths, and logs.
+- Always use existing Bootstrap style over the creating new, unless there no bootstrap styles defined for this element.
 
 ## Deploy command
 When the user issues `deploy` as a command in this repository (case-insensitive, including `please deploy`), execute this workflow. Mentioning or discussing the command does not trigger it.
