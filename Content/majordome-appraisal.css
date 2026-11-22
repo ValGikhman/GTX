@@ -11,9 +11,8 @@
     --pr-highlight: color-mix(in srgb, var(--pr-brand) 18%, var(--pr-surface));
     --pr-accent-line: color-mix(in srgb, var(--pr-brand) 35%, var(--pr-line));
     --pr-heading-ink: #fff;
-    --pr-heading-shade: transparent;
     --pr-heading-chip: rgb(0 0 0 / 14%);
-    --pr-heading-background: linear-gradient(var(--pr-heading-shade), var(--pr-heading-shade)), var(--gtx-grad, var(--pr-brand));
+    --pr-heading-background: var(--gtx-grad, var(--pr-brand));
     --pr-gap: clamp(.9rem, 2vw, 1.35rem);
     --pr-pad: clamp(1rem, 2.8vw, 1.8rem);
     --pr-radius: 1.15rem;
@@ -24,11 +23,6 @@ html.theme-silver #price-research {
     --pr-heading-chip: rgb(255 255 255 / 36%);
 }
 
-html.theme-metallica #price-research {
-    --pr-heading-shade: rgb(0 0 0 / 38%);
-}
-
-[data-background-theme="grey"] #price-research,
 [data-bs-theme="dark"] #price-research {
     --pr-accent: color-mix(in srgb, var(--pr-brand) 43%, var(--pr-ink));
 }

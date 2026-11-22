@@ -8,13 +8,11 @@
     --inventory-appraisal-accent: var(--gtx-accent-solid, #1e73be);
     --inventory-appraisal-tint: color-mix(in srgb, var(--inventory-appraisal-accent) 11%, var(--inventory-appraisal-surface));
     --inventory-appraisal-header-ink: #fff;
-    --inventory-appraisal-header-shade: transparent;
-    --inventory-appraisal-header: linear-gradient(var(--inventory-appraisal-header-shade), var(--inventory-appraisal-header-shade)), var(--gtx-grad, var(--inventory-appraisal-accent));
+    --inventory-appraisal-header: var(--gtx-grad, var(--inventory-appraisal-accent));
     --inventory-appraisal-pad: clamp(.75rem, 2vw, 1.25rem);
 }
 
 html.theme-silver .majordome-inventory-appraisal { --inventory-appraisal-header-ink: #111827; }
-html.theme-metallica .majordome-inventory-appraisal { --inventory-appraisal-header-shade: rgb(0 0 0 / 38%); }
 
 .majordome-inventory-appraisal [hidden] { display: none !important; }
 
@@ -1314,17 +1312,6 @@ body.majordome-inventory-page .body-content {
         --pg-color-bg-row-hover: var(--bs-secondary-bg, #e9ecef);
     }
 
-    html[data-background-theme="grey"] :is(#blogsAddGrid, #specialsAddGrid) {
-        --pg-color-text: #111827;
-        --pg-color-text-muted: #374151;
-        --pg-color-text-subtle: #374151;
-        --pg-color-bg: #eef0f2;
-        --pg-color-bg-row-odd: #dce1e6;
-        --pg-color-bg-row-hover: #cbd3dc;
-        --gtx-admin-grid-header: #374151;
-        --gtx-admin-grid-header-text: #fff;
-    }
-
     html[data-background-theme="dark"] :is(#blogsAddGrid, #specialsAddGrid) {
         --pg-color-text: #e8eaed;
         --pg-color-text-muted: #bdc1c6;
@@ -2352,16 +2339,6 @@ body.majordome-inventory-page .body-content {
     html.theme-red .majordome-management-shell {
         --inventory-selected-accent: #b83246;
         --inventory-selected-bg: rgba(184, 50, 70, .14);
-    }
-
-    html.theme-deep-purple .majordome-management-shell {
-        --inventory-selected-accent: #7f2dc5;
-        --inventory-selected-bg: rgba(127, 45, 197, .14);
-    }
-
-    html.theme-metallica .majordome-management-shell {
-        --inventory-selected-accent: #9aa0a8;
-        --inventory-selected-bg: rgba(154, 160, 168, .18);
     }
 
     .majordome-management-workspace {
