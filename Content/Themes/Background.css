@@ -234,7 +234,6 @@ html[data-background-theme]:not([data-background-theme="light"]) #inventorySideb
 }
 
 html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane .inventory-dependent-empty {
-    background: var(--bs-body-bg);
     color: var(--bs-body-color);
 }
 
@@ -268,15 +267,6 @@ html[data-background-theme]:not([data-background-theme="light"]) .inventory-empt
 @media (max-width: 991.98px) {
     html[data-background-theme="dark"] #inventorySidebarPane :is(.inventory-filter-panel-count, .inventory-range-output) {
         background: var(--bs-secondary-bg);
-    }
-
-    html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane .inventory-filter-stats {
-        background: var(--bs-tertiary-bg);
-        color: var(--bs-body-color) !important;
-    }
-
-    html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane .inventory-filter-match {
-        color: var(--bs-body-color);
     }
 }
 
