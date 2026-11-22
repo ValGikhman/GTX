@@ -20,7 +20,7 @@
 }
 
 /* Follow the background preference independently of the accent theme. */
-html:is([data-background-theme="grey"], [data-background-theme="dark"]) #openHours {
+html[data-background-theme="dark"] #openHours {
     --oh-ink: var(--bs-body-color);
     --oh-muted: var(--bs-secondary-color);
     --oh-line: var(--bs-border-color);
@@ -29,9 +29,6 @@ html:is([data-background-theme="grey"], [data-background-theme="dark"]) #openHou
     --oh-control: var(--bs-secondary-bg);
     --oh-stripe: rgba(var(--bs-body-color-rgb), .045);
     --oh-marker: var(--bs-secondary-color);
-}
-
-html[data-background-theme="dark"] #openHours {
     --oh-accent-ink: #a9d3f5;
     --oh-accent-ink: color-mix(in srgb, var(--oh-accent) 35%, #fff);
     --oh-accent-soft: rgba(169, 211, 245, .12);
