@@ -650,13 +650,20 @@ html.theme-silver[data-background-theme="dark"] .gtx-card {
     --gtx-card-accent-ink: #111;
 }
 
+html.theme-silver[data-background-theme="dark"][data-texture-tinted="true"] .gtx-card .card-header.gradient.gtx-header {
+    --gtx-card-accent-ink: #fff;
+}
+
 html[class][data-background-theme="dark"] body .gtx-card :is(.gtx-header, .gtx-footer).gradient {
     color: #ededed !important;
     text-shadow: none !important;
 }
 
-html[data-background-theme="dark"] body .gtx-card :is(.card-header.gradient.gtx-header, .gtx-compare-toggle) {
+html[data-background-theme="dark"] body .gtx-card .gtx-compare-toggle {
     background: var(--gtx-grad, var(--gtx-gradient-background));
+}
+
+html[data-background-theme="dark"] body .gtx-card :is(.card-header.gradient.gtx-header, .gtx-compare-toggle) {
     color: var(--gtx-card-accent-ink) !important;
 }
 
