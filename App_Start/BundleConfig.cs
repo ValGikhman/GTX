@@ -45,6 +45,7 @@ namespace GTX {
                       "~/Content/Themes/Blue.css",
                       "~/Content/Themes/Black.css",
                       "~/Content/Themes/Silver.css",
+                      "~/Content/Themes/GtxColors.css",
                       "~/Content/Themes/Palettes.css",
                       "~/Content/inventory-card.css",
                       "~/Content/dataone-details.css",

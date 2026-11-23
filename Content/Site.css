@@ -42,14 +42,14 @@ html[data-background-theme] body #MajordomeLink > a.gradient {
 }
 
 .theme-dropdown-menu {
-    --theme-preview-canvas: var(--gtx-default-page-bg, var(--bs-body-bg));
+    --theme-selection-canvas: var(--gtx-default-page-bg, var(--bs-body-bg));
     --theme-selection: var(--bs-secondary-bg);
     width: min(27rem, calc(100vw - 1rem));
     max-height: calc(100dvh - 3.5rem);
     overflow-y: auto;
     scroll-padding-top: 3rem;
     padding: .5rem;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     gap: .25rem;
 }
 
@@ -60,7 +60,7 @@ html[data-background-theme] body #MajordomeLink > a.gradient {
 @supports (color: color-mix(in srgb, white, black)) {
     .theme-dropdown-menu,
     .theme-dropdown-menu .theme-item {
-        --theme-selection: color-mix(in srgb, var(--gtx-accent-solid) 50%, var(--theme-preview-canvas));
+        --theme-selection: color-mix(in srgb, var(--gtx-accent-solid) 50%, var(--theme-selection-canvas));
     }
 }
 
@@ -71,8 +71,8 @@ html[data-background-theme] body #MajordomeLink > a.gradient {
     white-space: normal;
 }
 
-.theme-menu-row {
-    grid-column: 1 / -1;
+.theme-dropdown-menu .theme-option-label {
+    font-size: max(.875em, 10px);
 }
 
 .theme-mode-row {
@@ -80,11 +80,6 @@ html[data-background-theme] body #MajordomeLink > a.gradient {
     top: 0;
     z-index: 1;
     background-color: var(--bs-dropdown-bg);
-}
-
-.theme-menu-row .dropdown-header {
-    padding: .25rem .4rem 0;
-    font-size: .7rem;
 }
 
 html.theme-palette-smoke,
@@ -132,11 +127,6 @@ html.theme-palette-carbon-gloss,
     --palette-texture: url("images/carbon-gloss-texture.webp");
 }
 
-html.theme-palette-blackened-steel,
-.theme-item[data-theme="palette-blackened-steel"] {
-    --palette-texture: url("images/blackened-steel-vertical-texture.jpg");
-}
-
 html.theme-palette-steel-braid,
 .theme-item[data-theme="palette-steel-braid"] {
     --palette-texture: url("images/steel-braid-texture.webp");
@@ -159,11 +149,12 @@ html[data-background-theme][class*="theme-palette-"] .menu-strip {
 .theme-dropdown-menu .theme-swatch {
     height: 2.5rem;
     border: 1px solid var(--bs-border-color-translucent);
-    background:
-        radial-gradient(ellipse 75% 115% at 8% 100%, var(--theme-preview-canvas), transparent 72%),
-        radial-gradient(ellipse 75% 115% at 92% 100%, var(--theme-selection), transparent 72%),
-        radial-gradient(ellipse 90% 110% at 50% 0%, var(--theme-preview-accent, var(--gtx-accent-solid)), transparent 72%),
-        var(--palette-textured-surface, var(--gtx-grad));
+    background-color: var(--theme-preview-accent, var(--gtx-accent-solid));
+    background-image: linear-gradient(145deg, rgba(255, 255, 255, .16), transparent 48%, rgba(0, 0, 0, .28)),
+        var(--palette-texture, none);
+    background-position: center, center var(--palette-texture-position, 50%);
+    background-size: auto, var(--palette-texture-size, cover);
+    background-repeat: no-repeat, var(--palette-texture-repeat, no-repeat);
 }
 
 .theme-dropdown-menu :is(.theme-item, .background-theme-item):is(.active, :active) {
