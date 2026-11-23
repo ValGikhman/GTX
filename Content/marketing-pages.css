@@ -1554,7 +1554,7 @@ html.theme-silver .vin-schema-button-primary {
 }
 
 /* A warm paper surface keeps the featured story inviting in the light palette. */
-html:not([data-background-theme="dark"]):not([data-background-theme="grey"]) .testimonials-page .testimonial-featured {
+html[data-background-theme="light"] .testimonials-page .testimonial-featured {
     color: #26323d;
     border-color: #ddd8ce;
     border-inline-start: .3rem solid var(--mp-accent);
@@ -1565,15 +1565,15 @@ html:not([data-background-theme="dark"]):not([data-background-theme="grey"]) .te
     box-shadow: 0 1rem 2.5rem rgba(67, 57, 39, .08);
 }
 
-html:not([data-background-theme="dark"]):not([data-background-theme="grey"]) .testimonials-page .testimonial-featured .t-title {
+html[data-background-theme="light"] .testimonials-page .testimonial-featured .t-title {
     color: #26323d;
 }
 
-html:not([data-background-theme="dark"]):not([data-background-theme="grey"]) .testimonials-page .testimonial-featured :is(.text-secondary, p) {
+html[data-background-theme="light"] .testimonials-page .testimonial-featured :is(.text-secondary, p) {
     color: #52606b !important;
 }
 
-html:not([data-background-theme="dark"]):not([data-background-theme="grey"]) .testimonials-page .testimonial-featured .soft-divider {
+html[data-background-theme="light"] .testimonials-page .testimonial-featured .soft-divider {
     background: linear-gradient(90deg, var(--mp-accent), #ddd8ce, transparent);
 }
 

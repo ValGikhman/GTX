@@ -1,23 +1,4 @@
-/* Background themes are independent of the existing accent/gradient themes.
-   Light intentionally uses the original site styles. Grey uses slightly darker
-   silver surfaces with dark ink and muted labels. */
-html[data-background-theme="grey"] {
-    color-scheme: light;
-    --gtx-page-bg: #9fa6ac;
-    --bs-body-bg: #ccd1d5;
-    --bs-body-bg-rgb: 204, 209, 213;
-    --bs-body-color: #172131;
-    --bs-body-color-rgb: 23, 33, 49;
-    --bs-emphasis-color: #172131;
-    --bs-emphasis-color-rgb: 23, 33, 49;
-    --bs-secondary-color: #566377;
-    --bs-secondary-color-rgb: 86, 99, 119;
-    --bs-secondary-bg: #afb6bd;
-    --bs-secondary-bg-rgb: 175, 182, 189;
-    --bs-tertiary-bg: #bcc3c9;
-    --bs-tertiary-bg-rgb: 188, 195, 201;
-}
-
+/* Background modes are independent of the accent and texture palettes. */
 /* Review links and ratings stay readable on charcoal surfaces. */
 html[data-background-theme="dark"] .home-reviews {
     --home-reviews-link: #8ab4f8;
@@ -46,7 +27,12 @@ html[data-background-theme="dark"] .footer-strip.btn-gradient-grey .link-primary
 /* Chrome-inspired neutral charcoal surfaces and light foregrounds. */
 html[data-background-theme="dark"] {
     color-scheme: dark;
-    --gtx-page-bg: #202124;
+    --gtx-default-page-bg: #202124;
+    --gtx-page-bg: var(--gtx-default-page-bg);
+    --gtx-raised-surface:
+        radial-gradient(circle at 100% 0, rgba(210, 215, 219, 0.16), transparent 42%),
+        linear-gradient(145deg, #424a51, #2e343a);
+    --gtx-raised-surface-shadow: 0 16px 32px rgba(24, 29, 34, 0.22), inset 0 1px rgba(255, 255, 255, 0.12);
     --bs-body-bg: #292a2d;
     --bs-body-bg-rgb: 41, 42, 45;
     --bs-body-color: #e8eaed;
@@ -61,19 +47,79 @@ html[data-background-theme="dark"] {
     --bs-tertiary-bg-rgb: 50, 51, 55;
 }
 
-html[data-background-theme="grey"] body,
 html[data-background-theme="dark"] body {
     background-color: var(--gtx-page-bg);
     color: var(--bs-body-color);
 }
 
 /* Override the important base and home-page backgrounds. */
-html[data-background-theme="grey"] body .body-content,
 html[data-background-theme="dark"] body .body-content {
     background: transparent !important;
 }
 
-html[data-background-theme="grey"] .majordome-management-sidebar-pane,
+/* Raised panels and toolbars use the steel surface above the charcoal content. */
+html[data-background-theme="dark"] :is(
+    .inventory-dashboard-period-control,
+    .inventory-dashboard-graph-card,
+    .inventory-dashboard-grid-header
+),
+html[data-background-theme="dark"] :is(
+    .inventory-dashboard-add-grid,
+    .majordome-add-grid,
+    .majordome-management-add-grid,
+    .gtx-admin-add-grid
+) .pg-search-bar,
+html[data-background-theme="dark"] #price-research :is(.pr-market-overview, .pr-auction, .pr-demand, .pr-grid-section) {
+    background: var(--gtx-raised-surface);
+    box-shadow: var(--gtx-raised-surface-shadow);
+}
+
+html[data-background-theme="dark"] .vin-decoder-page :is(.marketing-section-label, .vin-decoder-console, .vin-decoder-results) {
+    background: var(--gtx-raised-surface);
+}
+
+html[data-background-theme="dark"] #inventoryDashboardClearStatus {
+    --bs-btn-color: var(--bs-body-color);
+    --bs-btn-border-color: var(--bs-secondary-color);
+}
+
+/* Match AddGrid headers and footers in dark mode. */
+html[data-background-theme="dark"] .pg-grid-table > thead,
+html[data-background-theme="dark"] .pg-grid-footer {
+    background: linear-gradient(145deg, #a0a6ac 0%, #858c93 48%, #6f767e 100%) !important;
+}
+
+html[data-background-theme="dark"] .pg-grid-table > thead > tr > th {
+    background: transparent !important;
+    color: var(--bs-black, #000) !important;
+}
+
+html[data-background-theme="dark"] .pg-grid-table > thead :is(.pg-th-label, .pg-sort-icon, .pg-filter-btn) {
+    color: var(--bs-black, #000) !important;
+}
+
+html[data-background-theme="dark"] .pg-grid-table > thead .pg-th-sortable .pg-th-label:hover {
+    text-decoration: underline;
+}
+
+html[data-background-theme="dark"] .pg-grid-footer .pg-pager-num:not(.pg-pager-active):not(:hover) {
+    color: var(--bs-black, #000);
+    border-color: currentColor;
+}
+
+html[data-background-theme="dark"] .pg-grid-footer :is(.pg-pager-active, .pg-pager-ellipsis) {
+    color: var(--bs-black, #000);
+}
+
+html[data-background-theme="dark"] .pg-grid-footer .pg-pager-info-of {
+    color: inherit;
+}
+
+html[data-background-theme="dark"] .pg-grid-footer .pg-pager-info-empty {
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+}
+
 html[data-background-theme="dark"] .majordome-management-sidebar-pane {
     background: transparent;
 }
@@ -115,8 +161,8 @@ html[data-background-theme]:not([data-background-theme="light"]) .majordome-mana
     background: var(--bs-secondary-color);
 }
 
-/* Animated search hints use slate in grey mode and soft silver in dark mode. */
-html:is([data-background-theme="grey"], [data-background-theme="dark"]) :is(#filterTerm, .term)::placeholder {
+/* Animated search hints use soft silver in dark mode. */
+html[data-background-theme="dark"] :is(#filterTerm, .term)::placeholder {
     color: var(--bs-secondary-color);
     opacity: 1 !important;
 }
@@ -124,6 +170,18 @@ html:is([data-background-theme="grey"], [data-background-theme="dark"]) :is(#fil
 /* Quick-search matches keep dark ink on their yellow highlight in dark mode. */
 html[data-background-theme="dark"] .pg-search-match {
     color: #212529;
+}
+
+/* AddGrid appends filter popups to the body, outside the themed grids. */
+html[data-background-theme="dark"] .pg-filter-dropdown {
+    --pg-color-bg: var(--bs-body-bg);
+    --pg-color-border-accent: var(--bs-border-color);
+    --pg-color-border-subtle: var(--bs-tertiary-bg);
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme="dark"] .pg-filter-footer .btn-link {
+    color: var(--bs-secondary-color) !important;
 }
 
 /* Bootstrap button states and the grid's label/border overrides share the palette. */
@@ -144,15 +202,6 @@ html[data-background-theme]:not([data-background-theme="light"]) .pg-search-clea
     --bs-btn-disabled-color: var(--bs-secondary-color);
     --bs-btn-disabled-bg: var(--bs-body-bg);
     --bs-btn-disabled-border-color: var(--bs-border-color);
-}
-
-/* Match the adjacent search input's grid border in the grey palette. */
-html[data-background-theme="grey"] .pg-search-input-group .pg-search-clear {
-    --pg-color-border: inherit;
-    --bs-btn-border-color: var(--pg-color-border);
-    --bs-btn-hover-border-color: var(--pg-color-border);
-    --bs-btn-active-border-color: var(--pg-color-border);
-    --bs-btn-disabled-border-color: var(--pg-color-border);
 }
 
 /* Grouping controls use the same surfaces and readable labels as other controls. */
@@ -219,16 +268,14 @@ html[data-background-theme] .gtx-open.text-dark {
     color: #212529 !important;
 }
 
-/* Scope overrides to the two opt-in palettes so Light restores the original. */
+/* Match the inventory results to the dark page canvas. */
 html[data-background-theme]:not([data-background-theme="light"]) #inventory,
 html[data-background-theme]:not([data-background-theme="light"]) .inventory-results-zone {
     background: var(--gtx-page-bg);
     color: var(--bs-body-color);
 }
 
-/* The filter partial and mobile styles supply their own literal light surfaces. */
-html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-log-tree,
-html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane :is(.inventory-filter-shell, .inventory-filter-offcanvas-body, .inventory-filter-scroll) {
+html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-log-tree {
     background: var(--bs-tertiary-bg);
     color: var(--bs-body-color);
 }
@@ -249,13 +296,11 @@ html[data-background-theme]:not([data-background-theme="light"]) #inventorySideb
     color: var(--bs-body-color);
 }
 
-html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-log-tree::-webkit-scrollbar-track,
-html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane .inventory-filter-scroll::-webkit-scrollbar-track {
+html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-log-tree::-webkit-scrollbar-track {
     background: var(--bs-tertiary-bg);
 }
 
-html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-log-tree::-webkit-scrollbar-thumb,
-html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane .inventory-filter-scroll::-webkit-scrollbar-thumb {
+html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-log-tree::-webkit-scrollbar-thumb {
     border-color: var(--bs-tertiary-bg);
 }
 
@@ -335,7 +380,7 @@ html[data-background-theme]:not([data-background-theme="light"]) :is(.gtx-card, 
     color: var(--bs-body-color);
 }
 
-html[data-background-theme]:not([data-background-theme="light"]) :is(.bg-white, .bg-light, #inventorySidebarPane.inventory-filter-offcanvas) {
+html[data-background-theme]:not([data-background-theme="light"]) :is(.bg-white, .bg-light) {
     background-color: var(--bs-tertiary-bg) !important;
     color: var(--bs-body-color);
 }
@@ -367,11 +412,6 @@ html[data-background-theme]:not([data-background-theme="light"]) :is(.form-contr
 html[data-background-theme]:not([data-background-theme="light"]) :is(.form-control, .form-select):disabled {
     background-color: var(--bs-secondary-bg);
     color: var(--bs-secondary-color);
-}
-
-html[data-background-theme]:not([data-background-theme="light"]) .theme-dropdown-menu .active {
-    background-color: var(--bs-secondary-bg);
-    color: var(--bs-body-color);
 }
 
 /* Base typography has literal light-mode colors; component/hero colors still win. */
@@ -557,14 +597,6 @@ html[data-background-theme="dark"] .main-menu.no-wrap-group .btn:not(:is(.gradie
     --bs-btn-disabled-color: #212529;
 }
 
-html[data-background-theme="grey"] .testimonials-page .t-title {
-    color: #212529;
-}
-
-html[data-background-theme="grey"] .testimonials-page .testimonial-featured .text-secondary {
-    color: #212529 !important;
-}
-
 html[data-background-theme="dark"] .contact-address span {
     color: #fff;
 }
@@ -609,13 +641,28 @@ html[data-background-theme="dark"] .gtx-card :is(a, button, div, span, strong, s
 }
 
 html[data-background-theme="dark"] .gtx-card {
+    --gtx-card-accent-ink: #fff;
     background: #2b2b2b;
     box-shadow: 0 12px 26px rgba(0, 0, 0, .3);
+}
+
+html.theme-silver[data-background-theme="dark"] .gtx-card {
+    --gtx-card-accent-ink: #111;
 }
 
 html[class][data-background-theme="dark"] body .gtx-card :is(.gtx-header, .gtx-footer).gradient {
     color: #ededed !important;
     text-shadow: none !important;
+}
+
+html[data-background-theme="dark"] body .gtx-card :is(.card-header.gradient.gtx-header, .gtx-compare-toggle) {
+    background: var(--gtx-grad, var(--gtx-gradient-background));
+    color: var(--gtx-card-accent-ink) !important;
+}
+
+html[data-background-theme="dark"] .gtx-card .card-header.gradient.gtx-header :is(.gtx-title, .gtx-trimline),
+html[data-background-theme="dark"] .gtx-card .gtx-compare-toggle :is(span, i) {
+    color: var(--gtx-card-accent-ink) !important;
 }
 
 html[data-background-theme="dark"] .gtx-card .text-shadow {
@@ -685,16 +732,8 @@ html[data-background-theme="dark"] .gtx-card :is(.gtx-open, .gtx-card-action):fo
     outline-offset: 3px;
 }
 
-html[data-background-theme="dark"] .gtx-card .gtx-compare-toggle,
-html[data-background-theme="dark"] .gtx-card .gtx-compare-toggle span,
-html[data-background-theme="dark"] .gtx-card .gtx-compare-toggle i {
-    color: #fff !important;
-}
-
-html[data-background-theme="dark"] .gtx-card .gtx-compare-toggle.is-selected,
-html[data-background-theme="dark"] .gtx-card .gtx-compare-toggle.is-selected span,
-html[data-background-theme="dark"] .gtx-card .gtx-compare-toggle.is-selected i {
-    color: #212529 !important;
+html[data-background-theme="dark"] .gtx-card .gtx-compare-toggle.is-selected {
+    border-color: currentColor;
 }
 
 html[data-background-theme="dark"] .majordome-status-pill {

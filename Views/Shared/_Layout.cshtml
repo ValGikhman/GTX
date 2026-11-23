@@ -3,6 +3,14 @@
 @{
     var siteProfile = GTX.SiteProfileStore.Current;
     var companyShortName = siteProfile.GetShortCompanyName();
+    var colorThemeGroups = new[]
+    {
+        new { Title = "GTX colors", Keys = new[] { "blue", "grey", "navy", "green", "red", "silver", "black" } },
+        new { Title = "GTX Textures", Keys = new[] { "palette-smoke", "palette-brushed-steel", "palette-carbon-mesh", "palette-carbon-twill", "palette-carbon-check", "palette-forged-carbon", "palette-ember-carbon", "palette-carbon-satin", "palette-carbon-gloss", "palette-blackened-steel", "palette-steel-braid", "palette-carbon-ripple", "palette-crimson-carbon" } },
+        new { Title = "More colors", Keys = new[] { "palette-cobalt", "palette-graphite", "palette-cornflower", "palette-slate", "palette-mist", "palette-teal", "palette-leaf", "palette-sage", "palette-sand", "palette-lilac" } }
+    };
+    var themeKeys = colorThemeGroups.SelectMany(group => group.Keys).ToArray();
+    Func<string, string> themeName = key => System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(key.Replace("palette-", "").Replace('-', ' '));
     var t = (Request.Cookies["gtx-theme"]?.Value ?? "blue").ToLowerInvariant();
     var controllerName = (ViewContext.RouteData.Values["controller"] ?? string.Empty).ToString();
     var actionName = (ViewContext.RouteData.Values["action"] ?? string.Empty).ToString();
@@ -71,26 +79,13 @@
         t = "black";
     }
 
-    // allow only known themes
-    switch (t)
+    if (!themeKeys.Contains(t))
     {
-        case "grey":
-        case "navy":
-        case "green":
-        case "red":
-        case "blue":
-        case "deep-purple":
-        case "black":
-        case "metallica":
-        case "silver":
-            break;
-        default:
-            t = "blue";
-            break;
+        t = "blue";
     }
 
     var backgroundTheme = (Request.Cookies["gtx-background-theme"]?.Value ?? "light").ToLowerInvariant();
-    if (backgroundTheme != "grey" && backgroundTheme != "dark")
+    if (backgroundTheme != "dark")
     {
         backgroundTheme = "light";
     }
@@ -122,7 +117,7 @@
             };
 
             var KEY = "gtx-theme";
-            const THEMES = ["blue", "grey", "navy", "green", "red", "deep-purple", "metallica", "black", "silver"];
+            const THEMES = @Html.Raw(System.Web.Helpers.Json.Encode(themeKeys));
             function readPreference(key, fallback) {
                 try { return localStorage.getItem(key) || fallback; }
                 catch (e) { return fallback; }
@@ -130,7 +125,7 @@
             var t = readPreference(KEY, "@t");
             var root = document.documentElement;
             var background = readPreference("gtx-background-theme", root.dataset.backgroundTheme);
-            if (["light", "grey", "dark"].indexOf(background) < 0) background = "light";
+            if (background !== "dark") background = "light";
             root.dataset.backgroundTheme = background;
             root.dataset.bsTheme = background === "dark" ? "dark" : "light";
 
@@ -600,24 +595,32 @@
                     <div class="dropdown">
                         <button class="btn btn-sm btn-gradient dropdown-toggle text-nowrap"
                                 type="button" id="themeDropdown" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                            <i id="backgroundThemeIcon" class="bi @(backgroundTheme == "dark" ? "bi-moon" : backgroundTheme == "grey" ? "bi-circle-half" : "bi-sun")" aria-hidden="true"></i> <span id="themeLabel">Blue</span><span class="visually-hidden">, <span id="backgroundThemeLabel">Light</span> background</span>
+                            <i id="backgroundThemeIcon" class="bi @(backgroundTheme == "dark" ? "bi-moon" : "bi-sun")" aria-hidden="true"></i> <span id="themeLabel">Blue</span><span class="visually-hidden">, <span id="backgroundThemeLabel">Light</span> background</span>
                         </button>
 
                         <ul class="dropdown-menu dropdown-menu-end theme-dropdown-menu" aria-labelledby="themeDropdown">
-                            <li class="theme-section-title"><span class="dropdown-header">Color theme</span></li>
-                            <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="blue"><span class="theme-swatch swatch-blue"></span> Blue</a></li>
-                            <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="grey"><span class="theme-swatch swatch-grey"></span> Grey</a></li>
-                            <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="navy"><span class="theme-swatch swatch-navy"></span> Navy</a></li>
-                            <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="green"><span class="theme-swatch swatch-green"></span> Green</a></li>
-                            <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="red"><span class="theme-swatch swatch-red"></span> Red</a></li>
-                            <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="deep-purple"><span class="theme-swatch swatch-deep-purple"></span> Deep Purple</a></li>
-                            <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="metallica"><span class="theme-swatch swatch-metallica"></span> Metallica</a></li>
-                            <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="silver"><span class="theme-swatch swatch-silver"></span> Silver</a></li>
-                            <li><a class="dropdown-item theme-item d-flex align-items-center gap-2" href="#" data-theme="black"><span class="theme-swatch swatch-black"></span> Black</a></li>
-                            <li class="theme-section-title"><hr class="dropdown-divider" /><span class="dropdown-header">Background theme</span></li>
-                            <li><button type="button" class="dropdown-item background-theme-item" data-background="light"><i class="bi bi-sun" aria-hidden="true"></i> Light</button></li>
-                            <li><button type="button" class="dropdown-item background-theme-item" data-background="grey"><i class="bi bi-circle-half" aria-hidden="true"></i> Grey</button></li>
-                            <li><button type="button" class="dropdown-item background-theme-item" data-background="dark"><i class="bi bi-moon" aria-hidden="true"></i> Dark</button></li>
+                            <li class="theme-menu-row theme-mode-row">
+                                <div class="d-flex gap-1 border rounded-3 p-1" role="group" aria-label="Background theme">
+                                    <button type="button" class="dropdown-item background-theme-item d-flex align-items-center justify-content-center gap-2 w-50" data-background="light"><i class="bi bi-sun" aria-hidden="true"></i> Light</button>
+                                    <button type="button" class="dropdown-item background-theme-item d-flex align-items-center justify-content-center gap-2 w-50" data-background="dark"><i class="bi bi-moon" aria-hidden="true"></i> Dark</button>
+                                </div>
+                            </li>
+                            @foreach (var group in colorThemeGroups)
+                            {
+                                <li class="theme-menu-row"><span class="dropdown-header">@group.Title</span></li>
+                                foreach (var themeKey in group.Keys)
+                                {
+                                    <li>
+                                        <a class="dropdown-item theme-item h-100" href="#" data-theme="@themeKey">
+                                            <span class="theme-swatch d-block rounded-3" aria-hidden="true"></span>
+                                            <span class="d-flex align-items-center justify-content-between gap-1 mt-1">
+                                                <span class="theme-option-label text-break">@themeName(themeKey)</span>
+                                                <i class="bi bi-check-lg theme-selection-icon flex-shrink-0" aria-hidden="true"></i>
+                                            </span>
+                                        </a>
+                                    </li>
+                                }
+                            }
                         </ul>
                     </div>
 
@@ -1030,10 +1033,11 @@
                 try { localStorage.setItem(KEY, theme); } catch (e) { /* Cookies remain available. */ }
                 setCookie(KEY, theme);
 
-                if (label) label.textContent = pretty(theme);
                 items.forEach(item => {
-                    item.classList.toggle("active", item.dataset.theme === theme);
-                    item.setAttribute("aria-current", item.dataset.theme === theme ? "true" : "false");
+                    const selected = item.dataset.theme === theme;
+                    item.classList.toggle("active", selected);
+                    item.setAttribute("aria-current", selected ? "true" : "false");
+                    if (selected && label) label.textContent = item.querySelector(".theme-option-label").textContent;
                 });
             }
 
@@ -1049,17 +1053,13 @@
 
             const backgroundItems = Array.from(document.querySelectorAll(".background-theme-item"));
             function applyBackground(background) {
-                if (!["light", "grey", "dark"].includes(background)) background = "light";
+                if (background !== "dark") background = "light";
                 root.dataset.backgroundTheme = background;
                 root.dataset.bsTheme = background === "dark" ? "dark" : "light";
                 try { localStorage.setItem("gtx-background-theme", background); } catch (e) { /* Cookie fallback. */ }
                 setCookie("gtx-background-theme", background);
                 document.getElementById("backgroundThemeLabel").textContent = pretty(background);
-                document.getElementById("backgroundThemeIcon").className = "bi " + {
-                    light: "bi-sun",
-                    grey: "bi-circle-half",
-                    dark: "bi-moon"
-                }[background];
+                document.getElementById("backgroundThemeIcon").className = "bi " + (background === "dark" ? "bi-moon" : "bi-sun");
                 backgroundItems.forEach(item => {
                     const selected = item.dataset.background === background;
                     item.classList.toggle("active", selected);
