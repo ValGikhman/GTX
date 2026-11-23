@@ -5,9 +5,20 @@
     var companyShortName = siteProfile.GetShortCompanyName();
     var colorThemeGroups = new[]
     {
-        new { Title = "GTX colors", Keys = new[] { "blue", "grey", "navy", "green", "red", "silver", "black" } },
-        new { Title = "GTX Textures", Keys = new[] { "palette-smoke", "palette-brushed-steel", "palette-carbon-mesh", "palette-carbon-twill", "palette-carbon-check", "palette-forged-carbon", "palette-ember-carbon", "palette-carbon-satin", "palette-carbon-gloss", "palette-blackened-steel", "palette-steel-braid", "palette-carbon-ripple", "palette-crimson-carbon" } },
-        new { Title = "More colors", Keys = new[] { "palette-cobalt", "palette-graphite", "palette-cornflower", "palette-slate", "palette-mist", "palette-teal", "palette-leaf", "palette-sage", "palette-sand", "palette-lilac" } }
+        new { Id = "themeGroupColors", Title = "Colors", Keys = new[]
+        {
+            "silver", "grey", "palette-graphite", "black",
+            "blue", "palette-cobalt", "palette-cornflower", "palette-slate", "navy", "midnight-blue", "palette-mist",
+            "palette-teal", "green", "palette-leaf", "palette-sage",
+            "palette-sand", "red", "dark-brown",
+            "palette-lilac", "deep-plum"
+        } },
+        new { Id = "themeGroupTextures", Title = "Textures", Keys = new[]
+        {
+            "palette-smoke", "palette-brushed-steel", "palette-carbon-mesh", "palette-carbon-twill",
+            "palette-carbon-check", "palette-forged-carbon", "palette-ember-carbon", "palette-carbon-satin",
+            "palette-carbon-gloss", "palette-steel-braid", "palette-carbon-ripple", "palette-crimson-carbon"
+        } }
     };
     var themeKeys = colorThemeGroups.SelectMany(group => group.Keys).ToArray();
     Func<string, string> themeName = key => System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(key.Replace("palette-", "").Replace('-', ' '));
@@ -598,8 +609,8 @@
                             <i id="backgroundThemeIcon" class="bi @(backgroundTheme == "dark" ? "bi-moon" : "bi-sun")" aria-hidden="true"></i> <span id="themeLabel">Blue</span><span class="visually-hidden">, <span id="backgroundThemeLabel">Light</span> background</span>
                         </button>
 
-                        <ul class="dropdown-menu dropdown-menu-end theme-dropdown-menu" aria-labelledby="themeDropdown">
-                            <li class="theme-menu-row theme-mode-row">
+                        <ul class="dropdown-menu dropdown-menu-end theme-dropdown-menu accordion rounded-4 shadow" aria-labelledby="themeDropdown">
+                            <li class="theme-mode-row">
                                 <div class="d-flex gap-1 border rounded-3 p-1" role="group" aria-label="Background theme">
                                     <button type="button" class="dropdown-item background-theme-item d-flex align-items-center justify-content-center gap-2 w-50" data-background="light"><i class="bi bi-sun" aria-hidden="true"></i> Light</button>
                                     <button type="button" class="dropdown-item background-theme-item d-flex align-items-center justify-content-center gap-2 w-50" data-background="dark"><i class="bi bi-moon" aria-hidden="true"></i> Dark</button>
@@ -607,19 +618,28 @@
                             </li>
                             @foreach (var group in colorThemeGroups)
                             {
-                                <li class="theme-menu-row"><span class="dropdown-header">@group.Title</span></li>
-                                foreach (var themeKey in group.Keys)
-                                {
-                                    <li>
-                                        <a class="dropdown-item theme-item h-100" href="#" data-theme="@themeKey">
-                                            <span class="theme-swatch d-block rounded-3" aria-hidden="true"></span>
-                                            <span class="d-flex align-items-center justify-content-between gap-1 mt-1">
-                                                <span class="theme-option-label text-break">@themeName(themeKey)</span>
-                                                <i class="bi bi-check-lg theme-selection-icon flex-shrink-0" aria-hidden="true"></i>
-                                            </span>
-                                        </a>
-                                    </li>
-                                }
+                                <li class="mt-1">
+                                    <button class="accordion-button collapsed dropdown-item fs-6 fw-bold text-body bg-body-tertiary border rounded-3 px-2 py-1"
+                                            type="button" data-bs-toggle="collapse" data-bs-target="#@group.Id" aria-expanded="false" aria-controls="@group.Id">
+                                        @group.Title
+                                    </button>
+                                    <div class="collapse" id="@group.Id">
+                                        <ul class="row row-cols-4 g-1 list-unstyled mx-0 mb-1 mt-0" aria-label="@group.Title">
+                                            @foreach (var themeKey in group.Keys)
+                                            {
+                                                <li>
+                                                    <a class="dropdown-item theme-item rounded-3 h-100" href="#" data-theme="@themeKey">
+                                                        <span class="theme-swatch d-block rounded-3" aria-hidden="true"></span>
+                                                        <span class="d-flex align-items-center justify-content-between gap-1 mt-1">
+                                                            <span class="theme-option-label fw-semibold text-break">@themeName(themeKey)</span>
+                                                            <i class="bi bi-check-lg theme-selection-icon flex-shrink-0" aria-hidden="true"></i>
+                                                        </span>
+                                                    </a>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </li>
                             }
                         </ul>
                     </div>
@@ -1043,6 +1063,14 @@
 
             const saved = themes.find(theme => root.classList.contains("theme-" + theme)) || "blue";
             applyTheme(saved);
+
+            const activeGroup = items.find(item => item.dataset.theme === saved)?.closest(".collapse");
+            if (activeGroup) {
+                activeGroup.classList.add("show");
+                const groupToggle = activeGroup.previousElementSibling;
+                groupToggle.classList.remove("collapsed");
+                groupToggle.setAttribute("aria-expanded", "true");
+            }
 
             items.forEach(a => {
                 a.addEventListener("click", (e) => {

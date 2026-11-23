@@ -1,0 +1,38 @@
+html.theme-midnight-blue,
+.theme-item[data-theme="midnight-blue"] {
+    --gtx-accent-solid: #102E53;
+    --gtx-accent-shade: #0B203A;
+}
+
+html.theme-deep-plum,
+.theme-item[data-theme="deep-plum"] {
+    --gtx-accent-solid: #33253D;
+    --gtx-accent-shade: #241A2B;
+}
+
+html.theme-dark-brown,
+.theme-item[data-theme="dark-brown"] {
+    --gtx-accent-solid: #3E1600;
+    --gtx-accent-shade: #2B0F00;
+}
+
+html:is(.theme-midnight-blue, .theme-deep-plum, .theme-dark-brown) {
+    --gtx-grad: linear-gradient(180deg, var(--gtx-accent-solid), var(--gtx-accent-shade));
+    --gtx-grad-rev: linear-gradient(0deg, var(--gtx-accent-solid), var(--gtx-accent-shade));
+}
+
+html:is(.theme-midnight-blue, .theme-deep-plum, .theme-dark-brown) :is(.menu-strip, .btn-gradient, .btn-big-gradient, .btn-gradient-grey.active),
+html:is(.theme-midnight-blue, .theme-deep-plum, .theme-dark-brown) .header__menu ul li .dropdown {
+    background: var(--gtx-grad);
+    color: #fff;
+}
+
+html:is(.theme-midnight-blue, .theme-deep-plum, .theme-dark-brown) :is(.btn-gradient, .btn-big-gradient):is(:hover, :focus-visible) {
+    background: var(--gtx-grad-rev);
+    color: #fff;
+}
+
+html:is(.theme-midnight-blue, .theme-deep-plum, .theme-dark-brown) .form-check-input:checked {
+    border-color: var(--gtx-accent-solid);
+    background-color: var(--gtx-accent-solid);
+}
