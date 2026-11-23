@@ -25,7 +25,9 @@
     };
     var themeKeys = colorThemeGroups.SelectMany(group => group.Keys).ToArray();
     var textureThemeKeys = colorThemeGroups.Single(group => group.Id == "themeGroupTextures").Keys;
-    Func<string, string> themeName = key => System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(key.Replace("palette-", "").Replace('-', ' '));
+    Func<string, string> themeName = key => key == "blue"
+        ? "Default"
+        : System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(key.Replace("palette-", "").Replace('-', ' '));
     var t = migrateTextureKey((Request.Cookies["gtx-theme"]?.Value ?? "blue").ToLowerInvariant());
     var controllerName = (ViewContext.RouteData.Values["controller"] ?? string.Empty).ToString();
     var actionName = (ViewContext.RouteData.Values["action"] ?? string.Empty).ToString();
@@ -115,10 +117,12 @@
     {
         backgroundTheme = "light";
     }
+    var themeFinish = string.Equals(Request.Cookies["gtx-theme-finish"]?.Value, "solid", StringComparison.OrdinalIgnoreCase)
+        ? "solid" : "gradient";
     var themeClass = "theme-" + t;
 }
 <html class="@themeClass" data-texture-theme="@textureTheme" data-texture-tinted="@(textureTheme != "none" && textureTheme != t ? "true" : "false")"
-      data-background-theme="@backgroundTheme" data-bs-theme="@(backgroundTheme == "dark" ? "dark" : "light")">
+      data-theme-finish="@themeFinish" data-background-theme="@backgroundTheme" data-bs-theme="@(backgroundTheme == "dark" ? "dark" : "light")">
 <head class="flex-shrink-0">
     <meta charset="utf-8" />
     @RenderSection("Meta", required: false)
@@ -157,6 +161,7 @@
             if (background !== "dark") background = "light";
             root.dataset.backgroundTheme = background;
             root.dataset.bsTheme = background === "dark" ? "dark" : "light";
+            root.dataset.themeFinish = readPreference("gtx-theme-finish", root.dataset.themeFinish) === "solid" ? "solid" : "gradient";
 
             if (t === "pink") {
                 t = "navy";
@@ -635,10 +640,14 @@
                         </button>
 
                         <ul class="dropdown-menu dropdown-menu-end theme-dropdown-menu accordion rounded-4 shadow" aria-labelledby="themeDropdown">
-                            <li class="theme-mode-row">
+                            <li class="theme-mode-row d-grid gap-1">
                                 <div class="d-flex gap-1 border rounded-3 p-1" role="group" aria-label="Background theme">
                                     <button type="button" class="dropdown-item background-theme-item d-flex align-items-center justify-content-center gap-2 w-50" data-background="light"><i class="bi bi-sun" aria-hidden="true"></i> Light</button>
                                     <button type="button" class="dropdown-item background-theme-item d-flex align-items-center justify-content-center gap-2 w-50" data-background="dark"><i class="bi bi-moon" aria-hidden="true"></i> Dark</button>
+                                </div>
+                                <div class="d-flex gap-1 border rounded-3 p-1" role="group" aria-label="Color finish">
+                                    <button type="button" class="dropdown-item theme-finish-item d-flex align-items-center justify-content-center gap-2 w-50" data-finish="solid" aria-pressed="@(themeFinish == "solid" ? "true" : "false")"><i class="bi bi-square-fill" aria-hidden="true"></i> Solid</button>
+                                    <button type="button" class="dropdown-item theme-finish-item d-flex align-items-center justify-content-center gap-2 w-50" data-finish="gradient" aria-pressed="@(themeFinish == "gradient" ? "true" : "false")"><i class="bi bi-square-half" aria-hidden="true"></i> Gradient</button>
                                 </div>
                             </li>
                             @foreach (var group in colorThemeGroups)
@@ -1135,6 +1144,15 @@
             }));
             noTexture.addEventListener("click", () => applyTheme(theme === texture ? "blue" : theme, "none"));
             originalColor.addEventListener("click", () => applyTheme(texture, texture));
+
+            const finishItems = Array.from(document.querySelectorAll(".theme-finish-item"));
+            function applyFinish(finish) {
+                root.dataset.themeFinish = finish;
+                savePreference("gtx-theme-finish", finish);
+                finishItems.forEach(item => setSelected(item, item.dataset.finish === finish));
+            }
+            applyFinish(root.dataset.themeFinish);
+            finishItems.forEach(item => item.addEventListener("click", () => applyFinish(item.dataset.finish)));
 
             const backgroundItems = Array.from(document.querySelectorAll(".background-theme-item"));
             function applyBackground(background) {
