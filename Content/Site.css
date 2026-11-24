@@ -19,13 +19,8 @@
     background: var(--hero-background);
 }
 
-/* Theme modal-header rules are important; keep hero headers on the shared treatment. */
-html body .hero.modal-header {
-    background: var(--hero-background) !important;
-}
-
-html.theme-silver[data-texture-tinted="true"] .hero.modal-header {
-    color: #fff !important;
+html[data-theme-finish="solid"] .hero {
+    --hero-background: var(--hero-theme-gradient);
 }
 
 /* Keep the Majordome gear legible across color and background themes. */
@@ -51,7 +46,7 @@ html[data-background-theme] body #MajordomeLink > a.gradient {
     width: min(24rem, calc(100vw - 1rem));
     max-height: calc(100dvh - 3.5rem);
     overflow-y: auto;
-    scroll-padding-top: 3rem;
+    scroll-padding-top: 5rem;
     padding: .375rem;
     grid-template-columns: minmax(0, 1fr);
     gap: .25rem;
@@ -68,8 +63,7 @@ html[data-background-theme] body #MajordomeLink > a.gradient {
     }
 }
 
-.theme-dropdown-menu .theme-item,
-.theme-dropdown-menu .background-theme-item {
+.theme-dropdown-menu :is(.theme-item, .background-theme-item, .theme-finish-item) {
     padding: .25rem .375rem;
     font-size: .8rem;
     white-space: normal;
@@ -186,6 +180,11 @@ html[data-texture-theme="palette-carbon-weave"],
 
 :root {
     --gtx-menu-background: var(--palette-textured-surface, var(--gtx-grad, linear-gradient(180deg, #155a96 43%, #1e73be 94%)));
+    --gtx-menu-ink: #fff;
+}
+
+html.theme-silver:not([data-texture-tinted="true"]) {
+    --gtx-menu-ink: #111;
 }
 
 html[data-background-theme][class*="theme-palette-"] .menu-strip {
@@ -197,13 +196,13 @@ html[data-background-theme][data-texture-theme^="palette-"] .menu-strip {
     background: var(--gtx-menu-background) !important;
 }
 
-html[data-background-theme="dark"] body .gtx-card .card-header.gradient.gtx-header {
+html[data-background-theme] body .gtx-card .card-header.gradient.gtx-header {
     background: var(--gtx-menu-background);
 }
 
 html.theme-silver[data-texture-tinted="true"] .menu-strip,
 html.theme-silver[data-texture-tinted="true"] .menu-strip .main-menu > li > a:not(.btn) {
-    color: #fff !important;
+    color: var(--gtx-menu-ink) !important;
 }
 
 html.theme-silver[data-texture-tinted="true"] .menu-strip .main-menu > li > a:not(.btn)::after {
@@ -221,13 +220,17 @@ html.theme-silver[data-texture-tinted="true"] .menu-strip .main-menu > li > a:no
     background-repeat: no-repeat, repeat;
 }
 
-.theme-dropdown-menu :is(.theme-item, .background-theme-item):is(.active, :active) {
+html[data-theme-finish="solid"] #themeGroupColors .theme-swatch {
+    background: var(--gtx-solid-fill);
+}
+
+.theme-dropdown-menu :is(.theme-item, .background-theme-item, .theme-finish-item):is(.active, :active) {
     background-color: var(--theme-selection);
     color: var(--bs-dropdown-link-color);
     box-shadow: inset 0 0 0 1px currentColor;
 }
 
-.theme-dropdown-menu :is(.theme-item, .background-theme-item):focus-visible {
+.theme-dropdown-menu :is(.theme-item, .background-theme-item, .theme-finish-item):focus-visible {
     outline: 2px solid currentColor;
     outline-offset: -2px;
 }
@@ -1016,6 +1019,21 @@ html.theme-silver[data-texture-tinted="true"] .menu-strip .main-menu > li > a:no
     .btn-gradient:hover {
         background: linear-gradient(0deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1) 94%);
     }
+
+html[class][data-background-theme] body .btn-gradient {
+    background: var(--gtx-menu-background) !important;
+    color: var(--gtx-menu-ink) !important;
+}
+
+html[data-background-theme] .btn-gradient:not(:disabled, .disabled, [aria-disabled="true"]):hover,
+html[data-background-theme] .btn-gradient:focus-visible {
+    outline: 1px solid currentColor;
+    outline-offset: -3px;
+}
+
+html[data-background-theme] .btn-gradient:focus-visible {
+    outline-width: 2px;
+}
 
 .btn-gradient-grey {
     border: none;
@@ -1923,9 +1941,12 @@ input::placeholder {
 }
 /*#region Modal */
 .modal-header {
-    background: #155A96;
-    background: linear-gradient(180deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1) 94%);
     border-bottom: 2px solid darkred;
+}
+
+html[data-background-theme] body .modal-header {
+    background: var(--gtx-menu-background) !important;
+    color: var(--gtx-menu-ink) !important;
 }
 
 .modal-title {
@@ -2012,6 +2033,10 @@ li.search-field {
 
 .progress-bar:not(.progress-bar-striped) {
     background-image: var(--gtx-grad, linear-gradient(180deg, #155a96, #1e73be)) !important;
+}
+
+html[data-theme-finish="solid"] .progress-bar:not(.progress-bar-striped) {
+    background: var(--gtx-solid-fill) !important;
 }
 
 progress {
@@ -4042,6 +4067,10 @@ body.home-index .home-hero .video-background-video {
         linear-gradient(110deg, rgba(255, 255, 255, .13), transparent 58%),
         var(--gtx-grad, linear-gradient(145deg, #155a96, #1e73be));
     box-shadow: inset 0 1px rgba(255, 255, 255, .16);
+}
+
+html[data-theme-finish="solid"] .home-panel-heading {
+    background: var(--gtx-solid-fill);
 }
 
 .home-inventory-player-bar {

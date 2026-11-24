@@ -423,10 +423,9 @@ html.theme-silver .vdp-record-status-icon {
     text-shadow: none !important;
 }
 
-.vdp-tabs .nav-item.active {
-    color: var(--bs-body-color, var(--vdp-ink)) !important;
-    background: var(--vdp-soft) !important;
-    background: color-mix(in srgb, var(--vdp-accent) 12%, var(--vdp-soft)) !important;
+html[data-background-theme] body .vdp-tabs .nav-tabs .nav-item.active {
+    color: var(--gtx-menu-ink) !important;
+    background: var(--gtx-menu-background) !important;
 }
 
 .vehicle-detail-page .tab-content > .tab-pane {
@@ -886,7 +885,7 @@ html.theme-silver .gtx-overview-toggle {
 }
 
 .gtx-overview-toggle-copy small {
-    color: rgba(255, 255, 255, .68);
+    color: inherit;
     font-size: .58rem;
     font-weight: 800;
     letter-spacing: .14em;
@@ -901,10 +900,6 @@ html.theme-silver .gtx-overview-toggle {
     letter-spacing: .06em;
     line-height: 1.15;
     text-transform: uppercase;
-}
-
-html.theme-silver .gtx-overview-toggle-copy small {
-    color: rgba(32, 38, 44, .65);
 }
 
 .gtx-overview-toggle-icon,

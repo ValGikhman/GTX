@@ -1,3 +1,8 @@
+:root,
+.theme-item {
+    --gtx-solid-fill: var(--gtx-accent-solid, #1e73be);
+}
+
 /* Each palette defines an accent, canvas, and selection color in both modes. */
 html.theme-palette-cobalt,
 .theme-item[data-theme="palette-cobalt"] {
@@ -114,6 +119,7 @@ html[class*="theme-palette-"],
     --palette-accent: var(--palette-light-accent);
     --palette-canvas: var(--palette-light-canvas);
     --palette-selection: var(--palette-light-selection);
+    --gtx-solid-fill: var(--palette-dark-accent);
 }
 
 html[data-background-theme="dark"][class*="theme-palette-"],
@@ -126,6 +132,10 @@ html[data-background-theme="dark"] .theme-item[data-theme^="palette-"] {
 .theme-dropdown-menu .theme-item[data-theme^="palette-"] {
     --theme-preview-accent: var(--palette-accent);
     --theme-selection: var(--palette-selection);
+}
+
+#themeGroupColors .theme-item[data-theme^="palette-"] {
+    --theme-preview-accent: var(--palette-light-accent);
 }
 
 html:where([class*="theme-palette-"], [data-texture-theme^="palette-"]),
@@ -331,4 +341,26 @@ html.theme-palette-carbon-weave,
     --palette-dark-canvas: #454545;
     --palette-dark-selection: #828282;
     --palette-gradient-stops: #252525, #4a4a4a 49%, #171717;
+}
+
+html[class][data-theme-finish="solid"] {
+    --gtx-grad: var(--gtx-solid-fill);
+    --gtx-grad-rev: var(--gtx-grad);
+    --gtx-grad-diag: var(--gtx-grad);
+    --palette-solid-tint: rgb(0 0 0 / 36%);
+    --palette-texture-overlay: linear-gradient(var(--palette-solid-tint), var(--palette-solid-tint));
+}
+
+html[data-theme-finish="solid"][data-texture-theme="palette-carbon-mesh"] {
+    --palette-solid-tint: rgb(0 0 0 / 54%);
+}
+
+@supports (color: color-mix(in srgb, white, black)) {
+    html[data-theme-finish="solid"][data-texture-tinted="true"] {
+        --palette-solid-tint: color-mix(in srgb, var(--gtx-solid-fill) 34%, rgb(0 0 0 / 36%));
+    }
+
+    html[data-theme-finish="solid"][data-texture-theme="palette-carbon-mesh"][data-texture-tinted="true"] {
+        --palette-solid-tint: color-mix(in srgb, var(--gtx-solid-fill) 34%, rgb(0 0 0 / 66%));
+    }
 }

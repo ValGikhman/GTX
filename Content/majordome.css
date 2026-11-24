@@ -363,24 +363,6 @@ html.theme-silver .majordome-inventory-appraisal { --inventory-appraisal-header-
     box-shadow: 0 1.5rem 4rem rgba(15, 23, 42, .28);
 }
 
-.majordome-remove-bg-modal .modal-header {
-    gap: .7rem;
-    color: #fff;
-    background: var(--gtx-grad, linear-gradient(135deg, #0d6efd, #198754));
-}
-
-.majordome-remove-bg-modal .modal-title {
-    color: inherit;
-}
-
-.majordome-remove-bg-modal .modal-header .btn-close {
-    filter: invert(1) grayscale(100%) brightness(200%);
-}
-
-html.theme-silver .majordome-remove-bg-modal .modal-header .btn-close {
-    filter: none;
-}
-
 .majordome-remove-bg-toolbar {
     display: flex;
     align-items: center;
@@ -1413,13 +1395,13 @@ body.majordome-inventory-page .body-content {
         position: relative;
     }
 
-    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker) .majordome-batch-actions-menu {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker, .inventory-dashboard-picker) .majordome-batch-actions-menu {
         width: min(18rem, calc(100vw - 1rem));
         border: 1px solid var(--inventory-border);
         background: var(--inventory-surface);
     }
 
-    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker) .majordome-batch-action {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker, .inventory-dashboard-picker) .majordome-batch-action {
         display: grid;
         grid-template-columns: 2.15rem minmax(0, 1fr);
         gap: .7rem;
@@ -1431,13 +1413,13 @@ body.majordome-inventory-page .body-content {
         white-space: normal;
     }
 
-    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker) .majordome-batch-action:hover,
-    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker) .majordome-batch-action:focus {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, .inventory-dashboard-picker) .majordome-batch-action:is(:hover, :focus),
+    .inventory-dashboard-picker .majordome-batch-action.active {
         color: var(--inventory-ink);
         background: var(--inventory-surface-alt);
     }
 
-    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker) .majordome-batch-action-icon {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker, .inventory-dashboard-picker) .majordome-batch-action-icon {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -1450,16 +1432,16 @@ body.majordome-inventory-page .body-content {
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35);
     }
 
-    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker) :is(.majordome-batch-action strong, .majordome-batch-action small) {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker, .inventory-dashboard-picker) :is(.majordome-batch-action strong, .majordome-batch-action small) {
         display: block;
     }
 
-    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker) .majordome-batch-action strong {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker, .inventory-dashboard-picker) .majordome-batch-action strong {
         font-size: .78rem;
         line-height: 1.2;
     }
 
-    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker) .majordome-batch-action small {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker, .inventory-dashboard-picker) .majordome-batch-action small {
         margin-top: .15rem;
         color: var(--inventory-muted);
         font-size: .66rem;
@@ -2975,20 +2957,7 @@ body.majordome-inventory-page .body-content {
         }
 
         .majordome-editor-hero {
-            color: #fff;
             padding: .55rem 1.1rem;
-            position: relative;
-        }
-
-        .majordome-editor-hero::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #facc15 0%, #0f766e 55%, #6366f1 100%);
-            opacity: .9;
         }
 
         .majordome-editor-title {

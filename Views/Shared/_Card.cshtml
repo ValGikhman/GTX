@@ -110,11 +110,11 @@
             <div class="d-flex align-items-center gap-2">
 
                 <!-- Make logo -->
-                <div class="flex-shrink-0 d-flex align-items-center gtx-make-logo-wrap">
+                <div class="flex-shrink-0 d-flex align-items-center rounded-4 gtx-make-logo-wrap">
                     <img src="@makeImg"
                          alt="@Model.Make logo"
                          data-make="@Model.Make"
-                         class="img-fluid gtx-make-logo"
+                         class="img-fluid rounded-4 gtx-make-logo"
                          loading="@logoLoadingMode"
                          decoding="async" />
                 </div>
@@ -173,7 +173,7 @@
             </div>
 
             <button type="button"
-                    class="gtx-compare-toggle"
+                    class="gtx-compare-toggle btn btn-sm btn-gradient rounded-4 shadow d-inline-flex align-items-center gap-1"
                     data-stock="@Model.Stock"
                     data-add-title="@I18n.R("Compare_Add")"
                     data-remove-title="@I18n.R("Compare_Remove")"

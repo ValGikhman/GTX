@@ -17,9 +17,6 @@
     margin: 0;
     padding: 0 clamp(.75rem, 3vw, 2rem) .75rem;
     color: var(--dashboard-ink);
-    background:
-        radial-gradient(circle at 8% 10%, color-mix(in srgb, var(--dashboard-selected-accent) 9%, transparent), transparent 26rem),
-        linear-gradient(180deg, color-mix(in srgb, var(--dashboard-surface-alt) 78%, #ece9e2), var(--dashboard-surface));
 }
 
 html.theme-silver .inventory-dashboard {
@@ -121,17 +118,24 @@ html.theme-red .inventory-dashboard {
     backdrop-filter: blur(12px);
 }
 
-    .inventory-dashboard-period-control .form-select {
-        width: auto;
-        min-width: 10rem;
-        height: 2.15rem;
-        padding-block: .25rem;
-        border-color: var(--dashboard-line);
-        border-radius: .7rem;
-        background-color: var(--dashboard-surface);
-        font-size: .78rem;
-        font-weight: 750;
-    }
+.inventory-dashboard-period-control:has(.dropdown-menu.show) {
+    z-index: 2;
+    backdrop-filter: none;
+}
+
+.inventory-dashboard-picker {
+    --inventory-border: var(--dashboard-border);
+    --inventory-line: var(--dashboard-line);
+    --inventory-muted: var(--dashboard-muted);
+    --inventory-ink: var(--dashboard-ink);
+    --inventory-surface: var(--dashboard-surface);
+    --inventory-surface-alt: var(--dashboard-surface-alt);
+}
+
+.inventory-dashboard-picker .majordome-batch-actions-menu {
+    max-height: calc(100dvh - 8rem);
+    overflow-y: auto;
+}
 
 #inventoryDashboardRange {
     height: 2.15rem;
@@ -890,8 +894,8 @@ html.theme-red .inventory-dashboard {
         justify-content: center;
     }
 
-    .inventory-dashboard-period-control .form-select {
-        width: 100% !important;
+    #inventoryDashboardPeriod {
+        width: 100%;
     }
 
     .inventory-dashboard-graph-grid {

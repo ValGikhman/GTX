@@ -590,7 +590,7 @@ html[data-background-theme="dark"] .card-body.gradient > .card-subtitle.text-mut
     color: var(--gtx-gradient-ink) !important;
 }
 
-html[data-background-theme="dark"] .main-menu.no-wrap-group .btn:not(:is(.gradient, .btn-gradient-grey)) {
+html[data-background-theme="dark"] .main-menu.no-wrap-group .btn:not(.gradient, .btn-gradient, .btn-gradient-grey) {
     --bs-btn-color: #212529;
     --bs-btn-hover-color: #212529;
     --bs-btn-active-color: #212529;
@@ -606,7 +606,7 @@ html[data-background-theme="dark"] .vdp-record-status-number {
     color: #fff;
 }
 
-html[data-background-theme="dark"] .page-title .btn:not(.btn-gradient-grey) {
+html[data-background-theme="dark"] .page-title .btn:not(:is(.btn-gradient, .btn-gradient-grey)) {
     --bs-btn-color: #212529;
     --bs-btn-hover-color: #212529;
     --bs-btn-active-color: #212529;
@@ -614,7 +614,7 @@ html[data-background-theme="dark"] .page-title .btn:not(.btn-gradient-grey) {
     color: #212529 !important;
 }
 
-html[data-background-theme="dark"] .page-title .btn:not(.btn-gradient-grey) :is(i, span, strong) {
+html[data-background-theme="dark"] .page-title .btn:not(:is(.btn-gradient, .btn-gradient-grey)) :is(i, span, strong) {
     color: #212529 !important;
 }
 
@@ -634,52 +634,43 @@ html body .btn.btn-gradient-grey.text-shadow-small.active {
     color: #fff !important;
 }
 
-/* Public inventory cards: neutral charcoal surfaces and silver pricing. */
+/* Public inventory cards: accent text and dark mode surfaces. */
 html[data-background-theme="dark"] .gtx-card,
 html[data-background-theme="dark"] .gtx-card :is(a, button, div, span, strong, small) {
     color: #ededed !important;
 }
 
 html[data-background-theme="dark"] .gtx-card {
-    --gtx-card-accent-ink: #fff;
     background: #2b2b2b;
     box-shadow: 0 12px 26px rgba(0, 0, 0, .3);
 }
 
-html.theme-silver[data-background-theme="dark"] .gtx-card {
-    --gtx-card-accent-ink: #111;
-}
-
-html.theme-silver[data-background-theme="dark"][data-texture-tinted="true"] .gtx-card .card-header.gradient.gtx-header {
-    --gtx-card-accent-ink: #fff;
-}
-
-html[class][data-background-theme="dark"] body .gtx-card :is(.gtx-header, .gtx-footer).gradient {
+html[class][data-background-theme="dark"] body .gtx-card .gtx-footer.gradient {
     color: #ededed !important;
     text-shadow: none !important;
 }
 
-html[data-background-theme="dark"] body .gtx-card .gtx-compare-toggle {
-    background: var(--gtx-grad, var(--gtx-gradient-background));
+html[data-background-theme] body .gtx-card .card-header.gradient.gtx-header,
+html[data-background-theme] .gtx-card .card-header.gradient.gtx-header :is(.gtx-title, .gtx-trimline) {
+    color: var(--gtx-menu-ink) !important;
+    text-shadow: none !important;
 }
 
-html[data-background-theme="dark"] body .gtx-card :is(.card-header.gradient.gtx-header, .gtx-compare-toggle) {
-    color: var(--gtx-card-accent-ink) !important;
-}
-
-html[data-background-theme="dark"] .gtx-card .card-header.gradient.gtx-header :is(.gtx-title, .gtx-trimline),
 html[data-background-theme="dark"] .gtx-card .gtx-compare-toggle :is(span, i) {
-    color: var(--gtx-card-accent-ink) !important;
+    color: inherit !important;
 }
 
 html[data-background-theme="dark"] .gtx-card .text-shadow {
     text-shadow: none !important;
 }
 
-html[data-background-theme="dark"] .gtx-card .gtx-make-logo-wrap {
+html[data-background-theme] .gtx-card .gtx-make-logo-wrap {
     background: linear-gradient(145deg, #f3f3f3, #c9c9c9);
-    border-radius: .35rem;
     padding: .15rem .3rem;
+}
+
+html[data-background-theme="light"] .gtx-card .gtx-open:focus-visible {
+    outline-color: var(--gtx-menu-ink);
 }
 
 html[data-background-theme="dark"] .gtx-card :is(.gtx-trimline, .gtx-card-copy) {
@@ -737,10 +728,6 @@ html[data-background-theme="dark"] .gtx-card .gtx-chip {
 html[data-background-theme="dark"] .gtx-card :is(.gtx-open, .gtx-card-action):focus-visible {
     outline: 2px solid #e0e0e0;
     outline-offset: 3px;
-}
-
-html[data-background-theme="dark"] .gtx-card .gtx-compare-toggle.is-selected {
-    border-color: currentColor;
 }
 
 html[data-background-theme="dark"] .majordome-status-pill {
