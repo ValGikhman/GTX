@@ -356,6 +356,41 @@ html.theme-silver .majordome-inventory-appraisal { --inventory-appraisal-header-
 
 .majordome-inventory-appraisal .research-grid-note { margin: .7rem 0 0; }
 
+html[data-background-theme="dark"] .majordome-inventory-appraisal :is(
+    .modal-body,
+    .inventory-appraisal-intro,
+    .inventory-appraisal-inventory-price,
+    .pr-market-overview,
+    .pr-demand,
+    .pr-grid-section,
+    :is(.pr-market-overview, .pr-demand, .pr-grid-section) > header,
+    .pr-market-estimate,
+    .research-metric,
+    .pr-demand .pr-bid-metrics > div,
+    [data-appraisal-request-summary],
+    .pr-comparables-description
+) {
+    background: var(--gtx-addgrid-header-background);
+    color: var(--gtx-addgrid-header-ink);
+}
+
+html[data-background-theme="dark"] .majordome-inventory-appraisal :is(
+    .inventory-appraisal-vehicle,
+    .inventory-appraisal-description,
+    .inventory-appraisal-status,
+    .appraisal-metric-help.btn,
+    :is(.research-metric, .pr-demand .pr-bid-metrics) :is(span, strong),
+    [data-appraisal-demand-message],
+    .pr-demand-note,
+    .research-grid-note
+) {
+    color: var(--gtx-addgrid-header-ink);
+}
+
+html[data-background-theme="dark"] .majordome-inventory-appraisal .appraisal-comparables-grid {
+    color: var(--inventory-ink);
+}
+
 .majordome-remove-bg-modal .modal-content {
     overflow: hidden;
     border: 1px solid var(--bs-border-color-translucent, rgba(148, 163, 184, .2));
@@ -1401,7 +1436,7 @@ body.majordome-inventory-page .body-content {
         background: var(--inventory-surface);
     }
 
-    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker, .inventory-dashboard-picker) .majordome-batch-action {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker, .inventory-dashboard-picker, .majordome-management-log-period) .majordome-batch-action {
         display: grid;
         grid-template-columns: 2.15rem minmax(0, 1fr);
         gap: .7rem;
@@ -1419,7 +1454,7 @@ body.majordome-inventory-page .body-content {
         background: var(--inventory-surface-alt);
     }
 
-    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker, .inventory-dashboard-picker) .majordome-batch-action-icon {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker, .inventory-dashboard-picker, .majordome-management-log-period) .majordome-batch-action-icon {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -1436,7 +1471,7 @@ body.majordome-inventory-page .body-content {
         display: block;
     }
 
-    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker, .inventory-dashboard-picker) .majordome-batch-action strong {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker, .inventory-dashboard-picker, .majordome-management-log-period) .majordome-batch-action strong {
         font-size: .78rem;
         line-height: 1.2;
     }
@@ -2340,7 +2375,7 @@ body.majordome-inventory-page .body-content {
         max-height: none;
         overflow-x: hidden;
         overflow-y: auto;
-        background: #f8fafc;
+        background: var(--gtx-addgrid-header-background, var(--inventory-header-bg));
         border-right: 1px solid var(--inventory-line);
         scrollbar-color: rgba(71, 85, 105, .45) transparent;
         scrollbar-width: thin;
@@ -2377,6 +2412,10 @@ body.majordome-inventory-page .body-content {
         padding: .2rem .55rem;
     }
 
+    .majordome-management-log-tree {
+        color: var(--gtx-addgrid-header-ink, var(--inventory-header-color));
+    }
+
     .majordome-management-log-period {
         flex: 0 0 auto;
         display: grid;
@@ -2385,99 +2424,20 @@ body.majordome-inventory-page .body-content {
         padding-bottom: .4rem;
     }
 
-        .majordome-management-log-period .form-label {
-            margin-bottom: .25rem;
-            color: var(--inventory-muted);
-            font-size: .72rem;
-            font-weight: 800;
-            letter-spacing: .04em;
-            text-transform: uppercase;
-        }
-
-        .majordome-management-log-period .form-select {
-            min-height: 2rem;
-            padding-block: .25rem;
-            border-color: var(--inventory-border);
-            border-radius: .55rem;
-            background-color: #fff;
-            color: var(--inventory-ink);
-            font-weight: 700;
-        }
-
-            .majordome-management-log-period .form-select:focus {
-                border-color: rgba(37, 99, 235, .5);
-                box-shadow: 0 0 0 .22rem rgba(37, 99, 235, .12);
-            }
-
-    .majordome-management-log-date {
-        border: 1px solid var(--inventory-border);
-        border-radius: .65rem;
-        background: #fff;
-        box-shadow: 0 .3rem .9rem rgba(15, 23, 42, .05);
-        overflow: hidden;
+    .majordome-management-log-period .dropdown-toggle::after {
+        flex-shrink: 0;
+        margin-inline-start: auto;
     }
 
-        .majordome-management-log-date + .majordome-management-log-date {
-            margin-top: .3rem;
-        }
-
-        .majordome-management-log-date-toggle.is-selected,
-        .majordome-management-log-date-toggle.is-active {
-            background: var(--inventory-header-bg);
-            color: var(--inventory-header-color);
-            box-shadow: inset .28rem 0 var(--inventory-header-border), 0 .35rem .8rem rgba(15, 23, 42, .12);
-        }
-
-            .majordome-management-log-date-toggle.is-selected:hover,
-            .majordome-management-log-date-toggle.is-selected:focus,
-            .majordome-management-log-date-toggle.is-active:hover,
-            .majordome-management-log-date-toggle.is-active:focus {
-                background: var(--inventory-header-bg);
-                color: var(--inventory-header-color);
-            }
-
-            .majordome-management-log-date-toggle.is-selected .majordome-management-log-option-date,
-            .majordome-management-log-date-toggle.is-active .majordome-management-log-option-date,
-            .majordome-management-log-option-date.is-selected,
-            .majordome-management-log-option-date.is-active {
-                color: var(--inventory-header-color);
-            }
-
-            .majordome-management-log-date-toggle.is-selected .majordome-management-log-date-count,
-            .majordome-management-log-date-toggle.is-active .majordome-management-log-date-count {
-                background: rgba(255, 255, 255, .22) !important;
-                border: 1px solid var(--inventory-header-border);
-                color: var(--inventory-header-color);
-            }
-
-    html.theme-silver .majordome-management-log-date-toggle.is-selected .majordome-management-log-date-count,
-    html.theme-silver .majordome-management-log-date-toggle.is-active .majordome-management-log-date-count {
-        background: rgba(15, 23, 42, .12) !important;
-        border-color: rgba(15, 23, 42, .18);
-        color: #111827;
+    .majordome-management-log-date-toggle {
+        column-gap: .25rem;
+        padding-inline: .45rem;
     }
 
-    html.theme-silver .majordome-management-log-date-toggle.is-selected .majordome-management-log-option-date,
-    html.theme-silver .majordome-management-log-date-toggle.is-active .majordome-management-log-option-date,
-    html.theme-silver .majordome-management-log-option-date.is-selected,
-    html.theme-silver .majordome-management-log-option-date.is-active {
-        color: #111827;
+    .majordome-management-log-date-toggle[aria-current="true"] .majordome-management-log-option-date {
+        text-decoration: underline;
+        text-underline-offset: .2em;
     }
-
-    .majordome-management-log-date-toggle.is-selected.collapsed,
-    .majordome-management-log-date-toggle.is-selected[aria-expanded="false"],
-    .majordome-management-log-date-toggle.is-active.collapsed,
-    .majordome-management-log-date-toggle.is-active[aria-expanded="false"] {
-        background: var(--inventory-header-bg);
-        color: var(--inventory-header-color);
-    }
-
-        html.theme-silver .majordome-management-log-date-toggle.is-selected.collapsed,
-        html.theme-silver .majordome-management-log-date-toggle.is-selected[aria-expanded="false"],
-        html.theme-silver .majordome-management-log-date-toggle.is-active.collapsed,
-        html.theme-silver .majordome-management-log-date-toggle.is-active[aria-expanded="false"] {
-            color: #111827;
-        }
 
     .majordome-management-log-date-main {
         min-width: 0;
@@ -2487,8 +2447,9 @@ body.majordome-inventory-page .body-content {
     }
 
     .majordome-management-log-date-count {
-        margin-left: auto;
         flex: 0 0 auto;
+        font-size: 1rem;
+        font-variant-numeric: tabular-nums;
     }
 
     .majordome-management-log-status-list {
@@ -2555,9 +2516,7 @@ body.majordome-inventory-page .body-content {
 
     .majordome-management-log-option-date {
         min-width: 0;
-        font-family: inherit;
-        font-size: .75rem;
-        font-weight: 600;
+        font-size: .9rem;
         line-height: 1.35;
         white-space: normal;
     }
@@ -3430,8 +3389,8 @@ html[data-background-theme="dark"] #roleModalBody { --role-editor-surface: #1923
     #roleModalBody .role-editor-permission { transition: none; }
 }
 
-/* Majordome navigation and inventory layout use the Actions menu's icon-and-description rows. */
-html body :is(#MajordomeLink, #AboutMenuLink, #inventoryCardLayoutPicker, #inventorySortPicker) > .majordome-batch-actions-menu {
+/* Majordome navigation, Management dates, and inventory layout share the Actions menu styles. */
+html body :is(#MajordomeLink, #AboutMenuLink, #inventoryCardLayoutPicker, #inventorySortPicker, .majordome-management-log-period .dropdown) > .majordome-batch-actions-menu {
     width: min(18rem, calc(100vw - 1rem));
     max-height: calc(100dvh - 8rem);
     overflow-y: auto;
@@ -3439,8 +3398,11 @@ html body :is(#MajordomeLink, #AboutMenuLink, #inventoryCardLayoutPicker, #inven
     border: 1px solid var(--inventory-border);
     background: var(--inventory-surface) !important;
 }
-:is(#MajordomeLink, #AboutMenuLink, #inventoryCardLayoutPicker, #inventorySortPicker) > .majordome-batch-actions-menu > li { margin: 0; }
-html body :is(#MajordomeLink, #AboutMenuLink, #inventoryCardLayoutPicker, #inventorySortPicker) > .majordome-batch-actions-menu > li > .majordome-batch-action {
+#majordome-management-sidebar-pane .majordome-management-log-period .majordome-batch-actions-menu {
+    width: min(12rem, calc(100vw - 1rem));
+}
+:is(#MajordomeLink, #AboutMenuLink, #inventoryCardLayoutPicker, #inventorySortPicker, .majordome-management-log-period .dropdown) > .majordome-batch-actions-menu > li { margin: 0; }
+html body :is(#MajordomeLink, #AboutMenuLink, #inventoryCardLayoutPicker, #inventorySortPicker, .majordome-management-log-period .dropdown) > .majordome-batch-actions-menu > li > .majordome-batch-action {
     display: grid;
     grid-template-columns: 2.15rem minmax(0, 1fr);
     gap: .7rem;
@@ -3450,8 +3412,8 @@ html body :is(#MajordomeLink, #AboutMenuLink, #inventoryCardLayoutPicker, #inven
     text-decoration: none;
     white-space: normal;
 }
-html body :is(#MajordomeLink, #AboutMenuLink, #inventoryCardLayoutPicker, #inventorySortPicker) > .majordome-batch-actions-menu > li > .majordome-batch-action:is(:hover, :focus-visible),
-    :is(#inventoryCardLayoutPicker, #inventorySortPicker) .majordome-batch-action.active {
+html body :is(#MajordomeLink, #AboutMenuLink, #inventoryCardLayoutPicker, #inventorySortPicker, .majordome-management-log-period .dropdown) > .majordome-batch-actions-menu > li > .majordome-batch-action:is(:hover, :focus-visible),
+    :is(#inventoryCardLayoutPicker, #inventorySortPicker, .majordome-management-log-period) .majordome-batch-action.active {
     color: var(--inventory-ink);
     background: var(--inventory-surface-alt);
 }
