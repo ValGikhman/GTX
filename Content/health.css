@@ -35,6 +35,21 @@ body {
         transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
     }
 
+    html[data-background-theme="dark"] .health-card-col > .health-card {
+        background: var(--gtx-addgrid-header-background);
+        color: var(--gtx-addgrid-header-ink);
+    }
+
+    html[data-background-theme="dark"] .health-card-col > .health-card :is(.kpi-label, .kpi-sub, .health-token-unit, .health-value-placeholder, .cdn-service-name),
+    html[data-background-theme="dark"] #servicesPage .health-card .service-settings-field :is(.form-label, .form-text) {
+        color: var(--gtx-addgrid-header-ink);
+    }
+
+    html[data-background-theme="dark"] #servicesPage .health-card .service-model-actions .btn-outline-secondary {
+        --bs-btn-color: var(--gtx-addgrid-header-ink);
+        --bs-btn-border-color: var(--gtx-addgrid-header-ink);
+    }
+
     .health-card:hover {
         transform: translateY(-2px);
         border-color: rgba(37, 99, 235, .2);
@@ -253,11 +268,11 @@ body {
     .health-card-maintenance.is-offline .kpi-label,
     .health-card-maintenance.is-offline .kpi-sub,
     .health-card-maintenance.is-offline .kpi-value {
-        color: #842029 !important;
+        color: var(--gtx-addgrid-header-ink, #842029) !important;
     }
 
     .health-card-maintenance.is-offline #offlineStatusText {
-        color: #b02a37 !important;
+        color: var(--gtx-addgrid-header-ink, #b02a37) !important;
         font-weight: 800;
     }
 

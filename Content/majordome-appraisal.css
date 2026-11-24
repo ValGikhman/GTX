@@ -44,7 +44,7 @@ html.theme-silver #price-research {
     min-height: 0;
     overflow: visible;
     border: 0;
-    background: transparent;
+    background: var(--gtx-addgrid-header-background, transparent);
     box-shadow: none;
 }
 
@@ -554,16 +554,6 @@ html.theme-silver #price-research {
 #price-research .pr-market-research-label {
     display: inline-flex;
     align-items: center;
-    gap: .35rem;
-}
-
-#price-research .pr-market-logo-dark,
-[data-bs-theme="dark"] #price-research .pr-market-logo-light {
-    display: none;
-}
-
-[data-bs-theme="dark"] #price-research .pr-market-logo-dark {
-    display: inline-block;
 }
 
 #price-research .pr-appraisal-toolbar {
@@ -686,4 +676,75 @@ html[data-background-theme="dark"] #pr-batch-grid .pr-batch-retry:is(:hover, :fo
     #price-research #pr-batch-grid .pg-grid-table :is(th, td) { padding-inline: .2rem; font-size: .7rem; }
     #pr-batch-grid .pr-batch-odometer { white-space: normal; }
     #pr-batch-grid .pr-batch-retry { padding: .15rem; }
+}
+
+html[data-background-theme="dark"] #price-research {
+    --pr-control-ink: var(--pr-ink);
+    --pr-control-muted: var(--pr-muted);
+    --pr-control-accent: var(--pr-accent);
+    --pr-control-heading-ink: var(--pr-heading-ink);
+}
+
+html[data-background-theme="dark"] #price-research :is(
+    .marketing-section-label,
+    .vin-decoder-console,
+    .vin-decoder-empty,
+    .vin-decoder-results,
+    .research-results,
+    .pr-progress,
+    .pr-market-overview,
+    .pr-auction,
+    .pr-demand,
+    .pr-grid-section,
+    .research-metrics,
+    .research-metric,
+    .pr-bid-metrics,
+    .pr-bid-current,
+    .pr-comparables-description
+),
+html[data-background-theme="dark"] #price-research :is(#pr-auction, #pr-demand) .pr-bid-metrics > div,
+html[data-background-theme="dark"] #price-research #pr-demand-message:not(:empty) {
+    --pr-ink: var(--gtx-addgrid-header-ink);
+    --pr-muted: var(--pr-ink);
+    --pr-accent: var(--pr-ink);
+    background: var(--gtx-addgrid-header-background);
+    color: var(--pr-ink);
+}
+
+html[data-background-theme="dark"] #price-research :is(.pr-market-overview, .pr-auction, .pr-demand, .pr-grid-section) {
+    box-shadow: var(--gtx-raised-surface-shadow);
+}
+
+html[data-background-theme="dark"] #price-research :is(.pr-auction-heading, .pr-market-heading, .pr-grid-section > header, .pr-demand > header) {
+    --pr-heading-ink: var(--gtx-addgrid-header-ink);
+    --pr-heading-chip: rgb(255 255 255 / 20%);
+    background: var(--gtx-addgrid-header-background);
+}
+
+html[data-background-theme="dark"] #price-research :is(
+    .pr-research-workspace .nav-link,
+    .pr-pdf-drop,
+    .pr-bid-money,
+    .pr-bid-costs > span,
+    .pr-comparables-options,
+    .pr-batch-heading-icon,
+    .pr-batch-retry
+) {
+    --pr-ink: var(--pr-control-ink);
+    --pr-muted: var(--pr-control-muted);
+    --pr-accent: var(--pr-control-accent);
+    --pr-heading-ink: var(--pr-control-heading-ink);
+}
+
+html[data-background-theme="dark"] #price-research .pr-comparables-options {
+    color: var(--pr-ink);
+}
+
+html[data-background-theme="dark"] #price-research .vin-decoder-console-copy {
+    --mp-ink: var(--pr-ink);
+    --mp-accent: var(--pr-accent);
+}
+
+html[data-background-theme="dark"] #price-research :is(.vin-decoder-empty strong, #pr-bid-current-verdict, .pr-bid-error) {
+    color: var(--pr-ink);
 }

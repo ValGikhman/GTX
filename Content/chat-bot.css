@@ -23,6 +23,22 @@
 .gtx-chat.is-dragging .gtx-chat-header { cursor: grabbing; }
 .gtx-chat-header:focus-visible { outline: 2px solid var(--gtx-chat-accent); outline-offset: -3px; }
 
+.gtx-chat-launcher {
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
+    min-height: 3rem;
+    padding: .7rem 1rem;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+.gtx-chat .gtx-chat-launcher.btn {
+    font-weight: 800 !important;
+}
+
+.gtx-chat-launcher i { font-size: 1.15rem; }
+
 .gtx-chat-launcher.gtx-chat-launcher--dropdown-hidden {
     display: none;
 }
@@ -874,4 +890,5 @@ html.theme-silver .gtx-chat { --gtx-chat-on-theme: #172033; }
     .gtx-chat { --gtx-chat-gap: .65rem; }
     .gtx-chat-panel { width: calc(100vw - 1.3rem); height: min(620px, calc(100dvh - var(--gtx-header-height, 0px) - var(--gtx-footer-height, 0px) - 1.3rem)); }
     .gtx-chat-launcher span { display: none; }
+    .gtx-chat-launcher { width: 3.25rem; height: 3.25rem; justify-content: center; padding: 0; }
 }

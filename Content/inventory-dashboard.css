@@ -119,7 +119,7 @@ html.theme-red .inventory-dashboard {
 }
 
 .inventory-dashboard-period-control:has(.dropdown-menu.show) {
-    z-index: 2;
+    z-index: 4;
     backdrop-filter: none;
 }
 
@@ -135,6 +135,10 @@ html.theme-red .inventory-dashboard {
 .inventory-dashboard-picker .majordome-batch-actions-menu {
     max-height: calc(100dvh - 8rem);
     overflow-y: auto;
+}
+
+#inventoryDashboardTrendTypeMenu {
+    max-height: min(26rem, 45dvh);
 }
 
 #inventoryDashboardRange {
@@ -200,6 +204,12 @@ html.theme-red .inventory-dashboard {
     border-radius: 8px;
     background: color-mix(in srgb, var(--dashboard-accent, #0d6efd) 14%, transparent);
     color: var(--dashboard-accent, #0d6efd);
+}
+
+html[data-background-theme="dark"] .inventory-dashboard-icon {
+    background: color-mix(in srgb, var(--dashboard-accent, #0d6efd) 18%, var(--dashboard-surface));
+    color: color-mix(in srgb, var(--dashboard-accent, #0d6efd), white);
+    font-size: 1.125rem;
 }
 
 .inventory-dashboard-accent-status {
@@ -416,6 +426,10 @@ html.theme-red .inventory-dashboard {
         min-height: 7.5rem;
     }
 
+    .inventory-dashboard-trend-chart-tall canvas {
+        height: clamp(14rem, 45vh, 22rem) !important;
+    }
+
 .inventory-dashboard-trend-empty {
     min-height: 8rem;
     display: flex;
@@ -509,7 +523,7 @@ html.theme-red .inventory-dashboard {
     .inventory-dashboard-legend-item.is-active,
     .inventory-dashboard-legend-item.selected {
         border-color: rgba(13, 110, 253, .58);
-        background: rgba(13, 110, 253, .1);
+        background: color-mix(in srgb, #0d6efd 10%, var(--dashboard-surface-alt));
         box-shadow: inset .25rem 0 var(--dashboard-location-color, #0d6efd);
     }
 

@@ -29,6 +29,8 @@ html[data-background-theme="dark"] {
     color-scheme: dark;
     --gtx-default-page-bg: #202124;
     --gtx-page-bg: var(--gtx-default-page-bg);
+    --gtx-addgrid-header-background: linear-gradient(145deg, #a0a6ac 0%, #858c93 48%, #6f767e 100%);
+    --gtx-addgrid-header-ink: var(--bs-black, #000);
     --gtx-raised-surface:
         radial-gradient(circle at 100% 0, rgba(210, 215, 219, 0.16), transparent 42%),
         linear-gradient(145deg, #424a51, #2e343a);
@@ -52,24 +54,47 @@ html[data-background-theme="dark"] body {
     color: var(--bs-body-color);
 }
 
+html[class][data-background-theme="dark"] body :is(.btn-gradient-grey, .majordome-management-log-status-list),
+html[data-background-theme="dark"] .main-menu.no-wrap-group .btn.gradient,
+html[data-background-theme="dark"] #MajordomeLink > .btn.gradient,
+html[data-background-theme="dark"] #inventorySidebarPane .inventory-clear-btn.btn-gradient-grey {
+    --gtx-gradient-background: linear-gradient(180deg, #747c84, #555d65);
+    --gtx-gradient-ink: #fff;
+    border-color: #4f565e !important;
+    color: var(--gtx-gradient-ink) !important;
+    background: var(--gtx-gradient-background) !important;
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.2), 0 2px 5px rgba(31, 37, 43, 0.24) !important;
+}
+
+html[data-background-theme="dark"] .btn-gradient-grey.active[role="tab"] {
+    text-decoration: underline;
+    text-underline-offset: .2em;
+}
+
+html[data-background-theme="dark"] .btn-gradient-grey:focus-visible,
+html[data-background-theme="dark"] .main-menu.no-wrap-group .btn.gradient:focus-visible,
+html[data-background-theme="dark"] #MajordomeLink > .btn.gradient:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+html[data-background-theme="dark"] .vdp-tabs .btn-gradient-grey.active:focus-visible {
+    outline-offset: -3px;
+}
+
 /* Override the important base and home-page backgrounds. */
 html[data-background-theme="dark"] body .body-content {
     background: transparent !important;
 }
 
 /* Raised panels and toolbars use the steel surface above the charcoal content. */
-html[data-background-theme="dark"] :is(
-    .inventory-dashboard-period-control,
-    .inventory-dashboard-graph-card,
-    .inventory-dashboard-grid-header
-),
+html[data-background-theme="dark"] .inventory-dashboard-grid-header,
 html[data-background-theme="dark"] :is(
     .inventory-dashboard-add-grid,
     .majordome-add-grid,
     .majordome-management-add-grid,
     .gtx-admin-add-grid
-) .pg-search-bar,
-html[data-background-theme="dark"] #price-research :is(.pr-market-overview, .pr-auction, .pr-demand, .pr-grid-section) {
+) .pg-search-bar {
     background: var(--gtx-raised-surface);
     box-shadow: var(--gtx-raised-surface-shadow);
 }
@@ -78,24 +103,43 @@ html[data-background-theme="dark"] .vin-decoder-page :is(.marketing-section-labe
     background: var(--gtx-raised-surface);
 }
 
-html[data-background-theme="dark"] #inventoryDashboardClearStatus {
-    --bs-btn-color: var(--bs-body-color);
-    --bs-btn-border-color: var(--bs-secondary-color);
+html[data-background-theme="dark"] :is(.inventory-dashboard-period-control, .inventory-dashboard-graph-card) {
+    background: var(--gtx-addgrid-header-background);
+    box-shadow: var(--gtx-raised-surface-shadow);
+}
+
+html[data-background-theme="dark"] .inventory-dashboard-graph-card :is(.inventory-dashboard-title, .inventory-dashboard-legend > .text-muted) {
+    color: var(--gtx-addgrid-header-ink) !important;
 }
 
 /* Match AddGrid headers and footers in dark mode. */
 html[data-background-theme="dark"] .pg-grid-table > thead,
 html[data-background-theme="dark"] .pg-grid-footer {
-    background: linear-gradient(145deg, #a0a6ac 0%, #858c93 48%, #6f767e 100%) !important;
+    background: var(--gtx-addgrid-header-background) !important;
 }
 
 html[data-background-theme="dark"] .pg-grid-table > thead > tr > th {
     background: transparent !important;
-    color: var(--bs-black, #000) !important;
+    color: var(--gtx-addgrid-header-ink) !important;
 }
 
 html[data-background-theme="dark"] .pg-grid-table > thead :is(.pg-th-label, .pg-sort-icon, .pg-filter-btn) {
-    color: var(--bs-black, #000) !important;
+    color: var(--gtx-addgrid-header-ink) !important;
+}
+
+html[data-background-theme="dark"] .page-title.inventory-player-title.page-title-mobile-call-enabled {
+    background: var(--gtx-addgrid-header-background) !important;
+    color: var(--gtx-addgrid-header-ink) !important;
+}
+
+html[data-background-theme="dark"] #modalShortcuts,
+html[data-background-theme="dark"] .vehicle-detail-page .vdp-gallery-card {
+    background: var(--gtx-addgrid-header-background);
+}
+
+html[data-background-theme="dark"] .inventory-player-title .page-title-inventory-address.copied {
+    color: inherit;
+    text-decoration: underline;
 }
 
 html[data-background-theme="dark"] .pg-grid-table > thead .pg-th-sortable .pg-th-label:hover {
@@ -120,12 +164,7 @@ html[data-background-theme="dark"] .pg-grid-footer .pg-pager-info-empty {
     color: var(--bs-body-color);
 }
 
-html[data-background-theme="dark"] .majordome-management-sidebar-pane {
-    background: transparent;
-}
-
-/* Keep log-tree surfaces and labels on the background palette; selected dates
-   retain the existing accent-theme highlight. */
+/* Keep Management sidebar controls on the dark palette. */
 html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-sidebar-pane {
     --inventory-ink: var(--bs-body-color);
     --inventory-muted: var(--bs-secondary-color);
@@ -136,21 +175,12 @@ html[data-background-theme]:not([data-background-theme="light"]) .majordome-mana
     scrollbar-color: var(--bs-secondary-color) transparent;
 }
 
-html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-log-date {
-    background: var(--bs-body-bg);
+html[data-background-theme="dark"] .majordome-management-log-status-list {
+    --inventory-ink: var(--gtx-gradient-ink);
 }
 
-html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-log-status-list {
-    background: var(--bs-tertiary-bg);
-}
-
-html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-log-date-toggle:not(.is-selected):not(.is-active) {
-    background: linear-gradient(180deg, var(--bs-body-bg), var(--bs-tertiary-bg));
-}
-
-html[data-background-theme="dark"] .majordome-management-log-date-toggle:is(.collapsed, [aria-expanded="false"]),
-html[data-background-theme="dark"] .majordome-management-log-date-toggle:is(.collapsed, [aria-expanded="false"]) :is(.majordome-management-log-option-date, .majordome-management-log-date-count) {
-    color: #fff;
+html[data-background-theme="dark"] .majordome-management-log-status-list .inventory-management-rollback-trigger {
+    --bs-btn-color: var(--gtx-gradient-ink);
 }
 
 html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-log-status:not(.is-selected):not(.is-active):not(:disabled):is(:hover, :focus) {
@@ -234,33 +264,17 @@ html[data-background-theme]:not([data-background-theme="light"]) .pg-group-bar .
     color: var(--bs-secondary-color);
 }
 
-/* Health cards share the background palette while keeping their status accents. */
+/* Keep dark borders and progress tracks on their corresponding palettes. */
 html[data-background-theme]:not([data-background-theme="light"]) .health-card {
-    background: linear-gradient(180deg, var(--bs-body-bg), var(--bs-tertiary-bg));
     border-color: var(--bs-border-color);
-    color: var(--bs-body-color);
 }
 
-html[data-background-theme]:not([data-background-theme="light"]) .health-card :is(.kpi-label, .kpi-sub, .health-token-unit) {
-    color: var(--bs-secondary-color);
-}
-
-html[data-background-theme]:not([data-background-theme="light"]) .health-card .cdn-service-name {
-    color: var(--bs-body-color);
-}
-
-html[data-background-theme]:not([data-background-theme="light"]) .health-card .progress,
-html[data-background-theme]:not([data-background-theme="light"]) .health-card-cdn.is-disabled {
+html[data-background-theme]:not([data-background-theme="light"]) .health-card .progress {
     background: var(--bs-secondary-bg);
 }
 
 html[data-background-theme]:not([data-background-theme="light"]) .health-card-maintenance.is-offline {
-    background: var(--bs-danger-bg-subtle);
     border-color: var(--bs-danger-border-subtle);
-}
-
-html[data-background-theme]:not([data-background-theme="light"]) .health-card-maintenance.is-offline :is(.kpi-label, .kpi-sub, .kpi-value, #offlineStatusText) {
-    color: var(--bs-danger-text-emphasis) !important;
 }
 
 /* Keep the light-surface details shortcut consistent in every palette. */
@@ -275,16 +289,12 @@ html[data-background-theme]:not([data-background-theme="light"]) .inventory-resu
     color: var(--bs-body-color);
 }
 
-html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-log-tree {
-    background: var(--bs-tertiary-bg);
-    color: var(--bs-body-color);
-}
-
 html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane .inventory-dependent-empty {
     color: var(--bs-body-color);
 }
 
-html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane :is(.inventory-filter-panel-count, .inventory-range-values, .inventory-range-output, .inventory-check-row) {
+html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane :is(.inventory-filter-panel-count, .inventory-range-values, .inventory-range-output, .inventory-check-row),
+html[data-background-theme]:not([data-background-theme="light"]) #majordomeManagementLogMenu .majordome-management-log-date-count {
     color: var(--gtx-gradient-ink);
 }
 
@@ -310,7 +320,8 @@ html[data-background-theme]:not([data-background-theme="light"]) .inventory-empt
 }
 
 @media (max-width: 991.98px) {
-    html[data-background-theme="dark"] #inventorySidebarPane :is(.inventory-filter-panel-count, .inventory-range-output) {
+    html[data-background-theme="dark"] #inventorySidebarPane :is(.inventory-filter-panel-count, .inventory-range-output),
+    html[data-background-theme="dark"] #majordomeManagementLogMenu .majordome-management-log-date-count {
         background: var(--bs-secondary-bg);
     }
 }
@@ -677,28 +688,32 @@ html[data-background-theme="dark"] .gtx-card :is(.gtx-trimline, .gtx-card-copy) 
     opacity: 1;
 }
 
-html[data-background-theme="dark"] .gtx-card :is(.gtx-price-muted, .gtx-price-muted span) {
-    color: #c2c2c2 !important;
+html[data-background-theme="dark"] .gtx-card :is(.gtx-price-panel, .gtx-price-line, .gtx-price-line span, .gtx-price-line i) {
+    color: var(--gtx-addgrid-header-ink) !important;
+}
+
+html[data-background-theme="dark"] .gtx-card .gtx-price-muted {
     opacity: 1;
 }
 
 html[data-background-theme="dark"] .gtx-card .gtx-price-panel {
-    background: #212121;
+    background: var(--gtx-addgrid-header-background);
     border-color: #505050;
     box-shadow: none;
+    text-shadow: none;
 }
 
 html[data-background-theme="dark"] .gtx-card .gtx-price-panel:is(:hover, :focus-visible) {
-    background: #333333;
     border-color: #e0e0e0;
+}
+
+html[data-background-theme="dark"] .gtx-card .gtx-price-panel:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -3px;
 }
 
 html[data-background-theme="dark"] .gtx-card .gtx-transparent-line {
     border-top-color: #505050;
-}
-
-html[data-background-theme="dark"] .gtx-card .gtx-transparent-line .gtx-price-amount {
-    color: #e0e0e0 !important;
 }
 
 html[data-background-theme="dark"] .gtx-card .gtx-no-hidden-fees {
@@ -706,17 +721,19 @@ html[data-background-theme="dark"] .gtx-card .gtx-no-hidden-fees {
     color: #a7f3d0 !important;
 }
 
-html[data-background-theme="dark"] .gtx-card :is(.gtx-open, .gtx-open i, .gtx-card-action, .gtx-card-action span) {
+html[data-background-theme="dark"] .gtx-card :is(.gtx-open, .gtx-open i) {
     color: #262626 !important;
 }
 
+html[data-background-theme="dark"] .gtx-card .gtx-card-action > span {
+    color: inherit !important;
+}
+
 html[data-background-theme="dark"] .gtx-card .gtx-card-action {
-    background: #e5e5e5;
     border-color: #c2c2c2;
 }
 
 html[data-background-theme="dark"] .gtx-card .gtx-card-action:is(:hover, :focus-visible) {
-    background: #f3f3f3;
     border-color: #e0e0e0;
 }
 
@@ -826,13 +843,6 @@ html[data-background-theme="dark"] .majordome-editor-footer {
     border-top-color: var(--bs-border-color);
 }
 
-/* Keep vehicle utility icons and borders visible in Dark. */
-html[class][data-background-theme="dark"] body .vdp-utility-actions .btn.btn-gradient-grey {
-    color: #fff !important;
-    --bs-btn-color: #fff;
-    --bs-btn-hover-color: #fff;
-    --bs-btn-active-color: #fff;
-    --bs-btn-disabled-color: #fff;
-    border-color: var(--bs-border-color) !important;
+html[data-background-theme="dark"] .vdp-utility-actions .btn-gradient-grey {
     text-shadow: none;
 }

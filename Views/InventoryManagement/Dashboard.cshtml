@@ -18,9 +18,18 @@
     var dashboardTrendTypes = new[]
     {
         ("auto", "Default", "Use columns for Added and Sold, and a line for Current", "bi-graph-up-arrow"),
-        ("bar", "Columns", "Compare daily counts side by side", "bi-bar-chart"),
+        ("bar", "Columns", "Use columns for Added, Sold, and Current", "bi-bar-chart"),
         ("line", "Line", "Follow changes in daily counts over time", "bi-graph-up"),
-        ("area", "Area", "Fill the area beneath each trend line", "bi-activity")
+        ("area", "Area", "Fill the area beneath each trend line", "bi-activity"),
+        ("stepped", "Stepped line", "Show daily changes as steps", "bi-bar-chart-steps"),
+        ("scatter", "Scatter", "Plot each day's counts as separate dots", "bi-grid-3x3-gap"),
+        ("horizontal", "Horizontal bars", "Compare daily counts with dates down the side", "bi-bar-chart-steps"),
+        ("stacked", "Stacked columns", "Stack Added and Sold, with Current alongside", "bi-bar-chart-fill"),
+        ("pie", "Pie", "Compare shares of Added and Sold activity", "bi-pie-chart"),
+        ("doughnut", "Doughnut", "Compare shares of Added and Sold in a ring", "bi-circle-half"),
+        ("radar", "Radar", "Compare counts grouped by day of the week", "bi-hexagon"),
+        ("polarArea", "Polar area", "Compare period totals by the length of each slice", "bi-bullseye"),
+        ("bubble", "Bubble", "Show daily counts with larger dots for higher counts", "bi-bounding-box-circles")
     };
 }
 
@@ -70,8 +79,8 @@
                     </div>
                     <div class="inventory-dashboard-filter-controls d-flex align-items-center gap-2">
                         <div id="inventoryDashboardFilterChips" class="d-flex flex-nowrap gap-2" role="group" aria-label="Applied filters"></div>
-                        <button type="button" id="inventoryDashboardClearStatus" class="btn btn-outline-secondary btn-sm shadow-sm rounded-pill align-self-center flex-shrink-0 text-nowrap">
-                            <i class="bi bi-x-circle me-1" aria-hidden="true"></i>
+                        <button type="button" id="inventoryDashboardClearStatus" class="btn btn-sm btn-gradient d-flex align-items-center gap-2 text-nowrap shadow align-self-center flex-shrink-0">
+                            <i class="bi bi-x-circle" aria-hidden="true"></i>
                             Clear filters
                         </button>
                     </div>
@@ -748,11 +757,6 @@
                     normalized === removedStatusCode;
             }
 
-            function isDefaultDashboardTrendStatus(statusCode) {
-                const normalized = normalizeStatusCode(statusCode);
-                return normalized === addedStatusCode || normalized === removedStatusCode;
-            }
-
             function dashboardTrendSeriesStatusCode(statusCode) {
                 const normalized = normalizeStatusCode(statusCode);
                 return normalized === skippedStatusCode ? stalledTrendStatusCode : normalized;
@@ -766,7 +770,7 @@
             }
 
             function dashboardTrendUsesLine(chartType, statusCode) {
-                return chartType === "line" || chartType === "area" ||
+                return chartType === "line" || chartType === "area" || chartType === "stepped" ||
                     (chartType === "auto" && statusCode === stalledTrendStatusCode);
             }
 
@@ -798,7 +802,7 @@
                     : (activeStatusCode !== null ? [] : filteredTrend
                         .map(getStatusCode)
                         .filter(function (statusCode, index, source) {
-                            return isDefaultDashboardTrendStatus(statusCode) && source.indexOf(statusCode) === index;
+                            return source.indexOf(statusCode) === index;
                         })
                         .sort(function (left, right) {
                             return dashboardStatusTrendSort(left) - dashboardStatusTrendSort(right);
@@ -837,26 +841,101 @@
                 canvas.setAttribute("aria-hidden", "true");
                 $chart.append(canvas);
 
+                const radial = ["pie", "doughnut", "radar", "polarArea"].includes(chartType);
+                const horizontal = chartType === "horizontal";
+                $chart.toggleClass("inventory-dashboard-trend-chart-tall", radial || horizontal);
+                if (radial) {
+                    dashboardStatusTrendChart = renderDashboardRadialTrendChart(canvas, days, series, chartType);
+                    return true;
+                }
+
                 const fillArea = chartType === "area";
+                const stepped = chartType === "stepped";
+                const stacked = chartType === "stacked";
+                const bubble = chartType === "bubble";
+                const pointChart = chartType === "scatter" || bubble;
+                const chartStyles = window.getComputedStyle($chart[0]);
+                const tickColor = chartStyles.getPropertyValue("--dashboard-muted").trim() || "#64748b";
+                const maxBubbleValue = bubble ? Math.max(1, ...series.map(function (item) {
+                    return Math.max(...item.values);
+                })) : 1;
+                const categoryScale = {
+                    grid: { color: "rgba(148, 163, 184, .18)" },
+                    stacked: stacked,
+                    ticks: {
+                        color: tickColor,
+                        font: dashboardChartFont(11, "700"),
+                        maxRotation: 0,
+                        autoSkip: true,
+                        maxTicksLimit: 6
+                    }
+                };
+                const valueScale = {
+                    beginAtZero: true,
+                    stacked: stacked,
+                    grid: { color: "rgba(148, 163, 184, .24)" },
+                    ticks: {
+                        color: tickColor,
+                        precision: 0,
+                        font: dashboardChartFont(11, "700"),
+                        callback: function (value) {
+                            return formatNumber(value);
+                        }
+                    }
+                };
+                if (pointChart) {
+                    categoryScale.type = "linear";
+                    categoryScale.offset = true;
+                    categoryScale.ticks.precision = 0;
+                    categoryScale.ticks.callback = function (value) {
+                        return days[value] ? formatDashboardTrendDate(days[value]) : "";
+                    };
+                }
+
+                const cartesianType = dashboardTrendUsesLine(chartType, null) ? "line" : "bar";
                 dashboardStatusTrendChart = new window.Chart(canvas.getContext("2d"), {
-                    type: chartType === "line" || fillArea ? "line" : "bar",
+                    type: pointChart ? chartType : cartesianType,
                     data: {
                         labels: days.map(formatDashboardTrendDate),
                         datasets: series.map(function (item) {
+                            const dataset = {
+                                label: item.label,
+                                data: item.values,
+                                dateKeys: item.dateKeys,
+                                statusCode: item.statusCode
+                            };
+                            const selectionColors = item.values.map(function (value, index) {
+                                return isActiveDashboardTrendBar(item.statusCode, item.dateKeys[index]) ? "#0f172a" : item.color;
+                            });
+                            if (pointChart) {
+                                return {
+                                    ...dataset,
+                                    data: item.values.map(function (value, index) {
+                                        const point = { x: index, y: value };
+                                        if (bubble) {
+                                            point.r = value > 0 ? 3 + 9 * Math.sqrt(value / maxBubbleValue) : 0;
+                                        }
+                                        return point;
+                                    }),
+                                    backgroundColor: selectionColors,
+                                    borderColor: "#fff",
+                                    borderWidth: 1.5,
+                                    pointRadius: item.values.map(function (value) { return value > 0 ? 4 : 0; }),
+                                    pointHoverRadius: item.values.map(function (value) { return value > 0 ? 5 : 0; })
+                                };
+                            }
+
                             if (dashboardTrendUsesLine(chartType, item.statusCode)) {
                                 return {
+                                    ...dataset,
                                     type: "line",
-                                    label: item.label,
-                                    data: item.values,
-                                    dateKeys: item.dateKeys,
                                     borderColor: item.color,
                                     backgroundColor: fillArea ? item.color + "33" : "transparent",
                                     borderWidth: 3,
                                     tension: .28,
+                                    stepped: stepped ? "after" : false,
                                     fill: fillArea,
-                                    pointBackgroundColor: item.values.map(function (value, index) {
-                                        return isActiveDashboardTrendBar(item.statusCode, item.dateKeys[index]) ? "#0f172a" : item.color;
-                                    }),
+                                    pointBackgroundColor: selectionColors,
                                     pointBorderColor: "#fff",
                                     pointBorderWidth: 2,
                                     pointRadius: item.values.map(function (value) {
@@ -864,21 +943,17 @@
                                     }),
                                     pointHoverRadius: item.values.map(function (value) {
                                         return asNumber(value) > 0 ? 5 : 0;
-                                    }),
-                                    statusCode: item.statusCode
+                                    })
                                 };
                             }
 
+                            if (stacked) {
+                                dataset.stack = item.statusCode === stalledTrendStatusCode ? "current" : "changes";
+                            }
                             return {
-                                label: item.label,
-                                data: item.values,
-                                dateKeys: item.dateKeys,
-                                borderColor: item.values.map(function (value, index) {
-                                    return isActiveDashboardTrendBar(item.statusCode, item.dateKeys[index]) ? "#0f172a" : item.color;
-                                }),
-                                backgroundColor: item.values.map(function () {
-                                    return item.color;
-                                }),
+                                ...dataset,
+                                borderColor: selectionColors,
+                                backgroundColor: item.color,
                                 borderWidth: item.values.map(function (value, index) {
                                     return isActiveDashboardTrendBar(item.statusCode, item.dateKeys[index]) ? 2 : 1;
                                 }),
@@ -886,8 +961,7 @@
                                 borderRadius: 5,
                                 maxBarThickness: 52,
                                 categoryPercentage: .92,
-                                barPercentage: .95,
-                                statusCode: item.statusCode
+                                barPercentage: .95
                             };
                         })
                     },
@@ -895,6 +969,7 @@
                         responsive: true,
                         maintainAspectRatio: false,
                         animation: false,
+                        indexAxis: horizontal ? "y" : "x",
                         onClick: function (event, elements, chart) {
                             if (!elements || !elements.length) return;
 
@@ -928,39 +1003,18 @@
                             tooltip: {
                                 callbacks: {
                                     title: function (items) {
-                                        return items && items.length ? items[0].label : "";
+                                        return items.length ? formatDashboardTrendDate(days[items[0].dataIndex]) : "";
                                     },
                                     label: function (context) {
-                                        return `${context.dataset.label}: ${formatNumber(context.parsed.y)}`;
+                                        const value = horizontal ? context.parsed.x : context.parsed.y;
+                                        return `${context.dataset.label}: ${formatNumber(value)}`;
                                     }
                                 }
                             }
                         },
                         scales: {
-                            x: {
-                                grid: { color: "rgba(148, 163, 184, .18)" },
-                                stacked: false,
-                                ticks: {
-                                    color: "#64748b",
-                                    font: dashboardChartFont(11, "700"),
-                                    maxRotation: 0,
-                                    autoSkip: true,
-                                    maxTicksLimit: 6
-                                }
-                            },
-                            y: {
-                                beginAtZero: true,
-                                stacked: false,
-                                grid: { color: "rgba(148, 163, 184, .24)" },
-                                ticks: {
-                                    color: "#64748b",
-                                    precision: 0,
-                                    font: dashboardChartFont(11, "700"),
-                                    callback: function (value) {
-                                        return formatNumber(value);
-                                    }
-                                }
-                            }
+                            x: horizontal ? valueScale : categoryScale,
+                            y: horizontal ? categoryScale : valueScale
                         }
                     }
                 });
@@ -968,8 +1022,111 @@
                 return true;
             }
 
+            function renderDashboardRadialTrendChart(canvas, days, series, chartType) {
+                const isRadar = chartType === "radar";
+                const isPolarArea = chartType === "polarArea";
+                let plottedSeries = series;
+                if (!isRadar && !isPolarArea) {
+                    const nonzeroSeries = series.filter(function (item) { return item.total > 0; });
+                    const activity = nonzeroSeries.filter(function (item) {
+                        return item.statusCode !== stalledTrendStatusCode;
+                    });
+                    plottedSeries = activity.length ? activity : nonzeroSeries;
+                }
+                const statusLabel = function (item) {
+                    return item.statusCode === stalledTrendStatusCode ? "Current observations" : item.label;
+                };
+                const chartStyle = window.getComputedStyle(canvas.parentElement);
+                const ink = chartStyle.getPropertyValue("--dashboard-ink").trim() || chartStyle.color;
+                const surface = chartStyle.getPropertyValue("--dashboard-surface").trim() || "#fff";
+                const radialGridColor = "rgba(148, 163, 184, .35)";
+                const labelFont = dashboardChartFont(11, "700");
+                let labels;
+                let datasets;
+
+                if (isRadar) {
+                    const weekdayFormat = new Intl.DateTimeFormat(undefined, { weekday: "short" });
+                    labels = Array.from({ length: 7 }, function (_, index) {
+                        return weekdayFormat.format(new Date(2024, 0, 7 + index));
+                    });
+                    datasets = plottedSeries.map(function (item) {
+                        const totals = Array(7).fill(0);
+                        days.forEach(function (day, index) {
+                            totals[day.getDay()] += asNumber(item.values[index]);
+                        });
+                        return {
+                            label: statusLabel(item),
+                            data: totals,
+                            backgroundColor: item.color + "33",
+                            borderColor: item.color,
+                            borderWidth: 2,
+                            pointBackgroundColor: item.color,
+                            pointBorderColor: surface,
+                            pointRadius: 3
+                        };
+                    });
+                } else {
+                    labels = plottedSeries.map(statusLabel);
+                    datasets = [{
+                        data: plottedSeries.map(function (item) { return item.total; }),
+                        backgroundColor: plottedSeries.map(function (item) { return item.color; }),
+                        borderColor: surface,
+                        borderWidth: 2,
+                        hoverOffset: isPolarArea ? 0 : 5
+                    }];
+                }
+
+                return new window.Chart(canvas.getContext("2d"), {
+                    type: chartType,
+                    data: { labels: labels, datasets: datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: false,
+                        plugins: {
+                            legend: {
+                                position: "bottom",
+                                labels: { color: ink, boxWidth: 10, boxHeight: 10, font: labelFont }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    title: function (items) {
+                                        return isRadar && items.length ? items[0].label : "Selected period";
+                                    },
+                                    label: function (context) {
+                                        const label = isRadar ? context.dataset.label : context.label;
+                                        const value = isRadar || isPolarArea ? context.parsed.r : context.parsed;
+                                        return `${label}: ${formatNumber(value)}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: isRadar || isPolarArea ? {
+                            r: {
+                                beginAtZero: true,
+                                angleLines: { color: radialGridColor },
+                                grid: { color: radialGridColor },
+                                pointLabels: { display: isRadar, color: ink, font: labelFont },
+                                ticks: {
+                                    color: ink,
+                                    showLabelBackdrop: false,
+                                    font: labelFont,
+                                    maxTicksLimit: 4,
+                                    precision: 0,
+                                    callback: function (value) { return formatNumber(value); }
+                                }
+                            }
+                        } : undefined
+                    }
+                });
+            }
+
             function renderStatusTrend(data) {
-                const chartType = $("#inventoryDashboardTrendType").attr("data-dashboard-value") || "auto";
+                const $picker = $("#inventoryDashboardTrendType");
+                const chartType = $picker.attr("data-dashboard-value") || "auto";
+                const chartLabel = $picker.find("[data-dashboard-label]").text();
+                const $chart = $("#inventoryDashboardStatusTrendChart");
+                $chart.attr("aria-label", `Inventory dynamics, ${chartLabel}`).removeClass("inventory-dashboard-trend-chart-tall");
                 const days = getDashboardTrendDays(data);
                 const series = buildDashboardStatusTrendSeries(data, days);
                 const hasActivity = series.some(function (item) {
@@ -978,12 +1135,17 @@
 
                 if (!days.length || !series.length || !hasActivity) {
                     dashboardStatusTrendChart = destroyDashboardChart(dashboardStatusTrendChart);
-                    $("#inventoryDashboardStatusTrendChart").html(
+                    $chart.html(
                         `<div class="inventory-dashboard-trend-empty">No status activity for this filter.</div>`);
                     return;
                 }
 
                 if (renderDashboardStatusTrendChart(days, series, chartType)) {
+                    return;
+                }
+
+                if (!["auto", "bar", "line", "area"].includes(chartType)) {
+                    $chart.html('<div class="inventory-dashboard-trend-empty">This plot is unavailable because the chart library failed to load.</div>');
                     return;
                 }
 
@@ -1005,8 +1167,12 @@
                     });
                 const groupWidth = plotWidth / Math.max(days.length, 1);
                 const barGroupWidth = groupWidth * .9;
-                const barGap = Math.min(Math.max(1, groupWidth * .015), barGroupWidth / (series.length * 4));
-                const barWidth = (barGroupWidth - ((series.length - 1) * barGap)) / series.length;
+                const barSeries = series.filter(function (item) {
+                    return !dashboardTrendUsesLine(chartType, item.statusCode);
+                });
+                const barCount = Math.max(1, barSeries.length);
+                const barGap = Math.min(Math.max(1, groupWidth * .015), barGroupWidth / (barCount * 4));
+                const barWidth = (barGroupWidth - ((barCount - 1) * barGap)) / barCount;
                 const xForIndex = function (index) {
                     return padding.left + (groupWidth * index) + (groupWidth / 2);
                 };
@@ -1031,7 +1197,7 @@
                     const x = xForIndex(index);
                     return `<text class="inventory-dashboard-trend-label" x="${x.toFixed(2)}" y="${height - 12}" text-anchor="middle">${escapeDashboardHtml(formatDashboardTrendDate(days[index]))}</text>`;
                 }).join("");
-                const seriesHtml = series.map(function (item, seriesIndex) {
+                const seriesHtml = series.map(function (item) {
                     if (dashboardTrendUsesLine(chartType, item.statusCode)) {
                         const points = item.values.map(function (value, index) {
                             return `${xForIndex(index).toFixed(2)},${yForValue(value).toFixed(2)}`;
@@ -1077,6 +1243,7 @@
                             ${circles}`;
                     }
 
+                    const seriesIndex = barSeries.indexOf(item);
                     return item.values.map(function (value, index) {
                         if (asNumber(value) <= 0) return "";
 
@@ -2284,6 +2451,11 @@
                 bindDashboardPicker("inventoryDashboardTrendType", function () {
                     renderStatusTrend(dashboardFor(currentDashboardDays));
                 });
+                new MutationObserver(function () {
+                    if (dashboardStatusTrendChart) {
+                        renderStatusTrend(dashboardFor(currentDashboardDays));
+                    }
+                }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-bs-theme"] });
                 $("#inventoryDashboardStatusLegend").on("click", ".inventory-dashboard-legend-item", function () {
                     setActiveStatus($(this).attr("data-status-code"));
                 });
