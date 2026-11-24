@@ -134,6 +134,10 @@ html[data-background-theme="dark"] .theme-item[data-theme^="palette-"] {
     --theme-selection: var(--palette-selection);
 }
 
+#themeGroupColors .theme-item[data-theme^="palette-"] {
+    --theme-preview-accent: var(--palette-light-accent);
+}
+
 html:where([class*="theme-palette-"], [data-texture-theme^="palette-"]),
 .theme-item {
     /* Keep the grain at a fixed scale on both strips and large panels. */
@@ -347,8 +351,16 @@ html[class][data-theme-finish="solid"] {
     --palette-texture-overlay: linear-gradient(var(--palette-solid-tint), var(--palette-solid-tint));
 }
 
+html[data-theme-finish="solid"][data-texture-theme="palette-carbon-mesh"] {
+    --palette-solid-tint: rgb(0 0 0 / 54%);
+}
+
 @supports (color: color-mix(in srgb, white, black)) {
     html[data-theme-finish="solid"][data-texture-tinted="true"] {
         --palette-solid-tint: color-mix(in srgb, var(--gtx-solid-fill) 34%, rgb(0 0 0 / 36%));
+    }
+
+    html[data-theme-finish="solid"][data-texture-theme="palette-carbon-mesh"][data-texture-tinted="true"] {
+        --palette-solid-tint: color-mix(in srgb, var(--gtx-solid-fill) 34%, rgb(0 0 0 / 66%));
     }
 }

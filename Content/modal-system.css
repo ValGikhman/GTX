@@ -15,8 +15,6 @@ html body .modal .modal-header {
     padding: .8rem 1rem !important;
     border: 0 !important;
     border-bottom: 1px solid rgba(255, 255, 255, .18) !important;
-    color: #fff !important;
-    background: var(--gtx-grad, linear-gradient(135deg, #0b5ed7, #163a72)) !important;
     box-shadow: 0 .35rem 1rem rgba(15, 23, 42, .14);
 }
 
@@ -81,15 +79,11 @@ html body .modal .modal-footer {
     background: var(--bs-tertiary-bg, #f8fafc);
 }
 
-html.theme-silver body .modal .modal-header {
-    color: #172033 !important;
-}
-
 html.theme-silver body #openHours .open-hours-panel-controls {
     color: #172033 !important;
 }
 
-html.theme-silver body .modal .modal-header .btn-close {
+html.theme-silver:not([data-texture-tinted="true"]) body .modal .modal-header .btn-close {
     filter: none !important;
 }
 
@@ -97,13 +91,12 @@ html.theme-silver body #openHours .open-hours-close-btn {
     filter: none !important;
 }
 
-html.theme-silver body .gtx-modal-title-icon {
+html.theme-silver:not([data-texture-tinted="true"]) body .gtx-modal-title-icon {
     border-color: rgba(15, 23, 42, .15);
     background: rgba(255, 255, 255, .38);
 }
 
-html.theme-silver body .modal .modal-header .btn-close:hover,
-html.theme-silver body .modal .modal-header .btn-close:focus-visible {
+html.theme-silver:not([data-texture-tinted="true"]) body .modal .modal-header .btn-close:is(:hover, :focus-visible) {
     background-color: rgba(15, 23, 42, .1);
 }
 

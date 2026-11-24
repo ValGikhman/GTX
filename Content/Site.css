@@ -23,15 +23,6 @@ html[data-theme-finish="solid"] .hero {
     --hero-background: var(--hero-theme-gradient);
 }
 
-/* Theme modal-header rules are important; keep hero headers on the shared treatment. */
-html body .hero.modal-header {
-    background: var(--hero-background) !important;
-}
-
-html.theme-silver[data-texture-tinted="true"] .hero.modal-header {
-    color: #fff !important;
-}
-
 /* Keep the Majordome gear legible across color and background themes. */
 html[data-background-theme] body #MajordomeLink > a.gradient {
     color: var(--gtx-gradient-ink, #212529) !important;
@@ -189,6 +180,11 @@ html[data-texture-theme="palette-carbon-weave"],
 
 :root {
     --gtx-menu-background: var(--palette-textured-surface, var(--gtx-grad, linear-gradient(180deg, #155a96 43%, #1e73be 94%)));
+    --gtx-menu-ink: #fff;
+}
+
+html.theme-silver:not([data-texture-tinted="true"]) {
+    --gtx-menu-ink: #111;
 }
 
 html[data-background-theme][class*="theme-palette-"] .menu-strip {
@@ -200,13 +196,13 @@ html[data-background-theme][data-texture-theme^="palette-"] .menu-strip {
     background: var(--gtx-menu-background) !important;
 }
 
-html[data-background-theme="dark"] body .gtx-card .card-header.gradient.gtx-header {
+html[data-background-theme] body .gtx-card .card-header.gradient.gtx-header {
     background: var(--gtx-menu-background);
 }
 
 html.theme-silver[data-texture-tinted="true"] .menu-strip,
 html.theme-silver[data-texture-tinted="true"] .menu-strip .main-menu > li > a:not(.btn) {
-    color: #fff !important;
+    color: var(--gtx-menu-ink) !important;
 }
 
 html.theme-silver[data-texture-tinted="true"] .menu-strip .main-menu > li > a:not(.btn)::after {
@@ -1023,6 +1019,21 @@ html[data-theme-finish="solid"] #themeGroupColors .theme-swatch {
     .btn-gradient:hover {
         background: linear-gradient(0deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1) 94%);
     }
+
+html[class][data-background-theme] body .btn-gradient {
+    background: var(--gtx-menu-background) !important;
+    color: var(--gtx-menu-ink) !important;
+}
+
+html[data-background-theme] .btn-gradient:not(:disabled, .disabled, [aria-disabled="true"]):hover,
+html[data-background-theme] .btn-gradient:focus-visible {
+    outline: 1px solid currentColor;
+    outline-offset: -3px;
+}
+
+html[data-background-theme] .btn-gradient:focus-visible {
+    outline-width: 2px;
+}
 
 .btn-gradient-grey {
     border: none;
@@ -1930,9 +1941,12 @@ input::placeholder {
 }
 /*#region Modal */
 .modal-header {
-    background: #155A96;
-    background: linear-gradient(180deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1) 94%);
     border-bottom: 2px solid darkred;
+}
+
+html[data-background-theme] body .modal-header {
+    background: var(--gtx-menu-background) !important;
+    color: var(--gtx-menu-ink) !important;
 }
 
 .modal-title {

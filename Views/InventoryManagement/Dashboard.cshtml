@@ -6,6 +6,47 @@
     var dashboardsJson = JsonConvert.SerializeObject(
         dashboards,
         new JsonSerializerSettings { StringEscapeHandling = StringEscapeHandling.EscapeHtml });
+    var dashboardPeriods = new[]
+    {
+        ("7", "Last 7 days", "See the latest inventory changes", "bi-calendar-week"),
+        ("30", "Last 30 days", "Review activity over about a month", "bi-calendar-month"),
+        ("60", "Last 60 days", "Review activity over about two months", "bi-calendar-range"),
+        ("90", "Last 90 days", "Review roughly one quarter of activity", "bi-calendar-range"),
+        ("180", "Last 180 days", "Review roughly six months of activity", "bi-calendar-range"),
+        ("0", "Year to Date", "From January 1 through today, inclusive", "bi-calendar-check")
+    };
+    var dashboardTrendTypes = new[]
+    {
+        ("auto", "Default", "Use columns for Added and Sold, and a line for Current", "bi-graph-up-arrow"),
+        ("bar", "Columns", "Compare daily counts side by side", "bi-bar-chart"),
+        ("line", "Line", "Follow changes in daily counts over time", "bi-graph-up"),
+        ("area", "Area", "Fill the area beneath each trend line", "bi-activity")
+    };
+}
+
+@helper DashboardPicker(string id, string label, string icon, (string Value, string Title, string Description, string Icon)[] options)
+{
+    var initial = options[0];
+    <div id="@(id + "Picker")" class="dropdown majordome-batch-actions-dropdown inventory-dashboard-picker">
+        <button id="@id" type="button" class="btn btn-sm btn-gradient dropdown-toggle d-flex align-items-center gap-2 text-nowrap shadow"
+                data-bs-toggle="dropdown" data-bs-popper-config='{"strategy":"fixed"}'
+                data-dashboard-value="@initial.Value" aria-expanded="false" aria-controls="@(id + "Menu")">
+            <i class="bi @icon" aria-hidden="true"></i>
+            <span class="visually-hidden">@label</span>
+            <span data-dashboard-label>@initial.Title</span>
+        </button>
+        <div id="@(id + "Menu")" class="dropdown-menu dropdown-menu-end majordome-batch-actions-menu p-1 shadow" aria-labelledby="@id">
+            @foreach (var option in options)
+            {
+                var selected = option.Value == initial.Value;
+                <button type="button" class="dropdown-item majordome-batch-action rounded-3 @(selected ? "active" : null)"
+                        data-dashboard-option="@option.Value" aria-pressed="@(selected ? "true" : "false")">
+                    <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi @option.Icon"></i></span>
+                    <span><strong>@option.Title</strong><small>@option.Description</small></span>
+                </button>
+            }
+        </div>
+    </div>
 }
 
 @Html.Partial("_MarketingHero", null, new ViewDataDictionary
@@ -25,11 +66,7 @@
                 <div class="inventory-dashboard-period-control d-flex gap-2">
                     <div id="inventoryDashboardRange" class="inventory-dashboard-subtitle shadow" aria-live="polite"></div>
                     <div class="flex-grow-1">
-                        <select id="inventoryDashboardPeriod" class="form-select shadow" aria-label="Inventory dashboard period">
-                            <option value="7">Last 7 days</option>
-                            <option value="30">Last 30 days</option>
-                            <option value="60">Last 60 days</option>
-                        </select>
+                        @DashboardPicker("inventoryDashboardPeriod", "Inventory dashboard period", "bi-calendar-range", dashboardPeriods)
                     </div>
                     <div class="inventory-dashboard-filter-controls d-flex align-items-center gap-2">
                         <div id="inventoryDashboardFilterChips" class="d-flex flex-nowrap gap-2" role="group" aria-label="Applied filters"></div>
@@ -98,8 +135,9 @@
 
                 <article class="inventory-dashboard-card inventory-dashboard-graph-card inventory-dashboard-trend-card" aria-labelledby="inventoryDashboardStatusTrendTitle">
                     <div class="inventory-dashboard-card-header">
-                        <div>
+                        <div class="d-flex flex-wrap align-items-center gap-2">
                             <h3 id="inventoryDashboardStatusTrendTitle" class="inventory-dashboard-title">Inventory dynamics</h3>
+                            @DashboardPicker("inventoryDashboardTrendType", "Inventory dynamics chart type", "bi-graph-up", dashboardTrendTypes)
                         </div>
                         <span class="inventory-dashboard-icon inventory-dashboard-accent-trend" aria-hidden="true"><i class="bi bi-graph-up-arrow"></i></span>
                     </div>
@@ -524,6 +562,10 @@
                 return dashboards[String(days)] || dashboards[days] || null;
             }
 
+            function dashboardPeriodDate(data, boundary) {
+                return parseDashboardDate(valueOf(data, `Period${boundary}DateKey`, valueOf(data, `Period${boundary}Utc`, "")));
+            }
+
             function cacheDashboard(days, data) {
                 if (!data) return;
                 dashboards[String(days)] = data;
@@ -641,8 +683,8 @@
 
             function getDashboardTrendDays(data) {
                 const dashboardDays = asNumber(valueOf(data, "Days", currentDashboardDays)) || asNumber(currentDashboardDays) || 7;
-                const periodEnd = parseDashboardDate(valueOf(data, "PeriodEndUtc", "")) || new Date();
-                const periodStart = parseDashboardDate(valueOf(data, "PeriodStartUtc", ""));
+                const periodEnd = dashboardPeriodDate(data, "End") || new Date();
+                const periodStart = dashboardPeriodDate(data, "Start");
                 const end = new Date(periodEnd.getFullYear(), periodEnd.getMonth(), periodEnd.getDate());
                 const start = periodStart
                     ? new Date(periodStart.getFullYear(), periodStart.getMonth(), periodStart.getDate())
@@ -723,8 +765,9 @@
                     normalized === updatedStatusCode;
             }
 
-            function isDashboardStalledTrendSeries(statusCode) {
-                return normalizeStatusCode(statusCode) === stalledTrendStatusCode;
+            function dashboardTrendUsesLine(chartType, statusCode) {
+                return chartType === "line" || chartType === "area" ||
+                    (chartType === "auto" && statusCode === stalledTrendStatusCode);
             }
 
             function buildDashboardStatusTrendSeries(data, days) {
@@ -781,7 +824,7 @@
                 });
             }
 
-            function renderDashboardStatusTrendChart(days, series) {
+            function renderDashboardStatusTrendChart(days, series, chartType) {
                 dashboardStatusTrendChart = destroyDashboardChart(dashboardStatusTrendChart);
 
                 if (!dashboardChartsAvailable()) {
@@ -794,22 +837,23 @@
                 canvas.setAttribute("aria-hidden", "true");
                 $chart.append(canvas);
 
+                const fillArea = chartType === "area";
                 dashboardStatusTrendChart = new window.Chart(canvas.getContext("2d"), {
-                    type: "bar",
+                    type: chartType === "line" || fillArea ? "line" : "bar",
                     data: {
                         labels: days.map(formatDashboardTrendDate),
                         datasets: series.map(function (item) {
-                            if (isDashboardStalledTrendSeries(item.statusCode)) {
+                            if (dashboardTrendUsesLine(chartType, item.statusCode)) {
                                 return {
                                     type: "line",
                                     label: item.label,
                                     data: item.values,
                                     dateKeys: item.dateKeys,
                                     borderColor: item.color,
-                                    backgroundColor: "transparent",
+                                    backgroundColor: fillArea ? item.color + "33" : "transparent",
                                     borderWidth: 3,
                                     tension: .28,
-                                    fill: false,
+                                    fill: fillArea,
                                     pointBackgroundColor: item.values.map(function (value, index) {
                                         return isActiveDashboardTrendBar(item.statusCode, item.dateKeys[index]) ? "#0f172a" : item.color;
                                     }),
@@ -851,7 +895,7 @@
                         responsive: true,
                         maintainAspectRatio: false,
                         animation: false,
-                        onClick: function (event, elements) {
+                        onClick: function (event, elements, chart) {
                             if (!elements || !elements.length) return;
 
                             const element = elements[0];
@@ -861,7 +905,13 @@
                             const value = dataset.values[element.index];
                             if (asNumber(value) <= 0) return;
 
-                            setActiveTrendFilter(dataset.statusCode, dataset.dateKeys[element.index]);
+                            const dateKey = dataset.dateKeys[element.index];
+                            // Let Chart.js finish the click before replacing the chart.
+                            window.setTimeout(function () {
+                                if (dashboardStatusTrendChart === chart) {
+                                    setActiveTrendFilter(dataset.statusCode, dateKey);
+                                }
+                            }, 0);
                         },
                         onHover: function (event, elements) {
                             const target = event && event.native ? event.native.target : null;
@@ -919,6 +969,7 @@
             }
 
             function renderStatusTrend(data) {
+                const chartType = $("#inventoryDashboardTrendType").attr("data-dashboard-value") || "auto";
                 const days = getDashboardTrendDays(data);
                 const series = buildDashboardStatusTrendSeries(data, days);
                 const hasActivity = series.some(function (item) {
@@ -932,7 +983,7 @@
                     return;
                 }
 
-                if (renderDashboardStatusTrendChart(days, series)) {
+                if (renderDashboardStatusTrendChart(days, series, chartType)) {
                     return;
                 }
 
@@ -953,17 +1004,16 @@
                         return value >= 0 && source.indexOf(value) === index;
                     });
                 const groupWidth = plotWidth / Math.max(days.length, 1);
-                const barGap = Math.max(1, groupWidth * .015);
-                const barGroupWidth = Math.max(4, groupWidth * .9);
-                const barWidth = Math.max(2, (barGroupWidth - (Math.max(series.length - 1, 0) * barGap)) / Math.max(series.length, 1));
-                const usedBarWidth = (barWidth * series.length) + (barGap * Math.max(series.length - 1, 0));
+                const barGroupWidth = groupWidth * .9;
+                const barGap = Math.min(Math.max(1, groupWidth * .015), barGroupWidth / (series.length * 4));
+                const barWidth = (barGroupWidth - ((series.length - 1) * barGap)) / series.length;
                 const xForIndex = function (index) {
                     return padding.left + (groupWidth * index) + (groupWidth / 2);
                 };
                 const xForBar = function (dayIndex, seriesIndex) {
                     return padding.left +
                         (groupWidth * dayIndex) +
-                        ((groupWidth - usedBarWidth) / 2) +
+                        ((groupWidth - barGroupWidth) / 2) +
                         ((barWidth + barGap) * seriesIndex);
                 };
                 const yForValue = function (value) {
@@ -982,10 +1032,13 @@
                     return `<text class="inventory-dashboard-trend-label" x="${x.toFixed(2)}" y="${height - 12}" text-anchor="middle">${escapeDashboardHtml(formatDashboardTrendDate(days[index]))}</text>`;
                 }).join("");
                 const seriesHtml = series.map(function (item, seriesIndex) {
-                    if (isDashboardStalledTrendSeries(item.statusCode)) {
+                    if (dashboardTrendUsesLine(chartType, item.statusCode)) {
                         const points = item.values.map(function (value, index) {
                             return `${xForIndex(index).toFixed(2)},${yForValue(value).toFixed(2)}`;
                         }).join(" ");
+                        const area = chartType === "area"
+                            ? `<polygon points="${xForIndex(0).toFixed(2)},${baseline} ${points} ${xForIndex(days.length - 1).toFixed(2)},${baseline}" fill="${escapeDashboardHtml(item.color)}" fill-opacity=".2" pointer-events="none"></polygon>`
+                            : "";
                         const circles = item.values.map(function (value, index) {
                             if (asNumber(value) <= 0) return "";
 
@@ -1012,12 +1065,14 @@
                         }).join("");
 
                         return `
+                            ${area}
                             <polyline points="${points}"
                                       fill="none"
                                       stroke="${escapeDashboardHtml(item.color)}"
                                       stroke-width="3"
                                       stroke-linecap="round"
                                       stroke-linejoin="round"
+                                      pointer-events="none"
                                       opacity=".9"></polyline>
                             ${circles}`;
                     }
@@ -2139,8 +2194,8 @@
             function renderDashboard(days) {
                 currentDashboardDays = (days || "7").toString();
                 const data = dashboardFor(days);
-                const start = formatDate(valueOf(data, "PeriodStartUtc", ""));
-                const end = formatDate(valueOf(data, "PeriodEndUtc", ""));
+                const start = formatDate(dashboardPeriodDate(data, "Start"));
+                const end = formatDate(dashboardPeriodDate(data, "End"));
 
                 clearMissingLocationFilter(valueOf(data, "LocationCounts", []) || []);
                 clearMissingTrendFilter(data);
@@ -2191,6 +2246,27 @@
                     });
             }
 
+            function bindDashboardPicker(id, onSelect) {
+                const $toggle = $(`#${id}`);
+                const $options = $(`#${id}Menu [data-dashboard-option]`);
+                $options.on("click", function () {
+                    if ($toggle.prop("disabled")) return;
+
+                    const value = this.dataset.dashboardOption;
+                    window.bootstrap?.Dropdown.getInstance($toggle[0])?.hide();
+                    $toggle[0].focus({ preventScroll: true });
+                    if (value === $toggle.attr("data-dashboard-value")) return;
+
+                    $toggle.attr("data-dashboard-value", value)
+                        .find("[data-dashboard-label]").text($(this).find("strong").text());
+                    $options.each(function () {
+                        const selected = this.dataset.dashboardOption === value;
+                        $(this).toggleClass("active", selected).attr("aria-pressed", String(selected));
+                    });
+                    onSelect(value);
+                });
+            }
+
             $(function () {
                 const $period = $("#inventoryDashboardPeriod");
                 if (window.gtxInventorySearch) {
@@ -2201,9 +2277,12 @@
                     if (window.inventoryDashboardAddGrid) window.inventoryDashboardAddGrid.setSearch(term);
                 };
 
-                $period.on("change", function () {
+                bindDashboardPicker("inventoryDashboardPeriod", function (days) {
                     activeTrendDateKey = null;
-                    loadDashboard(this.value, true);
+                    loadDashboard(days, true);
+                });
+                bindDashboardPicker("inventoryDashboardTrendType", function () {
+                    renderStatusTrend(dashboardFor(currentDashboardDays));
                 });
                 $("#inventoryDashboardStatusLegend").on("click", ".inventory-dashboard-legend-item", function () {
                     setActiveStatus($(this).attr("data-status-code"));
@@ -2315,7 +2394,7 @@
                     }
                     renderDashboard(currentDashboardDays);
                 });
-                loadDashboard($period.val() || "7", false);
+                loadDashboard($period.attr("data-dashboard-value") || "7", false);
             });
         })(jQuery);
     </script>

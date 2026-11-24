@@ -369,33 +369,26 @@ namespace GTX.Controllers
 
         private InventoryDashboardSummary LoadInventoryDashboard(int days)
         {
+            var normalizedDays = InventoryDashboardSummary.NormalizeRequestDays(days);
+            var localNow = DateTime.Now;
+            var cacheKey = Constants.INVENTORY_MANAGEMENT_DASHBOARD_CACHE_PREFIX + normalizedDays.ToString(CultureInfo.InvariantCulture);
+            if (normalizedDays == InventoryDashboardSummary.YearToDate)
+            {
+                cacheKey += ":" + localNow.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
+            }
+
             try
             {
                 return AppCache.GetOrCreate(
-                    Constants.INVENTORY_MANAGEMENT_DASHBOARD_CACHE_PREFIX + days.ToString(CultureInfo.InvariantCulture),
-                    () => InventoryService.GetInventoryDashboard(days),
-                    minutes: 5) ?? CreateEmptyInventoryDashboard(days);
+                    cacheKey,
+                    () => InventoryService.GetInventoryDashboard(normalizedDays),
+                    minutes: 5) ?? InventoryDashboardSummary.CreateForPeriod(normalizedDays, localNow);
             }
             catch (Exception ex)
             {
                 Log(ex);
-                return CreateEmptyInventoryDashboard(days);
+                return InventoryDashboardSummary.CreateForPeriod(normalizedDays, localNow);
             }
-        }
-
-        private static InventoryDashboardSummary CreateEmptyInventoryDashboard(int days)
-        {
-            var now = DateTime.UtcNow;
-            return new InventoryDashboardSummary
-            {
-                Days = days,
-                PeriodStartUtc = now.AddDays(-days),
-                PeriodEndUtc = now,
-                StatusCounts = Array.Empty<InventoryDashboardStatusCount>(),
-                LocationCounts = Array.Empty<InventoryDashboardLocationCount>(),
-                StatusTrend = Array.Empty<InventoryDashboardStatusTrendPoint>(),
-                Vehicles = Array.Empty<InventoryDashboardVehicle>()
-            };
         }
 
         private GTX.Models.GTX[] ParseUploadedInventoryVehicles(HttpPostedFileBase dataCsv)
