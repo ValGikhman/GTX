@@ -17,14 +17,14 @@
     };
     var dashboardTrendTypes = new[]
     {
-        ("auto", "Default", "Use columns for Added and Sold, and a line for Current", "bi-graph-up-arrow"),
-        ("bar", "Columns", "Use columns for Added, Sold, and Current", "bi-bar-chart"),
+        ("auto", "Default", "Use columns for Added and Sold, and a line when Current is selected", "bi-graph-up-arrow"),
+        ("bar", "Columns", "Compare daily counts side by side", "bi-bar-chart"),
         ("line", "Line", "Follow changes in daily counts over time", "bi-graph-up"),
         ("area", "Area", "Fill the area beneath each trend line", "bi-activity"),
         ("stepped", "Stepped line", "Show daily changes as steps", "bi-bar-chart-steps"),
         ("scatter", "Scatter", "Plot each day's counts as separate dots", "bi-grid-3x3-gap"),
         ("horizontal", "Horizontal bars", "Compare daily counts with dates down the side", "bi-bar-chart-steps"),
-        ("stacked", "Stacked columns", "Stack Added and Sold, with Current alongside", "bi-bar-chart-fill"),
+        ("stacked", "Stacked columns", "Stack daily Added and Sold counts", "bi-bar-chart-fill"),
         ("pie", "Pie", "Compare shares of Added and Sold activity", "bi-pie-chart"),
         ("doughnut", "Doughnut", "Compare shares of Added and Sold in a ring", "bi-circle-half"),
         ("radar", "Radar", "Compare counts grouped by day of the week", "bi-hexagon"),
@@ -787,7 +787,10 @@
                     if (!isDashboardTrendStatus(statusCode)) {
                         return false;
                     }
-                    if (activeTrendStatusCode !== null && statusCode !== activeTrendStatusCode) {
+                    const matchesStatus = activeTrendStatusCode === null
+                        ? statusCode !== stalledTrendStatusCode
+                        : statusCode === activeTrendStatusCode;
+                    if (!matchesStatus) {
                         return false;
                     }
                     if (activeLocationCode !== null &&
@@ -947,9 +950,6 @@
                                 };
                             }
 
-                            if (stacked) {
-                                dataset.stack = item.statusCode === stalledTrendStatusCode ? "current" : "changes";
-                            }
                             return {
                                 ...dataset,
                                 borderColor: selectionColors,
@@ -1025,14 +1025,9 @@
             function renderDashboardRadialTrendChart(canvas, days, series, chartType) {
                 const isRadar = chartType === "radar";
                 const isPolarArea = chartType === "polarArea";
-                let plottedSeries = series;
-                if (!isRadar && !isPolarArea) {
-                    const nonzeroSeries = series.filter(function (item) { return item.total > 0; });
-                    const activity = nonzeroSeries.filter(function (item) {
-                        return item.statusCode !== stalledTrendStatusCode;
-                    });
-                    plottedSeries = activity.length ? activity : nonzeroSeries;
-                }
+                const plottedSeries = isRadar || isPolarArea ? series : series.filter(function (item) {
+                    return item.total > 0;
+                });
                 const statusLabel = function (item) {
                     return item.statusCode === stalledTrendStatusCode ? "Current observations" : item.label;
                 };
