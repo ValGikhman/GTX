@@ -422,8 +422,8 @@ html[data-background-theme="dark"] .inventory-dashboard-icon {
     .inventory-dashboard-trend-chart canvas {
         display: block;
         width: 100% !important;
-        height: 7.5rem !important;
-        min-height: 7.5rem;
+        height: clamp(9rem, 18vh, 12rem) !important;
+        min-height: 9rem;
     }
 
     .inventory-dashboard-trend-chart-tall canvas {
