@@ -239,7 +239,7 @@ html[data-theme-finish="solid"] #themeGroupColors .theme-swatch {
     display: none;
 }
 
-.theme-item.active .theme-selection-icon {
+html:where(:not([data-background-theme="dark"])) .theme-item.active .theme-selection-icon {
     display: inline-block;
 }
 
@@ -761,13 +761,10 @@ html[data-theme-finish="solid"] #themeGroupColors .theme-swatch {
     #inventorySidebarPane :is(.inventory-filter-stats, .inventory-filter-panel),
     #majordomeManagementLogMenu .majordome-management-log-date {
         margin-bottom: .6rem;
-        border-radius: .7rem;
     }
 
-    #inventorySidebarPane .inventory-filter-panel,
-    #majordomeManagementLogMenu .majordome-management-log-date {
-        border-color: rgba(15, 23, 42, .11);
-        box-shadow: 0 .45rem 1rem rgba(15, 23, 42, .08);
+    #inventorySidebarPane .inventory-filter-stats {
+        border-radius: .7rem;
     }
 
     #inventorySidebarPane .inventory-filter-panel-toggle,
@@ -2165,7 +2162,8 @@ html.inventory-page-loading #loadingOverlay {
 }
 
 :root {
-    --gtx-gradient-base: linear-gradient(180deg, #fff, #aaaab3);
+    --gtx-light-control-base: linear-gradient(180deg, #fff, #aaaab3);
+    --gtx-gradient-base: var(--gtx-light-control-base);
     --gtx-gradient-background: var(--gtx-gradient-base);
     --gtx-gradient-ink: var(--bs-body-color, #212529);
 }
@@ -2173,6 +2171,8 @@ html.inventory-page-loading #loadingOverlay {
 html[data-background-theme="dark"] {
     --gtx-gradient-base: linear-gradient(135deg, #686868 0%, #555 48%, #424242 100%);
     --gtx-gradient-ink: #ededed;
+    --gtx-light-control-background: var(--gtx-light-control-base);
+    --gtx-light-control-ink: #212529;
 }
 
 @supports (color: color-mix(in srgb, white, black)) {
@@ -2182,13 +2182,22 @@ html[data-background-theme="dark"] {
             color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 9%, transparent)),
             var(--gtx-gradient-base);
     }
+
+    html[data-background-theme="dark"] {
+        --gtx-light-control-accent: var(--gtx-light-accent-solid, var(--gtx-accent-solid, #1e73be));
+        --gtx-light-control-background: linear-gradient(180deg,
+            color-mix(in srgb, var(--gtx-light-control-accent) 6%, transparent),
+            color-mix(in srgb, var(--gtx-light-control-accent) 9%, transparent)),
+            var(--gtx-light-control-base);
+    }
 }
 
 .gradient,
 .btn-gradient-grey:not(.active),
 .page-title.inventory-player-title.page-title-mobile-call-enabled,
 #inventorySidebarPane .inventory-filter-panel > .inventory-filter-panel-toggle,
-#majordomeManagementLogMenu .majordome-management-log-date-toggle {
+#majordomeManagementLogMenu .majordome-management-log-date-toggle,
+html[data-background-theme="dark"] .pg-search-bar {
     background: var(--gtx-gradient-background);
     color: var(--gtx-gradient-ink);
 }
@@ -4802,12 +4811,27 @@ html.theme-silver .home-quick-icon {
 
 /* Shared inventory and management accordions. */
 .inventory-filter-panel,
-.majordome-management-log-date {
-    margin-bottom: .5rem;
+.majordome-management-log-date,
+html[data-background-theme="dark"] .pg-search-bar {
     border: 1px solid rgba(15, 23, 42, .12);
     border-radius: .5rem;
-    overflow: hidden;
     box-shadow: 0 .35rem 1rem rgba(15, 23, 42, .08);
+}
+
+.inventory-filter-panel,
+.majordome-management-log-date {
+    margin-bottom: .5rem;
+    overflow: hidden;
+}
+
+@media (max-width: 991.98px) {
+    #inventorySidebarPane .inventory-filter-panel,
+    #majordomeManagementLogMenu .majordome-management-log-date,
+    html[data-background-theme="dark"] .pg-search-bar {
+        border-color: rgba(15, 23, 42, .11);
+        border-radius: .7rem;
+        box-shadow: 0 .45rem 1rem rgba(15, 23, 42, .08);
+    }
 }
 
 :is(#inventorySidebarPane, #majordomeManagementLogMenu) {

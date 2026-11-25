@@ -1621,7 +1621,7 @@ html.theme-silver .gtx-overview-toggle {
     box-shadow: 0 .65rem 1.4rem rgba(20, 29, 38, .12) !important;
 }
 
-.vehicle-detail-page .vdp-action-stack #btnTestDriveForm {
+:where(html:not([data-background-theme="dark"])) .vehicle-detail-page .vdp-action-stack #btnTestDriveForm {
     color: #fff !important;
     border-color: #8f101c !important;
     background: linear-gradient(180deg, #ef5360 0%, #d8202f 48%, #a80f1d 100%) !important;
@@ -1629,8 +1629,7 @@ html.theme-silver .gtx-overview-toggle {
     box-shadow: 0 .65rem 1.45rem rgba(168, 15, 29, .24) !important;
 }
 
-.vehicle-detail-page .vdp-action-stack #btnTestDriveForm:hover,
-.vehicle-detail-page .vdp-action-stack #btnTestDriveForm:focus-visible {
+:where(html:not([data-background-theme="dark"])) .vehicle-detail-page .vdp-action-stack #btnTestDriveForm:is(:hover, :focus-visible) {
     color: #fff !important;
     border-color: #780b15 !important;
     background: linear-gradient(0deg, #ef5360 0%, #d8202f 48%, #970b18 100%) !important;

@@ -54,10 +54,50 @@ html[data-background-theme="dark"] body {
     color: var(--bs-body-color);
 }
 
-html[class][data-background-theme="dark"] body :is(.btn-gradient-grey, .majordome-management-log-status-list),
-html[data-background-theme="dark"] .main-menu.no-wrap-group .btn.gradient,
-html[data-background-theme="dark"] #MajordomeLink > .btn.gradient,
-html[data-background-theme="dark"] #inventorySidebarPane .inventory-clear-btn.btn-gradient-grey {
+html.theme-silver[data-background-theme="dark"] {
+    --gtx-button-ink: #111;
+}
+
+html[data-background-theme="dark"] :is(.light-gradient-action, [data-bs-toggle="dropdown"]) {
+    --gtx-button-background: var(--gtx-light-control-background);
+    --gtx-button-ink: var(--gtx-light-control-ink);
+}
+
+/* Share the solid palette color with the hero button across both finishes.
+   Reuse the local values in rules for active tabs and button widgets. */
+html[class][data-background-theme="dark"] body :is(.btn:is(.gradient, .btn-gradient, .btn-gradient-grey, .btn-big-gradient), .home-hero-button-primary, .gtx-card-action) {
+    --gtx-menu-background: var(--gtx-button-background, var(--gtx-solid-fill, #1e73be));
+    --gtx-menu-ink: var(--gtx-button-ink, #fff);
+    --gtx-gradient-background: var(--gtx-menu-background);
+    --gtx-gradient-ink: var(--gtx-menu-ink);
+    background: var(--gtx-gradient-background) !important;
+    color: var(--gtx-gradient-ink) !important;
+    text-shadow: none !important;
+}
+
+html[data-background-theme="dark"] .dropdown-toggle[data-bs-toggle="dropdown"]::after {
+    filter: none;
+}
+
+html[data-background-theme="dark"] #AboutMenuLink > a {
+    background: var(--gtx-light-control-background);
+    color: var(--gtx-light-control-ink) !important;
+    border-radius: var(--bs-border-radius);
+    margin-inline: -.4rem;
+    padding-inline: .4rem;
+}
+
+html[data-background-theme="dark"] :is(.pg-filter-btn, .pg-chips-clear-all) {
+    background: var(--gtx-light-control-background);
+    color: var(--gtx-light-control-ink) !important;
+}
+
+html[data-background-theme="dark"] :is(.pg-filter-btn, .pg-chips-clear-all):focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 1px;
+}
+
+html[class][data-background-theme="dark"] body :is(.btn-gradient-grey:not(.btn), .majordome-management-log-status-list) {
     --gtx-gradient-background: linear-gradient(180deg, #747c84, #555d65);
     --gtx-gradient-ink: #fff;
     border-color: #4f565e !important;
@@ -66,19 +106,29 @@ html[data-background-theme="dark"] #inventorySidebarPane .inventory-clear-btn.bt
     box-shadow: inset 0 1px rgba(255, 255, 255, 0.2), 0 2px 5px rgba(31, 37, 43, 0.24) !important;
 }
 
+html[data-background-theme="dark"] .btn.btn-gradient-grey {
+    border: var(--bs-btn-border-width, 1px) solid transparent;
+}
+
+html[data-background-theme="dark"] #inventorySidebarPane .inventory-clear-btn.btn-gradient-grey,
+html[class][data-background-theme="dark"] body :is(.btn:is(.gradient, .btn-gradient, .btn-gradient-grey, .btn-big-gradient), .home-hero-button-primary, .gtx-card-action):where(:not(.gtx-compare-toggle.is-selected)) {
+    border-color: rgb(255 255 255 / var(--gtx-button-border-opacity, 25%)) !important;
+    border-color: color-mix(in srgb, currentColor var(--gtx-button-border-opacity, 25%), transparent) !important;
+    box-shadow: var(--gtx-button-shadow, 0 .9rem 2rem rgba(0, 0, 0, .2)) !important;
+}
+
+html[data-background-theme="dark"] :is(.btn:is(.gradient, .btn-gradient, .btn-gradient-grey, .btn-big-gradient), .home-hero-button-primary, .gtx-card-action):not(:disabled, .disabled, [aria-disabled="true"]):is(:hover, :focus-visible) {
+    --gtx-button-border-opacity: 52%;
+    --gtx-button-shadow: 0 1.1rem 2.5rem rgba(0, 0, 0, .3);
+}
+
 html[data-background-theme="dark"] .btn-gradient-grey.active[role="tab"] {
     text-decoration: underline;
     text-underline-offset: .2em;
 }
 
-html[data-background-theme="dark"] .btn-gradient-grey:focus-visible,
-html[data-background-theme="dark"] .main-menu.no-wrap-group .btn.gradient:focus-visible,
-html[data-background-theme="dark"] #MajordomeLink > .btn.gradient:focus-visible {
+html[class][data-background-theme="dark"] :is(.btn:is(.gradient, .btn-gradient, .btn-gradient-grey, .btn-big-gradient), .home-hero-button-primary, .gtx-card-action):focus-visible {
     outline: 2px solid currentColor;
-    outline-offset: 2px;
-}
-
-html[data-background-theme="dark"] .vdp-tabs .btn-gradient-grey.active:focus-visible {
     outline-offset: -3px;
 }
 
@@ -87,14 +137,8 @@ html[data-background-theme="dark"] body .body-content {
     background: transparent !important;
 }
 
-/* Raised panels and toolbars use the steel surface above the charcoal content. */
-html[data-background-theme="dark"] .inventory-dashboard-grid-header,
-html[data-background-theme="dark"] :is(
-    .inventory-dashboard-add-grid,
-    .majordome-add-grid,
-    .majordome-management-add-grid,
-    .gtx-admin-add-grid
-) .pg-search-bar {
+/* Raise the dashboard header above the charcoal content. */
+html[data-background-theme="dark"] .inventory-dashboard-grid-header {
     background: var(--gtx-raised-surface);
     box-shadow: var(--gtx-raised-surface-shadow);
 }
@@ -123,12 +167,7 @@ html[data-background-theme="dark"] .pg-grid-table > thead > tr > th {
     color: var(--gtx-addgrid-header-ink) !important;
 }
 
-html[data-background-theme="dark"] .pg-grid-table > thead :is(.pg-th-label, .pg-sort-icon, .pg-filter-btn) {
-    color: var(--gtx-addgrid-header-ink) !important;
-}
-
-html[data-background-theme="dark"] .page-title.inventory-player-title.page-title-mobile-call-enabled {
-    background: var(--gtx-addgrid-header-background) !important;
+html[data-background-theme="dark"] .pg-grid-table > thead :is(.pg-th-label, .pg-sort-icon) {
     color: var(--gtx-addgrid-header-ink) !important;
 }
 
@@ -425,6 +464,29 @@ html[data-background-theme]:not([data-background-theme="light"]) :is(.form-contr
     color: var(--bs-secondary-color);
 }
 
+html[data-background-theme="dark"] select:not(:disabled, [multiple], [size]:not([size="1"])) {
+    background-image: var(--gtx-light-control-background);
+    color: var(--gtx-light-control-ink);
+    color-scheme: light;
+}
+
+/* Keep Bootstrap's caret and validation icon above both gradient layers. */
+html[data-background-theme="dark"] select.form-select:not(:disabled, [multiple], [size]:not([size="1"])) {
+    --bs-form-select-bg-img: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-image: var(--bs-form-select-bg-img), var(--bs-form-select-bg-icon, none), var(--gtx-light-control-background);
+    background-position: right .75rem center, right 2.25rem center, center, center;
+    background-size: 16px 12px, calc(.75em + .375rem) calc(.75em + .375rem), auto, auto;
+}
+
+html[data-background-theme="dark"] .chosen-container:not(.chosen-disabled) > :is(.chosen-single, .chosen-choices) {
+    background: var(--gtx-light-control-background);
+    color: var(--gtx-light-control-ink);
+}
+
+html[data-background-theme="dark"] .chosen-container:not(.chosen-disabled) .chosen-choices .search-field input[type="text"] {
+    color: var(--gtx-light-control-ink);
+}
+
 /* Base typography has literal light-mode colors; component/hero colors still win. */
 :where(html[data-background-theme]:not([data-background-theme="light"])) :is(h1, h2, h3, h4, h5, h6, h7, h8, p) {
     color: var(--bs-body-color);
@@ -462,8 +524,14 @@ html[data-background-theme="dark"] :is(.pe-editor, .pe-context-menu) {
     color: var(--pe-color-text);
 }
 
-html[data-background-theme="dark"] :is(.pe-editor, .pe-context-menu) .pe-select {
+html[data-background-theme="dark"] :is(.pe-editor, .pe-context-menu) .pe-select:disabled {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23bdc1c6' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+}
+
+html[data-background-theme="dark"] :is(.pe-editor, .pe-context-menu) .pe-select:not(:disabled) {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%2364748b' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E"), var(--gtx-light-control-background);
+    background-position: right .55rem center, center, center;
+    color: var(--gtx-light-control-ink);
 }
 
 html[data-background-theme="dark"] :is(.pe-editor, .pe-context-menu) .pe-select option {
@@ -629,19 +697,25 @@ html[data-background-theme="dark"] .page-title .btn:not(:is(.btn-gradient, .btn-
     color: #212529 !important;
 }
 
-html[data-background-theme="dark"] #filterByTerm .btn-gradient-grey:not(.active) .text-danger {
-    color: color-mix(in srgb, var(--bs-danger-text-emphasis) 75%, white) !important;
+html[data-background-theme="dark"] #filterByTerm .light-gradient-action .text-danger {
+    color: var(--gtx-gradient-ink) !important;
+    color: color-mix(in srgb, var(--gtx-gradient-ink) 55%, rgb(var(--bs-danger-rgb))) !important;
 }
 
-html[data-background-theme="dark"] #filterByTerm .btn-gradient-grey:not(.active) .text-primary {
-    color: color-mix(in srgb, var(--bs-primary-text-emphasis) 75%, white) !important;
+html[data-background-theme="dark"] #filterByTerm .light-gradient-action .text-primary {
+    color: var(--gtx-gradient-ink) !important;
+    color: color-mix(in srgb, var(--gtx-gradient-ink) 55%, rgb(var(--bs-primary-rgb))) !important;
 }
 
-html[data-background-theme="dark"] .nav.nav-tabs :is(.nav-link, .btn[role="tab"]) {
+html[data-background-theme="dark"] #modalShortcuts .btn-gradient > .text-white {
+    color: inherit !important;
+}
+
+html[data-background-theme="dark"] .nav.nav-tabs :is(.nav-link, .btn[role="tab"]:not(.btn-gradient-grey)) {
     color: #fff !important;
 }
 
-html body .btn.btn-gradient-grey.text-shadow-small.active {
+html:where(:not([data-background-theme="dark"])) body .btn.btn-gradient-grey.text-shadow-small.active {
     color: #fff !important;
 }
 

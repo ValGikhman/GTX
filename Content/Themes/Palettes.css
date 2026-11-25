@@ -181,7 +181,8 @@ html[data-background-theme][class*="theme-palette-"] {
 @supports (color: color-mix(in srgb, white, black)) {
     /* Site surfaces use softer canvas tints and retain white text on gradient headers. */
     html[data-background-theme][class*="theme-palette-"] {
-        --palette-header-start: color-mix(in srgb, var(--palette-accent) 46%, #10151b);
+        --gtx-light-accent-solid: color-mix(in srgb, var(--palette-light-accent) 46%, #10151b);
+        --palette-header-start: var(--gtx-light-accent-solid);
         --palette-header-end: color-mix(in srgb, var(--palette-selection) 36%, #10151b);
         --gtx-page-bg: color-mix(in srgb, var(--palette-canvas) 10%, var(--gtx-default-page-bg, ghostwhite));
     }
@@ -341,6 +342,24 @@ html.theme-palette-carbon-weave,
     --palette-dark-canvas: #454545;
     --palette-dark-selection: #828282;
     --palette-gradient-stops: #252525, #4a4a4a 49%, #171717;
+}
+
+@supports (color: color-mix(in srgb, white, black)) {
+    /* Use the same base color for the dark gradient and its solid finish. */
+    html[data-background-theme="dark"][data-theme-finish="gradient"]:is([data-texture-theme="none"], [data-texture-tinted="true"]),
+    html[data-background-theme="dark"][data-theme-finish="gradient"] #themeGroupColors .theme-item {
+        --gtx-color-gradient-stops:
+            color-mix(in srgb, var(--gtx-solid-fill) 96%, white),
+            var(--gtx-solid-fill) 50%,
+            color-mix(in srgb, var(--gtx-solid-fill) 92%, black);
+        --gtx-grad: linear-gradient(180deg, var(--gtx-color-gradient-stops));
+        --gtx-grad-rev: linear-gradient(0deg, var(--gtx-color-gradient-stops));
+        --gtx-grad-diag: linear-gradient(83deg, var(--gtx-color-gradient-stops));
+    }
+
+    html[data-background-theme="dark"][data-theme-finish="gradient"] #themeGroupColors .theme-swatch {
+        background: var(--gtx-grad);
+    }
 }
 
 html[class][data-theme-finish="solid"] {
