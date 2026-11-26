@@ -21,6 +21,8 @@ async function scenario(failFirst, extension = 'pdf', mileages = [[116589, 15000
     for (const id of ['pr-batch-inputs', 'pr-pdf-file', 'pr-pdf-drop', 'pr-batch-status', 'pr-batch-error',
         'pr-batch-run', 'pr-batch-stop', 'pr-batch-zip', 'pr-batch-radius', 'pr-individual-inputs',
         'pr-individual-results', 'pr-batch-results']) nodes[id] = node();
+    const modeSwitch = nodes['pr-multiple-mode'] = node({ checked: false });
+    const scopes = ['individual', 'multiple'].map(appraisalScope => node({ dataset: { appraisalScope } }));
     const form = nodes['pr-batch-inputs'];
     form.dataset = { parseUrl: 'parse', appraiseUrl: 'appraise', decodeUrl: 'decode', cargurusLogo: '/Content/images/cargurus.svg' };
     form.reportValidity = () => true;
@@ -94,9 +96,21 @@ async function scenario(failFirst, extension = 'pdf', mileages = [[116589, 15000
         return { marketCheckRetailUsd: 16000, maximumHammerBidUsd: 10500, message: 'Complete' };
     };
     const window = { jQuery: $, bootstrap: { Modal: { getOrCreateInstance() { return { show() { progressVisible = true; }, hide() { progressVisible = false; } }; } } }, addEventListener() {} };
-    const document = { getElementById: id => nodes[id], querySelectorAll: () => [] };
+    const document = { getElementById: id => nodes[id], querySelectorAll: selector => selector === '[data-appraisal-scope]' ? scopes : [] };
     vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../Scripts/majordome-appraisal-batch.js'), 'utf8'),
         { window, document, Intl, FormData, URLSearchParams, console });
+    function assertMode(multiple) {
+        assert.equal(nodes['pr-individual-inputs'].hidden, multiple);
+        assert.equal(nodes['pr-individual-results'].hidden, multiple);
+        assert.equal(scopes[0].hidden, multiple);
+        assert.equal(form.hidden, !multiple);
+        assert.equal(nodes['pr-batch-results'].hidden, !multiple);
+        assert.equal(scopes[1].hidden, !multiple);
+    }
+    assertMode(false);
+    modeSwitch.checked = true;
+    modeSwitch.handlers.change();
+    assertMode(true);
     const actions = row => columns.find(column => column.field === 'Actions').template(row);
     const marketplace = (row, hostname) => [...actions(row).matchAll(/href="([^"]+)"/g)]
         .map(match => new URL(match[1].replaceAll('&amp;', '&'))).find(url => url.hostname === hostname);
@@ -108,6 +122,13 @@ async function scenario(failFirst, extension = 'pdf', mileages = [[116589, 15000
     assert.equal(nodes['pr-pdf-drop-summary'].textContent, '4 vehicles imported');
     assert.equal(nodes['pr-pdf-drop-badge'].hidden, false);
     const firstRows = rows;
+    modeSwitch.checked = false;
+    modeSwitch.handlers.change();
+    assertMode(false);
+    modeSwitch.checked = true;
+    modeSwitch.handlers.change();
+    assertMode(true);
+    assert.equal(rows, firstRows, 'Switching modes preserves the imported batch');
     assert.equal(marketplace(firstRows[0], 'www.cars.com'), undefined, 'No guessed Cars.com link before VIN decoding');
     assert.equal(marketplace(firstRows[0], 'www.cargurus.com'), undefined, 'No guessed CarGurus link before VIN decoding');
     await waitFor(() => decodeCalls.includes(lexusVin), 'VIN decoding must start after parsing');

@@ -59,7 +59,7 @@
                 sortable: false, filterable: false, searchable: false,
                 resizable: false, reorderable: false,
                 headerClass: 'text-center majordome-management-col-details',
-                cellClass: 'inventory-dashboard-details-cell majordome-management-details-cell',
+                cellClass: 'inventory-dashboard-details-cell majordome-management-details-cell pg-action-cell',
                 template: '#management-add-grid-details-template'
             },
             {
@@ -137,7 +137,7 @@
             searchable: true,
             showSearch: true,
             searchTerm: window.gtxInventorySearch ? window.gtxInventorySearch.readStoredTerm() : '',
-            searchPlaceholder: 'Search management records…',
+            searchLabel: 'Search management records',
             searchPredicate: function (item, term) {
                 if (window.gtxInventorySearch) {
                     return window.gtxInventorySearch.matches(item.SearchText, term, item.SearchTokens);

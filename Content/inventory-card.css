@@ -48,7 +48,7 @@
 }
 
 .gtx-make-logo {
-height: 38px;
+    height: 38px;
 }
 
 .gtx-card .gtx-trimline {
@@ -200,6 +200,10 @@ max-width: 70%;
     transform: translateY(-1px);
 }
 
+html[data-background-theme="light"] .gtx-price-panel {
+    background: var(--gtx-gradient-background);
+}
+
 .gtx-price-line {
     display: flex;
     justify-content: space-between;
@@ -231,7 +235,8 @@ max-width: 70%;
 }
 
 .gtx-no-hidden-fees {
-    display: inline-flex;
+    width: fit-content;
+    overflow-wrap: anywhere;
     align-items: center;
     justify-content: center;
     gap: .25rem;
@@ -253,7 +258,7 @@ max-width: 70%;
 .gtx-card-action {
     min-height: 34px;
     border-radius: .45rem;
-    border: 1px solid rgba(255,255,255,.24);
+    border: 0;
     background: rgba(255,255,255,.88);
     color: #1f2933;
     text-decoration: none;
@@ -268,6 +273,11 @@ max-width: 70%;
     color: #111827;
     background: #fff;
     text-decoration: none;
+}
+
+html[data-background-theme="light"] .gtx-card-action:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -3px;
 }
 
 .gtx-card-action img {
@@ -672,8 +682,6 @@ html.theme-red .gtx-chip {
     position: static;
     order: 1;
     justify-content: center;
-    gap: .2rem;
-    padding-inline: .35rem;
     max-width: calc(100% - .7rem);
     overflow-wrap: anywhere;
     text-align: center;
@@ -846,8 +854,6 @@ html.theme-red .gtx-chip {
 
 #inventory[data-card-layout="price"] .gtx-no-hidden-fees {
     grid-area: disclosure;
-    max-width: 100%;
-    justify-self: center;
 }
 
 #inventory[data-card-layout="price"] .gtx-card-mileage {

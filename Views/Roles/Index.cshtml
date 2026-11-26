@@ -15,7 +15,7 @@
 <div class="p-3" id="rolesPage" data-edit-url="@Url.Action("Edit")" data-delete-url="@Url.Action("Delete")" data-login-as-url="@Url.Action("LoginAs")">
     @Html.AntiForgeryToken()
     <div class="shadow rounded-4 overflow-hidden">
-        <button type="button" class="btn btn-gradient" id="newRole"><i class="bi bi-plus-lg me-1"></i>New</button>
+        <button type="button" class="btn btn-gradient" id="newRole" data-button-tone="new"><i class="bi bi-plus-lg me-1"></i>New</button>
         <div id="rolesGrid" class="gtx-admin-add-grid"></div>
         <div class="d-none"><table id="rolesSource"><tbody>
             @foreach (var role in Model) {

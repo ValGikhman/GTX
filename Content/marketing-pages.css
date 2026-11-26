@@ -31,6 +31,10 @@
         radial-gradient(circle at 78% 18%, var(--mp-accent), transparent 28%);
 }
 
+html[data-theme-finish="solid"] .marketing-hero::before {
+    content: none;
+}
+
 .marketing-hero-word {
     position: absolute;
     top: -.13em;
@@ -130,6 +134,10 @@
     color: rgba(255, 255, 255, .66);
     font-size: clamp(.78rem, 1.2vw, .92rem);
     line-height: 1.45;
+}
+
+html[data-theme-finish="solid"] .marketing-hero :is(.marketing-eyebrow, .marketing-hero-copy p) {
+    color: #fff;
 }
 
 .marketing-page {
@@ -921,6 +929,21 @@
     font-size: 1.1rem;
 }
 
+html[data-background-theme="dark"] .vin-decoder-page .vin-decode-icon-button {
+    background: var(--gtx-palette-header-background) !important;
+    color: var(--gtx-palette-header-ink) !important;
+}
+
+html[data-background-theme="dark"] .vin-decoder-page .vin-decode-icon-button:disabled {
+    opacity: .75;
+}
+
+html[data-background-theme="dark"] .vin-decoder-page .vin-schema-button-secondary {
+    background: var(--gtx-dark-field-background) !important;
+    color: var(--gtx-dark-field-ink) !important;
+    border-color: color-mix(in srgb, currentColor 24%, transparent) !important;
+}
+
 .vin-decoder-assist {
     display: flex;
     justify-content: flex-end;
@@ -982,6 +1005,13 @@
     border-radius: 50%;
     background: color-mix(in srgb, var(--mp-accent) 7%, var(--vin-surface));
     font-size: 1.25rem;
+}
+
+html[data-background-theme="dark"] .vin-decoder-page .vin-decoder-empty > span {
+    background: var(--gtx-palette-header-background);
+    color: var(--gtx-palette-header-ink);
+    border-color: color-mix(in srgb, currentColor 22%, transparent);
+    box-shadow: var(--bs-box-shadow-sm);
 }
 
 .vin-decoder-empty strong {
@@ -1584,6 +1614,11 @@ html.theme-silver .marketing-hero-copy p,
 html.theme-silver .contact-action,
 html.theme-silver .blog-read-link {
     color: #fff;
+}
+
+html.theme-silver[data-theme-finish="solid"][data-texture-theme="none"] .marketing-hero :is(h1, h1 em, .marketing-eyebrow, .marketing-eyebrow i, .marketing-hero-copy p) {
+    color: #111;
+    -webkit-text-stroke-color: currentColor;
 }
 
 @media (max-width: 991.98px) {

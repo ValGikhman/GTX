@@ -89,7 +89,7 @@
                 <div id="majordomeBulkProgressLog" class="majordome-bulk-progress-log list-group small mt-3" aria-live="polite"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" id="majordomeBulkCancel" class="btn btn-outline-secondary"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>
+                <button type="button" id="majordomeBulkCancel" class="btn btn-outline-secondary" data-button-tone="danger"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>
                 <button type="button" id="majordomeBulkStart" class="btn btn-gradient"><i class="bi bi-play-fill me-1" aria-hidden="true"></i>Start</button>
             </div>
         </div>
@@ -286,8 +286,8 @@
                     </div>
                 </div>
                 <div class="modal-footer majordome-editor-footer">
-                    <button type="button" class="btn btn-outline-secondary majordome-editor-cancel-btn" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>
-                    <button type="submit" class="btn btn-gradient shadow majordome-editor-save-btn" id="majordomeInventoryEditorSave">
+                    <button type="button" class="btn btn-outline-secondary majordome-editor-cancel-btn" data-button-tone="danger" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>
+                    <button type="submit" class="btn btn-gradient shadow majordome-editor-save-btn" id="majordomeInventoryEditorSave" data-button-tone="success">
                         <i class="bi bi-check2-circle me-1"></i>Save inventory
                     </button>
                 </div>
@@ -1024,7 +1024,7 @@
                 <div class="input-group">
                     <input type="text" class="form-control shadow-sm js-majordome-editor-new-option-value" inputmode="${inputMode}"${maxLengthAttr} placeholder="New ${escapeHtml(label)}" />
                     <button type="button" class="btn btn-gradient js-majordome-editor-add-option">Add</button>
-                    <button type="button" class="btn btn-outline-secondary js-majordome-editor-cancel-option">Cancel</button>
+                    <button type="button" class="btn btn-outline-secondary js-majordome-editor-cancel-option" data-button-tone="danger">Cancel</button>
                 </div>
             </div>`);
 
@@ -3016,6 +3016,11 @@
     }
 
     function setMajordomeBulkActionButton($button, label, iconClass) {
+        if (label === "Cancel" || label === "Stopping...") {
+            $button.attr("data-button-tone", "danger");
+        } else {
+            $button.removeAttr("data-button-tone");
+        }
         $button.empty();
         $("<i>", {
             "class": "bi " + iconClass + " me-1",
@@ -3558,6 +3563,7 @@
         const imagesCount = vehicle.Images ? vehicle.Images.length : 0;
         const canDeleteImages = imagesCount > 0;
         const hasAppraisal = !!document.getElementById("majordomeInventoryAppraisalModal");
+        const buttonClass = "btn btn-gradient-grey shadow-sm";
         const deleteImagesTitle = canDeleteImages
             ? `Delete all ${imagesCount} pictures for Stock# ${stock}`
             : `No images to delete for Stock# ${stock}`;
@@ -3567,7 +3573,7 @@
                 <div class="majordome-action-group">
                     <div class="majordome-action-title">Edit</div>
                     <div class="majordome-action-buttons">
-                        <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-edit-inventory" data-stock="${stock}" title="Edit inventory for Stock# ${stock}">
+                        <button type="button" class="${buttonClass} js-amm-edit-inventory" data-stock="${stock}" title="Edit inventory for Stock# ${stock}">
                             <i class="bi bi-pencil-square"></i>
                         </button>
                     </div>
@@ -3575,8 +3581,8 @@
                 ${hasAppraisal ? `
                     <div class="majordome-action-group">
                         <div class="majordome-action-title">Appraisal</div>
-                        <div class="majordome-action-buttons align-self-stretch">
-                            <button type="button" class="btn btn-gradient-grey border-dark shadow-sm w-100 js-amm-appraise" data-stock="${stock}" aria-label="Appraise Stock# ${stock}" aria-haspopup="dialog" aria-controls="majordomeInventoryAppraisalModal" title="Appraise Stock# ${stock}">
+                        <div class="majordome-action-buttons align-self-center">
+                            <button type="button" class="${buttonClass} mx-0 js-amm-appraise" data-stock="${stock}" aria-label="Appraise Stock# ${stock}" aria-haspopup="dialog" aria-controls="majordomeInventoryAppraisalModal" title="Appraise Stock# ${stock}">
                                 <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>
                             </button>
                         </div>
@@ -3584,10 +3590,10 @@
                 <div class="majordome-action-group">
                     <div class="majordome-action-title">Images</div>
                     <div class="majordome-action-buttons">
-                        <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-upload-trigger" title="Upload images for Stock# ${stock}">
+                        <button type="button" class="${buttonClass} js-amm-upload-trigger" title="Upload images for Stock# ${stock}">
                             <i class="bi bi-upload"></i>
                         </button>
-                        <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-delete-images" data-stock="${stock}" data-images-count="${imagesCount}" title="${deleteImagesTitle}" ${canDeleteImages ? "" : "disabled"}>
+                        <button type="button" class="${buttonClass} js-amm-delete-images" data-stock="${stock}" data-images-count="${imagesCount}" title="${deleteImagesTitle}" ${canDeleteImages ? "" : "disabled"}>
                             <i class="bi bi-trash"></i>
                         </button>
                     </div>
@@ -3596,10 +3602,10 @@
                 <div class="majordome-action-group">
                     <div class="majordome-action-title">Story</div>
                     <div class="majordome-action-buttons">
-                        <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-create-story" data-stock="${stock}" title="Create story for Stock# ${stock}">
+                        <button type="button" class="${buttonClass} js-amm-create-story" data-button-tone="success" data-stock="${stock}" title="Create story for Stock# ${stock}">
                             <i class="bi bi-book"></i>
                         </button>
-                        <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-delete-story" data-stock="${stock}" title="Delete story for Stock# ${stock}">
+                        <button type="button" class="${buttonClass} js-amm-delete-story" data-stock="${stock}" title="Delete story for Stock# ${stock}">
                             <i class="bi bi-book-fill"></i>
                         </button>
                     </div>
@@ -3607,10 +3613,10 @@
                 <div class="majordome-action-group">
                     <div class="majordome-action-title">DataOne</div>
                     <div class="majordome-action-buttons">
-                        <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-decode-dataone" data-vin="${vin}" title="Decode and override for VIN# ${vin}">
+                        <button type="button" class="${buttonClass} js-amm-decode-dataone" data-vin="${vin}" title="Decode and override for VIN# ${vin}">
                             <i class="bi bi-car-front"></i>
                         </button>
-                        <button type="button" class="btn btn-gradient-grey border-dark shadow-sm js-amm-delete-dataone" data-stock="${stock}" title="Delete DataOne for stock# ${stock}">
+                        <button type="button" class="${buttonClass} js-amm-delete-dataone" data-stock="${stock}" title="Delete DataOne for stock# ${stock}">
                             <i class="bi bi-car-front-fill"></i>
                         </button>
                     </div>

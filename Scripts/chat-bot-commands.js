@@ -54,7 +54,7 @@
                     { field: "Description", title: "Description", width: 300, searchable: false, template: "#chat-command-description-template" },
                     { field: "CreatedBy", headerClass: "text-center", cellClass: "text-center", title: "Created by", width: 130, searchable: false, template: "#chat-command-role-template" },
                     { field: "Updated", headerClass: "text-center", cellClass: "text-center", title: "Updated", width: 130, sortField: "UpdatedSort", searchable: false, template: "#chat-command-updated-template" },
-                    { field: "Actions", title: "Actions", width: 120, sortable: false, filterable: false, searchable: false, resizable: false, reorderable: false, headerClass: "text-center", cellClass: "text-center", template: "#chat-command-actions-template" }
+                    { field: "Actions", title: "Actions", width: 120, sortable: false, filterable: false, searchable: false, resizable: false, reorderable: false, headerClass: "text-center", cellClass: "text-center pg-action-cell", template: "#chat-command-actions-template" }
                 ],
                 tableClass: "table align-middle m-0 chat-command-grid",
                 rowClass: "chat-command-main-row",
@@ -72,7 +72,7 @@
                 reorderable: true,
                 searchable: true,
                 showSearch: true,
-                searchPlaceholder: "Search phrase or action…",
+                searchLabel: "Search phrase or action",
                 showFilterChips: true,
                 exportToExcel: false,
                 exportToPdf: false,

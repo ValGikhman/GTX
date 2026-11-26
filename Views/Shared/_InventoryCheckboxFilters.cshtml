@@ -126,7 +126,7 @@
                     <span id="inventoryFilterCount" class="flex-shrink-0">0</span>
                     <span class="text-truncate">matching vehicle(s)</span>
                 </div>
-                <button type="button" id="inventoryClearFiltersDesktop" class="btn btn-sm btn-gradient-grey border-secondary-subtle rounded-3 shadow-sm fw-bold inventory-clear-btn d-none d-lg-inline-flex"
+                <button type="button" id="inventoryClearFiltersDesktop" class="btn btn-sm btn-gradient-grey border-secondary-subtle rounded-3 shadow-sm fw-bold inventory-clear-btn d-none d-lg-inline-flex light-gradient-action"
                         title="@(hasServerInventoryFilter ? "Reset search results — show all inventory" : "Clear filters")"
                         aria-label="@(hasServerInventoryFilter ? "Reset search results — show all inventory" : "Clear filters")">
                     <i class="bi @(hasServerInventoryFilter ? "bi-arrow-counterclockwise" : "bi-eraser-fill")" aria-hidden="true"></i>
@@ -315,9 +315,7 @@
         padding: .2rem .3rem;
         border: 1px solid rgba(115, 125, 140, .3);
         border-inline-start: .2rem solid var(--inventory-stats-accent);
-        background-color: var(--bs-body-bg, #fff);
-        background-image: linear-gradient(108deg, color-mix(in srgb, var(--inventory-stats-accent) 16%, transparent), transparent 72%);
-        color: var(--bs-body-color, #212529);
+        color: var(--gtx-menu-ink);
         box-shadow: 0 .2rem .55rem rgba(15, 23, 42, .13);
     }
 
@@ -338,12 +336,6 @@
         min-inline-size: 2.2rem;
         min-block-size: 1.7rem;
         padding-inline: .4rem;
-        border-radius: .45rem;
-        background-color: var(--inventory-stats-accent);
-        background-color: color-mix(in srgb, var(--inventory-stats-accent) 82%, black);
-        background-image: linear-gradient(165deg, rgba(255, 255, 255, .12), rgba(0, 0, 0, .1));
-        color: #fff;
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 2px 4px rgba(0, 0, 0, .2);
         font-size: .92rem;
         font-weight: 800;
         font-variant-numeric: tabular-nums;
@@ -366,13 +358,17 @@
         white-space: nowrap;
     }
 
+    html[data-background-theme="light"] .inventory-filter-stats > .inventory-clear-btn {
+        --gtx-gradient-ink: var(--gtx-menu-ink);
+    }
+
     .inventory-filter-stats > #inventorySidebarDockToggle {
         grid-column: 1;
         justify-self: start;
     }
 
-    .inventory-filter-stats > .inventory-clear-btn:focus-visible {
-        outline: 2px solid var(--bs-body-color, #212529);
+    .inventory-filter-stats.sticky-top > .inventory-clear-btn:focus-visible {
+        outline: 2px solid var(--gtx-menu-ink);
         outline-offset: 2px;
     }
 
@@ -389,43 +385,14 @@
 
     #inventorySidebarPane .inventory-filter-scroll {
         --inventory-filter-inset: .55rem;
-        --inventory-filter-row-height: 2.8rem;
         padding: var(--inventory-filter-inset);
         scroll-padding-block-start: calc(var(--inventory-filter-row-height) + .5rem + 2px);
         scroll-padding-bottom: .55rem;
     }
 
-    :is(.inventory-filter-stats, .inventory-filter-panel) {
+    .inventory-filter-stats {
         margin-bottom: .5rem;
         border-radius: .5rem;
-    }
-
-    .inventory-filter-panel {
-        border: 1px solid rgba(15, 23, 42, .12);
-        overflow: hidden;
-        box-shadow: 0 .35rem 1rem rgba(15, 23, 42, .08);
-    }
-
-    .inventory-filter-panel-toggle {
-        min-block-size: var(--inventory-filter-row-height);
-    }
-
-    .inventory-filter-panel-title {
-        display: inline-flex;
-        align-items: center;
-        gap: .5rem;
-        min-width: 0;
-    }
-
-    .inventory-filter-panel-count {
-        margin-left: auto;
-        color: #1f2937;
-        font-size: .78rem;
-        font-weight: 900;
-    }
-
-    .inventory-filter-panel-body {
-        padding: .35rem .55rem .7rem;
     }
 
     .inventory-range-panel-body {
@@ -533,19 +500,8 @@
     }
 
     .inventory-check-row {
-        display: flex;
-        align-items: center;
-        gap: .55rem;
-        min-height: 2.1rem;
-        padding: .32rem .45rem;
-        border-radius: .45rem;
         cursor: pointer;
         color: #1f2937;
-        font-weight: 600;
-    }
-
-    .inventory-check-row:hover {
-        background: #eef2f7;
     }
 
     .form-check-input.inventory-filter-check {
@@ -596,20 +552,6 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-    }
-
-    .inventory-check-hit {
-        flex-shrink: 0;
-        margin-left: auto;
-        min-width: max(30px, 2.25rem);
-        padding: .13rem .4rem;
-        border-radius: .45rem;
-        background: #e5e7eb;
-        color: #4b5563;
-        font-size: .82rem;
-        font-weight: 900;
-        font-variant-numeric: tabular-nums;
-        text-align: center;
     }
 
     .inventory-dependent-empty {
@@ -695,7 +637,6 @@
 
         #inventorySidebarPane .inventory-filter-scroll {
             --inventory-filter-inset: .7rem;
-            --inventory-filter-row-height: 3.05rem;
             padding-bottom: calc(.75rem + env(safe-area-inset-bottom));
             scroll-padding-bottom: calc(.75rem + env(safe-area-inset-bottom));
         }

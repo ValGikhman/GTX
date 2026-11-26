@@ -15,8 +15,6 @@ html body .modal .modal-header {
     padding: .8rem 1rem !important;
     border: 0 !important;
     border-bottom: 1px solid rgba(255, 255, 255, .18) !important;
-    color: #fff !important;
-    background: var(--gtx-grad, linear-gradient(135deg, #0b5ed7, #163a72)) !important;
     box-shadow: 0 .35rem 1rem rgba(15, 23, 42, .14);
 }
 
@@ -81,15 +79,52 @@ html body .modal .modal-footer {
     background: var(--bs-tertiary-bg, #f8fafc);
 }
 
-html.theme-silver body .modal .modal-header {
-    color: #172033 !important;
+html[data-background-theme="dark"] body .modal .modal-content {
+    --bs-modal-color: var(--gtx-steel-panel-ink, var(--bs-body-color));
+    background: var(--gtx-tinted-steel-panel-background, var(--bs-modal-bg));
+}
+
+html[data-background-theme="dark"] body .modal :is(.modal-body, .modal-footer) {
+    background: transparent;
+}
+
+html[data-background-theme="dark"] body .modal .modal-body .bg-white:is(.card-header, .card-footer) {
+    background: transparent !important;
+    color: inherit;
+}
+
+html[data-background-theme="dark"] body .modal :is(.modal-footer, .card-footer) .btn-outline-secondary {
+    --bs-btn-color: var(--gtx-steel-panel-ink, var(--bs-body-color));
+    --bs-btn-border-color: currentColor;
+}
+
+html[data-background-theme="dark"] body .modal :is(.field-validation-error, .validation-summary-errors).text-danger:not(:empty) {
+    padding-inline: .25rem;
+    border-radius: var(--bs-border-radius-sm);
+    background-color: var(--bs-danger-bg-subtle);
+    color: var(--bs-danger-text-emphasis) !important;
+}
+
+html[data-background-theme="dark"] .modal .form-control[type="file"]:not(:disabled, [readonly]) {
+    background-color: var(--gtx-dark-field-background);
+    color: var(--gtx-dark-field-ink);
+}
+
+html[data-background-theme="dark"] .modal .form-control[type="file"]:not(:disabled, [readonly])::file-selector-button {
+    background: var(--gtx-palette-header-background);
+    color: var(--gtx-palette-header-ink);
+    border-inline-end-color: rgb(220 230 243 / 28%);
+}
+
+html[data-background-theme="dark"] .modal .form-control[type="file"]:not(:disabled, [readonly]):hover::file-selector-button {
+    filter: brightness(1.08);
 }
 
 html.theme-silver body #openHours .open-hours-panel-controls {
     color: #172033 !important;
 }
 
-html.theme-silver body .modal .modal-header .btn-close {
+html.theme-silver:not([data-texture-tinted="true"]) body .modal .modal-header .btn-close {
     filter: none !important;
 }
 
@@ -97,13 +132,12 @@ html.theme-silver body #openHours .open-hours-close-btn {
     filter: none !important;
 }
 
-html.theme-silver body .gtx-modal-title-icon {
+html.theme-silver:not([data-texture-tinted="true"]) body .gtx-modal-title-icon {
     border-color: rgba(15, 23, 42, .15);
     background: rgba(255, 255, 255, .38);
 }
 
-html.theme-silver body .modal .modal-header .btn-close:hover,
-html.theme-silver body .modal .modal-header .btn-close:focus-visible {
+html.theme-silver:not([data-texture-tinted="true"]) body .modal .modal-header .btn-close:is(:hover, :focus-visible) {
     background-color: rgba(15, 23, 42, .1);
 }
 

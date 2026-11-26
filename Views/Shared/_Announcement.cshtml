@@ -7,6 +7,7 @@
         <div class="d-flex align-items-center justify-content-end">
             <a id="newAnnouncement"
                class="btn btn-gradient"
+               data-button-tone="new"
                data-announcement-modal="true"
                data-title="New Announcement"
                href="@Url.Action("Create", "Announcements")">
@@ -255,7 +256,7 @@
                 { field: "Type", title: "Type", width: 120, searchable: false, headerClass: "text-center", cellClass: "text-center", template: "#announcement-grid-type-template" },
                 { field: "DateRange", title: "Date Range", width: 190, filterable: false, searchable: false, headerClass: "text-center", cellClass: "text-center text-muted", template: "#announcement-grid-date-template" },
                 { field: "Active", title: "Active", width: 120, searchable: false, headerClass: "text-center", cellClass: "text-center", template: "#announcement-grid-active-template" },
-                { field: "Actions", title: "Actions", width: 180, filterable: false, searchable: false, headerClass: "text-center", cellClass: "text-center", template: "#announcement-grid-actions-template" }
+                { field: "Actions", title: "Actions", width: 180, filterable: false, searchable: false, headerClass: "text-center", cellClass: "text-center pg-action-cell", template: "#announcement-grid-actions-template" }
             ],
             tableClass: "table align-middle m-0",
             height: null,
@@ -269,7 +270,7 @@
             searchable: true,
             showSearch: true,
             searchTerm: window.gtxAdminGridState.announcementsSearch || "",
-            searchPlaceholder: "Search title or message…",
+            searchLabel: "Search title or message",
             showFilterChips: true,
             exportToExcel: false,
             exportToPdf: false,

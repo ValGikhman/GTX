@@ -6,6 +6,7 @@
     <div class="card-header bg-white p-3 border-0 sticky-top" style="z-index: 1020;">
         <div class="d-flex align-items-center justify-content-end">
             <a id="newSpecial" class="btn btn-gradient"
+               data-button-tone="new"
                data-special-modal="true"
                data-title="New Special"
                href="@Url.Action("Create", "Specials")">
@@ -174,7 +175,7 @@
                 { field: "Title", title: "Title", width: 230, filterable: false, searchable: true, searchField: "SearchText", template: "#special-grid-title-template" },
                 { field: "Published", title: "Published", width: 130, searchable: false, headerClass: "text-center", cellClass: "text-center", template: "#special-grid-published-template" },
                 { field: "Created", title: "Created", width: 130, filterable: false, searchable: false, headerClass: "text-center", cellClass: "text-center text-muted", template: "#special-grid-created-template" },
-                { field: "Actions", title: "Actions", width: 140, filterable: false, searchable: false, headerClass: "text-center", cellClass: "text-center", template: "#special-grid-actions-template" }
+                { field: "Actions", title: "Actions", width: 140, filterable: false, searchable: false, headerClass: "text-center", cellClass: "text-center pg-action-cell", template: "#special-grid-actions-template" }
             ],
             tableClass: "table align-middle m-0",
             height: null,
@@ -188,7 +189,7 @@
             searchable: true,
             showSearch: true,
             searchTerm: window.gtxAdminGridState.specialsSearch || "",
-            searchPlaceholder: "Search title or status…",
+            searchLabel: "Search title or status",
             showFilterChips: true,
             exportToExcel: false,
             exportToPdf: false,

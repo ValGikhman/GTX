@@ -153,14 +153,17 @@ namespace GTX.Controllers
         [HttpGet]
         public ActionResult Dashboard()
         {
+            Response.Cache.SetNoStore();
             ViewBag.Message = "Inventory dashboard";
             ViewBag.Title = "Inventory dashboard";
+            var showLocationTotals = CanViewDashboardLocationTotals();
+            ViewBag.ShowDashboardLocationTotals = showLocationTotals;
 
             // Render only the default period. Other periods are fetched on demand by
             // the dashboard so the initial request does not repeat the full query and payload.
             var dashboards = new Dictionary<int, InventoryDashboardSummary>
             {
-                [7] = LoadInventoryDashboard(7)
+                [7] = LoadInventoryDashboard(7, showLocationTotals)
             };
 
             return View(dashboards);
@@ -169,12 +172,15 @@ namespace GTX.Controllers
         [HttpGet]
         public JsonResult GetInventoryDashboard(int days = 7)
         {
+            Response.Cache.SetNoStore();
+            var showLocationTotals = CanViewDashboardLocationTotals();
             return new JsonResult
             {
                 Data = new
                 {
                     success = true,
-                    dashboard = LoadInventoryDashboard(days)
+                    showLocationTotals,
+                    dashboard = LoadInventoryDashboard(days, showLocationTotals)
                 },
                 JsonRequestBehavior = JsonRequestBehavior.AllowGet,
                 MaxJsonLength = int.MaxValue
@@ -367,35 +373,34 @@ namespace GTX.Controllers
             }
         }
 
-        private InventoryDashboardSummary LoadInventoryDashboard(int days)
+        private bool CanViewDashboardLocationTotals()
         {
+            return SiteAccess.CanViewDashboardSection(SiteAccess.Current(Request), DashboardPermission.LocationCode);
+        }
+
+        private InventoryDashboardSummary LoadInventoryDashboard(int days, bool showLocationTotals)
+        {
+            var normalizedDays = InventoryDashboardSummary.NormalizeRequestDays(days);
+            var localNow = DateTime.Now;
+            var cacheKey = Constants.INVENTORY_MANAGEMENT_DASHBOARD_CACHE_PREFIX + normalizedDays.ToString(CultureInfo.InvariantCulture);
+            if (normalizedDays == InventoryDashboardSummary.YearToDate)
+            {
+                cacheKey += ":" + localNow.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
+            }
+
             try
             {
-                return AppCache.GetOrCreate(
-                    Constants.INVENTORY_MANAGEMENT_DASHBOARD_CACHE_PREFIX + days.ToString(CultureInfo.InvariantCulture),
-                    () => InventoryService.GetInventoryDashboard(days),
-                    minutes: 5) ?? CreateEmptyInventoryDashboard(days);
+                var dashboard = AppCache.GetOrCreate(
+                    cacheKey,
+                    () => InventoryService.GetInventoryDashboard(normalizedDays),
+                    minutes: 5) ?? InventoryDashboardSummary.CreateForPeriod(normalizedDays, localNow);
+                return showLocationTotals ? dashboard : InventoryDashboardProjection.WithoutLocationTotals(dashboard);
             }
             catch (Exception ex)
             {
                 Log(ex);
-                return CreateEmptyInventoryDashboard(days);
+                return InventoryDashboardSummary.CreateForPeriod(normalizedDays, localNow);
             }
-        }
-
-        private static InventoryDashboardSummary CreateEmptyInventoryDashboard(int days)
-        {
-            var now = DateTime.UtcNow;
-            return new InventoryDashboardSummary
-            {
-                Days = days,
-                PeriodStartUtc = now.AddDays(-days),
-                PeriodEndUtc = now,
-                StatusCounts = Array.Empty<InventoryDashboardStatusCount>(),
-                LocationCounts = Array.Empty<InventoryDashboardLocationCount>(),
-                StatusTrend = Array.Empty<InventoryDashboardStatusTrendPoint>(),
-                Vehicles = Array.Empty<InventoryDashboardVehicle>()
-            };
         }
 
         private GTX.Models.GTX[] ParseUploadedInventoryVehicles(HttpPostedFileBase dataCsv)

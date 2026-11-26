@@ -356,29 +356,45 @@ html.theme-silver .majordome-inventory-appraisal { --inventory-appraisal-header-
 
 .majordome-inventory-appraisal .research-grid-note { margin: .7rem 0 0; }
 
+html[data-background-theme="dark"] .majordome-inventory-appraisal :is(
+    .inventory-appraisal-intro,
+    .inventory-appraisal-inventory-price,
+    .pr-market-overview,
+    .pr-demand,
+    .pr-grid-section,
+    :is(.pr-market-overview, .pr-demand, .pr-grid-section) > header,
+    .pr-market-estimate,
+    .research-metric,
+    .pr-demand .pr-bid-metrics > div,
+    [data-appraisal-request-summary],
+    .pr-comparables-description
+) {
+    background: var(--gtx-tinted-steel-panel-background);
+    color: var(--gtx-steel-panel-ink);
+}
+
+html[data-background-theme="dark"] .majordome-inventory-appraisal :is(
+    .inventory-appraisal-vehicle,
+    .inventory-appraisal-description,
+    .inventory-appraisal-status,
+    .appraisal-metric-help.btn,
+    :is(.research-metric, .pr-demand .pr-bid-metrics) :is(span, strong),
+    [data-appraisal-demand-message],
+    .pr-demand-note,
+    .research-grid-note
+) {
+    color: var(--gtx-steel-panel-ink);
+}
+
+html[data-background-theme="dark"] .majordome-inventory-appraisal .appraisal-comparables-grid {
+    color: var(--inventory-ink);
+}
+
 .majordome-remove-bg-modal .modal-content {
     overflow: hidden;
     border: 1px solid var(--bs-border-color-translucent, rgba(148, 163, 184, .2));
     border-radius: 14px;
     box-shadow: 0 1.5rem 4rem rgba(15, 23, 42, .28);
-}
-
-.majordome-remove-bg-modal .modal-header {
-    gap: .7rem;
-    color: #fff;
-    background: var(--gtx-grad, linear-gradient(135deg, #0d6efd, #198754));
-}
-
-.majordome-remove-bg-modal .modal-title {
-    color: inherit;
-}
-
-.majordome-remove-bg-modal .modal-header .btn-close {
-    filter: invert(1) grayscale(100%) brightness(200%);
-}
-
-html.theme-silver .majordome-remove-bg-modal .modal-header .btn-close {
-    filter: none;
 }
 
 .majordome-remove-bg-toolbar {
@@ -1220,7 +1236,13 @@ body.majordome-inventory-page .body-content {
     padding: .3rem;
     border: 1px solid var(--bs-border-color-translucent, rgba(30, 41, 59, .12));
     border-radius: .8rem .8rem 0 0;
-    background: color-mix(in srgb, var(--bs-body-bg, #fff) 92%, transparent);
+    background: var(--gtx-addgrid-header-background);
+    --gtx-gradient-ink: var(--gtx-addgrid-header-ink);
+    color: var(--gtx-gradient-ink);
+}
+
+html[data-background-theme="dark"] .majordome-workspace > #myTab.nav.nav-tabs.no-wrap-group {
+    --bs-border-color-translucent: rgba(var(--bs-black-rgb), .175);
 }
 
 .majordome-workspace > #myTab .btn {
@@ -1293,7 +1315,7 @@ body.majordome-inventory-page .body-content {
         }
 
         .gtx-admin-add-grid .pg-grid-table thead {
-            background: var(--gtx-admin-grid-header);
+            background: var(--gtx-palette-header-background);
         }
 
         .gtx-admin-add-grid .pg-th-label,
@@ -1350,7 +1372,7 @@ body.majordome-inventory-page .body-content {
     }
 
     :is(#blogsAddGrid, #specialsAddGrid) .pg-grid-table thead th {
-        background: var(--gtx-admin-grid-header);
+        background: var(--gtx-palette-header-background);
         color: var(--gtx-admin-grid-header-text);
         box-shadow: none;
     }
@@ -1413,13 +1435,13 @@ body.majordome-inventory-page .body-content {
         position: relative;
     }
 
-    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker) .majordome-batch-actions-menu {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker, .inventory-dashboard-picker) .majordome-batch-actions-menu {
         width: min(18rem, calc(100vw - 1rem));
         border: 1px solid var(--inventory-border);
         background: var(--inventory-surface);
     }
 
-    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker) .majordome-batch-action {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker, .inventory-dashboard-picker, .majordome-management-log-period) .majordome-batch-action {
         display: grid;
         grid-template-columns: 2.15rem minmax(0, 1fr);
         gap: .7rem;
@@ -1431,13 +1453,13 @@ body.majordome-inventory-page .body-content {
         white-space: normal;
     }
 
-    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker) .majordome-batch-action:hover,
-    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker) .majordome-batch-action:focus {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, .inventory-dashboard-picker) .majordome-batch-action:is(:hover, :focus),
+    .inventory-dashboard-picker .majordome-batch-action.active {
         color: var(--inventory-ink);
         background: var(--inventory-surface-alt);
     }
 
-    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker) .majordome-batch-action-icon {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker, .inventory-dashboard-picker, .majordome-management-log-period) .majordome-batch-action-icon {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -1445,21 +1467,21 @@ body.majordome-inventory-page .body-content {
         height: 2.15rem;
         border: 1px solid var(--inventory-line);
         border-radius: .65rem;
-        color: var(--inventory-muted);
-        background: linear-gradient(180deg, var(--inventory-surface) 0%, var(--inventory-surface-alt) 100%);
+        color: var(--gtx-menu-icon-ink, var(--inventory-muted));
+        background: var(--gtx-menu-icon-background, linear-gradient(180deg, var(--inventory-surface) 0%, var(--inventory-surface-alt) 100%));
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35);
     }
 
-    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker) :is(.majordome-batch-action strong, .majordome-batch-action small) {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker, .inventory-dashboard-picker) :is(.majordome-batch-action strong, .majordome-batch-action small) {
         display: block;
     }
 
-    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker) .majordome-batch-action strong {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker, .inventory-dashboard-picker, .majordome-management-log-period) .majordome-batch-action strong {
         font-size: .78rem;
         line-height: 1.2;
     }
 
-    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker) .majordome-batch-action small {
+    :is(#inventoryGridShell, #MajordomeLink, #AboutMenuLink, #vinProviderPicker, #inventoryCardLayoutPicker, #inventorySortPicker, .inventory-dashboard-picker) .majordome-batch-action small {
         margin-top: .15rem;
         color: var(--inventory-muted);
         font-size: .66rem;
@@ -1536,7 +1558,7 @@ body.majordome-inventory-page .body-content {
             top: 0;
             z-index: 2;
             padding: .42rem .5rem;
-            background: var(--inventory-header-bg);
+            background: var(--gtx-palette-header-background);
             color: var(--inventory-header-color);
             font-size: .72rem;
             font-weight: 700;
@@ -1586,7 +1608,7 @@ body.majordome-inventory-page .body-content {
         }
 
         :is(#majordomeInventoryGrid, .majordome-inventory-grid-style) .pg-grid-table thead {
-            background: var(--inventory-header-bg);
+            background: var(--gtx-addgrid-header-background);
         }
 
         :is(#majordomeInventoryGrid, .majordome-inventory-grid-style) :is(.pg-th-label, .pg-sort-icon, .pg-filter-btn) {
@@ -1774,27 +1796,6 @@ body.majordome-inventory-page .body-content {
         gap: .2rem;
         flex-wrap: nowrap;
     }
-
-        .majordome-actions .btn {
-            width: 1.7rem;
-            height: 1.7rem;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
-            border-radius: .5rem;
-            border-color: rgba(15, 23, 42, .18) !important;
-            box-shadow: none !important;
-            transition: background-color .15s, border-color .15s, color .15s, transform .15s;
-        }
-
-            .majordome-actions .btn:hover:not(:disabled) {
-                transform: translateY(-1px);
-            }
-
-            .majordome-actions .btn:disabled {
-                opacity: .38;
-            }
 
     #majordomeInventoryTable th.majordome-actions-col,
     #majordomeInventoryTable td.majordome-actions-cell {
@@ -2211,11 +2212,6 @@ body.majordome-inventory-page .body-content {
             min-width: 0;
         }
 
-            .majordome-actions .btn {
-                width: 1.85rem;
-                height: 1.85rem;
-            }
-
         #inventoryGridShell .majordome-inventory-bulk-actions {
             flex: 1 1 100%;
             max-width: none;
@@ -2269,8 +2265,6 @@ body.majordome-inventory-page .body-content {
         --inventory-header-bg: var(--gtx-grad, var(--bs-primary-bg-subtle, #f8fafc));
         --inventory-header-color: #fff;
         --inventory-header-border: rgba(255, 255, 255, .24);
-        --inventory-selected-accent: var(--bs-primary, #2563eb);
-        --inventory-selected-bg: rgba(var(--bs-primary-rgb, 37, 99, 235), .1);
         background: var(--inventory-surface);
         margin-top: 0;
         border-radius: .85rem;
@@ -2279,25 +2273,32 @@ body.majordome-inventory-page .body-content {
         overflow: hidden;
     }
 
+    :root {
+        --inventory-selected-accent: var(--bs-primary, #2563eb);
+        --inventory-selected-bg: rgba(var(--bs-primary-rgb, 37, 99, 235), .1);
+    }
+
     html.theme-silver .majordome-management-shell {
         --inventory-header-color: #111827;
         --inventory-header-border: rgba(15, 23, 42, .16);
+    }
+
+    html.theme-silver {
         --inventory-selected-accent: #8f98a3;
         --inventory-selected-bg: rgba(143, 152, 163, .16);
     }
 
-    html.theme-blue .majordome-management-shell {
+    html.theme-blue {
         --inventory-selected-accent: #1e73be;
         --inventory-selected-bg: rgba(30, 115, 190, .14);
     }
 
-    html.theme-grey .majordome-management-shell,
-    html.theme-black .majordome-management-shell {
+    html:is(.theme-grey, .theme-black) {
         --inventory-selected-accent: darkgray;
         --inventory-selected-bg: rgba(169, 169, 169, .18);
     }
 
-    html.theme-navy .majordome-management-shell {
+    html.theme-navy {
         --inventory-selected-accent: #245f96;
         --inventory-selected-bg: rgba(36, 95, 150, .14);
     }
@@ -2331,12 +2332,12 @@ body.majordome-inventory-page .body-content {
         }
     }
 
-    html.theme-green .majordome-management-shell {
+    html.theme-green {
         --inventory-selected-accent: #23875d;
         --inventory-selected-bg: rgba(35, 135, 93, .14);
     }
 
-    html.theme-red .majordome-management-shell {
+    html.theme-red {
         --inventory-selected-accent: #b83246;
         --inventory-selected-bg: rgba(184, 50, 70, .14);
     }
@@ -2350,6 +2351,8 @@ body.majordome-inventory-page .body-content {
     }
 
     .majordome-management-sidebar-pane {
+        display: flex;
+        flex-direction: column;
         flex: 0 0 280px;
         width: 280px;
         min-width: 250px;
@@ -2358,7 +2361,8 @@ body.majordome-inventory-page .body-content {
         max-height: none;
         overflow-x: hidden;
         overflow-y: auto;
-        background: #f8fafc;
+        padding: .2rem .55rem;
+        background: var(--gtx-page-bg, ghostwhite);
         border-right: 1px solid var(--inventory-line);
         scrollbar-color: rgba(71, 85, 105, .45) transparent;
         scrollbar-width: thin;
@@ -2388,11 +2392,18 @@ body.majordome-inventory-page .body-content {
         padding-block: .35rem;
     }
 
-    .majordome-management-log-picker {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        padding: .2rem .55rem;
+    .majordome-management-log-tree {
+        color: var(--bs-body-color);
+    }
+
+    html[data-background-theme="light"] .majordome-management-sidebar-pane {
+        padding-block-start: 0;
+        background: #f8fafc;
+    }
+
+    html[data-background-theme="light"] .majordome-management-log-tree {
+        padding-block-start: 0;
+        background: linear-gradient(180deg, #f8fafc, #eef2f7);
     }
 
     .majordome-management-log-period {
@@ -2403,114 +2414,77 @@ body.majordome-inventory-page .body-content {
         padding-bottom: .4rem;
     }
 
-        .majordome-management-log-period .form-label {
-            margin-bottom: .25rem;
-            color: var(--inventory-muted);
-            font-size: .72rem;
-            font-weight: 800;
-            letter-spacing: .04em;
-            text-transform: uppercase;
-        }
-
-        .majordome-management-log-period .form-select {
-            min-height: 2rem;
-            padding-block: .25rem;
-            border-color: var(--inventory-border);
-            border-radius: .55rem;
-            background-color: #fff;
-            color: var(--inventory-ink);
-            font-weight: 700;
-        }
-
-            .majordome-management-log-period .form-select:focus {
-                border-color: rgba(37, 99, 235, .5);
-                box-shadow: 0 0 0 .22rem rgba(37, 99, 235, .12);
-            }
-
-    .majordome-management-log-date {
-        border: 1px solid var(--inventory-border);
-        border-radius: .65rem;
-        background: #fff;
-        box-shadow: 0 .3rem .9rem rgba(15, 23, 42, .05);
-        overflow: hidden;
+    .majordome-management-log-period .dropdown-toggle::after {
+        flex-shrink: 0;
+        margin-inline-start: auto;
     }
 
-        .majordome-management-log-date + .majordome-management-log-date {
-            margin-top: .3rem;
-        }
-
-        .majordome-management-log-date-toggle.is-selected,
-        .majordome-management-log-date-toggle.is-active {
-            background: var(--inventory-header-bg);
-            color: var(--inventory-header-color);
-            box-shadow: inset .28rem 0 var(--inventory-header-border), 0 .35rem .8rem rgba(15, 23, 42, .12);
-        }
-
-            .majordome-management-log-date-toggle.is-selected:hover,
-            .majordome-management-log-date-toggle.is-selected:focus,
-            .majordome-management-log-date-toggle.is-active:hover,
-            .majordome-management-log-date-toggle.is-active:focus {
-                background: var(--inventory-header-bg);
-                color: var(--inventory-header-color);
-            }
-
-            .majordome-management-log-date-toggle.is-selected .majordome-management-log-option-date,
-            .majordome-management-log-date-toggle.is-active .majordome-management-log-option-date,
-            .majordome-management-log-option-date.is-selected,
-            .majordome-management-log-option-date.is-active {
-                color: var(--inventory-header-color);
-            }
-
-            .majordome-management-log-date-toggle.is-selected .majordome-management-log-date-count,
-            .majordome-management-log-date-toggle.is-active .majordome-management-log-date-count {
-                background: rgba(255, 255, 255, .22) !important;
-                border: 1px solid var(--inventory-header-border);
-                color: var(--inventory-header-color);
-            }
-
-    html.theme-silver .majordome-management-log-date-toggle.is-selected .majordome-management-log-date-count,
-    html.theme-silver .majordome-management-log-date-toggle.is-active .majordome-management-log-date-count {
-        background: rgba(15, 23, 42, .12) !important;
-        border-color: rgba(15, 23, 42, .18);
-        color: #111827;
+    html[data-background-theme="light"] .majordome-management-log-period {
+        align-items: center;
+        padding-block: .55rem;
     }
 
-    html.theme-silver .majordome-management-log-date-toggle.is-selected .majordome-management-log-option-date,
-    html.theme-silver .majordome-management-log-date-toggle.is-active .majordome-management-log-option-date,
-    html.theme-silver .majordome-management-log-option-date.is-selected,
-    html.theme-silver .majordome-management-log-option-date.is-active {
-        color: #111827;
+    html[data-background-theme="light"] .majordome-management-log-period .dropdown-toggle {
+        --gtx-button-background: var(--inventory-surface);
+        --gtx-button-ink: var(--inventory-ink);
+        --bs-border-radius-xl: .55rem;
+        --bs-box-shadow: inset 0 0 0 var(--bs-border-width) var(--inventory-border);
+        min-height: 2rem;
+        padding-block: .25rem;
+        font-weight: 700;
     }
 
-    .majordome-management-log-date-toggle.is-selected.collapsed,
-    .majordome-management-log-date-toggle.is-selected[aria-expanded="false"],
-    .majordome-management-log-date-toggle.is-active.collapsed,
-    .majordome-management-log-date-toggle.is-active[aria-expanded="false"] {
-        background: var(--inventory-header-bg);
-        color: var(--inventory-header-color);
+    html[data-background-theme="light"] .majordome-management-log-period .dropdown-toggle::after {
+        filter: none;
     }
 
-        html.theme-silver .majordome-management-log-date-toggle.is-selected.collapsed,
-        html.theme-silver .majordome-management-log-date-toggle.is-selected[aria-expanded="false"],
-        html.theme-silver .majordome-management-log-date-toggle.is-active.collapsed,
-        html.theme-silver .majordome-management-log-date-toggle.is-active[aria-expanded="false"] {
-            color: #111827;
-        }
+    :where(html[data-background-theme="light"]) .majordome-management-log-date-toggle {
+        column-gap: .25rem;
+        padding-inline: .45rem;
+    }
 
-    .majordome-management-log-date-main {
+    html[data-background-theme="light"] #majordomeManagementLogMenu .majordome-management-log-date-toggle {
+        background: var(--gtx-gradient-base);
+        background: linear-gradient(180deg,
+            color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 6%, transparent),
+            color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 9%, transparent)),
+            var(--gtx-gradient-base);
+    }
+
+    :where(html[data-background-theme="light"]) .majordome-management-log-date-toggle[aria-current="true"] .majordome-management-log-option-date {
+        text-decoration: underline;
+        text-underline-offset: .2em;
+    }
+
+    :where(html[data-background-theme="light"]) .majordome-management-log-date-main {
         min-width: 0;
         flex: 1 1 auto;
         display: flex;
         align-items: center;
     }
 
+    .majordome-management-log-date-icon {
+        flex-shrink: 0;
+    }
+
+    :where(html[data-background-theme="light"]) .majordome-management-log-date-icon {
+        display: none;
+    }
+
     .majordome-management-log-date-count {
-        margin-left: auto;
         flex: 0 0 auto;
+        font-variant-numeric: tabular-nums;
+    }
+
+    :where(html[data-background-theme="light"]) .majordome-management-log-date-count {
+        font-size: 1rem;
     }
 
     .majordome-management-log-status-list {
         display: grid;
+    }
+
+    :where(html[data-background-theme="light"]) .majordome-management-log-status-list {
         gap: .25rem;
         padding: .45rem;
         border-top: 1px solid var(--inventory-line);
@@ -2519,17 +2493,20 @@ body.majordome-inventory-page .body-content {
 
     .majordome-management-log-status {
         width: 100%;
-        min-height: 2.25rem;
-        display: flex;
-        align-items: center;
         justify-content: space-between;
-        gap: .6rem;
-        padding: .4rem .55rem .4rem 1.7rem;
         border: 0;
-        border-radius: .5rem;
         background: transparent;
         color: var(--inventory-ink);
         text-align: left;
+    }
+
+    :where(html[data-background-theme="light"]) .majordome-management-log-status {
+        min-height: 2.25rem;
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        padding: .4rem .55rem .4rem 1.7rem;
+        border-radius: .5rem;
     }
 
         .majordome-management-log-status:hover,
@@ -2556,10 +2533,13 @@ body.majordome-inventory-page .body-content {
         align-items: center;
         gap: .45rem;
         overflow: hidden;
-        font-size: .86rem;
-        font-weight: 800;
         text-overflow: ellipsis;
         white-space: nowrap;
+    }
+
+    :where(html[data-background-theme="light"]) .majordome-management-log-status-label {
+        font-size: .86rem;
+        font-weight: 800;
     }
 
         .majordome-management-log-status-label i {
@@ -2573,11 +2553,12 @@ body.majordome-inventory-page .body-content {
 
     .majordome-management-log-option-date {
         min-width: 0;
-        font-family: inherit;
-        font-size: .75rem;
-        font-weight: 600;
-        line-height: 1.35;
         white-space: normal;
+    }
+
+    :where(html[data-background-theme="light"]) .majordome-management-log-option-date {
+        font-size: .9rem;
+        line-height: 1.35;
     }
 
     .majordome-management-table-wrap {
@@ -2606,7 +2587,7 @@ body.majordome-inventory-page .body-content {
             top: 0;
             z-index: 2;
             padding: .42rem .5rem;
-            background: var(--inventory-header-bg);
+            background: var(--gtx-palette-header-background);
             color: var(--inventory-header-color);
             font-size: .74rem;
             font-weight: 700;
@@ -2670,7 +2651,7 @@ body.majordome-inventory-page .body-content {
         }
 
         #majordomeManagementGrid .pg-grid-table thead {
-            background: var(--inventory-header-bg);
+            background: var(--gtx-palette-header-background);
         }
 
         #majordomeManagementGrid .pg-th-label,
@@ -2696,8 +2677,7 @@ body.majordome-inventory-page .body-content {
             box-shadow: inset -3px 0 0 var(--inventory-selected-accent);
         }
 
-        #majordomeManagementGrid .majordome-management-toggle,
-        #majordomeManagementGrid .inventory-dashboard-details-button {
+        #majordomeManagementGrid .majordome-management-toggle {
             padding: 0;
             font-size: inherit;
         }
@@ -2863,11 +2843,6 @@ body.majordome-inventory-page .body-content {
         text-overflow: ellipsis;
     }
 
-    .majordome-management-shell .inventory-dashboard-details-button {
-        width: 1.75rem;
-        min-height: 1.75rem;
-    }
-
     .majordome-vin-line {
         font-family: var(--bs-font-monospace);
         letter-spacing: .01em;
@@ -2888,10 +2863,6 @@ body.majordome-inventory-page .body-content {
             max-height: 22rem;
             border-right: 0;
             border-bottom: 1px solid var(--inventory-line);
-        }
-
-        .majordome-management-log-picker {
-            max-height: none;
         }
 
         .majordome-management-results {
@@ -2975,20 +2946,7 @@ body.majordome-inventory-page .body-content {
         }
 
         .majordome-editor-hero {
-            color: #fff;
             padding: .55rem 1.1rem;
-            position: relative;
-        }
-
-        .majordome-editor-hero::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #facc15 0%, #0f766e 55%, #6366f1 100%);
-            opacity: .9;
         }
 
         .majordome-editor-title {
@@ -3443,7 +3401,7 @@ body.majordome-inventory-page .body-content {
     background: color-mix(in srgb, var(--role-editor-accent) 5%, var(--role-editor-surface));
 }
 #roleModalBody .role-editor-permission .form-check-input { flex: 0 0 2.15rem; width: 2.15rem; height: 1.15rem; margin: 0; cursor: pointer; }
-#roleModalBody .role-editor-permission .form-check-input:checked { background-color: var(--role-editor-accent); border-color: var(--role-editor-accent); }
+:where(html:not([data-background-theme="dark"])) #roleModalBody .role-editor-permission .form-check-input:checked { background-color: var(--role-editor-accent); border-color: var(--role-editor-accent); }
 #roleModalBody .role-editor-permission .form-check-input:disabled { cursor: default; }
 #roleModalBody .role-editor-permission .form-check-label { flex: 1; font-size: .85rem; font-weight: 500; cursor: pointer; }
 #roleModalBody .role-editor-permission:focus-within { border-color: var(--role-editor-accent); }
@@ -3456,13 +3414,17 @@ body.majordome-inventory-page .body-content {
 #roleModalBody .input-group-text { border-radius: .65rem 0 0 .65rem; color: var(--role-editor-accent); }
 #roleModalBody .input-group > .form-control { border-top-left-radius: 0; border-bottom-left-radius: 0; }
 #roleModalBody .role-editor-footer { margin-top: .5rem; padding-bottom: 0 !important; background: transparent; }
-html[data-background-theme="dark"] #roleModalBody { --role-editor-surface: #192330; color: #e2e8f0; --bs-secondary-color: #aab9cc; }
+html[data-background-theme="dark"] #roleModalBody {
+    --role-editor-surface: #192330;
+    --bs-secondary-color: #aab9cc;
+    background: transparent;
+}
 @media (prefers-reduced-motion: reduce) {
     #roleModalBody .role-editor-permission { transition: none; }
 }
 
-/* Majordome navigation and inventory layout use the Actions menu's icon-and-description rows. */
-html body :is(#MajordomeLink, #AboutMenuLink, #inventoryCardLayoutPicker, #inventorySortPicker) > .majordome-batch-actions-menu {
+/* Majordome navigation, Management dates, and inventory layout share the Actions menu styles. */
+html body :is(#MajordomeLink, #AboutMenuLink, #inventoryCardLayoutPicker, #inventorySortPicker, .majordome-management-log-period .dropdown) > .majordome-batch-actions-menu {
     width: min(18rem, calc(100vw - 1rem));
     max-height: calc(100dvh - 8rem);
     overflow-y: auto;
@@ -3470,8 +3432,11 @@ html body :is(#MajordomeLink, #AboutMenuLink, #inventoryCardLayoutPicker, #inven
     border: 1px solid var(--inventory-border);
     background: var(--inventory-surface) !important;
 }
-:is(#MajordomeLink, #AboutMenuLink, #inventoryCardLayoutPicker, #inventorySortPicker) > .majordome-batch-actions-menu > li { margin: 0; }
-html body :is(#MajordomeLink, #AboutMenuLink, #inventoryCardLayoutPicker, #inventorySortPicker) > .majordome-batch-actions-menu > li > .majordome-batch-action {
+#majordome-management-sidebar-pane .majordome-management-log-period .majordome-batch-actions-menu {
+    width: min(12rem, calc(100vw - 1rem));
+}
+:is(#MajordomeLink, #AboutMenuLink, #inventoryCardLayoutPicker, #inventorySortPicker, .majordome-management-log-period .dropdown) > .majordome-batch-actions-menu > li { margin: 0; }
+html body :is(#MajordomeLink, #AboutMenuLink, #inventoryCardLayoutPicker, #inventorySortPicker, .majordome-management-log-period .dropdown) > .majordome-batch-actions-menu > li > .majordome-batch-action {
     display: grid;
     grid-template-columns: 2.15rem minmax(0, 1fr);
     gap: .7rem;
@@ -3481,8 +3446,8 @@ html body :is(#MajordomeLink, #AboutMenuLink, #inventoryCardLayoutPicker, #inven
     text-decoration: none;
     white-space: normal;
 }
-html body :is(#MajordomeLink, #AboutMenuLink, #inventoryCardLayoutPicker, #inventorySortPicker) > .majordome-batch-actions-menu > li > .majordome-batch-action:is(:hover, :focus-visible),
-    :is(#inventoryCardLayoutPicker, #inventorySortPicker) .majordome-batch-action.active {
+html body :is(#MajordomeLink, #AboutMenuLink, #inventoryCardLayoutPicker, #inventorySortPicker, .majordome-management-log-period .dropdown) > .majordome-batch-actions-menu > li > .majordome-batch-action:is(:hover, :focus-visible),
+    :is(#inventoryCardLayoutPicker, #inventorySortPicker, .majordome-management-log-period) .majordome-batch-action.active {
     color: var(--inventory-ink);
     background: var(--inventory-surface-alt);
 }

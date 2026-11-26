@@ -4,27 +4,35 @@
         JsonConvert.SerializeObject(ViewBag.InventoryManagementLogs ?? Array.Empty<object>()));
 }
 
+@helper ManagementLogPeriodDropdown(string id, string caption, string emptyLabel, string icon, string alignmentClass = "")
+{
+    <div class="dropdown">
+        <button id="@id" type="button" class="btn btn-sm btn-gradient dropdown-toggle rounded-4 shadow w-100 d-flex align-items-center gap-1"
+                data-button-tone="new" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy":"fixed"}' data-empty-label="@emptyLabel"
+                aria-expanded="false" aria-controls="@(id + "Menu")" aria-labelledby="@(id + "Caption " + id + "Label")" disabled>
+            <i class="bi @icon" aria-hidden="true"></i>
+            <span id="@(id + "Caption")" class="visually-hidden">@caption</span>
+            <span id="@(id + "Label")" class="text-truncate">@emptyLabel</span>
+        </button>
+        <ul id="@(id + "Menu")" class="dropdown-menu @alignmentClass rounded majordome-batch-actions-menu p-1 shadow" aria-labelledby="@id"></ul>
+    </div>
+}
+
 <div class="majordome-management-page container-fluid px-4">
     <div class="majordome-management-shell">
         <div class="majordome-management-workspace">
             <aside id="majordome-management-sidebar-pane" class="majordome-management-sidebar-pane">
-                <div class="dropdown majordome-management-log-picker">
-                    <div class="majordome-management-log-period" aria-label="Filter inventory dates">
-                        <div>
-                            <select id="majordomeManagementLogYear" class="form-select form-select-sm" aria-label="Filter inventory dates by year"></select>
-                        </div>
-                        <div>
-                            <select id="majordomeManagementLogMonth" class="form-select form-select-sm" aria-label="Filter inventory dates by month"></select>
-                        </div>
-                    </div>
-                    <select id="majordomeManagementLogSelect" class="d-none" aria-hidden="true"></select>
-                    <div id="majordomeManagementLogMenu" class="majordome-management-log-tree" role="tree" aria-label="Inventory management log filters"></div>
+                <div class="majordome-management-log-period" aria-label="Filter inventory dates">
+                    @ManagementLogPeriodDropdown("majordomeManagementLogYear", "Filter inventory dates by year", "No years", "bi-calendar")
+                    @ManagementLogPeriodDropdown("majordomeManagementLogMonth", "Filter inventory dates by month", "No months", "bi-calendar-month", "dropdown-menu-end")
                 </div>
+                <select id="majordomeManagementLogSelect" class="d-none" aria-hidden="true"></select>
+                <div id="majordomeManagementLogMenu" class="majordome-management-log-tree" role="tree" aria-label="Inventory management log filters"></div>
             </aside>
             <div id="majordome-management-results" class="majordome-management-results">
                 <div class="d-none">
                     <div>
-                        <button type="button" id="inventoryManagementUploadInventoryButton" class="btn btn-gradient shadow inventory-management-upload-button">
+                        <button type="button" id="inventoryManagementUploadInventoryButton" class="btn btn-gradient shadow inventory-management-upload-button" data-button-tone="new">
                             <i class="bi bi-cloud-arrow-up-fill me-1" aria-hidden="true"></i>Upload inventory
                         </button>
                         <input type="file" name="dataCsv" id="inventoryManagementDataCsv" class="d-none" accept=".csv,text/csv" />
@@ -89,7 +97,7 @@
                 <div id="inventoryManagementRollbackStatus" class="small mt-3" aria-live="polite"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary inventory-management-rollback-close" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>
+                <button type="button" class="btn btn-outline-secondary inventory-management-rollback-close" data-button-tone="danger" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>
                 <button type="button" id="inventoryManagementRollbackConfirm" class="btn btn-danger" disabled>
                     <span id="inventoryManagementRollbackSpinner" class="spinner-border spinner-border-sm me-2 d-none" aria-hidden="true"></span>
                     <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i>Delete latest and restore previous
@@ -631,6 +639,38 @@
             });
         }
 
+        function renderMajordomeManagementPeriodPicker(id, values, selectedValue, labelFor = managementText) {
+            const $toggle = $(`#${id}`);
+            const $menu = $(`#${id}Menu`).empty();
+            $toggle.prop("disabled", !values.length);
+            $(`#${id}Label`).text(selectedValue ? labelFor(selectedValue) : $toggle.attr("data-empty-label"));
+
+            values.forEach(function (value) {
+                const selected = value === selectedValue;
+                const $icon = $("<span>", { class: "majordome-batch-action-icon", "aria-hidden": "true" })
+                    .append($toggle.children(".bi").clone());
+                const $option = $("<button>", {
+                    type: "button",
+                    class: "dropdown-item majordome-batch-action rounded-3",
+                    "data-management-period-value": value,
+                    "aria-pressed": String(selected)
+                }).toggleClass("active", selected).append($icon, $("<strong>").text(labelFor(value)));
+                $("<li>").append($option).appendTo($menu);
+            });
+        }
+
+        function bindMajordomeManagementPeriodPicker(id, onSelect) {
+            const toggle = document.getElementById(id);
+            $(`#${id}Menu`).on("click", "[data-management-period-value]", function () {
+                window.bootstrap?.Dropdown.getInstance(toggle)?.hide();
+                toggle.focus({ preventScroll: true });
+                if (this.classList.contains("active")) return;
+
+                onSelect(this.dataset.managementPeriodValue);
+                renderMajordomeManagementLogs();
+            });
+        }
+
         function syncMajordomeManagementLogPeriod(preferredLogId) {
             const preferredLog = preferredLogId && majordomeManagementLogs.find(function (log) {
                 return managementText(managementValue(log, "Id", "")) === managementText(preferredLogId);
@@ -648,27 +688,12 @@
                 return Number(right) - Number(left);
             });
 
-            const $year = $("#majordomeManagementLogYear").empty();
-            if (!years.length) {
-                majordomeManagementSelectedYear = "";
-                majordomeManagementSelectedMonth = "";
-                $year.prop("disabled", true).append($("<option>").val("").text("No years"));
-                $("#majordomeManagementLogMonth")
-                    .empty()
-                    .prop("disabled", true)
-                    .append($("<option>").val("").text("No months"));
-                return;
-            }
-
             if (years.indexOf(majordomeManagementSelectedYear) < 0) {
-                majordomeManagementSelectedYear = years[0];
+                majordomeManagementSelectedYear = years[0] || "";
                 majordomeManagementSelectedMonth = "";
             }
 
-            years.forEach(function (year) {
-                $("<option>").val(year).text(year).appendTo($year);
-            });
-            $year.prop("disabled", false).val(majordomeManagementSelectedYear);
+            renderMajordomeManagementPeriodPicker("majordomeManagementLogYear", years, majordomeManagementSelectedYear);
 
             const months = managementUniquePeriods(majordomeManagementLogs.map(function (log) {
                 const period = managementLogPeriod(log);
@@ -681,14 +706,9 @@
                 majordomeManagementSelectedMonth = months[0] || "";
             }
 
-            const $month = $("#majordomeManagementLogMonth").empty();
-            months.forEach(function (month) {
-                $("<option>")
-                    .val(month)
-                    .text(majordomeManagementMonthNames[Number(month) - 1] || month)
-                    .appendTo($month);
+            renderMajordomeManagementPeriodPicker("majordomeManagementLogMonth", months, majordomeManagementSelectedMonth, function (month) {
+                return majordomeManagementMonthNames[Number(month) - 1] || month;
             });
-            $month.prop("disabled", !months.length).val(majordomeManagementSelectedMonth);
         }
 
         function filteredMajordomeManagementLogs() {
@@ -774,6 +794,7 @@
         function renderMajordomeManagementLogTreeItem(log, index) {
             const id = managementText(managementValue(log, "Id", ""));
             const dateCreated = managementValue(log, "DateCreated", "");
+            const dateLabel = managementFormatShortDate(dateCreated) || "No date";
             const collapseId = managementLogTreeId(id);
             const expanded = index === 0 ? "true" : "false";
             const showClass = index === 0 ? " show" : "";
@@ -806,9 +827,10 @@
                             aria-expanded="${expanded}"
                             aria-controls="${managementEscapeHtml(collapseId)}">
                         <span class="majordome-management-log-date-main">
-                            <span class="majordome-management-log-option-date text-shadow-small">${managementEscapeHtml(managementFormatDate(dateCreated))}</span>
+                            <i class="bi bi-calendar3 majordome-management-log-date-icon text-shadow-small" aria-hidden="true"></i>
+                            <span class="majordome-management-log-option-date text-shadow-small">${managementEscapeHtml(dateLabel)}</span>
                         </span>
-                        <span class="badge rounded-pill bg-dark majordome-management-log-date-count">${managementEscapeHtml(managementFormatInteger(total))}</span>
+                        <span class="majordome-management-log-date-count">${managementEscapeHtml(managementFormatInteger(total))}</span>
                     </button>
                     <div id="${managementEscapeHtml(collapseId)}" class="collapse${showClass}" data-bs-parent="#majordomeManagementLogMenu">
                         <div class="majordome-management-log-status-list" role="group">
@@ -828,7 +850,7 @@
 
             if (!majordomeManagementLogs.length) {
                 $select.prop("disabled", true).append($("<option>").text("No inventory logs found").val(""));
-                $menu.html(`<div class="text-muted small px-2 py-3">No inventory logs found.</div>`);
+                $menu.html(`<div class="small px-2 py-3">No inventory logs found.</div>`);
                 syncMajordomeManagementLogPicker();
                 setMajordomeManagementRows([]);
                 syncInventoryManagementRollbackAvailability();
@@ -838,7 +860,7 @@
             const visibleLogs = filteredMajordomeManagementLogs();
             if (!visibleLogs.length) {
                 $select.prop("disabled", true).append($("<option>").text("No inventory logs found").val(""));
-                $menu.html(`<div class="text-muted small px-2 py-3">No inventory logs found for the selected month.</div>`);
+                $menu.html(`<div class="small px-2 py-3">No inventory logs found for the selected month.</div>`);
                 syncMajordomeManagementLogPicker();
                 setMajordomeManagementRows([]);
                 syncInventoryManagementRollbackAvailability();
@@ -1042,7 +1064,7 @@
                 StatusHtml: `<span class="badge rounded-pill ${statusClass} shadow">${managementEscapeHtml(statusText)}</span>`,
                 DetailsHtml: `
                     <button type="button"
-                            class="btn btn-outline-secondary inventory-dashboard-details-button"
+                            class="btn btn-gradient-grey shadow-sm inventory-dashboard-details-button"
                             data-dashboard-details-stock="${managementEscapeHtml(stock)}"
                             data-dashboard-details-title="${managementEscapeHtml(vehicleTitle)}"
                             title="Show vehicle details">
@@ -1189,15 +1211,13 @@
             $("#inventoryManagementRollbackAcknowledge").on("change", syncInventoryManagementRollbackConfirmation);
             $("#inventoryManagementRollbackConfirm").on("click", rollbackLatestInventoryUpload);
 
-            $("#majordomeManagementLogYear").on("change", function () {
-                majordomeManagementSelectedYear = managementText($(this).val());
+            bindMajordomeManagementPeriodPicker("majordomeManagementLogYear", function (year) {
+                majordomeManagementSelectedYear = year;
                 majordomeManagementSelectedMonth = "";
-                renderMajordomeManagementLogs();
             });
 
-            $("#majordomeManagementLogMonth").on("change", function () {
-                majordomeManagementSelectedMonth = managementText($(this).val());
-                renderMajordomeManagementLogs();
+            bindMajordomeManagementPeriodPicker("majordomeManagementLogMonth", function (month) {
+                majordomeManagementSelectedMonth = month;
             });
 
             $("#majordomeManagementGrid")

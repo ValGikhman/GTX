@@ -110,11 +110,11 @@
             <div class="d-flex align-items-center gap-2">
 
                 <!-- Make logo -->
-                <div class="flex-shrink-0 d-flex align-items-center gtx-make-logo-wrap">
+                <div class="flex-shrink-0 d-flex align-items-center rounded-4 gtx-make-logo-wrap">
                     <img src="@makeImg"
                          alt="@Model.Make logo"
                          data-make="@Model.Make"
-                         class="img-fluid gtx-make-logo"
+                         class="img-fluid rounded-4 gtx-make-logo"
                          loading="@logoLoadingMode"
                          decoding="async" />
                 </div>
@@ -173,7 +173,7 @@
             </div>
 
             <button type="button"
-                    class="gtx-compare-toggle"
+                    class="gtx-compare-toggle btn btn-sm btn-gradient rounded-4 shadow d-inline-flex align-items-center gap-1"
                     data-stock="@Model.Stock"
                     data-add-title="@I18n.R("Compare_Add")"
                     data-remove-title="@I18n.R("Compare_Remove")"
@@ -280,8 +280,8 @@
                         <span><i class="bi bi-patch-check-fill text-warning me-1"></i>@I18n.R("All_TransparentPrice")</span>
                         <span class="gtx-price-amount">@transparentPrice.ToString("C0", usCulture)</span>
                     </div>
-                    <span class="gtx-no-hidden-fees shadow mt-1">
-                        <i class="bi bi-shield-check"></i>
+                    <span class="gtx-no-hidden-fees d-flex mw-100 mx-auto mt-1 text-center shadow">
+                        <i class="bi bi-shield-check flex-shrink-0"></i>
                         @I18n.R("All_NoHiddenFees")
                     </span>
                 </a>
@@ -294,14 +294,14 @@
             </div>
 
             <div class="gtx-card-actions mb-2">
-                <a class="gtx-card-action d-inline-flex align-items-center justify-content-center gap-1 px-2 shadow"
+                <a class="gtx-card-action d-inline-flex align-items-center justify-content-center gap-1 px-2 shadow light-gradient-action"
                    href="@creditApplicationUrl"
                    onclick="event.stopPropagation();"
                    title="@creditApplicationText">
                     <i class="bi bi-currency-dollar"></i>
                     <span class="text-truncate">@creditApplicationText</span>
                 </a>
-                <a class="gtx-card-action d-inline-flex align-items-center justify-content-center px-2 shadow"
+                <a class="gtx-card-action d-inline-flex align-items-center justify-content-center px-2 shadow light-gradient-action"
                    href="http://www.carfax.com/VehicleHistory/p/Report.cfx?partner=DVW_1&vin=@Model.VIN"
                    target="_blank"
                    rel="noopener"

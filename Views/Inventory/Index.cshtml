@@ -215,33 +215,11 @@
         right: .65rem;
         top: .65rem;
         z-index: 4;
-        display: inline-flex;
-        align-items: center;
-        gap: .35rem;
-        border: 1px solid color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 55%, #fff);
-        border-radius: 999px;
-        padding: .38rem .7rem;
-        background: var(--gtx-grad, var(--gtx-accent-solid, #1e73be));
-        color: #fff;
-        font-size: .76rem;
-        font-weight: 800;
-        box-shadow: 0 .5rem 1.25rem color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 36%, transparent);
-        backdrop-filter: blur(7px);
-        transition: background-color .18s ease, transform .18s ease, box-shadow .18s ease;
     }
 
-        .gtx-compare-toggle:hover,
-        .gtx-compare-toggle:focus-visible {
-            background: var(--gtx-grad-rev, var(--gtx-grad, var(--gtx-accent-solid, #1e73be)));
-            color: #fff;
-            transform: translateY(-1px);
-        }
-
-        .gtx-compare-toggle.is-selected {
-            border-color: #fff;
-            background: linear-gradient( 180deg, #fff, color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 15%, #fff));
-            color: var(--gtx-accent-solid, #1e73be);
-            box-shadow: 0 0 0 .22rem color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 28%, transparent), 0 .5rem 1.25rem color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 42%, transparent);
+        html[data-background-theme] .gtx-compare-toggle.is-selected {
+            border-color: currentColor !important;
+            box-shadow: 0 0 0 .22rem color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 28%, transparent), var(--bs-box-shadow) !important;
         }
 
     .inventory-compare-bar {
@@ -320,34 +298,6 @@
         color: var(--gtx-accent-solid, #1e73be);
         font-weight: 850;
     }
-
-    #inventoryCompareOpen {
-        border-color: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 62%, #fff);
-        border-radius: 999px;
-        padding: .48rem .82rem;
-        background: var(--gtx-grad, var(--gtx-accent-solid, #1e73be));
-        color: #fff;
-        font-weight: 800;
-        box-shadow: 0 .4rem 1rem color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 30%, transparent);
-        transition: background-color .18s ease, transform .18s ease, box-shadow .18s ease;
-    }
-
-        #inventoryCompareOpen:hover,
-        #inventoryCompareOpen:focus-visible {
-            border-color: #fff;
-            background: var(--gtx-grad-rev, var(--gtx-grad, var(--gtx-accent-solid, #1e73be)));
-            color: #fff;
-            transform: translateY(-1px);
-            box-shadow: 0 .55rem 1.2rem color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 38%, transparent);
-        }
-
-        #inventoryCompareOpen:disabled {
-            border-color: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 20%, #cbd5e1);
-            background: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 35%, #cbd5e1);
-            color: rgba(255, 255, 255, .9);
-            box-shadow: none;
-            opacity: .72;
-        }
 
     #inventoryCompareClear {
         border-radius: .75rem;
@@ -468,26 +418,16 @@
         margin-bottom: .5rem;
     }
 
-    html body .modal.vehicle-comparison-modal .modal-header {
-        color: #fff !important;
-        background: var(--gtx-grad, linear-gradient(135deg, #0b5ed7, #163a72)) !important;
-    }
-
     .vehicle-comparison-modal-header-copy {
         min-width: 0;
     }
 
     .vehicle-comparison-modal-kicker {
-        color: rgba(255, 255, 255, .76);
         font-size: .66rem;
         font-weight: 800;
         letter-spacing: .08em;
         line-height: 1.1;
         text-transform: uppercase;
-    }
-
-    html body .modal.vehicle-comparison-modal .modal-header .btn-close {
-        filter: invert(1) grayscale(100%) brightness(220%) !important;
     }
 
     .vehicle-comparison-ai {
@@ -968,7 +908,7 @@
         <div class="offcanvas-header inventory-filter-offcanvas-header d-lg-none">
             <button type="button"
                     id="inventoryClearFilters"
-                    class="btn btn-sm btn-gradient-grey border-dark rounded-3 shadow text-black fw-bold inventory-clear-btn inventory-filter-offcanvas-clear-btn"
+                    class="btn btn-sm btn-gradient-grey border-dark rounded-3 shadow text-black fw-bold inventory-clear-btn inventory-filter-offcanvas-clear-btn light-gradient-action"
                     title="@inventoryClearTitle"
                     aria-label="@inventoryClearTitle">
                 <i class="bi @inventoryClearIcon"></i>
@@ -1017,7 +957,7 @@
                     </span>
                     <button type="button"
                             id="inventoryMobileClearFilters"
-                            class="btn btn-gradient-grey border-black shadow rounded-4 inventory-mobile-filter-action-btn inventory-mobile-clear-btn"
+                            class="btn btn-gradient-grey border-black shadow rounded-4 inventory-mobile-filter-action-btn inventory-mobile-clear-btn light-gradient-action"
                             title="@(hasServerInventoryFilter ? inventoryClearTitle : I18n.R("Filter_ClearFilters"))"
                             aria-label="@(hasServerInventoryFilter ? inventoryClearTitle : I18n.R("Filter_ClearFilters"))">
                         <i class="bi @inventoryClearIcon"></i>
@@ -1029,7 +969,7 @@
 
         <div class="inventory-empty-filter shadow-sm p-4 mb-3 text-center">
             No vehicles match the selected filters.
-            <button type="button" id="inventoryEmptyReset" class="btn btn-gradient-grey border-dark rounded-3 shadow d-block mx-auto mt-3">
+            <button type="button" id="inventoryEmptyReset" class="btn btn-gradient-grey border-dark rounded-3 shadow d-block mx-auto mt-3 light-gradient-action">
                 Reset — show all inventory
             </button>
         </div>
@@ -1107,7 +1047,7 @@
             <button type="button" id="inventoryCompareClear" class="btn rounded-4 border-0 shadow">
                 <i class="bi bi-eraser me-1" aria-hidden="true"></i>Clear
             </button>
-            <button type="button" id="inventoryCompareOpen" class="btn btn-sm" disabled>
+            <button type="button" id="inventoryCompareOpen" class="btn btn-sm btn-gradient rounded-4 shadow text-nowrap align-self-center" disabled>
                 <i class="bi bi-stars me-1" aria-hidden="true"></i>Compare
             </button>
         </div>

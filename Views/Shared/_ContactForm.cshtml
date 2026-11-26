@@ -4,15 +4,17 @@
 <style>
     .just-validate-error-field {
         border: 1px solid red !important;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='red' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 100 20 10 10 0 000-20zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 10px center;
-        background-size: 24px;
+        --gtx-contact-validation-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='red' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 100 20 10 10 0 000-20zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z'/%3E%3C/svg%3E");
     }
 
     .just-validate-success-field {
         border: 1px solid green;
-        background-image: url('data:image/svg+xml;utf8,<svg fill="green" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M9 16.17l-4.17-4.17L3.59 13.59 9 19l12-12-1.41-1.41z"/></svg>');
+        --gtx-contact-validation-icon: url('data:image/svg+xml;utf8,<svg fill="green" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M9 16.17l-4.17-4.17L3.59 13.59 9 19l12-12-1.41-1.41z"/></svg>');
+    }
+
+    .just-validate-error-field,
+    .just-validate-success-field {
+        background-image: var(--gtx-contact-validation-icon);
         background-repeat: no-repeat;
         background-position: right 10px center;
         background-size: 24px;
@@ -122,7 +124,7 @@
 
             <!-- Consent / legal -->
 
-            <div class="mt-1 p-3 border rounded-4 bg-body-tertiary shadow">
+            <div class="contact-form-consent mt-1 p-3 border rounded-4 bg-body-tertiary shadow">
                 <p class="mb-0 small-text text-body-secondary lh-sm">
                     By clicking <strong class="text-body">“Send”</strong>, I consent to be contacted by
                     <a href="https://usedcarscincinnati.com" target="_blank">usedcarscincinnati.com ®</a>usedcarscincinnati.com</a> and the dealer selling this vehicle

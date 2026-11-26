@@ -3,21 +3,42 @@
 @{
     var siteProfile = GTX.SiteProfileStore.Current;
     var companyShortName = siteProfile.GetShortCompanyName();
+    const string retiredTextureKey = "palette-crimson-carbon";
+    const string carbonWeaveKey = "palette-carbon-weave";
+    Func<string, string> migrateTextureKey = value => value == retiredTextureKey ? carbonWeaveKey : value;
     var colorThemeGroups = new[]
     {
-        new { Title = "GTX colors", Keys = new[] { "blue", "grey", "navy", "green", "red", "silver", "black" } },
-        new { Title = "GTX Textures", Keys = new[] { "palette-smoke", "palette-brushed-steel", "palette-carbon-mesh", "palette-carbon-twill", "palette-carbon-check", "palette-forged-carbon", "palette-ember-carbon", "palette-carbon-satin", "palette-carbon-gloss", "palette-blackened-steel", "palette-steel-braid", "palette-carbon-ripple", "palette-crimson-carbon" } },
-        new { Title = "More colors", Keys = new[] { "palette-cobalt", "palette-graphite", "palette-cornflower", "palette-slate", "palette-mist", "palette-teal", "palette-leaf", "palette-sage", "palette-sand", "palette-lilac" } }
+        new { Id = "themeGroupColors", Title = "Colors", Keys = new[]
+        {
+            "silver", "grey", "palette-graphite", "black",
+            "blue", "palette-cobalt", "palette-cornflower", "palette-slate", "navy", "midnight-blue", "palette-mist",
+            "palette-teal", "green", "palette-leaf", "palette-sage",
+            "palette-sand", "red", "dark-brown",
+            "palette-lilac", "deep-plum"
+        } },
+        new { Id = "themeGroupTextures", Title = "Textures", Keys = new[]
+        {
+            "palette-smoke", "palette-brushed-steel", "palette-carbon-mesh", "palette-carbon-twill",
+            "palette-carbon-check", "palette-forged-carbon", "palette-ember-carbon", "palette-carbon-satin",
+            "palette-carbon-gloss", "palette-steel-braid", "palette-carbon-ripple", carbonWeaveKey
+        } }
     };
     var themeKeys = colorThemeGroups.SelectMany(group => group.Keys).ToArray();
-    Func<string, string> themeName = key => System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(key.Replace("palette-", "").Replace('-', ' '));
-    var t = (Request.Cookies["gtx-theme"]?.Value ?? "blue").ToLowerInvariant();
+    var textureThemeKeys = colorThemeGroups.Single(group => group.Id == "themeGroupTextures").Keys;
+    Func<string, string> themeName = key => key == "blue"
+        ? "Default"
+        : System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(key.Replace("palette-", "").Replace('-', ' '));
+    var t = migrateTextureKey((Request.Cookies["gtx-theme"]?.Value ?? "blue").ToLowerInvariant());
     var controllerName = (ViewContext.RouteData.Values["controller"] ?? string.Empty).ToString();
     var actionName = (ViewContext.RouteData.Values["action"] ?? string.Empty).ToString();
     var isHomeIndexPage = controllerName.Equals("Home", StringComparison.OrdinalIgnoreCase)
         && actionName.Equals("Index", StringComparison.OrdinalIgnoreCase);
     var isMajordomeInventoryPage = controllerName.Equals(GTX.Common.Enums.Controllers.Majordome.ToString(), StringComparison.OrdinalIgnoreCase)
         && actionName.Equals("Inventory", StringComparison.OrdinalIgnoreCase);
+    var isMajordomePanelPage = GTX.Common.MajordomeMenu.Items.Any(item =>
+        item.Item != GTX.Common.MajordomeItem.InventoryDashboard
+        && controllerName.Equals(item.Controller, StringComparison.OrdinalIgnoreCase)
+        && actionName.Equals(item.Action, StringComparison.OrdinalIgnoreCase));
     var chatBotEnabled = ChatBotSettings.Enabled;
     var menuPermissions = ViewBag.MenuPermissions as string[] ?? new string[0];
     var needsAdminGrid = controllerName.Equals(GTX.Common.Enums.Controllers.Majordome.ToString(), StringComparison.OrdinalIgnoreCase)
@@ -84,14 +105,28 @@
         t = "blue";
     }
 
+    var texturePreference = migrateTextureKey((Request.Cookies["gtx-texture"]?.Value ?? "").ToLowerInvariant());
+    if (texturePreference != "none" && !textureThemeKeys.Contains(texturePreference))
+    {
+        texturePreference = "";
+    }
+    var textureTheme = texturePreference != "" ? texturePreference : (textureThemeKeys.Contains(t) ? t : "none");
+    if (textureThemeKeys.Contains(t))
+    {
+        t = textureTheme == "none" ? "blue" : textureTheme;
+    }
+
     var backgroundTheme = (Request.Cookies["gtx-background-theme"]?.Value ?? "light").ToLowerInvariant();
     if (backgroundTheme != "dark")
     {
         backgroundTheme = "light";
     }
+    var themeFinish = string.Equals(Request.Cookies["gtx-theme-finish"]?.Value, "solid", StringComparison.OrdinalIgnoreCase)
+        ? "solid" : "gradient";
     var themeClass = "theme-" + t;
 }
-<html class="@themeClass" data-background-theme="@backgroundTheme" data-bs-theme="@(backgroundTheme == "dark" ? "dark" : "light")">
+<html class="@themeClass" data-texture-theme="@textureTheme" data-texture-tinted="@(textureTheme != "none" && textureTheme != t ? "true" : "false")"
+      data-theme-finish="@themeFinish" data-background-theme="@backgroundTheme" data-bs-theme="@(backgroundTheme == "dark" ? "dark" : "light")">
 <head class="flex-shrink-0">
     <meta charset="utf-8" />
     @RenderSection("Meta", required: false)
@@ -118,16 +153,19 @@
 
             var KEY = "gtx-theme";
             const THEMES = @Html.Raw(System.Web.Helpers.Json.Encode(themeKeys));
+            const TEXTURES = @Html.Raw(System.Web.Helpers.Json.Encode(textureThemeKeys));
             function readPreference(key, fallback) {
                 try { return localStorage.getItem(key) || fallback; }
                 catch (e) { return fallback; }
             }
-            var t = readPreference(KEY, "@t");
+            const migrateTextureKey = value => value === "@retiredTextureKey" ? "@carbonWeaveKey" : value;
+            var t = migrateTextureKey(readPreference(KEY, "@t"));
             var root = document.documentElement;
             var background = readPreference("gtx-background-theme", root.dataset.backgroundTheme);
             if (background !== "dark") background = "light";
             root.dataset.backgroundTheme = background;
             root.dataset.bsTheme = background === "dark" ? "dark" : "light";
+            root.dataset.themeFinish = readPreference("gtx-theme-finish", root.dataset.themeFinish) === "solid" ? "solid" : "gradient";
 
             if (t === "pink") {
                 t = "navy";
@@ -140,6 +178,13 @@
             }
 
             if (THEMES.indexOf(t) < 0) t = "blue";
+            const storedTexture = migrateTextureKey(readPreference("gtx-texture", "@texturePreference"));
+            const nativeTexture = TEXTURES.includes(t);
+            const texture = storedTexture === "none" || TEXTURES.includes(storedTexture)
+                ? storedTexture : (nativeTexture ? t : "none");
+            if (nativeTexture) t = texture === "none" ? "blue" : texture;
+            root.dataset.textureTheme = texture;
+            root.dataset.textureTinted = String(texture !== "none" && texture !== t);
             // remove any theme classes first
             root.classList.remove(...THEMES.map(t => "theme-" + t));
             root.classList.remove("theme-pink", "theme-dark-green", "theme-dark-red", "theme-dark");
@@ -240,7 +285,7 @@
     <script src="~/Scripts/inventory.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/inventory.js")).Ticks)"></script>
 </head>
 
-<body class="main-container overflow-hidden d-flex flex-column min-vh-100 @(isHomeIndexPage ? "home-index" : string.Empty) @(isMajordomeInventoryPage ? "majordome-inventory-page" : string.Empty)">
+<body class="main-container overflow-hidden d-flex flex-column min-vh-100 @(isHomeIndexPage ? "home-index" : string.Empty) @(isMajordomeInventoryPage ? "majordome-inventory-page" : string.Empty) @(isMajordomePanelPage ? "majordome-panel-page" : string.Empty)">
     @Html.Partial("~/Views/Shared/_LoginModal.cshtml")
     <!-- Offcanvas open hours -->
     <div class="offcanvas-top-fixed-center" tabindex="-1" id="openHours" aria-labelledby="openHoursTitle">
@@ -375,7 +420,7 @@
                     <ul class="main-menu">
                         <li id="GTX-image" class="d-none d-md-inline-block mx-1"><a href="~/Home/Index"><img src="@Url.Content("~/img/demo/autodealer-logo-light.png")" width="180" alt="AutoDealer" /></a></li>
                         <li id="MajordomeLink" class="@_class mx-1">
-                            <a href="#" class="btn gradient shadow border-dark rounded-4 d-inline-flex align-items-center text-black">
+                            <a href="#" class="btn gradient shadow border-dark rounded-4 d-inline-flex align-items-center text-black light-gradient-action">
                                 <i class="bi bi-gear px-2"></i>
                             </a>
                             <ul class="dropdown rounded majordome-batch-actions-menu p-1 shadow">
@@ -439,24 +484,24 @@
                 <nav class="header__top d-none d-lg-flex">
                     <ul class="main-menu start-100 list-unstyled no-wrap-group">
                         <li class="mx-sm-1">
-                            <a class="btn btn-gradient-grey border border-dark rounded-4" id="btnOpenHoursDesktop" data-bs-toggle="offcanvas" data-bs-target="#openHours" aria-controls="openHours">
+                            <a class="btn btn-gradient-grey border border-dark rounded-4 light-gradient-action" id="btnOpenHoursDesktop" data-bs-toggle="offcanvas" data-bs-target="#openHours" aria-controls="openHours">
                                 <i class="bi bi-stopwatch"></i>
                                 <span id="schedule" class="schedule d-none d-xxl-inline m-sm-1"></span>
                             </a>
                         </li>
                         <li class="mx-sm-1">
-                            <a class="btn btn-gradient-grey border border-dark rounded-4" href="@siteProfile.PhoneUri">
+                            <a class="btn btn-gradient-grey border border-dark rounded-4 light-gradient-action" href="@siteProfile.PhoneUri">
                                 <i class="bi bi-telephone"></i>
                                 <span id="telephone" class="d-none d-xxl-inline m-sm-1">@siteProfile.Phone</span>
                             </a>
                         </li>
                         <li class="mx-sm-1">
-                            <a class="btn gradient shadow border-dark rounded-4" href="https://www.facebook.com/GTXAutoGroup" target="_blank" title="@siteProfile.CompanyName Facebook page">
+                            <a class="btn gradient shadow border-dark rounded-4 light-gradient-action" href="https://www.facebook.com/GTXAutoGroup" target="_blank" title="@siteProfile.CompanyName Facebook page">
                                 <i class="fa fa-facebook px-2"></i>
                             </a>
                         </li>
                         <li class="mx-sm-1">
-                            <a class="btn gradient shadow border-dark rounded-4" href="#" title="Log in" data-bs-toggle="modal" data-login-modal="true">
+                            <a class="btn gradient shadow border-dark rounded-4 light-gradient-action" href="#" title="Log in" data-bs-toggle="modal" data-login-modal="true">
                                 <i class="bi bi-person-circle px-1 role-icon"></i>
                                 <span class="role-text text-shadow-small fw-bold"></span>
                             </a>
@@ -474,7 +519,7 @@
                             <span class="fw-semibold">Menu</span>
                         </button>
                         <a id="btnOpenHours"
-                           class="btn btn-gradient-grey border-dark rounded-4 d-inline-flex align-items-center gap-2"
+                           class="btn btn-gradient-grey border-dark rounded-4 d-inline-flex align-items-center gap-2 light-gradient-action"
                            data-bs-toggle="offcanvas"
                            data-bs-target="#openHours"
                            aria-controls="openHours"
@@ -482,7 +527,7 @@
                             <i class="bi bi-stopwatch"></i>
                             <span class="schedule fw-semibold m-sm-1"></span>
                         </a>
-                        <a class="btn btn-gradient-grey border-dark rounded-4 d-inline-flex align-items-center gap-2"
+                        <a class="btn btn-gradient-grey border-dark rounded-4 d-inline-flex align-items-center gap-2 light-gradient-action"
                            href="@siteProfile.PhoneUri"
                            aria-label="Call @siteProfile.Phone">
                             <i class="bi bi-telephone"></i>
@@ -510,7 +555,7 @@
                 const root = document.documentElement;
                 const header = document.querySelector(".header.fixed-top");
                 const footer = document.querySelector(".footer-strip.fixed-bottom");
-                const headerHeight = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
+                const headerHeight = header ? header.getBoundingClientRect().height : 0;
                 const footerHeight = footer ? Math.ceil(footer.getBoundingClientRect().height) : 0;
 
                 root.style.setProperty("--gtx-header-height", `${headerHeight}px`);
@@ -595,31 +640,55 @@
                     <div class="dropdown">
                         <button class="btn btn-sm btn-gradient dropdown-toggle text-nowrap"
                                 type="button" id="themeDropdown" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                            <i id="backgroundThemeIcon" class="bi @(backgroundTheme == "dark" ? "bi-moon" : "bi-sun")" aria-hidden="true"></i> <span id="themeLabel">Blue</span><span class="visually-hidden">, <span id="backgroundThemeLabel">Light</span> background</span>
+                            <i id="backgroundThemeIcon" class="bi @(backgroundTheme == "dark" ? "bi-moon" : "bi-sun")" aria-hidden="true"></i> <span id="themeLabel">@themeName(t)</span><span id="textureThemeLabel" class="visually-hidden"></span><span class="visually-hidden">, <span id="backgroundThemeLabel">Light</span> background</span>
                         </button>
 
-                        <ul class="dropdown-menu dropdown-menu-end theme-dropdown-menu" aria-labelledby="themeDropdown">
-                            <li class="theme-menu-row theme-mode-row">
+                        <ul class="dropdown-menu dropdown-menu-end theme-dropdown-menu accordion rounded-4 shadow" aria-labelledby="themeDropdown">
+                            <li class="theme-mode-row d-grid gap-1">
                                 <div class="d-flex gap-1 border rounded-3 p-1" role="group" aria-label="Background theme">
                                     <button type="button" class="dropdown-item background-theme-item d-flex align-items-center justify-content-center gap-2 w-50" data-background="light"><i class="bi bi-sun" aria-hidden="true"></i> Light</button>
                                     <button type="button" class="dropdown-item background-theme-item d-flex align-items-center justify-content-center gap-2 w-50" data-background="dark"><i class="bi bi-moon" aria-hidden="true"></i> Dark</button>
                                 </div>
+                                <div class="d-flex gap-1 border rounded-3 p-1" role="group" aria-label="Color finish">
+                                    <button type="button" class="dropdown-item theme-finish-item d-flex align-items-center justify-content-center gap-2 w-50" data-finish="solid" aria-pressed="@(themeFinish == "solid" ? "true" : "false")"><i class="bi bi-square-fill" aria-hidden="true"></i> Solid</button>
+                                    <button type="button" class="dropdown-item theme-finish-item d-flex align-items-center justify-content-center gap-2 w-50" data-finish="gradient" aria-pressed="@(themeFinish == "gradient" ? "true" : "false")"><i class="bi bi-square-half" aria-hidden="true"></i> Gradient</button>
+                                </div>
                             </li>
                             @foreach (var group in colorThemeGroups)
                             {
-                                <li class="theme-menu-row"><span class="dropdown-header">@group.Title</span></li>
-                                foreach (var themeKey in group.Keys)
-                                {
-                                    <li>
-                                        <a class="dropdown-item theme-item h-100" href="#" data-theme="@themeKey">
-                                            <span class="theme-swatch d-block rounded-3" aria-hidden="true"></span>
-                                            <span class="d-flex align-items-center justify-content-between gap-1 mt-1">
-                                                <span class="theme-option-label text-break">@themeName(themeKey)</span>
-                                                <i class="bi bi-check-lg theme-selection-icon flex-shrink-0" aria-hidden="true"></i>
-                                            </span>
-                                        </a>
-                                    </li>
-                                }
+                                <li class="mt-1">
+                                    <button class="accordion-button collapsed dropdown-item fs-6 fw-bold text-body bg-body-tertiary border rounded-3 px-2 py-1"
+                                            type="button" data-bs-toggle="collapse" data-bs-target="#@group.Id" aria-expanded="false" aria-controls="@group.Id">
+                                        @group.Title
+                                    </button>
+                                    <div class="collapse" id="@group.Id">
+                                        @if (group.Id == "themeGroupTextures")
+                                        {
+                                            <button type="button" id="themeNoTexture" class="dropdown-item theme-item fw-semibold border rounded-3 mt-1" aria-pressed="false">
+                                                No texture
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" id="themeOriginalTextureColor" class="dropdown-item theme-item fw-semibold border rounded-3 mt-1" aria-pressed="false" hidden>
+                                                Original texture color
+                                            </button>
+                                        }
+                                        <ul class="row row-cols-4 g-1 list-unstyled mx-0 mb-1 mt-0" aria-label="@group.Title">
+                                            @foreach (var themeKey in group.Keys)
+                                            {
+                                                <li>
+                                                    <button type="button" class="dropdown-item theme-item rounded-3 h-100" data-theme="@themeKey" aria-pressed="false">
+                                                        <span class="theme-swatch d-block rounded-3" aria-hidden="true"></span>
+                                                        <span class="d-block mt-1">
+                                                            <span class="theme-option-label fw-semibold text-break">@themeName(themeKey)</span>
+                                                        </span>
+                                                    </button>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </li>
                             }
                         </ul>
                     </div>
@@ -746,10 +815,9 @@
                     ".gtx-confirm-modal{--gtx-confirm-accent:#0d6efd;--gtx-confirm-soft:rgba(13,110,253,.12);z-index:1090;}",
                     ".gtx-confirm-backdrop{z-index:1085;}",
                     ".gtx-confirm-modal .modal-content{border:1px solid var(--bs-border-color-translucent,rgba(148,163,184,.2));border-radius:12px;background:var(--bs-modal-bg,var(--bs-body-bg,#fff));color:var(--bs-modal-color,var(--bs-body-color,#172033));box-shadow:0 1.25rem 3rem rgba(15,23,42,.22);overflow:hidden;}",
-                    ".gtx-confirm-modal .modal-header{min-height:0;align-items:center;gap:.7rem;padding:.7rem .85rem!important;border-bottom:1px solid var(--bs-border-color-translucent,rgba(148,163,184,.2));background:var(--gtx-grad,linear-gradient(180deg,var(--bs-tertiary-bg,#f8fafc) 0%,var(--bs-body-bg,#fff) 100%))!important;color:#fff;}",
+                    ".gtx-confirm-modal .modal-header{min-height:0;align-items:center;gap:.7rem;padding:.7rem .85rem!important;border-bottom:1px solid var(--bs-border-color-translucent,rgba(148,163,184,.2));}",
                     ".gtx-confirm-modal .modal-title{margin:0!important;color:inherit;font-size:1rem!important;font-weight:650!important;line-height:1.2!important;}",
-                    ".gtx-confirm-modal .btn-close{flex:0 0 auto;margin:0 0 0 .5rem!important;opacity:.9;filter:invert(1) grayscale(100%) brightness(200%);}",
-                    "html.theme-silver .gtx-confirm-modal .btn-close{filter:none;}",
+                    ".gtx-confirm-modal .btn-close{flex:0 0 auto;margin:0 0 0 .5rem!important;opacity:.9;}",
                     ".gtx-confirm-modal .modal-body{padding:1rem 1.25rem;color:var(--bs-modal-color,var(--bs-body-color,#172033));background:var(--bs-modal-bg,var(--bs-body-bg,#fff));}",
                     ".gtx-confirm-modal .gtx-confirm-preview{margin-top:1rem;padding:.65rem;border:1px solid var(--bs-border-color-translucent,rgba(148,163,184,.25));border-radius:10px;background:var(--bs-tertiary-bg,#f3f4f6);text-align:center;overflow:hidden;}",
                     ".gtx-confirm-modal .gtx-confirm-preview img{display:block;width:100%;max-height:min(62vh,680px);object-fit:contain;border-radius:7px;background:var(--bs-body-bg,#fff);}",
@@ -783,7 +851,7 @@
                     '        <p class="mb-0" id="gtxConfirmMessage"></p>' +
                     '      </div>' +
                     '      <div class="modal-footer">' +
-                    '        <button type="button" class="btn btn-outline-secondary" id="gtxConfirmCancel" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>' +
+                    '        <button type="button" class="btn btn-outline-secondary" id="gtxConfirmCancel" data-button-tone="danger" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>' +
                     '        <button type="button" class="btn btn-gradient" id="gtxConfirmOk"><i class="bi bi-check2-circle me-1" aria-hidden="true"></i>Confirm</button>' +
                     '      </div>' +
                     '    </div>' +
@@ -905,6 +973,16 @@
                     message.textContent = settings.message;
                     confirmButton.textContent = settings.confirmText;
                     cancelButton.textContent = settings.cancelText;
+                    if (/^\s*(?:save|create)\b/i.test(settings.confirmText)) {
+                        confirmButton.dataset.buttonTone = "success";
+                    } else {
+                        delete confirmButton.dataset.buttonTone;
+                    }
+                    if (/^\s*cancel\b/i.test(settings.cancelText)) {
+                        cancelButton.dataset.buttonTone = "danger";
+                    } else {
+                        delete cancelButton.dataset.buttonTone;
+                    }
                     var confirmActionIcon = document.createElement("i");
                     confirmActionIcon.className = settings.iconClass + " me-1";
                     confirmActionIcon.setAttribute("aria-hidden", "true");
@@ -1011,53 +1089,89 @@
         })();
 
         (() => {
-            const KEY = "gtx-theme";
             const root = document.documentElement;
             const label = document.getElementById("themeLabel");
+            const textureLabel = document.getElementById("textureThemeLabel");
+            const noTexture = document.getElementById("themeNoTexture");
+            const originalColor = document.getElementById("themeOriginalTextureColor");
 
-            const items = Array.from(document.querySelectorAll(".theme-item"));
-            const themes = items.map(x => x.dataset.theme).filter(Boolean);
+            const colors = Array.from(document.querySelectorAll("#themeGroupColors .theme-item[data-theme]"));
+            const textures = Array.from(document.querySelectorAll("#themeGroupTextures .theme-item[data-theme]"));
+            const items = colors.concat(textures);
+            let theme = items.find(item => root.classList.contains("theme-" + item.dataset.theme))?.dataset.theme || "blue";
+            let texture = root.dataset.textureTheme || "none";
             const pretty = (t) => t
                 ? t.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ")
                 : "";
 
-            function setCookie(name, value) {
+            function savePreference(name, value) {
+                try { localStorage.setItem(name, value); } catch (e) { /* Cookies remain available. */ }
                 // 1 year, site-wide
                 document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=31536000; samesite=lax`;
             }
 
-            function applyTheme(theme) {
-                themes.forEach(t => root.classList.remove("theme-" + t));
-                root.classList.add("theme-" + theme);
-
-                try { localStorage.setItem(KEY, theme); } catch (e) { /* Cookies remain available. */ }
-                setCookie(KEY, theme);
-
-                items.forEach(item => {
-                    const selected = item.dataset.theme === theme;
-                    item.classList.toggle("active", selected);
-                    item.setAttribute("aria-current", selected ? "true" : "false");
-                    if (selected && label) label.textContent = item.querySelector(".theme-option-label").textContent;
-                });
+            function setSelected(item, selected) {
+                item.classList.toggle("active", selected);
+                item.setAttribute("aria-pressed", String(selected));
             }
 
-            const saved = themes.find(theme => root.classList.contains("theme-" + theme)) || "blue";
-            applyTheme(saved);
+            function applyTheme(nextTheme, nextTexture) {
+                root.classList.remove("theme-" + theme);
+                theme = nextTheme;
+                texture = nextTexture;
+                root.classList.add("theme-" + theme);
+                root.dataset.textureTheme = texture;
+                const tinted = texture !== "none" && texture !== theme;
+                root.dataset.textureTinted = String(tinted);
 
-            items.forEach(a => {
-                a.addEventListener("click", (e) => {
-                    e.preventDefault();
-                    applyTheme(a.dataset.theme);
-                });
+                savePreference("gtx-theme", theme);
+                savePreference("gtx-texture", texture);
+
+                colors.forEach(item => setSelected(item, item.dataset.theme === theme));
+                textures.forEach(item => setSelected(item, item.dataset.theme === texture));
+                setSelected(noTexture, texture === "none");
+                originalColor.hidden = texture === "none";
+                originalColor.disabled = originalColor.hidden;
+                setSelected(originalColor, !tinted && texture !== "none");
+
+                const themeItem = items.find(item => item.dataset.theme === theme);
+                const textureItem = textures.find(item => item.dataset.theme === texture);
+                label.textContent = themeItem.querySelector(".theme-option-label").textContent;
+                textureLabel.textContent = tinted ? ", " + textureItem.querySelector(".theme-option-label").textContent + " texture" : "";
+            }
+
+            applyTheme(theme, texture);
+            items.filter(item => item.classList.contains("active")).forEach(item => {
+                const activeGroup = item.closest(".collapse");
+                activeGroup.classList.add("show");
+                const groupToggle = activeGroup.previousElementSibling;
+                groupToggle.classList.remove("collapsed");
+                groupToggle.setAttribute("aria-expanded", "true");
             });
+
+            colors.forEach(item => item.addEventListener("click", () => applyTheme(item.dataset.theme, texture)));
+            textures.forEach(item => item.addEventListener("click", () => {
+                const nextTexture = item.dataset.theme;
+                applyTheme(theme === texture ? nextTexture : theme, nextTexture);
+            }));
+            noTexture.addEventListener("click", () => applyTheme(theme === texture ? "blue" : theme, "none"));
+            originalColor.addEventListener("click", () => applyTheme(texture, texture));
+
+            const finishItems = Array.from(document.querySelectorAll(".theme-finish-item"));
+            function applyFinish(finish) {
+                root.dataset.themeFinish = finish;
+                savePreference("gtx-theme-finish", finish);
+                finishItems.forEach(item => setSelected(item, item.dataset.finish === finish));
+            }
+            applyFinish(root.dataset.themeFinish);
+            finishItems.forEach(item => item.addEventListener("click", () => applyFinish(item.dataset.finish)));
 
             const backgroundItems = Array.from(document.querySelectorAll(".background-theme-item"));
             function applyBackground(background) {
                 if (background !== "dark") background = "light";
                 root.dataset.backgroundTheme = background;
                 root.dataset.bsTheme = background === "dark" ? "dark" : "light";
-                try { localStorage.setItem("gtx-background-theme", background); } catch (e) { /* Cookie fallback. */ }
-                setCookie("gtx-background-theme", background);
+                savePreference("gtx-background-theme", background);
                 document.getElementById("backgroundThemeLabel").textContent = pretty(background);
                 document.getElementById("backgroundThemeIcon").className = "bi " + (background === "dark" ? "bi-moon" : "bi-sun");
                 backgroundItems.forEach(item => {

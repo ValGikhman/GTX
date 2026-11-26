@@ -6,6 +6,8 @@
     --dashboard-ink: var(--bs-body-color, #172033);
     --dashboard-surface: var(--bs-body-bg, #fff);
     --dashboard-surface-alt: var(--bs-tertiary-bg, #f8fafc);
+    --dashboard-panel-surface: var(--dashboard-surface);
+    --dashboard-panel-surface-alt: var(--dashboard-surface-alt);
     --dashboard-header-bg: var(--gtx-grad, var(--bs-primary-bg-subtle, #f8fafc));
     --dashboard-header-color: #fff;
     --dashboard-header-border: rgba(255, 255, 255, .24);
@@ -17,9 +19,13 @@
     margin: 0;
     padding: 0 clamp(.75rem, 3vw, 2rem) .75rem;
     color: var(--dashboard-ink);
-    background:
-        radial-gradient(circle at 8% 10%, color-mix(in srgb, var(--dashboard-selected-accent) 9%, transparent), transparent 26rem),
-        linear-gradient(180deg, color-mix(in srgb, var(--dashboard-surface-alt) 78%, #ece9e2), var(--dashboard-surface));
+}
+
+@supports (color: color-mix(in srgb, white, black)) {
+    html[data-background-theme="dark"] .inventory-dashboard {
+        --dashboard-panel-surface: color-mix(in srgb, var(--gtx-palette-tint-color) var(--gtx-panel-tint-amount), var(--dashboard-surface));
+        --dashboard-panel-surface-alt: color-mix(in srgb, var(--gtx-palette-tint-color) var(--gtx-panel-tint-amount), var(--dashboard-surface-alt));
+    }
 }
 
 html.theme-silver .inventory-dashboard {
@@ -65,7 +71,7 @@ html.theme-red .inventory-dashboard {
     padding: 1rem;
     border: 1px solid var(--dashboard-border);
     border-radius: 8px;
-    background: var(--dashboard-surface);
+    background: var(--dashboard-panel-surface);
     box-shadow: 0 .55rem 1.4rem rgba(15, 23, 42, .07);
 }
 
@@ -116,25 +122,44 @@ html.theme-red .inventory-dashboard {
     padding: .4rem;
     border: 1px solid var(--dashboard-border);
     border-radius: .9rem;
-    background: color-mix(in srgb, var(--dashboard-surface) 91%, transparent);
+    background: color-mix(in srgb, var(--dashboard-panel-surface) 91%, transparent);
     box-shadow: 0 .55rem 1.4rem rgba(15, 23, 42, .07);
     backdrop-filter: blur(12px);
 }
 
-    .inventory-dashboard-period-control .form-select {
-        width: auto;
-        min-width: 10rem;
-        height: 2.15rem;
-        padding-block: .25rem;
-        border-color: var(--dashboard-line);
-        border-radius: .7rem;
-        background-color: var(--dashboard-surface);
-        font-size: .78rem;
-        font-weight: 750;
-    }
+.inventory-dashboard-period-control:has(.dropdown-menu.show) {
+    z-index: 4;
+    backdrop-filter: none;
+}
+
+.inventory-dashboard-picker {
+    --inventory-border: var(--dashboard-border);
+    --inventory-line: var(--dashboard-line);
+    --inventory-muted: var(--dashboard-muted);
+    --inventory-ink: var(--dashboard-ink);
+    --inventory-surface: var(--dashboard-surface);
+    --inventory-surface-alt: var(--dashboard-surface-alt);
+}
+
+.inventory-dashboard-picker .majordome-batch-actions-menu {
+    max-height: calc(100dvh - 8rem);
+    overflow-y: auto;
+}
+
+#inventoryDashboardTrendTypeMenu {
+    max-height: min(26rem, 45dvh);
+}
 
 #inventoryDashboardRange {
     height: 2.15rem;
+}
+
+html[data-background-theme="dark"] #inventoryDashboardRange {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--gtx-steel-panel-ink);
+    box-shadow: none !important;
 }
 
 .inventory-dashboard-card-header {
@@ -196,6 +221,12 @@ html.theme-red .inventory-dashboard {
     border-radius: 8px;
     background: color-mix(in srgb, var(--dashboard-accent, #0d6efd) 14%, transparent);
     color: var(--dashboard-accent, #0d6efd);
+}
+
+html[data-background-theme="dark"] .inventory-dashboard-icon {
+    background: color-mix(in srgb, var(--dashboard-accent, #0d6efd) 18%, var(--dashboard-surface));
+    color: color-mix(in srgb, var(--dashboard-accent, #0d6efd), white);
+    font-size: 1.125rem;
 }
 
 .inventory-dashboard-accent-status {
@@ -317,6 +348,10 @@ html.theme-red .inventory-dashboard {
         scrollbar-width: thin;
     }
 
+    .inventory-dashboard-graph-grid.inventory-dashboard-graph-grid-without-location {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .inventory-dashboard-graph-card:not(.inventory-dashboard-trend-card) {
         min-height: 13.5rem;
         height: auto;
@@ -393,7 +428,7 @@ html.theme-red .inventory-dashboard {
     min-height: 8rem;
     border: 1px solid var(--dashboard-line);
     border-radius: 8px;
-    background: linear-gradient(180deg, var(--dashboard-surface) 0%, var(--dashboard-surface-alt) 100%);
+    background: linear-gradient(180deg, var(--dashboard-panel-surface), var(--dashboard-panel-surface-alt));
     overflow: hidden;
     padding: .35rem;
 }
@@ -408,8 +443,12 @@ html.theme-red .inventory-dashboard {
     .inventory-dashboard-trend-chart canvas {
         display: block;
         width: 100% !important;
-        height: 7.5rem !important;
-        min-height: 7.5rem;
+        height: clamp(9rem, 18vh, 12rem) !important;
+        min-height: 9rem;
+    }
+
+    .inventory-dashboard-trend-chart-tall canvas {
+        height: clamp(14rem, 45vh, 22rem) !important;
     }
 
 .inventory-dashboard-trend-empty {
@@ -505,7 +544,7 @@ html.theme-red .inventory-dashboard {
     .inventory-dashboard-legend-item.is-active,
     .inventory-dashboard-legend-item.selected {
         border-color: rgba(13, 110, 253, .58);
-        background: rgba(13, 110, 253, .1);
+        background: color-mix(in srgb, #0d6efd 10%, var(--dashboard-surface-alt));
         box-shadow: inset .25rem 0 var(--dashboard-location-color, #0d6efd);
     }
 
@@ -586,7 +625,7 @@ html.theme-red .inventory-dashboard {
     gap: .5rem;
     padding: .5rem .65rem;
     border-bottom: 1px solid var(--dashboard-line);
-    background: linear-gradient(180deg, var(--dashboard-surface) 0%, var(--dashboard-surface-alt) 100%);
+    background: linear-gradient(180deg, var(--dashboard-panel-surface), var(--dashboard-panel-surface-alt));
 }
 
 .inventory-dashboard-grid-title-wrap {
@@ -607,7 +646,7 @@ html.theme-red .inventory-dashboard {
     min-height: 0;
     max-height: none;
     overflow: auto;
-    background: var(--dashboard-surface-alt);
+    background: var(--dashboard-panel-surface-alt);
     scrollbar-color: rgba(71, 85, 105, .45) transparent;
     scrollbar-width: thin;
 }
@@ -716,7 +755,7 @@ html.theme-red .inventory-dashboard {
         top: 0;
         z-index: 2;
         padding: .42rem .5rem;
-        background: var(--dashboard-header-bg);
+        background: var(--gtx-palette-header-background);
         color: var(--dashboard-header-color);
         font-size: .74rem;
         font-weight: 700;
@@ -890,8 +929,8 @@ html.theme-red .inventory-dashboard {
         justify-content: center;
     }
 
-    .inventory-dashboard-period-control .form-select {
-        width: 100% !important;
+    #inventoryDashboardPeriod {
+        width: 100%;
     }
 
     .inventory-dashboard-graph-grid {
@@ -917,16 +956,6 @@ html.theme-red .inventory-dashboard {
 .inventory-dashboard-details-cell {
     width: 4.75rem;
     text-align: center;
-}
-
-.inventory-dashboard-details-button {
-    width: 1.95rem;
-    min-height: 1.95rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    line-height: 1;
 }
 
 #inventoryDashboardDetailsModal {
@@ -1012,7 +1041,11 @@ html.theme-red .inventory-dashboard {
         min-height: 0;
         border: 0;
         border-radius: 0;
-        background: var(--dashboard-surface);
+        background: var(--dashboard-panel-surface);
+    }
+
+    #inventoryDashboardStatusGrid .pg-search-bar {
+        background: var(--dashboard-panel-surface);
     }
 
     #inventoryDashboardStatusGrid .pg-grid-scroll {
@@ -1023,7 +1056,7 @@ html.theme-red .inventory-dashboard {
     }
 
     #inventoryDashboardStatusGrid .pg-grid-table thead {
-        background: var(--dashboard-header-bg);
+        background: var(--gtx-palette-header-background);
     }
 
     #inventoryDashboardStatusGrid .pg-th-label,
@@ -1041,8 +1074,7 @@ html.theme-red .inventory-dashboard {
         border-color: var(--dashboard-border);
     }
 
-    #inventoryDashboardStatusGrid .inventory-dashboard-expand-button,
-    #inventoryDashboardStatusGrid .inventory-dashboard-details-button {
+    #inventoryDashboardStatusGrid .inventory-dashboard-expand-button {
         padding: 0;
         font-size: inherit;
     }

@@ -248,8 +248,8 @@
             {field:'Maximum',exportAlign:'right',title:'Max bid',exportValue:(row,format)=>number(row.Maximum)?(format==='pdf'?printMoney.format(row.Maximum):row.Maximum):row.Done?'No feasible bid':null,width:'9%',filterable:false,searchable:false,headerClass:'text-end',cellClass:'text-end',template:row => number(row.Maximum)?money.format(row.Maximum):row.Done?'No feasible bid':'—'},
             {field:'Status',title:'Status',exportValue:row=>row.Status,width:'12%',filterable:false,headerClass:'text-center',cellClass:'text-center',template:row =>
                 `<span class="badge text-bg-${row.StatusTone} mw-100 text-wrap text-break text-center px-3 py-2">${escape(row.Status)}</span>`},
-            {field:'Actions',title:'Actions',width:'22%',headerClass:'text-center',cellClass:'text-center',sortable:false,filterable:false,searchable:false,template:renderActions}
-        ],tableClass:'table align-middle m-0',height:null,pageable:false,resizable:false,reorderable:false,sortable:true,searchable:true,showSearch:true,searchPlaceholder:'Search run, vehicle, VIN, or status…',showRecordCount:true,recordType:{singular:'vehicle',plural:'vehicles',icon:'bi bi-car-front'},exportToExcel:false,exportToPdf:false,showPrint:true,exportFileName:'Auction shortlist',exportPdfWrap:true,groupable:false,alternateRows:true});
+            {field:'Actions',title:'Actions',width:'22%',headerClass:'text-center',cellClass:'text-center pg-action-cell',sortable:false,filterable:false,searchable:false,template:renderActions}
+        ],tableClass:'table align-middle m-0',height:null,pageable:false,resizable:false,reorderable:false,sortable:true,searchable:true,showSearch:true,searchLabel:'Search run, vehicle, VIN, or status',showRecordCount:true,recordType:{singular:'vehicle',plural:'vehicles',icon:'bi bi-car-front'},exportToExcel:false,exportToPdf:false,showPrint:true,exportFileName:'Auction shortlist',exportPdfWrap:true,groupable:false,alternateRows:true});
     }
     async function appraise(row) {
         const miles = mileageBucket(row.Miles);
@@ -341,13 +341,20 @@
     $grid.on('click','button.pr-batch-retry',function(){const row=rows.find(row=>row.Vin===this.dataset.vin);if(row)start([row]);});
     $grid.on('click','button[data-marketplace-vin]',function(){const row=rows.find(row=>row.Vin===this.dataset.marketplaceVin);if(row)prepareMarketplaceLinks(row, rows);});
     [zip,radius].forEach(input=>input.addEventListener('input',()=>{if(running||parsing)return;rows.forEach(row=>{row.Done=false;row.Estimate=row.Maximum=null;row.Status='Ready';row.StatusTone='info';});if(rows.length)render();}));
-    document.querySelectorAll('[data-appraisal-mode]').forEach(button=>button.addEventListener('click',()=>{
-        const multiple=button.dataset.appraisalMode==='multiple';
-        document.getElementById('pr-individual-inputs').hidden=multiple;form.hidden=!multiple;
-        document.querySelectorAll('[data-appraisal-scope]').forEach(scope=>{scope.hidden=scope.dataset.appraisalScope!==button.dataset.appraisalMode;});
-        document.getElementById('pr-individual-results').hidden=multiple;document.getElementById('pr-batch-results').hidden=!multiple;
-        document.querySelectorAll('[data-appraisal-mode]').forEach(tab=>{const selected=tab===button;tab.classList.toggle('active',selected);tab.setAttribute('aria-selected',String(selected));});
-        if(multiple&&rows.length)render();
-    }));
+    const modeSwitch = document.getElementById('pr-multiple-mode');
+    function updateMode() {
+        const multiple = modeSwitch.checked;
+        const mode = multiple ? 'multiple' : 'individual';
+        document.getElementById('pr-individual-inputs').hidden = multiple;
+        form.hidden = !multiple;
+        document.querySelectorAll('[data-appraisal-scope]').forEach(scope => {
+            scope.hidden = scope.dataset.appraisalScope !== mode;
+        });
+        document.getElementById('pr-individual-results').hidden = multiple;
+        document.getElementById('pr-batch-results').hidden = !multiple;
+        if (multiple && rows.length) render();
+    }
+    modeSwitch.addEventListener('change', updateMode);
+    updateMode();
     window.addEventListener('beforeunload',event=>{if(running){event.preventDefault();event.returnValue='';}});
 }(window.jQuery,window,document));

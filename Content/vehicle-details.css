@@ -392,10 +392,7 @@ html.theme-silver .vdp-record-status-icon {
     overflow: hidden;
     border: 1px solid var(--vdp-line);
     border-radius: 1rem;
-    background: var(--vdp-surface);
-    background: color-mix(in srgb, var(--vdp-surface) 90%, transparent);
     box-shadow: 0 .7rem 2rem rgba(20, 29, 38, .08);
-    backdrop-filter: blur(14px);
 }
 
 .vdp-tabs .nav-tabs {
@@ -423,10 +420,9 @@ html.theme-silver .vdp-record-status-icon {
     text-shadow: none !important;
 }
 
-.vdp-tabs .nav-item.active {
-    color: var(--bs-body-color, var(--vdp-ink)) !important;
-    background: var(--vdp-soft) !important;
-    background: color-mix(in srgb, var(--vdp-accent) 12%, var(--vdp-soft)) !important;
+html[data-background-theme] body .vdp-tabs .nav-tabs .nav-item.active {
+    color: var(--gtx-palette-header-ink) !important;
+    background: var(--gtx-palette-header-background) !important;
 }
 
 .vehicle-detail-page .tab-content > .tab-pane {
@@ -886,7 +882,7 @@ html.theme-silver .gtx-overview-toggle {
 }
 
 .gtx-overview-toggle-copy small {
-    color: rgba(255, 255, 255, .68);
+    color: inherit;
     font-size: .58rem;
     font-weight: 800;
     letter-spacing: .14em;
@@ -901,10 +897,6 @@ html.theme-silver .gtx-overview-toggle {
     letter-spacing: .06em;
     line-height: 1.15;
     text-transform: uppercase;
-}
-
-html.theme-silver .gtx-overview-toggle-copy small {
-    color: rgba(32, 38, 44, .65);
 }
 
 .gtx-overview-toggle-icon,
@@ -1629,7 +1621,7 @@ html.theme-silver .gtx-overview-toggle-copy small {
     box-shadow: 0 .65rem 1.4rem rgba(20, 29, 38, .12) !important;
 }
 
-.vehicle-detail-page .vdp-action-stack #btnTestDriveForm {
+:where(html:not([data-background-theme="dark"])) .vehicle-detail-page .vdp-action-stack #btnTestDriveForm {
     color: #fff !important;
     border-color: #8f101c !important;
     background: linear-gradient(180deg, #ef5360 0%, #d8202f 48%, #a80f1d 100%) !important;
@@ -1637,8 +1629,7 @@ html.theme-silver .gtx-overview-toggle-copy small {
     box-shadow: 0 .65rem 1.45rem rgba(168, 15, 29, .24) !important;
 }
 
-.vehicle-detail-page .vdp-action-stack #btnTestDriveForm:hover,
-.vehicle-detail-page .vdp-action-stack #btnTestDriveForm:focus-visible {
+:where(html:not([data-background-theme="dark"])) .vehicle-detail-page .vdp-action-stack #btnTestDriveForm:is(:hover, :focus-visible) {
     color: #fff !important;
     border-color: #780b15 !important;
     background: linear-gradient(0deg, #ef5360 0%, #d8202f 48%, #970b18 100%) !important;

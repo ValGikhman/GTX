@@ -12,10 +12,10 @@ $(function () {
     $("#rolesGrid").addGrid({ data: rows, columns: [
         { field: "Name", title: "Role", searchable: true, filterable: false, template: "#role-name-template", width: 180 },
         { field: "AccessHtml", title: "Menu access", searchable: true, filterable: false, template: "#role-access-template", width: 650 },
-        { field: "ActionsHtml", title: "Actions", searchable: false, filterable: false, template: "#role-actions-template", headerClass: "text-center", cellClass: "text-center", width: 150 }
+        { field: "ActionsHtml", title: "Actions", searchable: false, filterable: false, template: "#role-actions-template", headerClass: "text-center", cellClass: "text-center pg-action-cell", width: 150 }
     ], tableClass: "table align-middle m-0", height: null, pageable: false, showRecordCount: true,
         recordType: { singular: "role", plural: "roles", icon: "bi bi-people-fill" }, sortable: false,
-        resizable: false, reorderable: false, searchable: true, showSearch: true, searchPlaceholder: "Search roles…",
+        resizable: false, reorderable: false, searchable: true, showSearch: true, searchLabel: "Search roles",
         exportToExcel: false, exportToPdf: false, groupable: false, alternateRows: true,
         dblClick: function (detail) {
             if ($(detail.event.target).closest("a, button, input, select, textarea").length) return;
@@ -34,6 +34,10 @@ $(function () {
     }
     $("#newRole").on("click", function () { open(0); });
     $page.on("click", ".edit-role", function (event) { event.preventDefault(); open($(this).data("id")); });
+    $("#roleModalBody").on("change", "#permission-InventoryDashboard", function () {
+        $(this.form).find("[data-dashboard-permissions]").prop("hidden", !this.checked)
+            .find("input").prop("disabled", !this.checked);
+    });
     $page.on("click", ".login-as-role", function () {
         var $buttons = $page.find(".login-as-role").prop("disabled", true);
         $.post($page.data("login-as-url"), {
