@@ -570,9 +570,11 @@ html[data-background-theme="dark"] :is(
     .home-reviews,
     .staff-card,
     .staff-empty-state,
-    .about-story
+    .about-story,
+    .majordome-editor-section
 ),
 html[data-background-theme="dark"] .marketing-section-label > small,
+html[data-background-theme="dark"] :where(.majordome-inventory-appraisal) :is(.inventory-appraisal-intro, .pr-market-overview, .pr-demand, .pr-grid-section),
 html[data-background-theme="dark"] .testimonials-page .t-card,
 html[data-background-theme="dark"] .health-card-col > .health-card,
 html[data-background-theme="dark"] #openHours .open-hours-content {
@@ -740,9 +742,13 @@ html[data-background-theme="dark"] .gtx-status-switch > .form-check-input {
     }
 }
 
-html[data-background-theme="dark"] .gtx-status-switch > .form-check-input:checked {
+html[data-background-theme="dark"] .gtx-status-switch > .form-check-input:checked,
+html[data-background-theme] #pr-multiple-mode {
     --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
     background-image: var(--bs-form-switch-bg);
+}
+
+html[data-background-theme="dark"] .gtx-status-switch > .form-check-input:checked {
     background-position: right center;
 }
 
@@ -753,22 +759,30 @@ html[data-background-theme="dark"] :is(.form-switch, .gtx-status-switch) .form-c
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2.25' fill='none' stroke='%23808da0' stroke-width='1.25'/%3e%3c/svg%3e");
 }
 
-html[data-background-theme="dark"] :is(.form-switch, .gtx-status-switch) .form-check-input:checked {
+html[data-background-theme="dark"] :is(.form-switch, .gtx-status-switch) .form-check-input:checked,
+html[data-background-theme] #pr-multiple-mode {
     background-color: var(--gtx-palette-tint-color);
     border-color: var(--gtx-palette-tint-color);
     border-color: color-mix(in srgb, var(--gtx-palette-tint-color) 56%, white);
 }
 
-html.theme-silver[data-background-theme="dark"] :is(.form-switch, .gtx-status-switch) .form-check-input:checked {
+html.theme-silver[data-background-theme="dark"] :is(.form-switch, .gtx-status-switch) .form-check-input:checked,
+html.theme-silver[data-background-theme] #pr-multiple-mode {
     --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23111827'/%3e%3c/svg%3e");
 }
 
-html[data-background-theme="dark"] :is(.form-switch, .gtx-status-switch) .form-check-input:focus {
+html[data-background-theme="dark"] :is(.form-switch, .gtx-status-switch) .form-check-input:focus,
+html[data-background-theme] #pr-multiple-mode:focus {
     box-shadow: none;
 }
 
 html[data-background-theme="dark"] :is(.form-switch, .gtx-status-switch) .form-check-input:focus-visible {
     outline: 2px solid var(--gtx-dark-field-placeholder);
+    outline-offset: 2px;
+}
+
+html[data-background-theme] #pr-multiple-mode:focus-visible {
+    outline: 2px solid var(--bs-body-color);
     outline-offset: 2px;
 }
 
@@ -1092,6 +1106,7 @@ html[data-background-theme] body :is(
     .header .btn.light-gradient-action,
     #myTab > .btn[role="tab"].active,
     #majordomeBatchActionsDropdown,
+    #majordomeInventoryDecodeVin,
     .pg-action-cell .btn
 ) {
     --gtx-gradient-ink: var(--bs-dark, #212529);
@@ -1141,6 +1156,7 @@ html[data-background-theme] body :is(
     .header .btn.light-gradient-action,
     #myTab > .btn[role="tab"].active,
     #majordomeBatchActionsDropdown,
+    #majordomeInventoryDecodeVin,
     .pg-action-cell .btn
 ):focus-visible {
     outline: 2px solid currentColor;
@@ -1304,11 +1320,18 @@ html[data-background-theme="dark"] .majordome-editor-body::-webkit-scrollbar-thu
     background: var(--bs-body-color);
 }
 
+html[data-background-theme="light"][data-theme-finish="gradient"] .majordome-editor-section {
+    background-image: linear-gradient(180deg, var(--bs-body-bg), var(--gtx-page-bg));
+}
+
 html[data-background-theme="dark"] .majordome-editor-section {
     --majordome-editor-section-color: #5eead4;
-    background: var(--bs-body-bg);
     border-color: var(--bs-border-color);
     border-left-color: var(--majordome-editor-section-color);
+}
+
+html[data-background-theme="dark"][data-theme-finish="solid"] .majordome-editor-section {
+    background: var(--gtx-tinted-panel-background);
 }
 
 html[data-background-theme="dark"] .majordome-editor-section-pricing {
@@ -1325,11 +1348,12 @@ html[data-background-theme="dark"] .majordome-editor-section-dates {
 
 html[data-background-theme="dark"] .majordome-editor-section-title {
     border-bottom-color: var(--bs-border-color);
+    color: var(--gtx-steel-panel-ink);
 }
 
 html[data-background-theme="dark"] .majordome-editor-modal .form-label,
 html[data-background-theme="dark"] .majordome-editor-label-icon {
-    color: var(--bs-secondary-color);
+    color: var(--gtx-steel-panel-ink);
 }
 
 html[data-background-theme="dark"] .majordome-editor-modal :is(.form-control, .form-select) {
@@ -1369,6 +1393,15 @@ html[data-background-theme="dark"] .modal select:is(.form-select, .pe-select):no
     color-scheme: dark;
 }
 
+html[data-background-theme] .majordome-editor-modal select.form-select:not(:disabled, [multiple], [size]:not([size="1"])) {
+    background:
+        var(--gtx-light-select-caret) right .75rem center / 16px 12px no-repeat,
+        var(--bs-form-select-bg-icon, none) right 2.25rem center / calc(.75em + .375rem) calc(.75em + .375rem) no-repeat,
+        var(--gtx-action-button-background, var(--gtx-light-control-background));
+    color: var(--gtx-action-button-ink, var(--bs-dark, #212529));
+    color-scheme: light;
+}
+
 html[data-background-theme="dark"] .modal .pe-select {
     --gtx-modal-select-caret-inset: .55rem;
     --gtx-modal-select-caret-size: 12px 9px;
@@ -1400,6 +1433,19 @@ html[data-background-theme] :is(
 
 html[data-background-theme] .form-control:is([readonly], :disabled):not(.form-control-plaintext, [type="file"]) {
     background-color: var(--gtx-field-background);
+}
+
+/* Repaint the arrows while retaining the browser's native stepping behavior. */
+@supports (mask: none) {
+    @media (forced-colors: none) {
+        html[data-background-theme] input[type="number"]:not(:disabled, [readonly])::-webkit-inner-spin-button {
+            appearance: none;
+            inline-size: 1rem;
+            block-size: 1.375rem;
+            background-color: currentColor;
+            mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2012%2020'%3E%3Cpath%20fill%3D'none'%20stroke%3D'white'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%20stroke-width%3D'1.5'%20d%3D'M3%207l3-3%203%203M3%2013l3%203%203-3'%2F%3E%3C%2Fsvg%3E") center / .75rem 1.25rem no-repeat;
+        }
+    }
 }
 
 html[data-background-theme] .pg-search-input-group {

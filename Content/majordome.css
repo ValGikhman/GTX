@@ -9,7 +9,6 @@
     --inventory-appraisal-tint: color-mix(in srgb, var(--inventory-appraisal-accent) 11%, var(--inventory-appraisal-surface));
     --inventory-appraisal-header-ink: #fff;
     --inventory-appraisal-header: var(--gtx-grad, var(--inventory-appraisal-accent));
-    --inventory-appraisal-pad: clamp(.75rem, 2vw, 1.25rem);
 }
 
 html.theme-silver .majordome-inventory-appraisal { --inventory-appraisal-header-ink: #111827; }
@@ -32,62 +31,84 @@ html.theme-silver .majordome-inventory-appraisal { --inventory-appraisal-header-
     outline-offset: 1px;
 }
 
-@media (min-width: 992px) {
-    .majordome-inventory-appraisal .modal-dialog { --bs-modal-width: 680px; }
-}
-
 @media (min-width: 1200px) {
     .majordome-inventory-appraisal .modal-dialog { --bs-modal-width: 969px; }
 }
 
 .majordome-inventory-appraisal .modal-body { padding: clamp(1rem, 4vw, 1.5rem); }
 
-.inventory-appraisal-intro {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: .85rem 1.5rem;
-    margin-bottom: 1rem;
-    padding: var(--inventory-appraisal-pad);
-    border: 1px solid var(--bs-border-color);
-    border-inline-start: .25rem solid var(--inventory-appraisal-accent);
-    border-radius: .85rem;
-    background: linear-gradient(120deg, var(--inventory-appraisal-tint), var(--inventory-appraisal-surface));
-    box-shadow: 0 .35rem .9rem rgb(15 23 42 / 10%);
-}
-
-.inventory-appraisal-intro > div:first-child { flex: 1 1 15rem; min-width: 0; }
+.inventory-appraisal-intro { margin-bottom: 1rem; }
+.inventory-appraisal-intro .pr-vehicle-identity { flex: 1 1 15rem; }
 
 .majordome-inventory-appraisal .inventory-appraisal-vehicle {
-    display: block;
-    color: var(--inventory-appraisal-ink);
+    margin: 0;
+    color: inherit;
     font-size: clamp(1.15rem, 2.5vw, 1.55rem);
     font-weight: 800;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+
+.inventory-appraisal-stock {
+    color: inherit;
+    border: 1px solid color-mix(in srgb, currentColor 32%, transparent);
     overflow-wrap: anywhere;
 }
 
 .majordome-inventory-appraisal .inventory-appraisal-description {
-    color: var(--bs-secondary-color, #526075);
+    color: inherit;
     font-size: .88rem;
-    margin: .3rem 0 0;
+    margin: 0;
     line-height: 1.45;
 }
 
-.inventory-appraisal-inventory-price {
-    display: grid;
-    gap: .15rem;
-    padding: .55rem .85rem;
-    border-radius: .65rem;
-    background: var(--inventory-appraisal-header);
-    color: var(--inventory-appraisal-header-ink);
-    font-size: .78rem;
+.inventory-appraisal-inventory-price strong {
+    font-size: clamp(1.4rem, 3vw, 1.85rem);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.12;
 }
 
-.inventory-appraisal-inventory-price strong {
-    font-size: 1.4rem;
-    font-variant-numeric: tabular-nums;
-    line-height: 1.2;
+.appraisal-research-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: end;
+    gap: .75rem;
+}
+
+.appraisal-research-form > :is(.pr-appraisal-vin, .pr-appraisal-mileage, [data-appraisal-submit]) {
+    grid-column: 1 / -1;
+}
+
+.appraisal-research-form > [data-appraisal-submit] {
+    justify-self: end;
+    min-block-size: calc(2.25rem + 2 * var(--bs-border-width));
+    white-space: nowrap;
+}
+
+.appraisal-research-form .vin-decoder-input-group {
+    padding: .15rem;
+}
+
+.appraisal-research-form .vin-decoder-input-group .input-group-text { width: 1.8rem; }
+.appraisal-research-form .vin-decoder-input-group .form-control { padding-inline: .25rem; }
+
+html[data-background-theme="light"] .appraisal-research-form .vin-decoder-input-group:focus-within {
+    outline: 2px solid var(--mp-accent, var(--gtx-accent-solid));
+    outline-offset: -2px;
+}
+
+@media (min-width: 576px) {
+    .appraisal-research-form { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .appraisal-research-form > .pr-appraisal-mileage { grid-column: auto; }
+}
+
+@media (min-width: 992px) {
+    .appraisal-research-form {
+        grid-template-columns: minmax(0, 2.6fr) minmax(7rem, 1.3fr) repeat(2, minmax(4.25rem, 1fr)) max-content;
+        column-gap: .5rem;
+    }
+
+    .appraisal-research-form > :is(.pr-appraisal-vin, [data-appraisal-submit]) { grid-column: auto; }
 }
 
 .majordome-inventory-appraisal .form-label { margin-bottom: .35rem; font-size: .88rem; font-weight: 650; }
@@ -97,12 +118,22 @@ html.theme-silver .majordome-inventory-appraisal { --inventory-appraisal-header-
     box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--inventory-appraisal-accent) 25%, transparent);
 }
 
+.majordome-inventory-appraisal .vin-decoder-input-group {
+    --mp-accent: var(--inventory-appraisal-accent);
+    --vin-line: var(--bs-border-color);
+    --vin-surface: var(--bs-body-bg);
+}
+
+.majordome-inventory-appraisal .vin-decoder-input-group .form-control {
+    box-shadow: none;
+}
+
 :is(#price-research, .majordome-inventory-appraisal) [data-appraisal-research-form] .form-control:is(:hover, :focus, :active) {
     border-width: var(--bs-border-width, 1px);
     border-color: var(--bs-border-color);
 }
 
-#price-research [data-appraisal-research-form] .vin-decoder-input-group .form-control:is(:hover, :focus, :active) {
+:is(#price-research, .majordome-inventory-appraisal) [data-appraisal-research-form] .vin-decoder-input-group .form-control:is(:hover, :focus, :active) {
     border-width: 0;
 }
 
@@ -166,24 +197,12 @@ html.theme-silver .majordome-inventory-appraisal { --inventory-appraisal-header-
 .majordome-inventory-appraisal :is(.pr-market-overview, .pr-demand, .pr-grid-section) {
     min-width: 0;
     margin-top: 1.3rem;
-    padding: var(--inventory-appraisal-pad);
-    border: 1px solid var(--bs-border-color, #dee2e6);
-    border-radius: .9rem;
-    background: var(--inventory-appraisal-surface);
-    box-shadow: 0 .35rem .9rem rgb(15 23 42 / 10%);
 }
 
-.majordome-inventory-appraisal :is(.pr-market-overview, .pr-demand, .pr-grid-section) > header {
-    display: flex;
+.majordome-inventory-appraisal :is(.inventory-appraisal-intro, .pr-market-overview, .pr-demand, .pr-grid-section) > header {
     flex-wrap: wrap;
-    align-items: center;
     justify-content: space-between;
-    gap: .75rem 1rem;
-    margin: calc(-1 * var(--inventory-appraisal-pad)) calc(-1 * var(--inventory-appraisal-pad)) .85rem;
-    padding: var(--inventory-appraisal-pad);
-    border-radius: .85rem .85rem 0 0;
-    background: var(--inventory-appraisal-header);
-    color: var(--inventory-appraisal-header-ink);
+    color: inherit;
 }
 
 .majordome-inventory-appraisal :is(.pr-heading-group, .pr-vehicle-identity) {
@@ -194,14 +213,8 @@ html.theme-silver .majordome-inventory-appraisal { --inventory-appraisal-header-
 }
 
 .majordome-inventory-appraisal .pr-section-icon {
-    display: grid;
+    --panel-icon-ink: var(--gtx-palette-header-ink);
     flex: 0 0 auto;
-    place-items: center;
-    inline-size: 2.4rem;
-    aspect-ratio: 1;
-    border: 1px solid color-mix(in srgb, currentColor 32%, transparent);
-    border-radius: .65rem;
-    background: color-mix(in srgb, currentColor 12%, transparent);
 }
 
 .majordome-inventory-appraisal :is(.pr-heading-group, .pr-vehicle-identity) h2 {
@@ -226,20 +239,21 @@ html.theme-silver .majordome-inventory-appraisal { --inventory-appraisal-header-
     margin: .35rem 0 0;
     padding: .25rem .5rem;
     border-radius: .35rem;
-    background: color-mix(in srgb, var(--inventory-appraisal-header-ink) 12%, transparent);
-    color: var(--inventory-appraisal-header-ink);
+    background: color-mix(in srgb, currentColor 10%, transparent);
+    color: inherit;
     font-size: .85rem;
     overflow-wrap: anywhere;
 }
 
-.majordome-inventory-appraisal .pr-market-estimate {
+.majordome-inventory-appraisal :is(.inventory-appraisal-inventory-price, .pr-market-estimate) {
     display: grid;
     gap: .15rem;
     min-width: 0;
     padding: .5rem .85rem;
     border: 1px solid color-mix(in srgb, currentColor 32%, transparent);
     border-radius: .65rem;
-    background: color-mix(in srgb, currentColor 12%, transparent);
+    background: var(--gtx-secondary-action-gradient, none) var(--gtx-secondary-action-bg, var(--bs-secondary-bg));
+    color: var(--gtx-secondary-action-ink, var(--bs-body-color));
 }
 
 .majordome-inventory-appraisal .pr-market-estimate span { font-size: .82rem; font-weight: 650; }
@@ -291,7 +305,7 @@ html.theme-silver .majordome-inventory-appraisal { --inventory-appraisal-header-
 .majordome-inventory-appraisal [data-appraisal-demand-message]:empty { display: none; }
 
 @media (max-width: 575.98px) {
-    .majordome-inventory-appraisal .pr-market-estimate { width: 100%; }
+    .majordome-inventory-appraisal :is(.inventory-appraisal-inventory-price, .pr-market-estimate) { width: 100%; }
     .majordome-inventory-appraisal :is(.research-metrics, .pr-demand .pr-bid-metrics) { grid-template-columns: minmax(0, 1fr); }
     .majordome-inventory-appraisal :is(.research-metric, .pr-demand .pr-bid-metrics > div) {
         grid-template-columns: minmax(0, 1fr) auto;
@@ -357,16 +371,8 @@ html.theme-silver .majordome-inventory-appraisal { --inventory-appraisal-header-
 .majordome-inventory-appraisal .research-grid-note { margin: .7rem 0 0; }
 
 html[data-background-theme="dark"] .majordome-inventory-appraisal :is(
-    .inventory-appraisal-intro,
-    .inventory-appraisal-inventory-price,
-    .pr-market-overview,
-    .pr-demand,
-    .pr-grid-section,
-    :is(.pr-market-overview, .pr-demand, .pr-grid-section) > header,
-    .pr-market-estimate,
     .research-metric,
     .pr-demand .pr-bid-metrics > div,
-    [data-appraisal-request-summary],
     .pr-comparables-description
 ) {
     background: var(--gtx-tinted-steel-panel-background);
@@ -374,8 +380,6 @@ html[data-background-theme="dark"] .majordome-inventory-appraisal :is(
 }
 
 html[data-background-theme="dark"] .majordome-inventory-appraisal :is(
-    .inventory-appraisal-vehicle,
-    .inventory-appraisal-description,
     .inventory-appraisal-status,
     .appraisal-metric-help.btn,
     :is(.research-metric, .pr-demand .pr-bid-metrics) :is(span, strong),
@@ -2991,7 +2995,7 @@ html[data-background-theme="dark"] .majordome-workspace > #myTab.nav.nav-tabs.no
             border: 1px solid rgba(148, 163, 184, .22);
             border-left: 3px solid var(--majordome-editor-section-color);
             border-radius: .85rem;
-            background: rgba(255, 255, 255, .95);
+            background: var(--gtx-page-bg, var(--bs-body-bg));
             box-shadow: 0 .5rem 1.4rem rgba(15, 23, 42, .05);
             padding: .25rem .9rem .75rem;
             margin-bottom: .85rem;
@@ -3022,7 +3026,8 @@ html[data-background-theme="dark"] .majordome-workspace > #myTab.nav.nav-tabs.no
             font-weight: 800;
             letter-spacing: .05em;
             text-transform: uppercase;
-            color: var(--majordome-editor-section-color);
+            color: var(--bs-body-color);
+            color: color-mix(in srgb, var(--majordome-editor-section-color) 44%, var(--bs-body-color));
             margin-bottom: .6rem;
             padding-bottom: .45rem;
             border-bottom: 1px dashed rgba(148, 163, 184, .35);

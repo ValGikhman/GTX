@@ -722,7 +722,7 @@
                 message: `Do you want to delete story for Stock# ${stock}?`,
                 confirmText: "Delete",
                 variant: "danger",
-                iconClass: "bi bi-book-fill"
+                iconClass: "bi bi-trash"
             });
             if (confirmed) {
                 deleteStory(stock);
@@ -892,7 +892,7 @@
                 message: `Do you want to delete story for Stock# ${stock}?`,
                 confirmText: "Delete",
                 variant: "danger",
-                iconClass: "bi bi-book-fill"
+                iconClass: "bi bi-trash"
             });
             if (confirmed) {
                 deleteStory(stock);
@@ -924,7 +924,7 @@
                 message: `Do you want to delete DataOne for Stock# ${stock}?`,
                 confirmText: "Delete",
                 variant: "danger",
-                iconClass: "bi bi-car-front-fill"
+                iconClass: "bi bi-trash"
             });
             if (confirmed) {
                 deleteDataOne(stock);
@@ -3602,11 +3602,11 @@
                 <div class="majordome-action-group">
                     <div class="majordome-action-title">Story</div>
                     <div class="majordome-action-buttons">
-                        <button type="button" class="${buttonClass} js-amm-create-story" data-button-tone="success" data-stock="${stock}" title="Create story for Stock# ${stock}">
+                        <button type="button" class="${buttonClass} js-amm-create-story" data-stock="${stock}" title="Create story for Stock# ${stock}">
                             <i class="bi bi-book"></i>
                         </button>
                         <button type="button" class="${buttonClass} js-amm-delete-story" data-stock="${stock}" title="Delete story for Stock# ${stock}">
-                            <i class="bi bi-book-fill"></i>
+                            <i class="bi bi-trash" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
@@ -3617,7 +3617,7 @@
                             <i class="bi bi-car-front"></i>
                         </button>
                         <button type="button" class="${buttonClass} js-amm-delete-dataone" data-stock="${stock}" title="Delete DataOne for stock# ${stock}">
-                            <i class="bi bi-car-front-fill"></i>
+                            <i class="bi bi-trash" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
