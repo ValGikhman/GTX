@@ -14,9 +14,10 @@ html[data-background-theme="dark"] .home-reviews :is(.home-reviews-filter-note, 
     --home-reviews-link: var(--gtx-steel-panel-ink);
 }
 
-/* Hibu business replies: use their structure instead of generated class names. */
+/* Match home inventory specs and Hibu business replies to the dark field surface. */
+html[data-background-theme="dark"] .home-inventory-specs > div,
 html[data-background-theme="dark"] .home-reviews-card #fdnReviewsWidget .review > div:has(> div > span + p) {
-    background: var(--bs-tertiary-bg);
+    background: var(--gtx-dark-field-background);
     color: var(--bs-body-color);
 }
 
@@ -441,7 +442,7 @@ html[data-background-theme="dark"] #inventorySidebarPane .inventory-filter-check
     background-image: var(--bs-form-check-bg-image, none);
 }
 
-html[data-background-theme] :is(.inventory-filter-panel-toggle, .majordome-management-log-date-toggle)::after,
+html[data-background-theme] :is(.inventory-filter-panel-toggle, .majordome-management-log-date-toggle, .theme-group-toggle)::after,
 html[data-background-theme] .gtx-overview-toggle .toggle-icons,
 html[data-background-theme] .collapse-toggle:not(.gtx-overview-toggle) .toggle-icons > :is(.icon-plus, .icon-minus) {
     background: var(--gtx-palette-header-background);
@@ -536,7 +537,7 @@ html[data-background-theme]:not([data-background-theme="light"]) .vehicle-detail
     --vdp-muted: var(--bs-secondary-color);
 }
 
-html[data-background-theme]:not([data-background-theme="light"]) :is(.gtx-card, .home-inventory-card-body, .home-inventory-specs > div, .blog-list-card, .blog-empty, .legal-document, .ui-widget-content, .chosen-container-single .chosen-single, .chosen-container-multi .chosen-choices) {
+html[data-background-theme]:not([data-background-theme="light"]) :is(.gtx-card, .home-inventory-card-body, .blog-list-card, .blog-empty, .legal-document, .ui-widget-content, .chosen-container-single .chosen-single, .chosen-container-multi .chosen-choices) {
     background: var(--bs-body-bg);
     color: var(--bs-body-color);
 }
@@ -670,7 +671,6 @@ html[data-background-theme="dark"] .chosen-container .chosen-results .no-results
     background: var(--gtx-dropdown-hover);
 }
 
-html[data-background-theme="dark"] .theme-dropdown-menu .bg-body-tertiary,
 html[data-background-theme="dark"] #menuScheduleMobile .bg-light {
     background-color: var(--gtx-dropdown-surface) !important;
 }
@@ -726,9 +726,9 @@ html[data-background-theme="dark"] .gtx-status-switch > .form-check-input:checke
 }
 
 html[data-background-theme="dark"] :is(.form-switch, .gtx-status-switch) .form-check-input:not(:checked) {
-    background-color: var(--gtx-dark-field-background);
-    border-color: var(--bs-secondary-color);
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23bdc1c6'/%3e%3c/svg%3e");
+    background-color: transparent;
+    border-color: #6c7889;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2.25' fill='none' stroke='%23808da0' stroke-width='1.25'/%3e%3c/svg%3e");
 }
 
 html[data-background-theme="dark"] :is(.form-switch, .gtx-status-switch) .form-check-input:checked {
@@ -1598,6 +1598,7 @@ html[data-background-theme="dark"] #majordomeManagementLogYearMenu > li {
     display: flow-root;
 }
 
+html[data-background-theme="dark"] .theme-group-toggle,
 html[data-background-theme="dark"] #majordomeManagementLogMenu .majordome-management-log-date,
 html[data-background-theme="dark"] #sitemapAccordion .accordion-button,
 html[data-background-theme="dark"] #inventorySidebarPane .inventory-filter-panel {
@@ -1614,6 +1615,7 @@ html[data-background-theme="dark"] #majordomeManagementLogMenu .inventory-manage
 }
 
 html[data-background-theme="dark"] #inventorySidebarPane .inventory-filter-panel :is(.inventory-filter-panel-toggle, .inventory-filter-panel-count, .inventory-range-values, .inventory-range-output, .inventory-dependent-empty, .inventory-check-row:where(:not(:hover))),
+html[data-background-theme="dark"] .theme-group-toggle,
 html[data-background-theme="dark"] #majordomeManagementLogMenu .majordome-management-log-date,
 html[data-background-theme="dark"] #majordomeManagementLogMenu .majordome-management-log-date :is(.majordome-management-log-date-toggle, .majordome-management-log-date-count),
 html[data-background-theme="dark"] #sitemapAccordion .accordion-button {
