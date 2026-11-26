@@ -78,15 +78,15 @@
                 <p id="majordomeBulkProgressIntro" class="mb-2"></p>
                 <div id="majordomeBulkProgressSummary" class="majordome-inventory-summary small mb-2 d-none" aria-live="polite"></div>
                 <div id="majordomeBulkPreview" class="majordome-bulk-preview d-none mb-3"></div>
-                <div class="d-flex justify-content-between small text-muted mb-1">
+                <div class="d-flex justify-content-between small mb-1">
                     <span id="majordomeBulkProgressCounts">0 of 0</span>
                     <span id="majordomeBulkProgressPercent">0%</span>
                 </div>
-                <div id="majordomeBulkProgressTrack" class="progress" role="progressbar" aria-label="Bulk update progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <div id="majordomeBulkProgressTrack" class="progress rounded-pill" role="progressbar" aria-label="Bulk update progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
                     <div id="majordomeBulkProgressBar" class="progress-bar progress-bar-striped"></div>
                 </div>
                 <div id="majordomeBulkProgressStatus" class="small mt-3"></div>
-                <div id="majordomeBulkProgressLog" class="majordome-bulk-progress-log list-group small mt-3" aria-live="polite"></div>
+                <div id="majordomeBulkProgressLog" class="majordome-bulk-progress-log list-group rounded-3 small mt-3" aria-live="polite"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" id="majordomeBulkCancel" class="btn btn-outline-secondary" data-button-tone="cancel"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>
@@ -722,7 +722,7 @@
                 message: `Do you want to delete story for Stock# ${stock}?`,
                 confirmText: "Delete",
                 variant: "danger",
-                iconClass: "bi bi-book-fill"
+                iconClass: "bi bi-trash"
             });
             if (confirmed) {
                 deleteStory(stock);
@@ -892,7 +892,7 @@
                 message: `Do you want to delete story for Stock# ${stock}?`,
                 confirmText: "Delete",
                 variant: "danger",
-                iconClass: "bi bi-book-fill"
+                iconClass: "bi bi-trash"
             });
             if (confirmed) {
                 deleteStory(stock);
@@ -924,7 +924,7 @@
                 message: `Do you want to delete DataOne for Stock# ${stock}?`,
                 confirmText: "Delete",
                 variant: "danger",
-                iconClass: "bi bi-car-front-fill"
+                iconClass: "bi bi-trash"
             });
             if (confirmed) {
                 deleteDataOne(stock);
@@ -1969,13 +1969,14 @@
             const $details = $("<div></div>").addClass("majordome-background-preview-details");
             const $meta = $("<div></div>").addClass("majordome-background-preview-meta");
             const $footer = $("<label></label>")
-                .addClass("majordome-background-preview-footer")
+                .addClass("majordome-background-preview-footer form-switch ps-0")
                 .attr("for", checkboxId);
             const $checkbox = $("<input>")
-                .addClass("form-check-input js-remove-bg-select")
+                .addClass("form-check-input m-0 js-remove-bg-select")
                 .attr({
                     id: checkboxId,
                     type: "checkbox",
+                    role: "switch",
                     "data-remove-bg-index": index,
                     "aria-label": `Select ${item.Label}`
                 })
@@ -2773,6 +2774,7 @@
                 initialStatus: "Checking the live remove.bg token balance...",
                 cancelMessage: "Cancel requested. The current vehicle will finish, then the remaining vehicles will stop.",
                 startText: "Run background removal",
+                startButtonClass: "btn-success",
                 largeModal: true,
                 hideStartWhenUnavailable: true,
                 intro: function (count) {
@@ -3039,7 +3041,8 @@
         return setMajordomeBulkActionButton(
             $button,
             settings.startText || "Start",
-            settings.startIconClass || "bi-play-fill");
+            settings.startIconClass || "bi-play-fill")
+            .attr("data-button-tone", settings.startButtonClass === "btn-success" ? "success" : null);
     }
 
     function showMajordomeBulkCloseButton() {
@@ -3602,11 +3605,11 @@
                 <div class="majordome-action-group">
                     <div class="majordome-action-title">Story</div>
                     <div class="majordome-action-buttons">
-                        <button type="button" class="${buttonClass} js-amm-create-story" data-button-tone="success" data-stock="${stock}" title="Create story for Stock# ${stock}">
+                        <button type="button" class="${buttonClass} js-amm-create-story" data-stock="${stock}" title="Create story for Stock# ${stock}">
                             <i class="bi bi-book"></i>
                         </button>
                         <button type="button" class="${buttonClass} js-amm-delete-story" data-stock="${stock}" title="Delete story for Stock# ${stock}">
-                            <i class="bi bi-book-fill"></i>
+                            <i class="bi bi-trash" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
@@ -3617,7 +3620,7 @@
                             <i class="bi bi-car-front"></i>
                         </button>
                         <button type="button" class="${buttonClass} js-amm-delete-dataone" data-stock="${stock}" title="Delete DataOne for stock# ${stock}">
-                            <i class="bi bi-car-front-fill"></i>
+                            <i class="bi bi-trash" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>

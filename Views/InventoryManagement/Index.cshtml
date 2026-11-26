@@ -76,19 +76,19 @@
             <div class="modal-body">
                 <p id="inventoryManagementUploadIntro" class="mb-2"></p>
                 <div id="inventoryManagementUploadSummary" class="inventory-management-upload-summary small mb-2 d-none" aria-live="polite"></div>
-                <div class="d-flex justify-content-between small text-muted mb-1">
+                <div class="d-flex justify-content-between small mb-1">
                     <span id="inventoryManagementUploadCounts">0 of 0</span>
                     <span id="inventoryManagementUploadPercent">0%</span>
                 </div>
-                <div id="inventoryManagementUploadTrack" class="progress" role="progressbar" aria-label="Inventory upload progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <div id="inventoryManagementUploadTrack" class="progress rounded-pill" role="progressbar" aria-label="Inventory upload progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
                     <div id="inventoryManagementUploadBar" class="progress-bar progress-bar-striped" style="width: 0%"></div>
                 </div>
                 <div id="inventoryManagementUploadStatus" class="small mt-3"></div>
-                <div id="inventoryManagementUploadLog" class="inventory-management-upload-log list-group small mt-3" aria-live="polite"></div>
+                <div id="inventoryManagementUploadLog" class="inventory-management-upload-log list-group rounded-3 small mt-3" aria-live="polite"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" id="inventoryManagementUploadCancel" class="btn btn-outline-secondary" data-button-tone="cancel"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>
-                <button type="button" id="inventoryManagementUploadStart" class="btn btn-gradient"><i class="bi bi-play-fill me-1" aria-hidden="true"></i>Start</button>
+                <button type="button" id="inventoryManagementUploadStart" class="btn btn-success" data-button-tone="success"><i class="bi bi-play-fill me-1" aria-hidden="true"></i>Start</button>
             </div>
         </div>
     </div>
@@ -166,7 +166,7 @@
         function uploadSetActionButton($button, label, iconClass) {
             if (label === "Cancel") {
                 $button.attr("data-button-tone", "cancel");
-            } else {
+            } else if ($button.attr("data-button-tone") === "cancel") {
                 $button.removeAttr("data-button-tone");
             }
             $button.empty();

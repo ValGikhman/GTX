@@ -570,9 +570,11 @@ html[data-background-theme="dark"] :is(
     .home-reviews,
     .staff-card,
     .staff-empty-state,
-    .about-story
+    .about-story,
+    .majordome-editor-section
 ),
 html[data-background-theme="dark"] .marketing-section-label > small,
+html[data-background-theme="dark"] :where(.majordome-inventory-appraisal) :is(.inventory-appraisal-intro, .pr-market-overview, .pr-demand, .pr-grid-section),
 html[data-background-theme="dark"] .testimonials-page .t-card,
 html[data-background-theme="dark"] .health-card-col > .health-card,
 html[data-background-theme="dark"] #openHours .open-hours-content {
@@ -700,7 +702,13 @@ html[data-background-theme="dark"] #menuScheduleMobile .mobile-menu-address-text
     color: var(--bs-body-color) !important;
 }
 
-html[data-background-theme]:not([data-background-theme="light"]) :is(.card, .modal-content, .offcanvas, .list-group-item, .accordion) {
+html[data-background-theme]:not([data-background-theme="light"]) :is(
+    .card,
+    .modal-content,
+    .offcanvas,
+    .list-group-item:not(:where(:is(.inventory-management-upload-log, .majordome-bulk-progress-log) > .list-group-item)),
+    .accordion
+) {
     --bs-card-bg: var(--bs-body-bg);
     --bs-card-color: var(--bs-body-color);
     --bs-modal-bg: var(--bs-body-bg);
@@ -740,9 +748,13 @@ html[data-background-theme="dark"] .gtx-status-switch > .form-check-input {
     }
 }
 
-html[data-background-theme="dark"] .gtx-status-switch > .form-check-input:checked {
+html[data-background-theme="dark"] .gtx-status-switch > .form-check-input:checked,
+html[data-background-theme] #pr-multiple-mode {
     --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
     background-image: var(--bs-form-switch-bg);
+}
+
+html[data-background-theme="dark"] .gtx-status-switch > .form-check-input:checked {
     background-position: right center;
 }
 
@@ -753,22 +765,30 @@ html[data-background-theme="dark"] :is(.form-switch, .gtx-status-switch) .form-c
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2.25' fill='none' stroke='%23808da0' stroke-width='1.25'/%3e%3c/svg%3e");
 }
 
-html[data-background-theme="dark"] :is(.form-switch, .gtx-status-switch) .form-check-input:checked {
+html[data-background-theme="dark"] :is(.form-switch, .gtx-status-switch) .form-check-input:checked,
+html[data-background-theme] #pr-multiple-mode {
     background-color: var(--gtx-palette-tint-color);
     border-color: var(--gtx-palette-tint-color);
     border-color: color-mix(in srgb, var(--gtx-palette-tint-color) 56%, white);
 }
 
-html.theme-silver[data-background-theme="dark"] :is(.form-switch, .gtx-status-switch) .form-check-input:checked {
+html.theme-silver[data-background-theme="dark"] :is(.form-switch, .gtx-status-switch) .form-check-input:checked,
+html.theme-silver[data-background-theme] #pr-multiple-mode {
     --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23111827'/%3e%3c/svg%3e");
 }
 
-html[data-background-theme="dark"] :is(.form-switch, .gtx-status-switch) .form-check-input:focus {
+html[data-background-theme="dark"] :is(.form-switch, .gtx-status-switch) .form-check-input:focus,
+html[data-background-theme] #pr-multiple-mode:focus {
     box-shadow: none;
 }
 
 html[data-background-theme="dark"] :is(.form-switch, .gtx-status-switch) .form-check-input:focus-visible {
     outline: 2px solid var(--gtx-dark-field-placeholder);
+    outline-offset: 2px;
+}
+
+html[data-background-theme] #pr-multiple-mode:focus-visible {
+    outline: 2px solid var(--bs-body-color);
     outline-offset: 2px;
 }
 
@@ -897,29 +917,51 @@ html[data-background-theme] .pe-editor .pe-body a {
     text-decoration: underline;
 }
 
-html[data-background-theme] :is(.majordome-action-group, .majordome-workspace #tab-details, .vehicle-detail-page) {
+html[data-background-theme] :is(
+    .majordome-action-group, .majordome-workspace #tab-details, .vehicle-detail-page,
+    .inventory-management-upload-log, .majordome-bulk-preview, .majordome-bulk-progress-log
+) {
     --gtx-detail-panel-surface: var(--gtx-tinted-panel-background, #f8fafc);
     --gtx-detail-panel-surface-alt: var(--gtx-tinted-panel-background-alt, #fff);
     --gtx-detail-panel-finish: linear-gradient(180deg, var(--gtx-detail-panel-surface-alt), var(--gtx-detail-panel-surface));
 }
 
 @supports (color: color-mix(in srgb, white, black)) {
-    html[data-background-theme="light"] :is(.majordome-action-group, .majordome-workspace #tab-details, .vehicle-detail-page) {
+    html[data-background-theme="light"] :is(
+        .majordome-action-group, .majordome-workspace #tab-details, .vehicle-detail-page,
+        .inventory-management-upload-log, .majordome-bulk-preview, .majordome-bulk-progress-log
+    ) {
         --gtx-detail-panel-surface: color-mix(in srgb, var(--gtx-palette-tint-color) var(--gtx-panel-tint-amount), #f8fafc);
         --gtx-detail-panel-surface-alt: color-mix(in srgb, var(--gtx-palette-tint-color) var(--gtx-panel-tint-amount), white);
     }
 }
 
-html[data-theme-finish="solid"] :is(.majordome-action-group, .majordome-workspace #tab-details, .vehicle-detail-page) {
+html[data-theme-finish="solid"] :is(
+    .majordome-action-group, .majordome-workspace #tab-details, .vehicle-detail-page,
+    .inventory-management-upload-log, .majordome-bulk-preview, .majordome-bulk-progress-log
+) {
     --gtx-detail-panel-finish: none;
 }
 
 html[data-background-theme] .majordome-action-group,
 html[data-background-theme] .majordome-workspace #tab-details :is(.gtx-dataone-body, .majordome-story-panel),
-html[data-background-theme] .vehicle-detail-page :is(.gtx-dataone-body, .vdp-concierge-heading) {
+html[data-background-theme] .vehicle-detail-page :is(.gtx-dataone-body, .vdp-concierge-heading),
+html[data-background-theme] :is(
+    .inventory-management-upload-log, .majordome-bulk-progress-log,
+    .majordome-remove-bg-filterbar, .majordome-remove-bg-token-card, .majordome-background-preview-card
+) {
     background-color: var(--gtx-detail-panel-surface);
     background-image: var(--gtx-detail-panel-finish);
     color: var(--gtx-steel-panel-ink, var(--bs-body-color));
+}
+
+html[data-background-theme] :is(.inventory-management-upload-log, .majordome-bulk-progress-log) > .list-group-item-light {
+    --bs-list-group-bg: transparent;
+    --bs-list-group-color: inherit;
+}
+
+html[data-background-theme] :is(#inventoryManagementUploadTrack, #majordomeBulkProgressTrack) {
+    --bs-progress-bg: var(--gtx-field-background, var(--bs-secondary-bg));
 }
 
 :is(.majordome-workspace #tab-details, .vehicle-detail-page) .gtx-dataone-card {
@@ -1007,12 +1049,12 @@ html[data-background-theme="dark"] .majordome-management-detail-panel .inventory
     background: transparent !important;
 }
 
-html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-history-status {
+html[data-background-theme="dark"] :is(.inventory-dashboard-history-panel .inventory-dashboard-history-status, .majordome-background-preview-date) {
     background: var(--bs-secondary-bg);
     color: var(--bs-body-color);
 }
 
-html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-history-status.is-added {
+html[data-background-theme="dark"] :is(.inventory-dashboard-history-panel .inventory-dashboard-history-status, .majordome-background-preview-date).is-added {
     background: var(--bs-success-bg-subtle);
     color: var(--bs-success-text-emphasis);
 }
@@ -1027,7 +1069,7 @@ html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory
     color: var(--bs-primary-text-emphasis);
 }
 
-html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-history-status.is-purchased {
+html[data-background-theme="dark"] :is(.inventory-dashboard-history-panel .inventory-dashboard-history-status, .majordome-background-preview-date).is-purchased {
     background: var(--bs-warning-bg-subtle);
     color: var(--bs-warning-text-emphasis);
 }
@@ -1092,6 +1134,7 @@ html[data-background-theme] body :is(
     .header .btn.light-gradient-action,
     #myTab > .btn[role="tab"].active,
     #majordomeBatchActionsDropdown,
+    #majordomeInventoryDecodeVin,
     .pg-action-cell .btn
 ) {
     --gtx-gradient-ink: var(--bs-dark, #212529);
@@ -1141,6 +1184,7 @@ html[data-background-theme] body :is(
     .header .btn.light-gradient-action,
     #myTab > .btn[role="tab"].active,
     #majordomeBatchActionsDropdown,
+    #majordomeInventoryDecodeVin,
     .pg-action-cell .btn
 ):focus-visible {
     outline: 2px solid currentColor;
@@ -1304,11 +1348,18 @@ html[data-background-theme="dark"] .majordome-editor-body::-webkit-scrollbar-thu
     background: var(--bs-body-color);
 }
 
+html[data-background-theme="light"][data-theme-finish="gradient"] .majordome-editor-section {
+    background-image: linear-gradient(180deg, var(--bs-body-bg), var(--gtx-page-bg));
+}
+
 html[data-background-theme="dark"] .majordome-editor-section {
     --majordome-editor-section-color: #5eead4;
-    background: var(--bs-body-bg);
     border-color: var(--bs-border-color);
     border-left-color: var(--majordome-editor-section-color);
+}
+
+html[data-background-theme="dark"][data-theme-finish="solid"] .majordome-editor-section {
+    background: var(--gtx-tinted-panel-background);
 }
 
 html[data-background-theme="dark"] .majordome-editor-section-pricing {
@@ -1325,11 +1376,12 @@ html[data-background-theme="dark"] .majordome-editor-section-dates {
 
 html[data-background-theme="dark"] .majordome-editor-section-title {
     border-bottom-color: var(--bs-border-color);
+    color: var(--gtx-steel-panel-ink);
 }
 
 html[data-background-theme="dark"] .majordome-editor-modal .form-label,
 html[data-background-theme="dark"] .majordome-editor-label-icon {
-    color: var(--bs-secondary-color);
+    color: var(--gtx-steel-panel-ink);
 }
 
 html[data-background-theme="dark"] .majordome-editor-modal :is(.form-control, .form-select) {
@@ -1369,6 +1421,15 @@ html[data-background-theme="dark"] .modal select:is(.form-select, .pe-select):no
     color-scheme: dark;
 }
 
+html[data-background-theme] .majordome-editor-modal select.form-select:not(:disabled, [multiple], [size]:not([size="1"])) {
+    background:
+        var(--gtx-light-select-caret) right .75rem center / 16px 12px no-repeat,
+        var(--bs-form-select-bg-icon, none) right 2.25rem center / calc(.75em + .375rem) calc(.75em + .375rem) no-repeat,
+        var(--gtx-action-button-background, var(--gtx-light-control-background));
+    color: var(--gtx-action-button-ink, var(--bs-dark, #212529));
+    color-scheme: light;
+}
+
 html[data-background-theme="dark"] .modal .pe-select {
     --gtx-modal-select-caret-inset: .55rem;
     --gtx-modal-select-caret-size: 12px 9px;
@@ -1400,6 +1461,19 @@ html[data-background-theme] :is(
 
 html[data-background-theme] .form-control:is([readonly], :disabled):not(.form-control-plaintext, [type="file"]) {
     background-color: var(--gtx-field-background);
+}
+
+/* Repaint the arrows while retaining the browser's native stepping behavior. */
+@supports (mask: none) {
+    @media (forced-colors: none) {
+        html[data-background-theme] input[type="number"]:not(:disabled, [readonly])::-webkit-inner-spin-button {
+            appearance: none;
+            inline-size: 1rem;
+            block-size: 1.375rem;
+            background-color: currentColor;
+            mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2012%2020'%3E%3Cpath%20fill%3D'none'%20stroke%3D'white'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%20stroke-width%3D'1.5'%20d%3D'M3%207l3-3%203%203M3%2013l3%203%203-3'%2F%3E%3C%2Fsvg%3E") center / .75rem 1.25rem no-repeat;
+        }
+    }
 }
 
 html[data-background-theme] .pg-search-input-group {

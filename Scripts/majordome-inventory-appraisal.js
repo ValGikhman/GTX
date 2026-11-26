@@ -8,6 +8,7 @@
         const $modal = $(modal);
         const form = modal.querySelector('[data-appraisal-research-form]');
         const vehicleLabel = modal.querySelector('[data-inventory-appraisal-vehicle]');
+        const stockBadge = modal.querySelector('[data-inventory-appraisal-stock]');
         const inventoryPrice = modal.querySelector('[data-inventory-appraisal-inventory-price]');
         const priceAmount = modal.querySelector('[data-inventory-appraisal-price-amount]');
         const fee = Number(modal.dataset.documentaryFee);
@@ -84,8 +85,10 @@
                 }
 
                 vehicleTitle = [vehicle.Year, vehicle.Make, vehicle.Model].filter(Boolean).join(' ');
-                const stock = vehicle.Stock ? 'Stock #' + vehicle.Stock : '';
-                vehicleLabel.textContent = [vehicleTitle, stock].filter(Boolean).join(' · ') || 'Selected vehicle';
+                const stock = String(vehicle.Stock || '').trim();
+                vehicleLabel.textContent = vehicleTitle || 'Selected vehicle';
+                stockBadge.textContent = stock ? 'Stock #' + stock : '';
+                stockBadge.hidden = !stock;
                 window.bootstrap.Modal.getOrCreateInstance(modal).show(trigger);
             }
         };

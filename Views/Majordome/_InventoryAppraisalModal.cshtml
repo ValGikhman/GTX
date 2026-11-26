@@ -10,16 +10,23 @@
             </div>
 
             <div class="modal-body">
-                <div class="inventory-appraisal-intro">
-                    <div>
-                        <strong class="inventory-appraisal-vehicle" data-inventory-appraisal-vehicle></strong>
-                        <p class="inventory-appraisal-description" id="majordomeInventoryAppraisalDescription">Get a suggested retail price and compare dealers listing similar vehicles nearby.</p>
-                    </div>
-                    <div class="inventory-appraisal-inventory-price" data-inventory-appraisal-inventory-price hidden>
-                        <strong data-inventory-appraisal-price-amount></strong>
-                        <small>Includes documentary fee</small>
-                    </div>
-                </div>
+                <section class="inventory-appraisal-intro" aria-labelledby="inventoryAppraisalVehicleTitle">
+                    <header>
+                        <div class="pr-vehicle-identity">
+                            <span class="pr-section-icon" aria-hidden="true"><i class="bi bi-car-front"></i></span>
+                            <div>
+                                <h3 id="inventoryAppraisalVehicleTitle" class="inventory-appraisal-vehicle" data-inventory-appraisal-vehicle></h3>
+                                <span class="inventory-appraisal-stock badge rounded-pill text-wrap mt-2" data-inventory-appraisal-stock hidden></span>
+                            </div>
+                        </div>
+                        <div class="inventory-appraisal-inventory-price text-center" data-inventory-appraisal-inventory-price hidden>
+                            <span class="pr-eyebrow">Inventory price</span>
+                            <strong data-inventory-appraisal-price-amount></strong>
+                            <small>Includes documentary fee</small>
+                        </div>
+                    </header>
+                    <p class="inventory-appraisal-description" id="majordomeInventoryAppraisalDescription">Get a suggested retail price and compare dealers listing similar vehicles nearby.</p>
+                </section>
 
                 @Html.Partial("_AppraisalResearchForm", "inventory-appraisal")
 
