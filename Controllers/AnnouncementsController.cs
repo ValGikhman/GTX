@@ -3,6 +3,7 @@ using GTX.Models;
 using Services;
 using System;
 using System.Linq;
+using System.Web;
 using System.Web.Mvc;
 
 namespace GTX.Controllers
@@ -74,6 +75,9 @@ namespace GTX.Controllers
 
             return Json(new { ok = true });
         }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult UploadImage(HttpPostedFileBase file) => RichContentImageUpload.Save(file, Server, Url);
 
         [HttpPost]
         public JsonResult Delete(int id)

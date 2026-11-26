@@ -1,7 +1,4 @@
 using System;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -78,34 +75,14 @@ namespace GTX
         public ActionResult Delete(int id) => Json(new { ok = specials.Delete(id) });
 
         [HttpPost, RequireAdminRole, ValidateAntiForgeryToken]
-        public ActionResult UploadImage(HttpPostedFileBase file)
-        {
-            if (file == null || file.ContentLength == 0 || file.ContentLength > 5 * 1024 * 1024)
-                return new HttpStatusCodeResult(400, "Choose an image up to 5 MB.");
-            try
-            {
-                using (var source = System.Drawing.Image.FromStream(file.InputStream, false, true))
-                {
-                    if (source.Width > 6000 || source.Height > 6000 || (long)source.Width * source.Height > 20000000)
-                        return new HttpStatusCodeResult(400, "Image dimensions are too large.");
-                    // Re-encode decoded pixels; never store the supplied filename or executable content.
-                    var directory = Server.MapPath("~/App_Data/SpecialsImages");
-                    Directory.CreateDirectory(directory);
-                    var name = Guid.NewGuid().ToString("N");
-                    using (var bitmap = new Bitmap(source)) bitmap.Save(Path.Combine(directory, name + ".png"), ImageFormat.Png);
-                    return Json(new { url = Url.Action("Image", "Specials", new { id = name }) });
-                }
-            }
-            catch (ArgumentException) { return new HttpStatusCodeResult(400, "Choose a valid PNG, JPEG, GIF or BMP image."); }
-            catch (OutOfMemoryException) { return new HttpStatusCodeResult(400, "The image could not be decoded."); }
-        }
+        public ActionResult UploadImage(HttpPostedFileBase file) => RichContentImageUpload.Save(file, Server, Url);
 
         [HttpGet]
         public ActionResult Image(string id)
         {
             Guid imageId;
             if (!Guid.TryParseExact(id, "N", out imageId)) return HttpNotFound();
-            var path = Server.MapPath("~/App_Data/SpecialsImages/" + imageId.ToString("N") + ".png");
+            var path = Server.MapPath(RichContentImageUpload.DirectoryPath + "/" + imageId.ToString("N") + ".png");
             if (!System.IO.File.Exists(path)) return HttpNotFound();
             return File(path, "image/png");
         }
