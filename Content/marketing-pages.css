@@ -338,9 +338,10 @@ html[data-theme-finish="solid"] .marketing-hero :is(.marketing-eyebrow, .marketi
 }
 
 .contact-showroom,
-.contact-form-panel {
+.contact-form-panel,
+:where(.majordome-inventory-appraisal) :is(.inventory-appraisal-intro, .pr-market-overview, .pr-demand, .pr-grid-section) {
     overflow: hidden;
-    border: 1px solid var(--mp-line);
+    border: 1px solid var(--mp-line, rgba(11, 17, 24, .13));
     border-radius: 1.35rem;
     background: rgba(255, 255, 255, .9);
     box-shadow: 0 1.3rem 3.2rem rgba(11, 17, 24, .12);
@@ -460,28 +461,31 @@ html[data-theme-finish="solid"] .marketing-hero :is(.marketing-eyebrow, .marketi
     transform: translateY(-2px);
 }
 
-.contact-form-panel {
+.contact-form-panel,
+:where(.majordome-inventory-appraisal) :is(.inventory-appraisal-intro, .pr-market-overview, .pr-demand, .pr-grid-section) {
     padding: clamp(1rem, 3vw, 1.5rem);
 }
 
-.contact-panel-heading {
+.contact-panel-heading,
+:where(.majordome-inventory-appraisal) :is(.inventory-appraisal-intro, .pr-market-overview, .pr-demand, .pr-grid-section) > header {
     display: flex;
     gap: .8rem;
     align-items: center;
     margin-bottom: 1rem;
     padding-bottom: .9rem;
-    color: var(--mp-ink);
-    border-bottom: 1px solid var(--mp-line);
+    color: var(--mp-ink, inherit);
+    border-bottom: 1px solid var(--mp-line, rgba(11, 17, 24, .13));
 }
 
-.contact-panel-heading > i {
+.contact-panel-heading > i,
+:where(.majordome-inventory-appraisal) .pr-section-icon {
     display: grid;
     place-items: center;
     width: 2.7rem;
     height: 2.7rem;
-    color: #fff;
+    color: var(--panel-icon-ink, #fff);
     border-radius: .75rem;
-    background: var(--mp-gradient);
+    background: var(--mp-gradient, var(--gtx-grad, #155a96));
 }
 
 .contact-panel-heading strong {

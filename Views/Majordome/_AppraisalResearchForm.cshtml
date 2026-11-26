@@ -8,41 +8,63 @@
     var zipId = prefix + "-zip";
     var radiusId = prefix + "-radius";
     var submitId = prefix + "-submit";
-    var vinGroupClass = isEmbedded ? "input-group input-group-lg flex-nowrap" : "input-group vin-decoder-input-group flex-nowrap";
     var submitClass = isEmbedded
-        ? "btn btn-gradient fw-semibold d-flex align-items-center gap-2 ms-auto mt-3"
+        ? "btn btn-gradient fw-semibold d-flex align-items-center gap-2"
         : "btn vin-schema-button vin-schema-button-primary";
 }
 
-<form id="@formId" class="vin-decoder-controls" method="post" action="@Url.Action("AppraisalResearch", "Majordome")"
+<form id="@formId" class="vin-decoder-controls appraisal-research-form" method="post" action="@Url.Action("AppraisalResearch", "Majordome")"
       autocomplete="off" data-appraisal-research-form>
     @Html.AntiForgeryToken()
     <div class="pr-appraisal-vin">
         <label class="form-label" for="@vinId">VIN <span class="text-danger fs-5 fw-bold lh-1" aria-hidden="true">*</span></label>
-        <div class="@vinGroupClass">
+        <div class="input-group vin-decoder-input-group flex-nowrap">
             <span class="input-group-text"><i class="bi bi-car-front-fill" aria-hidden="true"></i></span>
             <input id="@vinId" name="vin" class="form-control text-uppercase" required maxlength="17"
                    pattern="[A-HJ-NPR-Za-hj-npr-z0-9]{17}" spellcheck="false" autocapitalize="characters"
                    title="Enter a 17-character VIN without I, O, or Q." placeholder="Enter a 17-character VIN" />
         </div>
     </div>
-    @if (isEmbedded)
-    {
-        <div class="row g-3 my-1">
-            <div class="col-12 col-sm-4">
-                <label class="form-label" for="@milesId">Odometer miles <span class="text-danger fs-5 fw-bold lh-1" aria-hidden="true">*</span></label>
-                <input id="@milesId" name="miles" class="form-control" type="number" min="0" max="2000000" step="1" inputmode="numeric" required />
-            </div>
-            <div class="col-6 col-sm-4">
-                <label class="form-label" for="@zipId">ZIP code</label>
-                <input id="@zipId" name="zip" class="form-control" value="@GTX.Controllers.MajordomeController.AppraisalDefaultZip" pattern="[0-9]{5}" maxlength="5" inputmode="numeric" placeholder="Profile ZIP" />
-            </div>
-            <div class="col-6 col-sm-4">
-                <label class="form-label" for="@radiusId">Radius (mi)</label>
-                <input id="@radiusId" name="radius" class="form-control" value="@GTX.Controllers.MajordomeController.AppraisalDefaultRadius" type="number" min="1" max="500" step="1" inputmode="numeric" placeholder="Profile radius" />
-            </div>
-        </div>
-    }
+    <div class="pr-appraisal-mileage">
+        <label class="form-label" for="@milesId">
+            @if (!isEmbedded)
+            {
+                <i class="bi bi-speedometer2" aria-hidden="true"></i>
+            }
+            Odometer miles <span class="text-danger fs-5 fw-bold lh-1" aria-hidden="true">*</span>
+        </label>
+        <input id="@milesId" name="miles" class="form-control" type="number" min="0" max="2000000" step="1" inputmode="numeric" required />
+    </div>
+    <div>
+        <label class="form-label" for="@zipId">
+            @if (!isEmbedded)
+            {
+                <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
+            }
+            ZIP code
+            @if (!isEmbedded)
+            {
+                <span class="text-danger fs-5 fw-bold lh-1" aria-hidden="true">*</span>
+            }
+        </label>
+        <input id="@zipId" name="zip" class="form-control" value="@GTX.Controllers.MajordomeController.AppraisalDefaultZip"
+               required="@(!isEmbedded)" pattern="[0-9]{5}" maxlength="5" inputmode="numeric" placeholder="@(isEmbedded ? "Profile ZIP" : null)" />
+    </div>
+    <div>
+        <label class="form-label" for="@radiusId">
+            @if (!isEmbedded)
+            {
+                <i class="bi bi-bullseye" aria-hidden="true"></i>
+            }
+            Radius (mi)
+            @if (!isEmbedded)
+            {
+                <span class="text-danger fs-5 fw-bold lh-1" aria-hidden="true">*</span>
+            }
+        </label>
+        <input id="@radiusId" name="radius" class="form-control" value="@GTX.Controllers.MajordomeController.AppraisalDefaultRadius"
+               required="@(!isEmbedded)" type="number" min="1" max="500" step="1" inputmode="numeric" placeholder="@(isEmbedded ? "Profile radius" : null)" />
+    </div>
     <button type="submit" id="@submitId" class="@submitClass" disabled="@(!isEmbedded)" data-appraisal-submit>
         <i class="bi bi-search" aria-hidden="true"></i><span>Research price</span>
     </button>
