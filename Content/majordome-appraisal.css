@@ -523,7 +523,10 @@ html.theme-silver #price-research {
 }
 
 /* Individual and PDF watch-list research share the existing appraisal console. */
-#price-research .vin-decoder-console { align-items: start; }
+#price-research .vin-decoder-console {
+    grid-template-columns: minmax(0, 54rem);
+    justify-content: center;
+}
 #price-research .pr-research-workspace {
     --pr-individual-controls-width: 21.3rem;
     container-type: inline-size;
@@ -716,11 +719,6 @@ html[data-background-theme="dark"] #price-research :is(
 
 html[data-background-theme="dark"] #price-research .pr-comparables-options {
     color: var(--pr-ink);
-}
-
-html[data-background-theme="dark"] #price-research .vin-decoder-console-copy {
-    --mp-ink: var(--pr-ink);
-    --mp-accent: var(--pr-accent);
 }
 
 html[data-background-theme="dark"] #price-research :is(.vin-decoder-empty strong, #pr-bid-current-verdict, .pr-bid-error) {

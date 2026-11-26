@@ -190,7 +190,7 @@
 
         /**
          * Show a settings (gear) button at the end of the toolbar that opens a
-         * checklist letting the user dynamically show/hide toolbar tools
+         * panel that lets the user show or hide toolbar tools
          * (including tools registered but not present in `tools`).
          * Default true.
          */
@@ -269,11 +269,10 @@
 
             // The configured tool list becomes a stable "spec": layout order
             // and separators are preserved, and it drives both the initial
-            // render and the settings checklist below.
+            // render and the settings switches below.
             this._toolSpec    = this._normalizeToolSpec(this._opts.tools || []);
             this._activeTools = new Set(this._specToolNames());
-            this._extraTools  = []; // tools enabled later via the checklist that
-                                     // weren't part of the original `tools` option
+            this._extraTools  = []; // tools enabled later outside the original `tools` option
 
             this.$toolbar.append(this.$toolsArea);
             this._renderToolGroups();
@@ -403,13 +402,13 @@
             function addRow(name) {
                 const def = toolRegistry[name];
                 const id  = 'pe-set-' + self._instanceId() + '-' + name;
-                const $cb = $('<input type="checkbox">').attr('id', id)
+                const $toggle = $('<input type="checkbox" class="form-check-input m-0 flex-shrink-0" role="switch">').attr('id', id)
                     .prop('checked', self._activeTools.has(name))
                     .on('change', function () { self._toggleTool(name, this.checked); });
 
                 $list.append(
-                    $('<label class="pe-settings-item"></label>').attr('for', id)
-                        .append($cb)
+                    $('<label class="pe-settings-item form-switch"></label>').attr('for', id)
+                        .append($toggle)
                         .append('<i class="bi ' + (def.icon || 'bi-sliders') + ' pe-settings-icon"></i>')
                         .append('<span>' + (def.title || name) + '</span>')
                 );

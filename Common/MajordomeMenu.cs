@@ -22,6 +22,11 @@ namespace GTX.Common {
             return MajordomeItem.InventoryDashboard + "." + permission;
         }
 
+        public static string PermissionKey(MajordomeItem item) {
+            // Historical Profile tokens predate the explicit grant.
+            return item == MajordomeItem.Profile ? "CompanyProfile" : item.ToString();
+        }
+
         public static readonly IReadOnlyList<MajordomeMenuEntry> Items = Array.AsReadOnly(new[] {
             Entry(MajordomeItem.InventoryDashboard, "Dashboard", Enums.Controllers.InventoryManagement, "Dashboard", icon: "bi-speedometer2", description: "Track inventory activity and trends"),
             Entry(MajordomeItem.InventoryManagement, "Management", Enums.Controllers.InventoryManagement, icon: "bi-database-gear", description: "Manage inventory imports and records"),
@@ -41,7 +46,7 @@ namespace GTX.Common {
         public static string[] Defaults(string role) {
             return Items.Where(x => role == MajordomeAccount.Name
                 || (x.Item != MajordomeItem.Roles && x.Item != MajordomeItem.Profile && x.Item != MajordomeItem.Services))
-                .Select(x => x.Item.ToString()).Concat(DashboardSections.Keys.Select(DashboardSectionKey)).ToArray();
+                .Select(x => PermissionKey(x.Item)).Concat(DashboardSections.Keys.Select(DashboardSectionKey)).ToArray();
         }
         public static MajordomeItem ForRequest(string controller, string action) {
             if (controller.Equals(Enums.Controllers.Majordome.ToString(), StringComparison.OrdinalIgnoreCase))

@@ -4,7 +4,7 @@
     var isEdit = Model != null && Model.Id > 0;
     var permissions = Model?.Permissions ?? new string[0];
     var grantablePermissions = ViewBag.GrantablePermissions as string[] ?? Array.Empty<string>();
-    var menuItems = MajordomeMenu.Items.Where(item => grantablePermissions.Contains(item.Item.ToString()));
+    var menuItems = MajordomeMenu.Items.Where(item => grantablePermissions.Contains(MajordomeMenu.PermissionKey(item.Item)));
     var dashboardSections = MajordomeMenu.DashboardSections
         .Where(section => grantablePermissions.Contains(MajordomeMenu.DashboardSectionKey(section.Key)))
         .ToArray();
@@ -21,12 +21,13 @@
                 </h2>
                 <div class="card-body role-editor-permissions">
                     @foreach (var item in menuItems) {
-                        var key = item.Item.ToString();
+                        var key = MajordomeMenu.PermissionKey(item.Item);
+                        var inputId = "permission-" + item.Item;
                         var granted = permissions.Contains(key);
                         <div>
                             <div class="form-check form-switch role-editor-permission">
-                                <input class="form-check-input" type="checkbox" name="Permissions" value="@key" id="permission-@key" checked="@granted" />
-                                <label class="form-check-label" for="permission-@key">@item.Title</label>
+                                <input class="form-check-input" type="checkbox" name="Permissions" value="@key" id="@inputId" checked="@granted" />
+                                <label class="form-check-label" for="@inputId">@item.Title</label>
                             </div>
                             @if (item.Item == MajordomeItem.InventoryDashboard && dashboardSections.Length > 0) {
                                 <div class="ms-3 mt-1" data-dashboard-permissions hidden="@(!granted)">
@@ -95,7 +96,7 @@
         </div>
     </div>
     <div class="card-footer role-editor-footer border-0 d-flex flex-wrap align-items-center justify-content-end gap-2 py-2">
-        <button type="button" class="btn btn-outline-secondary shadow" data-button-tone="danger" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1"></i>Cancel</button>
+        <button type="button" class="btn btn-outline-secondary shadow" data-button-tone="cancel" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1"></i>Cancel</button>
         <button type="submit" class="btn @(isEdit ? "btn-gradient" : "btn-success") shadow" data-button-tone="success"><i class="bi @(isEdit ? "bi-save" : "bi-plus-circle") me-1"></i>@(isEdit ? "Save" : "Create")</button>
     </div>
 }

@@ -96,24 +96,37 @@ INSERT dbo.SiteRole(Name,PasswordHash,Revision,Permissions) VALUES
     if ($owner.Revision -cne 'owner-before-migration') { throw 'Permission migration unnecessarily changed the Owner password revision.' }
     $initialized = [GTX.SiteRoleStore].GetField('Initialized', [Reflection.BindingFlags]'NonPublic,Static').GetValue($null)
     $locationKey = [GTX.Common.MajordomeMenu]::DashboardSectionKey([GTX.Common.DashboardPermission]::LocationCode)
+    $profilePermission = [GTX.Common.MajordomeItem]::Profile
+    $profileKey = [GTX.Common.MajordomeMenu]::PermissionKey($profilePermission)
 
     # Simulate an existing database that already completed the ordinary menu and Dashboard migrations.
     Invoke-RoleSql $testConnectionString @'
 UPDATE dbo.SiteRole SET Permissions=N'Appraisal,Roles,Roles' WHERE Name=N'Manager';
 UPDATE dbo.SiteRole SET Permissions=N'Users,Users,VinDecoder' WHERE Name=N'Detail Team';
+UPDATE dbo.SiteRole SET Permissions=N'Profile,Appraisal' WHERE Name=N'Owner';
 DELETE FROM dbo.SiteRoleSetup WHERE Id=4;
 '@
     [void]$initialized.Remove($testConnectionString)
     $roles = @($store.All())
     $manager = $roles | Where-Object Name -eq 'Manager'
     $detailTeam = $roles | Where-Object Name -eq 'Detail Team'
+    $owner = $roles | Where-Object Name -eq 'Owner'
     if (($manager.Permissions -join ',') -cne 'Appraisal' -or ($detailTeam.Permissions -join ',') -cne 'VinDecoder' -or
         [GTX.Common.SiteAccess]::Can($manager, [GTX.Common.MajordomeItem]::Roles) -or
         [GTX.Common.SiteAccess]::Can($detailTeam, [GTX.Common.MajordomeItem]::Roles)) {
         throw 'Legacy Roles or Users values granted access, or migration removed an ordinary permission.'
     }
+    if (($owner.Permissions -join ',') -cne 'Profile,Appraisal' -or [GTX.Common.SiteAccess]::Can($owner, $profilePermission)) {
+        throw 'Legacy Profile data was removed or activated without an explicit grant.'
+    }
+    $owner.Permissions = @('Appraisal', $profileKey)
+    $store.Save($owner, $builtIn)
+    $owner = $store.All() | Where-Object Name -eq 'Owner'
+    if (![GTX.Common.SiteAccess]::Can($owner, $profilePermission)) { throw 'Majordome could not grant Profile to the existing Owner.' }
     $owner.Permissions = @('VinDecoder', 'InventoryDashboard')
     $store.Save($owner, $builtIn)
+    $owner = $store.All() | Where-Object Name -eq 'Owner'
+    if ([GTX.Common.SiteAccess]::Can($owner, $profilePermission)) { throw 'Revoked Profile access remained active for Owner.' }
     $manager.Permissions = @('Appraisal', $locationKey)
     $store.Save($manager, $builtIn)
 
@@ -189,8 +202,22 @@ DELETE FROM dbo.SiteRoleSetup WHERE Id=4;
         throw 'A submitted permission array granted a regular role access to reserved pages.'
     }
 
+    $profileEditor = New-Object GTX.Models.SiteRoleModel -Property @{
+        Name = 'Company Editor'
+        Password = 'Company-Editor-Test48!'
+        Permissions = @('Appraisal', $profileKey)
+    }
+    $store.Save($profileEditor, $builtIn)
+    [void]$initialized.Remove($testConnectionString)
+    $profileEditor = $store.All() | Where-Object Name -eq 'Company Editor'
+    if (![GTX.Common.SiteAccess]::Can($profileEditor, $profilePermission)) { throw 'A Profile grant did not persist for a new custom role.' }
+    $profileEditor.Permissions = @('Appraisal')
+    $store.Save($profileEditor, $builtIn)
+    $profileEditor = $store.All() | Where-Object Name -eq 'Company Editor'
+    if ([GTX.Common.SiteAccess]::Can($profileEditor, $profilePermission)) { throw 'Revoked Profile access remained active for the custom role.' }
+
     $manager = $store.All() | Where-Object Name -eq 'Manager'
-    $manager.Permissions = @('Appraisal', 'Roles')
+    $manager.Permissions = @('Appraisal', 'Roles', $profileKey)
     $store.Save($manager, $builtIn)
     [void]$initialized.Remove($testConnectionString)
     $delegate = $store.All() | Where-Object Name -eq 'Manager'
@@ -208,7 +235,7 @@ DELETE FROM dbo.SiteRoleSetup WHERE Id=4;
     $child = $store.All() | Where-Object Name -eq 'Delegated Appraiser'
     if (!$child -or ($child.Permissions -join ',') -cne 'Appraisal') { throw 'Delegated role creation did not persist.' }
 
-    foreach ($unavailablePermission in @('Roles', 'VinDecoder')) {
+    foreach ($unavailablePermission in @('Roles', 'VinDecoder', $profileKey)) {
         $child.Permissions = @('Appraisal', $unavailablePermission)
         Assert-RoleRejected "delegating $unavailablePermission outside the manager's scope" {
             $store.Save($child, $delegate)
@@ -220,6 +247,11 @@ DELETE FROM dbo.SiteRoleSetup WHERE Id=4;
     # Re-read the target at write time, including when the editor has an older snapshot.
     $child.Permissions = @('Appraisal')
     $promoted = $store.All() | Where-Object Id -eq $child.Id
+    $promoted.Permissions += $profileKey
+    $store.Save($promoted, $builtIn)
+    Assert-RoleRejected 'editing a role with Profile access' { $store.Save($child, $delegate) } -ExpectedType ([UnauthorizedAccessException])
+    Assert-RoleRejected 'deleting a role with Profile access' { $store.Delete($child.Id, $delegate) } -ExpectedType ([UnauthorizedAccessException])
+    $promoted.Permissions = @('Appraisal')
     $promoted.Permissions += 'Roles'
     $store.Save($promoted, $builtIn)
     Assert-RoleRejected 'editing a newly promoted role' { $store.Save($child, $delegate) } -ExpectedType ([UnauthorizedAccessException])

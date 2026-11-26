@@ -89,7 +89,7 @@
                 <div id="majordomeBulkProgressLog" class="majordome-bulk-progress-log list-group small mt-3" aria-live="polite"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" id="majordomeBulkCancel" class="btn btn-outline-secondary" data-button-tone="danger"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>
+                <button type="button" id="majordomeBulkCancel" class="btn btn-outline-secondary" data-button-tone="cancel"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>
                 <button type="button" id="majordomeBulkStart" class="btn btn-gradient"><i class="bi bi-play-fill me-1" aria-hidden="true"></i>Start</button>
             </div>
         </div>
@@ -286,7 +286,7 @@
                     </div>
                 </div>
                 <div class="modal-footer majordome-editor-footer">
-                    <button type="button" class="btn btn-outline-secondary majordome-editor-cancel-btn" data-button-tone="danger" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>
+                    <button type="button" class="btn btn-outline-secondary majordome-editor-cancel-btn" data-button-tone="cancel" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>
                     <button type="submit" class="btn btn-gradient shadow majordome-editor-save-btn" id="majordomeInventoryEditorSave" data-button-tone="success">
                         <i class="bi bi-check2-circle me-1"></i>Save inventory
                     </button>
@@ -1024,7 +1024,7 @@
                 <div class="input-group">
                     <input type="text" class="form-control shadow-sm js-majordome-editor-new-option-value" inputmode="${inputMode}"${maxLengthAttr} placeholder="New ${escapeHtml(label)}" />
                     <button type="button" class="btn btn-gradient js-majordome-editor-add-option">Add</button>
-                    <button type="button" class="btn btn-outline-secondary js-majordome-editor-cancel-option" data-button-tone="danger">Cancel</button>
+                    <button type="button" class="btn btn-outline-secondary js-majordome-editor-cancel-option" data-button-tone="cancel">Cancel</button>
                 </div>
             </div>`);
 
@@ -3017,7 +3017,7 @@
 
     function setMajordomeBulkActionButton($button, label, iconClass) {
         if (label === "Cancel" || label === "Stopping...") {
-            $button.attr("data-button-tone", "danger");
+            $button.attr("data-button-tone", "cancel");
         } else {
             $button.removeAttr("data-button-tone");
         }

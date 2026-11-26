@@ -177,16 +177,7 @@ html[data-background-theme][class*="theme-palette-"] {
     html[data-background-theme][class*="theme-palette-"] {
         --palette-header-start: color-mix(in srgb, var(--palette-light-accent) 46%, #10151b);
         --palette-header-end: color-mix(in srgb, var(--palette-light-selection) 36%, #10151b);
-        --gtx-page-bg: color-mix(in srgb, var(--palette-canvas) 10%, var(--gtx-default-page-bg, ghostwhite));
     }
-
-    html[data-background-theme="dark"][class*="theme-palette-"] {
-        --gtx-page-bg: color-mix(in srgb, var(--palette-canvas) 14%, var(--gtx-default-page-bg));
-    }
-}
-
-html[data-background-theme="light"][class*="theme-palette-"] body .body-content {
-    background-color: var(--gtx-page-bg, ghostwhite) !important;
 }
 
 html[class*="theme-palette-"] :is(.btn-gradient, .btn-big-gradient),

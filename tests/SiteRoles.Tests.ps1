@@ -10,6 +10,8 @@ if ($items.Count -ne 15) { throw 'Catalog must cover every Majordome item includ
 if (@($items | Group-Object Item | Where-Object Count -ne 1).Count) { throw 'Duplicate menu keys.' }
 $locationPermission = [GTX.Common.DashboardPermission]::LocationCode
 $locationKey = [GTX.Common.MajordomeMenu]::DashboardSectionKey($locationPermission)
+$profilePermission = [GTX.Common.MajordomeItem]::Profile
+$profileKey = [GTX.Common.MajordomeMenu]::PermissionKey($profilePermission)
 if ($locationKey -cne 'InventoryDashboard.LocationCode') { throw 'The stored Dashboard Location Code key changed.' }
 $regularItems = @($items | Where-Object { $_.Item.ToString() -notin @('Roles', 'Profile', 'Services') })
 $regularDefaults = (@($regularItems | ForEach-Object { $_.Item.ToString() }) + $locationKey) -join ','
@@ -39,8 +41,15 @@ if (![GTX.Common.SiteAccess]::Can($custom, [GTX.Common.MajordomeItem]::Appraisal
 if (![GTX.Common.SiteAccess]::Can($custom, [GTX.Common.MajordomeItem]::Roles) -or [GTX.Common.SiteAccess]::IsMajordome($custom)) {
     throw 'An explicit Roles grant must allow the page while preserving ordinary role identity.'
 }
-foreach ($reserved in @([GTX.Common.MajordomeItem]::Profile, [GTX.Common.MajordomeItem]::Services)) {
-    if ([GTX.Common.SiteAccess]::Can($custom, $reserved)) { throw "Regular role obtained reserved $reserved access through a stored grant." }
+if ([GTX.Common.SiteAccess]::Can($custom, $profilePermission)) {
+    throw 'A legacy Profile token activated company profile management.'
+}
+$custom.Permissions += $profileKey
+if (![GTX.Common.SiteAccess]::Can($custom, $profilePermission)) {
+    throw 'An explicit Profile grant must allow a regular role to open the page.'
+}
+if ([GTX.Common.SiteAccess]::Can($custom, [GTX.Common.MajordomeItem]::Services)) {
+    throw 'A stored grant bypassed the Services restriction.'
 }
 $custom.Permissions = $null
 if ([GTX.Common.SiteAccess]::Can($custom, [GTX.Common.MajordomeItem]::Appraisal)) { throw 'Null permission list must deny access.' }
@@ -75,8 +84,8 @@ if ((($delegateGrants | Sort-Object) -join ',') -cne 'Appraisal,InventoryDashboa
     throw 'A role manager can grant only their own ordinary permissions.'
 }
 $administratorGrants = [GTX.Common.SiteAccess]::GrantableRolePermissions($administrator)
-if ($administratorGrants -notcontains 'Roles' -or $administratorGrants -contains 'Profile' -or $administratorGrants -contains 'Services') {
-    throw 'Majordome must be able to grant Roles while retaining exclusive Profile and Services access.'
+if ($administratorGrants -notcontains 'Roles' -or $administratorGrants -notcontains $profileKey -or $administratorGrants -contains 'Services') {
+    throw 'Majordome must be able to grant Roles and Profile while retaining exclusive Services access.'
 }
 if (![GTX.Common.SiteAccess]::CanManageRole($delegate, $null) -or
     ![GTX.Common.SiteAccess]::CanManageRole($delegate, $ordinaryRole) -or
@@ -90,6 +99,13 @@ $ordinaryRole.Permissions = @('Roles', 'Appraisal')
 if ([GTX.Common.SiteAccess]::CanManageRole($delegate, $ordinaryRole) -or
     ![GTX.Common.SiteAccess]::CanManageRole($administrator, $ordinaryRole)) {
     throw 'A delegated role manager can be managed only by Majordome.'
+}
+$delegate.Permissions += $profileKey
+$ordinaryRole.Permissions = @($profileKey, 'Appraisal')
+if ([GTX.Common.SiteAccess]::GrantableRolePermissions($delegate) -contains $profileKey -or
+    [GTX.Common.SiteAccess]::CanManageRole($delegate, $ordinaryRole) -or
+    ![GTX.Common.SiteAccess]::CanManageRole($administrator, $ordinaryRole)) {
+    throw 'Only Majordome may delegate Profile access or manage a role with Profile access.'
 }
 $ordinaryRole.Permissions = @('InventoryDashboard', $locationKey)
 if ([GTX.Common.SiteAccess]::CanManageRole($delegate, $ordinaryRole)) { throw 'Role management bypassed Dashboard child access.' }
@@ -105,7 +121,7 @@ if ([GTX.Common.SiteAccess]::CanViewDashboardSection($null, $locationPermission)
 }
 if ([GTX.Common.SiteAccess]::Can($administrator, [Enum]::ToObject([GTX.Common.MajordomeItem], 999))) { throw 'An undefined menu item must not become authorized.' }
 $custom.Name = 'Majordome'
-$custom.Permissions = @('Roles', 'Profile', 'Services')
+$custom.Permissions = @('Roles', $profileKey, 'Services')
 if ([GTX.Common.SiteAccess]::IsMajordome($custom) -or
     [GTX.Common.SiteAccess]::Can($custom, [GTX.Common.MajordomeItem]::Roles) -or
     [GTX.Common.SiteAccess]::Can($custom, [GTX.Common.MajordomeItem]::Profile) -or

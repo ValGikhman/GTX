@@ -515,7 +515,7 @@ body.pg-col-resizing {
 
 .pg-row-selected td,
 .pg-row-selected:hover td {
-  background: var(--pg-color-bg-row-selected) !important;
+  background: var(--gtx-secondary-action-gradient, none) var(--gtx-secondary-action-bg, var(--pg-color-bg-row-selected)) !important;
 }
 
 /* ── State messages (empty, loading, error) ─────────────────────── */

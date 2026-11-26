@@ -44,6 +44,13 @@ assert.equal(context.hasNavigationAccess('administrator'), false, 'The Roles gra
 assert.equal(context.hasNavigationAccess('Profile'), false);
 assert.equal(context.hasNavigationAccess('Services'), false);
 
+for (const role of ['Owner', 'Detail Team']) {
+    context.window.gtx = { currentRole: role, menuPermissions: ['Profile'], isMajordome: false };
+    assert.equal(context.hasNavigationAccess('Profile'), true, `${role} can open Profile with the grant`);
+    assert.equal(context.hasNavigationAccess('Roles'), false, 'Profile access does not grant Roles');
+    assert.equal(context.hasNavigationAccess('Services'), false, 'Profile access does not grant Services');
+}
+
 context.window.gtx = { currentRole: 'Majordome', menuPermissions: menuKeys.slice(), isMajordome: true };
 for (const key of menuKeys) assert.equal(context.hasNavigationAccess(key), true, `Configured administrator can open ${key}`);
 assert.equal(context.hasNavigationAccess('administrator'), true);
