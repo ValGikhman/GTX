@@ -44,7 +44,7 @@ html.theme-silver #price-research {
     min-height: 0;
     overflow: visible;
     border: 0;
-    background: var(--gtx-addgrid-header-background, transparent);
+    background: var(--gtx-tinted-steel-panel-background, var(--gtx-addgrid-header-background, transparent));
     box-shadow: none;
 }
 
@@ -551,25 +551,12 @@ html.theme-silver #price-research {
     }
     #price-research #pr-submit { justify-self: end; }
 }
-#price-research .pr-market-research-label {
-    display: inline-flex;
-    align-items: center;
-}
-
 #price-research .pr-appraisal-toolbar {
     display: flex;
     flex-wrap: wrap;
     align-items: end;
     gap: .65rem;
     margin-bottom: 1rem;
-}
-#price-research .pr-appraisal-tabs { flex-wrap: nowrap; gap: .3rem; }
-#price-research .pr-appraisal-tabs .nav-link {
-    display: inline-flex;
-    align-items: center;
-    gap: .3rem;
-    padding: .4rem .5rem;
-    white-space: nowrap;
 }
 #price-research .pr-appraisal-scope:not([hidden]) {
     display: grid;
@@ -593,8 +580,6 @@ html.theme-silver #price-research {
 }
 #price-research .pr-appraisal-scope .form-label i { color: var(--pr-accent); }
 #price-research .pr-appraisal-scope .form-control { min-width: 0; padding-inline: .4rem; }
-#price-research .pr-research-workspace .nav-link { border: 1px solid var(--pr-line); color: var(--pr-ink); background: var(--pr-inset); border-radius: .7rem; font-weight: 600; }
-#price-research .pr-research-workspace .nav-link.active { color: #fff; background: var(--gtx-grad); border-color: transparent; }
 #price-research #pr-batch-inputs {
     width: min(100%, 36rem);
     margin-inline: auto;
@@ -607,6 +592,17 @@ html.theme-silver #price-research {
 #price-research .pr-pdf-drop.is-loaded > i { color: var(--bs-success-text-emphasis); }
 #price-research .pr-pdf-drop:is(:hover,:focus-within,.is-dragging) { border-color: var(--pr-accent); background: var(--pr-highlight); }
 #price-research .pr-pdf-drop.is-busy { opacity: .6; cursor: wait; }
+
+html[data-background-theme="dark"] #price-research .pr-pdf-drop {
+    --pr-tint: var(--gtx-dark-field-background);
+    --pr-highlight: var(--gtx-tinted-panel-background-alt);
+    --pr-ink: var(--gtx-dark-field-ink);
+    --pr-accent: var(--gtx-dark-field-ink);
+    --pr-muted: var(--gtx-dark-field-placeholder);
+    --pr-accent-line: var(--bs-border-color);
+    --pr-accent-line: color-mix(in srgb, var(--gtx-dark-field-placeholder) 45%, var(--gtx-dark-field-border));
+}
+
 #price-research #pr-batch-status { font-size: .8rem; color: var(--pr-muted); }
 #price-research #pr-batch-grid .pg-grid-table td { white-space: normal; }
 #price-research [hidden] { display: none !important; }
@@ -683,7 +679,7 @@ html[data-background-theme="dark"] #price-research :is(
 ),
 html[data-background-theme="dark"] #price-research :is(#pr-auction, #pr-demand) .pr-bid-metrics > div,
 html[data-background-theme="dark"] #price-research #pr-demand-message:not(:empty) {
-    --pr-ink: var(--gtx-addgrid-header-ink);
+    --pr-ink: var(--gtx-steel-panel-ink);
     --pr-muted: var(--pr-ink);
     --pr-accent: var(--pr-ink);
     background: var(--gtx-tinted-steel-panel-background);
@@ -695,14 +691,12 @@ html[data-background-theme="dark"] #price-research :is(.pr-market-overview, .pr-
 }
 
 html[data-background-theme="dark"] #price-research :is(.pr-auction-heading, .pr-market-heading, .pr-grid-section > header, .pr-demand > header) {
-    --pr-heading-ink: var(--gtx-addgrid-header-ink);
+    --pr-heading-ink: var(--gtx-steel-panel-ink);
     --pr-heading-chip: rgb(255 255 255 / 20%);
     background: var(--gtx-tinted-steel-panel-background);
 }
 
 html[data-background-theme="dark"] #price-research :is(
-    .pr-research-workspace .nav-link,
-    .pr-pdf-drop,
     .pr-bid-money,
     .pr-bid-costs > span,
     .pr-comparables-options,

@@ -72,7 +72,7 @@
                 reorderable: true,
                 searchable: true,
                 showSearch: true,
-                searchPlaceholder: "Search phrase or action…",
+                searchLabel: "Search phrase or action",
                 showFilterChips: true,
                 exportToExcel: false,
                 exportToPdf: false,

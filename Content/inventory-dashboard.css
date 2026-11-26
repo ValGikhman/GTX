@@ -8,7 +8,6 @@
     --dashboard-surface-alt: var(--bs-tertiary-bg, #f8fafc);
     --dashboard-panel-surface: var(--dashboard-surface);
     --dashboard-panel-surface-alt: var(--dashboard-surface-alt);
-    --dashboard-steel-panel-background: var(--gtx-addgrid-header-background);
     --dashboard-header-bg: var(--gtx-grad, var(--bs-primary-bg-subtle, #f8fafc));
     --dashboard-header-color: #fff;
     --dashboard-header-border: rgba(255, 255, 255, .24);
@@ -27,10 +26,6 @@
         --dashboard-panel-surface: color-mix(in srgb, var(--gtx-palette-tint-color) var(--gtx-panel-tint-amount), var(--dashboard-surface));
         --dashboard-panel-surface-alt: color-mix(in srgb, var(--gtx-palette-tint-color) var(--gtx-panel-tint-amount), var(--dashboard-surface-alt));
     }
-}
-
-html[data-background-theme="dark"] .inventory-dashboard {
-    --dashboard-steel-panel-background: var(--gtx-tinted-steel-panel-background);
 }
 
 html.theme-silver .inventory-dashboard {
@@ -163,7 +158,7 @@ html[data-background-theme="dark"] #inventoryDashboardRange {
     border: 0;
     border-radius: 0;
     background: transparent;
-    color: var(--gtx-addgrid-header-ink, #000);
+    color: var(--gtx-steel-panel-ink);
     box-shadow: none !important;
 }
 

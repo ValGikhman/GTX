@@ -15,7 +15,7 @@ $(function () {
         { field: "ActionsHtml", title: "Actions", searchable: false, filterable: false, template: "#role-actions-template", headerClass: "text-center", cellClass: "text-center pg-action-cell", width: 150 }
     ], tableClass: "table align-middle m-0", height: null, pageable: false, showRecordCount: true,
         recordType: { singular: "role", plural: "roles", icon: "bi bi-people-fill" }, sortable: false,
-        resizable: false, reorderable: false, searchable: true, showSearch: true, searchPlaceholder: "Search roles…",
+        resizable: false, reorderable: false, searchable: true, showSearch: true, searchLabel: "Search roles",
         exportToExcel: false, exportToPdf: false, groupable: false, alternateRows: true,
         dblClick: function (detail) {
             if ($(detail.event.target).closest("a, button, input, select, textarea").length) return;

@@ -7,6 +7,7 @@
     <div class="card-header bg-white p-3 border-0 sticky-top" style="z-index: 1020;">
         <div class="d-flex align-items-center justify-content-end">
             <a id="newEmployee" class="btn btn-gradient"
+               data-button-tone="new"
                data-employee-modal="true"
                data-title="New Employee"
                href="@Url.Action("Create", "Employees")">
@@ -224,7 +225,7 @@
             searchable: true,
             showSearch: true,
             searchTerm: window.gtxAdminGridState.employeesSearch || "",
-            searchPlaceholder: "Search name, email, or phone…",
+            searchLabel: "Search name, email, or phone",
             showFilterChips: true,
             exportToExcel: false,
             exportToPdf: false,

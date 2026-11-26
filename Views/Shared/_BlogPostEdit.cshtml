@@ -70,7 +70,7 @@
                             <label class="form-label fw-semibold mb-2 text-shadow-small">
                                 <i class="bi bi-eye me-1 text-primary"></i> Media preview
                             </label>
-                            <span class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle">
+                            <span class="badge gtx-palette-badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle">
                                 Live preview
                             </span>
                         </div>
@@ -128,10 +128,10 @@
 
                     <!-- Actions -->
                     <div class="col-12 d-flex justify-content-end gap-2 pt-2">
-                        <button type="button" class="btn btn-outline-secondary px-3 shadow" data-bs-dismiss="modal">
+                        <button type="button" class="btn btn-outline-secondary px-3 shadow" data-button-tone="danger" data-bs-dismiss="modal">
                             <i class="bi bi-x-lg me-1"></i> Cancel
                         </button>
-                        <button type="submit" class="btn @(isEdit ? "btn-gradient" : "btn-success") px-3 shadow">
+                        <button type="submit" class="btn @(isEdit ? "btn-gradient" : "btn-success") px-3 shadow" data-button-tone="success">
                             <i class="bi @(isEdit ? "bi-save" : "bi-plus-circle") me-1"></i> @(isEdit ? "Save Changes" : "Create Post")
                         </button>
                     </div>

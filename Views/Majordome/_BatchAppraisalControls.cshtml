@@ -1,9 +1,11 @@
 ﻿<div class="pr-research-workspace">
     <div class="pr-appraisal-toolbar">
-        <div class="nav nav-pills pr-appraisal-tabs" role="tablist" aria-label="Appraisal mode">
-            <button type="button" class="nav-link active" id="pr-individual-tab" role="tab" aria-selected="true" aria-controls="pr-individual-inputs" data-appraisal-mode="individual"><i class="bi bi-car-front" aria-hidden="true"></i>Individual</button>
-            <button type="button" class="nav-link" id="pr-multiple-tab" role="tab" aria-selected="false" aria-controls="pr-batch-inputs" data-appraisal-mode="multiple"><i class="bi bi-collection" aria-hidden="true"></i>Multiple</button>
-        </div>
+        <label class="form-check form-switch d-inline-flex align-items-center gap-2 ps-0 mb-0 small fw-semibold">
+            <span>Individual</span>
+            <input type="checkbox" class="form-check-input m-0" id="pr-multiple-mode" role="switch"
+                   aria-label="Multiple appraisals" aria-controls="pr-individual-inputs pr-batch-inputs pr-individual-results pr-batch-results" />
+            <span>Multiple</span>
+        </label>
         @foreach (var mode in new[] { "individual", "multiple" })
         {
             var multiple = mode == "multiple";
@@ -32,10 +34,10 @@
             </div>
         }
     </div>
-    <div id="pr-individual-inputs" role="tabpanel" aria-labelledby="pr-individual-tab">
+    <div id="pr-individual-inputs">
         @Html.Partial("_AppraisalResearchForm", "pr")
     </div>
-    <form id="pr-batch-inputs" role="tabpanel" aria-labelledby="pr-multiple-tab" hidden
+    <form id="pr-batch-inputs" hidden
           data-parse-url="@Url.Action("AppraisalParseFile", "Majordome")" data-appraise-url="@Url.Action("AppraiseBatchVehicle", "Majordome")" data-decode-url="@Url.Action("AppraisalDecodeVehicle", "Majordome")"
           data-cargurus-logo="@Url.Content("~/Content/images/cargurus.svg")">
         @Html.AntiForgeryToken()

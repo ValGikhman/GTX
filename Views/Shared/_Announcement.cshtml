@@ -7,6 +7,7 @@
         <div class="d-flex align-items-center justify-content-end">
             <a id="newAnnouncement"
                class="btn btn-gradient"
+               data-button-tone="new"
                data-announcement-modal="true"
                data-title="New Announcement"
                href="@Url.Action("Create", "Announcements")">
@@ -269,7 +270,7 @@
             searchable: true,
             showSearch: true,
             searchTerm: window.gtxAdminGridState.announcementsSearch || "",
-            searchPlaceholder: "Search title or message…",
+            searchLabel: "Search title or message",
             showFilterChips: true,
             exportToExcel: false,
             exportToPdf: false,

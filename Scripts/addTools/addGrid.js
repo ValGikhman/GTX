@@ -236,9 +236,10 @@
         searchable: true,
         showSearch: true,
 
-        /** Initial quick-search value, input placeholder, and optional row-level matcher. */
+        /** Initial quick-search value, placeholder, accessible label, and optional row-level matcher. */
         searchTerm: '',
-        searchPlaceholder: 'Search…',
+        searchPlaceholder: 'Search ...',
+        searchLabel: '',
         searchPredicate: null,
 
         /** Fires when the search term changes. ({ term, matchCount }) */
@@ -1714,15 +1715,15 @@
                 searchGroup.className = 'input-group input-group-sm pg-search-input-group shadow';
                 searchGroup.innerHTML =
                     '<span class="input-group-text"><i class="bi bi-search"></i></span>'
-                    + '<input type="text" class="form-control pg-search-input" placeholder="Search…" />'
+                    + '<input type="text" class="form-control pg-search-input" />'
                     + '<button type="button" class="btn btn-light pg-search-clear" title="Clear">'
                     + '<i class="bi bi-x-lg"></i></button>';
                 bar.appendChild(searchGroup);
 
                 self._searchInput    = searchGroup.querySelector('.pg-search-input');
                 self._searchClearBtn = searchGroup.querySelector('.pg-search-clear');
-                self._searchInput.placeholder = self._opts.searchPlaceholder || 'Search…';
-                self._searchInput.setAttribute('aria-label', self._searchInput.placeholder);
+                self._searchInput.placeholder = self._opts.searchPlaceholder || defaults.searchPlaceholder;
+                self._searchInput.setAttribute('aria-label', self._opts.searchLabel || self._searchInput.placeholder);
                 self._searchInput.value = self._searchTerm;
 
                 const doSearch = debounce(function () {

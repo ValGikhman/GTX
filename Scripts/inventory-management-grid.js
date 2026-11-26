@@ -137,7 +137,7 @@
             searchable: true,
             showSearch: true,
             searchTerm: window.gtxInventorySearch ? window.gtxInventorySearch.readStoredTerm() : '',
-            searchPlaceholder: 'Search management records…',
+            searchLabel: 'Search management records',
             searchPredicate: function (item, term) {
                 if (window.gtxInventorySearch) {
                     return window.gtxInventorySearch.matches(item.SearchText, term, item.SearchTokens);

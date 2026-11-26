@@ -357,7 +357,6 @@ html.theme-silver .majordome-inventory-appraisal { --inventory-appraisal-header-
 .majordome-inventory-appraisal .research-grid-note { margin: .7rem 0 0; }
 
 html[data-background-theme="dark"] .majordome-inventory-appraisal :is(
-    .modal-body,
     .inventory-appraisal-intro,
     .inventory-appraisal-inventory-price,
     .pr-market-overview,
@@ -370,8 +369,8 @@ html[data-background-theme="dark"] .majordome-inventory-appraisal :is(
     [data-appraisal-request-summary],
     .pr-comparables-description
 ) {
-    background: var(--gtx-addgrid-header-background);
-    color: var(--gtx-addgrid-header-ink);
+    background: var(--gtx-tinted-steel-panel-background);
+    color: var(--gtx-steel-panel-ink);
 }
 
 html[data-background-theme="dark"] .majordome-inventory-appraisal :is(
@@ -384,7 +383,7 @@ html[data-background-theme="dark"] .majordome-inventory-appraisal :is(
     .pr-demand-note,
     .research-grid-note
 ) {
-    color: var(--gtx-addgrid-header-ink);
+    color: var(--gtx-steel-panel-ink);
 }
 
 html[data-background-theme="dark"] .majordome-inventory-appraisal .appraisal-comparables-grid {
@@ -1468,8 +1467,8 @@ html[data-background-theme="dark"] .majordome-workspace > #myTab.nav.nav-tabs.no
         height: 2.15rem;
         border: 1px solid var(--inventory-line);
         border-radius: .65rem;
-        color: var(--inventory-muted);
-        background: linear-gradient(180deg, var(--inventory-surface) 0%, var(--inventory-surface-alt) 100%);
+        color: var(--gtx-menu-icon-ink, var(--inventory-muted));
+        background: var(--gtx-menu-icon-background, linear-gradient(180deg, var(--inventory-surface) 0%, var(--inventory-surface-alt) 100%));
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35);
     }
 
@@ -2266,8 +2265,6 @@ html[data-background-theme="dark"] .majordome-workspace > #myTab.nav.nav-tabs.no
         --inventory-header-bg: var(--gtx-grad, var(--bs-primary-bg-subtle, #f8fafc));
         --inventory-header-color: #fff;
         --inventory-header-border: rgba(255, 255, 255, .24);
-        --inventory-selected-accent: var(--bs-primary, #2563eb);
-        --inventory-selected-bg: rgba(var(--bs-primary-rgb, 37, 99, 235), .1);
         background: var(--inventory-surface);
         margin-top: 0;
         border-radius: .85rem;
@@ -2276,25 +2273,32 @@ html[data-background-theme="dark"] .majordome-workspace > #myTab.nav.nav-tabs.no
         overflow: hidden;
     }
 
+    :root {
+        --inventory-selected-accent: var(--bs-primary, #2563eb);
+        --inventory-selected-bg: rgba(var(--bs-primary-rgb, 37, 99, 235), .1);
+    }
+
     html.theme-silver .majordome-management-shell {
         --inventory-header-color: #111827;
         --inventory-header-border: rgba(15, 23, 42, .16);
+    }
+
+    html.theme-silver {
         --inventory-selected-accent: #8f98a3;
         --inventory-selected-bg: rgba(143, 152, 163, .16);
     }
 
-    html.theme-blue .majordome-management-shell {
+    html.theme-blue {
         --inventory-selected-accent: #1e73be;
         --inventory-selected-bg: rgba(30, 115, 190, .14);
     }
 
-    html.theme-grey .majordome-management-shell,
-    html.theme-black .majordome-management-shell {
+    html:is(.theme-grey, .theme-black) {
         --inventory-selected-accent: darkgray;
         --inventory-selected-bg: rgba(169, 169, 169, .18);
     }
 
-    html.theme-navy .majordome-management-shell {
+    html.theme-navy {
         --inventory-selected-accent: #245f96;
         --inventory-selected-bg: rgba(36, 95, 150, .14);
     }
@@ -2328,12 +2332,12 @@ html[data-background-theme="dark"] .majordome-workspace > #myTab.nav.nav-tabs.no
         }
     }
 
-    html.theme-green .majordome-management-shell {
+    html.theme-green {
         --inventory-selected-accent: #23875d;
         --inventory-selected-bg: rgba(35, 135, 93, .14);
     }
 
-    html.theme-red .majordome-management-shell {
+    html.theme-red {
         --inventory-selected-accent: #b83246;
         --inventory-selected-bg: rgba(184, 50, 70, .14);
     }
@@ -3397,7 +3401,7 @@ html[data-background-theme="dark"] .majordome-workspace > #myTab.nav.nav-tabs.no
     background: color-mix(in srgb, var(--role-editor-accent) 5%, var(--role-editor-surface));
 }
 #roleModalBody .role-editor-permission .form-check-input { flex: 0 0 2.15rem; width: 2.15rem; height: 1.15rem; margin: 0; cursor: pointer; }
-#roleModalBody .role-editor-permission .form-check-input:checked { background-color: var(--role-editor-accent); border-color: var(--role-editor-accent); }
+:where(html:not([data-background-theme="dark"])) #roleModalBody .role-editor-permission .form-check-input:checked { background-color: var(--role-editor-accent); border-color: var(--role-editor-accent); }
 #roleModalBody .role-editor-permission .form-check-input:disabled { cursor: default; }
 #roleModalBody .role-editor-permission .form-check-label { flex: 1; font-size: .85rem; font-weight: 500; cursor: pointer; }
 #roleModalBody .role-editor-permission:focus-within { border-color: var(--role-editor-accent); }
@@ -3410,7 +3414,11 @@ html[data-background-theme="dark"] .majordome-workspace > #myTab.nav.nav-tabs.no
 #roleModalBody .input-group-text { border-radius: .65rem 0 0 .65rem; color: var(--role-editor-accent); }
 #roleModalBody .input-group > .form-control { border-top-left-radius: 0; border-bottom-left-radius: 0; }
 #roleModalBody .role-editor-footer { margin-top: .5rem; padding-bottom: 0 !important; background: transparent; }
-html[data-background-theme="dark"] #roleModalBody { --role-editor-surface: #192330; color: #e2e8f0; --bs-secondary-color: #aab9cc; }
+html[data-background-theme="dark"] #roleModalBody {
+    --role-editor-surface: #192330;
+    --bs-secondary-color: #aab9cc;
+    background: transparent;
+}
 @media (prefers-reduced-motion: reduce) {
     #roleModalBody .role-editor-permission { transition: none; }
 }
