@@ -40,7 +40,13 @@ namespace GTX.Controllers
 
             SessionData.SetSession(Constants.SESSION_MAJORDOME, true);
 
-            return Json(new { ok = true, role = Session["SiteRoleName"] as string ?? role.ToString(), permissions = Session["SiteRolePermissions"] as string[], returnUrl = Url.IsLocalUrl(returnUrl) ? returnUrl : Url.Action("Index", "Home") });
+            return Json(new {
+                ok = true,
+                role = Session["SiteRoleName"] as string ?? role.ToString(),
+                permissions = Session["SiteRolePermissions"] as string[],
+                isMajordome = (Session["SiteRoleIsMajordome"] as bool?) == true,
+                returnUrl = Url.IsLocalUrl(returnUrl) ? returnUrl : Url.Action("Index", "Home")
+            });
         }
 
 

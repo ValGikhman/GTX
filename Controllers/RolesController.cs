@@ -7,28 +7,40 @@ using System.Linq;
 using System.Web.Mvc;
 
 namespace GTX.Controllers {
-    [RequireAdminRole(RequireMajordome = true)]
+    [RequireAdminRole]
     public sealed class RolesController : BaseController {
         private readonly SiteRoleStore store = new SiteRoleStore();
         public RolesController(ISessionData sessionData, IInventoryService inventoryService, IVinDecoderService vinDecoderService, ILogService logService, IEmployeesService employeesService)
             : base(sessionData, inventoryService, vinDecoderService, logService, employeesService) { }
-        [HttpGet] public ActionResult Index() { Response.Cache.SetNoStore(); return View(store.All()); }
+        [HttpGet] public ActionResult Index() {
+            Response.Cache.SetNoStore();
+            var actor = SiteAccess.Current(Request);
+            ViewBag.CanImpersonateRoles = SiteAccess.IsMajordome(actor);
+            return View(store.All().Where(role => SiteAccess.CanManageRole(actor, role)).ToList());
+        }
         [HttpGet] public ActionResult Edit(int id = 0) {
             Response.Cache.SetNoStore();
             if (id < 0) return HttpNotFound();
-            var role = id == 0 ? new SiteRoleModel { Permissions = MajordomeMenu.Defaults("new role") } : store.All().FirstOrDefault(r => r.Id == id);
-            if (role == null) return HttpNotFound();
+            var actor = SiteAccess.Current(Request);
+            var target = id == 0 ? null : store.All().FirstOrDefault(r => r.Id == id);
+            if (id != 0 && target == null) return HttpNotFound();
+            if (!SiteAccess.CanManageRole(actor, target)) return new HttpStatusCodeResult(403);
+            var grantable = SetEditorAccess(actor);
+            var role = target ?? new SiteRoleModel { Permissions = MajordomeMenu.Defaults("new role").Intersect(grantable).ToArray() };
             return PartialView("_Edit", role);
         }
         [HttpPost, ValidateAntiForgeryToken] public ActionResult Save([Bind(Include = "Id,Name,Password,ConfirmPassword,Permissions")] SiteRoleModel model) {
             // Bind only editable fields: hashes and revisions never come from the browser.
+            var actor = SiteAccess.Current(Request);
             if (model.Id < 0 || string.Equals(model.Name?.Trim(), MajordomeAccount.Name, StringComparison.OrdinalIgnoreCase))
                 return new HttpStatusCodeResult(400, "That role is reserved.");
             if (ModelState.IsValid) {
-                try { store.Save(model); return Json(new { ok=true }); }
+                try { store.Save(model, actor); return Json(new { ok=true }); }
+                catch (UnauthorizedAccessException) { return new HttpStatusCodeResult(403); }
                 catch (InvalidOperationException ex) { ModelState.AddModelError("", ex.Message); }
                 catch (SqlException ex) when (ex.Number == 2601 || ex.Number == 2627) { ModelState.AddModelError("Name", "That role name already exists."); }
             }
+            SetEditorAccess(actor);
             model.Password = null;
             model.ConfirmPassword = null;
             return PartialView("_Edit", model);
@@ -47,8 +59,15 @@ namespace GTX.Controllers {
         }
         [HttpPost, ValidateAntiForgeryToken] public ActionResult Delete(int id) {
             if (id <= 0) return HttpNotFound();
-            try { store.Delete(id); return Json(new { ok=true }); }
+            try { store.Delete(id, SiteAccess.Current(Request)); return Json(new { ok=true }); }
+            catch (UnauthorizedAccessException) { return new HttpStatusCodeResult(403); }
             catch (InvalidOperationException ex) { Response.StatusCode=400; return Json(new { message=ex.Message }); }
+        }
+
+        private string[] SetEditorAccess(SiteRoleModel actor) {
+            var grantable = SiteAccess.GrantableRolePermissions(actor);
+            ViewBag.GrantablePermissions = grantable;
+            return grantable;
         }
     }
 }

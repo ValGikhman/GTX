@@ -558,6 +558,12 @@ html.theme-silver #price-research {
     gap: .65rem;
     margin-bottom: 1rem;
 }
+html[data-background-theme="dark"] #price-research #pr-multiple-mode {
+    --pr-mode-switch-height: calc(2.25rem + 2 * var(--bs-border-width));
+    flex: none;
+    inline-size: calc(2 * var(--pr-mode-switch-height));
+    block-size: var(--pr-mode-switch-height);
+}
 #price-research .pr-appraisal-scope:not([hidden]) {
     display: grid;
     margin-inline-start: auto;

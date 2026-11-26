@@ -643,7 +643,7 @@
                             <i id="backgroundThemeIcon" class="bi @(backgroundTheme == "dark" ? "bi-moon" : "bi-sun")" aria-hidden="true"></i> <span id="themeLabel">@themeName(t)</span><span id="textureThemeLabel" class="visually-hidden"></span><span class="visually-hidden">, <span id="backgroundThemeLabel">Light</span> background</span>
                         </button>
 
-                        <ul class="dropdown-menu dropdown-menu-end theme-dropdown-menu accordion rounded-4 shadow" aria-labelledby="themeDropdown">
+                        <ul class="dropdown-menu dropdown-menu-end theme-dropdown-menu rounded-4 shadow" aria-labelledby="themeDropdown">
                             <li class="theme-mode-row d-grid gap-1">
                                 <div class="d-flex gap-1 border rounded-3 p-1" role="group" aria-label="Background theme">
                                     <button type="button" class="dropdown-item background-theme-item d-flex align-items-center justify-content-center gap-2 w-50" data-background="light"><i class="bi bi-sun" aria-hidden="true"></i> Light</button>
@@ -657,8 +657,8 @@
                             @foreach (var group in colorThemeGroups)
                             {
                                 <li class="mt-1">
-                                    <button class="accordion-button collapsed dropdown-item fs-6 fw-bold text-body bg-body-tertiary border rounded-3 px-2 py-1"
-                                            type="button" data-bs-toggle="collapse" data-bs-target="#@group.Id" aria-expanded="false" aria-controls="@group.Id">
+                                    <button class="theme-group-toggle collapsed dropdown-item rounded-3"
+                                            type="button" data-bs-toggle="collapse" data-bs-target="#@group.Id" aria-expanded="false" aria-controls="@group.Id" aria-label="@group.Title">
                                         @group.Title
                                     </button>
                                     <div class="collapse" id="@group.Id">
@@ -1264,6 +1264,7 @@
 <script>
     window.gtx = window.gtx || {};
     window.gtx.menuPermissions = @Html.Raw(System.Web.Helpers.Json.Encode(ViewBag.MenuPermissions ?? new string[0]));
+    window.gtx.isMajordome = @Html.Raw(System.Web.Helpers.Json.Encode((ViewBag.IsBuiltInAdministrator as bool?) == true));
     window.gtx.currentRole = '@(ViewBag.CurrentRole ?? "")';
     setMajordomeMenu(window.gtx.currentRole);
 

@@ -43,8 +43,21 @@ namespace GTX.Common {
             if (role == null || !MajordomeMenu.Items.Any(i => i.Item == item)) return false;
             if (IsMajordome(role)) return true;
             if (role.Id < 0 || MajordomeAccount.IsReservedName(role.Name)) return false;
-            return item != MajordomeItem.Roles && item != MajordomeItem.Profile && item != MajordomeItem.Services
+            return item != MajordomeItem.Profile && item != MajordomeItem.Services
                 && (role.Permissions ?? new string[0]).Contains(item.ToString());
+        }
+        public static string[] GrantableRolePermissions(SiteRoleModel actor) {
+            if (!Can(actor, MajordomeItem.Roles)) return Array.Empty<string>();
+            var ordinaryPermissions = MajordomeMenu.Defaults(string.Empty);
+            if (IsMajordome(actor)) return ordinaryPermissions.Concat(new[] { nameof(MajordomeItem.Roles) }).ToArray();
+            return ordinaryPermissions.Intersect(actor.Permissions ?? Array.Empty<string>()).ToArray();
+        }
+        public static bool CanManageRole(SiteRoleModel actor, SiteRoleModel target) {
+            if (!Can(actor, MajordomeItem.Roles)) return false;
+            if (target == null) return true;
+            if (target.Id <= 0 || MajordomeAccount.IsReservedName(target.Name)) return false;
+            return IsMajordome(actor) || (target.Id != actor.Id
+                && !(target.Permissions ?? Array.Empty<string>()).Except(GrantableRolePermissions(actor)).Any());
         }
         public static bool CanViewDashboardSection(SiteRoleModel role, DashboardPermission permission) {
             if (!MajordomeMenu.DashboardSections.ContainsKey(permission) || !Can(role, MajordomeItem.InventoryDashboard)) return false;
@@ -61,6 +74,7 @@ namespace GTX.Common {
             session["CurrentRole"] = legacy;
             session["SiteRoleName"] = role.Name;
             session["SiteRolePermissions"] = MajordomeMenu.Items.Where(i => Can(role, i.Item)).Select(i => i.Item.ToString()).ToArray();
+            session["SiteRoleIsMajordome"] = IsMajordome(role);
             RoleCookie.Set(response, legacy.ToString(), persist);
         }
         public static void Clear(HttpResponseBase response) {

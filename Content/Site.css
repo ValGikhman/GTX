@@ -225,7 +225,7 @@ html[data-theme-finish="solid"] #themeGroupColors .theme-swatch {
     box-shadow: inset 0 0 0 1px currentColor;
 }
 
-.theme-dropdown-menu :is(.theme-item, .background-theme-item, .theme-finish-item):focus-visible {
+.theme-dropdown-menu :is(.theme-item, .background-theme-item, .theme-finish-item, .theme-group-toggle):focus-visible {
     outline: 2px solid currentColor;
     outline-offset: -2px;
 }
@@ -4845,7 +4845,7 @@ html.theme-silver .home-quick-icon {
     border: 2px solid var(--scroll-track-bg, #eef2f7);
 }
 
-/* Shared inventory and management accordions. */
+/* Shared inventory, management, and theme picker accordions. */
 .inventory-filter-panel-title,
 :where(html[data-background-theme="dark"]) #majordomeManagementLogMenu .majordome-management-log-date-main {
     display: inline-flex;
@@ -4943,7 +4943,7 @@ html[data-background-theme="dark"] .pg-search-bar {
     font-weight: 900;
 }
 
-:is(.inventory-filter-panel-toggle, .majordome-management-log-date-toggle) {
+:is(.inventory-filter-panel-toggle, .majordome-management-log-date-toggle, .theme-group-toggle) {
     width: 100%;
     min-block-size: var(--inventory-filter-row-height);
     border: 0 !important;
@@ -4961,7 +4961,18 @@ html[data-background-theme="dark"] .pg-search-bar {
     transition: filter .14s ease, box-shadow .14s ease;
 }
 
-:is(.inventory-filter-panel-toggle, .majordome-management-log-date-toggle)::before {
+.theme-group-toggle {
+    --inventory-filter-row-height: 2.1rem;
+    padding: .25rem .55rem .25rem .7rem;
+    overflow: hidden;
+}
+
+html[data-background-theme="light"] .theme-group-toggle {
+    background: var(--gtx-light-control-background);
+    color: var(--gtx-light-control-ink);
+}
+
+:is(.inventory-filter-panel-toggle, .majordome-management-log-date-toggle, .theme-group-toggle)::before {
     content: "";
     position: absolute;
     inset: 0 auto 0 0;
@@ -4969,13 +4980,13 @@ html[data-background-theme="dark"] .pg-search-bar {
     background: var(--gtx-grad, linear-gradient(180deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1) 94%));
 }
 
-:is(.inventory-filter-panel-toggle, .majordome-management-log-date-toggle):hover,
-:is(.inventory-filter-panel-toggle, .majordome-management-log-date-toggle):focus {
+:is(.inventory-filter-panel-toggle, .majordome-management-log-date-toggle, .theme-group-toggle):hover,
+:is(.inventory-filter-panel-toggle, .majordome-management-log-date-toggle, .theme-group-toggle):focus {
     filter: brightness(1.03);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 3px 10px rgba(15, 23, 42, .14);
 }
 
-:is(.inventory-filter-panel-toggle, .majordome-management-log-date-toggle)::after {
+:is(.inventory-filter-panel-toggle, .majordome-management-log-date-toggle, .theme-group-toggle)::after {
     content: "-";
     width: 1.45rem;
     height: 1.45rem;
@@ -4994,7 +5005,7 @@ html[data-background-theme="dark"] .pg-search-bar {
     box-shadow: 0 2px 7px rgba(15, 23, 42, .18);
 }
 
-:is(.inventory-filter-panel-toggle, .majordome-management-log-date-toggle).collapsed::after {
+:is(.inventory-filter-panel-toggle, .majordome-management-log-date-toggle, .theme-group-toggle).collapsed::after {
     content: "+";
 }
 

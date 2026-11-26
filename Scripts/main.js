@@ -1,7 +1,7 @@
 ﻿'use strict';
 
 (function ($) {
-    const currentRole = window.gtx?.currentRole || "";
+    const currentRole = (window.gtx && window.gtx.currentRole) || "";
     setMajordomeMenu(currentRole);
 
     $(document).on("change", ".js-dataone-style", function () {
@@ -292,7 +292,7 @@ function setMajordomeMenu(role) {
     $('.role-text').text(role || "");
 
     // icon swap (remove any bi-* then add the mapped icon)
-    const iconClass = permissions.indexOf("Roles") >= 0 ? "bi-shield-lock" : roleIcons[r] || roleIcons["user"];
+    const iconClass = window.gtx && window.gtx.isMajordome === true ? "bi-shield-lock" : roleIcons[r] || roleIcons["user"];
     const $icon = $(".role-icon");
 
     // remove all bi- classes so you don't accumulate old ones

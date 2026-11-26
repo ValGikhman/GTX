@@ -1070,7 +1070,7 @@ html[data-background-theme="dark"] .gtx-chat .gtx-chat-consent .form-check-input
 html[data-background-theme="dark"] .gtx-chat .gtx-chat-compose textarea:not(:disabled) {
     border-color: var(--gtx-dark-field-border, var(--gtx-chat-card-border));
     color: var(--gtx-dark-field-ink, var(--gtx-chat-ink));
-    background: var(--gtx-dark-field-background, var(--gtx-chat-surface-alt));
+    background: var(--gtx-dark-input-background, var(--gtx-dark-field-background, var(--gtx-chat-surface-alt)));
 }
 
 html[data-background-theme="dark"] .gtx-chat .gtx-chat-compose textarea:disabled {
