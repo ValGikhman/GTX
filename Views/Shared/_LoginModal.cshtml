@@ -7,8 +7,8 @@
         border: 1px solid var(--bs-border-color, rgba(0,0,0,.14)) !important;
         border-radius: 14px !important;
         overflow: hidden !important;
-        background: var(--bs-body-bg, #fff) !important;
-        color: var(--bs-body-color, #212529) !important;
+        background: var(--gtx-input-background, var(--bs-body-bg, #fff)) !important;
+        color: var(--gtx-field-ink, var(--bs-body-color, #212529)) !important;
     }
 
     /* left icon area */
@@ -32,9 +32,9 @@
         border-radius: 0 !important;
         outline: 0 !important;
         box-shadow: none !important;
-        background: var(--bs-body-bg, #fff) !important;
-        color: var(--bs-body-color, #212529) !important;
-        caret-color: var(--bs-body-color, #212529);
+        background: transparent !important;
+        color: inherit !important;
+        caret-color: currentColor;
         background-image: none !important;
         background-repeat: no-repeat !important;
         background-size: 0 0 !important;
@@ -45,7 +45,7 @@
 
     /* eye button */
     #loginModal .login-shell__input::placeholder {
-        color: var(--bs-secondary-color, #6c757d) !important;
+        color: var(--gtx-field-placeholder, var(--bs-secondary-color, #6c757d)) !important;
         opacity: 1;
     }
 
@@ -138,7 +138,7 @@
 
             <!-- Footer row: Cancel + Logout -->
             <div class="modal-footer d-flex justify-content-between">
-                <button type="button" class="btn btn-outline-secondary" data-button-tone="danger" data-bs-dismiss="modal">
+                <button type="button" class="btn btn-outline-secondary" data-button-tone="cancel" data-bs-dismiss="modal">
                     <i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel
                 </button>
 

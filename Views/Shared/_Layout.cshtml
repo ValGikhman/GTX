@@ -576,17 +576,11 @@
         </div>
 
         <main class="body-content overflow-y-auto overflow-x-hidden flex-grow-1 min-h-0">
-            <!-- Announcement -->
-            <div class="toast-container position-fixed start-50 translate-middle-x p-3" style="z-index: 99999;">
-                <div id="announcementPreviewHostPopup" class="pe-auto"></div>
-            </div>
-
-            <div id="announcementPreviewHostBanner" class="position-fixed start-50 translate-middle-x pe-auto w-100" style="z-index: 99999; top: 12rem;">
-            </div>
-
             @RenderBody()
         </main>
     </div>
+    <div id="announcementPreviewHostPopup" class="position-fixed top-50 start-50 translate-middle" data-bs-theme="light"></div>
+    <div id="announcementPreviewHostBanner" class="position-fixed start-50 translate-middle-x" data-bs-theme="light"></div>
     <!-- Footer Section Begin -->
     <footer class="footer-strip fixed-bottom btn-gradient-grey">
         <div class="container-fluid px-2">
@@ -851,7 +845,7 @@
                     '        <p class="mb-0" id="gtxConfirmMessage"></p>' +
                     '      </div>' +
                     '      <div class="modal-footer">' +
-                    '        <button type="button" class="btn btn-outline-secondary" id="gtxConfirmCancel" data-button-tone="danger" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>' +
+                    '        <button type="button" class="btn btn-outline-secondary" id="gtxConfirmCancel" data-button-tone="cancel" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>' +
                     '        <button type="button" class="btn btn-gradient" id="gtxConfirmOk"><i class="bi bi-check2-circle me-1" aria-hidden="true"></i>Confirm</button>' +
                     '      </div>' +
                     '    </div>' +
@@ -977,11 +971,6 @@
                         confirmButton.dataset.buttonTone = "success";
                     } else {
                         delete confirmButton.dataset.buttonTone;
-                    }
-                    if (/^\s*cancel\b/i.test(settings.cancelText)) {
-                        cancelButton.dataset.buttonTone = "danger";
-                    } else {
-                        delete cancelButton.dataset.buttonTone;
                     }
                     var confirmActionIcon = document.createElement("i");
                     confirmActionIcon.className = settings.iconClass + " me-1";

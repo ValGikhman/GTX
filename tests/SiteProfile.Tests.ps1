@@ -202,7 +202,8 @@ $shortProfile.CompanyName = 'After Company'
 if ($shortProfile.GetShortCompanyName() -cne 'After') { throw 'Editing the company name must recompute its short name without a stale cache.' }
 
 $controller = $assembly.GetType('GTX.Controllers.ProfileController', $true)
-if (!$controller.GetCustomAttributes([GTX.Common.RequireAdminRole], $true).Length) { throw 'Profile controller lacks Majordome role authorization.' }
+$authorization = @($controller.GetCustomAttributes([GTX.Common.RequireAdminRole], $true))
+if ($authorization.Count -ne 1 -or $authorization[0].RequireMajordome) { throw 'Profile controller must use assignable menu permission authorization.' }
 $methods = @($controller.GetMethods() | Where-Object { $_.Name -eq 'Index' -and $_.DeclaringType -eq $controller })
 $get = @($methods | Where-Object { $_.GetParameters().Length -eq 0 })
 $post = @($methods | Where-Object { $_.GetParameters().Length -eq 1 })

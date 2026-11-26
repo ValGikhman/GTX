@@ -1,6 +1,7 @@
 /* Company profile uses the same accent, rounded cards and controls as Majordome editors. */
 #profilePage {
     --profile-accent: var(--gtx-accent-solid, #175cd3);
+    --profile-accent-ink: var(--profile-accent);
     --profile-surface: var(--bs-body-bg, #fff);
     --profile-line: color-mix(in srgb, var(--profile-accent) 16%, var(--profile-surface));
     --profile-input-height: 2.1rem;
@@ -20,21 +21,31 @@
 #profilePage .profile-card-header {
     display: flex;
     align-items: center;
-    gap: .5rem;
-    padding: .75rem 1.25rem;
+    gap: .6rem;
+    min-block-size: 3rem;
+    padding: .6rem 1rem;
     border-bottom: 1px solid var(--profile-line);
     background: linear-gradient(120deg, color-mix(in srgb, var(--profile-accent) 9%, var(--profile-surface)), var(--profile-surface));
 }
-#profilePage .profile-card-header h2 { margin: 0; font-size: .9rem; font-weight: 600; }
+#profilePage .profile-card-header h2 {
+    margin: 0;
+    color: inherit;
+    font-family: inherit;
+    font-size: .9375rem;
+    font-weight: 700;
+    line-height: 1.25;
+    text-shadow: none;
+}
 #profilePage .profile-heading-icon {
     display: inline-grid;
     place-items: center;
-    flex: 0 0 1.65rem;
-    height: 1.65rem;
+    flex: 0 0 1.75rem;
+    block-size: 1.75rem;
     border: 1px solid color-mix(in srgb, var(--profile-accent) 20%, transparent);
-    border-radius: .6rem;
-    color: var(--profile-accent);
+    border-radius: .5rem;
+    color: var(--profile-accent-ink);
     background: color-mix(in srgb, var(--profile-accent) 10%, var(--profile-surface));
+    font-size: .9rem;
 }
 #profilePage .profile-card-body { padding: 1.25rem; }
 #profilePage .form-label { margin-bottom: .4rem; font-size: .82rem; font-weight: 600; }
@@ -46,12 +57,12 @@
 }
 #profilePage .form-control { height: var(--profile-input-height); min-height: var(--profile-input-height); box-sizing: border-box; padding: .3rem .6rem; font-size: .875rem; border-radius: .65rem; }
 #profilePage .form-control:focus { border-color: var(--profile-accent); box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--profile-accent) 12%, transparent) !important; }
-#profilePage .input-group-text { height: var(--profile-input-height); box-sizing: border-box; padding: .3rem .6rem; font-size: .875rem; color: var(--profile-accent); background: var(--profile-surface); border-radius: .65rem 0 0 .65rem; }
+#profilePage .input-group-text { height: var(--profile-input-height); box-sizing: border-box; padding: .3rem .6rem; font-size: .875rem; color: var(--gtx-field-ink, var(--profile-accent-ink)); background: var(--profile-surface); border-radius: .65rem 0 0 .65rem; }
 #profilePage .input-group > .form-control { border-top-left-radius: 0; border-bottom-left-radius: 0; }
 #profilePage .profile-help, #profilePage .profile-optional { color: var(--bs-secondary-color, #64748b); font-size: .78rem; font-weight: 400; line-height: 1.5; }
 #profilePage .profile-map { padding-top: 1rem; border-top: 1px solid var(--profile-line); }
-#profilePage .profile-map summary { color: var(--profile-accent); cursor: pointer; font-size: .85rem; font-weight: 600; }
-#profilePage .form-label > .bi, #profilePage .profile-coordinates dt > .bi, #profilePage .profile-hours thead th > .bi { color: var(--profile-accent); }
+#profilePage .profile-map summary { color: var(--profile-accent-ink); cursor: pointer; font-size: .85rem; font-weight: 600; }
+#profilePage .form-label > .bi, #profilePage .profile-coordinates dt > .bi, #profilePage .profile-hours thead th > .bi { color: var(--profile-accent-ink); }
 #profilePage .profile-coordinates dt { margin-bottom: .4rem; font-size: .82rem; font-weight: 600; }
 #profilePage .profile-coordinates dd { margin: 0; font-size: .875rem; font-variant-numeric: tabular-nums; }
 #profilePage .validation-summary-errors ul { margin: .5rem 0 0; padding-left: 1.25rem; }
@@ -60,5 +71,29 @@
 #profilePage .profile-hours thead th { font-size: .8rem; color: var(--bs-secondary-color, #64748b); }
 #profilePage .profile-hours tbody th { font-size: .85rem; font-weight: 600; }
 #profilePage .profile-hours input[type="time"] { width: 100%; min-width: 0; max-width: 8rem; padding-inline: .35rem; font-size: .8rem; }
-#profilePage .profile-hours .form-check-input { width: 1.15rem; height: 1.15rem; cursor: pointer; }
-html[data-background-theme="dark"] #profilePage { --profile-surface: #192330; color: #e2e8f0; --bs-secondary-color: #aab9cc; }
+#profilePage .profile-hours .form-switch .form-check-input {
+    width: 2.15rem;
+    height: 1.15rem;
+    cursor: pointer;
+}
+
+@media (max-width: 575.98px) {
+    #profilePage .profile-form { max-width: 100%; }
+    #profilePage .profile-card-body { padding-inline: .85rem; }
+    #profilePage .profile-hours th,
+    #profilePage .profile-hours td { padding-inline: .25rem; }
+}
+
+html[data-background-theme="dark"] #profilePage {
+    --profile-accent-ink: var(--gtx-steel-panel-ink, var(--bs-body-color));
+    --profile-surface: #192330;
+    --bs-secondary-color: #aab9cc;
+    color: #e2e8f0;
+}
+html[data-background-theme="dark"] #profilePage .profile-hours .form-check-input {
+    border-color: var(--gtx-dark-field-placeholder, var(--bs-secondary-color));
+}
+html[data-background-theme="dark"] #profilePage :is(.profile-map summary, .profile-hours .form-check-input):focus-visible {
+    outline: 2px solid var(--profile-accent-ink);
+    outline-offset: 2px;
+}

@@ -5,20 +5,18 @@
             <div id="dataOneDetails" class="row mt-3 d-flex justify-content-center">
             </div>
         </div>
-        <div class="col-lg-5 text-shadow-small">
-            <div class="row">
-                <label class="text-shadow" for="storyTitle">Title</label>
+        <div class="col-lg-5">
+            <section class="majordome-story-panel rounded-4 border shadow-sm p-3 my-3" aria-labelledby="storyLabel">
+                <label class="form-label" for="storyTitle">Title</label>
                 <div class="input-group mb-3">
                     <input id="storyTitle" class="form-control shadow pull-right" placeholder="Title" />
-                    <button id="createStory" class="btn btn-light bi bi-book input-group-text "></button>
-                    <button id="deleteStory" class="btn btn-light bi bi-book-fill input-group-text"></button>
-                    <button id="saveStory" class="btn btn-light bi bi-save input-group-text"></button>
+                    <button id="createStory" type="button" class="btn btn-secondary" data-button-tone="secondary" aria-label="Create story" title="Create story"><i class="bi bi-book" aria-hidden="true"></i></button>
+                    <button id="deleteStory" type="button" class="btn btn-secondary" data-button-tone="secondary" aria-label="Delete story" title="Delete story"><i class="bi bi-book-fill" aria-hidden="true"></i></button>
+                    <button id="saveStory" type="button" class="btn btn-secondary" data-button-tone="secondary" aria-label="Save story" title="Save story"><i class="bi bi-save" aria-hidden="true"></i></button>
                 </div>
-            </div>
-            <div class="row mt-2">
-                <label id="storyLabel" class="text-shadow" for="story">Story</label>
+                <label id="storyLabel" class="form-label" for="story">Story</label>
                 <textarea id="story" class="form-control shadow" aria-labelledby="storyLabel"></textarea>
-            </div>
+            </section>
         </div>
     </div>
 </div>

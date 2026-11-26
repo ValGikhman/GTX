@@ -1,4 +1,8 @@
 /* Vehicle details — intentionally scoped so inventory and shared components are unaffected. */
+html[data-background-theme="light"] .page-title:has(> .vdp-page-title-status-slot) #title .main-title {
+    color: var(--gtx-gradient-ink) !important;
+}
+
 .vehicle-detail-page {
     --vdp-ink: #111820;
     --vdp-muted: #65707c;
@@ -33,22 +37,32 @@
     --vdp-accent: var(--gtx-accent-solid, #1e73be);
     --vdp-accent-soft: rgba(30, 115, 190, .18);
     --vdp-accent-soft: color-mix(in srgb, var(--vdp-accent) 18%, transparent);
-    --vdp-surface: var(--bs-body-bg, #fff);
+    --vdp-status-surface: var(--gtx-tinted-panel-background, var(--bs-body-bg, #fff));
+    --vdp-status-background: var(--gtx-secondary-action-gradient, none) var(--vdp-status-surface);
     display: inline-flex;
     gap: .6rem;
     align-items: center;
     width: 100%;
     min-height: 2.7rem;
     padding: .35rem .9rem .35rem .4rem;
-    color: var(--bs-body-color, var(--vdp-ink));
+    color: var(--gtx-steel-panel-ink, var(--bs-body-color, #212529));
     border: 1px solid rgba(31, 41, 51, .12);
-    border-color: color-mix(in srgb, var(--vdp-accent) 22%, transparent);
-    border-radius: 999px;
-    background: var(--vdp-surface);
-    background: color-mix(in srgb, var(--vdp-accent) 8%, var(--vdp-surface));
-    box-shadow: 0 .45rem 1.25rem rgba(20, 29, 38, .09);
+    border-color: color-mix(in srgb, currentColor 22%, transparent);
+    border-radius: .75rem;
+    background: var(--vdp-status-background);
+    box-shadow: inset 0 1px rgba(255, 255, 255, .18), 0 .35rem .9rem rgba(20, 29, 38, .18);
     font-size: .78rem;
     letter-spacing: .015em;
+}
+
+@supports (color: color-mix(in srgb, white, black)) {
+    html[data-background-theme="light"] .vdp-record-status {
+        --vdp-status-surface: color-mix(in srgb, var(--gtx-palette-tint-color) var(--gtx-panel-tint-amount), var(--bs-body-bg));
+    }
+}
+
+html[data-background-theme="dark"]:not([data-theme-finish="solid"]) .vdp-record-status {
+    --vdp-status-background: var(--gtx-tinted-steel-panel-background);
 }
 
 .vdp-page-title-status-slot {
@@ -77,7 +91,7 @@ html.theme-silver .vdp-record-status-icon {
 }
 
 .vdp-record-status-number {
-    color: var(--vdp-accent);
+    color: inherit;
     font-weight: 850;
 }
 
@@ -90,7 +104,7 @@ html.theme-silver .vdp-record-status-icon {
 #vdpStatusTotal {
     display: inline-block;
     min-width: 1.35rem;
-    color: var(--bs-body-color, var(--vdp-ink));
+    color: inherit;
     font-weight: 750;
     text-align: center;
 }
@@ -532,12 +546,37 @@ html[data-background-theme] body .vdp-tabs .nav-tabs .nav-item.active {
     width: 2.7rem;
     height: 2.7rem;
     margin: 0 .8rem;
-    border: 1px solid rgba(255, 255, 255, .24);
+    color: var(--gtx-secondary-action-ink, var(--vdp-ink));
+    border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
     border-radius: 50%;
-    background: rgba(8, 12, 16, .62);
+    background: var(--gtx-secondary-action-gradient, none) var(--gtx-secondary-action-bg, var(--bs-tertiary-bg, #f3f5f6));
+    box-shadow: 0 .3rem .75rem rgba(0, 0, 0, .2);
     transform: translateY(-50%);
     opacity: 1;
-    backdrop-filter: blur(8px);
+}
+
+.vehicle-detail-page #detailsCarousel :is(.carousel-control-prev, .carousel-control-next):focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -4px;
+}
+
+.vehicle-detail-page #detailsCarousel :is(.carousel-control-prev-icon, .carousel-control-next-icon) {
+    width: .66rem;
+    height: .66rem;
+    border: solid currentColor;
+    border-width: 0 2px 2px 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    filter: none;
+}
+
+.vehicle-detail-page #detailsCarousel .carousel-control-prev-icon {
+    rotate: 135deg;
+}
+
+.vehicle-detail-page #detailsCarousel .carousel-control-next-icon {
+    rotate: -45deg;
 }
 
 .vdp-utility-actions {
@@ -1501,37 +1540,16 @@ html.theme-silver .gtx-overview-toggle {
 }
 
 .vdp-concierge-heading {
-    position: relative;
-    isolation: isolate;
     overflow: hidden;
     margin-bottom: 1rem;
     padding: .75rem .85rem .9rem;
     border: 1px solid color-mix(in srgb, var(--vdp-accent) 20%, var(--vdp-line));
     border-radius: 1rem;
-    background:
-        radial-gradient(circle at 100% 0, var(--vdp-accent-soft), transparent 58%),
-        color-mix(in srgb, var(--vdp-accent) 5%, var(--vdp-surface));
+    background-color: var(--vdp-surface);
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, .34),
         0 .65rem 1.5rem rgba(20, 29, 38, .08);
     text-align: center;
-}
-
-.vdp-concierge-heading::before {
-    position: absolute;
-    top: .75rem;
-    right: .8rem;
-    z-index: -1;
-    width: 2.8rem;
-    height: 2.8rem;
-    content: "";
-    border: 1px solid color-mix(in srgb, var(--vdp-accent) 30%, transparent);
-    border-radius: 50%;
-    background:
-        radial-gradient(circle, rgba(255, 255, 255, .86) 0 8%, transparent 10%),
-        radial-gradient(circle, var(--vdp-accent-soft), transparent 68%);
-    box-shadow: 0 0 1.4rem var(--vdp-accent-soft);
-    opacity: .72;
 }
 
 .vdp-has-concierge-reveal #modalShortcuts .vdp-concierge-heading {
@@ -1575,10 +1593,10 @@ html.theme-silver .gtx-overview-toggle {
     align-items: center;
     margin-bottom: .35rem;
     padding: .28rem .55rem;
-    color: var(--vdp-accent);
-    border: 1px solid color-mix(in srgb, var(--vdp-accent) 22%, transparent);
+    color: var(--gtx-secondary-action-ink, var(--bs-body-color));
+    border: 1px solid var(--bs-border-color);
     border-radius: 999px;
-    background: color-mix(in srgb, var(--vdp-accent) 8%, var(--vdp-surface));
+    background: var(--gtx-secondary-action-gradient, none) var(--gtx-secondary-action-bg, var(--bs-secondary-bg));
     font-size: .62rem;
     font-weight: 800;
     letter-spacing: .11em;
@@ -1589,7 +1607,6 @@ html.theme-silver .gtx-overview-toggle {
     display: block;
     width: fit-content;
     margin-inline: auto;
-    color: var(--bs-body-color, var(--vdp-ink));
     font-size: clamp(1.85rem, 3vw, 2.25rem);
     font-weight: 850;
     line-height: 1;
@@ -1599,7 +1616,7 @@ html.theme-silver .gtx-overview-toggle {
 .vdp-concierge-heading p {
     max-width: 19rem;
     margin: .6rem auto 0;
-    color: var(--bs-secondary-color, var(--vdp-muted));
+    color: inherit;
     font-size: .78rem;
     line-height: 1.55;
 }

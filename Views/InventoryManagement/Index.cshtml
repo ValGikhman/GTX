@@ -87,7 +87,7 @@
                 <div id="inventoryManagementUploadLog" class="inventory-management-upload-log list-group small mt-3" aria-live="polite"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" id="inventoryManagementUploadCancel" class="btn btn-outline-secondary" data-button-tone="danger"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>
+                <button type="button" id="inventoryManagementUploadCancel" class="btn btn-outline-secondary" data-button-tone="cancel"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>
                 <button type="button" id="inventoryManagementUploadStart" class="btn btn-gradient"><i class="bi bi-play-fill me-1" aria-hidden="true"></i>Start</button>
             </div>
         </div>
@@ -165,7 +165,7 @@
 
         function uploadSetActionButton($button, label, iconClass) {
             if (label === "Cancel") {
-                $button.attr("data-button-tone", "danger");
+                $button.attr("data-button-tone", "cancel");
             } else {
                 $button.removeAttr("data-button-tone");
             }

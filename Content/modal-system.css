@@ -28,6 +28,13 @@ html body .modal .modal-header .modal-title {
     text-shadow: none;
 }
 
+html body .gtx-modal-title-icon,
+html body .btn[data-button-tone="cancel"] {
+    --bs-box-shadow: inset 0 1px 0 rgba(255, 255, 255, .16), 0 .25rem .6rem rgba(15, 23, 42, .14);
+    border-radius: .7rem;
+    box-shadow: var(--bs-box-shadow);
+}
+
 html body .gtx-modal-title-icon {
     display: inline-flex;
     align-items: center;
@@ -36,10 +43,8 @@ html body .gtx-modal-title-icon {
     height: 2.2rem;
     flex: 0 0 2.2rem;
     border: 1px solid rgba(255, 255, 255, .2);
-    border-radius: .7rem;
     color: inherit;
     background: rgba(255, 255, 255, .14);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .16), 0 .25rem .6rem rgba(15, 23, 42, .14);
     font-size: 1rem;
 }
 
@@ -93,7 +98,7 @@ html[data-background-theme="dark"] body .modal .modal-body .bg-white:is(.card-he
     color: inherit;
 }
 
-html[data-background-theme="dark"] body .modal :is(.modal-footer, .card-footer) .btn-outline-secondary {
+html[data-background-theme="dark"] body .modal :is(.modal-footer, .card-footer) .btn-outline-secondary:not([data-button-tone="cancel"]) {
     --bs-btn-color: var(--gtx-steel-panel-ink, var(--bs-body-color));
     --bs-btn-border-color: currentColor;
 }

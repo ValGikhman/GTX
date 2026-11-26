@@ -21,8 +21,8 @@
 
             <!-- Row 1: Active -->
             <div class="col-md-3">
-                <div class="form-check gtx-status-switch">
-                    @Html.CheckBoxFor(m => m.Active, new { @class = "form-check-input", id = "Active" })
+                <div class="form-check form-switch gtx-status-switch">
+                    @Html.CheckBoxFor(m => m.Active, new { @class = "form-check-input", id = "Active", role = "switch" })
                     <label class="form-check-label text-shadow-small" for="Active"><strong>Active</strong></label>
                 </div>
             </div>
@@ -98,7 +98,7 @@
             @Html.ValidationSummary(false, "", new { @class = "text-danger mt-2" })
 
             <div class="col-12 d-flex justify-content-end gap-2 mt-2">
-                <button type="button" class="btn btn-outline-secondary" data-button-tone="danger" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>
+                <button type="button" class="btn btn-outline-secondary" data-button-tone="cancel" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>
                 <button type="submit" class="btn @(isEdit ? "btn-gradient" : "btn-success")" data-button-tone="success"><i class="bi @(isEdit ? "bi-save" : "bi-plus-circle") me-1" aria-hidden="true"></i>@(isEdit ? "Save Changes" : "Create Announcement")</button>
             </div>
 

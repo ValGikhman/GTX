@@ -6,13 +6,13 @@ Roles, or available to edit, rename, delete, or impersonate through that page.
 
 Majordome can turn on **Roles** in **Menu access** to let a regular role manage other
 roles. A delegated manager can create, edit and delete ordinary roles whose menu and
-Dashboard section permissions fit within the manager's own grants. Majordome manages
-Roles grants and role-manager accounts and can sign in as another role. Profile and
-Services are reserved for Majordome.
+Dashboard section permissions fit within the manager's own grants. Majordome controls
+the Roles and Profile grants, manages roles with either permission, and can sign in
+as another role. Services is reserved for Majordome.
 
 Owner is an ordinary editable, renameable and deletable role. Regular roles start
-with access to the other Majordome pages, with Roles off by default. Existing roles
-receive their initial page grants once, using `dbo.SiteRoleSetup` marker `Id=2`.
+with access to the other Majordome pages, with Roles and Profile off by default.
+Existing roles receive their initial page grants once, using `dbo.SiteRoleSetup` marker `Id=2`.
 Marker `Id=4` clears legacy Roles and Users tokens once before delegated management is
 enabled. Later permission edits survive application restarts.
 

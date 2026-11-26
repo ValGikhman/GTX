@@ -3,15 +3,11 @@
     --staff-accent: var(--gtx-accent-solid, #1e73be);
     --staff-gradient: var(--gtx-grad, linear-gradient(145deg, #155a96, #1e73be));
     --staff-ink: #0b1118;
-    --staff-paper: #f4f1eb;
     --staff-line: rgba(11, 17, 24, .14);
     position: relative;
     min-height: 100%;
     overflow: hidden;
     color: var(--staff-ink);
-    background:
-        radial-gradient(circle at 8% 55%, rgba(30, 115, 190, .12), transparent 27rem),
-        linear-gradient(180deg, #ece9e2 0, var(--staff-paper) 32rem, #fff 100%);
 }
 
 .staff-showcase {
