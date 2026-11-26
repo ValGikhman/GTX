@@ -702,7 +702,13 @@ html[data-background-theme="dark"] #menuScheduleMobile .mobile-menu-address-text
     color: var(--bs-body-color) !important;
 }
 
-html[data-background-theme]:not([data-background-theme="light"]) :is(.card, .modal-content, .offcanvas, .list-group-item, .accordion) {
+html[data-background-theme]:not([data-background-theme="light"]) :is(
+    .card,
+    .modal-content,
+    .offcanvas,
+    .list-group-item:not(:where(:is(.inventory-management-upload-log, .majordome-bulk-progress-log) > .list-group-item)),
+    .accordion
+) {
     --bs-card-bg: var(--bs-body-bg);
     --bs-card-color: var(--bs-body-color);
     --bs-modal-bg: var(--bs-body-bg);
@@ -911,29 +917,51 @@ html[data-background-theme] .pe-editor .pe-body a {
     text-decoration: underline;
 }
 
-html[data-background-theme] :is(.majordome-action-group, .majordome-workspace #tab-details, .vehicle-detail-page) {
+html[data-background-theme] :is(
+    .majordome-action-group, .majordome-workspace #tab-details, .vehicle-detail-page,
+    .inventory-management-upload-log, .majordome-bulk-preview, .majordome-bulk-progress-log
+) {
     --gtx-detail-panel-surface: var(--gtx-tinted-panel-background, #f8fafc);
     --gtx-detail-panel-surface-alt: var(--gtx-tinted-panel-background-alt, #fff);
     --gtx-detail-panel-finish: linear-gradient(180deg, var(--gtx-detail-panel-surface-alt), var(--gtx-detail-panel-surface));
 }
 
 @supports (color: color-mix(in srgb, white, black)) {
-    html[data-background-theme="light"] :is(.majordome-action-group, .majordome-workspace #tab-details, .vehicle-detail-page) {
+    html[data-background-theme="light"] :is(
+        .majordome-action-group, .majordome-workspace #tab-details, .vehicle-detail-page,
+        .inventory-management-upload-log, .majordome-bulk-preview, .majordome-bulk-progress-log
+    ) {
         --gtx-detail-panel-surface: color-mix(in srgb, var(--gtx-palette-tint-color) var(--gtx-panel-tint-amount), #f8fafc);
         --gtx-detail-panel-surface-alt: color-mix(in srgb, var(--gtx-palette-tint-color) var(--gtx-panel-tint-amount), white);
     }
 }
 
-html[data-theme-finish="solid"] :is(.majordome-action-group, .majordome-workspace #tab-details, .vehicle-detail-page) {
+html[data-theme-finish="solid"] :is(
+    .majordome-action-group, .majordome-workspace #tab-details, .vehicle-detail-page,
+    .inventory-management-upload-log, .majordome-bulk-preview, .majordome-bulk-progress-log
+) {
     --gtx-detail-panel-finish: none;
 }
 
 html[data-background-theme] .majordome-action-group,
 html[data-background-theme] .majordome-workspace #tab-details :is(.gtx-dataone-body, .majordome-story-panel),
-html[data-background-theme] .vehicle-detail-page :is(.gtx-dataone-body, .vdp-concierge-heading) {
+html[data-background-theme] .vehicle-detail-page :is(.gtx-dataone-body, .vdp-concierge-heading),
+html[data-background-theme] :is(
+    .inventory-management-upload-log, .majordome-bulk-progress-log,
+    .majordome-remove-bg-filterbar, .majordome-remove-bg-token-card, .majordome-background-preview-card
+) {
     background-color: var(--gtx-detail-panel-surface);
     background-image: var(--gtx-detail-panel-finish);
     color: var(--gtx-steel-panel-ink, var(--bs-body-color));
+}
+
+html[data-background-theme] :is(.inventory-management-upload-log, .majordome-bulk-progress-log) > .list-group-item-light {
+    --bs-list-group-bg: transparent;
+    --bs-list-group-color: inherit;
+}
+
+html[data-background-theme] :is(#inventoryManagementUploadTrack, #majordomeBulkProgressTrack) {
+    --bs-progress-bg: var(--gtx-field-background, var(--bs-secondary-bg));
 }
 
 :is(.majordome-workspace #tab-details, .vehicle-detail-page) .gtx-dataone-card {
@@ -1021,12 +1049,12 @@ html[data-background-theme="dark"] .majordome-management-detail-panel .inventory
     background: transparent !important;
 }
 
-html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-history-status {
+html[data-background-theme="dark"] :is(.inventory-dashboard-history-panel .inventory-dashboard-history-status, .majordome-background-preview-date) {
     background: var(--bs-secondary-bg);
     color: var(--bs-body-color);
 }
 
-html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-history-status.is-added {
+html[data-background-theme="dark"] :is(.inventory-dashboard-history-panel .inventory-dashboard-history-status, .majordome-background-preview-date).is-added {
     background: var(--bs-success-bg-subtle);
     color: var(--bs-success-text-emphasis);
 }
@@ -1041,7 +1069,7 @@ html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory
     color: var(--bs-primary-text-emphasis);
 }
 
-html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-history-status.is-purchased {
+html[data-background-theme="dark"] :is(.inventory-dashboard-history-panel .inventory-dashboard-history-status, .majordome-background-preview-date).is-purchased {
     background: var(--bs-warning-bg-subtle);
     color: var(--bs-warning-text-emphasis);
 }
