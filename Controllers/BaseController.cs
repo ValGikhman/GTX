@@ -121,6 +121,7 @@ namespace GTX.Controllers
 
                 ViewBag.CurrentRole = access?.Name ?? "User";
                 ViewBag.MenuPermissions = MajordomeMenu.Items.Where(item => SiteAccess.Can(access, item.Item)).Select(item => item.Item.ToString()).ToArray();
+                ViewBag.IsBuiltInAdministrator = SiteAccess.IsMajordome(access);
                 Model.IsMajordome = access != null;
                 ViewBag.IsMajordome = Model.IsMajordome;
 

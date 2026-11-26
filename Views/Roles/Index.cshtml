@@ -2,6 +2,7 @@
 @{
     ViewBag.Title = "Roles";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var canImpersonateRoles = (bool?)ViewBag.CanImpersonateRoles == true;
     var roleIcons = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) {
         { "Owner", "bi-person-badge" },
         { "Manager", "bi-clipboard-check" },
@@ -12,7 +13,7 @@
     };
 }
 @Html.Partial("_MarketingHero", null, new ViewDataDictionary { { "Kicker", "Majordome" }, { "Title", "Manage" }, { "Accent", "Roles" }, { "Description", "Manage role passwords and Majordome menu access." }, { "Word", "ACCESS" }, { "Icon", "bi-people" } })
-<div class="p-3" id="rolesPage" data-edit-url="@Url.Action("Edit")" data-delete-url="@Url.Action("Delete")" data-login-as-url="@Url.Action("LoginAs")">
+<div class="p-3" id="rolesPage" data-edit-url="@Url.Action("Edit")" data-delete-url="@Url.Action("Delete")" data-login-as-url="@(canImpersonateRoles ? Url.Action("LoginAs") : null)">
     @Html.AntiForgeryToken()
     <div class="shadow rounded-4 overflow-hidden">
         <button type="button" class="btn btn-gradient" id="newRole" data-button-tone="new"><i class="bi bi-plus-lg me-1"></i>New</button>
@@ -22,10 +23,12 @@
                 var roleIcon = roleIcons.ContainsKey(role.Name) ? roleIcons[role.Name] : "bi-person-circle";
                 <tr><td><div class="d-flex align-items-center gap-2 py-2"><i class="bi @roleIcon fs-4 text-primary" aria-hidden="true"></i><span class="fw-semibold">@role.Name</span></div></td><td>@string.Join(", ", GTX.Common.MajordomeMenu.Items.Where(i => GTX.Common.SiteAccess.Can(role, i.Item)).Select(i => i.Title))</td><td>
                     <div class="btn-group">
-                        <button type="button" class="btn btn-gradient-grey btn-sm btn-outline-primary login-as-role text-nowrap"
-                                data-id="@role.Id" title="Log in as @role.Name" aria-label="Log in as @role.Name">
-                            <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>
-                        </button>
+                        @if (canImpersonateRoles) {
+                            <button type="button" class="btn btn-gradient-grey btn-sm btn-outline-primary login-as-role text-nowrap"
+                                    data-id="@role.Id" title="Log in as @role.Name" aria-label="Log in as @role.Name">
+                                <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>
+                            </button>
+                        }
                         <a class="btn btn-gradient-grey btn-sm btn-outline-primary edit-role"
                            href="@Url.Action("Edit", GTX.Common.Enums.Controllers.Roles.ToString(), new { id = role.Id })"
                            data-id="@role.Id" title="Edit role">

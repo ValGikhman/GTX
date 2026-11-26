@@ -1264,6 +1264,7 @@
 <script>
     window.gtx = window.gtx || {};
     window.gtx.menuPermissions = @Html.Raw(System.Web.Helpers.Json.Encode(ViewBag.MenuPermissions ?? new string[0]));
+    window.gtx.isMajordome = @Html.Raw(System.Web.Helpers.Json.Encode((ViewBag.IsBuiltInAdministrator as bool?) == true));
     window.gtx.currentRole = '@(ViewBag.CurrentRole ?? "")';
     setMajordomeMenu(window.gtx.currentRole);
 

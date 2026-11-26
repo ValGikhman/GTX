@@ -38,7 +38,13 @@ for (const role of ['Owner', 'Manager', 'Detail Team']) {
     assert.equal(context.hasNavigationAccess('Profile'), false);
     assert.equal(context.hasNavigationAccess('Services'), false);
 }
-context.window.gtx = { currentRole: 'Majordome', menuPermissions: menuKeys.slice() };
+context.window.gtx = { currentRole: 'Manager', menuPermissions: ['Roles'], isMajordome: false };
+assert.equal(context.hasNavigationAccess('Roles'), true, 'Delegated roles can open the Roles page');
+assert.equal(context.hasNavigationAccess('administrator'), false, 'The Roles grant does not authorize administrator actions');
+assert.equal(context.hasNavigationAccess('Profile'), false);
+assert.equal(context.hasNavigationAccess('Services'), false);
+
+context.window.gtx = { currentRole: 'Majordome', menuPermissions: menuKeys.slice(), isMajordome: true };
 for (const key of menuKeys) assert.equal(context.hasNavigationAccess(key), true, `Configured administrator can open ${key}`);
 assert.equal(context.hasNavigationAccess('administrator'), true);
 assert.equal(context.hasNavigationAccess('UndefinedPage'), false, 'Unknown destinations do not inherit administrator access');

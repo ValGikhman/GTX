@@ -212,19 +212,17 @@
                     const role = (res.role || res.Role || "user");
                     window.gtx = window.gtx || {};
                     window.gtx.menuPermissions = res.permissions || [];
-                    setMajordomeMenu(role);
-                    window.gtx = window.gtx || {};
+                    window.gtx.isMajordome = res.isMajordome === true;
                     window.gtx.currentRole = role;
+                    setMajordomeMenu(role);
 
                     const normalizedRole = String(role).toLowerCase();
                     const requiredRole = String(window.gtxRequiredRole || "").toLowerCase();
-                    const isAdministrator = window.gtx.menuPermissions.indexOf("Roles") >= 0
-                        && window.gtx.menuPermissions.indexOf("Profile") >= 0;
                     const hasMenuPermission = window.gtx.menuPermissions.some(function (permission) {
                         return String(permission).toLowerCase() === requiredRole;
                     });
                     const hasRequiredRole = !requiredRole
-                        || (requiredRole === "administrator" ? isAdministrator
+                        || (requiredRole === "administrator" ? window.gtx.isMajordome
                             : requiredRole === "staff" || requiredRole === "owner" ? normalizedRole !== "user"
                             : hasMenuPermission);
                     if (!hasRequiredRole) {
