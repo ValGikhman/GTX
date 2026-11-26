@@ -36,7 +36,10 @@ $custom.Name = 'Detail Team'
 $custom.Permissions = @('VinDecoder','Appraisal','Roles','Profile','Services')
 if (![GTX.Common.SiteAccess]::Can($custom, [GTX.Common.MajordomeItem]::VinDecoder)) { throw 'Custom role grant failed.' }
 if (![GTX.Common.SiteAccess]::Can($custom, [GTX.Common.MajordomeItem]::Appraisal)) { throw 'Custom appraisal grant failed.' }
-foreach ($reserved in @([GTX.Common.MajordomeItem]::Roles, [GTX.Common.MajordomeItem]::Profile, [GTX.Common.MajordomeItem]::Services)) {
+if (![GTX.Common.SiteAccess]::Can($custom, [GTX.Common.MajordomeItem]::Roles) -or [GTX.Common.SiteAccess]::IsMajordome($custom)) {
+    throw 'An explicit Roles grant must allow the page while preserving ordinary role identity.'
+}
+foreach ($reserved in @([GTX.Common.MajordomeItem]::Profile, [GTX.Common.MajordomeItem]::Services)) {
     if ([GTX.Common.SiteAccess]::Can($custom, $reserved)) { throw "Regular role obtained reserved $reserved access through a stored grant." }
 }
 $custom.Permissions = $null
@@ -56,6 +59,46 @@ foreach ($item in $items) {
     if (![GTX.Common.SiteAccess]::Can($administrator, $item.Item)) { throw "Majordome lacks $($item.Item) access." }
 }
 if (![GTX.Common.SiteAccess]::CanViewDashboardSection($administrator, $locationPermission)) { throw 'Majordome lacks Location Code access.' }
+
+$delegate = New-Object GTX.Models.SiteRoleModel -Property @{
+    Id = 125
+    Name = 'Role Manager'
+    Permissions = @('Roles', 'Appraisal', 'InventoryDashboard')
+}
+$ordinaryRole = New-Object GTX.Models.SiteRoleModel -Property @{
+    Id = 126
+    Name = 'Appraiser'
+    Permissions = @('Appraisal')
+}
+$delegateGrants = [GTX.Common.SiteAccess]::GrantableRolePermissions($delegate)
+if ((($delegateGrants | Sort-Object) -join ',') -cne 'Appraisal,InventoryDashboard') {
+    throw 'A role manager can grant only their own ordinary permissions.'
+}
+$administratorGrants = [GTX.Common.SiteAccess]::GrantableRolePermissions($administrator)
+if ($administratorGrants -notcontains 'Roles' -or $administratorGrants -contains 'Profile' -or $administratorGrants -contains 'Services') {
+    throw 'Majordome must be able to grant Roles while retaining exclusive Profile and Services access.'
+}
+if (![GTX.Common.SiteAccess]::CanManageRole($delegate, $null) -or
+    ![GTX.Common.SiteAccess]::CanManageRole($delegate, $ordinaryRole) -or
+    [GTX.Common.SiteAccess]::CanManageRole($delegate, $administrator) -or
+    [GTX.Common.SiteAccess]::CanManageRole($delegate, $delegate) -or
+    [GTX.Common.SiteAccess]::CanManageRole($ordinaryRole, $null) -or
+    [GTX.Common.SiteAccess]::CanManageRole($null, $ordinaryRole)) {
+    throw 'Role-management access did not respect the actor or target boundary.'
+}
+$ordinaryRole.Permissions = @('Roles', 'Appraisal')
+if ([GTX.Common.SiteAccess]::CanManageRole($delegate, $ordinaryRole) -or
+    ![GTX.Common.SiteAccess]::CanManageRole($administrator, $ordinaryRole)) {
+    throw 'A delegated role manager can be managed only by Majordome.'
+}
+$ordinaryRole.Permissions = @('InventoryDashboard', $locationKey)
+if ([GTX.Common.SiteAccess]::CanManageRole($delegate, $ordinaryRole)) { throw 'Role management bypassed Dashboard child access.' }
+$delegate.Permissions += $locationKey
+if (![GTX.Common.SiteAccess]::CanManageRole($delegate, $ordinaryRole) -or
+    [GTX.Common.SiteAccess]::GrantableRolePermissions($delegate) -notcontains $locationKey) {
+    throw 'A delegated role manager could not assign a Dashboard child permission they hold.'
+}
+
 if ([GTX.Common.SiteAccess]::CanViewDashboardSection($null, $locationPermission) -or
     [GTX.Common.SiteAccess]::CanViewDashboardSection($administrator, [Enum]::ToObject([GTX.Common.DashboardPermission], 999))) {
     throw 'An anonymous request or an undefined Dashboard permission was granted access.'
@@ -111,4 +154,4 @@ foreach ($actorName in @('Owner', 'Manager', 'Detail Team', $null)) {
         }
     }
 }
-Write-Output 'PASS: role defaults, Dashboard child permissions, reserved-page/identity protection, anonymous denial, route mapping and hidden command-row administrator identity.'
+Write-Output 'PASS: role defaults, delegated role-management scope, Dashboard child permissions, reserved identity and pages, route mapping and hidden command-row administrator identity.'

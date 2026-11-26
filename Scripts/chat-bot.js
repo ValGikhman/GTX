@@ -877,10 +877,11 @@
 
         function hasNavigationAccess(requiredRole) {
             if (!requiredRole) return true;
-            var role = $.trim(String(window.gtx && window.gtx.currentRole || "user")).toLowerCase();
+            var context = window.gtx || {};
+            var role = $.trim(String(context.currentRole || "user")).toLowerCase();
             var required = String(requiredRole).toLowerCase();
-            var permissions = window.gtx && window.gtx.menuPermissions || [];
-            if (required === "administrator") return permissions.indexOf("Roles") >= 0;
+            var permissions = context.menuPermissions || [];
+            if (required === "administrator") return context.isMajordome === true;
             if (required === "admin" || required === "staff" || required === "owner") return role !== "" && role !== "user";
             return $.grep(permissions, function (permission) { return String(permission).toLowerCase() === required; }).length > 0;
         }

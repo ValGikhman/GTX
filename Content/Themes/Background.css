@@ -1548,9 +1548,23 @@ html[data-background-theme="dark"] .majordome-panel-page #sitemapAccordion {
     --bs-accordion-bg: transparent;
 }
 
-html[data-background-theme="dark"] .majordome-panel-page #profilePage .profile-card-header,
-html[data-background-theme="dark"] .majordome-panel-page #roleModalBody .role-editor-card-header {
+html[data-background-theme="dark"] .majordome-panel-page #profilePage .profile-card-header {
     background: var(--gtx-tinted-steel-panel-background);
+}
+
+html[data-background-theme="dark"] #roleModalBody .role-editor-card-header {
+    border-bottom-color: color-mix(in srgb, currentColor 18%, transparent);
+    background: var(--gtx-menu-background);
+    color: var(--gtx-menu-ink);
+}
+
+html[data-background-theme="dark"] #roleModalBody .role-editor-heading-icon {
+    border-color: color-mix(in srgb, currentColor 22%, transparent);
+    background: rgb(255 255 255 / 14%);
+}
+
+html[data-background-theme="dark"] #roleModalBody .toggle-role-password {
+    --bs-btn-color: var(--gtx-dark-field-ink);
 }
 
 html[data-background-theme="dark"] .majordome-panel-page :is(#profilePage .profile-card, #roleModalBody .role-editor-card) {

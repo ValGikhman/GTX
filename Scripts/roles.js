@@ -24,13 +24,20 @@ $(function () {
         }
     });
     $("#rolesGrid .pg-search-input-group").after($("#newRole").detach().addClass("btn-sm"));
+    function roleError(xhr, fallback) {
+        return xhr.status === 403 ? "This action is outside your role management permissions." : fallback;
+    }
     function open(id) {
-        $("#roleModalTitle").text(id ? "Edit role" : "New role");
         $.get($page.data("edit-url"), { id: id || 0 }).done(function (html) {
             $("#roleModalBody").html(html);
-            validateRolePassword(document.getElementById("roleForm"));
+            var form = document.getElementById("roleForm");
+            var roleName = form && form.elements.Name.value;
+            var title = id ? "Edit role" : "New role";
+            if (id && roleName) title = "Edit " + roleName + " role";
+            $("#roleModalTitle").text(title);
+            validateRolePassword(form);
             bootstrap.Modal.getOrCreateInstance(document.getElementById("roleModal")).show();
-        }).fail(function () { window.gtxAlert("Could not load role."); });
+        }).fail(function (xhr) { window.gtxAlert(roleError(xhr, "Could not load role.")); });
     }
     $("#newRole").on("click", function () { open(0); });
     $page.on("click", ".edit-role", function (event) { event.preventDefault(); open($(this).data("id")); });
@@ -39,8 +46,10 @@ $(function () {
             .find("input").prop("disabled", !this.checked);
     });
     $page.on("click", ".login-as-role", function () {
+        var loginAsUrl = $page.data("login-as-url");
+        if (!loginAsUrl) return;
         var $buttons = $page.find(".login-as-role").prop("disabled", true);
-        $.post($page.data("login-as-url"), {
+        $.post(loginAsUrl, {
             id: $(this).data("id"),
             __RequestVerificationToken: $page.find('[name="__RequestVerificationToken"]').val()
         }).done(function (res) {
@@ -101,13 +110,13 @@ $(function () {
                 $("#roleModalBody").html(res);
                 validateRolePassword(document.getElementById("roleForm"));
             }
-        }).fail(function () { window.gtxAlert("Could not save role. Please try again."); })
+        }).fail(function (xhr) { window.gtxAlert(roleError(xhr, "Could not save role. Please try again.")); })
           .always(function () { $form.find(":submit").prop("disabled", false); });
     });
     $page.on("click", ".delete-role", async function () {
         var $button = $(this);
         if (!await window.gtxConfirm({ title: "Delete role", message: "Delete " + $button.data("name") + "? This cannot be undone.", confirmText: "Delete", variant: "danger" })) return;
         $.post($page.data("delete-url"), { id: $button.data("id"), __RequestVerificationToken: $page.find('[name="__RequestVerificationToken"]').val() })
-            .done(function () { window.location.reload(); }).fail(function (xhr) { window.gtxAlert(xhr.responseJSON && xhr.responseJSON.message || "Could not delete role."); });
+            .done(function () { window.location.reload(); }).fail(function (xhr) { window.gtxAlert(roleError(xhr, xhr.responseJSON && xhr.responseJSON.message || "Could not delete role.")); });
     });
 });

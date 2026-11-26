@@ -4,12 +4,17 @@ Majordome is the built-in administrator. Its identity is fixed in code; its pass
 is configured separately. It is never stored in the editable role table, listed in
 Roles, or available to edit, rename, delete, or impersonate through that page.
 
-Only Majordome can see or access Roles, Profile and Services. Owner is an ordinary editable,
-renameable and deletable role. All regular roles start with access to the other
-Majordome pages, and their individual page permissions remain editable. Existing
-roles receive these initial grants once, using `dbo.SiteRoleSetup` marker `Id=2`;
-later application restarts preserve permission edits. Old Roles/Profile/Services grants
-never authorize regular roles.
+Majordome can turn on **Roles** in **Menu access** to let a regular role manage other
+roles. A delegated manager can create, edit and delete ordinary roles whose menu and
+Dashboard section permissions fit within the manager's own grants. Majordome manages
+Roles grants and role-manager accounts and can sign in as another role. Profile and
+Services are reserved for Majordome.
+
+Owner is an ordinary editable, renameable and deletable role. Regular roles start
+with access to the other Majordome pages, with Roles off by default. Existing roles
+receive their initial page grants once, using `dbo.SiteRoleSetup` marker `Id=2`.
+Marker `Id=4` clears legacy Roles and Users tokens once before delegated management is
+enabled. Later permission edits survive application restarts.
 
 The Dashboard switch grants access to the inventory dashboard, including sorting
 and filtering the LOC column by each vehicle's Location Code. The **Show Location

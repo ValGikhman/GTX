@@ -65,6 +65,16 @@ END", db, tx)) {
                             cmd.Parameters.AddWithValue("@section", MajordomeMenu.DashboardSectionKey(DashboardPermission.LocationCode));
                             cmd.ExecuteNonQuery();
                         }
+                        // These legacy tokens did not confer access. Give each token its own delimiters, even if duplicated.
+                        using (var cmd = new SqlCommand(@"IF NOT EXISTS (SELECT 1 FROM dbo.SiteRoleSetup WITH (UPDLOCK,HOLDLOCK) WHERE Id=4)
+BEGIN
+    UPDATE r SET Permissions=CASE WHEN LEN(clean.Value) <= 1 THEN N'' ELSE SUBSTRING(clean.Value, 2, LEN(clean.Value) - 2) END
+    FROM dbo.SiteRole AS r
+    CROSS APPLY (VALUES (N',' + REPLACE(r.Permissions, N',', N',,') + N',')) AS wrapped(Value)
+    CROSS APPLY (VALUES (REPLACE(REPLACE(REPLACE(wrapped.Value, N',Roles,', N''), N',Users,', N''), N',,', N','))) AS clean(Value)
+    WHERE CHARINDEX(N',Roles,', wrapped.Value) > 0 OR CHARINDEX(N',Users,', wrapped.Value) > 0;
+    INSERT dbo.SiteRoleSetup(Id) VALUES(4);
+END", db, tx)) cmd.ExecuteNonQuery();
                         tx.Commit();
                     }
                 }
@@ -77,7 +87,7 @@ END", db, tx)) {
             using (var db = new SqlConnection(connectionString))
             using (var cmd = new SqlCommand("SELECT Id,Name,PasswordHash,Revision,Permissions FROM dbo.SiteRole ORDER BY Name", db)) {
                 db.Open();
-                using (var r = cmd.ExecuteReader()) while (r.Read()) result.Add(new SiteRoleModel { Id=r.GetInt32(0), Name=r.GetString(1), PasswordHash=r.GetString(2), Revision=r.GetString(3), Permissions=r.GetString(4).Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => p == "Users" ? MajordomeItem.Roles.ToString() : p).ToArray() });
+                using (var r = cmd.ExecuteReader()) while (r.Read()) result.Add(new SiteRoleModel { Id=r.GetInt32(0), Name=r.GetString(1), PasswordHash=r.GetString(2), Revision=r.GetString(3), Permissions=ParsePermissions(r.GetString(4)) });
             }
             return result.Where(r => !MajordomeAccount.IsReservedName(r.Name)).ToList();
         }
@@ -86,7 +96,7 @@ END", db, tx)) {
             if (administrator != null && Crypto.VerifyHashedPassword(administrator.PasswordHash, password ?? "")) return administrator;
             return All().FirstOrDefault(r => Crypto.VerifyHashedPassword(r.PasswordHash, password ?? ""));
         }
-        public void Save(SiteRoleModel model) {
+        public void Save(SiteRoleModel model, SiteRoleModel actor) {
             if (model == null) throw new ArgumentNullException(nameof(model));
             if (model.Id < 0 || MajordomeAccount.IsReservedName(model.Name)) throw new InvalidOperationException("The built-in administrator cannot be edited.");
             model.Name = model.Name?.Trim();
@@ -95,7 +105,7 @@ END", db, tx)) {
             var permissions = (model.Permissions ?? new string[0]).Distinct().ToArray();
             var dashboardSections = MajordomeMenu.DashboardSections.Keys.Select(MajordomeMenu.DashboardSectionKey).ToArray();
             if (permissions.Any(p => !MajordomeMenu.Items.Any(i => i.Item.ToString() == p) && !dashboardSections.Contains(p))) throw new InvalidOperationException("Unknown permission.");
-            if (permissions.Contains(MajordomeItem.Roles.ToString()) || permissions.Contains(MajordomeItem.Profile.ToString()) || permissions.Contains(MajordomeItem.Services.ToString())) throw new InvalidOperationException("Roles, Profile and Services are reserved for the built-in administrator.");
+            if (permissions.Contains(nameof(MajordomeItem.Profile)) || permissions.Contains(nameof(MajordomeItem.Services))) throw new InvalidOperationException("Profile and Services are reserved for the built-in administrator.");
             if (!permissions.Contains(MajordomeItem.InventoryDashboard.ToString())) permissions = permissions.Except(dashboardSections).ToArray();
             var administrator = MajordomeAccount.Current();
             if (!string.IsNullOrEmpty(model.Password) && administrator != null && Crypto.VerifyHashedPassword(administrator.PasswordHash, model.Password))
@@ -104,10 +114,12 @@ END", db, tx)) {
             using (var db = new SqlConnection(connectionString)) {
                 db.Open();
                 using (var tx = db.BeginTransaction(IsolationLevel.Serializable)) {
-                    string name = null;
-                    using (var cmd = new SqlCommand("SELECT Name FROM dbo.SiteRole WITH (UPDLOCK,HOLDLOCK) WHERE Id=@id", db, tx)) { cmd.Parameters.AddWithValue("@id", model.Id); name = cmd.ExecuteScalar() as string; }
-                    if (model.Id != 0 && name == null) throw new InvalidOperationException("Role no longer exists.");
-                    if (MajordomeAccount.IsReservedName(name)) throw new InvalidOperationException("The built-in administrator cannot be edited.");
+                    actor = ReadAuthorizedManager(db, tx, actor);
+                    var target = model.Id == 0 ? null : ReadRoleForUpdate(db, tx, model.Id);
+                    if (model.Id != 0 && target == null) throw new InvalidOperationException("Role no longer exists.");
+                    if (MajordomeAccount.IsReservedName(target?.Name)) throw new InvalidOperationException("The built-in administrator cannot be edited.");
+                    if (!SiteAccess.CanManageRole(actor, target) || permissions.Except(SiteAccess.GrantableRolePermissions(actor)).Any())
+                        throw new UnauthorizedAccessException("You do not have access to manage this role or its permissions.");
                     if (model.Id == 0 && string.IsNullOrWhiteSpace(model.Password)) throw new InvalidOperationException("A password is required for a new role.");
                     if (!string.IsNullOrEmpty(model.Password)) {
                         using (var cmd = new SqlCommand("SELECT PasswordHash FROM dbo.SiteRole WHERE Id<>@id", db, tx)) {
@@ -125,13 +137,45 @@ END", db, tx)) {
                 }
             }
         }
-        public void Delete(int id) {
+        public void Delete(int id, SiteRoleModel actor) {
             if (id <= 0) throw new InvalidOperationException("The built-in administrator cannot be deleted.");
             Initialize();
-            using (var db = new SqlConnection(connectionString))
-            using (var cmd = new SqlCommand("DELETE dbo.SiteRole WHERE Id=@id AND LOWER(LTRIM(RTRIM(Name)))<>N'majordome'", db)) {
-                cmd.Parameters.AddWithValue("@id", id); db.Open();
-                if (cmd.ExecuteNonQuery() != 1) throw new InvalidOperationException("The role no longer exists or is protected.");
+            using (var db = new SqlConnection(connectionString)) {
+                db.Open();
+                using (var tx = db.BeginTransaction(IsolationLevel.Serializable)) {
+                    actor = ReadAuthorizedManager(db, tx, actor);
+                    var target = ReadRoleForUpdate(db, tx, id);
+                    if (target == null || MajordomeAccount.IsReservedName(target.Name)) throw new InvalidOperationException("The role no longer exists or is protected.");
+                    if (!SiteAccess.CanManageRole(actor, target)) throw new UnauthorizedAccessException("You do not have access to manage this role.");
+                    using (var cmd = new SqlCommand("DELETE dbo.SiteRole WHERE Id=@id", db, tx)) {
+                        cmd.Parameters.AddWithValue("@id", id);
+                        cmd.ExecuteNonQuery();
+                    }
+                    tx.Commit();
+                }
+            }
+        }
+
+        private static string[] ParsePermissions(string value) {
+            return value.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        private static SiteRoleModel ReadAuthorizedManager(SqlConnection db, SqlTransaction tx, SiteRoleModel actor) {
+            if (SiteAccess.IsMajordome(actor)) return actor;
+            var current = actor != null && actor.Id > 0 ? ReadRoleForUpdate(db, tx, actor.Id) : null;
+            if (!SiteAccess.Can(current, MajordomeItem.Roles) || current.Revision != actor.Revision)
+                throw new UnauthorizedAccessException("Role management access is required.");
+            return current;
+        }
+
+        private static SiteRoleModel ReadRoleForUpdate(SqlConnection db, SqlTransaction tx, int id) {
+            using (var cmd = new SqlCommand("SELECT Id,Name,Revision,Permissions FROM dbo.SiteRole WITH (UPDLOCK,HOLDLOCK) WHERE Id=@id", db, tx)) {
+                cmd.Parameters.AddWithValue("@id", id);
+                using (var r = cmd.ExecuteReader()) {
+                    return r.Read() ? new SiteRoleModel {
+                        Id = r.GetInt32(0), Name = r.GetString(1), Revision = r.GetString(2), Permissions = ParsePermissions(r.GetString(3))
+                    } : null;
+                }
             }
         }
     }
