@@ -41,7 +41,7 @@
                 template: '#dashboard-add-grid-status-template'
             },
             {
-                field: 'Location', title: 'LOC', width: 105,
+                field: 'Location', title: 'GTX', width: 105,
                 sortField: 'LocationSort', filterField: 'LocationFilter',
                 filterable: true, searchable: showLocationTotals,
                 headerClass: 'inventory-dashboard-col-location text-center',
@@ -122,7 +122,7 @@
             searchable: true,
             showSearch: true,
             searchTerm: window.gtxInventorySearch ? window.gtxInventorySearch.readStoredTerm() : '',
-            searchPlaceholder: 'Search inventory…',
+            searchLabel: 'Search inventory',
             searchPredicate: function (item, term) {
                 if (window.gtxInventorySearch) {
                     return window.gtxInventorySearch.matches(item.SearchText, term, item.SearchTokens);

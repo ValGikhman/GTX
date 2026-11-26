@@ -8,7 +8,7 @@
 {
     <div class="dropdown">
         <button id="@id" type="button" class="btn btn-sm btn-gradient dropdown-toggle rounded-4 shadow w-100 d-flex align-items-center gap-1"
-                data-bs-toggle="dropdown" data-bs-popper-config='{"strategy":"fixed"}' data-empty-label="@emptyLabel"
+                data-button-tone="new" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy":"fixed"}' data-empty-label="@emptyLabel"
                 aria-expanded="false" aria-controls="@(id + "Menu")" aria-labelledby="@(id + "Caption " + id + "Label")" disabled>
             <i class="bi @icon" aria-hidden="true"></i>
             <span id="@(id + "Caption")" class="visually-hidden">@caption</span>
@@ -32,7 +32,7 @@
             <div id="majordome-management-results" class="majordome-management-results">
                 <div class="d-none">
                     <div>
-                        <button type="button" id="inventoryManagementUploadInventoryButton" class="btn btn-gradient shadow inventory-management-upload-button">
+                        <button type="button" id="inventoryManagementUploadInventoryButton" class="btn btn-gradient shadow inventory-management-upload-button" data-button-tone="new">
                             <i class="bi bi-cloud-arrow-up-fill me-1" aria-hidden="true"></i>Upload inventory
                         </button>
                         <input type="file" name="dataCsv" id="inventoryManagementDataCsv" class="d-none" accept=".csv,text/csv" />
@@ -97,7 +97,7 @@
                 <div id="inventoryManagementRollbackStatus" class="small mt-3" aria-live="polite"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary inventory-management-rollback-close" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>
+                <button type="button" class="btn btn-outline-secondary inventory-management-rollback-close" data-button-tone="danger" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>
                 <button type="button" id="inventoryManagementRollbackConfirm" class="btn btn-danger" disabled>
                     <span id="inventoryManagementRollbackSpinner" class="spinner-border spinner-border-sm me-2 d-none" aria-hidden="true"></span>
                     <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i>Delete latest and restore previous

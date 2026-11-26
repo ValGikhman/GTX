@@ -851,7 +851,7 @@
                     '        <p class="mb-0" id="gtxConfirmMessage"></p>' +
                     '      </div>' +
                     '      <div class="modal-footer">' +
-                    '        <button type="button" class="btn btn-outline-secondary" id="gtxConfirmCancel" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>' +
+                    '        <button type="button" class="btn btn-outline-secondary" id="gtxConfirmCancel" data-button-tone="danger" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>' +
                     '        <button type="button" class="btn btn-gradient" id="gtxConfirmOk"><i class="bi bi-check2-circle me-1" aria-hidden="true"></i>Confirm</button>' +
                     '      </div>' +
                     '    </div>' +
@@ -973,6 +973,16 @@
                     message.textContent = settings.message;
                     confirmButton.textContent = settings.confirmText;
                     cancelButton.textContent = settings.cancelText;
+                    if (/^\s*(?:save|create)\b/i.test(settings.confirmText)) {
+                        confirmButton.dataset.buttonTone = "success";
+                    } else {
+                        delete confirmButton.dataset.buttonTone;
+                    }
+                    if (/^\s*cancel\b/i.test(settings.cancelText)) {
+                        cancelButton.dataset.buttonTone = "danger";
+                    } else {
+                        delete cancelButton.dataset.buttonTone;
+                    }
                     var confirmActionIcon = document.createElement("i");
                     confirmActionIcon.className = settings.iconClass + " me-1";
                     confirmActionIcon.setAttribute("aria-hidden", "true");

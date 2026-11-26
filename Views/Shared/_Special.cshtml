@@ -6,6 +6,7 @@
     <div class="card-header bg-white p-3 border-0 sticky-top" style="z-index: 1020;">
         <div class="d-flex align-items-center justify-content-end">
             <a id="newSpecial" class="btn btn-gradient"
+               data-button-tone="new"
                data-special-modal="true"
                data-title="New Special"
                href="@Url.Action("Create", "Specials")">
@@ -188,7 +189,7 @@
             searchable: true,
             showSearch: true,
             searchTerm: window.gtxAdminGridState.specialsSearch || "",
-            searchPlaceholder: "Search title or status…",
+            searchLabel: "Search title or status",
             showFilterChips: true,
             exportToExcel: false,
             exportToPdf: false,

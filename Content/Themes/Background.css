@@ -6,6 +6,12 @@
 /* Review links and ratings stay readable on charcoal surfaces. */
 html[data-background-theme="dark"] .home-reviews {
     --home-reviews-link: #8ab4f8;
+    --bs-secondary-color: var(--gtx-steel-panel-ink);
+    opacity: 1;
+}
+
+html[data-background-theme="dark"] .home-reviews :is(.home-reviews-filter-note, #homeReviewsError) {
+    --home-reviews-link: var(--gtx-steel-panel-ink);
 }
 
 /* Hibu business replies: use their structure instead of generated class names. */
@@ -35,9 +41,6 @@ html[data-background-theme="dark"] {
     --gtx-page-bg: var(--gtx-default-page-bg);
     --gtx-addgrid-header-background: var(--gtx-steel-header-background);
     --gtx-addgrid-header-ink: var(--bs-black, #000);
-    --gtx-raised-surface:
-        radial-gradient(circle at 100% 0, rgba(210, 215, 219, 0.16), transparent 42%),
-        linear-gradient(145deg, #424a51, #2e343a);
     --gtx-raised-surface-shadow: 0 16px 32px rgba(24, 29, 34, 0.22), inset 0 1px rgba(255, 255, 255, 0.12);
     --bs-body-bg: #292a2d;
     --bs-body-bg-rgb: 41, 42, 45;
@@ -53,10 +56,16 @@ html[data-background-theme="dark"] {
     --bs-tertiary-bg-rgb: 50, 51, 55;
     --gtx-tinted-panel-background: var(--bs-body-bg);
     --gtx-tinted-panel-background-alt: var(--bs-tertiary-bg);
-    --gtx-tinted-steel-panel-background: var(--gtx-addgrid-header-background);
-    --gtx-dark-field-top: #40546d;
-    --gtx-dark-field-bottom: #203249;
-    --gtx-dark-field-background: linear-gradient(180deg, var(--gtx-dark-field-top), var(--gtx-dark-field-bottom));
+    --gtx-grid-content-background: linear-gradient(180deg, var(--gtx-tinted-panel-background), var(--gtx-tinted-panel-background-alt));
+    --pg-color-bg-row-selected: var(--inventory-selected-bg);
+    --gtx-dropdown-surface: var(--gtx-tinted-panel-background-alt);
+    --gtx-dropdown-hover: var(--bs-secondary-bg);
+    --gtx-steel-panel-shade: rgb(0 0 0 / 30%);
+    --gtx-steel-panel-ink: #fff;
+    --gtx-tinted-steel-panel-background:
+        linear-gradient(var(--gtx-steel-panel-shade), var(--gtx-steel-panel-shade)),
+        var(--gtx-addgrid-header-background);
+    --gtx-dark-field-background: #212f41;
     --gtx-dark-field-border: #132235;
     --gtx-dark-field-ink: #f8fbff;
     --gtx-dark-field-placeholder: #dce6f3;
@@ -64,18 +73,26 @@ html[data-background-theme="dark"] {
 
 @supports (color: color-mix(in srgb, white, black)) {
     html[data-background-theme="dark"] {
+        --gtx-dropdown-hover: color-mix(in srgb, var(--bs-body-color) 10%, var(--gtx-dropdown-surface));
         --gtx-tinted-panel-background: color-mix(in srgb, var(--gtx-palette-tint-color) var(--gtx-panel-tint-amount), var(--bs-body-bg));
         --gtx-tinted-panel-background-alt: color-mix(in srgb, var(--gtx-palette-tint-color) var(--gtx-panel-tint-amount), var(--bs-tertiary-bg));
-        /* Limit the lighter stop so Silver still has readable placeholder text. */
-        --gtx-dark-field-top: color-mix(in srgb, var(--gtx-palette-tint-color) 18%, #475769);
-        --gtx-dark-field-bottom: color-mix(in srgb, var(--gtx-palette-tint-color) 30%, #202932);
+        --gtx-dark-field-background: color-mix(in srgb,
+            color-mix(in srgb, var(--gtx-palette-tint-color) 24%, #303d4b) 75%, black);
         --gtx-dark-field-border: color-mix(in srgb, var(--gtx-palette-tint-color) 20%, #101923);
-        /* Lighten the steel tint enough for the same dark text used on Dashboard. */
+        --gtx-steel-panel-shade: rgb(0 0 0 / 28%);
         --gtx-steel-panel-tint: color-mix(in srgb,
-            color-mix(in srgb, var(--gtx-palette-tint-color) 60%, white) calc(var(--gtx-panel-tint-amount) / .6),
+            color-mix(in srgb, var(--gtx-palette-tint-color) 60%, #f6f6f6) calc(var(--gtx-panel-tint-amount) / .6),
             transparent);
-        --gtx-tinted-steel-panel-background: linear-gradient(var(--gtx-steel-panel-tint), var(--gtx-steel-panel-tint)), var(--gtx-addgrid-header-background);
+        --gtx-tinted-steel-panel-background:
+            linear-gradient(var(--gtx-steel-panel-shade), var(--gtx-steel-panel-shade)),
+            linear-gradient(var(--gtx-steel-panel-tint), var(--gtx-steel-panel-tint)),
+            var(--gtx-addgrid-header-background);
     }
+}
+
+/* Silver needs a deeper shade to keep white text readable across the gradient. */
+html.theme-silver[data-background-theme="dark"] {
+    --gtx-steel-panel-shade: rgb(0 0 0 / 37%);
 }
 
 html[data-background-theme="dark"] body {
@@ -149,19 +166,13 @@ html[data-background-theme="dark"] body .body-content {
     background: transparent !important;
 }
 
-/* Raise the dashboard header above the charcoal content. */
-html[data-background-theme="dark"] .inventory-dashboard-grid-header {
-    background: var(--gtx-raised-surface);
+html[data-background-theme="dark"] :is(.inventory-dashboard-period-control, .inventory-dashboard-card, .inventory-dashboard-grid-header) {
+    background: var(--gtx-tinted-steel-panel-background);
     box-shadow: var(--gtx-raised-surface-shadow);
 }
 
-html[data-background-theme="dark"] :is(.inventory-dashboard-period-control, .inventory-dashboard-graph-card) {
-    background: var(--dashboard-steel-panel-background);
-    box-shadow: var(--gtx-raised-surface-shadow);
-}
-
-html[data-background-theme="dark"] .inventory-dashboard-graph-card :is(.inventory-dashboard-title, .inventory-dashboard-legend > .text-muted) {
-    color: var(--gtx-addgrid-header-ink) !important;
+html[data-background-theme="dark"] .inventory-dashboard-card :is(.inventory-dashboard-title, .inventory-dashboard-legend > .text-muted, #inventoryDashboardStatusEmpty) {
+    color: var(--gtx-steel-panel-ink) !important;
 }
 
 html[data-background-theme="dark"] .pg-grid-table > thead {
@@ -188,8 +199,9 @@ html[data-background-theme="dark"] .pg-grid-footer {
     background: var(--gtx-addgrid-header-background) !important;
 }
 
-html[data-background-theme="dark"] #inventoryDashboardStatusGrid :is(.pg-search-bar, .pg-grid-footer) {
-    --gtx-addgrid-header-background: var(--dashboard-steel-panel-background);
+html[data-background-theme="dark"] :is(.pg-search-bar, .pg-grid-footer) {
+    --gtx-addgrid-header-background: var(--gtx-tinted-steel-panel-background);
+    --gtx-addgrid-header-ink: var(--gtx-steel-panel-ink);
 }
 
 html[data-background-theme="dark"] .pg-grid-table > thead > tr > th {
@@ -219,12 +231,68 @@ html[data-background-theme="dark"] .pg-grid-table > thead .pg-th-sortable .pg-th
     text-decoration: underline;
 }
 
+html[data-background-theme="dark"] :is(
+    .inventory-dashboard-trend-chart,
+    .pg-grid-scroll,
+    #majordomeInventoryTable:not(.pg-grid-table),
+    .majordome-logs-table-wrap,
+    .sitemap-table
+) {
+    background: var(--gtx-grid-content-background);
+}
+
+html[data-background-theme="dark"] :is(.pg-grid-table, #majordomeInventoryTable, #logsTable, .sitemap-table) > tbody {
+    --bs-table-bg: transparent;
+    --pg-color-text: var(--bs-body-color);
+    --pg-color-text-muted: var(--bs-secondary-color);
+    --pg-color-text-subtle: var(--bs-secondary-color);
+}
+
+/* Let the scroll area's gradient show through regular rows with a subtle stripe. */
+html[data-background-theme="dark"] :is(.pg-grid-table, #majordomeInventoryTable) > tbody > :is(.pg-row-even, .pg-row-odd, .majordome-vehicle-row) {
+    background: transparent;
+    --gtx-grid-cell-overlay: transparent;
+}
+
+html[data-background-theme="dark"] :is(.pg-grid-table, #majordomeInventoryTable) > tbody > :is(.pg-row-odd, .majordome-vehicle-row.is-alt) {
+    background-color: rgb(255 255 255 / 3%);
+}
+
+html[data-background-theme="dark"] :is(.pg-grid-table, #majordomeInventoryTable) > tbody > :is(.pg-row-even, .pg-row-odd, .majordome-vehicle-row):hover {
+    --gtx-grid-cell-overlay: rgb(255 255 255 / 7%);
+}
+
+html[data-background-theme="dark"] :is(.pg-grid-table, #majordomeInventoryTable) > tbody > :is(.pg-row-even, .pg-row-odd, .majordome-vehicle-row):not(.pg-row-selected, .is-selected, .is-expanded, .appraisal-subject-row) > td {
+    background-color: var(--gtx-grid-cell-overlay);
+}
+
+html[data-background-theme="dark"] .pg-grid-wrapper {
+    --pg-color-bg-row-selected: var(--inventory-selected-bg);
+}
+
+html[data-background-theme="dark"] :is(.pg-grid-table, #majordomeInventoryTable) > tbody > :is(.pg-row-selected, .is-selected) {
+    box-shadow: inset .32rem 0 var(--inventory-selected-accent);
+}
+
+html[data-background-theme="dark"] :is(.pg-grid-table, #majordomeInventoryTable) > tbody > :is(.pg-row-selected, .is-selected) > td {
+    background: var(--inventory-selected-bg);
+    border-color: rgba(108, 117, 125, .24);
+}
+
+html[data-background-theme="dark"] :is(.pg-grid-table, #majordomeInventoryTable) > tbody > :is(.pg-row-selected, .is-selected) > td:first-child {
+    box-shadow: inset .22rem 0 var(--inventory-selected-accent);
+}
+
 html[data-background-theme="dark"] .pg-grid-footer .pg-pager-num:not(.pg-pager-active):not(:hover) {
-    color: var(--bs-black, #000);
+    color: var(--gtx-steel-panel-ink);
     border-color: currentColor;
 }
 
-html[data-background-theme="dark"] .pg-grid-footer :is(.pg-pager-active, .pg-pager-ellipsis) {
+html[data-background-theme="dark"] .pg-grid-footer .pg-pager-ellipsis {
+    color: var(--gtx-steel-panel-ink);
+}
+
+html[data-background-theme="dark"] .pg-grid-footer .pg-pager-active {
     color: var(--bs-black, #000);
 }
 
@@ -259,9 +327,11 @@ html[data-background-theme="dark"] .pg-search-match {
 
 /* AddGrid appends filter popups to the body, outside the themed grids. */
 html[data-background-theme="dark"] .pg-filter-dropdown {
-    --pg-color-bg: var(--bs-body-bg);
+    --pg-color-bg: var(--gtx-dropdown-surface);
     --pg-color-border-accent: var(--bs-border-color);
     --pg-color-border-subtle: var(--bs-tertiary-bg);
+    --pg-color-text: var(--bs-body-color);
+    --pg-color-text-dark: var(--bs-body-color);
     color: var(--bs-body-color);
 }
 
@@ -355,11 +425,22 @@ html[data-background-theme]:not([data-background-theme="light"]) #majordomeManag
 
 html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane .inventory-check-row:hover,
 html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane .inventory-check-hit,
-html[data-background-theme="dark"] #majordomeManagementLogMenu .majordome-management-log-status:not(.is-selected, .is-active, :disabled):is(:hover, :focus),
-html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-log-date-toggle::after,
-html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane .inventory-filter-panel-toggle::after {
+html[data-background-theme="dark"] #majordomeManagementLogMenu .majordome-management-log-status:not(.is-selected, .is-active, :disabled):is(:hover, :focus) {
     background: var(--bs-secondary-bg);
     color: var(--bs-body-color);
+}
+
+html[data-background-theme] :is(.inventory-filter-panel-toggle, .majordome-management-log-date-toggle)::after,
+html[data-background-theme] .gtx-overview-toggle .toggle-icons,
+html[data-background-theme] .collapse-toggle:not(.gtx-overview-toggle) .toggle-icons > :is(.icon-plus, .icon-minus) {
+    background: var(--gtx-palette-header-background);
+    color: var(--gtx-palette-header-ink);
+}
+
+html[data-background-theme] .collapse-toggle:not(.gtx-overview-toggle) .toggle-icons > :is(.icon-plus, .icon-minus) {
+    padding: .25em;
+    border-radius: var(--bs-border-radius-sm);
+    line-height: 1;
 }
 
 html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-log-tree::-webkit-scrollbar-track {
@@ -397,10 +478,12 @@ html[data-background-theme]:not([data-background-theme="light"]) .staff-page {
     background: var(--staff-paper);
 }
 
-html[data-background-theme]:not([data-background-theme="light"]) :is(.staff-card, .staff-empty-state, .staff-contact-modal .modal-content, .staff-contact-body) {
-    background: var(--bs-body-bg);
-    color: var(--bs-body-color);
+html[data-background-theme]:not([data-background-theme="light"]) :is(.staff-card, .staff-empty-state) {
     border-color: var(--bs-border-color);
+}
+
+html[data-background-theme="dark"] :is(.staff-card, .staff-empty-state) {
+    --staff-ink: var(--gtx-steel-panel-ink);
 }
 
 html[data-background-theme]:not([data-background-theme="light"]) .staff-card-photo {
@@ -411,7 +494,7 @@ html[data-background-theme]:not([data-background-theme="light"]) .staff-contact-
     color: var(--bs-body-color);
 }
 
-html[data-background-theme]:not([data-background-theme="light"]) :is(.staff-card-identity small, .staff-empty-state p, .staff-contact-loading, .staff-contact-error) {
+html[data-background-theme]:not([data-background-theme="light"]) :is(.staff-contact-loading, .staff-contact-error) {
     color: var(--bs-secondary-color);
 }
 
@@ -442,8 +525,92 @@ html[data-background-theme]:not([data-background-theme="light"]) .vehicle-detail
     --vdp-muted: var(--bs-secondary-color);
 }
 
-html[data-background-theme]:not([data-background-theme="light"]) :is(.gtx-card, .home-inventory-card-body, .home-inventory-specs > div, .about-story, .contact-showroom, .contact-form-panel, .blog-list-card, .blog-empty, .legal-document, .testimonials-page .t-card, .ui-widget-content, .chosen-container .chosen-drop, .chosen-container-single .chosen-single, .chosen-container-multi .chosen-choices) {
+html[data-background-theme]:not([data-background-theme="light"]) :is(.gtx-card, .home-inventory-card-body, .home-inventory-specs > div, .blog-list-card, .blog-empty, .legal-document, .ui-widget-content, .chosen-container-single .chosen-single, .chosen-container-multi .chosen-choices) {
     background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme="dark"] :is(
+    .contact-form-panel,
+    .contact-showroom,
+    .marketing-section-label,
+    .home-reviews,
+    .staff-card,
+    .staff-empty-state,
+    .about-story
+),
+html[data-background-theme="dark"] .marketing-section-label > small,
+html[data-background-theme="dark"] .testimonials-page .t-card,
+html[data-background-theme="dark"] .health-card-col > .health-card,
+html[data-background-theme="dark"] #openHours .open-hours-content {
+    background: var(--gtx-tinted-steel-panel-background);
+    color: var(--gtx-steel-panel-ink);
+}
+
+html[data-background-theme="dark"] :is(.contact-form-panel .contact-panel-heading, .contact-showroom .contact-address, .staff-card-identity small, .staff-empty-state p) {
+    color: var(--gtx-steel-panel-ink);
+}
+
+html[data-background-theme="dark"] .testimonials-page .t-card {
+    --mp-ink: var(--gtx-steel-panel-ink);
+    --bs-secondary-color: var(--gtx-steel-panel-ink);
+}
+
+html[data-background-theme="dark"] .contact-form-panel .contact-panel-heading small {
+    opacity: 1;
+}
+
+html[data-background-theme="dark"] .contact-form-consent {
+    --bs-secondary-color: var(--gtx-steel-panel-ink);
+    background: var(--gtx-tinted-steel-panel-background) !important;
+}
+
+html[data-background-theme="dark"] .contact-form-consent a {
+    color: var(--gtx-steel-panel-ink) !important;
+    text-decoration: underline;
+    text-decoration-color: currentColor !important;
+}
+
+/* Blend the stock silhouette into the photo frame, keeping uploaded photos intact. */
+html[data-background-theme="dark"] #employeeModalBody .bg-light:has(> #photoPreview[src$="/staff/empty.jpg" i]) {
+    background: var(--gtx-dark-field-background) !important;
+    isolation: isolate;
+}
+
+html[data-background-theme="dark"] #employeeModalBody #photoPreview[src$="/staff/empty.jpg" i] {
+    filter: invert(1) brightness(1.8);
+    mix-blend-mode: screen;
+}
+
+html[data-background-theme="dark"] #blogModalBody .bg-light:has(> #imagePreview) {
+    background: var(--gtx-dark-field-background) !important;
+}
+
+html[data-background-theme="dark"] .modal-body :is(.form-label, .card-header) i.text-primary,
+html[data-background-theme="dark"] :is(#rolesPage, .sitemap-header) i.text-primary {
+    color: var(--gtx-steel-panel-ink) !important;
+}
+
+html[data-background-theme="dark"] .modal-body .input-group-text i:is(.text-primary, .text-secondary) {
+    color: inherit !important;
+}
+
+html[data-background-theme="dark"] .gtx-palette-badge {
+    background: var(--gtx-palette-header-background) !important;
+    color: var(--gtx-palette-header-ink) !important;
+    border-color: color-mix(in srgb, currentColor 28%, transparent) !important;
+}
+
+html[data-background-theme="dark"] #openHours .open-hours-content > :is(.open-hours-content-heading, .open-hours-days, .open-hours-footnote) {
+    --oh-ink: var(--gtx-steel-panel-ink);
+    --oh-muted: var(--oh-ink);
+    --oh-accent-ink: var(--oh-ink);
+    --oh-marker: var(--oh-ink);
+    --oh-stripe: rgb(0 0 0 / 5%);
+    --oh-accent-soft: rgb(0 0 0 / 12%);
+}
+
+html[data-background-theme="dark"] #openHours .open-hours-content .open-hours-day-name small {
     color: var(--bs-body-color);
 }
 
@@ -452,13 +619,56 @@ html[data-background-theme]:not([data-background-theme="light"]) :is(.bg-white, 
     color: var(--bs-body-color);
 }
 
-html[data-background-theme]:not([data-background-theme="light"]) :is(.dropdown-menu, .card, .modal-content, .offcanvas, .list-group-item, .accordion) {
-    --bs-dropdown-bg: var(--bs-body-bg);
+html[data-background-theme="dark"] .dropdown-menu {
+    --bs-dropdown-bg: var(--gtx-dropdown-surface);
     --bs-dropdown-color: var(--bs-body-color);
     --bs-dropdown-link-color: var(--bs-body-color);
     --bs-dropdown-link-hover-color: var(--bs-body-color);
-    --bs-dropdown-link-hover-bg: var(--bs-secondary-bg);
+    --bs-dropdown-link-hover-bg: var(--gtx-dropdown-hover);
     --bs-dropdown-header-color: var(--bs-secondary-color);
+}
+
+html[data-background-theme="dark"] .majordome-batch-actions-menu {
+    --inventory-surface: var(--gtx-dropdown-surface);
+    --inventory-surface-alt: var(--gtx-dropdown-hover);
+    --gtx-menu-icon-background: var(--gtx-palette-header-background);
+    --gtx-menu-icon-ink: var(--gtx-palette-header-ink);
+}
+
+html[data-background-theme="dark"] .chosen-container .chosen-drop,
+html[data-background-theme="dark"] #mobileMenuOffcanvas :is(#menuAboutMobile, .mobile-menu-address-card),
+html[data-background-theme="dark"] select:not([multiple], [size]:not([size="1"])) :is(option, optgroup):not(:disabled) {
+    background: var(--gtx-dropdown-surface);
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme="dark"] .chosen-container .chosen-results {
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme="dark"] .chosen-container .chosen-results li.highlighted {
+    background: var(--gtx-dropdown-hover);
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme="dark"] .chosen-container .chosen-results :is(.disabled-result, .no-results) {
+    color: var(--bs-secondary-color);
+}
+
+html[data-background-theme="dark"] .chosen-container .chosen-results .no-results {
+    background: var(--gtx-dropdown-hover);
+}
+
+html[data-background-theme="dark"] .theme-dropdown-menu .bg-body-tertiary,
+html[data-background-theme="dark"] #menuScheduleMobile .bg-light {
+    background-color: var(--gtx-dropdown-surface) !important;
+}
+
+html[data-background-theme="dark"] #menuScheduleMobile .mobile-menu-address-text :is(.text-dark, .text-secondary) {
+    color: var(--bs-body-color) !important;
+}
+
+html[data-background-theme]:not([data-background-theme="light"]) :is(.card, .modal-content, .offcanvas, .list-group-item, .accordion) {
     --bs-card-bg: var(--bs-body-bg);
     --bs-card-color: var(--bs-body-color);
     --bs-modal-bg: var(--bs-body-bg);
@@ -479,6 +689,54 @@ html[data-background-theme]:not([data-background-theme="light"]) :is(.form-contr
 html[data-background-theme]:not([data-background-theme="light"]) :is(.form-control, .form-select):disabled {
     background-color: var(--bs-secondary-bg);
     color: var(--bs-secondary-color);
+}
+
+html[data-background-theme="dark"] .gtx-status-switch {
+    padding-left: 2.5em;
+}
+
+html[data-background-theme="dark"] .gtx-status-switch > .form-check-input {
+    width: 2em;
+    margin-left: -2.5em;
+    border-radius: 2em;
+    background-position: left center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    html[data-background-theme="dark"] .gtx-status-switch > .form-check-input {
+        transition: background-position 0.15s ease-in-out;
+    }
+}
+
+html[data-background-theme="dark"] .gtx-status-switch > .form-check-input:checked {
+    --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+    background-image: var(--bs-form-switch-bg);
+    background-position: right center;
+}
+
+html[data-background-theme="dark"] :is(.form-switch, .gtx-status-switch) .form-check-input:not(:checked) {
+    background-color: var(--gtx-dark-field-background);
+    border-color: var(--bs-secondary-color);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23bdc1c6'/%3e%3c/svg%3e");
+}
+
+html[data-background-theme="dark"] :is(.form-switch, .gtx-status-switch) .form-check-input:checked {
+    background-color: var(--gtx-palette-tint-color);
+    border-color: var(--gtx-palette-tint-color);
+    border-color: color-mix(in srgb, var(--gtx-palette-tint-color) 56%, white);
+}
+
+html.theme-silver[data-background-theme="dark"] :is(.form-switch, .gtx-status-switch) .form-check-input:checked {
+    --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23111827'/%3e%3c/svg%3e");
+}
+
+html[data-background-theme="dark"] :is(.form-switch, .gtx-status-switch) .form-check-input:focus {
+    box-shadow: none;
+}
+
+html[data-background-theme="dark"] :is(.form-switch, .gtx-status-switch) .form-check-input:focus-visible {
+    outline: 2px solid var(--gtx-dark-field-placeholder);
+    outline-offset: 2px;
 }
 
 html[data-background-theme="dark"] select:not(:disabled, [multiple], [size]:not([size="1"]), .gtx-chat select) {
@@ -541,6 +799,30 @@ html[data-background-theme="dark"] :is(.pe-editor, .pe-context-menu) {
     color: var(--pe-color-text);
 }
 
+html[data-background-theme="dark"] .pe-context-menu {
+    --pe-color-bg: var(--gtx-dropdown-surface);
+    --pe-color-bg-btn-hover: var(--gtx-dropdown-hover);
+}
+
+html[data-background-theme="dark"] #blogModalBody .pe-toolbar {
+    --pe-color-bg-btn-hover: var(--gtx-dropdown-hover);
+    --pe-color-bg-btn-active: color-mix(in srgb, var(--gtx-palette-tint-color) 38%, var(--gtx-dark-field-background));
+}
+
+html[data-background-theme="dark"] .pe-toolbar {
+    --pe-color-bg-toolbar: var(--gtx-tinted-steel-panel-background);
+    --pe-color-bg-group: var(--gtx-dark-field-background);
+}
+
+html:where([data-background-theme="dark"]) .pe-settings-btn {
+    background-color: var(--pe-color-bg-group);
+}
+
+html[data-background-theme="dark"] #blogModalBody .pe-toolbar :is(.pe-btn, .pe-select):focus-visible {
+    outline: 2px solid var(--gtx-dark-field-placeholder);
+    outline-offset: -2px;
+}
+
 html[data-background-theme="dark"] :is(.pe-editor, .pe-context-menu) .pe-select:disabled {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23bdc1c6' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
 }
@@ -579,29 +861,21 @@ html[data-background-theme="dark"] .majordome-action-group .majordome-action-tit
     color: var(--bs-secondary-color);
 }
 
-/* Override the literal light selected-row fill without affecting nested history. */
-html[data-background-theme="dark"] .majordome-vehicle-row.is-selected {
-    --pg-color-bg-row-selected: color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 22%, var(--bs-secondary-bg));
-    background: var(--pg-color-bg-row-selected);
-    color: var(--bs-body-color);
-}
-
-html[data-background-theme="dark"] .majordome-vehicle-row.is-selected > td {
-    background: var(--pg-color-bg-row-selected) !important;
-    color: var(--bs-body-color);
-    border-color: var(--bs-border-color);
-}
-
-html[data-background-theme="dark"] .inventory-dashboard-expand-button,
-html[data-background-theme="dark"] .inventory-dashboard-expand-button i {
+html[data-background-theme="dark"] :is(.inventory-dashboard-expand-button, .inventory-dashboard-history-change-toggle),
+html[data-background-theme="dark"] :is(.inventory-dashboard-expand-button, .inventory-dashboard-history-change-toggle) i {
     color: #212529;
 }
 
-/* Expanded history uses layered charcoal surfaces, including nested changes. */
+html[data-background-theme="dark"] :is(.inventory-dashboard-expand-button, .inventory-dashboard-history-change-toggle):focus-visible {
+    outline: 2px solid var(--gtx-dark-field-placeholder);
+    outline-offset: 2px;
+}
+
+/* Expanded history shares the grid's palette, including nested changes. */
 html[data-background-theme="dark"] .inventory-dashboard-history-panel {
     --dashboard-line: var(--bs-border-color);
     --dashboard-muted: var(--bs-secondary-color);
-    background: linear-gradient(180deg, var(--bs-tertiary-bg), var(--bs-body-bg));
+    background: var(--gtx-grid-content-background);
     color: var(--bs-body-color);
 }
 
@@ -617,34 +891,27 @@ html[data-background-theme="dark"] .majordome-management-detail-panel .inventory
     --bs-table-border-color: var(--bs-border-color);
     --bs-table-striped-color: var(--bs-body-color);
     --bs-table-hover-color: var(--bs-body-color);
+    background: var(--gtx-grid-content-background);
 }
 
 html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-change-detail-panel,
 html[data-background-theme="dark"] .majordome-management-detail-panel {
-    background: var(--bs-body-bg);
+    background: var(--gtx-grid-content-background);
 }
 
-html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-change-table th,
-html[data-background-theme="dark"] .majordome-management-detail-panel .inventory-dashboard-change-table th {
-    background: var(--bs-secondary-bg) !important;
+html[data-background-theme="dark"] .inventory-dashboard-change-table > thead {
+    background: var(--gtx-palette-header-background) !important;
+}
+
+html[data-background-theme="dark"] .inventory-dashboard-change-table > thead > tr > th {
+    background: transparent !important;
     border-color: var(--bs-border-color);
-    color: var(--bs-body-color);
+    color: var(--gtx-palette-header-ink);
 }
 
 html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-change-table td,
 html[data-background-theme="dark"] .majordome-management-detail-panel .inventory-dashboard-change-table td {
-    background: var(--bs-body-bg) !important;
-}
-
-html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-history-change-toggle {
-    background: var(--bs-secondary-bg);
-    border-color: var(--bs-border-color);
-    color: var(--bs-body-color);
-}
-
-html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-history-change-toggle:is(:hover, :focus-visible) {
-    background: var(--bs-tertiary-bg);
-    border-color: var(--bs-secondary-color);
+    background: transparent !important;
 }
 
 html[data-background-theme="dark"] .inventory-dashboard-history-panel .inventory-dashboard-history-status {
@@ -688,13 +955,18 @@ html[data-background-theme="dark"] .main-menu.no-wrap-group .btn:not(.gradient, 
     --bs-btn-disabled-color: #212529;
 }
 
-html[data-background-theme="dark"] .contact-address span {
-    color: #fff;
-}
-
 html[data-background-theme="dark"] .vdp-record-status-total,
 html[data-background-theme="dark"] .vdp-record-status-number {
     color: #fff;
+}
+
+html[data-background-theme="dark"] .page-title.page-title-mobile-call-enabled {
+    background: var(--gtx-dark-field-background) !important;
+    color: var(--gtx-dark-field-ink) !important;
+}
+
+html[data-background-theme="dark"] .page-title.page-title-mobile-call-enabled #title .main-title {
+    color: var(--gtx-dark-field-ink) !important;
 }
 
 html[data-background-theme="dark"] .page-title .btn:not(:is(.btn-gradient, .btn-gradient-grey)) {
@@ -735,11 +1007,46 @@ html[data-background-theme] body :is(
     .pg-action-cell .btn
 ) {
     --gtx-gradient-ink: var(--bs-dark, #212529);
-    background: var(--gtx-light-control-background) !important;
-    color: var(--gtx-gradient-ink) !important;
+    background: var(--gtx-action-button-background, var(--gtx-light-control-background)) !important;
+    color: var(--gtx-action-button-ink, var(--gtx-gradient-ink)) !important;
     border-color: rgba(15, 23, 42, .18) !important;
     box-shadow: var(--bs-box-shadow-sm) !important;
     text-shadow: none !important;
+}
+
+html[data-background-theme="dark"] .btn[data-button-tone="new"] {
+    --gtx-button-background: var(--gtx-light-control-background);
+    --gtx-button-ink: var(--gtx-light-control-ink);
+}
+
+html[data-background-theme="dark"] .btn[data-button-tone="danger"] {
+    --gtx-action-base: var(--bs-danger);
+    --gtx-action-shade: #a52834;
+}
+
+html[data-background-theme="dark"] .btn[data-button-tone="success"] {
+    --gtx-action-base: var(--bs-success);
+    --gtx-action-shade: #12633e;
+}
+
+html[data-background-theme="dark"] body .btn:is([data-button-tone="danger"], [data-button-tone="success"]) {
+    --gtx-action-button-background: linear-gradient(180deg, var(--gtx-action-base), var(--gtx-action-shade));
+    --gtx-action-button-ink: #fff;
+    --gtx-button-background: var(--gtx-action-button-background);
+    --gtx-button-ink: var(--gtx-action-button-ink);
+    background: var(--gtx-action-button-background) !important;
+    border-color: var(--gtx-action-shade) !important;
+    color: var(--gtx-action-button-ink) !important;
+    text-shadow: none;
+}
+
+html[data-background-theme="dark"] body .btn:is([data-button-tone="danger"], [data-button-tone="success"]):not(:disabled, .disabled, [aria-disabled="true"]):is(:hover, :active) {
+    --gtx-action-button-background: linear-gradient(180deg, var(--gtx-action-shade), var(--gtx-action-base));
+}
+
+html[data-background-theme="dark"] body .btn:is([data-button-tone="danger"], [data-button-tone="success"]):focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -3px;
 }
 
 html[data-background-theme] body :is(
@@ -767,7 +1074,12 @@ html[data-background-theme="dark"] .gtx-card {
     box-shadow: 0 12px 26px rgba(0, 0, 0, .3);
 }
 
+html[data-background-theme="dark"] .gtx-card > .gtx-card-content {
+    background: var(--gtx-dark-field-background);
+}
+
 html[class][data-background-theme="dark"] body .gtx-card .gtx-footer.gradient {
+    --bs-card-cap-bg: transparent;
     color: #ededed !important;
     text-shadow: none !important;
 }
@@ -947,6 +1259,29 @@ html[data-background-theme="dark"] .majordome-editor-modal :is(.majordome-editor
     color: var(--bs-secondary-color);
 }
 
+/* Use the modal header's palette finish without its texture, keeping the caret and validation icon above it. */
+html[data-background-theme="dark"] .modal {
+    --gtx-modal-select-caret: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+}
+
+html.theme-silver[data-background-theme="dark"] .modal {
+    --gtx-modal-select-caret: var(--gtx-light-select-caret);
+}
+
+html[data-background-theme="dark"] .modal select:is(.form-select, .pe-select):not(:disabled, [multiple], [size]:not([size="1"])) {
+    background:
+        var(--gtx-modal-select-caret) right var(--gtx-modal-select-caret-inset, .75rem) center / var(--gtx-modal-select-caret-size, 16px 12px) no-repeat,
+        var(--bs-form-select-bg-icon, none) right 2.25rem center / calc(.75em + .375rem) calc(.75em + .375rem) no-repeat,
+        var(--gtx-grad);
+    color: var(--gtx-palette-header-ink);
+    color-scheme: dark;
+}
+
+html[data-background-theme="dark"] .modal .pe-select {
+    --gtx-modal-select-caret-inset: .55rem;
+    --gtx-modal-select-caret-size: 12px 9px;
+}
+
 html[data-background-theme="dark"] .majordome-editor-footer {
     background: var(--bs-body-bg);
     border-top-color: var(--bs-border-color);
@@ -972,8 +1307,12 @@ html[data-background-theme="dark"] :is(
 }
 
 html[data-background-theme="dark"] .pg-search-input-group {
+    --bs-border-radius-sm: var(--pg-border-radius-sm);
     border-radius: var(--bs-border-radius-sm);
-    background: var(--gtx-dark-field-background);
+    /* Match translucent row selections against the grid surface rather than the toolbar. */
+    background:
+        linear-gradient(var(--pg-color-bg-row-selected), var(--pg-color-bg-row-selected)),
+        var(--gtx-tinted-panel-background);
 }
 
 html[data-background-theme="dark"] .pg-search-input-group > :is(.input-group-text, .pg-search-input, .pg-search-clear) {
@@ -1000,20 +1339,23 @@ html[data-background-theme="dark"] :is(
     .form-control:is(.is-valid, .is-invalid), .was-validated .form-control,
     .just-validate-error-field, .just-validate-success-field
 ):not(:where(:disabled, [readonly], input[type="file"])) {
-    background-color: var(--gtx-dark-field-bottom);
+    background-color: var(--gtx-dark-field-background);
     color: var(--gtx-dark-field-ink);
-}
-
-html[data-background-theme="dark"] :is(.just-validate-error-field, .just-validate-success-field) {
-    background-image: var(--gtx-contact-validation-icon), var(--gtx-dark-field-background);
-    background-position: right 10px center, center;
-    background-size: 24px, auto;
 }
 
 html[data-background-theme="dark"] :is(input, textarea, .form-control):not(:where(:disabled, .chosen-choices input, .login-shell__input))::placeholder,
 html[data-background-theme="dark"] :is(#filterTerm, #price-research .pr-bid-money input)::placeholder {
     color: var(--gtx-dark-field-placeholder);
     opacity: 1 !important;
+}
+
+html[data-background-theme="dark"] .pg-search-input::placeholder {
+    color: var(--gtx-dark-field-placeholder);
+    color: color-mix(in srgb, var(--gtx-dark-field-placeholder) 75%, var(--bs-secondary-color));
+}
+
+html[data-background-theme="dark"] #filterTerm:not(:disabled, [readonly]) {
+    background-color: color-mix(in srgb, var(--gtx-dark-field-background) 90%, white);
 }
 
 html[data-background-theme="dark"] :is(.form-control, textarea, .pe-body[contenteditable="true"], .chosen-search input):not(:where(
@@ -1024,7 +1366,8 @@ html[data-background-theme="dark"] :is(.form-control, textarea, .pe-body[content
 }
 
 html[data-background-theme="dark"] .input-group:not(:is(.pg-search-input-group, .vin-decoder-input-group)):has(> input:not(:disabled, [type="hidden"], [type="file"], [type="checkbox"], [type="radio"]), > textarea:not(:disabled)) > .input-group-text:not(.btn) {
-    background-image: var(--gtx-dark-field-background);
+    /* Match the field even when the addon carries a Bootstrap background utility. */
+    background-color: var(--gtx-dark-field-background) !important;
     color: var(--gtx-dark-field-ink);
 }
 
@@ -1064,6 +1407,103 @@ html[data-background-theme="dark"] #loginModal .login-shell__input::placeholder 
     opacity: 1 !important;
 }
 
+/* jQuery UI attaches the shared date picker to the document body. */
+#ui-datepicker-div {
+    --gtx-calendar-heading: var(--bs-tertiary-bg);
+    --gtx-calendar-heading-ink: var(--bs-body-color);
+    --gtx-calendar-selection: #294d75;
+    box-sizing: border-box;
+    width: min(19rem, calc(100vw - 1rem));
+    padding: .45rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius-lg);
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    box-shadow: var(--bs-box-shadow);
+    font: inherit;
+    font-size: .875rem;
+}
+
+@supports (color: color-mix(in srgb, white, black)) {
+    #ui-datepicker-div {
+        --gtx-calendar-heading: color-mix(in srgb, var(--gtx-palette-tint-color) 10%, var(--bs-tertiary-bg));
+        --gtx-calendar-selection: color-mix(in srgb, var(--gtx-palette-tint-color) 52%, #142438);
+    }
+}
+
+html[data-background-theme="dark"] #ui-datepicker-div {
+    --gtx-calendar-heading: var(--gtx-dark-field-background);
+    --gtx-calendar-heading-ink: var(--gtx-dark-field-ink);
+}
+
+#ui-datepicker-div .ui-datepicker-header {
+    padding: .42rem 0;
+    border: 0;
+    border-radius: var(--bs-border-radius);
+    background: var(--gtx-calendar-heading);
+    color: var(--gtx-calendar-heading-ink);
+}
+
+#ui-datepicker-div :is(.ui-datepicker-prev, .ui-datepicker-next) {
+    top: 50%;
+    width: 1.9rem;
+    height: 1.9rem;
+    transform: translateY(-50%);
+    border: 1px solid transparent;
+    border-radius: var(--bs-border-radius);
+    background: transparent;
+    color: inherit;
+}
+
+#ui-datepicker-div .ui-datepicker-prev { inset-inline: .25rem auto; }
+#ui-datepicker-div .ui-datepicker-next { inset-inline: auto .25rem; }
+
+#ui-datepicker-div :is(.ui-datepicker-prev, .ui-datepicker-next):not(.ui-state-disabled):is(:hover, :focus-visible) {
+    border-color: currentColor;
+    cursor: pointer;
+}
+
+#ui-datepicker-div .ui-datepicker-calendar {
+    margin: .15rem 0 0;
+    table-layout: fixed;
+}
+#ui-datepicker-div .ui-datepicker-calendar th { color: var(--bs-secondary-color); }
+
+#ui-datepicker-div .ui-datepicker-calendar td > .ui-state-default {
+    display: grid;
+    min-height: 2rem;
+    place-items: center;
+    border: 1px solid transparent;
+    border-radius: var(--bs-border-radius);
+    background: transparent;
+    color: inherit;
+}
+
+#ui-datepicker-div .ui-datepicker-calendar .ui-state-disabled { opacity: .45; }
+
+#ui-datepicker-div .ui-datepicker-other-month > a.ui-state-default:not(.ui-state-active) {
+    color: var(--bs-secondary-color);
+    opacity: 1;
+}
+
+#ui-datepicker-div .ui-datepicker-today > a.ui-state-default { border-color: var(--bs-secondary-color); }
+
+#ui-datepicker-div .ui-datepicker-calendar td > a.ui-state-default:where(:hover) {
+    background: var(--bs-secondary-bg);
+}
+
+#ui-datepicker-div .ui-datepicker-calendar td > a.ui-state-active {
+    background: var(--gtx-calendar-selection);
+    color: #fff;
+    font-weight: 700;
+}
+
+#ui-datepicker-div .ui-datepicker-days-cell-over > a.ui-state-default,
+#ui-datepicker-div .ui-datepicker-calendar td > a:focus-visible {
+    outline: 1px solid currentColor;
+    outline-offset: -3px;
+}
+
 /* Majordome menu pages and their grids share the Dashboard panel tint. */
 html[data-background-theme="dark"] .majordome-panel-page .body-content :is(
     .majordome-inventory-shell,
@@ -1071,29 +1511,29 @@ html[data-background-theme="dark"] .majordome-panel-page .body-content :is(
     .majordome-inventory-table-wrap,
     .majordome-management-results,
     .majordome-management-table-wrap,
-    .majordome-management-detail-panel,
     .chat-command-mobile-lock,
     .sitemap-shell
 ),
-html[data-background-theme="dark"] .majordome-panel-page .vin-decoder-page:not(#price-research) :is(.marketing-section-label, .vin-decoder-console, .vin-decoder-results),
+html[data-background-theme="dark"] .majordome-panel-page .vin-decoder-page:not(#price-research) :is(.vin-decoder-console, .vin-decoder-results),
 html[data-background-theme="dark"] .majordome-panel-page #profilePage .profile-card,
 html[data-background-theme="dark"] .majordome-panel-page #roleModalBody .role-editor-card,
 html[data-background-theme="dark"] .majordome-panel-page :is(#tab-announcement, #tab-blog, #tab-special, #tab-employees, #rolesPage) > .shadow,
 html[data-background-theme="dark"] .majordome-panel-page :is(#majordomeInventoryGrid, #majordomeManagementGrid, #chatCommandAddGrid, .gtx-admin-add-grid) .pg-grid-wrapper {
-    background: var(--gtx-tinted-panel-background);
+    background: var(--gtx-tinted-steel-panel-background);
 }
 
 html[data-background-theme="dark"] .majordome-panel-page .bg-white:is(.sitemap-header, .sitemap-footer, .card-header.sticky-top) {
-    background-color: var(--gtx-tinted-panel-background-alt) !important;
+    background: var(--gtx-tinted-steel-panel-background) !important;
+    color: var(--gtx-steel-panel-ink);
 }
 
 html[data-background-theme="dark"] .majordome-panel-page #sitemapAccordion {
-    --bs-accordion-bg: var(--gtx-tinted-panel-background);
+    --bs-accordion-bg: transparent;
 }
 
 html[data-background-theme="dark"] .majordome-panel-page #profilePage .profile-card-header,
 html[data-background-theme="dark"] .majordome-panel-page #roleModalBody .role-editor-card-header {
-    background: var(--gtx-tinted-panel-background-alt);
+    background: var(--gtx-tinted-steel-panel-background);
 }
 
 html[data-background-theme="dark"] .majordome-panel-page :is(#profilePage .profile-card, #roleModalBody .role-editor-card) {
@@ -1134,24 +1574,19 @@ html[data-background-theme="dark"] #inventorySidebarPane .inventory-filter-panel
 }
 
 html[data-background-theme="dark"] #majordomeManagementLogMenu .majordome-management-log-status-list {
-    --inventory-ink: var(--gtx-addgrid-header-ink);
-    --inventory-muted: var(--gtx-addgrid-header-ink);
+    --inventory-ink: var(--gtx-steel-panel-ink);
+    --inventory-muted: var(--gtx-steel-panel-ink);
 }
 
 html[data-background-theme="dark"] #majordomeManagementLogMenu .inventory-management-rollback-trigger {
-    --bs-btn-color: var(--gtx-addgrid-header-ink);
-}
-
-html[data-background-theme="dark"] .majordome-panel-page .body-content :is(.pg-search-bar, .pg-grid-footer) {
-    --gtx-addgrid-header-background: var(--gtx-tinted-steel-panel-background);
-    --gtx-addgrid-header-ink: var(--bs-black, #000);
+    --bs-btn-color: var(--gtx-steel-panel-ink);
 }
 
 html[data-background-theme="dark"] #inventorySidebarPane .inventory-filter-panel :is(.inventory-filter-panel-toggle, .inventory-filter-panel-count, .inventory-range-values, .inventory-range-output, .inventory-dependent-empty, .inventory-check-row:where(:not(:hover))),
 html[data-background-theme="dark"] #majordomeManagementLogMenu .majordome-management-log-date,
 html[data-background-theme="dark"] #majordomeManagementLogMenu .majordome-management-log-date :is(.majordome-management-log-date-toggle, .majordome-management-log-date-count),
 html[data-background-theme="dark"] #sitemapAccordion .accordion-button {
-    color: var(--gtx-addgrid-header-ink);
+    color: var(--gtx-steel-panel-ink);
 }
 
 html[data-background-theme="dark"] #sitemapAccordion .accordion-button .bi {
@@ -1159,7 +1594,7 @@ html[data-background-theme="dark"] #sitemapAccordion .accordion-button .bi {
 }
 
 html[data-background-theme="dark"] #sitemapAccordion .accordion-button::after {
-    filter: brightness(0);
+    filter: brightness(0) invert(1);
 }
 
 @media (max-width: 991.98px) {

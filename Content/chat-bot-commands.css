@@ -124,6 +124,70 @@ html.theme-silver #chatCommandGridShell {
 .chat-command-modal .modal-footer { min-height: 4.2rem; border-top-color: rgba(255, 255, 255, .22); background: var(--gtx-grad, #175cd3); }
 .chat-command-modal .modal-footer .btn { display: inline-flex; align-items: center; gap: .35rem; }
 
+html[data-background-theme="dark"] .chat-command-wizard-progress {
+    --chat-command-progress-track: color-mix(in srgb, var(--gtx-steel-panel-ink) 82%, var(--bs-secondary-bg));
+}
+
+html[data-background-theme="dark"] .chat-command-wizard-progress li,
+html[data-background-theme="dark"] .chat-command-modal :is([data-command-step] > label, .chat-command-field-help, .chat-command-review-list dt, .chat-command-review-list dd) {
+    color: var(--gtx-steel-panel-ink);
+}
+
+html[data-background-theme="dark"] .chat-command-wizard-progress li::after {
+    background: var(--chat-command-progress-track);
+}
+
+html[data-background-theme="dark"] .chat-command-wizard-progress li.is-complete::after {
+    background: var(--gtx-steel-panel-ink);
+}
+
+html[data-background-theme="dark"] .chat-command-wizard-progress li > span {
+    border-color: var(--chat-command-progress-track);
+    background: var(--gtx-dark-field-background);
+    color: var(--gtx-dark-field-ink);
+}
+
+html[data-background-theme="dark"] .chat-command-wizard-progress li:is(.is-current, .is-complete) > span,
+html[data-background-theme="dark"] .chat-command-wizard-action-preview span {
+    background: var(--gtx-palette-header-background);
+    color: var(--gtx-palette-header-ink);
+}
+
+html[data-background-theme="dark"] .chat-command-wizard-progress li.is-current > span {
+    border-color: var(--gtx-steel-panel-ink);
+    box-shadow: 0 0 0 .22rem rgb(255 255 255 / 38%);
+}
+
+html[data-background-theme="dark"] :is(.chat-command-wizard-action-preview, .chat-command-review-statement) {
+    border-color: var(--gtx-dark-field-border);
+    background: var(--gtx-dark-field-background);
+    color: var(--gtx-dark-field-ink);
+}
+
+html[data-background-theme="dark"] :is(.chat-command-wizard-action-preview :is(strong, code, p), .chat-command-review-statement :is(span, code)) {
+    color: inherit;
+}
+
+html[data-background-theme="dark"] .chat-command-review-list > div {
+    border-color: rgb(255 255 255 / 28%);
+}
+
+html[data-background-theme="dark"] .chat-command-review-note {
+    background: var(--bs-success-bg-subtle);
+    color: var(--bs-success-text-emphasis);
+}
+
+html[data-background-theme="dark"] :is(.chat-command-form-error, .chat-command-save-status) {
+    background: var(--bs-danger-bg-subtle);
+    color: var(--bs-danger-text-emphasis);
+}
+
+html[data-background-theme="dark"] .chat-command-form-error {
+    width: fit-content;
+    padding: .15rem .35rem;
+    border-radius: var(--bs-border-radius-sm);
+}
+
 @media (max-width: 1199.98px) {
     .chat-command-grid { min-width: 900px; }
 }

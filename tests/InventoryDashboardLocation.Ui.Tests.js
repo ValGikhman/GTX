@@ -26,7 +26,8 @@ for (const showLocationTotals of [true, false, undefined]) {
     const options = initializeGrid(showLocationTotals);
     const location = options.columns.find(column => column.field === 'Location');
     const attributes = options.rowAttributes({ LocationFilter: 'TEST-LOCATION', Stock: '123' });
-    assert.ok(location, 'LOC remains displayed and sortable without the totals grant');
+    assert.ok(location, 'The location column remains available without the totals grant');
+    assert.equal(location.title, 'GTX');
     assert.equal(location.sortField, 'LocationSort');
     assert.equal(location.template, '#dashboard-add-grid-location-template');
     assert.equal(location.filterField, 'LocationFilter');
@@ -128,4 +129,4 @@ for (const initialGrant of [true, false]) {
     }
 }
 
-console.log('PASS: Dashboard LOC filtering, count visibility, and period reload after a location permission change.');
+console.log('PASS: Dashboard GTX column label, location filtering, count visibility, and period reload after a location permission change.');
