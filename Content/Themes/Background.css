@@ -424,10 +424,18 @@ html[data-background-theme]:not([data-background-theme="light"]) #majordomeManag
 }
 
 html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane .inventory-check-row:hover,
-html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane .inventory-check-hit,
 html[data-background-theme="dark"] #majordomeManagementLogMenu .majordome-management-log-status:not(.is-selected, .is-active, :disabled):is(:hover, :focus) {
     background: var(--bs-secondary-bg);
     color: var(--bs-body-color);
+}
+
+html[data-background-theme="dark"] #inventorySidebarPane :is(.inventory-check-hit, .inventory-filter-check:not(:checked, :indeterminate)) {
+    background-color: var(--gtx-dark-field-background);
+    color: var(--gtx-dark-field-ink);
+}
+
+html[data-background-theme="dark"] #inventorySidebarPane .inventory-filter-check {
+    background-image: var(--bs-form-check-bg-image, none);
 }
 
 html[data-background-theme] :is(.inventory-filter-panel-toggle, .majordome-management-log-date-toggle)::after,
