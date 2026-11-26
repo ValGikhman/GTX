@@ -43,13 +43,15 @@ namespace GTX.Common {
             if (role == null || !MajordomeMenu.Items.Any(i => i.Item == item)) return false;
             if (IsMajordome(role)) return true;
             if (role.Id < 0 || MajordomeAccount.IsReservedName(role.Name)) return false;
-            return item != MajordomeItem.Profile && item != MajordomeItem.Services
-                && (role.Permissions ?? new string[0]).Contains(item.ToString());
+            return item != MajordomeItem.Services
+                && (role.Permissions ?? new string[0]).Contains(MajordomeMenu.PermissionKey(item));
         }
         public static string[] GrantableRolePermissions(SiteRoleModel actor) {
             if (!Can(actor, MajordomeItem.Roles)) return Array.Empty<string>();
             var ordinaryPermissions = MajordomeMenu.Defaults(string.Empty);
-            if (IsMajordome(actor)) return ordinaryPermissions.Concat(new[] { nameof(MajordomeItem.Roles) }).ToArray();
+            if (IsMajordome(actor)) return ordinaryPermissions.Concat(new[] {
+                nameof(MajordomeItem.Roles), MajordomeMenu.PermissionKey(MajordomeItem.Profile)
+            }).ToArray();
             return ordinaryPermissions.Intersect(actor.Permissions ?? Array.Empty<string>()).ToArray();
         }
         public static bool CanManageRole(SiteRoleModel actor, SiteRoleModel target) {

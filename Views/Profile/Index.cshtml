@@ -125,8 +125,10 @@
                                                     @Html.ValidationMessageFor(m => m.BusinessHours[i].CloseTime, "", new { @class = "text-danger small" })
                                                 </td>
                                                 <td class="text-center">
-                                                    @Html.CheckBoxFor(m => m.BusinessHours[i].IsClosed, new { @class = "form-check-input" })
-                                                    <label class="visually-hidden" for="@Html.IdFor(m => m.BusinessHours[i].IsClosed)">@day closed</label>
+                                                    <div class="form-check form-switch d-inline-flex align-items-center p-0 mb-0">
+                                                        @Html.CheckBoxFor(m => m.BusinessHours[i].IsClosed, new { @class = "form-check-input m-0", role = "switch" })
+                                                        <label class="visually-hidden" for="@Html.IdFor(m => m.BusinessHours[i].IsClosed)">@day closed</label>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         }

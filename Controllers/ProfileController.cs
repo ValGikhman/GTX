@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Web.Mvc;
 
 namespace GTX.Controllers {
-    [RequireAdminRole(RequireMajordome = true)]
+    [RequireAdminRole]
     public sealed class ProfileController : BaseController {
         private readonly SiteProfileStore store = new SiteProfileStore();
 

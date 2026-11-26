@@ -868,8 +868,8 @@
 }
 
 .gtx-chat-compose textarea {
-    color: #172033;
-    background: #fff;
+    color: var(--gtx-field-ink, #172033);
+    background: var(--gtx-input-background, #fff);
     width: 100%;
     max-height: 7rem;
     resize: none;
@@ -881,7 +881,7 @@
     font-size: .86rem;
 }
 
-.gtx-chat-compose textarea::placeholder { color: #6b7280; opacity: 1; }
+.gtx-chat-compose textarea::placeholder { color: var(--gtx-field-placeholder, #6b7280); opacity: 1; }
 .gtx-chat-compose textarea:focus { border-color: var(--gtx-chat-accent); box-shadow: 0 0 0 .18rem rgba(15, 23, 42, .12); }
 .gtx-chat-compose button { width: 2.55rem; height: 2.55rem; flex: 0 0 2.55rem; border: 0; border-radius: .7rem; color: var(--gtx-chat-on-theme); background: var(--gtx-chat-theme); }
 .gtx-chat-compose button:disabled { opacity: .55; }
@@ -1069,14 +1069,12 @@ html[data-background-theme="dark"] .gtx-chat .gtx-chat-consent .form-check-input
 
 html[data-background-theme="dark"] .gtx-chat .gtx-chat-compose textarea:not(:disabled) {
     border-color: var(--gtx-dark-field-border, var(--gtx-chat-card-border));
-    color: var(--gtx-dark-field-ink, var(--gtx-chat-ink));
-    background: var(--gtx-dark-input-background, var(--gtx-dark-field-background, var(--gtx-chat-surface-alt)));
 }
 
 html[data-background-theme="dark"] .gtx-chat .gtx-chat-compose textarea:disabled {
     border-color: var(--gtx-chat-card-border);
     color: var(--gtx-chat-muted);
-    background: var(--gtx-chat-surface-alt);
+    background: var(--gtx-field-background, var(--gtx-chat-surface-alt));
 }
 
 html[data-background-theme="dark"] .gtx-chat .gtx-chat-compose textarea::placeholder {

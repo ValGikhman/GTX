@@ -163,17 +163,6 @@
 <script type="text/x-addgrid-template" id="announcement-grid-actions-template">{{ActionsHtml}}</script>
 
 <script>
-    $(document).on("click", "[data-close-announcement-preview='true']", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-
-        const $host = $("#announcementPreviewHost");
-        $host.empty();
-
-        // if you want it to disappear too (recommended)
-        $host.closest(".toast-container").hide();
-    });
-
     async function deleteAnnouncement(id) {
         if (!id) return;
         const confirmed = await window.gtxConfirm({

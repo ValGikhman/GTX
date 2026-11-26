@@ -104,8 +104,8 @@ END", db, tx)) cmd.ExecuteNonQuery();
             if (model.Name.Equals("User", StringComparison.OrdinalIgnoreCase) || model.Name.Equals("Blog", StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException("That role name is reserved.");
             var permissions = (model.Permissions ?? new string[0]).Distinct().ToArray();
             var dashboardSections = MajordomeMenu.DashboardSections.Keys.Select(MajordomeMenu.DashboardSectionKey).ToArray();
-            if (permissions.Any(p => !MajordomeMenu.Items.Any(i => i.Item.ToString() == p) && !dashboardSections.Contains(p))) throw new InvalidOperationException("Unknown permission.");
-            if (permissions.Contains(nameof(MajordomeItem.Profile)) || permissions.Contains(nameof(MajordomeItem.Services))) throw new InvalidOperationException("Profile and Services are reserved for the built-in administrator.");
+            if (permissions.Any(p => !MajordomeMenu.Items.Any(i => MajordomeMenu.PermissionKey(i.Item) == p) && !dashboardSections.Contains(p))) throw new InvalidOperationException("Unknown permission.");
+            if (permissions.Contains(nameof(MajordomeItem.Services))) throw new InvalidOperationException("Services is reserved for the built-in administrator.");
             if (!permissions.Contains(MajordomeItem.InventoryDashboard.ToString())) permissions = permissions.Except(dashboardSections).ToArray();
             var administrator = MajordomeAccount.Current();
             if (!string.IsNullOrEmpty(model.Password) && administrator != null && Crypto.VerifyHashedPassword(administrator.PasswordHash, model.Password))
