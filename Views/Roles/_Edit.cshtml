@@ -1,6 +1,9 @@
 ﻿@model GTX.Models.SiteRoleModel
 @using GTX.Common
-@{ var isEdit = Model != null && Model.Id > 0; }
+@{
+    var isEdit = Model != null && Model.Id > 0;
+    var permissions = Model?.Permissions ?? new string[0];
+}
 @using (Html.BeginForm("Save", Enums.Controllers.Roles.ToString(), FormMethod.Post, new { id = "roleForm" })) {
     @Html.AntiForgeryToken()
     @Html.HiddenFor(m => m.Id)
@@ -15,9 +18,23 @@
                 <div class="card-body role-editor-permissions">
                     @foreach (var item in MajordomeMenu.Items.Where(i => i.Item != MajordomeItem.Roles && i.Item != MajordomeItem.Profile && i.Item != MajordomeItem.Services)) {
                         var key = item.Item.ToString();
-                        <div class="form-check form-switch role-editor-permission">
-                            <input class="form-check-input" type="checkbox" name="Permissions" value="@key" id="permission-@key" checked="@((Model.Permissions ?? new string[0]).Contains(key))" />
-                            <label class="form-check-label" for="permission-@key">@item.Title</label>
+                        var granted = permissions.Contains(key);
+                        <div>
+                            <div class="form-check form-switch role-editor-permission">
+                                <input class="form-check-input" type="checkbox" name="Permissions" value="@key" id="permission-@key" checked="@granted" />
+                                <label class="form-check-label" for="permission-@key">@item.Title</label>
+                            </div>
+                            @if (item.Item == MajordomeItem.InventoryDashboard) {
+                                <div class="ms-3 mt-1" data-dashboard-permissions hidden="@(!granted)">
+                                    @foreach (var dashboardSection in MajordomeMenu.DashboardSections) {
+                                        var sectionKey = MajordomeMenu.DashboardSectionKey(dashboardSection.Key);
+                                        <div class="form-check form-switch role-editor-permission">
+                                            <input class="form-check-input" type="checkbox" name="Permissions" value="@sectionKey" id="permission-@sectionKey" checked="@(granted && permissions.Contains(sectionKey))" disabled="@(!granted)" />
+                                            <label class="form-check-label" for="permission-@sectionKey">@dashboardSection.Value</label>
+                                        </div>
+                                    }
+                                </div>
+                            }
                         </div>
                     }
                 </div>

@@ -1,4 +1,8 @@
 /* Background modes are independent of the accent and texture palettes. */
+:root {
+    --gtx-panel-tint-amount: 30%;
+}
+
 /* Review links and ratings stay readable on charcoal surfaces. */
 html[data-background-theme="dark"] .home-reviews {
     --home-reviews-link: #8ab4f8;
@@ -29,7 +33,7 @@ html[data-background-theme="dark"] {
     color-scheme: dark;
     --gtx-default-page-bg: #202124;
     --gtx-page-bg: var(--gtx-default-page-bg);
-    --gtx-addgrid-header-background: linear-gradient(145deg, #a0a6ac 0%, #858c93 48%, #6f767e 100%);
+    --gtx-addgrid-header-background: var(--gtx-steel-header-background);
     --gtx-addgrid-header-ink: var(--bs-black, #000);
     --gtx-raised-surface:
         radial-gradient(circle at 100% 0, rgba(210, 215, 219, 0.16), transparent 42%),
@@ -47,6 +51,31 @@ html[data-background-theme="dark"] {
     --bs-secondary-bg-rgb: 53, 54, 58;
     --bs-tertiary-bg: #323337;
     --bs-tertiary-bg-rgb: 50, 51, 55;
+    --gtx-tinted-panel-background: var(--bs-body-bg);
+    --gtx-tinted-panel-background-alt: var(--bs-tertiary-bg);
+    --gtx-tinted-steel-panel-background: var(--gtx-addgrid-header-background);
+    --gtx-dark-field-top: #40546d;
+    --gtx-dark-field-bottom: #203249;
+    --gtx-dark-field-background: linear-gradient(180deg, var(--gtx-dark-field-top), var(--gtx-dark-field-bottom));
+    --gtx-dark-field-border: #132235;
+    --gtx-dark-field-ink: #f8fbff;
+    --gtx-dark-field-placeholder: #dce6f3;
+}
+
+@supports (color: color-mix(in srgb, white, black)) {
+    html[data-background-theme="dark"] {
+        --gtx-tinted-panel-background: color-mix(in srgb, var(--gtx-palette-tint-color) var(--gtx-panel-tint-amount), var(--bs-body-bg));
+        --gtx-tinted-panel-background-alt: color-mix(in srgb, var(--gtx-palette-tint-color) var(--gtx-panel-tint-amount), var(--bs-tertiary-bg));
+        /* Limit the lighter stop so Silver still has readable placeholder text. */
+        --gtx-dark-field-top: color-mix(in srgb, var(--gtx-palette-tint-color) 18%, #475769);
+        --gtx-dark-field-bottom: color-mix(in srgb, var(--gtx-palette-tint-color) 30%, #202932);
+        --gtx-dark-field-border: color-mix(in srgb, var(--gtx-palette-tint-color) 20%, #101923);
+        /* Lighten the steel tint enough for the same dark text used on Dashboard. */
+        --gtx-steel-panel-tint: color-mix(in srgb,
+            color-mix(in srgb, var(--gtx-palette-tint-color) 60%, white) calc(var(--gtx-panel-tint-amount) / .6),
+            transparent);
+        --gtx-tinted-steel-panel-background: linear-gradient(var(--gtx-steel-panel-tint), var(--gtx-steel-panel-tint)), var(--gtx-addgrid-header-background);
+    }
 }
 
 html[data-background-theme="dark"] body {
@@ -54,10 +83,31 @@ html[data-background-theme="dark"] body {
     color: var(--bs-body-color);
 }
 
-html[class][data-background-theme="dark"] body :is(.btn-gradient-grey, .majordome-management-log-status-list),
-html[data-background-theme="dark"] .main-menu.no-wrap-group .btn.gradient,
-html[data-background-theme="dark"] #MajordomeLink > .btn.gradient,
-html[data-background-theme="dark"] #inventorySidebarPane .inventory-clear-btn.btn-gradient-grey {
+html[data-background-theme="dark"] .btn:is(.gradient, .btn-gradient-grey:not(.active)):is(.light-gradient-action, [data-bs-toggle="dropdown"]),
+html[data-background-theme="dark"] #sortDirection[aria-pressed="false"] {
+    --gtx-button-background: var(--gtx-light-control-background);
+    --gtx-button-ink: var(--gtx-light-control-ink);
+}
+
+/* Keep a readable fill for controls that are transparent in light mode. */
+html[class][data-background-theme="dark"] body .btn:is(.gradient, .btn-gradient-grey:not(.active)):not(:where(.nav.nav-tabs.no-wrap-group > .btn[role="tab"])) {
+    --gtx-gradient-background: var(--gtx-button-background, var(--gtx-palette-header-background));
+    --gtx-gradient-ink: var(--gtx-button-ink, var(--gtx-palette-header-ink));
+    background: var(--gtx-gradient-background) !important;
+    color: var(--gtx-gradient-ink) !important;
+    text-shadow: none !important;
+}
+
+html[data-background-theme="dark"] .dropdown-toggle[data-bs-toggle="dropdown"]::after {
+    filter: none;
+}
+
+html[data-background-theme="dark"] :is(.pg-filter-btn, .pg-chips-clear-all):focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 1px;
+}
+
+html[class][data-background-theme="dark"] body .btn-gradient-grey:not(.btn) {
     --gtx-gradient-background: linear-gradient(180deg, #747c84, #555d65);
     --gtx-gradient-ink: #fff;
     border-color: #4f565e !important;
@@ -66,19 +116,31 @@ html[data-background-theme="dark"] #inventorySidebarPane .inventory-clear-btn.bt
     box-shadow: inset 0 1px rgba(255, 255, 255, 0.2), 0 2px 5px rgba(31, 37, 43, 0.24) !important;
 }
 
-html[data-background-theme="dark"] .btn-gradient-grey.active[role="tab"] {
+html[data-background-theme="dark"] .btn.btn-gradient-grey,
+html[data-background-theme="dark"] #inventorySidebarPane .inventory-clear-btn.btn-gradient-grey {
+    border-width: 0 !important;
+}
+
+html[data-background-theme="dark"] #inventorySidebarPane .inventory-clear-btn.btn-gradient-grey,
+html[class][data-background-theme="dark"] body .btn:is(.gradient, .btn-gradient-grey:not(.active)):not(:where(.gtx-compare-toggle.is-selected, .nav.nav-tabs.no-wrap-group > .btn[role="tab"])) {
+    border-color: rgb(255 255 255 / var(--gtx-button-border-opacity, 25%)) !important;
+    border-color: color-mix(in srgb, currentColor var(--gtx-button-border-opacity, 25%), transparent) !important;
+    box-shadow: var(--gtx-button-shadow, 0 .9rem 2rem rgba(0, 0, 0, .2)) !important;
+}
+
+html[data-background-theme="dark"] .btn:is(.gradient, .btn-gradient-grey:not(.active)):not(:disabled, .disabled, [aria-disabled="true"]):is(:hover, :focus-visible) {
+    --gtx-button-border-opacity: 52%;
+    --gtx-button-shadow: 0 1.1rem 2.5rem rgba(0, 0, 0, .3);
+}
+
+html[data-background-theme="dark"] .btn-gradient-grey.active[role="tab"],
+.nav.nav-tabs.no-wrap-group > .btn-gradient-grey.active[role="tab"] {
     text-decoration: underline;
     text-underline-offset: .2em;
 }
 
-html[data-background-theme="dark"] .btn-gradient-grey:focus-visible,
-html[data-background-theme="dark"] .main-menu.no-wrap-group .btn.gradient:focus-visible,
-html[data-background-theme="dark"] #MajordomeLink > .btn.gradient:focus-visible {
+html[class][data-background-theme="dark"] .btn:is(.gradient, .btn-gradient-grey:not(.active)):not(:where(.nav.nav-tabs.no-wrap-group > .btn[role="tab"])):focus-visible {
     outline: 2px solid currentColor;
-    outline-offset: 2px;
-}
-
-html[data-background-theme="dark"] .vdp-tabs .btn-gradient-grey.active:focus-visible {
     outline-offset: -3px;
 }
 
@@ -87,24 +149,14 @@ html[data-background-theme="dark"] body .body-content {
     background: transparent !important;
 }
 
-/* Raised panels and toolbars use the steel surface above the charcoal content. */
-html[data-background-theme="dark"] .inventory-dashboard-grid-header,
-html[data-background-theme="dark"] :is(
-    .inventory-dashboard-add-grid,
-    .majordome-add-grid,
-    .majordome-management-add-grid,
-    .gtx-admin-add-grid
-) .pg-search-bar {
+/* Raise the dashboard header above the charcoal content. */
+html[data-background-theme="dark"] .inventory-dashboard-grid-header {
     background: var(--gtx-raised-surface);
     box-shadow: var(--gtx-raised-surface-shadow);
 }
 
-html[data-background-theme="dark"] .vin-decoder-page :is(.marketing-section-label, .vin-decoder-console, .vin-decoder-results) {
-    background: var(--gtx-raised-surface);
-}
-
 html[data-background-theme="dark"] :is(.inventory-dashboard-period-control, .inventory-dashboard-graph-card) {
-    background: var(--gtx-addgrid-header-background);
+    background: var(--dashboard-steel-panel-background);
     box-shadow: var(--gtx-raised-surface-shadow);
 }
 
@@ -112,10 +164,32 @@ html[data-background-theme="dark"] .inventory-dashboard-graph-card :is(.inventor
     color: var(--gtx-addgrid-header-ink) !important;
 }
 
-/* Match AddGrid headers and footers in dark mode. */
+html[data-background-theme="dark"] .pg-grid-table > thead {
+    --gtx-addgrid-header-background: var(--gtx-palette-tint-overlay, none), var(--pg-color-bg-muted);
+    --gtx-addgrid-header-ink: var(--pg-color-text-header);
+}
+
+/* Use the palette's light finish for themed column headers and matching surfaces. */
+html[data-background-theme="dark"] :is(
+    .gtx-admin-add-grid,
+    .inventory-dashboard-add-grid,
+    .majordome-add-grid,
+    .majordome-management-add-grid,
+    .majordome-inventory-grid-style
+) .pg-grid-table > thead,
+html[data-background-theme="dark"] .majordome-workspace > #myTab {
+    --gtx-addgrid-header-background: var(--gtx-palette-header-background);
+    --gtx-addgrid-header-ink: var(--gtx-palette-header-ink);
+}
+
 html[data-background-theme="dark"] .pg-grid-table > thead,
+html[data-background-theme="dark"] .pg-search-bar,
 html[data-background-theme="dark"] .pg-grid-footer {
     background: var(--gtx-addgrid-header-background) !important;
+}
+
+html[data-background-theme="dark"] #inventoryDashboardStatusGrid :is(.pg-search-bar, .pg-grid-footer) {
+    --gtx-addgrid-header-background: var(--dashboard-steel-panel-background);
 }
 
 html[data-background-theme="dark"] .pg-grid-table > thead > tr > th {
@@ -123,12 +197,11 @@ html[data-background-theme="dark"] .pg-grid-table > thead > tr > th {
     color: var(--gtx-addgrid-header-ink) !important;
 }
 
-html[data-background-theme="dark"] .pg-grid-table > thead :is(.pg-th-label, .pg-sort-icon, .pg-filter-btn) {
-    color: var(--gtx-addgrid-header-ink) !important;
+html[data-background-theme="dark"] :is(#blogsAddGrid, #specialsAddGrid, .majordome-inventory-grid-style) .pg-grid-table > thead > tr > th {
+    background: var(--gtx-addgrid-header-background) !important;
 }
 
-html[data-background-theme="dark"] .page-title.inventory-player-title.page-title-mobile-call-enabled {
-    background: var(--gtx-addgrid-header-background) !important;
+html[data-background-theme="dark"] .pg-grid-table > thead :is(.pg-th-label, .pg-sort-icon, .pg-filter-btn) {
     color: var(--gtx-addgrid-header-ink) !important;
 }
 
@@ -175,26 +248,8 @@ html[data-background-theme]:not([data-background-theme="light"]) .majordome-mana
     scrollbar-color: var(--bs-secondary-color) transparent;
 }
 
-html[data-background-theme="dark"] .majordome-management-log-status-list {
-    --inventory-ink: var(--gtx-gradient-ink);
-}
-
-html[data-background-theme="dark"] .majordome-management-log-status-list .inventory-management-rollback-trigger {
-    --bs-btn-color: var(--gtx-gradient-ink);
-}
-
-html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-log-status:not(.is-selected):not(.is-active):not(:disabled):is(:hover, :focus) {
-    background: var(--bs-secondary-bg);
-}
-
 html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-sidebar-pane::-webkit-scrollbar-thumb {
     background: var(--bs-secondary-color);
-}
-
-/* Animated search hints use soft silver in dark mode. */
-html[data-background-theme="dark"] :is(#filterTerm, .term)::placeholder {
-    color: var(--bs-secondary-color);
-    opacity: 1 !important;
 }
 
 /* Quick-search matches keep dark ink on their yellow highlight in dark mode. */
@@ -300,6 +355,7 @@ html[data-background-theme]:not([data-background-theme="light"]) #majordomeManag
 
 html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane .inventory-check-row:hover,
 html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane .inventory-check-hit,
+html[data-background-theme="dark"] #majordomeManagementLogMenu .majordome-management-log-status:not(.is-selected, .is-active, :disabled):is(:hover, :focus),
 html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-log-date-toggle::after,
 html[data-background-theme]:not([data-background-theme="light"]) #inventorySidebarPane .inventory-filter-panel-toggle::after {
     background: var(--bs-secondary-bg);
@@ -425,6 +481,29 @@ html[data-background-theme]:not([data-background-theme="light"]) :is(.form-contr
     color: var(--bs-secondary-color);
 }
 
+html[data-background-theme="dark"] select:not(:disabled, [multiple], [size]:not([size="1"]), .gtx-chat select) {
+    background-image: var(--gtx-light-control-background);
+    color: var(--gtx-light-control-ink);
+    color-scheme: light;
+}
+
+/* Keep Bootstrap's caret and validation icon above both gradient layers. */
+html[data-background-theme="dark"] select.form-select:not(:disabled, [multiple], [size]:not([size="1"]), .gtx-chat select) {
+    --bs-form-select-bg-img: var(--gtx-light-select-caret);
+    background-image: var(--bs-form-select-bg-img), var(--bs-form-select-bg-icon, none), var(--gtx-light-control-background);
+    background-position: right .75rem center, right 2.25rem center, center, center;
+    background-size: 16px 12px, calc(.75em + .375rem) calc(.75em + .375rem), auto, auto;
+}
+
+html[data-background-theme="dark"] .chosen-container:not(.chosen-disabled) > :is(.chosen-single, .chosen-choices) {
+    background: var(--gtx-light-control-background);
+    color: var(--gtx-light-control-ink);
+}
+
+html[data-background-theme="dark"] .chosen-container:not(.chosen-disabled) .chosen-choices .search-field input[type="text"] {
+    color: var(--gtx-light-control-ink);
+}
+
 /* Base typography has literal light-mode colors; component/hero colors still win. */
 :where(html[data-background-theme]:not([data-background-theme="light"])) :is(h1, h2, h3, h4, h5, h6, h7, h8, p) {
     color: var(--bs-body-color);
@@ -453,7 +532,7 @@ html[data-background-theme="dark"] :is(.pe-editor, .pe-context-menu) {
     --pe-color-text: var(--bs-body-color);
     --pe-color-text-muted: var(--bs-secondary-color);
     --pe-color-text-subtle: var(--bs-secondary-color);
-    --pe-color-placeholder: #a4abb4;
+    --pe-color-placeholder: var(--gtx-dark-field-placeholder);
     --pe-color-accent: #8ab4f8;
     --pe-color-shadow-focus: rgba(138, 180, 248, .25);
     --pe-color-shadow-toolbar: rgba(0, 0, 0, .18);
@@ -462,8 +541,14 @@ html[data-background-theme="dark"] :is(.pe-editor, .pe-context-menu) {
     color: var(--pe-color-text);
 }
 
-html[data-background-theme="dark"] :is(.pe-editor, .pe-context-menu) .pe-select {
+html[data-background-theme="dark"] :is(.pe-editor, .pe-context-menu) .pe-select:disabled {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23bdc1c6' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+}
+
+html[data-background-theme="dark"] :is(.pe-editor, .pe-context-menu) .pe-select:not(:disabled) {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%2364748b' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E"), var(--gtx-light-control-background);
+    background-position: right .55rem center, center, center;
+    color: var(--gtx-light-control-ink);
 }
 
 html[data-background-theme="dark"] :is(.pe-editor, .pe-context-menu) .pe-select option {
@@ -492,11 +577,6 @@ html[data-background-theme="dark"] .majordome-action-group {
 
 html[data-background-theme="dark"] .majordome-action-group .majordome-action-title {
     color: var(--bs-secondary-color);
-}
-
-html[data-background-theme="dark"] .majordome-action-buttons .btn,
-html[data-background-theme="dark"] .majordome-action-buttons .btn i {
-    color: #212529 !important;
 }
 
 /* Override the literal light selected-row fill without affecting nested history. */
@@ -629,20 +709,51 @@ html[data-background-theme="dark"] .page-title .btn:not(:is(.btn-gradient, .btn-
     color: #212529 !important;
 }
 
-html[data-background-theme="dark"] #filterByTerm .btn-gradient-grey:not(.active) .text-danger {
-    color: color-mix(in srgb, var(--bs-danger-text-emphasis) 75%, white) !important;
+html[data-background-theme="dark"] #filterByTerm .light-gradient-action .text-danger {
+    color: var(--gtx-gradient-ink) !important;
+    color: color-mix(in srgb, var(--gtx-gradient-ink) 55%, rgb(var(--bs-danger-rgb))) !important;
 }
 
-html[data-background-theme="dark"] #filterByTerm .btn-gradient-grey:not(.active) .text-primary {
-    color: color-mix(in srgb, var(--bs-primary-text-emphasis) 75%, white) !important;
+html[data-background-theme="dark"] #filterByTerm .light-gradient-action .text-primary {
+    color: var(--gtx-gradient-ink) !important;
+    color: color-mix(in srgb, var(--gtx-gradient-ink) 55%, rgb(var(--bs-primary-rgb))) !important;
 }
 
-html[data-background-theme="dark"] .nav.nav-tabs :is(.nav-link, .btn[role="tab"]) {
+html[data-background-theme="dark"] #modalShortcuts .btn-gradient > .text-white {
+    color: inherit !important;
+}
+
+html[data-background-theme="dark"] .nav.nav-tabs :is(.nav-link, .btn[role="tab"]:not(.btn-gradient-grey)) {
     color: #fff !important;
 }
 
-html body .btn.btn-gradient-grey.text-shadow-small.active {
-    color: #fff !important;
+/* Use the tinted gray finish for these actions in either mode. */
+html[data-background-theme] body :is(
+    .header .btn.light-gradient-action,
+    #myTab > .btn[role="tab"].active,
+    #majordomeBatchActionsDropdown,
+    .pg-action-cell .btn
+) {
+    --gtx-gradient-ink: var(--bs-dark, #212529);
+    background: var(--gtx-light-control-background) !important;
+    color: var(--gtx-gradient-ink) !important;
+    border-color: rgba(15, 23, 42, .18) !important;
+    box-shadow: var(--bs-box-shadow-sm) !important;
+    text-shadow: none !important;
+}
+
+html[data-background-theme] body :is(
+    .header .btn.light-gradient-action,
+    #myTab > .btn[role="tab"].active,
+    #majordomeBatchActionsDropdown,
+    .pg-action-cell .btn
+):focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -3px;
+}
+
+#majordomeBatchActionsDropdown::after {
+    filter: none;
 }
 
 /* Public inventory cards: accent text and dark mode surfaces. */
@@ -729,14 +840,6 @@ html[data-background-theme="dark"] .gtx-card .gtx-card-action > span {
     color: inherit !important;
 }
 
-html[data-background-theme="dark"] .gtx-card .gtx-card-action {
-    border-color: #c2c2c2;
-}
-
-html[data-background-theme="dark"] .gtx-card .gtx-card-action:is(:hover, :focus-visible) {
-    border-color: #e0e0e0;
-}
-
 html[data-background-theme="dark"] .gtx-card .gtx-chip {
     background: rgba(28, 28, 28, .88);
     border-color: #737373;
@@ -749,6 +852,12 @@ html[data-background-theme="dark"] .gtx-card :is(.gtx-open, .gtx-card-action):fo
 
 html[data-background-theme="dark"] .majordome-status-pill {
     color: #fff;
+}
+
+html[data-background-theme="dark"] .majordome-status-pill:is(.majordome-status-dataone, .majordome-status-story):not(.is-on) {
+    background: var(--bs-secondary-bg);
+    border-color: var(--bs-border-color);
+    color: var(--bs-secondary-color);
 }
 
 html[data-background-theme="dark"] .majordome-status-pill.majordome-status-counter {
@@ -845,4 +954,217 @@ html[data-background-theme="dark"] .majordome-editor-footer {
 
 html[data-background-theme="dark"] .vdp-utility-actions .btn-gradient-grey {
     text-shadow: none;
+}
+
+/* Share the palette tint between text fields and their grouped controls. */
+html[data-background-theme="dark"] :is(
+    input:not(:where([type="hidden"], [type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"], [type="button"], [type="submit"], [type="reset"], [type="image"])),
+    textarea,
+    .pe-body[contenteditable="true"]
+):not(:where(
+    :disabled, [readonly], .form-control-plaintext, .chosen-container input, .pg-search-input,
+    .login-shell__input, .vin-decoder-input-group input, .pr-bid-money input, .pe-readonly .pe-source,
+    .form-control:is(.is-valid, .is-invalid), .was-validated .form-control,
+    .just-validate-error-field, .just-validate-success-field
+)) {
+    background: var(--gtx-dark-field-background);
+    color: var(--gtx-dark-field-ink);
+}
+
+html[data-background-theme="dark"] .pg-search-input-group {
+    border-radius: var(--bs-border-radius-sm);
+    background: var(--gtx-dark-field-background);
+}
+
+html[data-background-theme="dark"] .pg-search-input-group > :is(.input-group-text, .pg-search-input, .pg-search-clear) {
+    border-color: var(--gtx-dark-field-border);
+    background: transparent;
+    color: var(--gtx-dark-field-ink);
+}
+
+html[data-background-theme="dark"] .pg-search-input-group > :is(.pg-search-input, .pg-search-clear) {
+    border-inline-start-color: rgb(220 230 243 / 28%);
+}
+
+html[data-background-theme="dark"] .pg-search-input-group > .pg-search-clear:is(:hover, :active) {
+    background-color: rgb(255 255 255 / 10%);
+}
+
+html[data-background-theme="dark"] .pg-search-input-group:focus-within {
+    outline: 2px solid var(--gtx-dark-field-border);
+    outline-offset: 2px;
+}
+
+/* Preserve validation icons above the palette fill. */
+html[data-background-theme="dark"] :is(
+    .form-control:is(.is-valid, .is-invalid), .was-validated .form-control,
+    .just-validate-error-field, .just-validate-success-field
+):not(:where(:disabled, [readonly], input[type="file"])) {
+    background-color: var(--gtx-dark-field-bottom);
+    color: var(--gtx-dark-field-ink);
+}
+
+html[data-background-theme="dark"] :is(.just-validate-error-field, .just-validate-success-field) {
+    background-image: var(--gtx-contact-validation-icon), var(--gtx-dark-field-background);
+    background-position: right 10px center, center;
+    background-size: 24px, auto;
+}
+
+html[data-background-theme="dark"] :is(input, textarea, .form-control):not(:where(:disabled, .chosen-choices input, .login-shell__input))::placeholder,
+html[data-background-theme="dark"] :is(#filterTerm, #price-research .pr-bid-money input)::placeholder {
+    color: var(--gtx-dark-field-placeholder);
+    opacity: 1 !important;
+}
+
+html[data-background-theme="dark"] :is(.form-control, textarea, .pe-body[contenteditable="true"], .chosen-search input):not(:where(
+    .pg-search-input, .login-shell__input, .form-control-color, input[type="file"], .vin-decoder-input-group input
+)):focus-visible {
+    outline: 2px solid var(--gtx-dark-field-placeholder);
+    outline-offset: -2px;
+}
+
+html[data-background-theme="dark"] .input-group:not(:is(.pg-search-input-group, .vin-decoder-input-group)):has(> input:not(:disabled, [type="hidden"], [type="file"], [type="checkbox"], [type="radio"]), > textarea:not(:disabled)) > .input-group-text:not(.btn) {
+    background-image: var(--gtx-dark-field-background);
+    color: var(--gtx-dark-field-ink);
+}
+
+html[data-background-theme="dark"] :is(.vin-decoder-input-group, #price-research .pr-bid-money) {
+    background: var(--gtx-dark-field-background);
+}
+
+html[data-background-theme="dark"] :is(.vin-decoder-input-group, #price-research .pr-bid-money) > :is(input, .input-group-text, span):not(:disabled) {
+    background: transparent;
+    color: var(--gtx-dark-field-ink);
+}
+
+html[data-background-theme="dark"] :is(.vin-decoder-input-group, #price-research .pr-bid-money):focus-within {
+    outline: 2px solid var(--gtx-dark-field-placeholder);
+    outline-offset: -2px;
+}
+
+html[data-background-theme="dark"] .chosen-container-single .chosen-search {
+    background: var(--gtx-dark-field-background);
+}
+
+html[data-background-theme="dark"] .chosen-container-single .chosen-search input {
+    color: var(--gtx-dark-field-ink);
+}
+
+html[data-background-theme="dark"] #loginModal .login-shell {
+    background: var(--gtx-dark-field-background) !important;
+}
+
+html[data-background-theme="dark"] #loginModal .login-shell__input {
+    background-color: transparent !important;
+    color: var(--gtx-dark-field-ink) !important;
+}
+
+html[data-background-theme="dark"] #loginModal .login-shell__input::placeholder {
+    color: var(--gtx-dark-field-placeholder) !important;
+    opacity: 1 !important;
+}
+
+/* Majordome menu pages and their grids share the Dashboard panel tint. */
+html[data-background-theme="dark"] .majordome-panel-page .body-content :is(
+    .majordome-inventory-shell,
+    .majordome-inventory-header,
+    .majordome-inventory-table-wrap,
+    .majordome-management-results,
+    .majordome-management-table-wrap,
+    .majordome-management-detail-panel,
+    .chat-command-mobile-lock,
+    .sitemap-shell
+),
+html[data-background-theme="dark"] .majordome-panel-page .vin-decoder-page:not(#price-research) :is(.marketing-section-label, .vin-decoder-console, .vin-decoder-results),
+html[data-background-theme="dark"] .majordome-panel-page #profilePage .profile-card,
+html[data-background-theme="dark"] .majordome-panel-page #roleModalBody .role-editor-card,
+html[data-background-theme="dark"] .majordome-panel-page :is(#tab-announcement, #tab-blog, #tab-special, #tab-employees, #rolesPage) > .shadow,
+html[data-background-theme="dark"] .majordome-panel-page :is(#majordomeInventoryGrid, #majordomeManagementGrid, #chatCommandAddGrid, .gtx-admin-add-grid) .pg-grid-wrapper {
+    background: var(--gtx-tinted-panel-background);
+}
+
+html[data-background-theme="dark"] .majordome-panel-page .bg-white:is(.sitemap-header, .sitemap-footer, .card-header.sticky-top) {
+    background-color: var(--gtx-tinted-panel-background-alt) !important;
+}
+
+html[data-background-theme="dark"] .majordome-panel-page #sitemapAccordion {
+    --bs-accordion-bg: var(--gtx-tinted-panel-background);
+}
+
+html[data-background-theme="dark"] .majordome-panel-page #profilePage .profile-card-header,
+html[data-background-theme="dark"] .majordome-panel-page #roleModalBody .role-editor-card-header {
+    background: var(--gtx-tinted-panel-background-alt);
+}
+
+html[data-background-theme="dark"] .majordome-panel-page :is(#profilePage .profile-card, #roleModalBody .role-editor-card) {
+    --bs-secondary-color: var(--bs-body-color);
+}
+
+html[data-background-theme="dark"] .majordome-panel-page .chat-command-mobile-lock h1 {
+    color: var(--bs-body-color);
+}
+
+html[data-background-theme="dark"] .majordome-panel-page .chat-command-mobile-lock p {
+    color: var(--bs-secondary-color);
+}
+
+html[data-background-theme="dark"] .majordome-panel-page :is(.majordome-management-shell, .majordome-management-sidebar-pane) {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+}
+
+html[data-background-theme="dark"] .majordome-management-sidebar-pane {
+    padding-block-start: 0;
+}
+
+html[data-background-theme="dark"] .majordome-management-log-period {
+    align-items: center;
+    padding-block: .3rem;
+}
+
+html[data-background-theme="dark"] #majordomeManagementLogYearMenu > li {
+    display: flow-root;
+}
+
+html[data-background-theme="dark"] #majordomeManagementLogMenu .majordome-management-log-date,
+html[data-background-theme="dark"] #sitemapAccordion .accordion-button,
+html[data-background-theme="dark"] #inventorySidebarPane .inventory-filter-panel {
+    background: var(--gtx-tinted-steel-panel-background);
+}
+
+html[data-background-theme="dark"] #majordomeManagementLogMenu .majordome-management-log-status-list {
+    --inventory-ink: var(--gtx-addgrid-header-ink);
+    --inventory-muted: var(--gtx-addgrid-header-ink);
+}
+
+html[data-background-theme="dark"] #majordomeManagementLogMenu .inventory-management-rollback-trigger {
+    --bs-btn-color: var(--gtx-addgrid-header-ink);
+}
+
+html[data-background-theme="dark"] .majordome-panel-page .body-content :is(.pg-search-bar, .pg-grid-footer) {
+    --gtx-addgrid-header-background: var(--gtx-tinted-steel-panel-background);
+    --gtx-addgrid-header-ink: var(--bs-black, #000);
+}
+
+html[data-background-theme="dark"] #inventorySidebarPane .inventory-filter-panel :is(.inventory-filter-panel-toggle, .inventory-filter-panel-count, .inventory-range-values, .inventory-range-output, .inventory-dependent-empty, .inventory-check-row:where(:not(:hover))),
+html[data-background-theme="dark"] #majordomeManagementLogMenu .majordome-management-log-date,
+html[data-background-theme="dark"] #majordomeManagementLogMenu .majordome-management-log-date :is(.majordome-management-log-date-toggle, .majordome-management-log-date-count),
+html[data-background-theme="dark"] #sitemapAccordion .accordion-button {
+    color: var(--gtx-addgrid-header-ink);
+}
+
+html[data-background-theme="dark"] #sitemapAccordion .accordion-button .bi {
+    color: inherit !important;
+}
+
+html[data-background-theme="dark"] #sitemapAccordion .accordion-button::after {
+    filter: brightness(0);
+}
+
+@media (max-width: 991.98px) {
+    html[data-background-theme="dark"] #inventorySidebarPane .inventory-filter-panel :is(.inventory-filter-panel-count, .inventory-range-output),
+    html[data-background-theme="dark"] #majordomeManagementLogMenu .majordome-management-log-date .majordome-management-log-date-count {
+        color: var(--bs-body-color);
+    }
 }

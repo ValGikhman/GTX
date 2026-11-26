@@ -2,34 +2,32 @@
 @model System.Collections.Generic.IDictionary<int, Services.InventoryDashboardSummary>
 
 @{
+    var showDashboardLocationTotals = ViewBag.ShowDashboardLocationTotals is bool && (bool)ViewBag.ShowDashboardLocationTotals;
     var dashboards = Model ?? new System.Collections.Generic.Dictionary<int, Services.InventoryDashboardSummary>();
     var dashboardsJson = JsonConvert.SerializeObject(
         dashboards,
         new JsonSerializerSettings { StringEscapeHandling = StringEscapeHandling.EscapeHtml });
     var dashboardPeriods = new[]
     {
-        ("7", "Last 7 days", "See the latest inventory changes", "bi-calendar-week"),
-        ("30", "Last 30 days", "Review activity over about a month", "bi-calendar-month"),
-        ("60", "Last 60 days", "Review activity over about two months", "bi-calendar-range"),
-        ("90", "Last 90 days", "Review roughly one quarter of activity", "bi-calendar-range"),
-        ("180", "Last 180 days", "Review roughly six months of activity", "bi-calendar-range"),
-        ("0", "Year to Date", "From January 1 through today, inclusive", "bi-calendar-check")
+        ("7", "Last 7 days", "See inventory activity by day", "bi-calendar-week"),
+        ("30", "Last 30 days", "See inventory activity by day", "bi-calendar-month"),
+        ("60", "Last 60 days", "See inventory activity by week", "bi-calendar-range"),
+        ("90", "Last 90 days", "See inventory activity by week", "bi-calendar-range"),
+        ("180", "Last 180 days", "See inventory activity by month", "bi-calendar-range"),
+        ("0", "Year to Date", "See monthly activity from January 1 through today", "bi-calendar-check")
     };
     var dashboardTrendTypes = new[]
     {
-        ("auto", "Default", "Use columns for Added and Sold, and a line for Current", "bi-graph-up-arrow"),
-        ("bar", "Columns", "Use columns for Added, Sold, and Current", "bi-bar-chart"),
-        ("line", "Line", "Follow changes in daily counts over time", "bi-graph-up"),
+        ("bar", "Columns", "Compare counts side by side", "bi-bar-chart"),
+        ("line", "Line", "Follow changes in counts over time", "bi-graph-up"),
         ("area", "Area", "Fill the area beneath each trend line", "bi-activity"),
-        ("stepped", "Stepped line", "Show daily changes as steps", "bi-bar-chart-steps"),
-        ("scatter", "Scatter", "Plot each day's counts as separate dots", "bi-grid-3x3-gap"),
-        ("horizontal", "Horizontal bars", "Compare daily counts with dates down the side", "bi-bar-chart-steps"),
-        ("stacked", "Stacked columns", "Stack Added and Sold, with Current alongside", "bi-bar-chart-fill"),
+        ("stepped", "Stepped line", "Show changes between intervals as steps", "bi-bar-chart-steps"),
+        ("scatter", "Scatter", "Plot each interval's counts as separate dots", "bi-grid-3x3-gap"),
+        ("horizontal", "Horizontal bars", "Compare counts with dates down the side", "bi-bar-chart-steps"),
+        ("stacked", "Stacked columns", "Stack Added and Sold counts for each interval", "bi-bar-chart-fill"),
         ("pie", "Pie", "Compare shares of Added and Sold activity", "bi-pie-chart"),
         ("doughnut", "Doughnut", "Compare shares of Added and Sold in a ring", "bi-circle-half"),
-        ("radar", "Radar", "Compare counts grouped by day of the week", "bi-hexagon"),
-        ("polarArea", "Polar area", "Compare period totals by the length of each slice", "bi-bullseye"),
-        ("bubble", "Bubble", "Show daily counts with larger dots for higher counts", "bi-bounding-box-circles")
+        ("polarArea", "Polar area", "Compare period totals by the length of each slice", "bi-bullseye")
     };
 }
 
@@ -71,7 +69,7 @@
 <section class="inventory-dashboard container-fluid">
     <div class="row g-2 inventory-dashboard-layout-row">
         <div class="col-12 inventory-dashboard-graphs-column">
-            <div class="inventory-dashboard-graph-grid">
+            <div class="inventory-dashboard-graph-grid @(!showDashboardLocationTotals ? "inventory-dashboard-graph-grid-without-location" : null)">
                 <div class="inventory-dashboard-period-control d-flex gap-2">
                     <div id="inventoryDashboardRange" class="inventory-dashboard-subtitle shadow" aria-live="polite"></div>
                     <div class="flex-grow-1">
@@ -79,7 +77,7 @@
                     </div>
                     <div class="inventory-dashboard-filter-controls d-flex align-items-center gap-2">
                         <div id="inventoryDashboardFilterChips" class="d-flex flex-nowrap gap-2" role="group" aria-label="Applied filters"></div>
-                        <button type="button" id="inventoryDashboardClearStatus" class="btn btn-sm btn-gradient d-flex align-items-center gap-2 text-nowrap shadow align-self-center flex-shrink-0">
+                        <button type="button" id="inventoryDashboardClearStatus" class="btn btn-sm btn-gradient d-flex align-items-center gap-2 text-nowrap shadow align-self-center flex-shrink-0 light-gradient-action">
                             <i class="bi bi-x-circle" aria-hidden="true"></i>
                             Clear filters
                         </button>
@@ -104,24 +102,27 @@
                     </div>
                 </article>
 
-                <article class="inventory-dashboard-card inventory-dashboard-graph-card" aria-labelledby="inventoryDashboardLocationTitle">
-                    <div class="inventory-dashboard-card-header">
-                        <div>
-                            <h3 id="inventoryDashboardLocationTitle" class="inventory-dashboard-title">Inventory By Location Code</h3>
-                        </div>
-                        <span class="inventory-dashboard-icon inventory-dashboard-accent-location" aria-hidden="true"><i class="bi bi-geo-alt"></i></span>
-                    </div>
-                    <div class="inventory-dashboard-location-layout">
-                        <div id="inventoryDashboardLocationDonut" class="inventory-dashboard-donut inventory-dashboard-location-donut inventory-dashboard-accent-location">
-                            <canvas id="inventoryDashboardLocationCanvas" aria-hidden="true"></canvas>
-                            <div class="inventory-dashboard-donut-center">
-                                <span id="inventoryDashboardLocationTotal" class="inventory-dashboard-number">0</span>
-                                <span id="inventoryDashboardLocationCenterLabel" class="inventory-dashboard-center-label">Vehicles</span>
+                @if (showDashboardLocationTotals)
+                {
+                    <article class="inventory-dashboard-card inventory-dashboard-graph-card" aria-labelledby="inventoryDashboardLocationTitle">
+                        <div class="inventory-dashboard-card-header">
+                            <div>
+                                <h3 id="inventoryDashboardLocationTitle" class="inventory-dashboard-title">Inventory By Location Code</h3>
                             </div>
+                            <span class="inventory-dashboard-icon inventory-dashboard-accent-location" aria-hidden="true"><i class="bi bi-geo-alt"></i></span>
                         </div>
-                        <div id="inventoryDashboardLocationLegend" class="inventory-dashboard-legend"></div>
-                    </div>
-                </article>
+                        <div class="inventory-dashboard-location-layout">
+                            <div id="inventoryDashboardLocationDonut" class="inventory-dashboard-donut inventory-dashboard-location-donut inventory-dashboard-accent-location">
+                                <canvas id="inventoryDashboardLocationCanvas" aria-hidden="true"></canvas>
+                                <div class="inventory-dashboard-donut-center">
+                                    <span id="inventoryDashboardLocationTotal" class="inventory-dashboard-number">0</span>
+                                    <span id="inventoryDashboardLocationCenterLabel" class="inventory-dashboard-center-label">Vehicles</span>
+                                </div>
+                            </div>
+                            <div id="inventoryDashboardLocationLegend" class="inventory-dashboard-legend"></div>
+                        </div>
+                    </article>
+                }
 
                 <article class="inventory-dashboard-card inventory-dashboard-graph-card" aria-labelledby="inventoryDashboardTimeTermsTitle">
                     <div class="inventory-dashboard-card-header">
@@ -145,7 +146,10 @@
                 <article class="inventory-dashboard-card inventory-dashboard-graph-card inventory-dashboard-trend-card" aria-labelledby="inventoryDashboardStatusTrendTitle">
                     <div class="inventory-dashboard-card-header">
                         <div class="d-flex flex-wrap align-items-center gap-2">
-                            <h3 id="inventoryDashboardStatusTrendTitle" class="inventory-dashboard-title">Inventory dynamics</h3>
+                            <h3 id="inventoryDashboardStatusTrendTitle" class="inventory-dashboard-title">
+                                Inventory dynamics
+                                <small id="inventoryDashboardTrendGrouping" class="d-block mt-1 fw-semibold opacity-75">By day</small>
+                            </h3>
                             @DashboardPicker("inventoryDashboardTrendType", "Inventory dynamics chart type", "bi-graph-up", dashboardTrendTypes)
                         </div>
                         <span class="inventory-dashboard-icon inventory-dashboard-accent-trend" aria-hidden="true"><i class="bi bi-graph-up-arrow"></i></span>
@@ -201,6 +205,8 @@
     <script src="~/Scripts/inventory-dashboard-grid.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/inventory-dashboard-grid.js")).Ticks)"></script>
     <script>
         (function ($) {
+            const showLocationTotals = @(showDashboardLocationTotals ? "true" : "false");
+
             function readDashboardData() {
                 const dashboardDataNode = document.getElementById("inventoryDashboardData");
                 if (!dashboardDataNode) return {};
@@ -218,7 +224,7 @@
             let activeStatusCode = null;
             let activeLocationCode = null;
             let activeTimeTermKey = null;
-            let activeTrendDateKey = null;
+            let activeTrendRange = null;
             let activeDashboardSearchText = "";
             let dashboardStatusChart = null;
             let dashboardLocationChart = null;
@@ -684,10 +690,15 @@
                 return dashboardDayKey(pointDate);
             }
 
-            function isActiveDashboardTrendBar(statusCode, dateKey) {
-                return activeTrendDateKey !== null &&
+            function isActiveDashboardTrendBar(statusCode, startKey, endKey = startKey) {
+                return activeTrendRange !== null &&
                     activeStatusCode === normalizeStatusCode(statusCode) &&
-                    activeTrendDateKey === dashboardText(dateKey).trim();
+                    activeTrendRange.startKey === dashboardText(startKey).trim() &&
+                    activeTrendRange.endKey === dashboardText(endKey).trim();
+            }
+
+            function activeTrendRangeIncludes(dateKey) {
+                return dateKey >= activeTrendRange.startKey && dateKey <= activeTrendRange.endKey;
             }
 
             function getDashboardTrendDays(data) {
@@ -700,7 +711,11 @@
                     : new Date(end);
 
                 if (!periodStart) {
-                    start.setDate(end.getDate() - Math.max(1, dashboardDays) + 1);
+                    if (currentDashboardDays === "0") {
+                        start.setMonth(0, 1);
+                    } else {
+                        start.setDate(end.getDate() - Math.max(1, dashboardDays) + 1);
+                    }
                 }
 
                 const days = [];
@@ -714,6 +729,42 @@
                 const date = parseDashboardDate(value);
                 if (!date) return dashboardText(value);
                 return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+            }
+
+            function formatDashboardTrendRange(startKey, endKey) {
+                const start = formatDashboardTrendDate(startKey);
+                return startKey === endKey ? start : `${start} - ${formatDashboardTrendDate(endKey)}`;
+            }
+
+            function dashboardTrendGrouping(period) {
+                const days = asNumber(period);
+                if (days === 0 || days >= 180) return "month";
+                return days >= 60 ? "week" : "day";
+            }
+
+            function buildDashboardTrendBuckets(days, grouping) {
+                const buckets = [];
+                let bucket;
+                days.forEach(function (day) {
+                    const dateKey = dashboardDayKey(day);
+                    const startsBucket = grouping === "day" ||
+                        (grouping === "week" && day.getDay() === 0) ||
+                        (grouping === "month" && day.getDate() === 1);
+                    if (!bucket || startsBucket) {
+                        bucket = {
+                            startKey: dateKey,
+                            endKey: dateKey,
+                            dates: [],
+                            label: grouping === "month"
+                                ? day.toLocaleDateString(undefined, { month: "short" })
+                                : formatDashboardTrendDate(day)
+                        };
+                        buckets.push(bucket);
+                    }
+                    bucket.endKey = dateKey;
+                    bucket.dates.push(dateKey);
+                });
+                return buckets;
             }
 
             function dashboardStatusLabelFromCode(statusCode, data) {
@@ -769,17 +820,18 @@
                     normalized === updatedStatusCode;
             }
 
-            function dashboardTrendUsesLine(chartType, statusCode) {
-                return chartType === "line" || chartType === "area" || chartType === "stepped" ||
-                    (chartType === "auto" && statusCode === stalledTrendStatusCode);
+            function dashboardTrendUsesLine(chartType) {
+                return chartType === "line" || chartType === "area" || chartType === "stepped";
             }
 
-            function buildDashboardStatusTrendSeries(data, days) {
+            function buildDashboardStatusTrendSeries(data, buckets, grouping) {
                 const trend = getDashboardStatusTrend(data);
-                const dayIndexes = {};
+                const bucketIndexes = {};
                 const activeTrendStatusCode = dashboardTrendSeriesStatusCode(activeStatusCode);
-                days.forEach(function (day, index) {
-                    dayIndexes[dashboardDayKey(day)] = index;
+                buckets.forEach(function (bucket, index) {
+                    bucket.dates.forEach(function (dateKey) {
+                        bucketIndexes[dateKey] = index;
+                    });
                 });
 
                 const filteredTrend = trend.filter(function (point) {
@@ -787,14 +839,17 @@
                     if (!isDashboardTrendStatus(statusCode)) {
                         return false;
                     }
-                    if (activeTrendStatusCode !== null && statusCode !== activeTrendStatusCode) {
+                    const matchesStatus = activeTrendStatusCode === null
+                        ? statusCode !== stalledTrendStatusCode
+                        : statusCode === activeTrendStatusCode;
+                    if (!matchesStatus) {
                         return false;
                     }
                     if (activeLocationCode !== null &&
                         normalizeLocationFilterCode(valueOf(point, "LocationCode", "N/A")) !== activeLocationCode) {
                         return false;
                     }
-                    return dayIndexes[dashboardTrendPointDayKey(point)] !== undefined;
+                    return bucketIndexes[dashboardTrendPointDayKey(point)] !== undefined;
                 });
 
                 const statusCodes = activeTrendStatusCode !== null && isDashboardTrendStatus(activeTrendStatusCode)
@@ -809,26 +864,26 @@
                         }));
 
                 return statusCodes.map(function (statusCode, index) {
-                    const values = days.map(function () { return 0; });
+                    const values = buckets.map(function () { return 0; });
                     filteredTrend.forEach(function (point) {
                         if (getStatusCode(point) !== statusCode) return;
-                        const dayIndex = dayIndexes[dashboardTrendPointDayKey(point)];
-                        if (dayIndex === undefined) return;
-                        values[dayIndex] += asNumber(valueOf(point, "VehicleCount", 0));
+                        const bucketIndex = bucketIndexes[dashboardTrendPointDayKey(point)];
+                        values[bucketIndex] += asNumber(valueOf(point, "VehicleCount", 0));
                     });
 
                     return {
                         statusCode: statusCode,
-                        label: dashboardStatusLabelFromCode(statusCode, data),
+                        label: grouping !== "day" && statusCode === stalledTrendStatusCode
+                            ? "Current observations"
+                            : dashboardStatusLabelFromCode(statusCode, data),
                         color: dashboardStatusTrendColor(statusCode, data, index),
-                        dateKeys: days.map(dashboardDayKey),
                         values: values,
                         total: values.reduce(function (sum, value) { return sum + value; }, 0)
                     };
                 });
             }
 
-            function renderDashboardStatusTrendChart(days, series, chartType) {
+            function renderDashboardStatusTrendChart(buckets, series, chartType, periodTotals) {
                 dashboardStatusTrendChart = destroyDashboardChart(dashboardStatusTrendChart);
 
                 if (!dashboardChartsAvailable()) {
@@ -841,24 +896,20 @@
                 canvas.setAttribute("aria-hidden", "true");
                 $chart.append(canvas);
 
-                const radial = ["pie", "doughnut", "radar", "polarArea"].includes(chartType);
                 const horizontal = chartType === "horizontal";
-                $chart.toggleClass("inventory-dashboard-trend-chart-tall", radial || horizontal);
-                if (radial) {
-                    dashboardStatusTrendChart = renderDashboardRadialTrendChart(canvas, days, series, chartType);
+                $chart.toggleClass("inventory-dashboard-trend-chart-tall", periodTotals || horizontal);
+                if (periodTotals) {
+                    dashboardStatusTrendChart = renderDashboardRadialTrendChart(canvas, series, chartType);
                     return true;
                 }
 
                 const fillArea = chartType === "area";
                 const stepped = chartType === "stepped";
                 const stacked = chartType === "stacked";
-                const bubble = chartType === "bubble";
-                const pointChart = chartType === "scatter" || bubble;
+                const scatter = chartType === "scatter";
+                const lineChart = dashboardTrendUsesLine(chartType);
                 const chartStyles = window.getComputedStyle($chart[0]);
                 const tickColor = chartStyles.getPropertyValue("--dashboard-muted").trim() || "#64748b";
-                const maxBubbleValue = bubble ? Math.max(1, ...series.map(function (item) {
-                    return Math.max(...item.values);
-                })) : 1;
                 const categoryScale = {
                     grid: { color: "rgba(148, 163, 184, .18)" },
                     stacked: stacked,
@@ -867,7 +918,7 @@
                         font: dashboardChartFont(11, "700"),
                         maxRotation: 0,
                         autoSkip: true,
-                        maxTicksLimit: 6
+                        maxTicksLimit: Math.max(2, buckets.length)
                     }
                 };
                 const valueScale = {
@@ -883,39 +934,41 @@
                         }
                     }
                 };
-                if (pointChart) {
+                if (scatter) {
                     categoryScale.type = "linear";
                     categoryScale.offset = true;
-                    categoryScale.ticks.precision = 0;
+                    categoryScale.ticks.stepSize = 1;
+                    if (buckets.length === 1) {
+                        categoryScale.min = -1;
+                        categoryScale.max = 1;
+                        categoryScale.ticks.maxTicksLimit = 3;
+                    }
                     categoryScale.ticks.callback = function (value) {
-                        return days[value] ? formatDashboardTrendDate(days[value]) : "";
+                        return buckets[value] ? buckets[value].label : "";
                     };
                 }
 
-                const cartesianType = dashboardTrendUsesLine(chartType, null) ? "line" : "bar";
                 dashboardStatusTrendChart = new window.Chart(canvas.getContext("2d"), {
-                    type: pointChart ? chartType : cartesianType,
+                    type: scatter ? "scatter" : (lineChart ? "line" : "bar"),
                     data: {
-                        labels: days.map(formatDashboardTrendDate),
+                        labels: buckets.map(function (bucket) { return bucket.label; }),
                         datasets: series.map(function (item) {
                             const dataset = {
                                 label: item.label,
                                 data: item.values,
-                                dateKeys: item.dateKeys,
                                 statusCode: item.statusCode
                             };
-                            const selectionColors = item.values.map(function (value, index) {
-                                return isActiveDashboardTrendBar(item.statusCode, item.dateKeys[index]) ? "#0f172a" : item.color;
+                            const selectedBuckets = buckets.map(function (bucket) {
+                                return isActiveDashboardTrendBar(item.statusCode, bucket.startKey, bucket.endKey);
                             });
-                            if (pointChart) {
+                            const selectionColors = selectedBuckets.map(function (selected) {
+                                return selected ? "#0f172a" : item.color;
+                            });
+                            if (scatter) {
                                 return {
                                     ...dataset,
                                     data: item.values.map(function (value, index) {
-                                        const point = { x: index, y: value };
-                                        if (bubble) {
-                                            point.r = value > 0 ? 3 + 9 * Math.sqrt(value / maxBubbleValue) : 0;
-                                        }
-                                        return point;
+                                        return { x: index, y: value };
                                     }),
                                     backgroundColor: selectionColors,
                                     borderColor: "#fff",
@@ -925,10 +978,9 @@
                                 };
                             }
 
-                            if (dashboardTrendUsesLine(chartType, item.statusCode)) {
+                            if (lineChart) {
                                 return {
                                     ...dataset,
-                                    type: "line",
                                     borderColor: item.color,
                                     backgroundColor: fillArea ? item.color + "33" : "transparent",
                                     borderWidth: 3,
@@ -947,15 +999,12 @@
                                 };
                             }
 
-                            if (stacked) {
-                                dataset.stack = item.statusCode === stalledTrendStatusCode ? "current" : "changes";
-                            }
                             return {
                                 ...dataset,
                                 borderColor: selectionColors,
                                 backgroundColor: item.color,
-                                borderWidth: item.values.map(function (value, index) {
-                                    return isActiveDashboardTrendBar(item.statusCode, item.dateKeys[index]) ? 2 : 1;
+                                borderWidth: selectedBuckets.map(function (selected) {
+                                    return selected ? 2 : 1;
                                 }),
                                 borderSkipped: false,
                                 borderRadius: 5,
@@ -975,16 +1024,16 @@
 
                             const element = elements[0];
                             const dataset = series[element.datasetIndex];
-                            if (!dataset) return;
+                            const bucket = buckets[element.index];
+                            if (!dataset || !bucket) return;
 
                             const value = dataset.values[element.index];
                             if (asNumber(value) <= 0) return;
 
-                            const dateKey = dataset.dateKeys[element.index];
                             // Let Chart.js finish the click before replacing the chart.
                             window.setTimeout(function () {
                                 if (dashboardStatusTrendChart === chart) {
-                                    setActiveTrendFilter(dataset.statusCode, dateKey);
+                                    setActiveTrendFilter(dataset.statusCode, bucket.startKey, bucket.endKey);
                                 }
                             }, 0);
                         },
@@ -1003,7 +1052,9 @@
                             tooltip: {
                                 callbacks: {
                                     title: function (items) {
-                                        return items.length ? formatDashboardTrendDate(days[items[0].dataIndex]) : "";
+                                        if (!items.length) return "";
+                                        const bucket = buckets[items[0].dataIndex];
+                                        return formatDashboardTrendRange(bucket.startKey, bucket.endKey);
                                     },
                                     label: function (context) {
                                         const value = horizontal ? context.parsed.x : context.parsed.y;
@@ -1022,17 +1073,11 @@
                 return true;
             }
 
-            function renderDashboardRadialTrendChart(canvas, days, series, chartType) {
-                const isRadar = chartType === "radar";
+            function renderDashboardRadialTrendChart(canvas, series, chartType) {
                 const isPolarArea = chartType === "polarArea";
-                let plottedSeries = series;
-                if (!isRadar && !isPolarArea) {
-                    const nonzeroSeries = series.filter(function (item) { return item.total > 0; });
-                    const activity = nonzeroSeries.filter(function (item) {
-                        return item.statusCode !== stalledTrendStatusCode;
-                    });
-                    plottedSeries = activity.length ? activity : nonzeroSeries;
-                }
+                const plottedSeries = isPolarArea ? series : series.filter(function (item) {
+                    return item.total > 0;
+                });
                 const statusLabel = function (item) {
                     return item.statusCode === stalledTrendStatusCode ? "Current observations" : item.label;
                 };
@@ -1041,44 +1086,18 @@
                 const surface = chartStyle.getPropertyValue("--dashboard-surface").trim() || "#fff";
                 const radialGridColor = "rgba(148, 163, 184, .35)";
                 const labelFont = dashboardChartFont(11, "700");
-                let labels;
-                let datasets;
-
-                if (isRadar) {
-                    const weekdayFormat = new Intl.DateTimeFormat(undefined, { weekday: "short" });
-                    labels = Array.from({ length: 7 }, function (_, index) {
-                        return weekdayFormat.format(new Date(2024, 0, 7 + index));
-                    });
-                    datasets = plottedSeries.map(function (item) {
-                        const totals = Array(7).fill(0);
-                        days.forEach(function (day, index) {
-                            totals[day.getDay()] += asNumber(item.values[index]);
-                        });
-                        return {
-                            label: statusLabel(item),
-                            data: totals,
-                            backgroundColor: item.color + "33",
-                            borderColor: item.color,
-                            borderWidth: 2,
-                            pointBackgroundColor: item.color,
-                            pointBorderColor: surface,
-                            pointRadius: 3
-                        };
-                    });
-                } else {
-                    labels = plottedSeries.map(statusLabel);
-                    datasets = [{
-                        data: plottedSeries.map(function (item) { return item.total; }),
-                        backgroundColor: plottedSeries.map(function (item) { return item.color; }),
-                        borderColor: surface,
-                        borderWidth: 2,
-                        hoverOffset: isPolarArea ? 0 : 5
-                    }];
-                }
-
                 return new window.Chart(canvas.getContext("2d"), {
                     type: chartType,
-                    data: { labels: labels, datasets: datasets },
+                    data: {
+                        labels: plottedSeries.map(statusLabel),
+                        datasets: [{
+                            data: plottedSeries.map(function (item) { return item.total; }),
+                            backgroundColor: plottedSeries.map(function (item) { return item.color; }),
+                            borderColor: surface,
+                            borderWidth: 2,
+                            hoverOffset: isPolarArea ? 0 : 5
+                        }]
+                    },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
@@ -1090,23 +1109,20 @@
                             },
                             tooltip: {
                                 callbacks: {
-                                    title: function (items) {
-                                        return isRadar && items.length ? items[0].label : "Selected period";
-                                    },
+                                    title: function () { return "Selected period"; },
                                     label: function (context) {
-                                        const label = isRadar ? context.dataset.label : context.label;
-                                        const value = isRadar || isPolarArea ? context.parsed.r : context.parsed;
-                                        return `${label}: ${formatNumber(value)}`;
+                                        const value = isPolarArea ? context.parsed.r : context.parsed;
+                                        return `${context.label}: ${formatNumber(value)}`;
                                     }
                                 }
                             }
                         },
-                        scales: isRadar || isPolarArea ? {
+                        scales: isPolarArea ? {
                             r: {
                                 beginAtZero: true,
                                 angleLines: { color: radialGridColor },
                                 grid: { color: radialGridColor },
-                                pointLabels: { display: isRadar, color: ink, font: labelFont },
+                                pointLabels: { display: false },
                                 ticks: {
                                     color: ink,
                                     showLabelBackdrop: false,
@@ -1123,28 +1139,32 @@
 
             function renderStatusTrend(data) {
                 const $picker = $("#inventoryDashboardTrendType");
-                const chartType = $picker.attr("data-dashboard-value") || "auto";
+                const chartType = $picker.attr("data-dashboard-value") || "bar";
                 const chartLabel = $picker.find("[data-dashboard-label]").text();
                 const $chart = $("#inventoryDashboardStatusTrendChart");
-                $chart.attr("aria-label", `Inventory dynamics, ${chartLabel}`).removeClass("inventory-dashboard-trend-chart-tall");
-                const days = getDashboardTrendDays(data);
-                const series = buildDashboardStatusTrendSeries(data, days);
+                const grouping = dashboardTrendGrouping(currentDashboardDays);
+                const periodTotals = ["pie", "doughnut", "polarArea"].includes(chartType);
+                const groupingLabel = periodTotals ? "Period totals" : `By ${grouping}`;
+                $("#inventoryDashboardTrendGrouping").text(groupingLabel);
+                $chart.attr("aria-label", `Inventory dynamics, ${chartLabel}, ${groupingLabel}`).removeClass("inventory-dashboard-trend-chart-tall");
+                const buckets = buildDashboardTrendBuckets(getDashboardTrendDays(data), grouping);
+                const series = buildDashboardStatusTrendSeries(data, buckets, grouping);
                 const hasActivity = series.some(function (item) {
                     return item.total > 0;
                 });
 
-                if (!days.length || !series.length || !hasActivity) {
+                if (!buckets.length || !series.length || !hasActivity) {
                     dashboardStatusTrendChart = destroyDashboardChart(dashboardStatusTrendChart);
                     $chart.html(
                         `<div class="inventory-dashboard-trend-empty">No status activity for this filter.</div>`);
                     return;
                 }
 
-                if (renderDashboardStatusTrendChart(days, series, chartType)) {
+                if (renderDashboardStatusTrendChart(buckets, series, chartType, periodTotals)) {
                     return;
                 }
 
-                if (!["auto", "bar", "line", "area"].includes(chartType)) {
+                if (!["bar", "line", "area"].includes(chartType)) {
                     $chart.html('<div class="inventory-dashboard-trend-empty">This plot is unavailable because the chart library failed to load.</div>');
                     return;
                 }
@@ -1161,24 +1181,21 @@
                     .filter(function (value, index, source) {
                         return source.indexOf(value) === index;
                     });
-                const xLabelIndexes = [0, Math.floor((days.length - 1) / 2), days.length - 1]
+                const xLabelIndexes = [0, Math.floor((buckets.length - 1) / 2), buckets.length - 1]
                     .filter(function (value, index, source) {
                         return value >= 0 && source.indexOf(value) === index;
                     });
-                const groupWidth = plotWidth / Math.max(days.length, 1);
+                const groupWidth = plotWidth / buckets.length;
                 const barGroupWidth = groupWidth * .9;
-                const barSeries = series.filter(function (item) {
-                    return !dashboardTrendUsesLine(chartType, item.statusCode);
-                });
-                const barCount = Math.max(1, barSeries.length);
+                const barCount = series.length;
                 const barGap = Math.min(Math.max(1, groupWidth * .015), barGroupWidth / (barCount * 4));
                 const barWidth = (barGroupWidth - ((barCount - 1) * barGap)) / barCount;
                 const xForIndex = function (index) {
                     return padding.left + (groupWidth * index) + (groupWidth / 2);
                 };
-                const xForBar = function (dayIndex, seriesIndex) {
+                const xForBar = function (bucketIndex, seriesIndex) {
                     return padding.left +
-                        (groupWidth * dayIndex) +
+                        (groupWidth * bucketIndex) +
                         ((groupWidth - barGroupWidth) / 2) +
                         ((barWidth + barGap) * seriesIndex);
                 };
@@ -1195,22 +1212,22 @@
                 }).join("");
                 const xLabelsHtml = xLabelIndexes.map(function (index) {
                     const x = xForIndex(index);
-                    return `<text class="inventory-dashboard-trend-label" x="${x.toFixed(2)}" y="${height - 12}" text-anchor="middle">${escapeDashboardHtml(formatDashboardTrendDate(days[index]))}</text>`;
+                    return `<text class="inventory-dashboard-trend-label" x="${x.toFixed(2)}" y="${height - 12}" text-anchor="middle">${escapeDashboardHtml(buckets[index].label)}</text>`;
                 }).join("");
-                const seriesHtml = series.map(function (item) {
-                    if (dashboardTrendUsesLine(chartType, item.statusCode)) {
+                const seriesHtml = series.map(function (item, seriesIndex) {
+                    if (chartType !== "bar") {
                         const points = item.values.map(function (value, index) {
                             return `${xForIndex(index).toFixed(2)},${yForValue(value).toFixed(2)}`;
                         }).join(" ");
                         const area = chartType === "area"
-                            ? `<polygon points="${xForIndex(0).toFixed(2)},${baseline} ${points} ${xForIndex(days.length - 1).toFixed(2)},${baseline}" fill="${escapeDashboardHtml(item.color)}" fill-opacity=".2" pointer-events="none"></polygon>`
+                            ? `<polygon points="${xForIndex(0).toFixed(2)},${baseline} ${points} ${xForIndex(buckets.length - 1).toFixed(2)},${baseline}" fill="${escapeDashboardHtml(item.color)}" fill-opacity=".2" pointer-events="none"></polygon>`
                             : "";
                         const circles = item.values.map(function (value, index) {
                             if (asNumber(value) <= 0) return "";
 
-                            const dateKey = item.dateKeys[index];
-                            const isActive = isActiveDashboardTrendBar(item.statusCode, dateKey);
-                            const label = `${item.label} ${formatNumber(value)} on ${formatDashboardTrendDate(days[index])}`;
+                            const bucket = buckets[index];
+                            const isActive = isActiveDashboardTrendBar(item.statusCode, bucket.startKey, bucket.endKey);
+                            const label = `${item.label} ${formatNumber(value)}, ${formatDashboardTrendRange(bucket.startKey, bucket.endKey)}`;
 
                             return `
                                 <circle class="inventory-dashboard-trend-bar ${isActive ? "is-active" : ""}"
@@ -1224,7 +1241,8 @@
                                         tabindex="0"
                                         aria-label="${escapeDashboardHtml(label)}"
                                         data-dashboard-trend-status="${escapeDashboardHtml(item.statusCode)}"
-                                        data-dashboard-trend-date="${escapeDashboardHtml(dateKey)}"
+                                        data-dashboard-trend-date="${escapeDashboardHtml(bucket.startKey)}"
+                                        data-dashboard-trend-end-date="${escapeDashboardHtml(bucket.endKey)}"
                                         data-dashboard-trend-value="${escapeDashboardHtml(value)}">
                                     <title>${escapeDashboardHtml(label)}</title>
                                 </circle>`;
@@ -1243,15 +1261,14 @@
                             ${circles}`;
                     }
 
-                    const seriesIndex = barSeries.indexOf(item);
                     return item.values.map(function (value, index) {
                         if (asNumber(value) <= 0) return "";
 
-                        const dateKey = item.dateKeys[index];
+                        const bucket = buckets[index];
                         const y = yForValue(value);
                         const barHeight = Math.max(1, baseline - y);
-                        const isActive = isActiveDashboardTrendBar(item.statusCode, dateKey);
-                        const label = `${item.label} ${formatNumber(value)} on ${formatDashboardTrendDate(days[index])}`;
+                        const isActive = isActiveDashboardTrendBar(item.statusCode, bucket.startKey, bucket.endKey);
+                        const label = `${item.label} ${formatNumber(value)}, ${formatDashboardTrendRange(bucket.startKey, bucket.endKey)}`;
 
                         return `
                             <rect class="inventory-dashboard-trend-bar ${isActive ? "is-active" : ""}"
@@ -1265,7 +1282,8 @@
                                   tabindex="0"
                                   aria-label="${escapeDashboardHtml(label)}"
                                   data-dashboard-trend-status="${escapeDashboardHtml(item.statusCode)}"
-                                  data-dashboard-trend-date="${escapeDashboardHtml(dateKey)}"
+                                  data-dashboard-trend-date="${escapeDashboardHtml(bucket.startKey)}"
+                                  data-dashboard-trend-end-date="${escapeDashboardHtml(bucket.endKey)}"
                                   data-dashboard-trend-value="${escapeDashboardHtml(value)}">
                                 <title>${escapeDashboardHtml(label)}</title>
                             </rect>`;
@@ -1294,13 +1312,13 @@
             }
 
             function clearMissingStatusFilter(statuses) {
-                if (activeTrendDateKey !== null && isDashboardTrendStatus(activeStatusCode)) {
+                if (activeTrendRange !== null && isDashboardTrendStatus(activeStatusCode)) {
                     return;
                 }
 
                 if (!statusExists(statuses, activeStatusCode)) {
                     activeStatusCode = null;
-                    activeTrendDateKey = null;
+                    activeTrendRange = null;
                 }
             }
 
@@ -1318,14 +1336,14 @@
             }
 
             function trendFilterExists(data) {
-                if (activeTrendDateKey === null || activeStatusCode === null) return true;
+                if (activeTrendRange === null || activeStatusCode === null) return true;
 
                 return getDashboardStatusTrend(data).some(function (point) {
                     const locationMatched = activeLocationCode === null ||
                         normalizeLocationFilterCode(valueOf(point, "LocationCode", "N/A")) === activeLocationCode;
 
                     return getStatusCode(point) === activeStatusCode &&
-                        dashboardTrendPointDayKey(point) === activeTrendDateKey &&
+                        activeTrendRangeIncludes(dashboardTrendPointDayKey(point)) &&
                         asNumber(valueOf(point, "VehicleCount", 0)) > 0 &&
                         locationMatched;
                 });
@@ -1333,7 +1351,7 @@
 
             function clearMissingTrendFilter(data) {
                 if (!trendFilterExists(data)) {
-                    activeTrendDateKey = null;
+                    activeTrendRange = null;
                 }
             }
 
@@ -1653,19 +1671,20 @@
                 }
 
                 return events.map(function (entry) {
-                    return {
+                    const statusEvent = {
                         Status: getStatusCode(entry),
                         StatusText: statusLabel(valueOf(entry, "StatusText", "Status")),
-                        DateKey: dashboardTrendPointDayKey(entry),
-                        LocationCode: normalizeLocationFilterCode(valueOf(entry, "LocationCode", "N/A"))
+                        DateKey: dashboardTrendPointDayKey(entry)
                     };
+                    if (showLocationTotals) statusEvent.LocationCode = normalizeLocationFilterCode(valueOf(entry, "LocationCode", "N/A"));
+                    return statusEvent;
                 }).filter(function (entry) {
                     return entry.Status !== null && entry.DateKey;
                 });
             }
 
             function dashboardVehicleMatchesTrendFilter(vehicle) {
-                if (activeTrendDateKey === null || activeStatusCode === null) {
+                if (activeTrendRange === null || activeStatusCode === null) {
                     return true;
                 }
 
@@ -1675,7 +1694,7 @@
                         ? isDashboardStalledTrendEventStatus(entry.Status)
                         : entry.Status === activeStatusCode;
                     return statusMatched &&
-                        entry.DateKey === activeTrendDateKey &&
+                        activeTrendRangeIncludes(entry.DateKey) &&
                         locationMatched;
                 });
             }
@@ -1723,12 +1742,12 @@
                     Model: row.Model,
                     VIN: row.VIN,
                     VehicleStyle: row.VehicleStyle,
-                    LocationCode: row.LocationCode,
                     Status: row.Status,
                     StatusText: row.StatusText,
                     DaysInInventory: row.DaysInInventory,
                     InventoryStartSource: row.InventoryStartSource
                 };
+                if (showLocationTotals) fields.LocationCode = row.LocationCode;
 
                 return window.gtxInventorySearch
                     ? window.gtxInventorySearch.vehicleObject(fields)
@@ -1737,6 +1756,7 @@
 
             function getDashboardVehicleSearchText(vehicle) {
                 const row = normalizeDashboardVehicle(vehicle);
+                const locationCode = showLocationTotals ? normalizeLocationFilterCode(row.LocationCode) : "";
                 const historyStatusLabels = row.HistoryStatuses.map(function (statusCode) {
                     return dashboardStatusDotInfo(statusCode).label;
                 }).join(" ");
@@ -1747,8 +1767,8 @@
                     row.Model,
                     row.VIN,
                     row.VehicleStyle,
-                    row.LocationCode,
-                    normalizeLocationFilterCode(row.LocationCode),
+                    showLocationTotals ? row.LocationCode : "",
+                    locationCode,
                     row.Status,
                     row.StatusText,
                     row.DaysInInventory,
@@ -1759,7 +1779,7 @@
 
                 if (window.gtxInventorySearch) {
                     return window.gtxInventorySearch.buildVehicleSearch(getDashboardVehicleSearchObject(row), [
-                        normalizeLocationFilterCode(row.LocationCode),
+                        locationCode,
                         formatDate(row.InventoryStartDate),
                         historyStatusLabels
                     ]).text;
@@ -1772,14 +1792,15 @@
                 const row = normalizeDashboardVehicle(vehicle);
 
                 if (window.gtxInventorySearch) {
-                    return window.gtxInventorySearch.buildVehicleSearch(getDashboardVehicleSearchObject(row)).tokens;
+                    const tokens = window.gtxInventorySearch.buildVehicleSearch(getDashboardVehicleSearchObject(row)).tokens;
+                    return showLocationTotals ? tokens : tokens.replace(/(?:^| )@@@@OW(?= |$)/, "").trim();
                 }
 
                 return normalizeDashboardSearchText([
                     `@@YR ${row.Year}`,
                     `@@MK ${row.Make}`,
                     `@@MD ${row.Model}`,
-                    `@@OW ${row.LocationCode}`
+                    showLocationTotals ? `@@OW ${row.LocationCode}` : ""
                 ].join(" "));
             }
 
@@ -1952,6 +1973,7 @@
                 const row = normalizeDashboardVehicle(vehicle);
                 const statusCodes = getVehicleStatusCodes(row);
                 const locationCode = normalizeLocationFilterCode(row.LocationCode);
+                const locationBadge = locationBadgeInfo(locationCode, 0);
                 const stockKey = normalizeStockKey(row.Stock);
                 const rowId = dashboardHistoryRowId(stockKey, index);
                 const isExpanded = !!expandedDashboardStocks[stockKey];
@@ -1968,7 +1990,6 @@
                     : "No inventory start date";
                 const imageRenderer = window.majordomeVehicleCells && window.majordomeVehicleCells.renderImageContent;
                 const detailsRenderer = window.majordomeVehicleCells && window.majordomeVehicleCells.renderDetailsContent;
-                const locationBadge = locationBadgeInfo(locationCode, 0);
                 const vehicleTitle = [row.Year, row.Make, row.Model, row.Stock]
                     .filter(function (part) {
                         return part !== null && part !== undefined && part.toString().trim() !== "";
@@ -2033,7 +2054,7 @@
                         </span>`,
                     DetailsHtml: `
                         <button type="button"
-                                class="btn btn-outline-secondary inventory-dashboard-details-button"
+                                class="btn btn-gradient-grey shadow-sm inventory-dashboard-details-button"
                                 data-dashboard-details-stock="${escapeDashboardHtml(row.Stock)}"
                                 data-dashboard-details-title="${escapeDashboardHtml(vehicleTitle)}"
                                 title="Show vehicle details">
@@ -2048,11 +2069,10 @@
                 const vehicles = getDashboardVehicles(data);
                 const filteredVehicles = vehicles.filter(function (vehicle) {
                     const statusCodes = getVehicleStatusCodes(vehicle);
-                    const locationCode = normalizeLocationFilterCode(valueOf(vehicle, "LocationCode", ""));
                     const isCurrent = isDashboardVehicleCurrent(vehicle);
                     let statusMatched = false;
 
-                    if (activeTrendDateKey !== null) {
+                    if (activeTrendRange !== null) {
                         statusMatched = dashboardVehicleMatchesTrendFilter(vehicle);
                     } else if (activeStatusCode === removedStatusCode) {
                         statusMatched = statusCodes.indexOf(removedStatusCode) !== -1;
@@ -2062,9 +2082,9 @@
                         statusMatched = isCurrent && statusCodes.indexOf(activeStatusCode) !== -1;
                     }
 
-                    const locationMatched = activeTrendDateKey !== null ||
+                    const locationMatched = activeTrendRange !== null ||
                         activeLocationCode === null ||
-                        locationCode === activeLocationCode;
+                        normalizeLocationFilterCode(valueOf(vehicle, "LocationCode", "")) === activeLocationCode;
                     const timeTermMatched = activeTimeTermKey === null || vehicleTimeTermKey(vehicle) === activeTimeTermKey;
                     return statusMatched && locationMatched && timeTermMatched;
                 });
@@ -2073,14 +2093,16 @@
                     return buildDashboardGridRow(vehicle, index);
                 });
 
+                const trendDateLabel = activeTrendRange && activeTrendRange.startKey === activeTrendRange.endKey ? "date" : "date range";
                 $("#inventoryDashboardStatusEmpty").text(searchFilterText
                     ? "No vehicles match the selected filters or search."
-                    : (activeTrendDateKey !== null
-                        ? "No vehicles match the selected status and date."
+                    : (activeTrendRange !== null
+                        ? `No vehicles match the selected status and ${trendDateLabel}.`
                         : "No vehicles match the selected filter."));
                 $("#inventoryDashboardStatusEmpty").addClass("d-none");
 
                 if (!window.inventoryDashboardAddGrid || !window.inventoryDashboardAddGrid.initialize(gridRows, {
+                    showLocationTotals: showLocationTotals,
                     onRender: function () {
                         hydrateExpandedDashboardHistoryRows();
                     },
@@ -2247,27 +2269,29 @@
                 if (normalized === null) return;
 
                 activeStatusCode = activeStatusCode === normalized ? null : normalized;
-                activeTrendDateKey = null;
+                activeTrendRange = null;
                 renderDashboard(currentDashboardDays);
             }
 
-            function setActiveTrendFilter(statusCode, dateKey) {
+            function setActiveTrendFilter(statusCode, startKey, endKey = startKey) {
                 const normalizedStatus = normalizeStatusCode(statusCode);
-                const normalizedDateKey = dashboardText(dateKey).trim();
-                if (normalizedStatus === null || !normalizedDateKey) return;
+                const normalizedStartKey = dashboardText(startKey).trim();
+                const normalizedEndKey = dashboardText(endKey).trim();
+                if (normalizedStatus === null || !normalizedStartKey || !normalizedEndKey || normalizedStartKey > normalizedEndKey) return;
 
-                if (activeStatusCode === normalizedStatus && activeTrendDateKey === normalizedDateKey) {
+                if (isActiveDashboardTrendBar(normalizedStatus, normalizedStartKey, normalizedEndKey)) {
                     activeStatusCode = null;
-                    activeTrendDateKey = null;
+                    activeTrendRange = null;
                 } else {
                     activeStatusCode = normalizedStatus;
-                    activeTrendDateKey = normalizedDateKey;
+                    activeTrendRange = { startKey: normalizedStartKey, endKey: normalizedEndKey };
                 }
 
                 renderDashboard(currentDashboardDays);
             }
 
             function setActiveLocation(locationCode) {
+                if (!showLocationTotals) return;
                 const normalized = normalizeLocationFilterCode(locationCode);
                 activeLocationCode = activeLocationCode === normalized ? null : normalized;
                 renderDashboard(currentDashboardDays);
@@ -2353,7 +2377,12 @@
                 }
                 const term = timeTerms.find(function (item) { return item.key === activeTimeTermKey; });
                 if (term) addChip("time", term.label, term.color);
-                if (activeTrendDateKey !== null) addChip("date", formatDashboardShortDate(activeTrendDateKey));
+                if (activeTrendRange !== null) {
+                    const { startKey, endKey } = activeTrendRange;
+                    addChip("date", startKey === endKey
+                        ? formatDashboardShortDate(startKey)
+                        : formatDashboardTrendRange(startKey, endKey));
+                }
                 if (activeDashboardSearchText.trim()) addChip("search", activeDashboardSearchText.trim());
                 $chips.toggleClass("d-none", !$chips.children().length);
             }
@@ -2364,12 +2393,12 @@
                 const start = formatDate(dashboardPeriodDate(data, "Start"));
                 const end = formatDate(dashboardPeriodDate(data, "End"));
 
-                clearMissingLocationFilter(valueOf(data, "LocationCounts", []) || []);
+                if (showLocationTotals) clearMissingLocationFilter(valueOf(data, "LocationCounts", []) || []);
                 clearMissingTrendFilter(data);
                 $("#inventoryDashboardRange").text(start && end ? `${start} - ${end}` : "");
                 renderStatusBreakdown(data);
                 renderStatusTrend(data);
-                renderLocations(data);
+                if (showLocationTotals) renderLocations(data);
                 renderTimeTerms(data);
                 renderStatusGrid(data);
                 renderDashboardFilterChips(data);
@@ -2394,6 +2423,11 @@
                         if (!payload || payload.success === false) {
                             renderDashboard(selectedDays);
                             $("#inventoryDashboardRange").text("Unable to load this period.");
+                            return;
+                        }
+
+                        if (valueOf(payload, "showLocationTotals", showLocationTotals) !== showLocationTotals) {
+                            window.location.reload();
                             return;
                         }
 
@@ -2445,7 +2479,7 @@
                 };
 
                 bindDashboardPicker("inventoryDashboardPeriod", function (days) {
-                    activeTrendDateKey = null;
+                    activeTrendRange = null;
                     loadDashboard(days, true);
                 });
                 bindDashboardPicker("inventoryDashboardTrendType", function () {
@@ -2459,9 +2493,6 @@
                 $("#inventoryDashboardStatusLegend").on("click", ".inventory-dashboard-legend-item", function () {
                     setActiveStatus($(this).attr("data-status-code"));
                 });
-                $("#inventoryDashboardLocationLegend").on("click", ".inventory-dashboard-legend-item", function () {
-                    setActiveLocation($(this).attr("data-location-code"));
-                });
                 $("#inventoryDashboardTimeTermsLegend").on("click", ".inventory-dashboard-legend-item", function () {
                     setActiveTimeTerm($(this).attr("data-time-term"));
                 });
@@ -2470,7 +2501,8 @@
 
                     setActiveTrendFilter(
                         $(this).attr("data-dashboard-trend-status"),
-                        $(this).attr("data-dashboard-trend-date"));
+                        $(this).attr("data-dashboard-trend-date"),
+                        $(this).attr("data-dashboard-trend-end-date"));
                 }).on("keydown", ".inventory-dashboard-trend-bar", function (event) {
                     if (event.key !== "Enter" && event.key !== " ") return;
                     if (asNumber($(this).attr("data-dashboard-trend-value")) <= 0) return;
@@ -2478,7 +2510,8 @@
                     event.preventDefault();
                     setActiveTrendFilter(
                         $(this).attr("data-dashboard-trend-status"),
-                        $(this).attr("data-dashboard-trend-date"));
+                        $(this).attr("data-dashboard-trend-date"),
+                        $(this).attr("data-dashboard-trend-end-date"));
                 });
                 $("#inventoryDashboardStatusGrid").on("click", ".inventory-dashboard-history-change-toggle", function (event) {
                     event.preventDefault();
@@ -2512,23 +2545,28 @@
                         : getStatusCode(statuses[0]);
                     setActiveStatus(firstStatusCode);
                 });
-                $("#inventoryDashboardLocationDonut").on("click", function (event) {
-                    if (dashboardChartsAvailable()) return;
-                    const locationCode = getClickedLocationCode(event, valueOf(dashboardFor(currentDashboardDays), "LocationCounts", []) || []);
-                    if (locationCode !== null) {
-                        setActiveLocation(locationCode);
-                    }
-                }).on("keydown", function (event) {
-                    if (event.key !== "Enter" && event.key !== " ") return;
-                    const locations = valueOf(dashboardFor(currentDashboardDays), "LocationCounts", []) || [];
-                    if (!locations.length) return;
+                if (showLocationTotals) {
+                    $("#inventoryDashboardLocationLegend").on("click", ".inventory-dashboard-legend-item", function () {
+                        setActiveLocation($(this).attr("data-location-code"));
+                    });
+                    $("#inventoryDashboardLocationDonut").on("click", function (event) {
+                        if (dashboardChartsAvailable()) return;
+                        const locationCode = getClickedLocationCode(event, valueOf(dashboardFor(currentDashboardDays), "LocationCounts", []) || []);
+                        if (locationCode !== null) {
+                            setActiveLocation(locationCode);
+                        }
+                    }).on("keydown", function (event) {
+                        if (event.key !== "Enter" && event.key !== " ") return;
+                        const locations = valueOf(dashboardFor(currentDashboardDays), "LocationCounts", []) || [];
+                        if (!locations.length) return;
 
-                    event.preventDefault();
-                    const firstLocationCode = activeLocationCode === null
-                        ? normalizeLocationFilterCode(valueOf(locations[0], "LocationCode", "N/A"))
-                        : activeLocationCode;
-                    setActiveLocation(firstLocationCode);
-                });
+                        event.preventDefault();
+                        const firstLocationCode = activeLocationCode === null
+                            ? normalizeLocationFilterCode(valueOf(locations[0], "LocationCode", "N/A"))
+                            : activeLocationCode;
+                        setActiveLocation(firstLocationCode);
+                    });
+                }
                 $("#inventoryDashboardTimeTermsDonut").on("keydown", function (event) {
                     if (event.key !== "Enter" && event.key !== " ") return;
                     event.preventDefault();
@@ -2538,13 +2576,13 @@
                     const key = $(this).attr("data-filter-key");
                     if (key === "status") {
                         activeStatusCode = null;
-                        activeTrendDateKey = null;
+                        activeTrendRange = null;
                     } else if (key === "location") {
                         activeLocationCode = null;
                     } else if (key === "time") {
                         activeTimeTermKey = null;
                     } else if (key === "date") {
-                        activeTrendDateKey = null;
+                        activeTrendRange = null;
                     } else if (key === "search") {
                         activeDashboardSearchText = "";
                         if (window.gtxInventorySearch) window.gtxInventorySearch.writeStoredTerm("");
@@ -2556,7 +2594,7 @@
                     activeStatusCode = null;
                     activeLocationCode = null;
                     activeTimeTermKey = null;
-                    activeTrendDateKey = null;
+                    activeTrendRange = null;
                     activeDashboardSearchText = "";
                     if (window.gtxInventorySearch) {
                         window.gtxInventorySearch.writeStoredTerm("");

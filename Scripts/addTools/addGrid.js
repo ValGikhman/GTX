@@ -65,7 +65,7 @@
         /** Enable client-side pagination and render the grid footer/pager. */
         pageable: true,
 
-        /** Show a filter/search-sensitive row total when pagination is disabled. */
+        /** Show the row total without pagination. A function can decide using the active column filters. */
         showRecordCount: false,
 
         /**
@@ -1425,6 +1425,7 @@
             if (self._opts.tbodyId) tbody.id = self._opts.tbodyId;
             if (self._opts.tbodyClass) tbody.className = self._opts.tbodyClass;
             const footer = self._opts.pageable !== false || self._opts.showRecordCount === true
+                || typeof self._opts.showRecordCount === 'function'
                 ? document.createElement('div')
                 : null;
             if (footer) {
@@ -1483,11 +1484,22 @@
 
             self._renderBody();
             self._updateSortIcons();
+            self._updateFilterBtns();
         },
 
         _renderBody: function () {
             const self = this;
             self._closeAutoZoom();
+            const pageable = self._opts.pageable !== false;
+            const countOption = self._opts.showRecordCount;
+            const conditionalCount = typeof countOption === 'function';
+            const showFooter = self._footer && (pageable || (conditionalCount
+                ? countOption.call(self._el, self.getFilterState()) === true
+                : countOption === true));
+            if (self._footer && !pageable && conditionalCount) {
+                self._footer.style.display = showFooter ? '' : 'none';
+                if (!showFooter) self._footer.textContent = '';
+            }
             const cols = self._opts.columns.filter(function (c) {
                 if (c.hidden) return false;
                 if (self._opts.groupRemovable !== false && self._groupState.indexOf(c.field) !== -1) return false;
@@ -1526,7 +1538,7 @@
                 }
 
                 // Grouped footer: show row count with a "grouped" badge, no page nav.
-                if (self._footer) {
+                if (showFooter) {
                     self._footer.innerHTML = '<div class="pg-pager">'
                         + self._recordInfoHtml(
                             gSorted.length,
@@ -1539,7 +1551,6 @@
             } else {
                 const sorted    = self._applySort(searched);
                 const total    = sorted.length;
-                const pageable = self._opts.pageable !== false;
                 const start    = pageable ? (self._page - 1) * self._pageSize : 0;
                 const end      = pageable ? Math.min(start + self._pageSize, total) : total;
                 const pageData = pageable ? sorted.slice(start, end) : sorted;
@@ -1639,7 +1650,7 @@
 
                 if (pageable) {
                     self._renderPager(total, start + 1, Math.min(end, total));
-                } else if (self._opts.showRecordCount === true) {
+                } else if (showFooter) {
                     self._renderRecordCount(total, searched);
                 }
             }
@@ -2244,7 +2255,6 @@
         },
 
         _renderRecordCount: function (total, records) {
-            if (!this._footer || this._opts.showRecordCount !== true) return;
             const summaryHtml = this._recordSummaryHtml(records, total);
             this._footer.innerHTML = '<div class="pg-pager">'
                 + (summaryHtml || this._recordInfoHtml(total))

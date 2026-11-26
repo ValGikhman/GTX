@@ -22,14 +22,12 @@
     <div class="majordome-management-shell">
         <div class="majordome-management-workspace">
             <aside id="majordome-management-sidebar-pane" class="majordome-management-sidebar-pane">
-                <div class="dropdown majordome-management-log-picker">
-                    <div class="majordome-management-log-period" aria-label="Filter inventory dates">
-                        @ManagementLogPeriodDropdown("majordomeManagementLogYear", "Filter inventory dates by year", "No years", "bi-calendar")
-                        @ManagementLogPeriodDropdown("majordomeManagementLogMonth", "Filter inventory dates by month", "No months", "bi-calendar-month", "dropdown-menu-end")
-                    </div>
-                    <select id="majordomeManagementLogSelect" class="d-none" aria-hidden="true"></select>
-                    <div id="majordomeManagementLogMenu" class="majordome-management-log-tree" role="tree" aria-label="Inventory management log filters"></div>
+                <div class="majordome-management-log-period" aria-label="Filter inventory dates">
+                    @ManagementLogPeriodDropdown("majordomeManagementLogYear", "Filter inventory dates by year", "No years", "bi-calendar")
+                    @ManagementLogPeriodDropdown("majordomeManagementLogMonth", "Filter inventory dates by month", "No months", "bi-calendar-month", "dropdown-menu-end")
                 </div>
+                <select id="majordomeManagementLogSelect" class="d-none" aria-hidden="true"></select>
+                <div id="majordomeManagementLogMenu" class="majordome-management-log-tree" role="tree" aria-label="Inventory management log filters"></div>
             </aside>
             <div id="majordome-management-results" class="majordome-management-results">
                 <div class="d-none">
@@ -796,7 +794,7 @@
         function renderMajordomeManagementLogTreeItem(log, index) {
             const id = managementText(managementValue(log, "Id", ""));
             const dateCreated = managementValue(log, "DateCreated", "");
-            const dateLabel = managementFormatDate(dateCreated).replace(/ ([AP]M)$/, "\u00a0$1");
+            const dateLabel = managementFormatShortDate(dateCreated) || "No date";
             const collapseId = managementLogTreeId(id);
             const expanded = index === 0 ? "true" : "false";
             const showClass = index === 0 ? " show" : "";
@@ -829,6 +827,7 @@
                             aria-expanded="${expanded}"
                             aria-controls="${managementEscapeHtml(collapseId)}">
                         <span class="majordome-management-log-date-main">
+                            <i class="bi bi-calendar3 majordome-management-log-date-icon text-shadow-small" aria-hidden="true"></i>
                             <span class="majordome-management-log-option-date text-shadow-small">${managementEscapeHtml(dateLabel)}</span>
                         </span>
                         <span class="majordome-management-log-date-count">${managementEscapeHtml(managementFormatInteger(total))}</span>
@@ -1065,7 +1064,7 @@
                 StatusHtml: `<span class="badge rounded-pill ${statusClass} shadow">${managementEscapeHtml(statusText)}</span>`,
                 DetailsHtml: `
                     <button type="button"
-                            class="btn btn-outline-secondary inventory-dashboard-details-button"
+                            class="btn btn-gradient-grey shadow-sm inventory-dashboard-details-button"
                             data-dashboard-details-stock="${managementEscapeHtml(stock)}"
                             data-dashboard-details-title="${managementEscapeHtml(vehicleTitle)}"
                             title="Show vehicle details">

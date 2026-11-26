@@ -8,14 +8,18 @@ $assembly = [Reflection.Assembly]::LoadFrom((Join-Path $repoPath 'bin/GTX.dll'))
 $items = [GTX.Common.MajordomeMenu]::Items
 if ($items.Count -ne 15) { throw 'Catalog must cover every Majordome item including Roles, Profile and Services.' }
 if (@($items | Group-Object Item | Where-Object Count -ne 1).Count) { throw 'Duplicate menu keys.' }
+$locationPermission = [GTX.Common.DashboardPermission]::LocationCode
+$locationKey = [GTX.Common.MajordomeMenu]::DashboardSectionKey($locationPermission)
+if ($locationKey -cne 'InventoryDashboard.LocationCode') { throw 'The stored Dashboard Location Code key changed.' }
 $regularItems = @($items | Where-Object { $_.Item.ToString() -notin @('Roles', 'Profile', 'Services') })
-$regularDefaults = ($regularItems | ForEach-Object { $_.Item.ToString() }) -join ','
+$regularDefaults = (@($regularItems | ForEach-Object { $_.Item.ToString() }) + $locationKey) -join ','
 foreach ($name in @('Owner', 'Tech', 'Manager', 'Sales', 'Support', 'Blogger', 'Detail Team')) {
     $role = New-Object GTX.Models.SiteRoleModel
     $role.Id = 123
     $role.Name = $name
     $role.Permissions = [GTX.Common.MajordomeMenu]::Defaults($name)
     if (($role.Permissions -join ',') -ne $regularDefaults) { throw "Incorrect regular defaults for $name." }
+    if (![GTX.Common.SiteAccess]::CanViewDashboardSection($role, $locationPermission)) { throw "Default Location Code access missing for $name." }
     foreach ($item in $items) {
         $expected = $item.Item.ToString() -notin @('Roles', 'Profile', 'Services')
         if ([GTX.Common.SiteAccess]::Can($role, $item.Item) -ne $expected) { throw "Incorrect permission for $name / $($item.Item)." }
@@ -37,6 +41,12 @@ foreach ($reserved in @([GTX.Common.MajordomeItem]::Roles, [GTX.Common.Majordome
 }
 $custom.Permissions = $null
 if ([GTX.Common.SiteAccess]::Can($custom, [GTX.Common.MajordomeItem]::Appraisal)) { throw 'Null permission list must deny access.' }
+$custom.Permissions = @('InventoryDashboard')
+if ([GTX.Common.SiteAccess]::CanViewDashboardSection($custom, $locationPermission)) { throw 'Dashboard alone granted Location Code access.' }
+$custom.Permissions = @($locationKey)
+if ([GTX.Common.SiteAccess]::CanViewDashboardSection($custom, $locationPermission)) { throw 'Location Code access bypassed the parent Dashboard permission.' }
+$custom.Permissions = @('InventoryDashboard', $locationKey)
+if (![GTX.Common.SiteAccess]::CanViewDashboardSection($custom, $locationPermission)) { throw 'Dashboard and Location Code grants did not allow access.' }
 
 $administrator = New-Object GTX.Models.SiteRoleModel
 $administrator.Id = [GTX.Common.MajordomeAccount]::Id
@@ -44,6 +54,11 @@ $administrator.Name = [GTX.Common.MajordomeAccount]::Name
 if (![GTX.Common.SiteAccess]::IsMajordome($administrator)) { throw 'Built-in Majordome identity was not recognized.' }
 foreach ($item in $items) {
     if (![GTX.Common.SiteAccess]::Can($administrator, $item.Item)) { throw "Majordome lacks $($item.Item) access." }
+}
+if (![GTX.Common.SiteAccess]::CanViewDashboardSection($administrator, $locationPermission)) { throw 'Majordome lacks Location Code access.' }
+if ([GTX.Common.SiteAccess]::CanViewDashboardSection($null, $locationPermission) -or
+    [GTX.Common.SiteAccess]::CanViewDashboardSection($administrator, [Enum]::ToObject([GTX.Common.DashboardPermission], 999))) {
+    throw 'An anonymous request or an undefined Dashboard permission was granted access.'
 }
 if ([GTX.Common.SiteAccess]::Can($administrator, [Enum]::ToObject([GTX.Common.MajordomeItem], 999))) { throw 'An undefined menu item must not become authorized.' }
 $custom.Name = 'Majordome'
@@ -96,4 +111,4 @@ foreach ($actorName in @('Owner', 'Manager', 'Detail Team', $null)) {
         }
     }
 }
-Write-Output 'PASS: regular defaults and edited permissions, reserved-page/identity protection, anonymous denial, route mapping and hidden command-row administrator identity with preserved audit values.'
+Write-Output 'PASS: role defaults, Dashboard child permissions, reserved-page/identity protection, anonymous denial, route mapping and hidden command-row administrator identity.'

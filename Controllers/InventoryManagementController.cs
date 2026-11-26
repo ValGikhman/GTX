@@ -153,14 +153,17 @@ namespace GTX.Controllers
         [HttpGet]
         public ActionResult Dashboard()
         {
+            Response.Cache.SetNoStore();
             ViewBag.Message = "Inventory dashboard";
             ViewBag.Title = "Inventory dashboard";
+            var showLocationTotals = CanViewDashboardLocationTotals();
+            ViewBag.ShowDashboardLocationTotals = showLocationTotals;
 
             // Render only the default period. Other periods are fetched on demand by
             // the dashboard so the initial request does not repeat the full query and payload.
             var dashboards = new Dictionary<int, InventoryDashboardSummary>
             {
-                [7] = LoadInventoryDashboard(7)
+                [7] = LoadInventoryDashboard(7, showLocationTotals)
             };
 
             return View(dashboards);
@@ -169,12 +172,15 @@ namespace GTX.Controllers
         [HttpGet]
         public JsonResult GetInventoryDashboard(int days = 7)
         {
+            Response.Cache.SetNoStore();
+            var showLocationTotals = CanViewDashboardLocationTotals();
             return new JsonResult
             {
                 Data = new
                 {
                     success = true,
-                    dashboard = LoadInventoryDashboard(days)
+                    showLocationTotals,
+                    dashboard = LoadInventoryDashboard(days, showLocationTotals)
                 },
                 JsonRequestBehavior = JsonRequestBehavior.AllowGet,
                 MaxJsonLength = int.MaxValue
@@ -367,7 +373,12 @@ namespace GTX.Controllers
             }
         }
 
-        private InventoryDashboardSummary LoadInventoryDashboard(int days)
+        private bool CanViewDashboardLocationTotals()
+        {
+            return SiteAccess.CanViewDashboardSection(SiteAccess.Current(Request), DashboardPermission.LocationCode);
+        }
+
+        private InventoryDashboardSummary LoadInventoryDashboard(int days, bool showLocationTotals)
         {
             var normalizedDays = InventoryDashboardSummary.NormalizeRequestDays(days);
             var localNow = DateTime.Now;
@@ -379,10 +390,11 @@ namespace GTX.Controllers
 
             try
             {
-                return AppCache.GetOrCreate(
+                var dashboard = AppCache.GetOrCreate(
                     cacheKey,
                     () => InventoryService.GetInventoryDashboard(normalizedDays),
                     minutes: 5) ?? InventoryDashboardSummary.CreateForPeriod(normalizedDays, localNow);
+                return showLocationTotals ? dashboard : InventoryDashboardProjection.WithoutLocationTotals(dashboard);
             }
             catch (Exception ex)
             {

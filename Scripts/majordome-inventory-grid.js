@@ -89,7 +89,7 @@
                 sortable: false, filterable: false, searchable: false,
                 resizable: false, reorderable: false,
                 headerClass: 'text-center majordome-actions-col',
-                cellClass: 'shadow text-start majordome-actions-cell',
+                cellClass: 'shadow text-start majordome-actions-cell pg-action-cell',
                 template: '#majordome-add-grid-actions-template'
             }
         ];

@@ -908,7 +908,7 @@
         <div class="offcanvas-header inventory-filter-offcanvas-header d-lg-none">
             <button type="button"
                     id="inventoryClearFilters"
-                    class="btn btn-sm btn-gradient-grey border-dark rounded-3 shadow text-black fw-bold inventory-clear-btn inventory-filter-offcanvas-clear-btn"
+                    class="btn btn-sm btn-gradient-grey border-dark rounded-3 shadow text-black fw-bold inventory-clear-btn inventory-filter-offcanvas-clear-btn light-gradient-action"
                     title="@inventoryClearTitle"
                     aria-label="@inventoryClearTitle">
                 <i class="bi @inventoryClearIcon"></i>
@@ -957,7 +957,7 @@
                     </span>
                     <button type="button"
                             id="inventoryMobileClearFilters"
-                            class="btn btn-gradient-grey border-black shadow rounded-4 inventory-mobile-filter-action-btn inventory-mobile-clear-btn"
+                            class="btn btn-gradient-grey border-black shadow rounded-4 inventory-mobile-filter-action-btn inventory-mobile-clear-btn light-gradient-action"
                             title="@(hasServerInventoryFilter ? inventoryClearTitle : I18n.R("Filter_ClearFilters"))"
                             aria-label="@(hasServerInventoryFilter ? inventoryClearTitle : I18n.R("Filter_ClearFilters"))">
                         <i class="bi @inventoryClearIcon"></i>
@@ -969,7 +969,7 @@
 
         <div class="inventory-empty-filter shadow-sm p-4 mb-3 text-center">
             No vehicles match the selected filters.
-            <button type="button" id="inventoryEmptyReset" class="btn btn-gradient-grey border-dark rounded-3 shadow d-block mx-auto mt-3">
+            <button type="button" id="inventoryEmptyReset" class="btn btn-gradient-grey border-dark rounded-3 shadow d-block mx-auto mt-3 light-gradient-action">
                 Reset — show all inventory
             </button>
         </div>

@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace GTX.Common {
     public enum MajordomeItem { InventoryDashboard, InventoryManagement, Inventory, VinDecoder, Appraisal, Announcements, Blogs, Specials, Employees, Health, Sitemap, ChatBotCommands, Roles, Profile, Services }
+    public enum DashboardPermission { LocationCode }
     public sealed class MajordomeMenuEntry {
         public MajordomeItem Item { get; set; }
         public string Title { get; set; }
@@ -13,6 +15,13 @@ namespace GTX.Common {
         public string Description { get; set; }
     }
     public static class MajordomeMenu {
+        public static readonly IReadOnlyDictionary<DashboardPermission, string> DashboardSections = new ReadOnlyDictionary<DashboardPermission, string>(
+            new Dictionary<DashboardPermission, string> { { DashboardPermission.LocationCode, "Show Location Code totals and chart filters" } });
+
+        public static string DashboardSectionKey(DashboardPermission permission) {
+            return MajordomeItem.InventoryDashboard + "." + permission;
+        }
+
         public static readonly IReadOnlyList<MajordomeMenuEntry> Items = Array.AsReadOnly(new[] {
             Entry(MajordomeItem.InventoryDashboard, "Dashboard", Enums.Controllers.InventoryManagement, "Dashboard", icon: "bi-speedometer2", description: "Track inventory activity and trends"),
             Entry(MajordomeItem.InventoryManagement, "Management", Enums.Controllers.InventoryManagement, icon: "bi-database-gear", description: "Manage inventory imports and records"),
@@ -32,7 +41,7 @@ namespace GTX.Common {
         public static string[] Defaults(string role) {
             return Items.Where(x => role == MajordomeAccount.Name
                 || (x.Item != MajordomeItem.Roles && x.Item != MajordomeItem.Profile && x.Item != MajordomeItem.Services))
-                .Select(x => x.Item.ToString()).ToArray();
+                .Select(x => x.Item.ToString()).Concat(DashboardSections.Keys.Select(DashboardSectionKey)).ToArray();
         }
         public static MajordomeItem ForRequest(string controller, string action) {
             if (controller.Equals(Enums.Controllers.Majordome.ToString(), StringComparison.OrdinalIgnoreCase))

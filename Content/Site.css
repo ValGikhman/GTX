@@ -187,13 +187,8 @@ html.theme-silver:not([data-texture-tinted="true"]) {
     --gtx-menu-ink: #111;
 }
 
-html[data-background-theme][class*="theme-palette-"] .menu-strip {
-    background: var(--gtx-menu-background);
-}
-
-/* The selected texture takes precedence over the accent's menu background. */
-html[data-background-theme][data-texture-theme^="palette-"] .menu-strip {
-    background: var(--gtx-menu-background) !important;
+html[data-background-theme] body .menu-strip {
+    background: var(--gtx-palette-tint-overlay, none), var(--gtx-menu-background) !important;
 }
 
 html[data-background-theme] body .gtx-card .card-header.gradient.gtx-header {
@@ -233,14 +228,6 @@ html[data-theme-finish="solid"] #themeGroupColors .theme-swatch {
 .theme-dropdown-menu :is(.theme-item, .background-theme-item, .theme-finish-item):focus-visible {
     outline: 2px solid currentColor;
     outline-offset: -2px;
-}
-
-.theme-selection-icon {
-    display: none;
-}
-
-.theme-item.active .theme-selection-icon {
-    display: inline-block;
 }
 
 .dropdown-item:hover {
@@ -761,13 +748,10 @@ html[data-theme-finish="solid"] #themeGroupColors .theme-swatch {
     #inventorySidebarPane :is(.inventory-filter-stats, .inventory-filter-panel),
     #majordomeManagementLogMenu .majordome-management-log-date {
         margin-bottom: .6rem;
-        border-radius: .7rem;
     }
 
-    #inventorySidebarPane .inventory-filter-panel,
-    #majordomeManagementLogMenu .majordome-management-log-date {
-        border-color: rgba(15, 23, 42, .11);
-        box-shadow: 0 .45rem 1rem rgba(15, 23, 42, .08);
+    #inventorySidebarPane .inventory-filter-stats {
+        border-radius: .7rem;
     }
 
     #inventorySidebarPane .inventory-filter-panel-toggle,
@@ -780,7 +764,8 @@ html[data-theme-finish="solid"] #themeGroupColors .theme-swatch {
         width: .22rem;
     }
 
-    #inventorySidebarPane .inventory-filter-panel-title i {
+    #inventorySidebarPane .inventory-filter-panel-title i,
+    html[data-background-theme="dark"] #majordomeManagementLogMenu .majordome-management-log-date-icon {
         width: 1.65rem;
         height: 1.65rem;
         display: inline-flex;
@@ -801,13 +786,20 @@ html[data-theme-finish="solid"] #themeGroupColors .theme-swatch {
         box-shadow: none;
     }
 
-    #inventorySidebarPane .inventory-filter-panel-body {
+    #inventorySidebarPane .inventory-filter-panel-body,
+    html[data-background-theme="dark"] #majordomeManagementLogMenu .majordome-management-log-status-list {
         padding: .45rem .6rem .75rem;
     }
 
-    #inventorySidebarPane .inventory-check-row {
+    #inventorySidebarPane .inventory-check-row,
+    html[data-background-theme="dark"] #majordomeManagementLogMenu .majordome-management-log-status {
         min-height: 2.25rem;
         padding: .38rem .45rem;
+    }
+
+    html[data-background-theme="dark"] #majordomeManagementLogMenu .majordome-management-log-status {
+        /* Match the SRP row's checkbox height plus vertical padding. */
+        min-height: max(2.25rem, calc(20px + .76rem));
     }
 
     #inventorySidebarPane .inventory-check-hit,
@@ -815,7 +807,11 @@ html[data-theme-finish="solid"] #themeGroupColors .theme-swatch {
     #inventorySidebarPane .inventory-filter-panel-count,
     #majordomeManagementLogMenu .majordome-management-log-date-count {
         border: 1px solid rgba(15, 23, 42, .08);
-        background: #eef2f7;
+        background-color: #eef2f7;
+    }
+
+    html[data-background-theme="dark"] #majordomeManagementLogMenu .majordome-management-log-status > .badge {
+        border: 1px solid rgba(15, 23, 42, .08);
     }
 
     .inventory-results-zone #filterByTerm {
@@ -1015,6 +1011,7 @@ html[data-theme-finish="solid"] #themeGroupColors .theme-swatch {
     }
 
 .btn-gradient {
+    border-width: 0 !important;
     border-radius: 0.5rem;
     background: #155A96;
     background: linear-gradient(180deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1) 94%);
@@ -1026,10 +1023,21 @@ html[data-theme-finish="solid"] #themeGroupColors .theme-swatch {
         background: linear-gradient(0deg, rgba(21, 90, 150, 1) 43%, rgba(30, 115, 190, 1) 94%);
     }
 
-html[class][data-background-theme] body :is(.btn-gradient, .gtx-card-action),
+html[class][data-background-theme] body :is(.btn-gradient, .btn-big-gradient, .gtx-card-action),
+html[class][data-background-theme] body .btn-gradient-grey.active,
 html[data-background-theme="dark"] #price-research #pr-submit {
-    background: var(--gtx-menu-background) !important;
-    color: var(--gtx-menu-ink) !important;
+    background: var(--gtx-button-background, var(--gtx-palette-header-background)) !important;
+    color: var(--gtx-button-ink, var(--gtx-palette-header-ink)) !important;
+}
+
+html[data-background-theme] .btn-big-gradient:is(:hover, :focus-visible) {
+    --gtx-button-background: var(--gtx-palette-tint-overlay, none), var(--gtx-grad-rev, var(--gtx-grad, #155a96));
+}
+
+html[data-background-theme] .gtx-card-action,
+html[data-background-theme] :is(#inventoryCardLayoutDropdown, #inventorySortDropdown, #langDropdown, #themeDropdown) {
+    --gtx-button-background: var(--gtx-light-control-background);
+    --gtx-button-ink: var(--gtx-light-control-ink);
 }
 
 html[data-background-theme] .btn-gradient:not(:disabled, .disabled, [aria-disabled="true"]):hover,
@@ -2165,9 +2173,25 @@ html.inventory-page-loading #loadingOverlay {
 }
 
 :root {
-    --gtx-gradient-base: linear-gradient(180deg, #fff, #aaaab3);
+    --gtx-chat-messages-background: #f5f7fb;
+    --gtx-steel-header-background: linear-gradient(145deg, #a0a6ac 0%, #858c93 48%, #6f767e 100%);
+    --gtx-palette-tint-color: var(--gtx-solid-fill, var(--gtx-accent-solid, #1e73be));
+    --gtx-palette-tint-amount: 14%;
+    --gtx-palette-header-background: var(--gtx-palette-tint-overlay, none), var(--gtx-grad, var(--bs-primary-bg-subtle, #f8fafc));
+    --gtx-palette-header-ink: #fff;
+    --gtx-addgrid-header-background: var(--gtx-palette-header-background);
+    --gtx-addgrid-header-ink: var(--gtx-palette-header-ink);
+    --gtx-light-select-caret: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    --gtx-light-control-base: linear-gradient(180deg, #fff, #aaaab3);
+    --gtx-light-control-background: var(--gtx-light-control-base);
+    --gtx-light-control-ink: #212529;
+    --gtx-gradient-base: var(--gtx-light-control-base);
     --gtx-gradient-background: var(--gtx-gradient-base);
     --gtx-gradient-ink: var(--bs-body-color, #212529);
+}
+
+html.theme-silver {
+    --gtx-palette-header-ink: #111827;
 }
 
 html[data-background-theme="dark"] {
@@ -2177,10 +2201,10 @@ html[data-background-theme="dark"] {
 
 @supports (color: color-mix(in srgb, white, black)) {
     :root {
-        --gtx-gradient-background: linear-gradient(180deg,
-            color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 6%, transparent),
-            color-mix(in srgb, var(--gtx-accent-solid, #1e73be) 9%, transparent)),
-            var(--gtx-gradient-base);
+        --gtx-palette-tint: color-mix(in srgb, var(--gtx-palette-tint-color) var(--gtx-palette-tint-amount), transparent);
+        --gtx-palette-tint-overlay: linear-gradient(var(--gtx-palette-tint), var(--gtx-palette-tint));
+        --gtx-gradient-background: var(--gtx-palette-tint-overlay), var(--gtx-gradient-base);
+        --gtx-light-control-background: var(--gtx-palette-tint-overlay), var(--gtx-light-control-base);
     }
 }
 
@@ -2189,8 +2213,20 @@ html[data-background-theme="dark"] {
 .page-title.inventory-player-title.page-title-mobile-call-enabled,
 #inventorySidebarPane .inventory-filter-panel > .inventory-filter-panel-toggle,
 #majordomeManagementLogMenu .majordome-management-log-date-toggle {
-    background: var(--gtx-gradient-background);
     color: var(--gtx-gradient-ink);
+}
+
+html[data-background-theme="dark"] .pg-search-bar {
+    color: var(--gtx-addgrid-header-ink);
+}
+
+html[data-background-theme="dark"] .pg-search-bar .inventory-dashboard-title {
+    color: inherit;
+}
+
+html[data-background-theme="dark"] .pg-search-bar .pg-export-group > .btn {
+    --bs-btn-color: var(--gtx-addgrid-header-ink);
+    --bs-btn-border-color: var(--bs-btn-color);
 }
 
 html[class][data-background-theme] body .btn:is(.gradient, .btn-gradient-grey:not(.active)) {
@@ -2199,6 +2235,10 @@ html[class][data-background-theme] body .btn:is(.gradient, .btn-gradient-grey:no
     --bs-btn-hover-color: var(--gtx-gradient-ink);
     --bs-btn-active-color: var(--gtx-gradient-ink);
     --bs-btn-disabled-color: var(--gtx-gradient-ink);
+}
+
+html[data-background-theme="light"] body .btn:is(.gradient, .btn-gradient-grey:not(.active)):not(:where([role="tab"])) {
+    background-color: var(--gtx-palette-tint, transparent);
 }
 
 html[class][data-background-theme] body .btn:is(.gradient, .btn-gradient-grey:not(.active)) :is(.text-dark, .text-black, .text-white) {
@@ -2219,6 +2259,11 @@ html[class][data-background-theme] body .btn:is(.gradient, .btn-gradient-grey:no
 .dropdown-toggle::after {
     filter: brightness(0) invert(1); /* Turns it white */
 }
+
+html[data-background-theme="light"] :is(#inventoryCardLayoutDropdown, #inventorySortDropdown, #langDropdown, #themeDropdown)::after {
+    filter: none;
+}
+
 /* Centered open-hours panel */
 .offcanvas-top-fixed-center {
     position: fixed;
@@ -3144,7 +3189,7 @@ a, u {
     }
 
     .page-title.inventory-player-title.page-title-mobile-call-enabled {
-        background: var(--gtx-gradient-background) !important;
+        background: transparent !important;
         color: var(--gtx-gradient-ink) !important;
     }
 
@@ -3651,7 +3696,7 @@ body.home-index .home-hero .video-background-video {
 
 .home-hero-button-primary {
     min-width: 13.5rem;
-    background: var(--gtx-grad, linear-gradient(145deg, #155a96, #1e73be));
+    background: var(--gtx-palette-header-background);
 }
 
 .home-hero-button-primary .bi-arrow-right {
@@ -4801,13 +4846,83 @@ html.theme-silver .home-quick-icon {
 }
 
 /* Shared inventory and management accordions. */
+.inventory-filter-panel-title,
+:where(html[data-background-theme="dark"]) #majordomeManagementLogMenu .majordome-management-log-date-main {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    min-width: 0;
+}
+
+.inventory-filter-panel-body,
+:where(html[data-background-theme="dark"]) #majordomeManagementLogMenu .majordome-management-log-status-list {
+    padding: .35rem .55rem .7rem;
+}
+
+.inventory-check-row,
+:where(html[data-background-theme="dark"]) #majordomeManagementLogMenu .majordome-management-log-status {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    min-height: 2.1rem;
+    padding: .32rem .45rem;
+    border-radius: .45rem;
+    font-weight: 600;
+}
+
+.inventory-check-row:hover {
+    background: #eef2f7;
+}
+
+.inventory-check-hit,
+html[data-background-theme="dark"] #majordomeManagementLogMenu .majordome-management-log-status > .badge {
+    padding: .13rem .4rem;
+    font-size: .82rem;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    line-height: inherit;
+}
+
+.inventory-check-hit {
+    flex-shrink: 0;
+    margin-left: auto;
+    min-width: max(30px, 2.25rem);
+    border-radius: .45rem;
+    background-color: #e5e7eb;
+    color: #4b5563;
+    text-align: center;
+}
+
+.inventory-filter-panel,
+.majordome-management-log-date {
+    border: 1px solid rgba(15, 23, 42, .12);
+    border-radius: .5rem;
+    box-shadow: 0 .35rem 1rem rgba(15, 23, 42, .08);
+}
+
 .inventory-filter-panel,
 .majordome-management-log-date {
     margin-bottom: .5rem;
-    border: 1px solid rgba(15, 23, 42, .12);
-    border-radius: .5rem;
     overflow: hidden;
-    box-shadow: 0 .35rem 1rem rgba(15, 23, 42, .08);
+}
+
+@media (max-width: 991.98px) {
+    #inventorySidebarPane .inventory-filter-panel,
+    #majordomeManagementLogMenu .majordome-management-log-date {
+        border-color: rgba(15, 23, 42, .11);
+        border-radius: .7rem;
+        box-shadow: 0 .45rem 1rem rgba(15, 23, 42, .08);
+    }
+}
+
+html[data-background-theme="dark"] .pg-search-bar {
+    border-radius: .5rem .5rem 0 0;
+}
+
+@media (max-width: 991.98px) {
+    html[data-background-theme="dark"] .pg-search-bar {
+        border-radius: .7rem .7rem 0 0;
+    }
 }
 
 :is(#inventorySidebarPane, #majordomeManagementLogMenu) {
@@ -4832,7 +4947,7 @@ html.theme-silver .home-quick-icon {
     width: 100%;
     min-block-size: var(--inventory-filter-row-height);
     border: 0 !important;
-    background: linear-gradient(180deg, #ffffff 0%, #eef2f7 100%);
+    background: transparent;
     color: #111827;
     display: flex;
     align-items: center;

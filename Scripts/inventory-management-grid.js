@@ -59,7 +59,7 @@
                 sortable: false, filterable: false, searchable: false,
                 resizable: false, reorderable: false,
                 headerClass: 'text-center majordome-management-col-details',
-                cellClass: 'inventory-dashboard-details-cell majordome-management-details-cell',
+                cellClass: 'inventory-dashboard-details-cell majordome-management-details-cell pg-action-cell',
                 template: '#management-add-grid-details-template'
             },
             {

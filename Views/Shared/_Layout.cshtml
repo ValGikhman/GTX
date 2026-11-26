@@ -35,6 +35,10 @@
         && actionName.Equals("Index", StringComparison.OrdinalIgnoreCase);
     var isMajordomeInventoryPage = controllerName.Equals(GTX.Common.Enums.Controllers.Majordome.ToString(), StringComparison.OrdinalIgnoreCase)
         && actionName.Equals("Inventory", StringComparison.OrdinalIgnoreCase);
+    var isMajordomePanelPage = GTX.Common.MajordomeMenu.Items.Any(item =>
+        item.Item != GTX.Common.MajordomeItem.InventoryDashboard
+        && controllerName.Equals(item.Controller, StringComparison.OrdinalIgnoreCase)
+        && actionName.Equals(item.Action, StringComparison.OrdinalIgnoreCase));
     var chatBotEnabled = ChatBotSettings.Enabled;
     var menuPermissions = ViewBag.MenuPermissions as string[] ?? new string[0];
     var needsAdminGrid = controllerName.Equals(GTX.Common.Enums.Controllers.Majordome.ToString(), StringComparison.OrdinalIgnoreCase)
@@ -281,7 +285,7 @@
     <script src="~/Scripts/inventory.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/inventory.js")).Ticks)"></script>
 </head>
 
-<body class="main-container overflow-hidden d-flex flex-column min-vh-100 @(isHomeIndexPage ? "home-index" : string.Empty) @(isMajordomeInventoryPage ? "majordome-inventory-page" : string.Empty)">
+<body class="main-container overflow-hidden d-flex flex-column min-vh-100 @(isHomeIndexPage ? "home-index" : string.Empty) @(isMajordomeInventoryPage ? "majordome-inventory-page" : string.Empty) @(isMajordomePanelPage ? "majordome-panel-page" : string.Empty)">
     @Html.Partial("~/Views/Shared/_LoginModal.cshtml")
     <!-- Offcanvas open hours -->
     <div class="offcanvas-top-fixed-center" tabindex="-1" id="openHours" aria-labelledby="openHoursTitle">
@@ -416,7 +420,7 @@
                     <ul class="main-menu">
                         <li id="GTX-image" class="d-none d-md-inline-block mx-1"><a href="~/Home/Index"><img src="@SiteImageUrl.Build("brand-light.png")" width="60" /></a></li>
                         <li id="MajordomeLink" class="@_class mx-1">
-                            <a href="#" class="btn gradient shadow border-dark rounded-4 d-inline-flex align-items-center text-black">
+                            <a href="#" class="btn gradient shadow border-dark rounded-4 d-inline-flex align-items-center text-black light-gradient-action">
                                 <i class="bi bi-gear px-2"></i>
                             </a>
                             <ul class="dropdown rounded majordome-batch-actions-menu p-1 shadow">
@@ -480,24 +484,24 @@
                 <nav class="header__top d-none d-lg-flex">
                     <ul class="main-menu start-100 list-unstyled no-wrap-group">
                         <li class="mx-sm-1">
-                            <a class="btn btn-gradient-grey border border-dark rounded-4" id="btnOpenHoursDesktop" data-bs-toggle="offcanvas" data-bs-target="#openHours" aria-controls="openHours">
+                            <a class="btn btn-gradient-grey border border-dark rounded-4 light-gradient-action" id="btnOpenHoursDesktop" data-bs-toggle="offcanvas" data-bs-target="#openHours" aria-controls="openHours">
                                 <i class="bi bi-stopwatch"></i>
                                 <span id="schedule" class="schedule d-none d-xxl-inline m-sm-1"></span>
                             </a>
                         </li>
                         <li class="mx-sm-1">
-                            <a class="btn btn-gradient-grey border border-dark rounded-4" href="@siteProfile.PhoneUri">
+                            <a class="btn btn-gradient-grey border border-dark rounded-4 light-gradient-action" href="@siteProfile.PhoneUri">
                                 <i class="bi bi-telephone"></i>
                                 <span id="telephone" class="d-none d-xxl-inline m-sm-1">@siteProfile.Phone</span>
                             </a>
                         </li>
                         <li class="mx-sm-1">
-                            <a class="btn gradient shadow border-dark rounded-4" href="https://www.facebook.com/GTXAutoGroup" target="_blank" title="@siteProfile.CompanyName Facebook page">
+                            <a class="btn gradient shadow border-dark rounded-4 light-gradient-action" href="https://www.facebook.com/GTXAutoGroup" target="_blank" title="@siteProfile.CompanyName Facebook page">
                                 <i class="fa fa-facebook px-2"></i>
                             </a>
                         </li>
                         <li class="mx-sm-1">
-                            <a class="btn gradient shadow border-dark rounded-4" href="#" title="Log in" data-bs-toggle="modal" data-login-modal="true">
+                            <a class="btn gradient shadow border-dark rounded-4 light-gradient-action" href="#" title="Log in" data-bs-toggle="modal" data-login-modal="true">
                                 <i class="bi bi-person-circle px-1 role-icon"></i>
                                 <span class="role-text text-shadow-small fw-bold"></span>
                             </a>
@@ -515,7 +519,7 @@
                             <span class="fw-semibold">Menu</span>
                         </button>
                         <a id="btnOpenHours"
-                           class="btn btn-gradient-grey border-dark rounded-4 d-inline-flex align-items-center gap-2"
+                           class="btn btn-gradient-grey border-dark rounded-4 d-inline-flex align-items-center gap-2 light-gradient-action"
                            data-bs-toggle="offcanvas"
                            data-bs-target="#openHours"
                            aria-controls="openHours"
@@ -523,7 +527,7 @@
                             <i class="bi bi-stopwatch"></i>
                             <span class="schedule fw-semibold m-sm-1"></span>
                         </a>
-                        <a class="btn btn-gradient-grey border-dark rounded-4 d-inline-flex align-items-center gap-2"
+                        <a class="btn btn-gradient-grey border-dark rounded-4 d-inline-flex align-items-center gap-2 light-gradient-action"
                            href="@siteProfile.PhoneUri"
                            aria-label="Call @siteProfile.Phone">
                             <i class="bi bi-telephone"></i>
@@ -551,7 +555,7 @@
                 const root = document.documentElement;
                 const header = document.querySelector(".header.fixed-top");
                 const footer = document.querySelector(".footer-strip.fixed-bottom");
-                const headerHeight = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
+                const headerHeight = header ? header.getBoundingClientRect().height : 0;
                 const footerHeight = footer ? Math.ceil(footer.getBoundingClientRect().height) : 0;
 
                 root.style.setProperty("--gtx-header-height", `${headerHeight}px`);
@@ -661,13 +665,13 @@
                                         @if (group.Id == "themeGroupTextures")
                                         {
                                             <button type="button" id="themeNoTexture" class="dropdown-item theme-item fw-semibold border rounded-3 mt-1" aria-pressed="false">
-                                                No texture <i class="bi bi-check-lg theme-selection-icon float-end" aria-hidden="true"></i>
+                                                No texture
                                             </button>
                                         }
                                         else
                                         {
                                             <button type="button" id="themeOriginalTextureColor" class="dropdown-item theme-item fw-semibold border rounded-3 mt-1" aria-pressed="false" hidden>
-                                                Original texture color <i class="bi bi-check-lg theme-selection-icon float-end" aria-hidden="true"></i>
+                                                Original texture color
                                             </button>
                                         }
                                         <ul class="row row-cols-4 g-1 list-unstyled mx-0 mb-1 mt-0" aria-label="@group.Title">
@@ -676,9 +680,8 @@
                                                 <li>
                                                     <button type="button" class="dropdown-item theme-item rounded-3 h-100" data-theme="@themeKey" aria-pressed="false">
                                                         <span class="theme-swatch d-block rounded-3" aria-hidden="true"></span>
-                                                        <span class="d-flex align-items-center justify-content-between gap-1 mt-1">
+                                                        <span class="d-block mt-1">
                                                             <span class="theme-option-label fw-semibold text-break">@themeName(themeKey)</span>
-                                                            <i class="bi bi-check-lg theme-selection-icon flex-shrink-0" aria-hidden="true"></i>
                                                         </span>
                                                     </button>
                                                 </li>

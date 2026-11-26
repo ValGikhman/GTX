@@ -8,7 +8,7 @@
         if (typeof callbacks[name] === 'function') callbacks[name](detail || {});
     }
 
-    function columns() {
+    function columns(showLocationTotals) {
         return [
             {
                 field: 'ExpandKey', title: '', width: 52,
@@ -43,6 +43,7 @@
             {
                 field: 'Location', title: 'LOC', width: 105,
                 sortField: 'LocationSort', filterField: 'LocationFilter',
+                filterable: true, searchable: showLocationTotals,
                 headerClass: 'inventory-dashboard-col-location text-center',
                 cellClass: 'inventory-dashboard-main-location-cell',
                 template: '#dashboard-add-grid-location-template'
@@ -60,7 +61,7 @@
                 sortable: false, filterable: false, searchable: false,
                 resizable: false, reorderable: false,
                 headerClass: 'inventory-dashboard-col-details text-center',
-                cellClass: 'inventory-dashboard-details-cell',
+                cellClass: 'inventory-dashboard-details-cell pg-action-cell',
                 template: '#dashboard-add-grid-details-template'
             }
         ];
@@ -71,6 +72,7 @@
         if (!$grid.length || typeof $.fn.addGrid !== 'function') return false;
 
         callbacks = options || callbacks;
+        const showLocationTotals = callbacks.showLocationTotals === true;
         if ($grid.data('add-grid')) {
             $grid.addGrid('setData', rows || [], { preserveState: true });
             return true;
@@ -78,7 +80,7 @@
 
         $grid.addGrid({
             data: rows || [],
-            columns: columns(),
+            columns: columns(showLocationTotals),
             tableId: 'inventoryDashboardStatusTable',
             tableClass: 'table align-middle m-0',
             tbodyId: 'inventoryDashboardStatusBody',
@@ -86,14 +88,15 @@
                 return 'inventory-dashboard-main-row' + (item.HistoryExpanded ? ' is-expanded' : '');
             },
             rowAttributes: function (item) {
-                return {
+                const attributes = {
                     'data-status-code': item.StatusCodes,
-                    'data-location-code': item.LocationFilter,
                     'data-stock': item.Stock,
                     'data-stock-key': item.StockKey,
                     'data-history-target': item.HistoryRowId,
                     'aria-expanded': item.HistoryExpanded ? 'true' : 'false'
                 };
+                if (showLocationTotals) attributes['data-location-code'] = item.LocationFilter;
+                return attributes;
             },
             detailTemplate: '#dashboard-add-grid-history-template',
             detailExpanded: function (item) { return item.HistoryExpanded; },
@@ -106,7 +109,9 @@
             height: null,
             pageSize: 100,
             pageable: false,
-            showRecordCount: true,
+            showRecordCount: function (filters) {
+                return showLocationTotals || !filters.Location;
+            },
             recordType: { singular: 'vehicle', plural: 'vehicles', icon: 'bi bi-car-front-fill' },
             emptyText: 'No vehicles match the selected filter.',
             emptyHint: 'Adjust the dashboard or column filters to see more inventory.',
