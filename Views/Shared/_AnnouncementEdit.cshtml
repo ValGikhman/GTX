@@ -5,12 +5,14 @@
 
     var htmlAttrs = new Dictionary<string, object>
 {
-        { "data-announcement-ajax", "true" }
+        { "data-announcement-ajax", "true" },
+        { "data-upload-url", Url.Action("UploadImage", "Announcements") }
     };
 }
 
 @using (Html.BeginForm(action, "Announcements", FormMethod.Post, htmlAttrs))
 {
+    @Html.AntiForgeryToken()
     @Html.HiddenFor(m => m.Id)
     @Html.HiddenFor(m => m.DateCreated)
 
@@ -90,6 +92,7 @@
                 <label class="form-label text-shadow-small"><strong>Message</strong></label>
                 @Html.TextAreaFor(m => m.MessageHtml, new { id = "MessageHtml", @class = "form-control shadow" })
                 @Html.ValidationMessageFor(m => m.MessageHtml, "", new { @class = "text-danger" })
+                <div class="small" data-editor-upload-status role="status" aria-live="polite"></div>
             </div>
 
             @Html.ValidationSummary(false, "", new { @class = "text-danger mt-2" })
@@ -106,14 +109,13 @@
 <script>
     $(function () {
         var $form = $('form[data-announcement-ajax="true"]');
-        if (!$form.length) $form = $('form').first();
+        if (!$form.length) return;
 
         var $messageField = $('#MessageHtml', $form);
-        $messageField.addEdit({
-            height: 260,
-            placeholder: 'Write the announcement message...'
+        var messageEditor = window.initializeEditorImageUpload($form, $messageField, {
+            placeholder: 'Write the announcement message...',
+            uploadedMessage: 'Image uploaded. Save the alert to keep your changes.'
         });
-        var messageEditor = $messageField.data('add-edit');
 
         function normalizeEmpty(html) {
             var h = $.trim(html || '');

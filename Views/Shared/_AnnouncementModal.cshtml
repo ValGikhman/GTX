@@ -32,6 +32,8 @@ $(function () {
         });
     }
 
+    $("#announcementModal").on("hidden.bs.modal", destroyAnnouncementEditors);
+
     function openAnnouncementModal(url, title) {
         destroyAnnouncementEditors();
         $("#announcementModalTitle").text(title || "Announcement");
@@ -61,6 +63,8 @@ $(function () {
         e.preventDefault();
 
         const $form = $(this);
+        if ($form.data('saving')) return;
+        $form.data('saving', true).find('[type="submit"]').prop('disabled', true);
         syncAnnouncementEditors($form);
         const url = $form.attr("action");
         const data = $form.serialize();
@@ -78,11 +82,11 @@ $(function () {
                 destroyAnnouncementEditors();
                 $("#announcementModalBody").html(res);
             })
-            .fail(function (xhr) {
-                destroyAnnouncementEditors();
-                $("#announcementModalBody").html(
-                    `<div class="alert alert-danger mb-0">Save failed. Status: ${xhr.status}</div>`
-                );
+            .fail(function () {
+                window.gtxAlert("Save failed. Your changes are still in the editor. Please try again.");
+            })
+            .always(function () {
+                $form.data('saving', false).find('[type="submit"]').prop('disabled', false);
             });
     });
 });
