@@ -1,4 +1,8 @@
 /* Background modes are independent of the accent and texture palettes. */
+:root {
+    --gtx-panel-tint-amount: 30%;
+}
+
 /* Review links and ratings stay readable on charcoal surfaces. */
 html[data-background-theme="dark"] .home-reviews {
     --home-reviews-link: #8ab4f8;
@@ -47,6 +51,25 @@ html[data-background-theme="dark"] {
     --bs-secondary-bg-rgb: 53, 54, 58;
     --bs-tertiary-bg: #323337;
     --bs-tertiary-bg-rgb: 50, 51, 55;
+    --gtx-tinted-panel-background: var(--bs-body-bg);
+    --gtx-tinted-panel-background-alt: var(--bs-tertiary-bg);
+    --gtx-dark-field-top: #40546d;
+    --gtx-dark-field-bottom: #203249;
+    --gtx-dark-field-background: linear-gradient(180deg, var(--gtx-dark-field-top), var(--gtx-dark-field-bottom));
+    --gtx-dark-field-border: #132235;
+    --gtx-dark-field-ink: #f8fbff;
+    --gtx-dark-field-placeholder: #dce6f3;
+}
+
+@supports (color: color-mix(in srgb, white, black)) {
+    html[data-background-theme="dark"] {
+        --gtx-tinted-panel-background: color-mix(in srgb, var(--gtx-palette-tint-color) var(--gtx-panel-tint-amount), var(--bs-body-bg));
+        --gtx-tinted-panel-background-alt: color-mix(in srgb, var(--gtx-palette-tint-color) var(--gtx-panel-tint-amount), var(--bs-tertiary-bg));
+        /* Limit the lighter stop so Silver still has readable placeholder text. */
+        --gtx-dark-field-top: color-mix(in srgb, var(--gtx-palette-tint-color) 18%, #475769);
+        --gtx-dark-field-bottom: color-mix(in srgb, var(--gtx-palette-tint-color) 30%, #202932);
+        --gtx-dark-field-border: color-mix(in srgb, var(--gtx-palette-tint-color) 20%, #101923);
+    }
 }
 
 html[data-background-theme="dark"] body {
@@ -228,12 +251,6 @@ html[data-background-theme]:not([data-background-theme="light"]) .majordome-mana
 
 html[data-background-theme]:not([data-background-theme="light"]) .majordome-management-sidebar-pane::-webkit-scrollbar-thumb {
     background: var(--bs-secondary-color);
-}
-
-/* Animated search hints use soft silver in dark mode. */
-html[data-background-theme="dark"] :is(#filterTerm, .term)::placeholder {
-    color: var(--bs-secondary-color);
-    opacity: 1 !important;
 }
 
 /* Quick-search matches keep dark ink on their yellow highlight in dark mode. */
@@ -515,7 +532,7 @@ html[data-background-theme="dark"] :is(.pe-editor, .pe-context-menu) {
     --pe-color-text: var(--bs-body-color);
     --pe-color-text-muted: var(--bs-secondary-color);
     --pe-color-text-subtle: var(--bs-secondary-color);
-    --pe-color-placeholder: #a4abb4;
+    --pe-color-placeholder: var(--gtx-dark-field-placeholder);
     --pe-color-accent: #8ab4f8;
     --pe-color-shadow-focus: rgba(138, 180, 248, .25);
     --pe-color-shadow-toolbar: rgba(0, 0, 0, .18);
@@ -919,4 +936,112 @@ html[data-background-theme="dark"] .majordome-editor-footer {
 
 html[data-background-theme="dark"] .vdp-utility-actions .btn-gradient-grey {
     text-shadow: none;
+}
+
+/* Share the palette tint between text fields and their grouped controls. */
+html[data-background-theme="dark"] :is(
+    input:not(:where([type="hidden"], [type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"], [type="button"], [type="submit"], [type="reset"], [type="image"])),
+    textarea,
+    .pe-body[contenteditable="true"]
+):not(:where(
+    :disabled, [readonly], .form-control-plaintext, .chosen-container input, .pg-search-input,
+    .login-shell__input, .vin-decoder-input-group input, .pr-bid-money input, .pe-readonly .pe-source,
+    .form-control:is(.is-valid, .is-invalid), .was-validated .form-control,
+    .just-validate-error-field, .just-validate-success-field
+)) {
+    background: var(--gtx-dark-field-background);
+    color: var(--gtx-dark-field-ink);
+}
+
+html[data-background-theme="dark"] .pg-search-input-group {
+    border-radius: var(--bs-border-radius-sm);
+    background: var(--gtx-dark-field-background);
+}
+
+html[data-background-theme="dark"] .pg-search-input-group > :is(.input-group-text, .pg-search-input, .pg-search-clear) {
+    border-color: var(--gtx-dark-field-border);
+    background: transparent;
+    color: var(--gtx-dark-field-ink);
+}
+
+html[data-background-theme="dark"] .pg-search-input-group > :is(.pg-search-input, .pg-search-clear) {
+    border-inline-start-color: rgb(220 230 243 / 28%);
+}
+
+html[data-background-theme="dark"] .pg-search-input-group > .pg-search-clear:is(:hover, :active) {
+    background-color: rgb(255 255 255 / 10%);
+}
+
+html[data-background-theme="dark"] .pg-search-input-group:focus-within {
+    outline: 2px solid var(--gtx-dark-field-border);
+    outline-offset: 2px;
+}
+
+/* Preserve validation icons above the palette fill. */
+html[data-background-theme="dark"] :is(
+    .form-control:is(.is-valid, .is-invalid), .was-validated .form-control,
+    .just-validate-error-field, .just-validate-success-field
+):not(:where(:disabled, [readonly], input[type="file"])) {
+    background-color: var(--gtx-dark-field-bottom);
+    color: var(--gtx-dark-field-ink);
+}
+
+html[data-background-theme="dark"] :is(.just-validate-error-field, .just-validate-success-field) {
+    background-image: var(--gtx-contact-validation-icon), var(--gtx-dark-field-background);
+    background-position: right 10px center, center;
+    background-size: 24px, auto;
+}
+
+html[data-background-theme="dark"] :is(input, textarea, .form-control):not(:where(:disabled, .chosen-choices input, .login-shell__input))::placeholder,
+html[data-background-theme="dark"] :is(#filterTerm, #price-research .pr-bid-money input)::placeholder {
+    color: var(--gtx-dark-field-placeholder);
+    opacity: 1 !important;
+}
+
+html[data-background-theme="dark"] :is(.form-control, textarea, .pe-body[contenteditable="true"], .chosen-search input):not(:where(
+    .pg-search-input, .login-shell__input, .form-control-color, input[type="file"], .vin-decoder-input-group input
+)):focus-visible {
+    outline: 2px solid var(--gtx-dark-field-placeholder);
+    outline-offset: -2px;
+}
+
+html[data-background-theme="dark"] .input-group:not(:is(.pg-search-input-group, .vin-decoder-input-group)):has(> input:not(:disabled, [type="hidden"], [type="file"], [type="checkbox"], [type="radio"]), > textarea:not(:disabled)) > .input-group-text:not(.btn) {
+    background-image: var(--gtx-dark-field-background);
+    color: var(--gtx-dark-field-ink);
+}
+
+html[data-background-theme="dark"] :is(.vin-decoder-input-group, #price-research .pr-bid-money) {
+    background: var(--gtx-dark-field-background);
+}
+
+html[data-background-theme="dark"] :is(.vin-decoder-input-group, #price-research .pr-bid-money) > :is(input, .input-group-text, span):not(:disabled) {
+    background: transparent;
+    color: var(--gtx-dark-field-ink);
+}
+
+html[data-background-theme="dark"] :is(.vin-decoder-input-group, #price-research .pr-bid-money):focus-within {
+    outline: 2px solid var(--gtx-dark-field-placeholder);
+    outline-offset: -2px;
+}
+
+html[data-background-theme="dark"] .chosen-container-single .chosen-search {
+    background: var(--gtx-dark-field-background);
+}
+
+html[data-background-theme="dark"] .chosen-container-single .chosen-search input {
+    color: var(--gtx-dark-field-ink);
+}
+
+html[data-background-theme="dark"] #loginModal .login-shell {
+    background: var(--gtx-dark-field-background) !important;
+}
+
+html[data-background-theme="dark"] #loginModal .login-shell__input {
+    background-color: transparent !important;
+    color: var(--gtx-dark-field-ink) !important;
+}
+
+html[data-background-theme="dark"] #loginModal .login-shell__input::placeholder {
+    color: var(--gtx-dark-field-placeholder) !important;
+    opacity: 1 !important;
 }
