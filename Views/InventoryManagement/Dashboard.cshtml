@@ -2,6 +2,7 @@
 @model System.Collections.Generic.IDictionary<int, Services.InventoryDashboardSummary>
 
 @{
+    var showDashboardLocationTotals = ViewBag.ShowDashboardLocationTotals is bool && (bool)ViewBag.ShowDashboardLocationTotals;
     var dashboards = Model ?? new System.Collections.Generic.Dictionary<int, Services.InventoryDashboardSummary>();
     var dashboardsJson = JsonConvert.SerializeObject(
         dashboards,
@@ -68,7 +69,7 @@
 <section class="inventory-dashboard container-fluid">
     <div class="row g-2 inventory-dashboard-layout-row">
         <div class="col-12 inventory-dashboard-graphs-column">
-            <div class="inventory-dashboard-graph-grid">
+            <div class="inventory-dashboard-graph-grid @(!showDashboardLocationTotals ? "inventory-dashboard-graph-grid-without-location" : null)">
                 <div class="inventory-dashboard-period-control d-flex gap-2">
                     <div id="inventoryDashboardRange" class="inventory-dashboard-subtitle shadow" aria-live="polite"></div>
                     <div class="flex-grow-1">
@@ -101,24 +102,27 @@
                     </div>
                 </article>
 
-                <article class="inventory-dashboard-card inventory-dashboard-graph-card" aria-labelledby="inventoryDashboardLocationTitle">
-                    <div class="inventory-dashboard-card-header">
-                        <div>
-                            <h3 id="inventoryDashboardLocationTitle" class="inventory-dashboard-title">Inventory By Location Code</h3>
-                        </div>
-                        <span class="inventory-dashboard-icon inventory-dashboard-accent-location" aria-hidden="true"><i class="bi bi-geo-alt"></i></span>
-                    </div>
-                    <div class="inventory-dashboard-location-layout">
-                        <div id="inventoryDashboardLocationDonut" class="inventory-dashboard-donut inventory-dashboard-location-donut inventory-dashboard-accent-location">
-                            <canvas id="inventoryDashboardLocationCanvas" aria-hidden="true"></canvas>
-                            <div class="inventory-dashboard-donut-center">
-                                <span id="inventoryDashboardLocationTotal" class="inventory-dashboard-number">0</span>
-                                <span id="inventoryDashboardLocationCenterLabel" class="inventory-dashboard-center-label">Vehicles</span>
+                @if (showDashboardLocationTotals)
+                {
+                    <article class="inventory-dashboard-card inventory-dashboard-graph-card" aria-labelledby="inventoryDashboardLocationTitle">
+                        <div class="inventory-dashboard-card-header">
+                            <div>
+                                <h3 id="inventoryDashboardLocationTitle" class="inventory-dashboard-title">Inventory By Location Code</h3>
                             </div>
+                            <span class="inventory-dashboard-icon inventory-dashboard-accent-location" aria-hidden="true"><i class="bi bi-geo-alt"></i></span>
                         </div>
-                        <div id="inventoryDashboardLocationLegend" class="inventory-dashboard-legend"></div>
-                    </div>
-                </article>
+                        <div class="inventory-dashboard-location-layout">
+                            <div id="inventoryDashboardLocationDonut" class="inventory-dashboard-donut inventory-dashboard-location-donut inventory-dashboard-accent-location">
+                                <canvas id="inventoryDashboardLocationCanvas" aria-hidden="true"></canvas>
+                                <div class="inventory-dashboard-donut-center">
+                                    <span id="inventoryDashboardLocationTotal" class="inventory-dashboard-number">0</span>
+                                    <span id="inventoryDashboardLocationCenterLabel" class="inventory-dashboard-center-label">Vehicles</span>
+                                </div>
+                            </div>
+                            <div id="inventoryDashboardLocationLegend" class="inventory-dashboard-legend"></div>
+                        </div>
+                    </article>
+                }
 
                 <article class="inventory-dashboard-card inventory-dashboard-graph-card" aria-labelledby="inventoryDashboardTimeTermsTitle">
                     <div class="inventory-dashboard-card-header">
@@ -201,6 +205,8 @@
     <script src="~/Scripts/inventory-dashboard-grid.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/inventory-dashboard-grid.js")).Ticks)"></script>
     <script>
         (function ($) {
+            const showLocationTotals = @(showDashboardLocationTotals ? "true" : "false");
+
             function readDashboardData() {
                 const dashboardDataNode = document.getElementById("inventoryDashboardData");
                 if (!dashboardDataNode) return {};
@@ -1665,12 +1671,13 @@
                 }
 
                 return events.map(function (entry) {
-                    return {
+                    const statusEvent = {
                         Status: getStatusCode(entry),
                         StatusText: statusLabel(valueOf(entry, "StatusText", "Status")),
-                        DateKey: dashboardTrendPointDayKey(entry),
-                        LocationCode: normalizeLocationFilterCode(valueOf(entry, "LocationCode", "N/A"))
+                        DateKey: dashboardTrendPointDayKey(entry)
                     };
+                    if (showLocationTotals) statusEvent.LocationCode = normalizeLocationFilterCode(valueOf(entry, "LocationCode", "N/A"));
+                    return statusEvent;
                 }).filter(function (entry) {
                     return entry.Status !== null && entry.DateKey;
                 });
@@ -1735,12 +1742,12 @@
                     Model: row.Model,
                     VIN: row.VIN,
                     VehicleStyle: row.VehicleStyle,
-                    LocationCode: row.LocationCode,
                     Status: row.Status,
                     StatusText: row.StatusText,
                     DaysInInventory: row.DaysInInventory,
                     InventoryStartSource: row.InventoryStartSource
                 };
+                if (showLocationTotals) fields.LocationCode = row.LocationCode;
 
                 return window.gtxInventorySearch
                     ? window.gtxInventorySearch.vehicleObject(fields)
@@ -1749,6 +1756,7 @@
 
             function getDashboardVehicleSearchText(vehicle) {
                 const row = normalizeDashboardVehicle(vehicle);
+                const locationCode = showLocationTotals ? normalizeLocationFilterCode(row.LocationCode) : "";
                 const historyStatusLabels = row.HistoryStatuses.map(function (statusCode) {
                     return dashboardStatusDotInfo(statusCode).label;
                 }).join(" ");
@@ -1759,8 +1767,8 @@
                     row.Model,
                     row.VIN,
                     row.VehicleStyle,
-                    row.LocationCode,
-                    normalizeLocationFilterCode(row.LocationCode),
+                    showLocationTotals ? row.LocationCode : "",
+                    locationCode,
                     row.Status,
                     row.StatusText,
                     row.DaysInInventory,
@@ -1771,7 +1779,7 @@
 
                 if (window.gtxInventorySearch) {
                     return window.gtxInventorySearch.buildVehicleSearch(getDashboardVehicleSearchObject(row), [
-                        normalizeLocationFilterCode(row.LocationCode),
+                        locationCode,
                         formatDate(row.InventoryStartDate),
                         historyStatusLabels
                     ]).text;
@@ -1784,14 +1792,15 @@
                 const row = normalizeDashboardVehicle(vehicle);
 
                 if (window.gtxInventorySearch) {
-                    return window.gtxInventorySearch.buildVehicleSearch(getDashboardVehicleSearchObject(row)).tokens;
+                    const tokens = window.gtxInventorySearch.buildVehicleSearch(getDashboardVehicleSearchObject(row)).tokens;
+                    return showLocationTotals ? tokens : tokens.replace(/(?:^| )@@@@OW(?= |$)/, "").trim();
                 }
 
                 return normalizeDashboardSearchText([
                     `@@YR ${row.Year}`,
                     `@@MK ${row.Make}`,
                     `@@MD ${row.Model}`,
-                    `@@OW ${row.LocationCode}`
+                    showLocationTotals ? `@@OW ${row.LocationCode}` : ""
                 ].join(" "));
             }
 
@@ -1964,6 +1973,7 @@
                 const row = normalizeDashboardVehicle(vehicle);
                 const statusCodes = getVehicleStatusCodes(row);
                 const locationCode = normalizeLocationFilterCode(row.LocationCode);
+                const locationBadge = locationBadgeInfo(locationCode, 0);
                 const stockKey = normalizeStockKey(row.Stock);
                 const rowId = dashboardHistoryRowId(stockKey, index);
                 const isExpanded = !!expandedDashboardStocks[stockKey];
@@ -1980,7 +1990,6 @@
                     : "No inventory start date";
                 const imageRenderer = window.majordomeVehicleCells && window.majordomeVehicleCells.renderImageContent;
                 const detailsRenderer = window.majordomeVehicleCells && window.majordomeVehicleCells.renderDetailsContent;
-                const locationBadge = locationBadgeInfo(locationCode, 0);
                 const vehicleTitle = [row.Year, row.Make, row.Model, row.Stock]
                     .filter(function (part) {
                         return part !== null && part !== undefined && part.toString().trim() !== "";
@@ -2045,7 +2054,7 @@
                         </span>`,
                     DetailsHtml: `
                         <button type="button"
-                                class="btn btn-outline-secondary inventory-dashboard-details-button"
+                                class="btn btn-gradient-grey shadow-sm inventory-dashboard-details-button"
                                 data-dashboard-details-stock="${escapeDashboardHtml(row.Stock)}"
                                 data-dashboard-details-title="${escapeDashboardHtml(vehicleTitle)}"
                                 title="Show vehicle details">
@@ -2060,7 +2069,6 @@
                 const vehicles = getDashboardVehicles(data);
                 const filteredVehicles = vehicles.filter(function (vehicle) {
                     const statusCodes = getVehicleStatusCodes(vehicle);
-                    const locationCode = normalizeLocationFilterCode(valueOf(vehicle, "LocationCode", ""));
                     const isCurrent = isDashboardVehicleCurrent(vehicle);
                     let statusMatched = false;
 
@@ -2076,7 +2084,7 @@
 
                     const locationMatched = activeTrendRange !== null ||
                         activeLocationCode === null ||
-                        locationCode === activeLocationCode;
+                        normalizeLocationFilterCode(valueOf(vehicle, "LocationCode", "")) === activeLocationCode;
                     const timeTermMatched = activeTimeTermKey === null || vehicleTimeTermKey(vehicle) === activeTimeTermKey;
                     return statusMatched && locationMatched && timeTermMatched;
                 });
@@ -2094,6 +2102,7 @@
                 $("#inventoryDashboardStatusEmpty").addClass("d-none");
 
                 if (!window.inventoryDashboardAddGrid || !window.inventoryDashboardAddGrid.initialize(gridRows, {
+                    showLocationTotals: showLocationTotals,
                     onRender: function () {
                         hydrateExpandedDashboardHistoryRows();
                     },
@@ -2282,6 +2291,7 @@
             }
 
             function setActiveLocation(locationCode) {
+                if (!showLocationTotals) return;
                 const normalized = normalizeLocationFilterCode(locationCode);
                 activeLocationCode = activeLocationCode === normalized ? null : normalized;
                 renderDashboard(currentDashboardDays);
@@ -2383,12 +2393,12 @@
                 const start = formatDate(dashboardPeriodDate(data, "Start"));
                 const end = formatDate(dashboardPeriodDate(data, "End"));
 
-                clearMissingLocationFilter(valueOf(data, "LocationCounts", []) || []);
+                if (showLocationTotals) clearMissingLocationFilter(valueOf(data, "LocationCounts", []) || []);
                 clearMissingTrendFilter(data);
                 $("#inventoryDashboardRange").text(start && end ? `${start} - ${end}` : "");
                 renderStatusBreakdown(data);
                 renderStatusTrend(data);
-                renderLocations(data);
+                if (showLocationTotals) renderLocations(data);
                 renderTimeTerms(data);
                 renderStatusGrid(data);
                 renderDashboardFilterChips(data);
@@ -2413,6 +2423,11 @@
                         if (!payload || payload.success === false) {
                             renderDashboard(selectedDays);
                             $("#inventoryDashboardRange").text("Unable to load this period.");
+                            return;
+                        }
+
+                        if (valueOf(payload, "showLocationTotals", showLocationTotals) !== showLocationTotals) {
+                            window.location.reload();
                             return;
                         }
 
@@ -2478,9 +2493,6 @@
                 $("#inventoryDashboardStatusLegend").on("click", ".inventory-dashboard-legend-item", function () {
                     setActiveStatus($(this).attr("data-status-code"));
                 });
-                $("#inventoryDashboardLocationLegend").on("click", ".inventory-dashboard-legend-item", function () {
-                    setActiveLocation($(this).attr("data-location-code"));
-                });
                 $("#inventoryDashboardTimeTermsLegend").on("click", ".inventory-dashboard-legend-item", function () {
                     setActiveTimeTerm($(this).attr("data-time-term"));
                 });
@@ -2533,23 +2545,28 @@
                         : getStatusCode(statuses[0]);
                     setActiveStatus(firstStatusCode);
                 });
-                $("#inventoryDashboardLocationDonut").on("click", function (event) {
-                    if (dashboardChartsAvailable()) return;
-                    const locationCode = getClickedLocationCode(event, valueOf(dashboardFor(currentDashboardDays), "LocationCounts", []) || []);
-                    if (locationCode !== null) {
-                        setActiveLocation(locationCode);
-                    }
-                }).on("keydown", function (event) {
-                    if (event.key !== "Enter" && event.key !== " ") return;
-                    const locations = valueOf(dashboardFor(currentDashboardDays), "LocationCounts", []) || [];
-                    if (!locations.length) return;
+                if (showLocationTotals) {
+                    $("#inventoryDashboardLocationLegend").on("click", ".inventory-dashboard-legend-item", function () {
+                        setActiveLocation($(this).attr("data-location-code"));
+                    });
+                    $("#inventoryDashboardLocationDonut").on("click", function (event) {
+                        if (dashboardChartsAvailable()) return;
+                        const locationCode = getClickedLocationCode(event, valueOf(dashboardFor(currentDashboardDays), "LocationCounts", []) || []);
+                        if (locationCode !== null) {
+                            setActiveLocation(locationCode);
+                        }
+                    }).on("keydown", function (event) {
+                        if (event.key !== "Enter" && event.key !== " ") return;
+                        const locations = valueOf(dashboardFor(currentDashboardDays), "LocationCounts", []) || [];
+                        if (!locations.length) return;
 
-                    event.preventDefault();
-                    const firstLocationCode = activeLocationCode === null
-                        ? normalizeLocationFilterCode(valueOf(locations[0], "LocationCode", "N/A"))
-                        : activeLocationCode;
-                    setActiveLocation(firstLocationCode);
-                });
+                        event.preventDefault();
+                        const firstLocationCode = activeLocationCode === null
+                            ? normalizeLocationFilterCode(valueOf(locations[0], "LocationCode", "N/A"))
+                            : activeLocationCode;
+                        setActiveLocation(firstLocationCode);
+                    });
+                }
                 $("#inventoryDashboardTimeTermsDonut").on("keydown", function (event) {
                     if (event.key !== "Enter" && event.key !== " ") return;
                     event.preventDefault();

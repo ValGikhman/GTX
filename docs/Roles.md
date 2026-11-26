@@ -11,6 +11,15 @@ roles receive these initial grants once, using `dbo.SiteRoleSetup` marker `Id=2`
 later application restarts preserve permission edits. Old Roles/Profile/Services grants
 never authorize regular roles.
 
+The Dashboard switch grants access to the inventory dashboard, including sorting
+and filtering the LOC column by each vehicle's Location Code. The **Show Location
+Code totals and chart filters** switch enables the **Inventory By Location Code**
+chart and its filters. When this switch is off, applying a LOC column filter hides
+the grid's vehicle count until the filter is cleared.
+New roles start with both switches on. Existing roles with Dashboard access receive
+the Location Code grant once, using `dbo.SiteRoleSetup` marker `Id=3`. Later edits
+are preserved. Turning off Dashboard removes its Location Code grant.
+
 The existing administrator-only CDN purge actions require Majordome. Mobile login
 uses its own fixed password from the private `App_Data/MobileManagement.config`
 file; website role and administrator password changes do not affect it. Provision

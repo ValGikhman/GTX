@@ -93,11 +93,35 @@ INSERT dbo.SiteRole(Name,PasswordHash,Revision,Permissions) VALUES
     }
     $owner = $roles | Where-Object Name -eq 'Owner'
     if ($owner.Revision -cne 'owner-before-migration') { throw 'Permission migration unnecessarily changed the Owner password revision.' }
+    $initialized = [GTX.SiteRoleStore].GetField('Initialized', [Reflection.BindingFlags]'NonPublic,Static').GetValue($null)
+    $locationKey = [GTX.Common.MajordomeMenu]::DashboardSectionKey([GTX.Common.DashboardPermission]::LocationCode)
+    $owner.Permissions = @('VinDecoder', 'InventoryDashboard')
+    $store.Save($owner)
+    $manager = $roles | Where-Object Name -eq 'Manager'
+    $manager.Permissions = @('Appraisal', $locationKey)
+    $store.Save($manager)
+
+    # Emulate an existing database where the original menu migration already ran.
+    Invoke-RoleSql $testConnectionString 'DELETE FROM dbo.SiteRoleSetup WHERE Id=3'
+    [void]$initialized.Remove($testConnectionString)
+    $roles = @($store.All())
+    $owner = $roles | Where-Object Name -eq 'Owner'
+    $manager = $roles | Where-Object Name -eq 'Manager'
+    if (($owner.Permissions -join ',') -cne "VinDecoder,InventoryDashboard,$locationKey") {
+        throw 'Location Code migration did not preserve the existing Dashboard role grants.'
+    }
+    if (($manager.Permissions -join ',') -cne 'Appraisal') { throw 'The role store retained a Location Code grant without its parent.' }
+
+    $owner.Permissions = @('VinDecoder', 'InventoryDashboard')
+    $store.Save($owner)
+    [void]$initialized.Remove($testConnectionString)
+    $owner = $store.All() | Where-Object Name -eq 'Owner'
+    if (($owner.Permissions -join ',') -cne 'VinDecoder,InventoryDashboard') { throw 'A restart restored a revoked Location Code grant.' }
+
     $owner.Permissions = @('Appraisal')
     $store.Save($owner)
 
     # Simulate a fresh worker process so the persisted migration marker is exercised.
-    $initialized = [GTX.SiteRoleStore].GetField('Initialized', [Reflection.BindingFlags]'NonPublic,Static').GetValue($null)
     [void]$initialized.Remove($testConnectionString)
     $afterRestart = @($store.All())
     $owner = $afterRestart | Where-Object Name -eq 'Owner'
@@ -154,7 +178,7 @@ INSERT dbo.SiteRole(Name,PasswordHash,Revision,Permissions) VALUES
         [GTX.Common.SiteAccess]::Can($persisted, [GTX.Common.MajordomeItem]::Services)) {
         throw 'A submitted permission array granted a regular role access to reserved pages.'
     }
-    Write-Output 'PASS: isolated local migration, hidden built-in identity, restart preservation, editable/deletable Owner, reserved-name/identity protection and reserved-page denial.'
+    Write-Output 'PASS: isolated role migrations, Dashboard child grant preservation and revocation, editable Owner, reserved-name protection and reserved-page denial.'
 }
 finally {
     [Environment]::SetEnvironmentVariable('GTX_MAJORDOME_PASSWORD_HASH', $previousHash, 'Process')

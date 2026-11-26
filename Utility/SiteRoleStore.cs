@@ -53,6 +53,18 @@ END", db, tx)) {
                             cmd.Parameters.AddWithValue("@permissions", string.Join(",", MajordomeMenu.Defaults("")));
                             cmd.ExecuteNonQuery();
                         }
+                        // Keep existing Dashboard access intact without changing any other grants.
+                        using (var cmd = new SqlCommand(@"IF NOT EXISTS (SELECT 1 FROM dbo.SiteRoleSetup WITH (UPDLOCK,HOLDLOCK) WHERE Id=3)
+BEGIN
+    UPDATE dbo.SiteRole SET Permissions=Permissions + N',' + @section
+    WHERE CHARINDEX(N',' + @dashboard + N',', (N',' + Permissions + N',') COLLATE Latin1_General_100_BIN2) > 0
+      AND CHARINDEX(N',' + @section + N',', (N',' + Permissions + N',') COLLATE Latin1_General_100_BIN2) = 0;
+    INSERT dbo.SiteRoleSetup(Id) VALUES(3);
+END", db, tx)) {
+                            cmd.Parameters.AddWithValue("@dashboard", MajordomeItem.InventoryDashboard.ToString());
+                            cmd.Parameters.AddWithValue("@section", MajordomeMenu.DashboardSectionKey(DashboardPermission.LocationCode));
+                            cmd.ExecuteNonQuery();
+                        }
                         tx.Commit();
                     }
                 }
@@ -81,8 +93,10 @@ END", db, tx)) {
             if (string.IsNullOrEmpty(model.Name)) throw new InvalidOperationException("A role name is required.");
             if (model.Name.Equals("User", StringComparison.OrdinalIgnoreCase) || model.Name.Equals("Blog", StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException("That role name is reserved.");
             var permissions = (model.Permissions ?? new string[0]).Distinct().ToArray();
-            if (permissions.Any(p => !MajordomeMenu.Items.Any(i => i.Item.ToString() == p))) throw new InvalidOperationException("Unknown menu permission.");
+            var dashboardSections = MajordomeMenu.DashboardSections.Keys.Select(MajordomeMenu.DashboardSectionKey).ToArray();
+            if (permissions.Any(p => !MajordomeMenu.Items.Any(i => i.Item.ToString() == p) && !dashboardSections.Contains(p))) throw new InvalidOperationException("Unknown permission.");
             if (permissions.Contains(MajordomeItem.Roles.ToString()) || permissions.Contains(MajordomeItem.Profile.ToString()) || permissions.Contains(MajordomeItem.Services.ToString())) throw new InvalidOperationException("Roles, Profile and Services are reserved for the built-in administrator.");
+            if (!permissions.Contains(MajordomeItem.InventoryDashboard.ToString())) permissions = permissions.Except(dashboardSections).ToArray();
             var administrator = MajordomeAccount.Current();
             if (!string.IsNullOrEmpty(model.Password) && administrator != null && Crypto.VerifyHashedPassword(administrator.PasswordHash, model.Password))
                 throw new InvalidOperationException("That password is already assigned to another role.");

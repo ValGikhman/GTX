@@ -4,15 +4,6 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-@section Meta {
-    <style>
-        html[data-background-theme="dark"] #sitemapAccordion .accordion-button {
-            background: var(--gtx-gradient-background);
-            color: var(--gtx-gradient-ink);
-        }
-    </style>
-}
-
 <link href="~/Content/majordome.css?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/majordome.css")).Ticks)" rel="stylesheet" />
 
 <div class="mx-auto">

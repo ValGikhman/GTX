@@ -248,7 +248,7 @@
             {field:'Maximum',exportAlign:'right',title:'Max bid',exportValue:(row,format)=>number(row.Maximum)?(format==='pdf'?printMoney.format(row.Maximum):row.Maximum):row.Done?'No feasible bid':null,width:'9%',filterable:false,searchable:false,headerClass:'text-end',cellClass:'text-end',template:row => number(row.Maximum)?money.format(row.Maximum):row.Done?'No feasible bid':'—'},
             {field:'Status',title:'Status',exportValue:row=>row.Status,width:'12%',filterable:false,headerClass:'text-center',cellClass:'text-center',template:row =>
                 `<span class="badge text-bg-${row.StatusTone} mw-100 text-wrap text-break text-center px-3 py-2">${escape(row.Status)}</span>`},
-            {field:'Actions',title:'Actions',width:'22%',headerClass:'text-center',cellClass:'text-center',sortable:false,filterable:false,searchable:false,template:renderActions}
+            {field:'Actions',title:'Actions',width:'22%',headerClass:'text-center',cellClass:'text-center pg-action-cell',sortable:false,filterable:false,searchable:false,template:renderActions}
         ],tableClass:'table align-middle m-0',height:null,pageable:false,resizable:false,reorderable:false,sortable:true,searchable:true,showSearch:true,searchPlaceholder:'Search run, vehicle, VIN, or status…',showRecordCount:true,recordType:{singular:'vehicle',plural:'vehicles',icon:'bi bi-car-front'},exportToExcel:false,exportToPdf:false,showPrint:true,exportFileName:'Auction shortlist',exportPdfWrap:true,groupable:false,alternateRows:true});
     }
     async function appraise(row) {

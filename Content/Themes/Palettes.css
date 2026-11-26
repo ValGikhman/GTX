@@ -116,7 +116,6 @@ html.theme-palette-lilac,
 
 html[class*="theme-palette-"],
 .theme-item[data-theme^="palette-"] {
-    --palette-accent: var(--palette-light-accent);
     --palette-canvas: var(--palette-light-canvas);
     --palette-selection: var(--palette-light-selection);
     --gtx-solid-fill: var(--palette-dark-accent);
@@ -124,18 +123,13 @@ html[class*="theme-palette-"],
 
 html[data-background-theme="dark"][class*="theme-palette-"],
 html[data-background-theme="dark"] .theme-item[data-theme^="palette-"] {
-    --palette-accent: var(--palette-dark-accent);
     --palette-canvas: var(--palette-dark-canvas);
     --palette-selection: var(--palette-dark-selection);
 }
 
 .theme-dropdown-menu .theme-item[data-theme^="palette-"] {
-    --theme-preview-accent: var(--palette-accent);
-    --theme-selection: var(--palette-selection);
-}
-
-#themeGroupColors .theme-item[data-theme^="palette-"] {
     --theme-preview-accent: var(--palette-light-accent);
+    --theme-selection: var(--palette-selection);
 }
 
 html:where([class*="theme-palette-"], [data-texture-theme^="palette-"]),
@@ -181,15 +175,12 @@ html[data-background-theme][class*="theme-palette-"] {
 @supports (color: color-mix(in srgb, white, black)) {
     /* Site surfaces use softer canvas tints and retain white text on gradient headers. */
     html[data-background-theme][class*="theme-palette-"] {
-        --gtx-light-accent-solid: color-mix(in srgb, var(--palette-light-accent) 46%, #10151b);
-        --palette-header-start: var(--gtx-light-accent-solid);
-        --palette-header-end: color-mix(in srgb, var(--palette-selection) 36%, #10151b);
+        --palette-header-start: color-mix(in srgb, var(--palette-light-accent) 46%, #10151b);
+        --palette-header-end: color-mix(in srgb, var(--palette-light-selection) 36%, #10151b);
         --gtx-page-bg: color-mix(in srgb, var(--palette-canvas) 10%, var(--gtx-default-page-bg, ghostwhite));
     }
 
     html[data-background-theme="dark"][class*="theme-palette-"] {
-        --palette-header-start: var(--palette-accent);
-        --palette-header-end: color-mix(in srgb, var(--palette-selection) 45%, #10151b);
         --gtx-page-bg: color-mix(in srgb, var(--palette-canvas) 14%, var(--gtx-default-page-bg));
     }
 }
@@ -345,20 +336,12 @@ html.theme-palette-carbon-weave,
 }
 
 @supports (color: color-mix(in srgb, white, black)) {
-    /* Use the same base color for the dark gradient and its solid finish. */
-    html[data-background-theme="dark"][data-theme-finish="gradient"]:is([data-texture-theme="none"], [data-texture-tinted="true"]),
-    html[data-background-theme="dark"][data-theme-finish="gradient"] #themeGroupColors .theme-item {
-        --gtx-color-gradient-stops:
+    /* Keep gradient previews close to their matching solid swatches. */
+    html[data-theme-finish="gradient"] #themeGroupColors .theme-swatch {
+        background: linear-gradient(180deg,
             color-mix(in srgb, var(--gtx-solid-fill) 96%, white),
             var(--gtx-solid-fill) 50%,
-            color-mix(in srgb, var(--gtx-solid-fill) 92%, black);
-        --gtx-grad: linear-gradient(180deg, var(--gtx-color-gradient-stops));
-        --gtx-grad-rev: linear-gradient(0deg, var(--gtx-color-gradient-stops));
-        --gtx-grad-diag: linear-gradient(83deg, var(--gtx-color-gradient-stops));
-    }
-
-    html[data-background-theme="dark"][data-theme-finish="gradient"] #themeGroupColors .theme-swatch {
-        background: var(--gtx-grad);
+            color-mix(in srgb, var(--gtx-solid-fill) 92%, black));
     }
 }
 

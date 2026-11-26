@@ -620,33 +620,12 @@ html.theme-silver #price-research {
 }
 
 #pr-batch-grid .pr-batch-retry {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
     padding: .2rem .45rem;
-    border: 1px solid var(--pr-accent-line);
-    border-radius: 2rem;
-    color: var(--pr-ink);
-    background: linear-gradient(180deg, var(--pr-surface), var(--pr-tint));
-    box-shadow: 0 2px 5px rgba(15,23,42,.07);
     font-weight: 600;
     white-space: nowrap;
-    transition: box-shadow .15s ease, border-color .15s ease, transform .15s ease;
 }
 #pr-batch-grid .pr-batch-cars-logo { width: 4rem; height: 1.6rem; object-fit: contain; }
 #pr-batch-grid .pr-batch-marketcheck-logo { transform: scale(1.15); }
-#pr-batch-grid .pr-batch-retry:is(:hover,:focus-visible):not(:disabled) { border-color: var(--pr-accent); box-shadow: 0 3px 9px rgba(15,23,42,.13); transform: translateY(-1px); }
-#pr-batch-grid .pr-batch-retry:focus-visible { outline: 2px solid var(--pr-accent); outline-offset: 2px; }
-html[data-background-theme="dark"] #pr-batch-grid .pr-batch-retry {
-    color: #172131;
-    border-color: #8694a8;
-    background: linear-gradient(110deg, #f1f5f9 0%, #cbd5e1 58%, #5a6677 100%);
-    box-shadow: 0 2px 5px rgb(0 0 0 / 22%);
-}
-html[data-background-theme="dark"] #pr-batch-grid .pr-batch-retry:is(:hover, :focus-visible):not(:disabled) {
-    background: linear-gradient(110deg, #fff 0%, #dbe4ef 58%, #738196 100%);
-}
-@media (prefers-reduced-motion: reduce) { #pr-batch-grid .pr-batch-retry { transition: none; } }
 
 #price-research .pr-batch-heading {
     display: flex;
@@ -707,7 +686,7 @@ html[data-background-theme="dark"] #price-research #pr-demand-message:not(:empty
     --pr-ink: var(--gtx-addgrid-header-ink);
     --pr-muted: var(--pr-ink);
     --pr-accent: var(--pr-ink);
-    background: var(--gtx-addgrid-header-background);
+    background: var(--gtx-tinted-steel-panel-background);
     color: var(--pr-ink);
 }
 
@@ -718,7 +697,7 @@ html[data-background-theme="dark"] #price-research :is(.pr-market-overview, .pr-
 html[data-background-theme="dark"] #price-research :is(.pr-auction-heading, .pr-market-heading, .pr-grid-section > header, .pr-demand > header) {
     --pr-heading-ink: var(--gtx-addgrid-header-ink);
     --pr-heading-chip: rgb(255 255 255 / 20%);
-    background: var(--gtx-addgrid-header-background);
+    background: var(--gtx-tinted-steel-panel-background);
 }
 
 html[data-background-theme="dark"] #price-research :is(
@@ -727,8 +706,7 @@ html[data-background-theme="dark"] #price-research :is(
     .pr-bid-money,
     .pr-bid-costs > span,
     .pr-comparables-options,
-    .pr-batch-heading-icon,
-    .pr-batch-retry
+    .pr-batch-heading-icon
 ) {
     --pr-ink: var(--pr-control-ink);
     --pr-muted: var(--pr-control-muted);

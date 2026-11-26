@@ -35,6 +35,10 @@
         && actionName.Equals("Index", StringComparison.OrdinalIgnoreCase);
     var isMajordomeInventoryPage = controllerName.Equals(GTX.Common.Enums.Controllers.Majordome.ToString(), StringComparison.OrdinalIgnoreCase)
         && actionName.Equals("Inventory", StringComparison.OrdinalIgnoreCase);
+    var isMajordomePanelPage = GTX.Common.MajordomeMenu.Items.Any(item =>
+        item.Item != GTX.Common.MajordomeItem.InventoryDashboard
+        && controllerName.Equals(item.Controller, StringComparison.OrdinalIgnoreCase)
+        && actionName.Equals(item.Action, StringComparison.OrdinalIgnoreCase));
     var chatBotEnabled = ChatBotSettings.Enabled;
     var menuPermissions = ViewBag.MenuPermissions as string[] ?? new string[0];
     var needsAdminGrid = controllerName.Equals(GTX.Common.Enums.Controllers.Majordome.ToString(), StringComparison.OrdinalIgnoreCase)
@@ -281,7 +285,7 @@
     <script src="~/Scripts/inventory.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/inventory.js")).Ticks)"></script>
 </head>
 
-<body class="main-container overflow-hidden d-flex flex-column min-vh-100 @(isHomeIndexPage ? "home-index" : string.Empty) @(isMajordomeInventoryPage ? "majordome-inventory-page" : string.Empty)">
+<body class="main-container overflow-hidden d-flex flex-column min-vh-100 @(isHomeIndexPage ? "home-index" : string.Empty) @(isMajordomeInventoryPage ? "majordome-inventory-page" : string.Empty) @(isMajordomePanelPage ? "majordome-panel-page" : string.Empty)">
     @Html.Partial("~/Views/Shared/_LoginModal.cshtml")
     <!-- Offcanvas open hours -->
     <div class="offcanvas-top-fixed-center" tabindex="-1" id="openHours" aria-labelledby="openHoursTitle">
@@ -551,7 +555,7 @@
                 const root = document.documentElement;
                 const header = document.querySelector(".header.fixed-top");
                 const footer = document.querySelector(".footer-strip.fixed-bottom");
-                const headerHeight = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
+                const headerHeight = header ? header.getBoundingClientRect().height : 0;
                 const footerHeight = footer ? Math.ceil(footer.getBoundingClientRect().height) : 0;
 
                 root.style.setProperty("--gtx-header-height", `${headerHeight}px`);
@@ -661,13 +665,13 @@
                                         @if (group.Id == "themeGroupTextures")
                                         {
                                             <button type="button" id="themeNoTexture" class="dropdown-item theme-item fw-semibold border rounded-3 mt-1" aria-pressed="false">
-                                                No texture <i class="bi bi-check-lg theme-selection-icon float-end" aria-hidden="true"></i>
+                                                No texture
                                             </button>
                                         }
                                         else
                                         {
                                             <button type="button" id="themeOriginalTextureColor" class="dropdown-item theme-item fw-semibold border rounded-3 mt-1" aria-pressed="false" hidden>
-                                                Original texture color <i class="bi bi-check-lg theme-selection-icon float-end" aria-hidden="true"></i>
+                                                Original texture color
                                             </button>
                                         }
                                         <ul class="row row-cols-4 g-1 list-unstyled mx-0 mb-1 mt-0" aria-label="@group.Title">
@@ -676,9 +680,8 @@
                                                 <li>
                                                     <button type="button" class="dropdown-item theme-item rounded-3 h-100" data-theme="@themeKey" aria-pressed="false">
                                                         <span class="theme-swatch d-block rounded-3" aria-hidden="true"></span>
-                                                        <span class="d-flex align-items-center justify-content-between gap-1 mt-1">
+                                                        <span class="d-block mt-1">
                                                             <span class="theme-option-label fw-semibold text-break">@themeName(themeKey)</span>
-                                                            <i class="bi bi-check-lg theme-selection-icon flex-shrink-0" aria-hidden="true"></i>
                                                         </span>
                                                     </button>
                                                 </li>

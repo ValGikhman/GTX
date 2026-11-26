@@ -46,6 +46,10 @@ namespace GTX.Common {
             return item != MajordomeItem.Roles && item != MajordomeItem.Profile && item != MajordomeItem.Services
                 && (role.Permissions ?? new string[0]).Contains(item.ToString());
         }
+        public static bool CanViewDashboardSection(SiteRoleModel role, DashboardPermission permission) {
+            if (!MajordomeMenu.DashboardSections.ContainsKey(permission) || !Can(role, MajordomeItem.InventoryDashboard)) return false;
+            return IsMajordome(role) || (role.Permissions ?? Array.Empty<string>()).Contains(MajordomeMenu.DashboardSectionKey(permission));
+        }
         public static void SignIn(SiteRoleModel role, HttpRequestBase request, HttpResponseBase response, HttpSessionStateBase session, bool persist) {
             HttpContext.Current?.Items.Remove(RequestCacheKey);
             var ticket = Convert.ToBase64String(MachineKey.Protect(Encoding.UTF8.GetBytes(role.Id + ":" + role.Revision), "GTX.SiteRole"));

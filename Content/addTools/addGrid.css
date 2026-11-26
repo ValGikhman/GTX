@@ -105,6 +105,53 @@
   white-space: nowrap;
 }
 
+.pg-action-cell .btn {
+  align-items: center;
+  border: 0 !important;
+  border-radius: .5rem !important;
+  display: inline-flex;
+  justify-content: center;
+  margin: 0;
+  min-height: 1.7rem;
+  min-width: 1.7rem;
+  padding: 0;
+  transition: background-color .15s, border-color .15s, color .15s, transform .15s;
+}
+
+.pg-action-cell .btn-group {
+  gap: .2rem;
+}
+
+.pg-action-cell .btn-group > .btn {
+  flex: 0 0 auto;
+  margin-left: 0;
+}
+
+.pg-action-cell .btn-group > .btn > i {
+  margin-inline-end: 0 !important;
+}
+
+.pg-action-cell .btn:hover:not(:disabled, .disabled, [aria-disabled="true"]) {
+  transform: translateY(-1px);
+}
+
+.pg-action-cell .btn:is(:disabled, .disabled, [aria-disabled="true"]) {
+  opacity: .38;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pg-action-cell .btn {
+    transition: none;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .pg-action-cell .btn {
+    min-height: 1.85rem;
+    min-width: 1.85rem;
+  }
+}
+
 /* ================================================================
    Filter chips bar
    ================================================================ */
@@ -239,7 +286,7 @@
    Header – thead / th
    ================================================================ */
 .pg-grid-table thead {
-  background: var(--pg-color-bg-muted);
+  background: var(--gtx-palette-tint-overlay, none), var(--pg-color-bg-muted);
   position: sticky;
   top: 0;
   z-index: 5;

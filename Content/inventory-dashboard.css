@@ -6,6 +6,9 @@
     --dashboard-ink: var(--bs-body-color, #172033);
     --dashboard-surface: var(--bs-body-bg, #fff);
     --dashboard-surface-alt: var(--bs-tertiary-bg, #f8fafc);
+    --dashboard-panel-surface: var(--dashboard-surface);
+    --dashboard-panel-surface-alt: var(--dashboard-surface-alt);
+    --dashboard-steel-panel-background: var(--gtx-addgrid-header-background);
     --dashboard-header-bg: var(--gtx-grad, var(--bs-primary-bg-subtle, #f8fafc));
     --dashboard-header-color: #fff;
     --dashboard-header-border: rgba(255, 255, 255, .24);
@@ -17,6 +20,17 @@
     margin: 0;
     padding: 0 clamp(.75rem, 3vw, 2rem) .75rem;
     color: var(--dashboard-ink);
+}
+
+@supports (color: color-mix(in srgb, white, black)) {
+    html[data-background-theme="dark"] .inventory-dashboard {
+        --dashboard-panel-surface: color-mix(in srgb, var(--gtx-palette-tint-color) var(--gtx-panel-tint-amount), var(--dashboard-surface));
+        --dashboard-panel-surface-alt: color-mix(in srgb, var(--gtx-palette-tint-color) var(--gtx-panel-tint-amount), var(--dashboard-surface-alt));
+    }
+}
+
+html[data-background-theme="dark"] .inventory-dashboard {
+    --dashboard-steel-panel-background: var(--gtx-tinted-steel-panel-background);
 }
 
 html.theme-silver .inventory-dashboard {
@@ -62,7 +76,7 @@ html.theme-red .inventory-dashboard {
     padding: 1rem;
     border: 1px solid var(--dashboard-border);
     border-radius: 8px;
-    background: var(--dashboard-surface);
+    background: var(--dashboard-panel-surface);
     box-shadow: 0 .55rem 1.4rem rgba(15, 23, 42, .07);
 }
 
@@ -113,7 +127,7 @@ html.theme-red .inventory-dashboard {
     padding: .4rem;
     border: 1px solid var(--dashboard-border);
     border-radius: .9rem;
-    background: color-mix(in srgb, var(--dashboard-surface) 91%, transparent);
+    background: color-mix(in srgb, var(--dashboard-panel-surface) 91%, transparent);
     box-shadow: 0 .55rem 1.4rem rgba(15, 23, 42, .07);
     backdrop-filter: blur(12px);
 }
@@ -143,6 +157,14 @@ html.theme-red .inventory-dashboard {
 
 #inventoryDashboardRange {
     height: 2.15rem;
+}
+
+html[data-background-theme="dark"] #inventoryDashboardRange {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--gtx-addgrid-header-ink, #000);
+    box-shadow: none !important;
 }
 
 .inventory-dashboard-card-header {
@@ -331,6 +353,10 @@ html[data-background-theme="dark"] .inventory-dashboard-icon {
         scrollbar-width: thin;
     }
 
+    .inventory-dashboard-graph-grid.inventory-dashboard-graph-grid-without-location {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .inventory-dashboard-graph-card:not(.inventory-dashboard-trend-card) {
         min-height: 13.5rem;
         height: auto;
@@ -407,7 +433,7 @@ html[data-background-theme="dark"] .inventory-dashboard-icon {
     min-height: 8rem;
     border: 1px solid var(--dashboard-line);
     border-radius: 8px;
-    background: linear-gradient(180deg, var(--dashboard-surface) 0%, var(--dashboard-surface-alt) 100%);
+    background: linear-gradient(180deg, var(--dashboard-panel-surface), var(--dashboard-panel-surface-alt));
     overflow: hidden;
     padding: .35rem;
 }
@@ -604,7 +630,7 @@ html[data-background-theme="dark"] .inventory-dashboard-icon {
     gap: .5rem;
     padding: .5rem .65rem;
     border-bottom: 1px solid var(--dashboard-line);
-    background: linear-gradient(180deg, var(--dashboard-surface) 0%, var(--dashboard-surface-alt) 100%);
+    background: linear-gradient(180deg, var(--dashboard-panel-surface), var(--dashboard-panel-surface-alt));
 }
 
 .inventory-dashboard-grid-title-wrap {
@@ -625,7 +651,7 @@ html[data-background-theme="dark"] .inventory-dashboard-icon {
     min-height: 0;
     max-height: none;
     overflow: auto;
-    background: var(--dashboard-surface-alt);
+    background: var(--dashboard-panel-surface-alt);
     scrollbar-color: rgba(71, 85, 105, .45) transparent;
     scrollbar-width: thin;
 }
@@ -734,7 +760,7 @@ html[data-background-theme="dark"] .inventory-dashboard-icon {
         top: 0;
         z-index: 2;
         padding: .42rem .5rem;
-        background: var(--dashboard-header-bg);
+        background: var(--gtx-palette-header-background);
         color: var(--dashboard-header-color);
         font-size: .74rem;
         font-weight: 700;
@@ -937,16 +963,6 @@ html[data-background-theme="dark"] .inventory-dashboard-icon {
     text-align: center;
 }
 
-.inventory-dashboard-details-button {
-    width: 1.95rem;
-    min-height: 1.95rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    line-height: 1;
-}
-
 #inventoryDashboardDetailsModal {
     --dashboard-border: var(--bs-border-color-translucent, rgba(30, 41, 59, .12));
     --dashboard-line: var(--bs-border-color-translucent, rgba(148, 163, 184, .22));
@@ -1030,7 +1046,11 @@ html[data-background-theme="dark"] .inventory-dashboard-icon {
         min-height: 0;
         border: 0;
         border-radius: 0;
-        background: var(--dashboard-surface);
+        background: var(--dashboard-panel-surface);
+    }
+
+    #inventoryDashboardStatusGrid .pg-search-bar {
+        background: var(--dashboard-panel-surface);
     }
 
     #inventoryDashboardStatusGrid .pg-grid-scroll {
@@ -1041,7 +1061,7 @@ html[data-background-theme="dark"] .inventory-dashboard-icon {
     }
 
     #inventoryDashboardStatusGrid .pg-grid-table thead {
-        background: var(--dashboard-header-bg);
+        background: var(--gtx-palette-header-background);
     }
 
     #inventoryDashboardStatusGrid .pg-th-label,
@@ -1059,8 +1079,7 @@ html[data-background-theme="dark"] .inventory-dashboard-icon {
         border-color: var(--dashboard-border);
     }
 
-    #inventoryDashboardStatusGrid .inventory-dashboard-expand-button,
-    #inventoryDashboardStatusGrid .inventory-dashboard-details-button {
+    #inventoryDashboardStatusGrid .inventory-dashboard-expand-button {
         padding: 0;
         font-size: inherit;
     }
