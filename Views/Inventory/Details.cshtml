@@ -140,7 +140,7 @@
         <meta property="product:price:amount" content="@price" />
         <meta property="product:price:currency" content="USD" />
     }
-    <script defer src="~/Scripts/Lightbox/lc_lightbox.lite.min.js" type="text/javascript"></script>
+    <script defer src="~/Scripts/Lightbox/lc_lightbox.lite.min.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/Lightbox/lc_lightbox.lite.min.js")).Ticks)" type="text/javascript"></script>
     <link href="~/Content/Lightbox/lc_lightbox.min.css?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Content/Lightbox/lc_lightbox.min.css")).Ticks)" rel="stylesheet" />
 
     <!-- SKINS -->
@@ -579,7 +579,7 @@
             </button>
             <div class="collapse show gtx-suggestion-body" id="suggestion">
                 <div class="details-suggestion-rail d-flex">
-                    <button class="btn btn-gradient-grey scroll-button bi bi-arrow-left-circle" onclick="scrollSuggestions(-300)"></button>
+                    <button type="button" class="btn btn-gradient-grey scroll-button bi bi-arrow-left-circle" onclick="scrollSuggestions(-300)" aria-label="@I18n.R("Home_PreviousVehicle")"></button>
                     <div class="scroll-container shadow" id="suggestionScroll">
                         <div class="details-suggestion-list d-flex">
                             @foreach (var suggestion in Model.CurrentVehicle.VehicleSuggesion)
@@ -590,7 +590,7 @@
                             }
                         </div>
                     </div>
-                    <button class="btn btn-gradient-grey scroll-button bi bi-arrow-right-circle" onclick="scrollSuggestions(300)"></button>
+                    <button type="button" class="btn btn-gradient-grey scroll-button bi bi-arrow-right-circle" onclick="scrollSuggestions(300)" aria-label="@I18n.R("Home_NextVehicle")"></button>
                 </div>
             </div>
         </section>
@@ -787,7 +787,7 @@
         updateLiked(stock);
 
         lc_lightbox(".elem", {
-            wrap_class: "lcl_fade_oc",
+            wrap_class: "lcl_fade_oc gtx-lightbox-slide",
             gallery: true,
             thumb_attr: "data-lcl-thumb",
             skin: "light",

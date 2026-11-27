@@ -89,11 +89,11 @@
                 template: '#majordome-add-grid-dataone-template'
             },
             {
-                field: 'ActionsKey', title: 'Actions', width: 420,
+                field: 'ActionsKey', title: 'Tasks', width: 128,
                 sortable: false, filterable: false, searchable: false,
                 resizable: false, reorderable: false,
                 headerClass: 'text-center majordome-actions-col',
-                cellClass: 'shadow text-start majordome-actions-cell pg-action-cell',
+                cellClass: 'shadow text-center majordome-actions-cell',
                 template: '#majordome-add-grid-actions-template'
             }
         ];

@@ -174,3 +174,65 @@
 .lcl_dark #lcl_progressbar {
 	background: #eee;
 }
+
+/* Keep the photo and controls visible while a VDP lightbox photo loads and slides. */
+#lcl_wrap.gtx-lightbox-slide.lcl_shown.lcl_switching_elem[lcl-type="image"] :is(#lcl_contents_wrap, #lcl_nav_cmd) {
+    opacity: 1 !important;
+}
+
+#lcl_wrap.gtx-lightbox-sliding #lcl_subj {
+    overflow: hidden !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #lcl_wrap.gtx-lightbox-slide.lcl_switching_elem #lcl_window {
+        transition: none;
+    }
+}
+
+/* Keep the lightbox command sizes and use the shared gallery button colors. */
+#lcl_wrap #lcl_nav_cmd .lcl_icon.scroll-button {
+    --gtx-scroll-icon-size: 1rem;
+    display: inline-flex;
+    border-radius: 50% !important;
+    background: var(--gtx-scroll-background);
+    color: var(--gtx-scroll-ink);
+    box-shadow: var(--gtx-scroll-shadow);
+}
+
+html[data-background-theme="dark"] #lcl_wrap #lcl_nav_cmd .lcl_icon.scroll-button {
+    --gtx-scroll-border: 1px solid transparent;
+}
+
+#lcl_wrap #lcl_nav_cmd .scroll-button::before {
+    color: inherit;
+    font-size: inherit;
+    line-height: 1;
+    text-indent: 0;
+    transition: opacity .15s ease;
+}
+
+#lcl_wrap #lcl_nav_cmd .lcl_icon.scroll-button:focus-visible {
+    opacity: 1;
+    transform: none;
+    outline: 2px solid currentColor;
+    outline-offset: -3px;
+}
+
+#lcl_wrap #lcl_nav_cmd .scroll-button:is(.lcl_prev, .lcl_next)::before,
+#lcl_wrap #lcl_nav_cmd .scroll-button::after,
+#lcl_wrap #lcl_thumbs_nav .scroll-button::before {
+    display: none;
+}
+
+#lcl_wrap #lcl_thumbs_nav.lcl_tn_has_arr .scroll-button {
+    display: inline-grid !important;
+    place-items: center;
+    border: var(--gtx-scroll-border);
+    border-radius: 50%;
+    background: var(--gtx-scroll-background);
+    color: var(--gtx-scroll-ink);
+    font-size: 1rem;
+    line-height: 1;
+    box-shadow: var(--gtx-scroll-shadow);
+}

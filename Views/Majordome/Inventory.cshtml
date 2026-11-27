@@ -94,7 +94,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" id="majordomeBulkCancel" class="btn btn-outline-secondary" data-button-tone="cancel"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>
-                <button type="button" id="majordomeBulkStart" class="btn btn-gradient"><i class="bi bi-play-fill me-1" aria-hidden="true"></i>Start</button>
+                <button type="button" id="majordomeBulkStart" class="btn btn-success" data-button-tone="success"><i class="bi bi-play-fill me-1" aria-hidden="true"></i>Start</button>
             </div>
         </div>
     </div>
@@ -291,7 +291,7 @@
                 </div>
                 <div class="modal-footer majordome-editor-footer">
                     <button type="button" class="btn btn-outline-secondary majordome-editor-cancel-btn" data-button-tone="cancel" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>
-                    <button type="submit" class="btn btn-gradient shadow majordome-editor-save-btn" id="majordomeInventoryEditorSave" data-button-tone="success">
+                    <button type="submit" class="btn btn-success shadow majordome-editor-save-btn" id="majordomeInventoryEditorSave" data-button-tone="success">
                         <i class="bi bi-check2-circle me-1"></i>Save inventory
                     </button>
                 </div>
@@ -329,13 +329,13 @@
     <div class="dropdown majordome-batch-actions-dropdown">
         <button type="button"
                 id="majordomeBatchActionsDropdown"
-                class="btn btn-sm btn-gradient dropdown-toggle d-flex align-items-center gap-2 text-nowrap shadow"
+                class="btn btn-sm btn-gradient dropdown-toggle d-flex align-items-center gap-2 text-nowrap shadow majordome-inventory-actions-toggle"
                 data-bs-toggle="dropdown"
                 aria-expanded="false">
             <i class="bi bi-collection-fill" aria-hidden="true"></i>
             <span>Actions</span>
         </button>
-        <div class="dropdown-menu dropdown-menu-end majordome-batch-actions-menu p-1 shadow" aria-labelledby="majordomeBatchActionsDropdown">
+        <div class="dropdown-menu dropdown-menu-end majordome-batch-actions-menu majordome-inventory-actions-menu p-1 shadow" aria-labelledby="majordomeBatchActionsDropdown">
             <button type="button" id="btnAddInventory" class="dropdown-item majordome-batch-action rounded-3">
                 <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-plus-circle"></i></span>
                 <span><strong>Add inventory</strong><small>Create one inventory vehicle</small></span>
@@ -360,6 +360,7 @@
 </template>
 
 <input type="hidden" id="currentVehicle" />
+<input type="file" id="majordomeRowUploadInput" class="js-amm-upload-input d-none" multiple accept="image/*" />
 
 @Html.Partial("_Majordome-VehicleCellsScript")
 
@@ -376,7 +377,9 @@
     let inventoryVehiclesSource = JSON.parse(inventoryVehiclesSourceJson);
     let inventoryVehicles = [];
     let selectedVehicleStock = null;
+    let openRowActionsToggle = null;
     let majordomeBulkJob = null;
+    let majordomeBulkToolbarBusy = false;
     const majordomeHistoryCache = {};
     const majordomeHistoryRequests = {};
     const expandedMajordomeHistoryStocks = {};
@@ -464,6 +467,9 @@
     ];
 
     $(function () {
+        $("#lightbox .lb-prev").addClass("scroll-button bi bi-arrow-left-circle");
+        $("#lightbox .lb-next").addClass("scroll-button bi bi-arrow-right-circle");
+
         const $storyEditor = $("#story");
         $storyEditor.addEdit({
             height: "100%",
@@ -792,7 +798,77 @@
             uploadFiles(stock, fileInput);
         });
 
-        $("#majordomeInventoryGrid").on("click", ".majordome-vehicle-row", function (e) {
+        const inventoryGrid = document.getElementById("majordomeInventoryGrid");
+        const rowActionsArrowKeys = new WeakMap();
+
+        // Bootstrap handles arrow keys at the document before they reach the grid.
+        window.addEventListener("keydown", function (event) {
+            if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+            const toggle = event.target.closest?.("#majordomeInventoryGrid .majordome-row-actions-toggle");
+            if (toggle && (!toggle.classList.contains("show") || toggle.nextElementSibling.getAttribute("aria-busy") === "true")) {
+                rowActionsArrowKeys.set(toggle, event.key);
+            }
+        }, true);
+
+        $(inventoryGrid).on("show.bs.dropdown", ".majordome-row-actions-toggle, #majordomeBatchActionsDropdown", function () {
+            const previousToggle = openRowActionsToggle || inventoryGrid.querySelector("#majordomeBatchActionsDropdown.show");
+            if (previousToggle && previousToggle !== this) {
+                bootstrap.Dropdown.getInstance(previousToggle)?.hide();
+            }
+        }).on("shown.bs.dropdown", ".majordome-row-actions-toggle", function () {
+            const toggle = this;
+            const menu = toggle.nextElementSibling;
+            openRowActionsToggle = toggle;
+            menu.setAttribute("aria-busy", "true");
+            menu.innerHTML = `<span class="d-flex align-items-center justify-content-center gap-2 p-2 small" role="status"><span class="spinner-border spinner-border-sm" aria-hidden="true"></span>Loading tasks...</span>`;
+            const loading = menu.firstElementChild;
+
+            // Give the browser a frame to paint the spinner before building the items.
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                if (openRowActionsToggle !== toggle || !toggle.isConnected || menu.firstElementChild !== loading) return;
+
+                const row = toggle.closest(".majordome-vehicle-row");
+                const vehicle = window.majordomeInventoryAddGrid.getDataItem(row)?.Original;
+                menu.innerHTML = vehicle
+                    ? renderMajordomeActionButtons(vehicle)
+                    : '<span class="dropdown-item-text" role="status">Vehicle tasks are unavailable.</span>';
+                menu.removeAttribute("aria-busy");
+                bootstrap.Dropdown.getInstance(toggle)?.update();
+
+                const openingKey = rowActionsArrowKeys.get(toggle);
+                rowActionsArrowKeys.delete(toggle);
+                if (openingKey && document.activeElement === toggle) {
+                    const items = menu.querySelectorAll(".dropdown-item:not(:disabled)");
+                    const item = openingKey === "ArrowUp" ? items[items.length - 1] : items[0];
+                    item?.focus();
+                }
+            }));
+        }).on("hidden.bs.dropdown", ".majordome-row-actions-toggle", function () {
+            if (openRowActionsToggle === this) openRowActionsToggle = null;
+            rowActionsArrowKeys.delete(this);
+            const menu = this.nextElementSibling;
+            const dropdown = bootstrap.Dropdown.getInstance(this);
+            // Leave the chosen item mounted until its delegated click handler has run.
+            window.setTimeout(() => {
+                if (this.classList.contains("show")) return;
+                menu.replaceChildren();
+                menu.removeAttribute("aria-busy");
+                if (dropdown && bootstrap.Dropdown.getInstance(this) === dropdown) {
+                    dropdown.dispose();
+                }
+            }, 0);
+        });
+
+        // Close before the existing row action handlers stop the click from bubbling.
+        inventoryGrid.addEventListener("click", function (event) {
+            const item = event.target.closest(".majordome-row-actions-menu .dropdown-item");
+            if (!item || item.disabled) return;
+
+            const toggle = item.closest(".majordome-actions").querySelector(".majordome-row-actions-toggle");
+            bootstrap.Dropdown.getInstance(toggle)?.hide();
+        }, true);
+
+        $(inventoryGrid).on("click", ".majordome-vehicle-row", function (e) {
             if ($(e.target).closest(".majordome-actions, .copyable").length) return;
             const stock = $(this).attr("data-stock");
             selectMajordomeVehicle(stock);
@@ -834,15 +910,16 @@
         $("#majordomeInventoryGrid").on("click", ".js-amm-upload-trigger", function (e) {
             e.preventDefault();
             e.stopPropagation();
-            $(this).closest(".majordome-actions").find(".js-amm-upload-input").trigger("click");
+            if (majordomeBulkToolbarBusy) return;
+
+            const stock = this.closest(".majordome-vehicle-row").dataset.stock;
+            $("#majordomeRowUploadInput").val("").attr("data-stock", stock).trigger("click");
         });
 
         $("#majordomeInventoryGrid").on("click", ".js-amm-edit-inventory", function (e) {
             e.preventDefault();
             e.stopPropagation();
-            const stock = $(this).attr("data-stock");
-            selectMajordomeVehicle(stock);
-            openMajordomeInventoryEditor(findMajordomeInventoryVehicle(stock), "edit");
+            editMajordomeInventoryVehicle($(this).attr("data-stock"));
         });
 
         $("#majordomeInventoryGrid").on("click", ".js-amm-appraise", function (e) {
@@ -850,17 +927,16 @@
             e.stopPropagation();
             const vehicle = findMajordomeInventoryVehicle($(this).attr("data-stock"));
             if (vehicle && window.majordomeInventoryAppraisal) {
-                window.majordomeInventoryAppraisal.open(vehicle, this, function (vin) {
+                const toggle = this.closest(".majordome-actions").querySelector(".majordome-row-actions-toggle");
+                window.majordomeInventoryAppraisal.open(vehicle, toggle, function (vin) {
                     return inventoryVehiclesSource.find(row => safeText(row.VIN).trim().toUpperCase() === vin);
                 });
             }
         });
 
-        $("#majordomeInventoryGrid").on("change", ".js-amm-upload-input", function (e) {
-            e.stopPropagation();
+        $("#majordomeRowUploadInput").on("change", function () {
             const stock = $(this).attr("data-stock");
-            const files = this.files ? Array.from(this.files) : [];
-            if (stock && files.length) {
+            if (stock && this.files?.length && !majordomeBulkToolbarBusy) {
                 uploadFiles(stock, this);
             }
         });
@@ -970,6 +1046,15 @@
             }) || null;
     }
 
+    function editMajordomeInventoryVehicle(stock) {
+        if (majordomeBulkToolbarBusy) return;
+        const vehicle = findMajordomeInventoryVehicle(stock);
+        if (!vehicle) return;
+
+        selectMajordomeVehicle(vehicle.Stock);
+        openMajordomeInventoryEditor(vehicle, "edit");
+    }
+
     function getMajordomeInventoryEditorInput(field) {
         return $(`#majordomeInventoryEditor${field}`);
     }
@@ -1031,7 +1116,7 @@
             <div class="majordome-editor-new-option d-none">
                 <div class="input-group">
                     <input type="text" class="form-control shadow-sm js-majordome-editor-new-option-value" inputmode="${inputMode}"${maxLengthAttr} placeholder="New ${escapeHtml(label)}" />
-                    <button type="button" class="btn btn-gradient js-majordome-editor-add-option">Add</button>
+                    <button type="button" class="btn btn-success js-majordome-editor-add-option" data-button-tone="success">Add</button>
                     <button type="button" class="btn btn-outline-secondary js-majordome-editor-cancel-option" data-button-tone="cancel">Cancel</button>
                 </div>
             </div>`);
@@ -2782,7 +2867,6 @@
                 initialStatus: "Checking the live remove.bg token balance...",
                 cancelMessage: "Cancel requested. The current vehicle will finish, then the remaining vehicles will stop.",
                 startText: "Run background removal",
-                startButtonClass: "btn-success",
                 largeModal: true,
                 hideStartWhenUnavailable: true,
                 intro: function (count) {
@@ -2914,7 +2998,7 @@
                 iconClass: "bi bi-trash",
                 startText: "Delete images",
                 startIconClass: "bi-trash",
-                startButtonClass: "btn-danger",
+                startTone: "danger",
                 emptyText: `No images to delete for Stock# ${stock}.`,
                 cancelMessage: "Cancel requested. The current deletion will finish, then the remaining images will stop.",
                 intro: function (count) {
@@ -2970,6 +3054,7 @@
     }
 
     function setMajordomeBulkToolbarBusy(isBusy) {
+        majordomeBulkToolbarBusy = isBusy;
         $("#purgeStockImageCache, #majordomeBatchActionsDropdown, #btnAddInventory, #btnReStoryAll, #btnRemoveBackgrounds, #btnDecodeAll, #upload, #deleteAll, .js-amm-edit-inventory, .js-amm-upload-trigger, .js-amm-upload-input")
             .prop("disabled", isBusy)
             .toggleClass("disabled", isBusy);
@@ -3028,7 +3113,7 @@
     function setMajordomeBulkActionButton($button, label, iconClass) {
         if (label === "Cancel" || label === "Stopping...") {
             $button.attr("data-button-tone", "cancel");
-        } else {
+        } else if ($button.attr("data-button-tone") === "cancel") {
             $button.removeAttr("data-button-tone");
         }
         $button.empty();
@@ -3042,15 +3127,16 @@
 
     function setMajordomeBulkStartButton($button, config) {
         const settings = config || {};
+        const tone = settings.startTone || "success";
         $button
-            .removeClass("btn-gradient btn-danger btn-success")
-            .addClass(settings.startButtonClass || "btn-gradient");
+            .removeClass("btn-danger btn-success")
+            .addClass("btn-" + tone)
+            .attr("data-button-tone", tone);
 
         return setMajordomeBulkActionButton(
             $button,
             settings.startText || "Start",
-            settings.startIconClass || "bi-play-fill")
-            .attr("data-button-tone", settings.startButtonClass === "btn-success" ? "success" : null);
+            settings.startIconClass || "bi-play-fill");
     }
 
     function showMajordomeBulkCloseButton() {
@@ -3568,75 +3654,79 @@
         return $("#majordomeInventoryBody .majordome-vehicle-row");
     }
 
+    function renderMajordomeActionToggle(stock) {
+        return `
+            <div class="dropdown d-inline-block majordome-actions">
+                <button type="button" class="btn btn-sm btn-gradient dropdown-toggle d-flex align-items-center gap-2 text-nowrap shadow majordome-inventory-actions-toggle majordome-row-actions-toggle"
+                        data-bs-toggle="dropdown" aria-expanded="false" aria-label="Tasks for Stock# ${escapeHtml(stock)}"
+                        data-bs-config='{"popperConfig":{"strategy":"fixed","modifiers":[{"name":"preventOverflow","options":{"altAxis":true,"padding":8}},{"name":"flip","options":{"padding":8}}]}}'>
+                    <i class="bi bi-list-task" aria-hidden="true"></i>
+                    <span>Tasks</span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end majordome-batch-actions-menu majordome-inventory-actions-menu majordome-row-actions-menu p-1 shadow"></div>
+            </div>
+        `;
+    }
+
     function renderMajordomeActionButtons(vehicle) {
         const stock = escapeHtml(vehicle.Stock);
         const vin = escapeHtml(vehicle.VIN);
         const vehicleTitle = [vehicle.Year, vehicle.Make, vehicle.Model, vehicle.VehicleStyle].filter(Boolean).join(" ");
-        const detailsButton = window.majordomeVehicleCells.renderDetailsButton(vehicle.Stock, vehicleTitle);
+        const detailsButton = window.majordomeVehicleCells.renderDetailsButton(vehicle.Stock, vehicleTitle, true);
         const imagesCount = vehicle.Images ? vehicle.Images.length : 0;
-        const canDeleteImages = imagesCount > 0;
         const hasAppraisal = !!document.getElementById("majordomeInventoryAppraisalModal");
-        const buttonClass = "btn btn-gradient-grey shadow-sm";
-        const deleteImagesTitle = canDeleteImages
-            ? `Delete all ${imagesCount} pictures for Stock# ${stock}`
-            : `No images to delete for Stock# ${stock}`;
+        const buttonClass = "dropdown-item majordome-batch-action rounded-3";
+        const disabledDuringBulk = majordomeBulkToolbarBusy ? "disabled" : "";
 
         return `
-            <div class="majordome-actions${hasAppraisal ? " has-appraisal" : ""}">
-                <div class="majordome-action-group">
-                    <div class="majordome-action-title">Edit</div>
-                    <div class="majordome-action-buttons">
-                        <button type="button" class="${buttonClass} js-amm-edit-inventory" data-stock="${stock}" title="Edit inventory for Stock# ${stock}">
-                            <i class="bi bi-pencil-square"></i>
+            <div class="majordome-row-actions-items d-grid gap-2">
+                <div class="border rounded-3 p-1" role="group" aria-label="Vehicle">
+                    <div class="dropdown-header">Vehicle</div>
+                    <div role="group" aria-label="Edit">
+                        <button type="button" class="${buttonClass} js-amm-edit-inventory" data-stock="${stock}" ${disabledDuringBulk}>
+                            <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-pencil-square"></i></span>
+                            <span><strong>Edit inventory</strong><small>Update stock fields</small></span>
                         </button>
                     </div>
+                    ${detailsButton}
+                    ${hasAppraisal ? `
+                        <button type="button" class="${buttonClass} js-amm-appraise" data-stock="${stock}" aria-haspopup="dialog" aria-controls="majordomeInventoryAppraisalModal">
+                            <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-graph-up-arrow"></i></span>
+                            <span><strong>Appraisal</strong><small>Research market prices</small></span>
+                        </button>` : ""}
                 </div>
-                <div class="majordome-action-group">
-                    <div class="majordome-action-title">Details</div>
-                    <div class="majordome-action-buttons align-self-center">${detailsButton}</div>
+                <div class="border rounded-3 p-1" role="group" aria-label="Images">
+                    <div class="dropdown-header">Images</div>
+                    <button type="button" class="${buttonClass} js-amm-upload-trigger" aria-label="Create images" ${disabledDuringBulk}>
+                        <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-upload"></i></span>
+                        <span><strong>Create</strong><small>Upload vehicle photos</small></span>
+                    </button>
+                    <button type="button" class="${buttonClass} js-amm-delete-images" data-stock="${stock}" data-images-count="${imagesCount}" aria-label="Delete images" ${imagesCount > 0 ? disabledDuringBulk : "disabled"}>
+                        <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-trash"></i></span>
+                        <span><strong>Delete</strong><small>${imagesCount > 0 ? "Remove stock photos" : "No photos to delete"}</small></span>
+                    </button>
                 </div>
-                ${hasAppraisal ? `
-                    <div class="majordome-action-group">
-                        <div class="majordome-action-title">Appraisal</div>
-                        <div class="majordome-action-buttons align-self-center">
-                            <button type="button" class="${buttonClass} mx-0 js-amm-appraise" data-stock="${stock}" aria-label="Appraise Stock# ${stock}" aria-haspopup="dialog" aria-controls="majordomeInventoryAppraisalModal" title="Appraise Stock# ${stock}">
-                                <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>
-                            </button>
-                        </div>
-                    </div>` : ""}
-                <div class="majordome-action-group">
-                    <div class="majordome-action-title">Images</div>
-                    <div class="majordome-action-buttons">
-                        <button type="button" class="${buttonClass} js-amm-upload-trigger" title="Upload images for Stock# ${stock}">
-                            <i class="bi bi-upload"></i>
-                        </button>
-                        <button type="button" class="${buttonClass} js-amm-delete-images" data-stock="${stock}" data-images-count="${imagesCount}" title="${deleteImagesTitle}" ${canDeleteImages ? "" : "disabled"}>
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </div>
-                    <input type="file" class="js-amm-upload-input d-none" data-stock="${stock}" multiple accept="image/*" />
+                <div class="border rounded-3 p-1" role="group" aria-label="DataOne">
+                    <div class="dropdown-header">DataOne</div>
+                    <button type="button" class="${buttonClass} js-amm-decode-dataone" data-vin="${vin}" aria-label="Create DataOne details">
+                        <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-car-front"></i></span>
+                        <span><strong>Create</strong><small>Decode this VIN</small></span>
+                    </button>
+                    <button type="button" class="${buttonClass} js-amm-delete-dataone" data-stock="${stock}" aria-label="Delete DataOne details">
+                        <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-trash"></i></span>
+                        <span><strong>Delete</strong><small>Clear saved specs</small></span>
+                    </button>
                 </div>
-                <div class="majordome-action-group">
-                    <div class="majordome-action-title">Story</div>
-                    <div class="majordome-action-buttons">
-                        <button type="button" class="${buttonClass} js-amm-create-story" data-stock="${stock}" title="Create story for Stock# ${stock}">
-                            <i class="bi bi-book"></i>
-                        </button>
-                        <button type="button" class="${buttonClass} js-amm-delete-story" data-stock="${stock}" title="Delete story for Stock# ${stock}">
-                            <i class="bi bi-trash" aria-hidden="true"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="majordome-action-group">
-                    <div class="majordome-action-title">DataOne</div>
-                    <div class="majordome-action-buttons">
-                        <button type="button" class="${buttonClass} js-amm-decode-dataone" data-vin="${vin}" title="Decode and override for VIN# ${vin}">
-                            <i class="bi bi-car-front"></i>
-                        </button>
-                        <button type="button" class="${buttonClass} js-amm-delete-dataone" data-stock="${stock}" title="Delete DataOne for stock# ${stock}">
-                            <i class="bi bi-trash" aria-hidden="true"></i>
-                        </button>
-                    </div>
+                <div class="border rounded-3 p-1" role="group" aria-label="Story">
+                    <div class="dropdown-header">Story</div>
+                    <button type="button" class="${buttonClass} js-amm-create-story" data-stock="${stock}" aria-label="Create story">
+                        <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-book"></i></span>
+                        <span><strong>Create</strong><small>Generate a story</small></span>
+                    </button>
+                    <button type="button" class="${buttonClass} js-amm-delete-story" data-stock="${stock}" aria-label="Delete story">
+                        <span class="majordome-batch-action-icon" aria-hidden="true"><i class="bi bi-trash"></i></span>
+                        <span><strong>Delete</strong><small>Remove the saved story</small></span>
+                    </button>
                 </div>
             </div>
         `;
@@ -3717,7 +3807,7 @@
             UploadHtml: `<span class="shadow majordome-status-pill majordome-status-upload ${upload ? "is-on" : ""}">${upload ? "Y" : "N"}</span>`,
             StoryHtml: `<span class="shadow majordome-status-pill majordome-status-story ${story ? "is-on" : ""}">${story ? "Y" : "N"}</span>`,
             DataOneHtml: `<span class="shadow majordome-status-pill majordome-status-dataone ${dataOne ? "is-on" : ""}">${dataOne ? "Y" : "N"}</span>`,
-            ActionsHtml: renderMajordomeActionButtons(row),
+            ActionsHtml: renderMajordomeActionToggle(stock),
             HistoryHtml: window.gtxInventoryHistory.renderPanel(stockKey, majordomeHistoryCache[stockKey])
         };
     }
@@ -3891,13 +3981,18 @@
                     $($target.closest(".majordome-row-image").length ? "#gallery-tab" : "#details-tab").tab("show");
                     return;
                 }
-                const $edit = $row.find(".js-amm-edit-inventory:not(:disabled)").first();
-                if ($edit.length) {
+                if (!majordomeBulkToolbarBusy) {
                     detail.event.preventDefault();
-                    $edit.trigger("click");
+                    editMajordomeInventoryVehicle($row.attr("data-stock"));
                 }
             },
             onRender: function () {
+                if (openRowActionsToggle && !openRowActionsToggle.isConnected) {
+                    const dropdown = bootstrap.Dropdown.getInstance(openRowActionsToggle);
+                    dropdown?.hide();
+                    dropdown?.dispose();
+                    openRowActionsToggle = null;
+                }
                 markSelectedRow(selectedVehicleStock);
                 syncMajordomeEmptyState();
                 syncMajordomeGalleryAvailability();

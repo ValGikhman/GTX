@@ -129,20 +129,16 @@
 
         @if (featuredVehicles.Length > 1)
         {
-            <button class="carousel-control-prev home-inventory-control"
+            <button class="btn btn-gradient-grey scroll-button bi bi-arrow-left-circle carousel-control-prev home-inventory-control"
                     type="button"
                     data-bs-target="#homeInventoryPlayer"
                     data-bs-slide="prev"
-                    aria-label="@I18n.R("Home_PreviousVehicle")">
-                <i class="bi bi-chevron-left" aria-hidden="true"></i>
-            </button>
-            <button class="carousel-control-next home-inventory-control"
+                    aria-label="@I18n.R("Home_PreviousVehicle")"></button>
+            <button class="btn btn-gradient-grey scroll-button bi bi-arrow-right-circle carousel-control-next home-inventory-control"
                     type="button"
                     data-bs-target="#homeInventoryPlayer"
                     data-bs-slide="next"
-                    aria-label="@I18n.R("Home_NextVehicle")">
-                <i class="bi bi-chevron-right" aria-hidden="true"></i>
-            </button>
+                    aria-label="@I18n.R("Home_NextVehicle")"></button>
         }
     </section>
 }
