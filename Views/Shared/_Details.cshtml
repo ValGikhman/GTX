@@ -4,6 +4,11 @@
 
 @{
     var siteProfile = GTX.SiteProfileStore.Current;
+    var detailsIdPrefix = ViewData["VehicleDetailsIdPrefix"] as string ?? string.Empty;
+    var detailsId = detailsIdPrefix + "details";
+    var overviewTitleId = detailsIdPrefix + "vehicleOverviewTitle";
+    var colorsTitleId = detailsIdPrefix + "vehicleColorsTitle";
+    var featuresTitleId = detailsIdPrefix + "vehicleFeaturesTitle";
     var vehicle = Model != null && Model.CurrentVehicle != null
         ? Model.CurrentVehicle.VehicleDetails
         : null;
@@ -34,18 +39,18 @@ else
         .Distinct(StringComparer.OrdinalIgnoreCase)
         .ToArray();
 
-    <section class="gtx-vehicle-overview mb-3" aria-labelledby="vehicleOverviewTitle">
+    <section class="gtx-vehicle-overview gtx-vehicle-profile mb-3" aria-labelledby="@overviewTitleId">
         <button class="gtx-overview-toggle w-100 btn btn-gradient position-relative collapse-toggle"
                 type="button"
                 data-bs-toggle="collapse"
-                data-bs-target="#details"
+                data-bs-target="#@detailsId"
                 aria-expanded="true"
-                aria-controls="details">
+                aria-controls="@detailsId">
             <span class="gtx-overview-toggle-copy">
                 <span class="gtx-overview-toggle-icon" aria-hidden="true"><i class="bi bi-car-front-fill"></i></span>
                 <span>
                     <small>Vehicle profile</small>
-                    <strong id="vehicleOverviewTitle">@I18n.R("All_Details")</strong>
+                    <strong id="@overviewTitleId">@I18n.R("All_Details")</strong>
                 </span>
             </span>
             <span class="toggle-icons" aria-hidden="true">
@@ -54,8 +59,8 @@ else
             </span>
         </button>
 
-        <div class="collapse show" id="details">
-            <div class="gtx-overview-body">
+        <div class="collapse show" id="@detailsId">
+            <div class="gtx-overview-body gtx-vehicle-profile-body">
                 <header class="gtx-overview-summary">
                     <div class="gtx-overview-summary-copy">
                         <span class="gtx-overview-kicker">At a glance</span>
@@ -63,11 +68,11 @@ else
                         <div class="gtx-overview-identifiers">
                             @if (!string.IsNullOrWhiteSpace(vehicle.Stock))
                             {
-                                <span class="copyable" data-copy-value="@vehicle.Stock" title="Double-click to copy Stock#"><i class="bi bi-upc-scan" aria-hidden="true"></i> Stock @vehicle.Stock</span>
+                                <span class="badge rounded-pill gtx-vehicle-profile-badge copyable" data-copy-value="@vehicle.Stock" title="Double-click to copy Stock#"><i class="bi bi-upc-scan" aria-hidden="true"></i> Stock @vehicle.Stock</span>
                             }
                             @if (!string.IsNullOrWhiteSpace(vehicle.VIN))
                             {
-                                <span class="copyable" data-copy-value="@vehicle.VIN" title="Double-click to copy VIN"><i class="bi bi-fingerprint" aria-hidden="true"></i> @vehicle.VIN</span>
+                                <span class="badge rounded-pill gtx-vehicle-profile-badge copyable" data-copy-value="@vehicle.VIN" title="Double-click to copy VIN"><i class="bi bi-fingerprint" aria-hidden="true"></i> @vehicle.VIN</span>
                             }
                         </div>
                     </div>
@@ -114,10 +119,10 @@ else
 
                 @if (!string.IsNullOrWhiteSpace(vehicle.Color) || !string.IsNullOrWhiteSpace(vehicle.Color2))
                 {
-                    <section class="gtx-overview-colors" aria-labelledby="vehicleColorsTitle">
+                    <section class="gtx-overview-colors" aria-labelledby="@colorsTitleId">
                         <div class="gtx-overview-section-heading">
                             <span class="gtx-overview-heading-icon"><i class="bi bi-palette" aria-hidden="true"></i></span>
-                            <span><small>Finish</small><strong id="vehicleColorsTitle">Vehicle colors</strong></span>
+                            <span><small>Finish</small><strong id="@colorsTitleId">Vehicle colors</strong></span>
                         </div>
                         <div class="gtx-overview-color-list">
                             @if (!string.IsNullOrWhiteSpace(vehicle.Color))
@@ -140,18 +145,18 @@ else
 
                 @if (features.Length > 0)
                 {
-                    <section class="gtx-overview-features" aria-labelledby="vehicleFeaturesTitle">
+                    <section class="gtx-overview-features" aria-labelledby="@featuresTitleId">
                         <div class="gtx-overview-section-heading">
                             <span class="gtx-overview-heading-icon"><i class="bi bi-stars" aria-hidden="true"></i></span>
-                            <span><small>Equipment</small><strong id="vehicleFeaturesTitle">Features &amp; highlights</strong></span>
-                            <span class="gtx-overview-count">@features.Length</span>
+                            <span><small>Equipment</small><strong id="@featuresTitleId">Features &amp; highlights</strong></span>
+                            <span class="badge rounded-pill gtx-vehicle-profile-badge gtx-overview-count">@features.Length</span>
                         </div>
-                        <div class="gtx-overview-feature-list">
+                        <ul class="gtx-overview-feature-list list-unstyled mb-0">
                             @foreach (var feature in features)
                             {
-                                <span><i class="bi bi-check2" aria-hidden="true"></i>@feature</span>
+                                <li class="badge rounded-pill gtx-vehicle-profile-badge"><i class="bi bi-check2" aria-hidden="true"></i>@feature</li>
                             }
-                        </div>
+                        </ul>
                     </section>
                 }
             </div>

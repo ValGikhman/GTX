@@ -249,7 +249,7 @@ html[data-background-theme="dark"] .pg-grid-table > thead :is(.pg-th-label, .pg-
 }
 
 html[data-background-theme="dark"] #modalShortcuts,
-html[data-background-theme="dark"] .vehicle-detail-page .vdp-gallery-card {
+html[data-background-theme="dark"] .gtx-vehicle-gallery {
     background: var(--gtx-addgrid-header-background);
 }
 
@@ -919,6 +919,7 @@ html[data-background-theme] .pe-editor .pe-body a {
 
 html[data-background-theme] :is(
     .majordome-action-group, .majordome-workspace #tab-details, .vehicle-detail-page,
+    .gtx-vehicle-profile, .gtx-vehicle-gallery-body, .gtx-vin-report,
     .inventory-management-upload-log, .majordome-bulk-preview, .majordome-bulk-progress-log
 ) {
     --gtx-detail-panel-surface: var(--gtx-tinted-panel-background, #f8fafc);
@@ -929,6 +930,7 @@ html[data-background-theme] :is(
 @supports (color: color-mix(in srgb, white, black)) {
     html[data-background-theme="light"] :is(
         .majordome-action-group, .majordome-workspace #tab-details, .vehicle-detail-page,
+        .gtx-vehicle-profile, .gtx-vehicle-gallery-body, .gtx-vin-report,
         .inventory-management-upload-log, .majordome-bulk-preview, .majordome-bulk-progress-log
     ) {
         --gtx-detail-panel-surface: color-mix(in srgb, var(--gtx-palette-tint-color) var(--gtx-panel-tint-amount), #f8fafc);
@@ -938,15 +940,18 @@ html[data-background-theme] :is(
 
 html[data-theme-finish="solid"] :is(
     .majordome-action-group, .majordome-workspace #tab-details, .vehicle-detail-page,
+    .gtx-vehicle-profile, .gtx-vehicle-gallery-body, .gtx-vin-report,
     .inventory-management-upload-log, .majordome-bulk-preview, .majordome-bulk-progress-log
 ) {
     --gtx-detail-panel-finish: none;
 }
 
 html[data-background-theme] .majordome-action-group,
-html[data-background-theme] .majordome-workspace #tab-details :is(.gtx-dataone-body, .majordome-story-panel),
-html[data-background-theme] .vehicle-detail-page :is(.gtx-dataone-body, .vdp-concierge-heading),
+html[data-background-theme] .majordome-workspace #tab-details .majordome-story-panel,
+html[data-background-theme] .vehicle-detail-page .vdp-concierge-heading,
+html[data-background-theme] .gtx-vin-report .avd-report,
 html[data-background-theme] :is(
+    .gtx-vehicle-profile-body, .gtx-vehicle-gallery-body,
     .inventory-management-upload-log, .majordome-bulk-progress-log,
     .majordome-remove-bg-filterbar, .majordome-remove-bg-token-card, .majordome-background-preview-card
 ) {
@@ -964,27 +969,30 @@ html[data-background-theme] :is(#inventoryManagementUploadTrack, #majordomeBulkP
     --bs-progress-bg: var(--gtx-field-background, var(--bs-secondary-bg));
 }
 
-:is(.majordome-workspace #tab-details, .vehicle-detail-page) .gtx-dataone-card {
+html[data-background-theme] .gtx-vehicle-profile {
     --overview-surface: var(--gtx-detail-panel-surface);
+    --overview-soft: var(--gtx-detail-panel-surface-alt);
+    --overview-line: var(--bs-border-color);
+    --overview-accent: color-mix(in srgb, var(--gtx-palette-tint-color) 35%, var(--bs-body-color));
 }
 
-:is(.majordome-workspace #tab-details, .vehicle-detail-page) .gtx-dataone-body .table {
+.gtx-dataone-body .table {
     --bs-table-bg: transparent;
 }
 
-html[data-background-theme="dark"] :is(.majordome-workspace #tab-details, .vehicle-detail-page) .gtx-dataone-body {
+html[data-background-theme="dark"] .gtx-vehicle-profile-body {
     --bs-secondary-color: var(--gtx-dark-field-placeholder);
 }
 
-:is(.majordome-workspace #tab-details, .vehicle-detail-page) .gtx-price-table .gtx-retail-muted {
+.gtx-dataone-body .gtx-price-table .gtx-retail-muted {
     color: var(--bs-secondary-color);
 }
 
-:is(.majordome-workspace #tab-details, .vehicle-detail-page) .gtx-price-table .text-danger {
+.gtx-dataone-body .gtx-price-table .text-danger {
     color: var(--bs-danger-text-emphasis) !important;
 }
 
-html[data-background-theme="dark"] :is(.majordome-workspace #tab-details, .vehicle-detail-page) .gtx-price-table .text-danger {
+html[data-background-theme="dark"] .gtx-dataone-body .gtx-price-table .text-danger {
     color: color-mix(in srgb, var(--bs-danger-text-emphasis) 45%, white) !important;
 }
 
