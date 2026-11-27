@@ -1,4 +1,8 @@
-<div class="modal fade" id="inventoryDashboardDetailsModal" tabindex="-1" aria-labelledby="inventoryDashboardDetailsModalTitle" aria-hidden="true">
+@{
+    var vehicleDetailsUrl = ViewData["VehicleDetailsUrl"] as string ?? Url.Action("GetInventoryDashboardVehicleDetails", "InventoryManagement");
+}
+
+<div class="modal fade" id="inventoryDashboardDetailsModal" tabindex="-1" aria-labelledby="inventoryDashboardDetailsModalTitle" aria-hidden="true" data-vehicle-details-url="@vehicleDetailsUrl">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
@@ -16,10 +20,6 @@
 <script type="text/javascript">
     (function (window, $) {
         if (!$) return;
-
-        function dashboardDetailsRoot() {
-            return typeof root !== "undefined" ? root : "/";
-        }
 
         function showDashboardDetailsModal() {
             const modalElement = document.getElementById("inventoryDashboardDetailsModal");
@@ -40,7 +40,7 @@
             $("#inventoryDashboardDetailsModalBody").html(`<div class="inventory-dashboard-details-loading text-muted">Loading details...</div>`);
             showDashboardDetailsModal();
 
-            $.get(`${dashboardDetailsRoot()}InventoryManagement/GetInventoryDashboardVehicleDetails`, {
+            $.get($("#inventoryDashboardDetailsModal").attr("data-vehicle-details-url"), {
                 stock: stockText
             })
                 .done(function (html) {
@@ -57,7 +57,7 @@
         };
 
         $(function () {
-            $("#inventoryDashboardStatusGrid, #majordomeManagementGrid")
+            $("#inventoryDashboardStatusGrid, #majordomeManagementGrid, #majordomeInventoryGrid")
                 .off("click.inventoryDashboardDetails", ".inventory-dashboard-details-button")
                 .on("click.inventoryDashboardDetails", ".inventory-dashboard-details-button", function (event) {
                     event.preventDefault();

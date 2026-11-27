@@ -292,14 +292,7 @@
             <div class="tab-pane fade show active" id="nav-details" role="tabpanel" aria-labelledby="nav-details-tab">
                 @if (Model.CurrentVehicle.VehicleDetails.Images?.Count() > 0)
                 {
-                    <div class="row mb-1 vdp-gallery-card">
-                        <div class="col-12 col-lg-12 col-md-12 col-sm-12">
-                            <div class="hero ratio ratio-carousel overflow-hidden">
-                                @Html.Partial("_Carousel", Model.CurrentVehicle)
-                            </div>
-
-                        </div>
-                    </div>
+                    @Html.Partial("_Carousel", Model.CurrentVehicle)
                 }
                 else
                 {

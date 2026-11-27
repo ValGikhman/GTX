@@ -1035,6 +1035,7 @@
                 : "";
             const imageRenderer = window.majordomeVehicleCells && window.majordomeVehicleCells.renderImageContent;
             const detailsRenderer = window.majordomeVehicleCells && window.majordomeVehicleCells.renderDetailsContent;
+            const detailsButtonRenderer = window.majordomeVehicleCells && window.majordomeVehicleCells.renderDetailsButton;
 
             return {
                 Original: row,
@@ -1062,15 +1063,7 @@
                 StockHtml: `<span class="shadow majordome-status-pill majordome-status-location ${managementEscapeHtml(gtxBadge.toneClass)} px-2">${managementEscapeHtml(stock)}</span>`,
                 GtxHtml: `<span class="majordome-status-pill majordome-status-location ${managementEscapeHtml(gtxBadge.toneClass)} shadow">${managementEscapeHtml(gtxBadge.label)}</span>`,
                 StatusHtml: `<span class="badge rounded-pill ${statusClass} shadow">${managementEscapeHtml(statusText)}</span>`,
-                DetailsHtml: `
-                    <button type="button"
-                            class="btn btn-gradient-grey shadow-sm inventory-dashboard-details-button"
-                            data-dashboard-details-stock="${managementEscapeHtml(stock)}"
-                            data-dashboard-details-title="${managementEscapeHtml(vehicleTitle)}"
-                            title="Show vehicle details">
-                        <i class="bi bi-card-list" aria-hidden="true"></i>
-                        <span class="visually-hidden">Show vehicle details</span>
-                    </button>`,
+                DetailsHtml: detailsButtonRenderer ? detailsButtonRenderer(stock, vehicleTitle) : "",
                 SpacerHtml: "",
                 DetailHtml: `<div id="${collapseId}" class="collapse" data-bs-parent="#majordomeManagementBody">${buildMajordomeManagementDetails(row)}</div>`
             };

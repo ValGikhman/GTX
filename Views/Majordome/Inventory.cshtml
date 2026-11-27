@@ -58,6 +58,10 @@
     @Html.Partial("_InventoryAppraisalModal")
 }
 
+@Html.Partial("~/Views/InventoryManagement/_DashboardVehicleDetailsModal.cshtml", new ViewDataDictionary {
+    { "VehicleDetailsUrl", Url.Action("GetInventoryVehicleDetails", "Majordome") }
+})
+
 <!-- Modal -->
 <div class="modal fade" id="overlayModal" data-bs-keyboard="true" tabindex="-1" aria-labelledby="overlayTitle" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
@@ -474,7 +478,12 @@
         }
 
         renderMajordomeInventoryRows(inventoryVehiclesSource);
-        selectFirstVisibleMajordomeVehicle();
+
+        $("#details-tab").on("show.bs.tab", function () {
+            if (!selectedVehicleStock) {
+                selectFirstVisibleMajordomeVehicle(false);
+            }
+        });
 
         $("#gallery-tab").on("shown.bs.tab", function () {
             if (selectedVehicle) {
@@ -485,12 +494,11 @@
         const initialStock = "@ViewBag.Stock";
         if (initialStock !== null && initialStock !== "") {
             applyFilterTerm(initialStock);
-            selectFirstVisibleMajordomeVehicle(false);
+            selectMajordomeVehicle(initialStock);
         } else if (window.gtxInventorySearch) {
             const storedTerm = window.gtxInventorySearch.readStoredTerm();
             if (storedTerm) {
                 applyFilterTerm(storedTerm);
-                selectFirstVisibleMajordomeVehicle(false);
             }
         }
 
@@ -3563,6 +3571,8 @@
     function renderMajordomeActionButtons(vehicle) {
         const stock = escapeHtml(vehicle.Stock);
         const vin = escapeHtml(vehicle.VIN);
+        const vehicleTitle = [vehicle.Year, vehicle.Make, vehicle.Model, vehicle.VehicleStyle].filter(Boolean).join(" ");
+        const detailsButton = window.majordomeVehicleCells.renderDetailsButton(vehicle.Stock, vehicleTitle);
         const imagesCount = vehicle.Images ? vehicle.Images.length : 0;
         const canDeleteImages = imagesCount > 0;
         const hasAppraisal = !!document.getElementById("majordomeInventoryAppraisalModal");
@@ -3580,6 +3590,10 @@
                             <i class="bi bi-pencil-square"></i>
                         </button>
                     </div>
+                </div>
+                <div class="majordome-action-group">
+                    <div class="majordome-action-title">Details</div>
+                    <div class="majordome-action-buttons align-self-center">${detailsButton}</div>
                 </div>
                 ${hasAppraisal ? `
                     <div class="majordome-action-group">
@@ -3933,6 +3947,8 @@
 
     function selectFirstVisibleMajordomeVehicle(keepCurrent) {
         const keep = keepCurrent !== false;
+        if (keep && !selectedVehicleStock) return;
+
         const $rows = getMajordomeFilterMatchedRows();
 
         if ($rows.length === 0) {
@@ -4050,8 +4066,6 @@
             } else {
                 selectFirstVisibleMajordomeVehicle(false);
             }
-        } else {
-            selectFirstVisibleMajordomeVehicle(false);
         }
 
         if (!hasSelectedVehicle && safeText(selectedVehicleStock || selectedVehicle?.Stock || "").trim()) {

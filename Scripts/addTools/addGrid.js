@@ -151,6 +151,9 @@
         /** Extra class for filter popups appended to document.body. */
         filterDropdownClass: '',
 
+        /** Enable the grid's built-in row selection. */
+        selectable: true,
+
         /**
          * Allow multiple rows to be selected simultaneously.
          * When false, selecting a new row deselects the previous one.
@@ -1246,6 +1249,7 @@
             const colgroup = document.createElement('colgroup');
             cols.forEach(function (col) {
                 const c = document.createElement('col');
+                if (col.columnClass) c.className = col.columnClass;
                 if (col.width) {
                     c.style.width = typeof col.width === 'number' ? col.width + 'px' : col.width;
                 }
@@ -1895,6 +1899,10 @@
         _handleRowClick: function (tr, item, e) {
             const self = this;
             if (e.target && e.target.closest && e.target.closest('.copyable')) return;
+            if (self._opts.selectable === false) {
+                self._trigger('rowClick', { dataItem: item, rowElement: tr, event: e });
+                return;
+            }
             const wasSelected = self._selectedRows.has(tr);
 
             if (!self._opts.multiSelect) {

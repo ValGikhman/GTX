@@ -874,7 +874,15 @@ html.theme-silver .majordome-admin-grid {
 }
 
 #majordomeInventoryTable .majordome-actions-col {
-    min-width: 300px;
+    min-width: 420px;
+}
+
+@media (max-width: 1199.98px) {
+    #majordomeInventoryTable col.majordome-inventory-col-xl { display: none; }
+}
+
+@media (max-width: 767.98px) {
+    #majordomeInventoryTable col.majordome-inventory-col-md { display: none; }
 }
 
 #majordomeManagementTable .majordome-management-col-expand {
@@ -1654,6 +1662,11 @@ html[data-background-theme="dark"] .majordome-workspace > #myTab.nav.nav-tabs.no
         cursor: pointer;
     }
 
+    #majordomeInventoryBody {
+        --inventory-selected-accent: var(--gtx-palette-tint-color);
+        --inventory-selected-bg: var(--gtx-secondary-action-gradient, none) var(--gtx-secondary-action-bg, var(--pg-color-bg-row-selected));
+    }
+
     #majordomeInventoryTable > tbody > tr.majordome-inventory-history-row > td {
         padding: 0;
         background: var(--inventory-surface-alt);
@@ -1668,16 +1681,16 @@ html[data-background-theme="dark"] .majordome-workspace > #myTab.nav.nav-tabs.no
     }
 
         #majordomeInventoryBody .majordome-vehicle-row.is-selected {
-            box-shadow: inset .32rem 0 #2563eb;
+            box-shadow: inset .32rem 0 var(--inventory-selected-accent);
         }
 
             #majordomeInventoryBody .majordome-vehicle-row.is-selected td {
-                background: #d9dde2;
+                background: var(--inventory-selected-bg);
                 border-color: rgba(108, 117, 125, .24);
             }
 
             #majordomeInventoryBody .majordome-vehicle-row.is-selected td:first-child {
-                box-shadow: inset .32rem 0 var(--bs-secondary-color, #6c757d);
+                box-shadow: inset .32rem 0 var(--inventory-selected-accent);
             }
 
     .majordome-thumb {
@@ -1761,14 +1774,14 @@ html[data-background-theme="dark"] .majordome-workspace > #myTab.nav.nav-tabs.no
 
     .majordome-actions {
         display: inline-grid;
-        grid-template-columns: repeat(var(--majordome-action-count, 4), max-content);
+        grid-template-columns: repeat(var(--majordome-action-count, 5), max-content);
         gap: .35rem;
         min-width: 0;
         width: auto;
         text-align: left;
     }
 
-    .majordome-actions.has-appraisal { --majordome-action-count: 5; }
+    .majordome-actions.has-appraisal { --majordome-action-count: 6; }
 
     .majordome-action-group {
         display: flex;

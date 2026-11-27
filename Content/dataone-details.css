@@ -59,6 +59,78 @@
     color: var(--bs-secondary-color);
 }
 
+/* VIN reports reuse DataOne's theme over the provider's embedded styles. */
+.gtx-vin-report {
+    --vin-report-control-background: var(--gtx-gradient-background);
+    --vin-report-control-ink: var(--gtx-gradient-ink);
+    --vin-report-muted: var(--bs-secondary-color);
+}
+
+html[data-background-theme="dark"] .gtx-vin-report {
+    --vin-report-control-background: var(--gtx-palette-header-background);
+    --vin-report-control-ink: var(--gtx-palette-header-ink);
+    --vin-report-muted: var(--gtx-dark-field-placeholder);
+}
+
+html[data-background-theme] .gtx-vin-report .avd-report,
+.gtx-vin-report .avd-report :is(.avd-style, .avd-table th, .avd-table td, .avd-description-list > li) {
+    border-color: var(--bs-border-color);
+}
+
+.gtx-vin-report .avd-report :is(.avd-style, .avd-panel__content, .avd-table) {
+    background: transparent;
+}
+
+html[data-background-theme] .gtx-vin-report .avd-report :is(.avd-style__toggle, .avd-panel__toggle) {
+    border-color: color-mix(in srgb, currentColor 25%, transparent);
+    color: var(--vin-report-control-ink);
+    background: var(--vin-report-control-background);
+    text-shadow: none;
+}
+
+.gtx-vin-report .avd-report :is(.avd-style__icon, .avd-panel__icon) {
+    color: inherit;
+    border-color: color-mix(in srgb, currentColor 22%, transparent);
+    background: color-mix(in srgb, currentColor 12%, transparent);
+    box-shadow: none;
+}
+
+.gtx-vin-report .avd-report .avd-style__toggle .avd-toggle-icons,
+.gtx-vin-report .avd-report .avd-tree > summary {
+    color: inherit;
+}
+
+.gtx-vin-report .avd-report .avd-style__toggle::after {
+    background: color-mix(in srgb, currentColor 20%, transparent);
+}
+
+.gtx-vin-report .avd-report :is(.avd-style__content, .avd-tree__content, .avd-subheading),
+.gtx-vin-report .avd-report .avd-panel::after {
+    border-color: var(--bs-border-color);
+}
+
+.gtx-vin-report .avd-report .avd-panel::before {
+    background: var(--bs-border-color);
+}
+
+.gtx-vin-report .avd-report :is(.avd-subheading, .avd-table thead th, .avd-tree > summary:hover, .avd-report__raw),
+.gtx-vin-report .avd-report .avd-panel::after {
+    background: var(--gtx-detail-panel-surface-alt);
+    color: inherit;
+}
+
+.gtx-vin-report .avd-report .avd-table tbody tr:nth-child(even) {
+    background: color-mix(in srgb, currentColor 4%, transparent);
+}
+
+.gtx-vin-report .avd-report :is(.avd-muted, footer) {
+    color: var(--vin-report-muted);
+}
+
+.gtx-vin-report .avd-report :is(summary, .avd-table-wrap):focus-visible {
+    outline-color: currentColor;
+}
+
 .section {
     margin-bottom: .75rem;
 }
