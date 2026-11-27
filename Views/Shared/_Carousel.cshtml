@@ -1,32 +1,33 @@
 ﻿@using Services;
-<div id="detailsCarousel" class="carousel slide" data-bs-ride="carousel">
-    <div class="carousel-inner">
-        @{
-            var i = 0;
-        }
-        @foreach (var image in Model.VehicleDetails.Images) {
-            var imagePath = InventoryImageUrl.Build(image.Source, image.Stock, InventoryImageVariant.Detail);
-            <div class="carousel-item @(i == 0 ? "active" : "")">
-                <div class="slide-box">
-                    <img class="vehicle-image" src="@imagePath"
-                         width="800"
-                         height="600"
-                         alt="Vehicle image @i"
-                         loading="@(i == 0 ? "eager" : "lazy")"
-                         decoding="async"
-                         fetchpriority="@(i == 0 ? "high" : "low")" />
+<div class="row gtx-vehicle-gallery">
+    <div class="col-12">
+        <div class="hero ratio ratio-carousel">
+            <div id="detailsCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    @{
+                        var i = 0;
+                    }
+                    @foreach (var image in Model.VehicleDetails.Images)
+                    {
+                        var imagePath = InventoryImageUrl.Build(image.Source, image.Stock, InventoryImageVariant.Detail);
+                        <div class="carousel-item @(i == 0 ? "active" : "")">
+                            <div class="slide-box">
+                                <img class="vehicle-image" src="@imagePath"
+                                     width="800"
+                                     height="600"
+                                     alt="Vehicle image @i"
+                                     loading="@(i == 0 ? "eager" : "lazy")"
+                                     decoding="async"
+                                     fetchpriority="@(i == 0 ? "high" : "low")" />
+                            </div>
+                        </div>
+                        i++;
+                    }
                 </div>
+                <button class="carousel-control-prev btn btn-gradient-grey scroll-button bi bi-arrow-left-circle" type="button" data-bs-target="#detailsCarousel" data-bs-slide="prev" aria-label="Previous"></button>
+                <button class="carousel-control-next btn btn-gradient-grey scroll-button bi bi-arrow-right-circle" type="button" data-bs-target="#detailsCarousel" data-bs-slide="next" aria-label="Next"></button>
             </div>
-            i++;
-        }
+        </div>
     </div>
-    <button class="carousel-control-prev" type="button" data-bs-target="#detailsCarousel" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Previous</span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#detailsCarousel" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Next</span>
-    </button>
 </div>
 

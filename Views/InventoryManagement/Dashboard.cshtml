@@ -2052,15 +2052,7 @@
                             ${daysIconClass ? `<i class="bi ${daysIconClass}" aria-hidden="true"></i>` : ""}
                             <span>${escapeDashboardHtml(daysText)}</span>
                         </span>`,
-                    DetailsHtml: `
-                        <button type="button"
-                                class="btn btn-gradient-grey shadow-sm inventory-dashboard-details-button"
-                                data-dashboard-details-stock="${escapeDashboardHtml(row.Stock)}"
-                                data-dashboard-details-title="${escapeDashboardHtml(vehicleTitle)}"
-                                title="Show vehicle details">
-                            <i class="bi bi-card-list" aria-hidden="true"></i>
-                            <span class="visually-hidden">Show vehicle details</span>
-                        </button>`,
+                    DetailsHtml: window.majordomeVehicleCells?.renderDetailsButton(row.Stock, vehicleTitle) || "",
                     HistoryHtml: renderDashboardHistoryPanel(stockKey)
                 };
             }

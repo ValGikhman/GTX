@@ -9,7 +9,7 @@
     var radiusId = prefix + "-radius";
     var submitId = prefix + "-submit";
     var submitClass = isEmbedded
-        ? "btn btn-gradient fw-semibold d-flex align-items-center gap-2"
+        ? "btn btn-success fw-semibold d-flex align-items-center gap-2"
         : "btn vin-schema-button vin-schema-button-primary";
 }
 
@@ -65,7 +65,7 @@
         <input id="@radiusId" name="radius" class="form-control" value="@GTX.Controllers.MajordomeController.AppraisalDefaultRadius"
                required="@(!isEmbedded)" type="number" min="1" max="500" step="1" inputmode="numeric" placeholder="@(isEmbedded ? "Profile radius" : null)" />
     </div>
-    <button type="submit" id="@submitId" class="@submitClass" disabled="@(!isEmbedded)" data-appraisal-submit>
+    <button type="submit" id="@submitId" class="@submitClass" disabled="@(!isEmbedded)" data-button-tone="@(isEmbedded ? "success" : null)" data-appraisal-submit>
         <i class="bi bi-search" aria-hidden="true"></i><span>Research price</span>
     </button>
 </form>

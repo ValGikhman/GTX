@@ -170,6 +170,27 @@ namespace GTX.Controllers
             return View(Model);
         }
 
+        [HttpGet]
+        public ActionResult GetInventoryVehicleDetails(string stock) {
+            var vehicle = FindCachedVehicleForStock(stock);
+            if (vehicle == null)
+                return HttpNotFound();
+
+            Model.CurrentVehicle.VehicleDetails = vehicle;
+            Model.CurrentVehicle.VehicleDataOneDetails = vehicle.DataOne;
+            if (Model.CurrentVehicle.VehicleDataOneDetails == null && Model.IsDataOne) {
+                try {
+                    Model.CurrentVehicle.VehicleDataOneDetails = GetDecodedData(vehicle.Stock);
+                }
+                catch (Exception ex) {
+                    Log($"Unable to load DataOne details for stock {vehicle.Stock}: {ex.Message}");
+                }
+            }
+
+            ViewData["VehicleDetailsIdPrefix"] = "inventoryModal_";
+            return PartialView("~/Views/InventoryManagement/_DashboardVehicleDetails.cshtml", Model);
+        }
+
         public ActionResult Logs() {
             ViewBag.Message = "Logs";
             ViewBag.Title = "Logs";

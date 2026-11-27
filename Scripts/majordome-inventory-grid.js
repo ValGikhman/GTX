@@ -40,6 +40,7 @@
             },
             {
                 field: 'Gtx', title: 'GTX', width: 109,
+                columnClass: 'majordome-inventory-col-xl',
                 headerClass: 'text-center d-none d-xl-table-cell majordome-inventory-col-gtx',
                 cellClass: 'text-center d-none d-xl-table-cell',
                 template: '#majordome-add-grid-gtx-template'
@@ -68,28 +69,31 @@
             },
             {
                 field: 'Upload', title: 'Upload', width: 132,
+                columnClass: 'majordome-inventory-col-md',
                 headerClass: 'text-center d-none d-md-table-cell majordome-inventory-col-upload',
                 cellClass: 'text-center d-none d-md-table-cell',
                 template: '#majordome-add-grid-upload-template'
             },
             {
                 field: 'Story', title: 'Story', width: 123,
+                columnClass: 'majordome-inventory-col-md',
                 headerClass: 'text-center d-none d-md-table-cell majordome-inventory-col-story',
                 cellClass: 'text-center d-none d-md-table-cell',
                 template: '#majordome-add-grid-story-template'
             },
             {
                 field: 'DataOne', title: 'DataOne', width: 138,
+                columnClass: 'majordome-inventory-col-md',
                 headerClass: 'text-center d-none d-md-table-cell majordome-inventory-col-dataone',
                 cellClass: 'text-center d-none d-md-table-cell',
                 template: '#majordome-add-grid-dataone-template'
             },
             {
-                field: 'ActionsKey', title: 'Actions', width: 300,
+                field: 'ActionsKey', title: 'Tasks', width: 128,
                 sortable: false, filterable: false, searchable: false,
                 resizable: false, reorderable: false,
                 headerClass: 'text-center majordome-actions-col',
-                cellClass: 'shadow text-start majordome-actions-cell pg-action-cell',
+                cellClass: 'shadow text-center majordome-actions-cell',
                 template: '#majordome-add-grid-actions-template'
             }
         ];
@@ -161,6 +165,7 @@
             exportToPdf: false,
             groupable: false,
             alternateRows: true,
+            selectable: false,
             dblClick: function (detail) { invoke('dblClick', detail); },
             onRender: function (detail) { invoke('onRender', detail); },
             onSearchChange: function (detail) { invoke('onSearchChange', detail); },

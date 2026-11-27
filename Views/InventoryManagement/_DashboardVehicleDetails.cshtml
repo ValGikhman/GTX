@@ -35,12 +35,10 @@ else
             </button>
 
             <div class="collapse show" id="dashboardVehiclePictures">
-                <div class="gtx-overview-body">
+                <div class="gtx-overview-body gtx-vehicle-gallery-body">
                     @if (hasImages)
                     {
-                        <div class="ratio ratio-carousel overflow-hidden">
-                            @Html.Partial("~/Views/Shared/_Carousel.cshtml", Model.CurrentVehicle)
-                        </div>
+                        @Html.Partial("~/Views/Shared/_Carousel.cshtml", Model.CurrentVehicle)
                     }
                     else
                     {

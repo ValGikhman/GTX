@@ -181,7 +181,7 @@ html[class][data-background-theme="dark"] body .btn:is(.gradient, .btn-gradient-
     box-shadow: var(--gtx-button-shadow, 0 .9rem 2rem rgba(0, 0, 0, .2)) !important;
 }
 
-html[data-background-theme="dark"] .btn:is(.gradient, .btn-gradient-grey:not(.active)):not(:disabled, .disabled, [aria-disabled="true"]):is(:hover, :focus-visible) {
+html[data-background-theme="dark"] .btn:is(.gradient, .btn-gradient-grey:not(.active)):not(:disabled, .disabled, [aria-disabled="true"], .scroll-button):is(:hover, :focus-visible) {
     --gtx-button-border-opacity: 52%;
     --gtx-button-shadow: 0 1.1rem 2.5rem rgba(0, 0, 0, .3);
 }
@@ -249,7 +249,7 @@ html[data-background-theme="dark"] .pg-grid-table > thead :is(.pg-th-label, .pg-
 }
 
 html[data-background-theme="dark"] #modalShortcuts,
-html[data-background-theme="dark"] .vehicle-detail-page .vdp-gallery-card {
+html[data-background-theme="dark"] .gtx-vehicle-gallery {
     background: var(--gtx-addgrid-header-background);
 }
 
@@ -918,7 +918,8 @@ html[data-background-theme] .pe-editor .pe-body a {
 }
 
 html[data-background-theme] :is(
-    .majordome-action-group, .majordome-workspace #tab-details, .vehicle-detail-page,
+    .majordome-workspace #tab-details, .vehicle-detail-page,
+    .gtx-vehicle-profile, .gtx-vehicle-gallery-body, .gtx-vin-report,
     .inventory-management-upload-log, .majordome-bulk-preview, .majordome-bulk-progress-log
 ) {
     --gtx-detail-panel-surface: var(--gtx-tinted-panel-background, #f8fafc);
@@ -928,7 +929,8 @@ html[data-background-theme] :is(
 
 @supports (color: color-mix(in srgb, white, black)) {
     html[data-background-theme="light"] :is(
-        .majordome-action-group, .majordome-workspace #tab-details, .vehicle-detail-page,
+        .majordome-workspace #tab-details, .vehicle-detail-page,
+        .gtx-vehicle-profile, .gtx-vehicle-gallery-body, .gtx-vin-report,
         .inventory-management-upload-log, .majordome-bulk-preview, .majordome-bulk-progress-log
     ) {
         --gtx-detail-panel-surface: color-mix(in srgb, var(--gtx-palette-tint-color) var(--gtx-panel-tint-amount), #f8fafc);
@@ -937,16 +939,18 @@ html[data-background-theme] :is(
 }
 
 html[data-theme-finish="solid"] :is(
-    .majordome-action-group, .majordome-workspace #tab-details, .vehicle-detail-page,
+    .majordome-workspace #tab-details, .vehicle-detail-page,
+    .gtx-vehicle-profile, .gtx-vehicle-gallery-body, .gtx-vin-report,
     .inventory-management-upload-log, .majordome-bulk-preview, .majordome-bulk-progress-log
 ) {
     --gtx-detail-panel-finish: none;
 }
 
-html[data-background-theme] .majordome-action-group,
-html[data-background-theme] .majordome-workspace #tab-details :is(.gtx-dataone-body, .majordome-story-panel),
-html[data-background-theme] .vehicle-detail-page :is(.gtx-dataone-body, .vdp-concierge-heading),
+html[data-background-theme] .majordome-workspace #tab-details .majordome-story-panel,
+html[data-background-theme] .vehicle-detail-page .vdp-concierge-heading,
+html[data-background-theme] .gtx-vin-report .avd-report,
 html[data-background-theme] :is(
+    .gtx-vehicle-profile-body, .gtx-vehicle-gallery-body,
     .inventory-management-upload-log, .majordome-bulk-progress-log,
     .majordome-remove-bg-filterbar, .majordome-remove-bg-token-card, .majordome-background-preview-card
 ) {
@@ -964,36 +968,31 @@ html[data-background-theme] :is(#inventoryManagementUploadTrack, #majordomeBulkP
     --bs-progress-bg: var(--gtx-field-background, var(--bs-secondary-bg));
 }
 
-:is(.majordome-workspace #tab-details, .vehicle-detail-page) .gtx-dataone-card {
+html[data-background-theme] .gtx-vehicle-profile {
     --overview-surface: var(--gtx-detail-panel-surface);
+    --overview-soft: var(--gtx-detail-panel-surface-alt);
+    --overview-line: var(--bs-border-color);
+    --overview-accent: color-mix(in srgb, var(--gtx-palette-tint-color) 35%, var(--bs-body-color));
 }
 
-:is(.majordome-workspace #tab-details, .vehicle-detail-page) .gtx-dataone-body .table {
+.gtx-dataone-body .table {
     --bs-table-bg: transparent;
 }
 
-html[data-background-theme="dark"] :is(.majordome-workspace #tab-details, .vehicle-detail-page) .gtx-dataone-body {
+html[data-background-theme="dark"] .gtx-vehicle-profile-body {
     --bs-secondary-color: var(--gtx-dark-field-placeholder);
 }
 
-:is(.majordome-workspace #tab-details, .vehicle-detail-page) .gtx-price-table .gtx-retail-muted {
+.gtx-dataone-body .gtx-price-table .gtx-retail-muted {
     color: var(--bs-secondary-color);
 }
 
-:is(.majordome-workspace #tab-details, .vehicle-detail-page) .gtx-price-table .text-danger {
+.gtx-dataone-body .gtx-price-table .text-danger {
     color: var(--bs-danger-text-emphasis) !important;
 }
 
-html[data-background-theme="dark"] :is(.majordome-workspace #tab-details, .vehicle-detail-page) .gtx-price-table .text-danger {
+html[data-background-theme="dark"] .gtx-dataone-body .gtx-price-table .text-danger {
     color: color-mix(in srgb, var(--bs-danger-text-emphasis) 45%, white) !important;
-}
-
-html[data-background-theme="dark"] .majordome-action-group {
-    border-color: var(--bs-border-color);
-}
-
-html[data-background-theme] .majordome-action-group .majordome-action-title {
-    color: inherit;
 }
 
 html[data-background-theme="dark"] :is(.inventory-dashboard-expand-button, .inventory-dashboard-history-change-toggle),
@@ -1133,7 +1132,7 @@ html[data-background-theme="dark"] .nav.nav-tabs :is(.nav-link, .btn[role="tab"]
 html[data-background-theme] body :is(
     .header .btn.light-gradient-action,
     #myTab > .btn[role="tab"].active,
-    #majordomeBatchActionsDropdown,
+    .majordome-inventory-actions-toggle,
     #majordomeInventoryDecodeVin,
     .pg-action-cell .btn
 ) {
@@ -1183,7 +1182,7 @@ html[data-background-theme="dark"] body .btn:is([data-button-tone="danger"], [da
 html[data-background-theme] body :is(
     .header .btn.light-gradient-action,
     #myTab > .btn[role="tab"].active,
-    #majordomeBatchActionsDropdown,
+    .majordome-inventory-actions-toggle,
     #majordomeInventoryDecodeVin,
     .pg-action-cell .btn
 ):focus-visible {
@@ -1191,7 +1190,7 @@ html[data-background-theme] body :is(
     outline-offset: -3px;
 }
 
-#majordomeBatchActionsDropdown::after {
+.majordome-inventory-actions-toggle::after {
     filter: none;
 }
 
@@ -1265,6 +1264,21 @@ html[data-background-theme="dark"] .gtx-card .gtx-price-panel:is(:hover, :focus-
 html[data-background-theme="dark"] .gtx-card .gtx-price-panel:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: -3px;
+}
+
+html[data-background-theme="dark"] #inventory[data-card-layout="compact"] .gtx-card-specs {
+    --gtx-compact-specs-background: var(--gtx-addgrid-header-background);
+    --gtx-compact-specs-ink: var(--gtx-addgrid-header-ink);
+}
+
+html[data-background-theme="dark"] #inventory[data-card-layout="compact"] .gtx-card-specs :is(div, span) {
+    color: inherit !important;
+}
+
+html[data-background-theme="dark"] #inventory[data-card-layout="compact"] .gtx-price-panel {
+    --gtx-compact-price-background: var(--gtx-dark-field-background);
+    --gtx-compact-price-ink: var(--gtx-field-ink);
+    --gtx-addgrid-header-ink: var(--gtx-compact-price-ink);
 }
 
 html[data-background-theme="dark"] .gtx-card .gtx-transparent-line {

@@ -15,6 +15,61 @@
         showSpinner("#loadingOverlay");
     });
 
+    $(document).on("lcl_on_open", function () {
+        $("#lcl_nav_cmd .lcl_prev").addClass("btn")
+            .add("#lcl_thumbs_nav .lcl_tn_prev").not(".scroll-button").addClass("scroll-button")
+            .append('<i class="bi bi-arrow-left-circle" aria-hidden="true"></i>');
+        $("#lcl_nav_cmd .lcl_next").addClass("btn")
+            .add("#lcl_thumbs_nav .lcl_tn_next").not(".scroll-button").addClass("scroll-button")
+            .append('<i class="bi bi-arrow-right-circle" aria-hidden="true"></i>');
+        $("#lcl_nav_cmd .lcl_play, #lcl_nav_cmd .lcl_thumbs_toggle, #lcl_nav_cmd .lcl_close").addClass("btn scroll-button");
+        $("#lcl_nav_cmd .lcl_close").attr("aria-label", "Close");
+    });
+
+    const reducedLightboxMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let lightboxSlide;
+
+    function clearLightboxSlide() {
+        if (!lightboxSlide) return;
+        if (lightboxSlide.outgoing) lightboxSlide.outgoing.remove();
+        if (lightboxSlide.animations) lightboxSlide.animations.forEach(animation => animation.cancel());
+        lightboxSlide.viewer.classList.remove("gtx-lightbox-sliding");
+        lightboxSlide = null;
+    }
+
+    $(document).on("lcl_on_elem_switch", function (event, currentIndex, nextIndex, request) {
+        clearLightboxSlide();
+        const viewer = document.querySelector('#lcl_wrap.gtx-lightbox-slide[lcl-type="image"]');
+        if (!viewer || reducedLightboxMotion.matches || !viewer.animate) return;
+
+        const forward = request === "next" || (request !== "prev" && nextIndex > currentIndex);
+        lightboxSlide = { viewer, offset: forward ? 100 : -100 };
+    }).on("lcl_before_populate_global", function (event, photo) {
+        if (!lightboxSlide || photo.type !== "image" || !lightboxSlide.viewer.classList.contains("lcl_shown")) return;
+
+        // LC Lightbox reuses the same element for every photo. Preserve the outgoing paint before it updates.
+        const image = lightboxSlide.viewer.querySelector("#lcl_elem_wrap");
+        const outgoing = document.createElement("div");
+        outgoing.className = "position-absolute top-0 start-0 w-100 h-100 pe-none";
+        outgoing.setAttribute("aria-hidden", "true");
+        outgoing.style.background = window.getComputedStyle(image).background;
+        image.after(outgoing);
+        lightboxSlide.outgoing = outgoing;
+    }).on("lcl_before_show_global", function () {
+        const slide = lightboxSlide;
+        if (!slide || !slide.outgoing) return;
+        const image = slide.viewer.querySelector("#lcl_elem_wrap");
+        const options = { duration: 600, easing: "ease-in-out", fill: "both" };
+        slide.viewer.classList.add("gtx-lightbox-sliding");
+        slide.animations = [
+            image.animate([{ transform: `translateX(${slide.offset}%)` }, { transform: "translateX(0)" }], options),
+            slide.outgoing.animate([{ transform: "translateX(0)" }, { transform: `translateX(${-slide.offset}%)` }], options)
+        ];
+        slide.animations[0].finished.then(() => {
+            if (lightboxSlide === slide) clearLightboxSlide();
+        }, () => { /* A new photo or closing the viewer cancels the animation. */ });
+    }).on("lcl_on_close_global", clearLightboxSlide);
+
     $(window).on("load", function () {
         $(".main-menu li ").removeClass("active");
         hideSpinner("#loadingOverlay");

@@ -8,26 +8,12 @@
     vertical-align: middle;
 }
 .specials-player-control {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    --gtx-scroll-icon-size: 1.2rem;
     flex: 0 0 auto;
     width: 2rem;
     height: 2rem;
-    padding: 0;
-    border: 1px solid #acbbc9;
-    border-radius: 50%;
-    background: linear-gradient(180deg, #fff, #e1e8f0);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .95), 0 2px 0 #b5c1ce, 0 4px 8px rgba(25, 47, 70, .14);
-    color: #164c7b;
-    font-size: .85rem;
-    line-height: 1;
-    cursor: pointer;
-    transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
 }
 .specials-player-control[hidden] { display: none; }
-.specials-player-control:hover { border-color: #164c7b; box-shadow: inset 0 1px 0 #fff, 0 2px 0 #b5c1ce, 0 5px 10px rgba(25, 47, 70, .22); }
-.specials-player-control:active { transform: translateY(1px); box-shadow: inset 0 1px 2px rgba(47, 69, 92, .12), 0 1px 0 #b5c1ce; }
 .specials-player-link {
     --specials-edge: #b5c1ce;
     --specials-highlight: rgba(255, 255, 255, .95);
@@ -82,8 +68,7 @@
 .specials-player-link-title,
 .specials-player-link-measure { grid-area: 2 / 1; overflow: hidden; text-overflow: ellipsis; min-width: 0; max-width: 100%; letter-spacing: -.015em; }
 .specials-player-link-measure { visibility: hidden; pointer-events: none; user-select: none; }
-.specials-player-link:focus-visible,
-.specials-player-control:focus-visible { outline: 3px solid #5f9de1; outline-offset: 3px; }
+.specials-player-link:focus-visible { outline: 3px solid #5f9de1; outline-offset: 3px; }
 .home-hero > .specials-player-link,
 .home-hero > .specials-player-control {
     position: absolute;
@@ -179,6 +164,6 @@
     .inventory-player-mobile-bar .specials-player-link-counter { font-size: .45rem; }
 }
 @media (prefers-reduced-motion: reduce) {
-    .specials-player-link, .specials-player-control { transition: none; }
+    .specials-player-link { transition: none; }
     .specials-player-link:hover, .specials-player-link:active { transform: none; }
 }

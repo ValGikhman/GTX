@@ -131,7 +131,8 @@ namespace GTX.Controllers
                 var actionName = Convert.ToString(filterContext.RouteData.Values["action"]);
                 var needsMajordomeInventory = string.Equals(controllerName, "Majordome", StringComparison.OrdinalIgnoreCase) &&
                     (string.Equals(actionName, "Inventory", StringComparison.OrdinalIgnoreCase) ||
-                     string.Equals(actionName, "GetUpdatedItems", StringComparison.OrdinalIgnoreCase));
+                     string.Equals(actionName, "GetUpdatedItems", StringComparison.OrdinalIgnoreCase) ||
+                     string.Equals(actionName, "GetInventoryVehicleDetails", StringComparison.OrdinalIgnoreCase));
 
                 if (needsMajordomeInventory)
                 {

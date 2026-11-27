@@ -29,7 +29,7 @@
                 <select id="majordomeManagementLogSelect" class="d-none" aria-hidden="true"></select>
                 <div id="majordomeManagementLogMenu" class="majordome-management-log-tree" role="tree" aria-label="Inventory management log filters"></div>
             </aside>
-            <div id="majordome-management-results" class="majordome-management-results">
+            <div id="majordome-management-results" class="majordome-management-results rounded-top-4">
                 <div class="d-none">
                     <div>
                         <button type="button" id="inventoryManagementUploadInventoryButton" class="btn btn-gradient shadow inventory-management-upload-button" data-button-tone="new">
@@ -38,7 +38,7 @@
                         <input type="file" name="dataCsv" id="inventoryManagementDataCsv" class="d-none" accept=".csv,text/csv" />
                     </div>
                 </div>
-                <div class="majordome-management-table-wrap table-responsive">
+                <div class="majordome-management-table-wrap table-responsive rounded-top-4">
                     <div id="majordomeManagementGrid" class="majordome-management-add-grid"></div>
                 </div>
                 <div id="majordomeManagementEmpty" class="p-4 text-center text-muted d-none">
@@ -98,7 +98,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary inventory-management-rollback-close" data-button-tone="cancel" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</button>
-                <button type="button" id="inventoryManagementRollbackConfirm" class="btn btn-danger" disabled>
+                <button type="button" id="inventoryManagementRollbackConfirm" class="btn btn-danger" data-button-tone="danger" disabled>
                     <span id="inventoryManagementRollbackSpinner" class="spinner-border spinner-border-sm me-2 d-none" aria-hidden="true"></span>
                     <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i>Delete latest and restore previous
                 </button>
@@ -1035,6 +1035,7 @@
                 : "";
             const imageRenderer = window.majordomeVehicleCells && window.majordomeVehicleCells.renderImageContent;
             const detailsRenderer = window.majordomeVehicleCells && window.majordomeVehicleCells.renderDetailsContent;
+            const detailsButtonRenderer = window.majordomeVehicleCells && window.majordomeVehicleCells.renderDetailsButton;
 
             return {
                 Original: row,
@@ -1062,15 +1063,7 @@
                 StockHtml: `<span class="shadow majordome-status-pill majordome-status-location ${managementEscapeHtml(gtxBadge.toneClass)} px-2">${managementEscapeHtml(stock)}</span>`,
                 GtxHtml: `<span class="majordome-status-pill majordome-status-location ${managementEscapeHtml(gtxBadge.toneClass)} shadow">${managementEscapeHtml(gtxBadge.label)}</span>`,
                 StatusHtml: `<span class="badge rounded-pill ${statusClass} shadow">${managementEscapeHtml(statusText)}</span>`,
-                DetailsHtml: `
-                    <button type="button"
-                            class="btn btn-gradient-grey shadow-sm inventory-dashboard-details-button"
-                            data-dashboard-details-stock="${managementEscapeHtml(stock)}"
-                            data-dashboard-details-title="${managementEscapeHtml(vehicleTitle)}"
-                            title="Show vehicle details">
-                        <i class="bi bi-card-list" aria-hidden="true"></i>
-                        <span class="visually-hidden">Show vehicle details</span>
-                    </button>`,
+                DetailsHtml: detailsButtonRenderer ? detailsButtonRenderer(stock, vehicleTitle) : "",
                 SpacerHtml: "",
                 DetailHtml: `<div id="${collapseId}" class="collapse" data-bs-parent="#majordomeManagementBody">${buildMajordomeManagementDetails(row)}</div>`
             };

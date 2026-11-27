@@ -874,7 +874,15 @@ html.theme-silver .majordome-admin-grid {
 }
 
 #majordomeInventoryTable .majordome-actions-col {
-    min-width: 300px;
+    min-width: 128px;
+}
+
+@media (max-width: 1199.98px) {
+    #majordomeInventoryTable col.majordome-inventory-col-xl { display: none; }
+}
+
+@media (max-width: 767.98px) {
+    #majordomeInventoryTable col.majordome-inventory-col-md { display: none; }
 }
 
 #majordomeManagementTable .majordome-management-col-expand {
@@ -1075,6 +1083,46 @@ html.theme-silver .majordome-admin-grid {
         display: block;
         text-decoration: none;
         color: inherit;
+    }
+
+    /* Draw inside the lightbox links so they keep their full-size click areas. */
+    #lightbox .lb-nav .scroll-button {
+        position: relative;
+        background-image: none;
+    }
+
+    #lightbox .lb-nav .scroll-button::before {
+        position: absolute;
+        top: 48%;
+        display: grid;
+        place-items: center;
+        width: 45px;
+        height: 45px;
+        transform: translateY(-48%);
+        border: var(--gtx-scroll-border);
+        border-radius: 50%;
+        background: var(--gtx-scroll-background);
+        color: var(--gtx-scroll-ink);
+        font-size: 1.55rem;
+        box-shadow: var(--gtx-scroll-shadow);
+        pointer-events: none;
+    }
+
+    #lightbox .lb-nav .lb-prev.scroll-button::before {
+        left: 0;
+    }
+
+    #lightbox .lb-nav .lb-next.scroll-button::before {
+        right: 0;
+    }
+
+    #lightbox .lb-nav .scroll-button:focus-visible {
+        opacity: 1;
+    }
+
+    #lightbox .lb-nav .scroll-button:focus-visible::before {
+        outline: 2px solid var(--gtx-scroll-ink);
+        outline-offset: -4px;
     }
 
     .majordome-photo-media {
@@ -1492,13 +1540,18 @@ html[data-background-theme="dark"] .majordome-workspace > #myTab.nav.nav-tabs.no
         line-height: 1.25;
     }
 
-        #inventoryGridShell .majordome-inventory-bulk-actions .btn {
-            position: relative;
-            z-index: 4;
-            pointer-events: auto;
-            min-height: 2.15rem;
-            padding-block: .3rem;
-        }
+    #inventoryGridShell .majordome-inventory-bulk-actions .btn {
+        position: relative;
+        z-index: 4;
+        pointer-events: auto;
+    }
+
+    #inventoryGridShell .majordome-inventory-actions-toggle {
+        min-height: 2.15rem;
+        padding: .3rem var(--bs-btn-padding-x);
+        font-size: var(--bs-btn-font-size);
+        line-height: var(--bs-btn-line-height);
+    }
 
     #majordomeInventoryTable {
         min-width: 980px;
@@ -1654,6 +1707,11 @@ html[data-background-theme="dark"] .majordome-workspace > #myTab.nav.nav-tabs.no
         cursor: pointer;
     }
 
+    #majordomeInventoryBody {
+        --inventory-selected-accent: var(--gtx-palette-tint-color);
+        --inventory-selected-bg: var(--gtx-secondary-action-gradient, none) var(--gtx-secondary-action-bg, var(--pg-color-bg-row-selected));
+    }
+
     #majordomeInventoryTable > tbody > tr.majordome-inventory-history-row > td {
         padding: 0;
         background: var(--inventory-surface-alt);
@@ -1668,16 +1726,16 @@ html[data-background-theme="dark"] .majordome-workspace > #myTab.nav.nav-tabs.no
     }
 
         #majordomeInventoryBody .majordome-vehicle-row.is-selected {
-            box-shadow: inset .32rem 0 #2563eb;
+            box-shadow: inset .32rem 0 var(--inventory-selected-accent);
         }
 
             #majordomeInventoryBody .majordome-vehicle-row.is-selected td {
-                background: #d9dde2;
+                background: var(--inventory-selected-bg);
                 border-color: rgba(108, 117, 125, .24);
             }
 
             #majordomeInventoryBody .majordome-vehicle-row.is-selected td:first-child {
-                box-shadow: inset .32rem 0 var(--bs-secondary-color, #6c757d);
+                box-shadow: inset .32rem 0 var(--inventory-selected-accent);
             }
 
     .majordome-thumb {
@@ -1759,51 +1817,63 @@ html[data-background-theme="dark"] .majordome-workspace > #myTab.nav.nav-tabs.no
             color: #166534;
         }
 
-    .majordome-actions {
-        display: inline-grid;
-        grid-template-columns: repeat(var(--majordome-action-count, 4), max-content);
-        gap: .35rem;
+    #inventoryGridShell #majordomeInventoryGrid .majordome-row-actions-menu {
+        width: min(23rem, calc(100vw - 1rem));
+        max-height: min(28rem, calc(100vh - 1rem));
+        max-height: min(28rem, calc(100dvh - 1rem));
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    .majordome-row-actions-menu[data-popper-reference-hidden] {
+        visibility: hidden;
+    }
+
+    .majordome-row-actions-items {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .majordome-row-actions-items > [role="group"] {
         min-width: 0;
-        width: auto;
-        text-align: left;
+        border-color: var(--inventory-line) !important;
+        background: color-mix(in srgb, var(--inventory-ink) 4%, var(--inventory-surface));
     }
 
-    .majordome-actions.has-appraisal { --majordome-action-count: 5; }
-
-    .majordome-action-group {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: .16rem;
-        padding: .2rem .25rem;
-        border: 1px solid rgba(148, 163, 184, .28);
-        border-radius: .6rem;
-        background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
-        box-shadow: 0 .15rem .45rem rgba(15, 23, 42, .06);
+    #inventoryGridShell .majordome-inventory-actions-menu .majordome-batch-action {
+        grid-template-columns: 1.65rem minmax(0, 1fr);
     }
 
-    .majordome-action-title {
-        align-self: stretch;
-        font-size: .58rem;
-        line-height: 1.1;
-        letter-spacing: .055em;
+    #inventoryGridShell .majordome-row-actions-menu .majordome-batch-action {
+        gap: .55rem;
+        min-height: 2.25rem;
+        padding: .3rem .4rem;
+    }
+
+    #inventoryGridShell .majordome-inventory-actions-menu .majordome-batch-action-icon {
+        width: 1.65rem;
+        height: 1.65rem;
+        font-size: .8rem;
+        color: var(--gtx-light-control-ink);
+        background: var(--gtx-light-control-background);
+    }
+
+    .majordome-row-actions-menu .dropdown-header {
+        margin: 0 .15rem .25rem;
+        padding: .35rem .25rem;
+        color: var(--inventory-ink);
+        border-bottom: 1px solid var(--inventory-line);
+        font-size: .7rem;
         font-weight: 800;
-        text-align: center;
+        letter-spacing: .04em;
         text-transform: uppercase;
-        color: #64748b;
     }
 
-    .majordome-action-buttons {
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        gap: .2rem;
-        flex-wrap: nowrap;
+    #inventoryGridShell .majordome-row-actions-menu .dropdown-item:disabled {
+        opacity: .5;
     }
 
     #majordomeInventoryTable th.majordome-actions-col,
     #majordomeInventoryTable td.majordome-actions-cell {
-        width: 1%;
         white-space: nowrap;
     }
 
@@ -2204,11 +2274,6 @@ html[data-background-theme="dark"] .majordome-workspace > #myTab.nav.nav-tabs.no
 
         .majordome-row-details {
             max-width: 170px;
-        }
-
-        .majordome-actions {
-            grid-template-columns: 1fr;
-            min-width: 0;
         }
 
         #inventoryGridShell .majordome-inventory-bulk-actions {

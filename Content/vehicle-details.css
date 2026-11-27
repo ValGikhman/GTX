@@ -443,17 +443,17 @@ html[data-background-theme] body .vdp-tabs .nav-tabs .nav-item.active {
     outline: none;
 }
 
-.vehicle-detail-page .vdp-gallery-card {
+.gtx-vehicle-gallery {
     overflow: hidden;
-    margin: 0 0 .75rem !important;
+    margin: 0 0 .75rem;
     padding: .65rem;
     border: 1px solid rgba(255, 255, 255, .08);
     border-radius: 1.35rem;
-    background: var(--vdp-theme-gradient);
+    background: var(--gtx-grad, linear-gradient(180deg, #155a96, #1e73be));
     box-shadow: 0 1.2rem 3rem rgba(11, 17, 22, .16);
 }
 
-.vehicle-detail-page .ratio-carousel {
+.gtx-vehicle-gallery .ratio-carousel {
     --bs-aspect-ratio: 59%;
     overflow: hidden;
     border-radius: .95rem;
@@ -516,67 +516,30 @@ html[data-background-theme] body .vdp-tabs .nav-tabs .nav-item.active {
     line-height: 1.35;
 }
 
-.vehicle-detail-page #detailsCarousel,
-.vehicle-detail-page #detailsCarousel .carousel-inner,
-.vehicle-detail-page #detailsCarousel .carousel-item {
+#detailsCarousel,
+#detailsCarousel .carousel-inner,
+#detailsCarousel .carousel-item {
     height: 100% !important;
 }
 
-.vehicle-detail-page #detailsCarousel,
-.vehicle-detail-page #detailsCarousel .carousel-inner,
-.vehicle-detail-page #detailsCarousel .carousel-item,
-.vehicle-detail-page #detailsCarousel .slide-box {
+#detailsCarousel,
+#detailsCarousel .carousel-inner,
+#detailsCarousel .carousel-item,
+#detailsCarousel .slide-box {
     background: inherit;
 }
 
-.vehicle-detail-page #detailsCarousel .slide-box {
-    height: 100%;
-}
-
-.vehicle-detail-page #detailsCarousel img {
-    width: 100%;
-    height: 100%;
+#detailsCarousel .vehicle-image {
     padding: .25rem;
-    object-fit: contain;
 }
 
-.vehicle-detail-page #detailsCarousel .carousel-control-prev,
-.vehicle-detail-page #detailsCarousel .carousel-control-next {
+#detailsCarousel :is(.carousel-control-prev, .carousel-control-next) {
+    --gtx-scroll-icon-size: 1.45rem;
     top: 50%;
     width: 2.7rem;
     height: 2.7rem;
     margin: 0 .8rem;
-    color: var(--gtx-secondary-action-ink, var(--vdp-ink));
-    border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
-    border-radius: 50%;
-    background: var(--gtx-secondary-action-gradient, none) var(--gtx-secondary-action-bg, var(--bs-tertiary-bg, #f3f5f6));
-    box-shadow: 0 .3rem .75rem rgba(0, 0, 0, .2);
     transform: translateY(-50%);
-    opacity: 1;
-}
-
-.vehicle-detail-page #detailsCarousel :is(.carousel-control-prev, .carousel-control-next):focus-visible {
-    outline: 2px solid currentColor;
-    outline-offset: -4px;
-}
-
-.vehicle-detail-page #detailsCarousel :is(.carousel-control-prev-icon, .carousel-control-next-icon) {
-    width: .66rem;
-    height: .66rem;
-    border: solid currentColor;
-    border-width: 0 2px 2px 0;
-    border-radius: 0;
-    background: none;
-    box-shadow: none;
-    filter: none;
-}
-
-.vehicle-detail-page #detailsCarousel .carousel-control-prev-icon {
-    rotate: 135deg;
-}
-
-.vehicle-detail-page #detailsCarousel .carousel-control-next-icon {
-    rotate: -45deg;
 }
 
 .vdp-utility-actions {
@@ -977,6 +940,10 @@ html.theme-silver .gtx-overview-toggle {
         var(--overview-surface);
 }
 
+.gtx-overview-body.gtx-vehicle-profile-body {
+    container-type: inline-size;
+}
+
 .gtx-overview-summary {
     padding: .15rem .15rem 1.15rem;
     border-bottom: 1px solid var(--overview-line);
@@ -1021,6 +988,19 @@ html.theme-silver .gtx-overview-toggle {
     display: inline-flex;
     gap: .35rem;
     align-items: center;
+}
+
+.gtx-vehicle-profile-badge {
+    max-width: 100%;
+    color: var(--bs-body-color);
+    border: 1px solid var(--overview-line);
+    background-color: var(--overview-soft);
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.gtx-overview-identifiers .gtx-vehicle-profile-badge {
+    font-size: inherit;
 }
 
 .gtx-overview-identifiers i {
@@ -1074,6 +1054,11 @@ html.theme-silver .gtx-overview-toggle {
     text-overflow: ellipsis;
 }
 
+.gtx-overview-spec > span:last-child,
+.gtx-overview-color > span:last-child {
+    overflow-wrap: anywhere;
+}
+
 .gtx-overview-colors,
 .gtx-overview-features {
     margin-top: .85rem;
@@ -1105,9 +1090,6 @@ html.theme-silver .gtx-overview-toggle {
     margin-left: auto;
     padding: .22rem .45rem;
     color: var(--overview-accent);
-    border: 1px solid color-mix(in srgb, var(--overview-accent) 22%, transparent);
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--overview-accent) 8%, transparent);
     font-size: .64rem;
     font-weight: 850;
     text-align: center;
@@ -1143,15 +1125,11 @@ html.theme-silver .gtx-overview-toggle {
     gap: .42rem;
 }
 
-.gtx-overview-feature-list > span {
+.gtx-overview-feature-list > li {
     padding: .42rem .62rem;
     display: inline-flex;
     gap: .35rem;
     align-items: center;
-    color: var(--bs-body-color, #111820);
-    border: 1px solid var(--overview-line);
-    border-radius: 999px;
-    background: var(--overview-soft);
     font-size: .68rem;
     font-weight: 700;
     line-height: 1.2;
@@ -1189,11 +1167,11 @@ html.theme-silver .gtx-overview-toggle {
     pointer-events: none;
 }
 
-.gtx-dataone-card #dataOneContainer {
+.gtx-dataone-card .gtx-dataone-content {
     padding: clamp(.75rem, 2.4vw, 1.25rem);
 }
 
-.gtx-dataone-card #dataOneContainer > .alert {
+.gtx-dataone-card .gtx-dataone-content > .alert {
     margin: 0;
     border-radius: .8rem;
 }
@@ -1335,6 +1313,19 @@ html.theme-silver .gtx-overview-toggle {
 @media (prefers-reduced-motion: reduce) {
     .gtx-overview-spec {
         transition: none;
+    }
+}
+
+@container (max-width: 32rem) {
+    .gtx-overview-specs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@container (max-width: 26rem) {
+    .gtx-overview-specs,
+    .gtx-overview-color-list {
+        grid-template-columns: minmax(0, 1fr);
     }
 }
 
@@ -1797,18 +1788,18 @@ html.theme-silver .gtx-overview-toggle {
         font-size: .74rem;
     }
 
-    .vehicle-detail-page .vdp-gallery-card {
+    .gtx-vehicle-gallery {
         padding: .35rem;
         border-radius: .95rem;
     }
 
-    .vehicle-detail-page .ratio-carousel {
+    .gtx-vehicle-gallery .ratio-carousel {
         --bs-aspect-ratio: 72%;
         border-radius: .7rem;
     }
 
-    .vehicle-detail-page #detailsCarousel .carousel-control-prev,
-    .vehicle-detail-page #detailsCarousel .carousel-control-next {
+    #detailsCarousel :is(.carousel-control-prev, .carousel-control-next) {
+        --gtx-scroll-icon-size: 1.25rem;
         width: 2.3rem;
         height: 2.3rem;
         margin: 0 .4rem;

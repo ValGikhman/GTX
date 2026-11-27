@@ -61,11 +61,33 @@
             return `<td class="majordome-row-details">${renderDetailsContent(vehicle)}</td>`;
         }
 
+        function renderDetailsButton(stock, title, inActionsMenu) {
+            const stockText = cellText(stock).trim();
+            if (!stockText) return "";
+
+            const buttonClass = inActionsMenu ? "dropdown-item majordome-batch-action rounded-3" : "btn btn-gradient-grey shadow-sm";
+            const icon = '<i class="bi bi-card-list" aria-hidden="true"></i>';
+            const content = inActionsMenu
+                ? `<span class="majordome-batch-action-icon" aria-hidden="true">${icon}</span><span><strong>Details</strong><small>View photos and specs</small></span>`
+                : `${icon}<span class="visually-hidden">Show vehicle details</span>`;
+            return `
+                <button type="button"
+                        class="${buttonClass} inventory-dashboard-details-button"
+                        data-dashboard-details-stock="${cellEscapeHtml(stockText)}"
+                        data-dashboard-details-title="${cellEscapeHtml(title)}"
+                        aria-haspopup="dialog"
+                        aria-controls="inventoryDashboardDetailsModal"
+                        title="Show vehicle details">
+                    ${content}
+                </button>`;
+        }
+
         window.majordomeVehicleCells = {
             renderImageContent: renderImageContent,
             renderImageCell: renderImageCell,
             renderDetailsContent: renderDetailsContent,
-            renderDetailsCell: renderDetailsCell
+            renderDetailsCell: renderDetailsCell,
+            renderDetailsButton: renderDetailsButton
         };
         window.renderMajordomeVehicleImageCell = renderImageCell;
         window.renderMajordomeVehicleDetailsCell = renderDetailsCell;
