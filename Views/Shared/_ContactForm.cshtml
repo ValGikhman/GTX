@@ -1,6 +1,13 @@
 ﻿@using Newtonsoft.Json
 @model GTX.Models.ContactModel
 
+@{
+    var actionName = ViewContext.RouteData.Values["action"] as string;
+    var isModalForm = string.Equals(actionName, "ContactForm", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(actionName, "ContactModal", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(actionName, "TestDriveModal", StringComparison.OrdinalIgnoreCase);
+}
+
 <style>
     .just-validate-error-field {
         border: 1px solid red !important;
@@ -118,7 +125,7 @@
     <input type="hidden" id="EmployerId" value="@Model.EmployerId" />
     <div class="d-flex justify-content-center">
         <div class="w-100 text-center">
-            <button id="btnSent" type="submit" class="btn gradient rounded-5 border-dark shadow w-100">
+            <button id="btnSent" type="submit" class="btn @(isModalForm ? "btn-success" : "gradient border-dark") rounded-5 shadow w-100" data-button-tone="@(isModalForm ? "success" : null)">
                 <i class="bi bi-send"></i> Send
             </button>
 

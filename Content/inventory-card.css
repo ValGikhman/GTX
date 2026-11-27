@@ -524,6 +524,7 @@ html.theme-red .gtx-chip {
 }
 
 .gtx-gallery-arrow {
+    --gtx-scroll-icon-size: 1rem;
     z-index: 4;
     display: grid;
     place-items: center;
@@ -705,6 +706,18 @@ html.theme-red .gtx-chip {
     border-bottom: 1px solid var(--bs-border-color);
 }
 
+#inventory[data-card-layout="compact"] .gtx-card-specs {
+    margin-block: .35rem;
+    margin-inline: .35rem .15rem;
+    border-radius: .65rem;
+    background: var(--gtx-compact-specs-background, var(--gtx-gradient-background));
+    color: var(--gtx-compact-specs-ink, var(--gtx-gradient-ink));
+}
+
+#inventory[data-card-layout="compact"] .gtx-card-specs > div {
+    border-bottom-color: color-mix(in srgb, currentColor 23%, transparent);
+}
+
 #inventory:is([data-card-layout="compact"], [data-card-layout="price"]) .gtx-card-specs :is(dt, dd) {
     overflow-wrap: anywhere;
     line-height: 1.15;
@@ -756,7 +769,29 @@ html.theme-red .gtx-chip {
 }
 
 #inventory[data-card-layout="compact"] .gtx-price-panel {
+    --gtx-compact-price-ink: var(--bs-body-color);
     padding: .3rem .4rem;
+    border-color: color-mix(in srgb, currentColor 22%, transparent);
+    background: var(--gtx-compact-price-background, #fff);
+    color: var(--gtx-compact-price-ink);
+    text-shadow: none;
+}
+
+#inventory[data-card-layout="compact"] .gtx-price-panel:is(:hover, :focus-visible) {
+    border-color: color-mix(in srgb, currentColor 54%, transparent);
+}
+
+#inventory[data-card-layout="compact"] .gtx-price-panel:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -3px;
+}
+
+#inventory[data-card-layout="compact"] .gtx-transparent-line {
+    border-top-color: color-mix(in srgb, currentColor 23%, transparent);
+}
+
+html[data-background-theme="light"] #inventory[data-card-layout="compact"] .gtx-no-hidden-fees {
+    background: #146c43;
 }
 
 /* Price Focus keeps the price, specs, and photo under its full-width header. */

@@ -1144,7 +1144,7 @@ function showRemoveBackgroundConfirmation(options) {
                         <div class="modal-footer">
                             <button type="button" class="btn btn-outline-secondary majordome-remove-bg-close" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Close</button>
                             <button type="button" class="btn btn-outline-secondary d-none majordome-remove-bg-keep"><i class="bi bi-image me-1" aria-hidden="true"></i>Keep original</button>
-                            <button type="button" class="btn btn-success d-none majordome-remove-bg-use"><i class="bi bi-check2-circle me-1" aria-hidden="true"></i>Use this image</button>
+                            <button type="button" class="btn btn-success d-none majordome-remove-bg-use" data-button-tone="success"><i class="bi bi-check2-circle me-1" aria-hidden="true"></i>Use this image</button>
                         </div>
                     </div>
                 </div>

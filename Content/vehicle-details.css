@@ -534,41 +534,12 @@ html[data-background-theme] body .vdp-tabs .nav-tabs .nav-item.active {
 }
 
 #detailsCarousel :is(.carousel-control-prev, .carousel-control-next) {
+    --gtx-scroll-icon-size: 1.45rem;
     top: 50%;
     width: 2.7rem;
     height: 2.7rem;
     margin: 0 .8rem;
-    color: var(--gtx-secondary-action-ink, var(--bs-body-color, #111820));
-    border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
-    border-radius: 50%;
-    background: var(--gtx-secondary-action-gradient, none) var(--gtx-secondary-action-bg, var(--bs-tertiary-bg, #f3f5f6));
-    box-shadow: 0 .3rem .75rem rgba(0, 0, 0, .2);
     transform: translateY(-50%);
-    opacity: 1;
-}
-
-#detailsCarousel :is(.carousel-control-prev, .carousel-control-next):focus-visible {
-    outline: 2px solid currentColor;
-    outline-offset: -4px;
-}
-
-#detailsCarousel :is(.carousel-control-prev-icon, .carousel-control-next-icon) {
-    width: .66rem;
-    height: .66rem;
-    border: solid currentColor;
-    border-width: 0 2px 2px 0;
-    border-radius: 0;
-    background: none;
-    box-shadow: none;
-    filter: none;
-}
-
-#detailsCarousel .carousel-control-prev-icon {
-    rotate: 135deg;
-}
-
-#detailsCarousel .carousel-control-next-icon {
-    rotate: -45deg;
 }
 
 .vdp-utility-actions {
@@ -1828,6 +1799,7 @@ html.theme-silver .gtx-overview-toggle {
     }
 
     #detailsCarousel :is(.carousel-control-prev, .carousel-control-next) {
+        --gtx-scroll-icon-size: 1.25rem;
         width: 2.3rem;
         height: 2.3rem;
         margin: 0 .4rem;

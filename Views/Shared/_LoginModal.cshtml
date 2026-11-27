@@ -121,7 +121,7 @@
                                 </button>
                             </div>
 
-                            <button type="submit" class="btn btn-gradient" id="btnLogin">
+                            <button type="submit" class="btn btn-success" data-button-tone="success" id="btnLogin">
                                 <i class="bi bi-box-arrow-in-right me-1"></i> Log in
                             </button>
                         </div>
@@ -144,7 +144,7 @@
 
                 @using (Html.BeginForm("Logout", "Home", FormMethod.Post, new { id = "logoutForm", @class = "m-0" }))
                 {
-                    <button type="submit" class="btn btn-danger" id="btnLogout" title="Logout (clears session/cookie)">
+                    <button type="submit" class="btn btn-outline-secondary" id="btnLogout" title="Logout (clears session/cookie)">
                         <i class="bi bi-box-arrow-right me-1"></i> Logout
                     </button>
                 }

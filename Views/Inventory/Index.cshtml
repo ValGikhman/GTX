@@ -18,6 +18,8 @@
             const label = document.getElementById("inventoryCardLayoutLabel");
             const options = Array.from(document.querySelectorAll("#inventoryCardLayoutMenu [data-card-layout]"));
             const photoPosition = @Html.Raw(System.Web.Helpers.Json.Encode(I18n.R("InventoryGallery_PhotoPosition")));
+            const galleryPreviews = new Map();
+            const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
             let toolbarAlignmentFrame = 0;
 
             function getCardWidth() {
@@ -89,15 +91,76 @@
                 });
             }
 
-            function showGalleryPhoto(media, index) {
+            function slideGalleryPhoto(preview, image, step) {
+                const frame = document.createElement("div");
+                frame.className = "carousel slide carousel-inner";
+                const outgoing = document.createElement("div");
+                outgoing.className = "carousel-item active";
+                const incoming = document.createElement("div");
+                incoming.className = "carousel-item";
+                incoming.setAttribute("aria-hidden", "true");
+
+                preview.image.replaceWith(frame);
+                frame.append(outgoing, incoming);
+                outgoing.append(preview.image);
+                incoming.append(image);
+                preview.frame = frame;
+
+                const carousel = new bootstrap.Carousel(frame, { interval: false, keyboard: false, touch: false });
+                return new Promise(resolve => {
+                    frame.addEventListener("slid.bs.carousel", () => {
+                        carousel.dispose();
+                        resolve();
+                    }, { once: true });
+                    if (step > 0) carousel.next();
+                    else carousel.prev();
+                });
+            }
+
+            async function showGalleryPhoto(media, step) {
                 const photos = $(media).data("galleryPhotos");
-                const current = (index + photos.length) % photos.length;
-                media.querySelector(".gtx-img").src = photos[current];
-                media.querySelector(".gtx-gallery-status").textContent = photoPosition.replace("{0}", current + 1).replace("{1}", photos.length);
-                if (current === 0) {
-                    delete media.dataset.galleryIndex;
-                } else {
-                    media.dataset.galleryIndex = current;
+                let preview = galleryPreviews.get(media);
+                if (!preview) {
+                    const cover = media.querySelector(".gtx-img");
+                    preview = { cover, image: cover, index: 0, frame: null, busy: false };
+                    galleryPreviews.set(media, preview);
+                }
+                if (preview.busy) return;
+                preview.busy = true;
+
+                try {
+                    for (let distance = 1; distance < photos.length; distance++) {
+                        const index = (preview.index + step * distance + photos.length) % photos.length;
+                        const image = index === 0 ? preview.cover : new Image(
+                            preview.cover.getAttribute("width"), preview.cover.getAttribute("height"));
+                        if (index !== 0) {
+                            image.className = preview.cover.className;
+                            image.alt = preview.cover.alt;
+                            image.decoding = "async";
+                            image.src = photos[index];
+                        }
+
+                        // Keep the current picture in view until the next usable one is ready.
+                        const ready = await image.decode().then(() => true, () => false);
+                        if (galleryPreviews.get(media) !== preview) return;
+                        if (!ready) continue;
+
+                        if (!reducedMotion.matches) await slideGalleryPhoto(preview, image, step);
+                        if (galleryPreviews.get(media) !== preview) return;
+
+                        const displayed = preview.frame || preview.image;
+                        displayed.replaceWith(image);
+                        preview.frame = null;
+                        preview.image = image;
+                        preview.index = index;
+                        media.querySelector(".gtx-gallery-status").textContent = photoPosition.replace("{0}", index + 1).replace("{1}", photos.length);
+                        return;
+                    }
+                } finally {
+                    preview.busy = false;
+                    if (preview.index === 0 && galleryPreviews.get(media) === preview) {
+                        galleryPreviews.delete(media);
+                    }
                 }
             }
 
@@ -111,7 +174,12 @@
                 }
 
                 if (previousLayout === "gallery" && layout !== "gallery") {
-                    inventory.querySelectorAll(".gtx-media[data-gallery-index]").forEach(media => showGalleryPhoto(media, 0));
+                    galleryPreviews.forEach((preview, media) => {
+                        const displayed = preview.frame || preview.image;
+                        if (displayed !== preview.cover) displayed.replaceWith(preview.cover);
+                        media.querySelector(".gtx-gallery-status").textContent = "";
+                    });
+                    galleryPreviews.clear();
                 }
 
                 label.textContent = option.querySelector("strong").textContent;
@@ -140,9 +208,7 @@
                 event.stopPropagation();
                 if (inventory.dataset.cardLayout !== "gallery") return;
 
-                const media = this.closest(".gtx-media");
-                const index = Number(media.dataset.galleryIndex || 0) + Number(this.dataset.galleryStep);
-                showGalleryPhoto(media, index);
+                showGalleryPhoto(this.closest(".gtx-media"), Number(this.dataset.galleryStep));
             });
 
             options.forEach(option => option.addEventListener("click", () => {

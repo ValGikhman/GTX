@@ -1483,6 +1483,7 @@
 		var switch_elem = function(new_el, slideshow_switch) {
 			var v 			= lcl_ai_vars; 
 			var carousel	= lcl_ai_opts.carousel;
+			var requested_elem = new_el;
 			
 			if(lcl_is_active || v.elems.length < 2 || !lcl_ai_opts.gallery || $('.lcl_switching_elem').length) {return false;}
 
@@ -1551,10 +1552,10 @@
 					lcl_ai_opts.on_elem_switch.call(null, lcl_ai_opts, lcl_ai_vars, new_el);
 				}
 				
-				// switching | args: old_elem_id, new_elem_id
+				// switching | args: old_elem_id, new_elem_id, original navigation request
 				if(!v.is_arr_instance && lcl_curr_obj) {
 					var $subj = (v.elems_selector) ? $(v.elems_selector) : lcl_curr_obj;
-					$subj.first().trigger('lcl_on_elem_switch', [v.elem_index, new_el]);
+					$subj.first().trigger('lcl_on_elem_switch', [v.elem_index, new_el, requested_elem]);
 				}	
 				
 				//////
