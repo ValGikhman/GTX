@@ -26,7 +26,7 @@
             },
             {
                 field: 'VehicleLabel', title: 'Vehicle', width: 200,
-                sortField: 'VehicleSort', filterField: 'VehicleLabel', searchField: 'SearchText',
+                sortField: 'VehicleSort', searchField: 'SearchText', filterable: false,
                 headerClass: 'majordome-inventory-col-vehicle',
                 cellClass: 'majordome-row-details',
                 template: '#majordome-add-grid-vehicle-template'
@@ -46,18 +46,25 @@
                 template: '#majordome-add-grid-gtx-template'
             },
             {
-                field: 'Status', title: 'Status', width: 110,
-                filterable: false,
+                field: 'Status', title: 'Status', width: 136,
+                filterField: 'StatusFilter', filterMultiple: true,
                 headerClass: 'text-center majordome-inventory-col-status',
                 cellClass: 'inventory-dashboard-status-dot-cell',
                 template: '#majordome-add-grid-status-template'
             },
             {
+                field: 'PriceHistory', title: 'Price History', width: 140,
+                sortable: false, filterable: false, searchable: false,
+                headerClass: 'text-center text-nowrap',
+                cellClass: 'text-center',
+                template: '#majordome-add-grid-price-history-template'
+            },
+            {
                 field: 'Days', title: 'Days', width: 98,
                 filterField: 'DaysFilter',
                 filterable: false,
-                headerClass: 'text-end majordome-inventory-col-days',
-                cellClass: 'inventory-dashboard-days-cell',
+                headerClass: 'text-center majordome-inventory-col-days',
+                cellClass: 'inventory-dashboard-days-cell text-center',
                 template: '#majordome-add-grid-days-template'
             },
             {

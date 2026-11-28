@@ -833,7 +833,7 @@ html.theme-silver .majordome-admin-grid {
 }
 
 #majordomeInventoryTable .majordome-inventory-col-status {
-    width: 110px;
+    width: 136px;
 }
 
 #majordomeInventoryTable .majordome-inventory-col-days {
@@ -1715,6 +1715,10 @@ html[data-background-theme="dark"] .majordome-workspace > #myTab.nav.nav-tabs.no
     #majordomeInventoryTable > tbody > tr.majordome-inventory-history-row > td {
         padding: 0;
         background: var(--inventory-surface-alt);
+    }
+
+    .majordome-price-history-plot {
+        height: clamp(15rem, 42vh, 26rem);
     }
 
     #majordomeInventoryBody .majordome-vehicle-row.is-expanded > td {

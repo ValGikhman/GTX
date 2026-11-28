@@ -220,9 +220,134 @@
         return renderChangesForEntries([{ entry: entry, updatedText: dateText }], settings);
     }
 
-    function renderRows(history, stockKey, options) {
+    var priceFields = ["Retail price", "Internet price"];
+
+    function priceValue(value) {
+        var raw = text(value).trim().replace(/[$,\s]/g, "");
+        return /^-?\d+(?:\.\d+)?$/.test(raw) && Number.isFinite(Number(raw)) ? Number(raw) : null;
+    }
+
+    function buildPriceHistory(history, options) {
         var settings = optionsWithDefaults(options);
         var read = settings.valueOf;
+        var rows = Array.isArray(history) ? history : [];
+        var labels = [];
+        var tickLabels = [];
+        var snapshots = [];
+        var prices = [null, null];
+        var startsNewHistory = false;
+
+        // The history response is newest first, including updates with matching timestamps.
+        rows.slice().reverse().forEach(function (entry) {
+            var status = settings.statusLabel(read(entry, "StatusText", "Status")).toLowerCase();
+            if (status === "added" || status === "sold") {
+                startsNewHistory = snapshots.length > 0;
+            }
+            if (status !== "updated") return;
+
+            var changes = read(entry, "Changes", []);
+            var dateSource = read(entry, "DateCreated", "") || read(entry, "DateText", "");
+            var date = parseDate(dateSource);
+            if (!date || !Array.isArray(changes)) return;
+            var priceChanges = priceFields.map(function (field) {
+                return changes.find(function (change) { return read(change, "Field", "") === field; });
+            });
+            if (!priceChanges.some(Boolean)) return;
+
+            if (startsNewHistory) {
+                prices = [null, null];
+                labels.push("");
+                tickLabels.push("");
+                snapshots.push(prices);
+                startsNewHistory = false;
+            }
+
+            var before = priceChanges.map(function (change, index) {
+                return change ? priceValue(read(change, "PreviousValue", "")) : prices[index];
+            });
+            var dateLabel = settings.formatDateTime(dateSource) || settings.formatDate(dateSource);
+            if (before.some(function (price, index) { return price !== prices[index]; })) {
+                labels.push("Before " + dateLabel);
+                tickLabels.push("Before");
+                snapshots.push(before);
+            }
+
+            prices = priceChanges.map(function (change, index) {
+                return change ? priceValue(read(change, "CurrentValue", "")) : before[index];
+            });
+            labels.push(dateLabel);
+            tickLabels.push(date.toLocaleDateString(undefined, { month: "short", day: "numeric" }));
+            snapshots.push(prices);
+        });
+
+        var datasets = priceFields.map(function (label, index) {
+            return { label: label, data: snapshots.map(function (prices) { return prices[index]; }) };
+        }).filter(function (series) {
+            return series.data.some(Number.isFinite);
+        });
+
+        return datasets.length ? { labels: labels, tickLabels: tickLabels, datasets: datasets } : null;
+    }
+
+    function renderPriceHistoryChart(canvas, data) {
+        if (typeof window.Chart !== "function") return null;
+
+        var style = window.getComputedStyle(canvas);
+        var borderColor = style.getPropertyValue("--bs-border-color").trim();
+        data.datasets.forEach(function (series) {
+            var isRetail = series.label === priceFields[0];
+            var color = style.getPropertyValue(isRetail ? "--bs-primary-text-emphasis" : "--bs-danger-text-emphasis").trim();
+            series.borderColor = color || (isRetail ? "#0a58ca" : "#b02a37");
+            series.backgroundColor = series.borderColor;
+            series.borderWidth = 2.5;
+            series.pointStyle = isRetail ? "circle" : "rectRot";
+            series.pointRadius = 3;
+            series.pointHoverRadius = 6;
+            series.stepped = false;
+        });
+
+        return new window.Chart(canvas, {
+            type: "line",
+            data: data,
+            options: {
+                animation: false,
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: "index", intersect: false },
+                plugins: {
+                    legend: {
+                        align: "end",
+                        labels: { color: style.color, usePointStyle: true, pointStyleWidth: 12, padding: 16 }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (item) { return item.dataset.label + ": " + formatCurrency(item.parsed.y); }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            color: style.color,
+                            maxRotation: 0,
+                            maxTicksLimit: 8,
+                            autoSkipPadding: 12,
+                            callback: function (index) { return data.tickLabels[index]; }
+                        }
+                    },
+                    y: {
+                        grace: "5%",
+                        grid: { color: borderColor },
+                        ticks: { color: style.color, precision: 0, maxTicksLimit: 8, callback: formatCurrency }
+                    }
+                }
+            }
+        });
+    }
+
+    function renderRows(history, stockKey, options) {
+        var settings = optionsWithDefaults(options);
         var rows = Array.isArray(history) ? history : [];
         if (!rows.length) return '<div class="text-muted small">No inventory history found for this stock.</div>';
 
@@ -235,18 +360,17 @@
                   '<i class="bi bi-chevron-right" aria-hidden="true"></i><span class="visually-hidden">Show updated values</span></button>'
                 : "";
 
-            return '<div class="inventory-dashboard-history-group">' +
-                '<table class="table inventory-dashboard-history-table"><tbody><tr>' +
+            return "<tr>" +
                 '<td class="inventory-dashboard-history-toggle-cell">' + toggleHtml + "</td>" +
                 "<td>" + settings.escapeHtml(group.dateText || "-") + "</td>" +
-                '<td><span class="inventory-dashboard-history-status ' + statusClass(group.status) + '">' + settings.escapeHtml(group.status) + "</span></td></tr></tbody></table>" +
+                '<td><span class="inventory-dashboard-history-status ' + statusClass(group.status) + '">' + settings.escapeHtml(group.status) + "</span></td>" +
+                '<td class="p-0 border-0" aria-hidden="true"></td></tr>' +
                 (isUpdated
-                    ? '<div id="' + settings.escapeHtml(rowId) + '" class="inventory-dashboard-history-change-row d-none">' + renderChangesForEntries(group.entries, settings) + "</div>"
-                    : "") +
-                "</div>";
+                    ? '<tr id="' + settings.escapeHtml(rowId) + '" class="inventory-dashboard-history-change-row d-none"><td colspan="4">' + renderChangesForEntries(group.entries, settings) + "</td></tr>"
+                    : "");
         }).join("");
 
-        return '<div class="inventory-dashboard-history-list">' + body + "</div>";
+        return '<table class="table inventory-dashboard-history-table w-100"><tbody>' + body + "</tbody></table>";
     }
 
     function renderPanel(stockKey, history, options) {
@@ -258,9 +382,11 @@
     }
 
     window.gtxInventoryHistory = {
+        buildPriceHistory: buildPriceHistory,
         normalizeStockKey: normalizeStockKey,
         renderChanges: renderChanges,
         renderPanel: renderPanel,
+        renderPriceHistoryChart: renderPriceHistoryChart,
         renderRows: renderRows
     };
 })(window);
