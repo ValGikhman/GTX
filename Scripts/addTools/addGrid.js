@@ -104,6 +104,7 @@
          *   - hidden     {boolean} Exclude column from rendering (default false)
          *   - sortable   {boolean} Allow sort on this column (default true)
          *   - filterable {boolean} Allow filter on this column (default true)
+         *   - filterMultiple {boolean} Treat an array filter value as separate checkbox choices
          *   - searchable {boolean} Include in quick-search and highlight matches (default true)
          *   - encoded    {boolean} false = render cell value as raw HTML (default true)
          *   - resizable  {boolean} Inherits grid-level `resizable`; set false to disable per column
@@ -717,6 +718,12 @@
 
         // ── Filter ────────────────────────────────────────────────────────────
 
+        _filterValues: function (field, column, row) {
+            const value = this._columnValue(column, row, 'filter');
+            const values = column && column.filterMultiple && Array.isArray(value) ? value : [value];
+            return values.map(value => this._textOf(field, value));
+        },
+
         _applyFilter: function (data) {
             const self = this, fs = this._filterState, fields = Object.keys(fs);
             if (!fields.length) return data;
@@ -724,7 +731,7 @@
                 return fields.every(function (field) {
                     const s = fs[field];
                     const col = self._getColumn(field);
-                    return !s || !s.size || s.has(self._textOf(field, self._columnValue(col, row, 'filter')));
+                    return !s || !s.size || self._filterValues(field, col, row).some(value => s.has(value));
                 });
             });
         },
@@ -735,12 +742,12 @@
             self._closeFilter();
             self._openFilter = field;
 
-            const valMap = {};
+            const values = new Set();
             const column = self._getColumn(field);
-            self._raw.forEach(function (r) {
-                valMap[self._textOf(field, self._columnValue(column, r, 'filter'))] = true;
+            self._raw.forEach(function (row) {
+                self._filterValues(field, column, row).forEach(value => values.add(value));
             });
-            const vals = Object.keys(valMap).sort(function (a, b) {
+            const vals = Array.from(values).sort(function (a, b) {
                 return a.localeCompare(b, undefined, { numeric: true });
             });
             const allowed = self._filterState[field] || null;
