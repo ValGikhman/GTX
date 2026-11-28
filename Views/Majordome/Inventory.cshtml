@@ -25,6 +25,7 @@
         <script src="~/Scripts/majordome-appraisal-research.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome-appraisal-research.js")).Ticks)"></script>
         <script src="~/Scripts/majordome-inventory-appraisal.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/majordome-inventory-appraisal.js")).Ticks)"></script>
     }
+    <script src="~/Scripts/chartjs/chart.umd.min.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/chartjs/chart.umd.min.js")).Ticks)"></script>
     <script src="~/Scripts/inventory-history.js?v=@(System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/Scripts/inventory-history.js")).Ticks)"></script>
 
     <!-- Lightbox2 JS -->
@@ -61,6 +62,34 @@
 @Html.Partial("~/Views/InventoryManagement/_DashboardVehicleDetailsModal.cshtml", new ViewDataDictionary {
     { "VehicleDetailsUrl", Url.Action("GetInventoryVehicleDetails", "Majordome") }
 })
+
+<div class="modal fade" id="majordomePriceHistoryModal" tabindex="-1" aria-labelledby="majordomePriceHistoryTitle" aria-describedby="majordomePriceHistoryVehicle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="gtx-modal-title-icon" aria-hidden="true"><i class="bi bi-graph-up"></i></span>
+                <div>
+                    <h2 class="modal-title" id="majordomePriceHistoryTitle">Price History</h2>
+                    <div class="small mt-1" id="majordomePriceHistoryVehicle"></div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-3 p-sm-4">
+                <div id="majordomePriceHistoryStatus" class="text-body-secondary" role="status"></div>
+                <div id="majordomePriceHistoryPlot" class="border rounded-3 bg-body text-body p-2 p-sm-3 d-none">
+                    <div class="majordome-price-history-plot position-relative">
+                        <canvas id="majordomePriceHistoryCanvas" role="img" aria-label="Recorded changes in retail and internet prices by date"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-button-tone="cancel" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg me-1" aria-hidden="true"></i>Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Modal -->
 <div class="modal fade" id="overlayModal" data-bs-keyboard="true" tabindex="-1" aria-labelledby="overlayTitle" aria-hidden="true">
@@ -382,6 +411,7 @@
     let majordomeBulkToolbarBusy = false;
     const majordomeHistoryCache = {};
     const majordomeHistoryRequests = {};
+    const majordomePriceHistory = { stockKey: "", trigger: null, shown: false, chart: null };
     const expandedMajordomeHistoryStocks = {};
     window.majordomeSelectedStock = "";
     const majordomeUploadMaxAttempts = 3;
@@ -639,6 +669,19 @@
             }
         });
 
+        $("#majordomePriceHistoryModal").on("shown.bs.modal", function () {
+            majordomePriceHistory.shown = true;
+            renderMajordomePriceHistory(majordomePriceHistory.stockKey);
+        }).on("hide.bs.modal", function () {
+            majordomePriceHistory.stockKey = "";
+            majordomePriceHistory.shown = false;
+        }).on("hidden.bs.modal", function () {
+            clearMajordomePriceHistoryChart();
+            const trigger = majordomePriceHistory.trigger;
+            majordomePriceHistory.trigger = null;
+            if (trigger?.isConnected) trigger.focus();
+        });
+
         initMajordomeInventoryEditorDatepickers();
 
         $("#majordomeInventoryEditorModal").on("shown.bs.modal", function () {
@@ -873,6 +916,11 @@
             const stock = $(this).attr("data-stock");
             selectMajordomeVehicle(stock);
             toggleMajordomeHistoryRow($(this));
+        });
+
+        $(inventoryGrid).on("click", ".js-majordome-price-history", function (e) {
+            e.stopPropagation();
+            openMajordomePriceHistory(this);
         });
 
         $(document).on("click", "#purgeStockImageCache", async function (e) {
@@ -1650,6 +1698,7 @@
             bootstrap.Modal.getOrCreateInstance(document.getElementById("majordomeInventoryEditorModal")).hide();
 
             const savedStock = safeText(payload.Stock).trim();
+            invalidateMajordomeVehicleHistory(savedStock);
             if (mode === "add" && savedStock) {
                 applyFilterTerm(savedStock);
             }
@@ -1660,7 +1709,7 @@
             }
 
             if (response.vehicle) {
-                mergeMajordomeInventoryVehicle(response.vehicle, payload.OriginalStock);
+                mergeMajordomeInventoryVehicle(response.vehicle, payload.OriginalStock, response.status);
             } else if (Array.isArray(response.data)) {
                 updateRow(response.data);
             } else {
@@ -1690,7 +1739,7 @@
         return row;
     }
 
-    function mergeMajordomeInventoryVehicle(vehicle, originalStock) {
+    function mergeMajordomeInventoryVehicle(vehicle, originalStock, savedStatus) {
         const incoming = normalizeVehicle(vehicle);
         const stockKey = safeText(incoming.Stock).trim().toUpperCase();
         const originalKey = safeText(originalStock).trim().toUpperCase();
@@ -1703,6 +1752,12 @@
         });
         const existing = existingIndex >= 0 ? rows[existingIndex] : null;
         const merged = normalizeVehicle(Object.assign({}, existing || {}, incoming));
+        const statuses = Array.isArray(merged.HistoryStatuses) ? merged.HistoryStatuses : [];
+        if (getMajordomeStatusDotInfo(savedStatus).label && !statuses.some(code => Number(code) === Number(savedStatus))) {
+            merged.HistoryStatuses = [...statuses, savedStatus];
+            const dashboardVehicle = inventoryDashboardVehiclesByStock[stockKey];
+            if (dashboardVehicle) dashboardVehicle.HistoryStatuses = merged.HistoryStatuses;
+        }
 
         if ((!Array.isArray(incoming.Images) || incoming.Images.length === 0) && existing && Array.isArray(existing.Images)) {
             merged.Images = existing.Images;
@@ -3776,6 +3831,7 @@
             Stock: stock,
             Gtx: gtxValue,
             Status: statusLabels.join(", ") || "None",
+            StatusFilter: statusLabels.length ? statusLabels : ["None"],
             Days: Number.isFinite(numericDays) ? numericDays : Number.NEGATIVE_INFINITY,
             DaysFilter: daysText,
             Counter: detailsCounter,
@@ -3798,6 +3854,11 @@
             StockHtml: `<span class="shadow majordome-status-pill majordome-status-location ${escapeHtml(gtxBadge.toneClass)} px-2">${escapeHtml(stock)}</span>`,
             GtxHtml: `<span class="majordome-status-pill majordome-status-location ${escapeHtml(gtxBadge.toneClass)} shadow">${escapeHtml(gtxBadge.label)}</span>`,
             StatusHtml: renderMajordomeStatusDots(row.HistoryStatuses),
+            PriceHistoryHtml: statusLabels.includes("Updated")
+                ? `<button type="button" class="btn btn-sm btn-gradient d-inline-flex align-items-center gap-2 px-3 py-2 lh-sm fw-semibold rounded-3 shadow-sm text-nowrap js-majordome-price-history" aria-haspopup="dialog" aria-controls="majordomePriceHistoryModal" aria-label="View price history for stock ${escapeHtml(stock)}">
+                       <i class="bi bi-graph-up" aria-hidden="true"></i>View
+                   </button>`
+                : "",
             DaysHtml: `
                 <span class="inventory-dashboard-days-number ${escapeHtml(daysToneClass)}" title="${escapeHtml(daysTitle)}">
                     ${daysIconClass ? `<i class="bi ${escapeHtml(daysIconClass)}" aria-hidden="true"></i>` : ""}
@@ -3830,6 +3891,60 @@
         });
     }
 
+    function setMajordomePriceHistoryStatus(message, isError = false) {
+        $("#majordomePriceHistoryStatus").text(message)
+            .toggleClass("d-none", !message)
+            .toggleClass("text-danger", isError)
+            .toggleClass("text-body-secondary", !isError);
+    }
+
+    function clearMajordomePriceHistoryChart() {
+        majordomePriceHistory.chart?.destroy();
+        majordomePriceHistory.chart = null;
+        $("#majordomePriceHistoryPlot").addClass("d-none");
+    }
+
+    function openMajordomePriceHistory(trigger) {
+        const stockKey = $(trigger).closest(".majordome-vehicle-row").attr("data-stock-key");
+        if (!stockKey) return;
+
+        const item = getMajordomeGridDataItem(stockKey);
+        $("#majordomePriceHistoryVehicle").text([item?.VehicleLabel, `Stock #${stockKey}`].filter(Boolean).join(" | "));
+        majordomePriceHistory.stockKey = stockKey;
+        majordomePriceHistory.trigger = trigger;
+        clearMajordomePriceHistoryChart();
+        setMajordomePriceHistoryStatus("Loading price history...");
+
+        if (majordomePriceHistory.shown) {
+            renderMajordomePriceHistory(stockKey);
+        } else {
+            bootstrap.Modal.getOrCreateInstance(document.getElementById("majordomePriceHistoryModal")).show(trigger);
+        }
+        if (!majordomeHistoryCache[stockKey]) loadMajordomeVehicleHistory(stockKey);
+    }
+
+    function renderMajordomePriceHistory(stockKey) {
+        if (!majordomePriceHistory.shown || majordomePriceHistory.stockKey !== stockKey || !majordomeHistoryCache[stockKey]) return;
+
+        const data = window.gtxInventoryHistory.buildPriceHistory(majordomeHistoryCache[stockKey]);
+        if (!data) {
+            setMajordomePriceHistoryStatus("No price changes recorded.");
+            return;
+        }
+
+        const $plot = $("#majordomePriceHistoryPlot").removeClass("d-none");
+        const canvas = document.getElementById("majordomePriceHistoryCanvas");
+        majordomePriceHistory.chart = window.gtxInventoryHistory.renderPriceHistoryChart(canvas, data);
+        $plot.toggleClass("d-none", !majordomePriceHistory.chart);
+        setMajordomePriceHistoryStatus(majordomePriceHistory.chart ? "" : "Unable to display the price chart.", !majordomePriceHistory.chart);
+    }
+
+    function invalidateMajordomeVehicleHistory(stock) {
+        const stockKey = window.gtxInventoryHistory.normalizeStockKey(stock);
+        delete majordomeHistoryCache[stockKey];
+        majordomeHistoryRequests[stockKey]?.abort();
+    }
+
     function getMajordomeGridDataItem(stockKey) {
         const normalized = window.gtxInventoryHistory.normalizeStockKey(stockKey);
         if (window.majordomeInventoryAddGrid && typeof window.majordomeInventoryAddGrid.findDataItem === "function") {
@@ -3854,28 +3969,39 @@
 
     function loadMajordomeVehicleHistory(stockKey) {
         const normalized = window.gtxInventoryHistory.normalizeStockKey(stockKey);
-        const $contents = majordomeHistoryContents(normalized);
-        if (!normalized || !$contents.length) return;
+        if (!normalized) return;
 
         if (majordomeHistoryCache[normalized]) {
-            syncMajordomeGridHistoryData(normalized);
-            setMajordomeHistoryHtml($contents, window.gtxInventoryHistory.renderRows(majordomeHistoryCache[normalized], normalized));
+            setMajordomeHistoryHtml(majordomeHistoryContents(normalized), window.gtxInventoryHistory.renderRows(majordomeHistoryCache[normalized], normalized));
             return;
         }
         if (majordomeHistoryRequests[normalized]) return;
 
-        majordomeHistoryRequests[normalized] = $.get(`${root}Majordome/GetInventoryVehicleHistory`, { stock: normalized })
+        const showError = function () {
+            majordomeHistoryContents(normalized).html('<div class="text-danger small">Unable to load inventory history.</div>');
+            if (majordomePriceHistory.stockKey === normalized) {
+                setMajordomePriceHistoryStatus("Unable to load price history.", true);
+            }
+        };
+        const request = $.getJSON(`${root}Majordome/GetInventoryVehicleHistory`, { stock: normalized });
+        majordomeHistoryRequests[normalized] = request;
+        request
             .done(function (payload) {
-                const history = payload && payload.success !== false ? (payload.history || payload.History || []) : [];
+                const history = payload?.history ?? payload?.History;
+                if (payload?.success === false || !Array.isArray(history)) {
+                    showError();
+                    return;
+                }
                 majordomeHistoryCache[normalized] = history;
                 syncMajordomeGridHistoryData(normalized);
                 setMajordomeHistoryHtml(majordomeHistoryContents(normalized), window.gtxInventoryHistory.renderRows(history, normalized));
+                renderMajordomePriceHistory(normalized);
             })
-            .fail(function () {
-                majordomeHistoryContents(normalized).html('<div class="text-danger small">Unable to load inventory history.</div>');
+            .fail(function (_, status) {
+                if (status !== "abort") showError();
             })
             .always(function () {
-                delete majordomeHistoryRequests[normalized];
+                if (majordomeHistoryRequests[normalized] === request) delete majordomeHistoryRequests[normalized];
             });
     }
 
@@ -3993,6 +4119,8 @@
                     dropdown?.dispose();
                     openRowActionsToggle = null;
                 }
+                const expandedStock = $("#majordomeInventoryBody .majordome-vehicle-row.is-expanded").attr("data-stock-key");
+                if (expandedStock && !majordomeHistoryCache[expandedStock]) loadMajordomeVehicleHistory(expandedStock);
                 markSelectedRow(selectedVehicleStock);
                 syncMajordomeEmptyState();
                 syncMajordomeGalleryAvailability();
